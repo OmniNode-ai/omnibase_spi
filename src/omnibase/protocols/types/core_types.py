@@ -124,3 +124,64 @@ class ProtocolState(Protocol):
     metadata: ProtocolMetadata
     version: int
     last_updated: float
+
+
+# Schema and node metadata protocols
+class ProtocolNodeMetadataBlock(Protocol):
+    """Protocol for node metadata block objects."""
+
+    uuid: str
+    name: str
+    description: str
+    version: str
+    metadata_version: str
+    namespace: str
+    created_at: str
+    last_modified_at: str
+    lifecycle: str
+    protocol_version: str
+
+
+class ProtocolSchemaModel(Protocol):
+    """Protocol for schema model objects."""
+
+    schema_id: str
+    schema_type: str
+    schema_data: Dict[str, ContextValue]
+    version: str
+    is_valid: bool
+
+
+# Workflow result protocols for enhanced reducer support
+class ProtocolErrorInfo(Protocol):
+    """Protocol for error information in results."""
+
+    error_type: str
+    message: str
+    trace: Optional[str]
+    retryable: bool
+    backoff_strategy: Optional[str]
+    max_attempts: Optional[int]
+
+
+class ProtocolSystemEvent(Protocol):
+    """Protocol for system events."""
+
+    type: str
+    payload: Dict[str, ContextValue]
+    timestamp: float
+    source: str
+
+
+class ProtocolNodeResult(Protocol):
+    """Protocol for node processing results with monadic composition."""
+
+    value: Optional[ContextValue]
+    is_success: bool
+    is_failure: bool
+    error: Optional[ProtocolErrorInfo]
+    trust_score: float
+    provenance: list[str]
+    metadata: Dict[str, ContextValue]
+    events: list[ProtocolSystemEvent]
+    state_delta: Dict[str, ContextValue]

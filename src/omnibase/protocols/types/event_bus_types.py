@@ -67,3 +67,28 @@ class ProtocolEventSubscription(Protocol):
     subscriber_id: str
     filter_criteria: Dict[str, str]
     is_active: bool
+
+
+# ONEX-specific event protocols
+class ProtocolOnexEvent(Protocol):
+    """Protocol for ONEX system events."""
+
+    event_id: UUID
+    event_type: str
+    timestamp: float
+    source: str
+    payload: Dict[str, EventData]
+    correlation_id: UUID
+    metadata: Dict[str, EventData]
+
+
+class ProtocolEventBusCredentials(Protocol):
+    """Protocol for event bus credential models."""
+
+    username: str
+    password: str
+    host: str
+    port: int
+    virtual_host: str | None
+    connection_timeout: int
+    heartbeat: int

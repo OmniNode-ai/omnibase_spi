@@ -22,10 +22,12 @@
 # === /OmniNode:Metadata ===
 
 
-from typing import Callable, Optional, Protocol, runtime_checkable
+from typing import Any, Callable, Optional, Protocol, runtime_checkable
 
-from omnibase.model.core.model_onex_event import OnexEvent
-from omnibase.protocol.protocol_event_bus_types import EventBusCredentialsModel
+from omnibase.protocols.types.event_bus_types import (
+    ProtocolEventBusCredentials,
+    ProtocolOnexEvent,
+)
 
 
 @runtime_checkable
@@ -42,42 +44,45 @@ class ProtocolEventBus(Protocol):
     """
 
     def __init__(
-        self, credentials: Optional[EventBusCredentialsModel] = None, **kwargs
-    ): ...
+        self, credentials: Optional[ProtocolEventBusCredentials] = None, **kwargs: Any
+    ):
+        ...
 
-    def publish(self, event: OnexEvent) -> None:
+    def publish(self, event: ProtocolOnexEvent) -> None:
         """
         Publish an event to the bus (synchronous).
         Args:
-            event: OnexEvent to emit
+            event: ProtocolOnexEvent to emit
         """
         ...
 
-    async def publish_async(self, event: OnexEvent) -> None:
+    async def publish_async(self, event: ProtocolOnexEvent) -> None:
         """
         Publish an event to the bus (asynchronous).
         Args:
-            event: OnexEvent to emit
+            event: ProtocolOnexEvent to emit
         """
         ...
 
-    def subscribe(self, callback: Callable[[OnexEvent], None]) -> None:
+    def subscribe(self, callback: Callable[[ProtocolOnexEvent], None]) -> None:
         """
         Subscribe a callback to receive events (synchronous).
         Args:
-            callback: Callable invoked with each OnexEvent
+            callback: Callable invoked with each ProtocolOnexEvent
         """
         ...
 
-    async def subscribe_async(self, callback: Callable[[OnexEvent], None]) -> None:
+    async def subscribe_async(
+        self, callback: Callable[[ProtocolOnexEvent], None]
+    ) -> None:
         """
         Subscribe a callback to receive events (asynchronous).
         Args:
-            callback: Callable invoked with each OnexEvent
+            callback: Callable invoked with each ProtocolOnexEvent
         """
         ...
 
-    def unsubscribe(self, callback: Callable[[OnexEvent], None]) -> None:
+    def unsubscribe(self, callback: Callable[[ProtocolOnexEvent], None]) -> None:
         """
         Unsubscribe a previously registered callback (synchronous).
         Args:
@@ -85,7 +90,9 @@ class ProtocolEventBus(Protocol):
         """
         ...
 
-    async def unsubscribe_async(self, callback: Callable[[OnexEvent], None]) -> None:
+    async def unsubscribe_async(
+        self, callback: Callable[[ProtocolOnexEvent], None]
+    ) -> None:
         """
         Unsubscribe a previously registered callback (asynchronous).
         Args:
