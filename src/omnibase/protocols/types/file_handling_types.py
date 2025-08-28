@@ -19,22 +19,13 @@ FileContent = Union[str, bytes]
 
 # File metadata protocol for type safety
 class ProtocolFileMetadata(Protocol):
-    """Protocol for file metadata with type-safe access."""
+    """Protocol for file metadata - attribute-based for model compatibility."""
 
-    def get_size(self) -> int:
-        ...
-
-    def get_mime_type(self) -> str:
-        ...
-
-    def get_encoding(self) -> Optional[str]:
-        ...
-
-    def get_created_at(self) -> float:
-        ...
-
-    def get_modified_at(self) -> float:
-        ...
+    size: int
+    mime_type: str
+    encoding: Optional[str]
+    created_at: float
+    modified_at: float
 
 
 # File information protocols
@@ -149,19 +140,12 @@ class ProtocolSerializedBlock(Protocol):
 
 # Result data protocol for type safety
 class ProtocolResultData(Protocol):
-    """Protocol for operation result data."""
+    """Protocol for operation result data - attribute-based for model compatibility."""
 
-    def get_output_path(self) -> Optional[Path]:
-        ...
-
-    def get_processed_files(self) -> List[Path]:
-        ...
-
-    def get_metrics(self) -> Dict[str, float]:
-        ...
-
-    def get_warnings(self) -> List[str]:
-        ...
+    output_path: Optional[Path]
+    processed_files: List[Path]
+    metrics: Dict[str, float]
+    warnings: List[str]
 
 
 class ProtocolOnexResult(Protocol):
@@ -172,3 +156,32 @@ class ProtocolOnexResult(Protocol):
     result_data: Optional[ProtocolResultData]
     error_code: Optional[str]
     timestamp: float
+
+
+# Behavior protocols for operations (method-based)
+class ProtocolFileMetadataOperations(Protocol):
+    """Protocol for file metadata operations - method-based for services."""
+
+    def validate_metadata(self, metadata: ProtocolFileMetadata) -> bool:
+        ...
+
+    def serialize_metadata(self, metadata: ProtocolFileMetadata) -> str:
+        ...
+
+    def compare_metadata(
+        self, meta1: ProtocolFileMetadata, meta2: ProtocolFileMetadata
+    ) -> bool:
+        ...
+
+
+class ProtocolResultOperations(Protocol):
+    """Protocol for result operations - method-based for services."""
+
+    def format_result(self, result: ProtocolOnexResult) -> str:
+        ...
+
+    def merge_results(self, results: List[ProtocolOnexResult]) -> ProtocolOnexResult:
+        ...
+
+    def validate_result(self, result: ProtocolOnexResult) -> bool:
+        ...

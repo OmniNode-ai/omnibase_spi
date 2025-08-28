@@ -29,6 +29,7 @@ from omnibase.protocols.types.core_types import (
     ProtocolLogContext,
     ProtocolLogEntry,
     ProtocolMetadata,
+    ProtocolMetadataOperations,
     ProtocolNodeMetadata,
     ProtocolSerializationResult,
     ProtocolState,
@@ -71,12 +72,14 @@ from omnibase.protocols.types.file_handling_types import (
     ProtocolFileFilter,
     ProtocolFileInfo,
     ProtocolFileMetadata,
+    ProtocolFileMetadataOperations,
     ProtocolFileTypeResult,
     ProtocolHandlerMatch,
     ProtocolHandlerMetadata,
     ProtocolOnexResult,
     ProtocolProcessingResult,
     ProtocolResultData,
+    ProtocolResultOperations,
     ProtocolSerializedBlock,
 )
 

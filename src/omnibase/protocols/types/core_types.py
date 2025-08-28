@@ -4,7 +4,7 @@ Core protocol types for ONEX SPI interfaces.
 Domain: Core system protocols (logging, serialization, validation)
 """
 
-from typing import Dict, Literal, Protocol, Union
+from typing import Dict, Literal, Optional, Protocol, Union
 from uuid import UUID
 
 # Log level types - using string literals instead of enums
@@ -16,22 +16,12 @@ ContextValue = Union[str, int, float, bool, list[str], Dict[str, str]]
 
 # Configuration value protocol - for type-safe configuration
 class ProtocolConfigValue(Protocol):
-    """Protocol for configuration values with type safety."""
+    """Protocol for configuration values - attribute-based for model compatibility."""
 
-    def get_string(self) -> str:
-        ...
-
-    def get_int(self) -> int:
-        ...
-
-    def get_float(self) -> float:
-        ...
-
-    def get_bool(self) -> bool:
-        ...
-
-    def get_list(self) -> list[str]:
-        ...
+    key: str
+    value: ContextValue
+    config_type: Literal["string", "int", "float", "bool", "list"]
+    default_value: Optional[ContextValue]
 
 
 # Core logging protocols
@@ -86,7 +76,17 @@ NodeStatus = Literal["active", "inactive", "error", "pending"]
 
 # Metadata protocols for type safety
 class ProtocolMetadata(Protocol):
-    """Protocol for structured metadata."""
+    """Protocol for structured metadata - attribute-based for model compatibility."""
+
+    data: Dict[str, ContextValue]
+    version: str
+    created_at: float
+    updated_at: Optional[float]
+
+
+# Behavior protocols for operations (method-based)
+class ProtocolMetadataOperations(Protocol):
+    """Protocol for metadata operations - method-based for services."""
 
     def get_value(self, key: str) -> ContextValue:
         ...
@@ -95,6 +95,9 @@ class ProtocolMetadata(Protocol):
         ...
 
     def keys(self) -> list[str]:
+        ...
+
+    def update_value(self, key: str, value: ContextValue) -> None:
         ...
 
 
