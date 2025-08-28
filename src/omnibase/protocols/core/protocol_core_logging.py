@@ -8,9 +8,12 @@ This protocol enables core modules to request logging services without
 creating circular dependencies.
 """
 
-from typing import Any, Callable, Dict, Optional, Protocol
+from typing import Callable, Dict, Optional, Protocol, TypeVar
 
 from omnibase.protocols.types import ContextValue, LogLevel
+
+# Type variable for function decorators - preserves specific function signatures
+F = TypeVar("F", bound=Callable[..., object])
 
 
 class ProtocolCoreLogging(Protocol):
@@ -44,7 +47,7 @@ class ProtocolCoreLogging(Protocol):
         """
         ...
 
-    def trace_function_lifecycle(self, func: Callable[..., Any]) -> Callable[..., Any]:
+    def trace_function_lifecycle(self, func: F) -> F:
         """
         Decorator for function lifecycle logging.
 
