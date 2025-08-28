@@ -23,10 +23,15 @@ from omnibase.protocols.types.core_types import (
     ContextValue,
     LogLevel,
     NodeStatus,
+    ProtocolAction,
+    ProtocolActionPayload,
+    ProtocolConfigValue,
     ProtocolLogContext,
     ProtocolLogEntry,
+    ProtocolMetadata,
     ProtocolNodeMetadata,
     ProtocolSerializationResult,
+    ProtocolState,
     ProtocolValidationResult,
 )
 
@@ -57,16 +62,22 @@ from omnibase.protocols.types.event_bus_types import (
 # File handling types
 from omnibase.protocols.types.file_handling_types import (
     FileContent,
-    FileMetadata,
     FileOperation,
     FileStatus,
     ProcessingStatus,
+    ProtocolCanHandleResult,
+    ProtocolExtractedBlock,
     ProtocolFileContent,
     ProtocolFileFilter,
     ProtocolFileInfo,
+    ProtocolFileMetadata,
     ProtocolFileTypeResult,
     ProtocolHandlerMatch,
+    ProtocolHandlerMetadata,
+    ProtocolOnexResult,
     ProtocolProcessingResult,
+    ProtocolResultData,
+    ProtocolSerializedBlock,
 )
 
 __all__ = [

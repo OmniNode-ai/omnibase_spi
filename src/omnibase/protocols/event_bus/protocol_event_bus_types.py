@@ -1,11 +1,11 @@
-from typing import Any, Callable, Dict, Optional, Protocol, runtime_checkable
+from typing import Callable, Dict, Optional, Protocol, runtime_checkable
 
 from omnibase.protocols.types import EventData, ProtocolEvent, ProtocolEventCredentials
 
 
-class EventBusCredentialsModel(Protocol):
+class ProtocolEventBusCredentials(Protocol):
     """
-    Canonical credentials model for event bus authentication/authorization.
+    Canonical credentials protocol for event bus authentication/authorization.
     Supports token, username/password, and TLS certs for future event bus support.
     """
 
@@ -31,7 +31,8 @@ class ProtocolEventBus(Protocol):
     """
 
     def __init__(
-        self, credentials: Optional[EventBusCredentialsModel] = None, **kwargs: Any
+        self,
+        credentials: Optional[ProtocolEventBusCredentials] = None,
     ) -> None:
         ...
 
