@@ -32,7 +32,9 @@ architecture where handlers can be discovered dynamically.
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional, Type
 
-from omnibase.protocol.protocol_file_type_handler import ProtocolFileTypeHandler
+from omnibase.protocols.file_handling.protocol_file_type_handler import (
+    ProtocolFileTypeHandler,
+)
 
 
 class HandlerInfo:
