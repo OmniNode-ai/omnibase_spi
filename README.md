@@ -45,37 +45,11 @@ git add .
 git commit -m "Initial commit: ONEX protocol interfaces"
 ```
 
-### 2. Create Python Packaging
-Create `pyproject.toml`:
-```toml
-[build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "omnibase-spi"
-version = "0.1.0"
-description = "ONEX Service Provider Interface - Protocol definitions"
-authors = [{name = "OmniNode Team", email = "team@omninode.ai"}]
-license = {text = "MIT"}
-requires-python = ">=3.11"
-dependencies = [
-    "typing-extensions>=4.5.0",
-]
-
-[project.optional-dependencies]
-dev = [
-    "mypy>=1.0.0",
-    "black>=23.0.0",
-    "isort>=5.12.0",
-]
-
-[tool.setuptools.packages.find]
-where = ["src"]
-
-[tool.setuptools.package-dir]
-"" = "src"
-```
+### 2. Python Packaging with Poetry
+The project uses Poetry for dependency management. The `pyproject.toml` is already configured with:
+- Runtime dependencies: `typing-extensions`
+- Development dependencies: `mypy`, `black`, `isort`, `pre-commit`
+- Package configuration for publishing
 
 ### 3. Create Package Structure
 ```bash
@@ -89,14 +63,16 @@ touch src/omnibase/protocols/discovery/__init__.py
 touch src/omnibase/protocols/file_handling/__init__.py
 ```
 
-### 4. Set Up Development Environment
+### 4. Set Up Development Environment with Poetry
 ```bash
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+# Install dependencies and create virtual environment
+poetry install
 
-# Install in development mode
-pip install -e .[dev]
+# Activate virtual environment (optional - poetry run handles this)
+poetry shell
+
+# Install pre-commit hooks
+poetry run pre-commit install
 ```
 
 ### 5. Configure Type Checking
@@ -175,12 +151,31 @@ class EventBusImplementation(ProtocolEventBus):
     pass
 ```
 
-## Testing Protocols
+## Development Workflow
 
+### Testing Protocols
 Protocols should be validated through:
-1. **Type checking**: `mypy src/`
-2. **Import testing**: Ensure no circular dependencies
-3. **Contract validation**: Verify protocol completeness
+1. **Type checking**: `poetry run mypy src/`
+2. **Code formatting**: `poetry run black src/`
+3. **Import sorting**: `poetry run isort src/`
+4. **Import testing**: Ensure no circular dependencies
+5. **Contract validation**: Verify protocol completeness
+
+### Using the Package
+Install from source:
+```bash
+# Install from local source
+pip install /path/to/omnibase-spi
+
+# Or install in development mode
+pip install -e /path/to/omnibase-spi
+```
+
+Import protocols in other packages:
+```python
+from omnibase.protocols.core.protocol_canonical_serializer import ProtocolCanonicalSerializer
+from omnibase.protocols.event_bus.protocol_event_bus import ProtocolEventBus
+```
 
 ## Next Steps
 
