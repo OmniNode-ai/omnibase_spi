@@ -32,11 +32,17 @@ architectural boundaries.
 """
 
 from enum import Enum
-from typing import List, Optional, Protocol
+from typing import Any, Callable, Dict, List, Literal, Optional, Protocol
 
-from pydantic import BaseModel, field_validator
+from omnibase.protocols.types.container_types import (
+    ProtocolServiceInfo,
+    ProtocolServiceRegistry,
+    RegistrationStatus,
+    ServiceStatus,
+)
 
-from omnibase.enums.enum_onex_status import EnumOnexStatus
+# Status type for ONEX systems
+OnexStatus = Literal["ACTIVE", "INACTIVE", "ERROR", "UNKNOWN"]
 
 
 class RegistryArtifactType(str, Enum):
@@ -50,54 +56,30 @@ class RegistryArtifactType(str, Enum):
     PACKAGES = "packages"
 
 
-class RegistryArtifactModelMetadata(BaseModel):
-    # Canonical fields for artifact metadata; extend as needed
-    description: Optional[str] = None
-    author: Optional[str] = None
-    created_at: Optional[str] = None
-    last_modified_at: Optional[str] = None
-    # Add more fields as needed for protocol
+class ProtocolRegistryArtifactMetadata(Protocol):
+    """Protocol for registry artifact metadata."""
 
-    @field_validator("author", mode="before")
-    @classmethod
-    def set_author_default(cls, v):
-        if v is None or not isinstance(v, str) or not v.strip():
-            return "Unknown"
-        return v
-
-    @field_validator("description", mode="before")
-    @classmethod
-    def set_description_default(cls, v):
-        if v is None or not isinstance(v, str) or not v.strip():
-            return "No description"
-        return v
-
-    def model_post_init(self, __context):
-        if (
-            self.author is None
-            or not isinstance(self.author, str)
-            or not self.author.strip()
-        ):
-            object.__setattr__(self, "author", "Unknown")
-        if (
-            self.description is None
-            or not isinstance(self.description, str)
-            or not self.description.strip()
-        ):
-            object.__setattr__(self, "description", "No description")
+    description: Optional[str]
+    author: Optional[str]
+    created_at: Optional[str]
+    last_modified_at: Optional[str]
 
 
-class RegistryArtifactInfo(BaseModel):
+class ProtocolRegistryArtifactInfo(Protocol):
+    """Protocol for registry artifact information."""
+
     name: str
     version: str
     artifact_type: RegistryArtifactType
     path: str
-    metadata: RegistryArtifactModelMetadata
-    is_wip: bool = False
+    metadata: ProtocolRegistryArtifactMetadata
+    is_wip: bool
 
 
-class RegistryStatus(BaseModel):
-    status: EnumOnexStatus
+class ProtocolRegistryStatus(Protocol):
+    """Protocol for registry status information."""
+
+    status: OnexStatus
     message: str
     artifact_count: int
     valid_artifact_count: int
@@ -115,23 +97,23 @@ class ProtocolRegistry(Protocol):
     without exposing implementation-specific details.
     """
 
-    def get_status(self) -> RegistryStatus:
+    def get_status(self) -> ProtocolRegistryStatus:
         """Get registry loading status and statistics."""
         ...
 
-    def get_artifacts(self) -> List[RegistryArtifactInfo]:
+    def get_artifacts(self) -> List[ProtocolRegistryArtifactInfo]:
         """Get all artifacts in the registry."""
         ...
 
     def get_artifacts_by_type(
         self, artifact_type: RegistryArtifactType
-    ) -> List[RegistryArtifactInfo]:
+    ) -> List[ProtocolRegistryArtifactInfo]:
         """Get artifacts filtered by type."""
         ...
 
     def get_artifact_by_name(
         self, name: str, artifact_type: Optional[RegistryArtifactType] = None
-    ) -> RegistryArtifactInfo:
+    ) -> ProtocolRegistryArtifactInfo:
         """
         Get a specific artifact by name.
 
@@ -140,7 +122,7 @@ class ProtocolRegistry(Protocol):
             artifact_type: Optional type filter
 
         Returns:
-            RegistryArtifactInfo: The found artifact
+            ProtocolRegistryArtifactInfo: The found artifact
 
         Raises:
             OnexError: If artifact is not found
@@ -152,8 +134,3 @@ class ProtocolRegistry(Protocol):
     ) -> bool:
         """Check if an artifact exists in the registry."""
         ...
-
-
-RegistryArtifactModelMetadata.model_rebuild()
-RegistryArtifactInfo.model_rebuild()
-RegistryStatus.model_rebuild()
