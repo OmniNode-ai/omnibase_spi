@@ -5,72 +5,55 @@ Protocol interface for Onex contract validation and compliance checking.
 Defines the contract for validating Onex patterns and contract compliance.
 """
 
-from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Dict, List, Optional, Union
-
-from pydantic import BaseModel, Field
+from typing import Dict, List, Protocol
 
 
-class ModelOnexContractData(BaseModel):
-    """ONEX contract data structure."""
+# Protocol types for ONEX validation data structures
+class ProtocolOnexContractData(Protocol):
+    """ONEX contract data structure protocol."""
 
-    contract_version: str = Field(description="Contract version")
-    node_name: str = Field(description="Node name")
-    node_type: str = Field(description="Node type")
-    input_model: str = Field(description="Input model")
-    output_model: str = Field(description="Output model")
-
-    class Config:
-        frozen = True
+    contract_version: str
+    node_name: str
+    node_type: str
+    input_model: str
+    output_model: str
 
 
-class ModelOnexSecurityContext(BaseModel):
-    """ONEX security context data."""
+class ProtocolOnexSecurityContext(Protocol):
+    """ONEX security context data protocol."""
 
-    user_id: str = Field(description="User identifier")
-    session_id: str = Field(description="Session identifier")
-    authentication_token: str = Field(description="Authentication token")
-    security_profile: str = Field(description="Security profile")
-
-    class Config:
-        frozen = True
+    user_id: str
+    session_id: str
+    authentication_token: str
+    security_profile: str
 
 
-class ModelOnexMetadata(BaseModel):
-    """ONEX metadata structure."""
+class ProtocolOnexMetadata(Protocol):
+    """ONEX metadata structure protocol."""
 
-    tool_name: str = Field(description="Tool name")
-    tool_version: str = Field(description="Tool version")
-    timestamp: str = Field(description="ISO timestamp")
-    environment: str = Field(description="Environment")
-
-    class Config:
-        frozen = True
+    tool_name: str
+    tool_version: str
+    timestamp: str
+    environment: str
 
 
-class ModelOnexSchema(BaseModel):
-    """ONEX schema definition."""
+class ProtocolOnexSchema(Protocol):
+    """ONEX schema definition protocol."""
 
-    schema_type: str = Field(description="Schema type")
-    version: str = Field(description="Schema version")
-    properties: Dict[str, str] = Field(description="Schema properties")
-
-    class Config:
-        frozen = True
+    schema_type: str
+    version: str
+    properties: Dict[str, str]
 
 
-class ModelOnexValidationReport(BaseModel):
-    """ONEX validation report."""
+class ProtocolOnexValidationReport(Protocol):
+    """ONEX validation report protocol."""
 
-    total_validations: int = Field(description="Total number of validations")
-    passed_validations: int = Field(description="Number of passed validations")
-    failed_validations: int = Field(description="Number of failed validations")
-    overall_status: str = Field(description="Overall validation status")
-    summary: str = Field(description="Summary of validation results")
-
-    class Config:
-        frozen = True
+    total_validations: int
+    passed_validations: int
+    failed_validations: int
+    overall_status: str
+    summary: str
 
 
 class EnumOnexComplianceLevel(str, Enum):
@@ -93,28 +76,18 @@ class EnumValidationType(str, Enum):
     FULL_VALIDATION = "full_validation"
 
 
-class ModelOnexValidationResult(BaseModel):
-    """Result of Onex validation."""
+class ProtocolOnexValidationResult(Protocol):
+    """Result of Onex validation protocol."""
 
-    is_valid: bool = Field(description="Whether validation passed")
-    compliance_level: EnumOnexComplianceLevel = Field(description="Compliance level")
-    validation_type: EnumValidationType = Field(
-        description="Type of validation performed"
-    )
-    errors: List[str] = Field(default_factory=list, description="Validation errors")
-    warnings: List[str] = Field(default_factory=list, description="Validation warnings")
-    metadata: ModelOnexMetadata = Field(
-        default_factory=lambda: ModelOnexMetadata(
-            tool_name="", tool_version="", timestamp="", environment=""
-        ),
-        description="Validation metadata",
-    )
-
-    class Config:
-        frozen = True
+    is_valid: bool
+    compliance_level: EnumOnexComplianceLevel
+    validation_type: EnumValidationType
+    errors: List[str]
+    warnings: List[str]
+    metadata: ProtocolOnexMetadata
 
 
-class ProtocolOnexValidation(ABC):
+class ProtocolOnexValidation(Protocol):
     """
     Protocol interface for Onex validation and compliance checking.
 
@@ -122,8 +95,9 @@ class ProtocolOnexValidation(ABC):
     Provides standardized validation for envelopes, replies, and contract compliance.
     """
 
-    @abstractmethod
-    def validate_envelope(self, envelope: BaseModel) -> ModelOnexValidationResult:
+    def validate_envelope(
+        self, envelope: ProtocolOnexContractData
+    ) -> ProtocolOnexValidationResult:
         """
         Validate an Onex envelope for structure and compliance.
 
@@ -133,10 +107,11 @@ class ProtocolOnexValidation(ABC):
         Returns:
             Validation result with compliance level and any errors
         """
-        pass
+        ...
 
-    @abstractmethod
-    def validate_reply(self, reply: BaseModel) -> ModelOnexValidationResult:
+    def validate_reply(
+        self, reply: ProtocolOnexContractData
+    ) -> ProtocolOnexValidationResult:
         """
         Validate an Onex reply for structure and compliance.
 
@@ -146,12 +121,11 @@ class ProtocolOnexValidation(ABC):
         Returns:
             Validation result with compliance level and any errors
         """
-        pass
+        ...
 
-    @abstractmethod
     def validate_contract_compliance(
-        self, contract_data: ModelOnexContractData
-    ) -> ModelOnexValidationResult:
+        self, contract_data: ProtocolOnexContractData
+    ) -> ProtocolOnexValidationResult:
         """
         Validate contract data for Onex compliance.
 
@@ -161,12 +135,11 @@ class ProtocolOnexValidation(ABC):
         Returns:
             Validation result with compliance level and any errors
         """
-        pass
+        ...
 
-    @abstractmethod
     def validate_security_context(
-        self, security_context: ModelOnexSecurityContext
-    ) -> ModelOnexValidationResult:
+        self, security_context: ProtocolOnexSecurityContext
+    ) -> ProtocolOnexValidationResult:
         """
         Validate security context for Onex compliance.
 
@@ -176,12 +149,11 @@ class ProtocolOnexValidation(ABC):
         Returns:
             Validation result with compliance level and any errors
         """
-        pass
+        ...
 
-    @abstractmethod
     def validate_metadata(
-        self, metadata: ModelOnexMetadata
-    ) -> ModelOnexValidationResult:
+        self, metadata: ProtocolOnexMetadata
+    ) -> ProtocolOnexValidationResult:
         """
         Validate metadata structure for Onex compliance.
 
@@ -191,12 +163,11 @@ class ProtocolOnexValidation(ABC):
         Returns:
             Validation result with compliance level and any errors
         """
-        pass
+        ...
 
-    @abstractmethod
     def validate_full_onex_pattern(
-        self, envelope: BaseModel, reply: BaseModel
-    ) -> ModelOnexValidationResult:
+        self, envelope: ProtocolOnexContractData, reply: ProtocolOnexContractData
+    ) -> ProtocolOnexValidationResult:
         """
         Validate complete Onex pattern (envelope + reply) for compliance.
 
@@ -207,11 +178,10 @@ class ProtocolOnexValidation(ABC):
         Returns:
             Validation result with compliance level and any errors
         """
-        pass
+        ...
 
-    @abstractmethod
     def check_required_fields(
-        self, data: ModelOnexContractData, required_fields: List[str]
+        self, data: ProtocolOnexContractData, required_fields: List[str]
     ) -> List[str]:
         """
         Check for required fields in data structure.
@@ -223,9 +193,8 @@ class ProtocolOnexValidation(ABC):
         Returns:
             List of missing required fields
         """
-        pass
+        ...
 
-    @abstractmethod
     def validate_semantic_versioning(self, version: str) -> bool:
         """
         Validate semantic versioning format.
@@ -236,11 +205,10 @@ class ProtocolOnexValidation(ABC):
         Returns:
             True if version follows semantic versioning, False otherwise
         """
-        pass
+        ...
 
-    @abstractmethod
     def validate_correlation_id_consistency(
-        self, envelope: BaseModel, reply: BaseModel
+        self, envelope: ProtocolOnexContractData, reply: ProtocolOnexContractData
     ) -> bool:
         """
         Validate correlation ID consistency between envelope and reply.
@@ -252,11 +220,10 @@ class ProtocolOnexValidation(ABC):
         Returns:
             True if correlation IDs match, False otherwise
         """
-        pass
+        ...
 
-    @abstractmethod
     def validate_timestamp_sequence(
-        self, envelope: BaseModel, reply: BaseModel
+        self, envelope: ProtocolOnexContractData, reply: ProtocolOnexContractData
     ) -> bool:
         """
         Validate timestamp sequence (reply timestamp >= envelope timestamp).
@@ -268,12 +235,11 @@ class ProtocolOnexValidation(ABC):
         Returns:
             True if timestamp sequence is valid, False otherwise
         """
-        pass
+        ...
 
-    @abstractmethod
     def get_validation_schema(
         self, validation_type: EnumValidationType
-    ) -> ModelOnexSchema:
+    ) -> ProtocolOnexSchema:
         """
         Get validation schema for specified validation type.
 
@@ -283,12 +249,11 @@ class ProtocolOnexValidation(ABC):
         Returns:
             Dictionary containing validation schema
         """
-        pass
+        ...
 
-    @abstractmethod
     def validate_against_schema(
-        self, data: ModelOnexContractData, schema: ModelOnexSchema
-    ) -> ModelOnexValidationResult:
+        self, data: ProtocolOnexContractData, schema: ProtocolOnexSchema
+    ) -> ProtocolOnexValidationResult:
         """
         Validate data against provided schema.
 
@@ -299,12 +264,11 @@ class ProtocolOnexValidation(ABC):
         Returns:
             Validation result with compliance level and any errors
         """
-        pass
+        ...
 
-    @abstractmethod
     def generate_validation_report(
-        self, results: List[ModelOnexValidationResult]
-    ) -> ModelOnexValidationReport:
+        self, results: List[ProtocolOnexValidationResult]
+    ) -> ProtocolOnexValidationReport:
         """
         Generate comprehensive validation report from multiple results.
 
@@ -314,11 +278,10 @@ class ProtocolOnexValidation(ABC):
         Returns:
             Dictionary containing comprehensive validation report
         """
-        pass
+        ...
 
-    @abstractmethod
     def is_production_ready(
-        self, validation_results: List[ModelOnexValidationResult]
+        self, validation_results: List[ProtocolOnexValidationResult]
     ) -> bool:
         """
         Determine if validation results indicate production readiness.
@@ -329,4 +292,4 @@ class ProtocolOnexValidation(ABC):
         Returns:
             True if all validations indicate production readiness, False otherwise
         """
-        pass
+        ...
