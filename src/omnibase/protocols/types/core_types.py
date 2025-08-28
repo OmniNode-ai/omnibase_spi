@@ -1,0 +1,205 @@
+"""
+Core protocol types for ONEX SPI interfaces.
+
+Domain: Core system protocols (logging, serialization, validation)
+"""
+
+from datetime import datetime
+from typing import Dict, Literal, Optional, Protocol, Union
+from uuid import UUID
+
+
+# Semantic version protocol - for strong version typing
+class ProtocolSemVer(Protocol):
+    """Protocol for semantic version objects."""
+
+    major: int
+    minor: int
+    patch: int
+
+    def __str__(self) -> str:
+        """Return string representation (e.g., '1.2.3')."""
+        ...
+
+
+# Datetime protocol alias - ensures consistent datetime usage
+ProtocolDateTime = datetime
+
+# Log level types - using string literals instead of enums
+LogLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+
+# Context value types - specific typed values for logging context
+ContextValue = Union[str, int, float, bool, list[str], Dict[str, str]]
+
+
+# Configuration value protocol - for type-safe configuration
+class ProtocolConfigValue(Protocol):
+    """Protocol for configuration values - attribute-based for model compatibility."""
+
+    key: str
+    value: ContextValue
+    config_type: Literal["string", "int", "float", "bool", "list"]
+    default_value: Optional[ContextValue]
+
+
+# Core logging protocols
+class ProtocolLogContext(Protocol):
+    """Protocol for log context objects."""
+
+    def to_dict(self) -> Dict[str, ContextValue]:
+        """Convert context to dictionary with typed values."""
+        ...
+
+
+class ProtocolLogEntry(Protocol):
+    """Protocol for log entry objects."""
+
+    level: LogLevel
+    message: str
+    correlation_id: UUID
+    timestamp: ProtocolDateTime
+    context: Dict[str, ContextValue]
+
+
+# Core serialization protocols
+class ProtocolSerializationResult(Protocol):
+    """Protocol for serialization results."""
+
+    success: bool
+    data: str
+    error_message: str | None
+
+
+# Core node protocols
+class ProtocolNodeMetadata(Protocol):
+    """Protocol for node metadata objects."""
+
+    node_id: str
+    node_type: str
+    metadata: Dict[str, ContextValue]
+
+
+# Core validation protocols
+class ProtocolValidationResult(Protocol):
+    """Protocol for validation results."""
+
+    is_valid: bool
+    errors: list[str]
+    warnings: list[str]
+
+
+# Status types
+NodeStatus = Literal["active", "inactive", "error", "pending"]
+
+
+# Metadata protocols for type safety
+class ProtocolMetadata(Protocol):
+    """Protocol for structured metadata - attribute-based for model compatibility."""
+
+    data: Dict[str, ContextValue]
+    version: ProtocolSemVer
+    created_at: ProtocolDateTime
+    updated_at: Optional[ProtocolDateTime]
+
+
+# Behavior protocols for operations (method-based)
+class ProtocolMetadataOperations(Protocol):
+    """Protocol for metadata operations - method-based for services."""
+
+    def get_value(self, key: str) -> ContextValue:
+        ...
+
+    def has_key(self, key: str) -> bool:
+        ...
+
+    def keys(self) -> list[str]:
+        ...
+
+    def update_value(self, key: str, value: ContextValue) -> None:
+        ...
+
+
+# Reducer protocol types with stronger typing
+class ProtocolActionPayload(Protocol):
+    """Protocol for action payload with specific data."""
+
+    target_id: str
+    operation: str
+    parameters: Dict[str, ContextValue]
+
+
+class ProtocolAction(Protocol):
+    """Protocol for reducer actions."""
+
+    type: str
+    payload: ProtocolActionPayload
+    timestamp: ProtocolDateTime
+
+
+class ProtocolState(Protocol):
+    """Protocol for reducer state."""
+
+    metadata: ProtocolMetadata
+    version: int  # This is a sequence number, not semver
+    last_updated: ProtocolDateTime
+
+
+# Schema and node metadata protocols
+class ProtocolNodeMetadataBlock(Protocol):
+    """Protocol for node metadata block objects."""
+
+    uuid: str
+    name: str
+    description: str
+    version: ProtocolSemVer
+    metadata_version: ProtocolSemVer
+    namespace: str
+    created_at: ProtocolDateTime
+    last_modified_at: ProtocolDateTime
+    lifecycle: str
+    protocol_version: ProtocolSemVer
+
+
+class ProtocolSchemaModel(Protocol):
+    """Protocol for schema model objects."""
+
+    schema_id: str
+    schema_type: str
+    schema_data: Dict[str, ContextValue]
+    version: ProtocolSemVer
+    is_valid: bool
+
+
+# Workflow result protocols for enhanced reducer support
+class ProtocolErrorInfo(Protocol):
+    """Protocol for error information in results."""
+
+    error_type: str
+    message: str
+    trace: Optional[str]
+    retryable: bool
+    backoff_strategy: Optional[str]
+    max_attempts: Optional[int]
+
+
+class ProtocolSystemEvent(Protocol):
+    """Protocol for system events."""
+
+    type: str
+    payload: Dict[str, ContextValue]
+    timestamp: float
+    source: str
+
+
+class ProtocolNodeResult(Protocol):
+    """Protocol for node processing results with monadic composition."""
+
+    value: Optional[ContextValue]
+    is_success: bool
+    is_failure: bool
+    error: Optional[ProtocolErrorInfo]
+    trust_score: float
+    provenance: list[str]
+    metadata: Dict[str, ContextValue]
+    events: list[ProtocolSystemEvent]
+    state_delta: Dict[str, ContextValue]

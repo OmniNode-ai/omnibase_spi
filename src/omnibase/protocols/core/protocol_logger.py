@@ -25,8 +25,7 @@
 from typing import Optional, Protocol
 from uuid import UUID
 
-from omnibase.enums.enum_log_level import LogLevelEnum
-from omnibase.model.core.model_log_entry import LogModelContext, ModelLogEntry
+from omnibase.protocols.types import LogLevel, ProtocolLogContext, ProtocolLogEntry
 
 
 class ProtocolLogger(Protocol):
@@ -38,19 +37,19 @@ class ProtocolLogger(Protocol):
 
     Example:
         class MyLogger:
-            def emit(self, level: LogLevelEnum, message: str, correlation_id: UUID) -> None:
+            def emit(self, level: LogLevel, message: str, correlation_id: UUID) -> None:
                 ...
 
-            def log(self, entry: ModelLogEntry) -> None:
+            def log(self, entry: ProtocolLogEntry) -> None:
                 ...
     """
 
     def emit(
         self,
-        level: LogLevelEnum,
+        level: LogLevel,
         message: str,
         correlation_id: UUID,
-        context: Optional[LogModelContext] = None,
+        context: Optional[ProtocolLogContext] = None,
     ) -> None:
         """
         Emit a log event with the specified level and message.
@@ -63,7 +62,7 @@ class ProtocolLogger(Protocol):
         """
         ...
 
-    def log(self, entry: ModelLogEntry) -> None:
+    def log(self, entry: ProtocolLogEntry) -> None:
         """
         Log a structured log entry (legacy interface).
 
@@ -72,7 +71,7 @@ class ProtocolLogger(Protocol):
         """
         ...
 
-    def is_level_enabled(self, level: LogLevelEnum) -> bool:
+    def is_level_enabled(self, level: LogLevel) -> bool:
         """
         Check if the specified log level is enabled.
 

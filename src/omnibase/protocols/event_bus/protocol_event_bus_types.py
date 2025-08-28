@@ -1,25 +1,21 @@
-from typing import Any, Callable, Dict, Optional, Protocol, runtime_checkable
+from typing import Callable, Dict, Optional, Protocol, runtime_checkable
 
-from pydantic import BaseModel, Field
-
-from omnibase.model.core.model_onex_event import OnexEvent
+from omnibase.protocols.types import EventData, ProtocolEvent, ProtocolEventCredentials
 
 
-class EventBusCredentialsModel(BaseModel):
+class ProtocolEventBusCredentials(Protocol):
     """
-    Canonical credentials model for event bus authentication/authorization.
+    Canonical credentials protocol for event bus authentication/authorization.
     Supports token, username/password, and TLS certs for future event bus support.
     """
 
-    token: Optional[str] = Field(None, description="Bearer token or NATS token")
-    username: Optional[str] = Field(None, description="Username for authentication")
-    password: Optional[str] = Field(None, description="Password for authentication")
-    cert: Optional[str] = Field(None, description="PEM-encoded client certificate")
-    key: Optional[str] = Field(None, description="PEM-encoded client private key")
-    ca: Optional[str] = Field(None, description="PEM-encoded CA certificate")
-    extra: Optional[Dict[str, Any]] = Field(
-        None, description="Additional credentials or options"
-    )
+    token: Optional[str]
+    username: Optional[str]
+    password: Optional[str]
+    cert: Optional[str]
+    key: Optional[str]
+    ca: Optional[str]
+    extra: Optional[Dict[str, str]]
 
 
 @runtime_checkable
@@ -35,24 +31,33 @@ class ProtocolEventBus(Protocol):
     """
 
     def __init__(
-        self, credentials: Optional[EventBusCredentialsModel] = None, **kwargs
-    ): ...
+        self,
+        credentials: Optional[ProtocolEventBusCredentials] = None,
+    ) -> None:
+        ...
 
-    def publish(self, event: OnexEvent) -> None: ...
+    def publish(self, event: ProtocolEvent) -> None:
+        ...
 
-    async def publish_async(self, event: OnexEvent) -> None: ...
+    async def publish_async(self, event: ProtocolEvent) -> None:
+        ...
 
-    def subscribe(self, callback: Callable[[OnexEvent], None]) -> None: ...
+    def subscribe(self, callback: Callable[[ProtocolEvent], None]) -> None:
+        ...
 
-    async def subscribe_async(self, callback: Callable[[OnexEvent], None]) -> None: ...
+    async def subscribe_async(self, callback: Callable[[ProtocolEvent], None]) -> None:
+        ...
 
-    def unsubscribe(self, callback: Callable[[OnexEvent], None]) -> None: ...
+    def unsubscribe(self, callback: Callable[[ProtocolEvent], None]) -> None:
+        ...
 
     async def unsubscribe_async(
-        self, callback: Callable[[OnexEvent], None]
-    ) -> None: ...
+        self, callback: Callable[[ProtocolEvent], None]
+    ) -> None:
+        ...
 
-    def clear(self) -> None: ...
+    def clear(self) -> None:
+        ...
 
     @property
     def bus_id(self) -> str:

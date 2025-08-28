@@ -8,9 +8,12 @@ This protocol enables core modules to request logging services without
 creating circular dependencies.
 """
 
-from typing import Any, Dict, Optional, Protocol
+from typing import Callable, Dict, Optional, Protocol, TypeVar
 
-from omnibase.enums.enum_log_level import LogLevelEnum
+from omnibase.protocols.types import ContextValue, LogLevel
+
+# Type variable for function decorators - preserves specific function signatures
+F = TypeVar("F", bound=Callable[..., object])
 
 
 class ProtocolCoreLogging(Protocol):
@@ -23,13 +26,12 @@ class ProtocolCoreLogging(Protocol):
 
     def emit_log_event_sync(
         self,
-        level: LogLevelEnum,
+        level: LogLevel,
         message: str,
         event_type: str = "generic",
         node_id: Optional[str] = None,
         correlation_id: Optional[str] = None,
-        data: Optional[Dict[str, Any]] = None,
-        **kwargs,
+        data: Optional[Dict[str, ContextValue]] = None,
     ) -> None:
         """
         Emit a structured log event synchronously.
@@ -45,14 +47,14 @@ class ProtocolCoreLogging(Protocol):
         """
         ...
 
-    def trace_function_lifecycle(self, func) -> callable:
+    def trace_function_lifecycle(self, func: F) -> F:
         """
-        Decorator for function lifecycle logging.
+        Enable function lifecycle tracing.
 
         Args:
-            func: Function to decorate
+            func: Function to trace
 
         Returns:
-            Decorated function
+            Function with tracing capability
         """
         ...
