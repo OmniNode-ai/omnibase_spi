@@ -1,27 +1,32 @@
-[build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
-
-[project]
+[tool.poetry]
 name = "omnibase-spi"
 version = "0.1.0"
 description = "ONEX Service Provider Interface - Protocol definitions"
-authors = [{name = "OmniNode Team", email = "team@omninode.ai"}]
-license = {text = "MIT"}
-requires-python = ">=3.11"
-dependencies = [
-    "typing-extensions>=4.5.0",
-]
+authors = ["OmniNode Team <team@omninode.ai>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "omnibase", from = "src"}]
 
-[project.optional-dependencies]
-dev = [
-    "mypy>=1.0.0",
-    "black>=23.0.0",
-    "isort>=5.12.0",
-]
+[tool.poetry.dependencies]
+python = "^3.11"
+typing-extensions = "^4.5.0"
 
-[tool.setuptools.packages.find]
-where = ["src"]
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.0.0"
+black = "^23.0.0"
+isort = "^5.12.0"
+pre-commit = "^3.0.0"
 
-[tool.setuptools.package-dir]
-"" = "src"
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 88
