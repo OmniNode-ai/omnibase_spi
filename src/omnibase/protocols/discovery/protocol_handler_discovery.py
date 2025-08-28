@@ -29,35 +29,26 @@ without requiring hardcoded imports in the core registry. It enables plugin-base
 architecture where handlers can be discovered dynamically.
 """
 
-from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Type
+from typing import Any, Dict, List, Optional, Protocol, Type
 
-from omnibase.protocol.protocol_file_type_handler import ProtocolFileTypeHandler
-
-
-class HandlerInfo:
-    """Information about a discovered handler."""
-
-    def __init__(
-        self,
-        handler_class: Type[ProtocolFileTypeHandler],
-        name: str,
-        source: str,
-        priority: int = 0,
-        extensions: Optional[List[str]] = None,
-        special_files: Optional[List[str]] = None,
-        metadata: Optional[Dict[str, Any]] = None,
-    ):
-        self.handler_class = handler_class
-        self.name = name
-        self.source = source  # "core", "runtime", "node-local", "plugin"
-        self.priority = priority
-        self.extensions = extensions or []
-        self.special_files = special_files or []
-        self.metadata = metadata or {}
+from omnibase.protocols.file_handling.protocol_file_type_handler import (
+    ProtocolFileTypeHandler,
+)
 
 
-class ProtocolHandlerDiscovery(ABC):
+class ProtocolHandlerInfo(Protocol):
+    """Protocol for handler information objects."""
+
+    handler_class: Type[ProtocolFileTypeHandler]
+    name: str
+    source: str  # "core", "runtime", "node-local", "plugin"
+    priority: int
+    extensions: List[str]
+    special_files: List[str]
+    metadata: Dict[str, Any]
+
+
+class ProtocolHandlerDiscovery(Protocol):
     """
     Protocol for discovering file type handlers.
 
@@ -66,17 +57,15 @@ class ProtocolHandlerDiscovery(ABC):
     requiring hardcoded imports in the core registry.
     """
 
-    @abstractmethod
-    def discover_handlers(self) -> List[HandlerInfo]:
+    def discover_handlers(self) -> List[ProtocolHandlerInfo]:
         """
         Discover available handlers.
 
         Returns:
-            List of HandlerInfo objects for discovered handlers
+            List of ProtocolHandlerInfo objects for discovered handlers
         """
-        pass
+        ...
 
-    @abstractmethod
     def get_source_name(self) -> str:
         """
         Get the name of this discovery source.
@@ -84,10 +73,10 @@ class ProtocolHandlerDiscovery(ABC):
         Returns:
             Human-readable name for this discovery source
         """
-        pass
+        ...
 
 
-class ProtocolHandlerRegistry(ABC):
+class ProtocolHandlerRegistry(Protocol):
     """
     Protocol for handler registries that support dynamic discovery.
 
@@ -95,7 +84,6 @@ class ProtocolHandlerRegistry(ABC):
     allowing handlers to be registered from multiple sources without hardcoded imports.
     """
 
-    @abstractmethod
     def register_discovery_source(self, discovery: ProtocolHandlerDiscovery) -> None:
         """
         Register a handler discovery source.
@@ -103,21 +91,19 @@ class ProtocolHandlerRegistry(ABC):
         Args:
             discovery: Handler discovery implementation
         """
-        pass
+        ...
 
-    @abstractmethod
     def discover_and_register_handlers(self) -> None:
         """
         Discover and register handlers from all registered discovery sources.
         """
-        pass
+        ...
 
-    @abstractmethod
-    def register_handler_info(self, handler_info: HandlerInfo) -> None:
+    def register_handler_info(self, handler_info: ProtocolHandlerInfo) -> None:
         """
-        Register a handler from HandlerInfo.
+        Register a handler from ProtocolHandlerInfo.
 
         Args:
             handler_info: Information about the handler to register
         """
-        pass
+        ...

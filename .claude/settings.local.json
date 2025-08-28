@@ -3,7 +3,9 @@
     "allow": [
       "Bash(git init:*)",
       "Bash(git commit:*)",
-      "Bash(poetry build)"
+      "Bash(poetry build)",
+      "Bash(gh api:*)",
+      "Bash(gh repo create:*)"
     ],
     "deny": [],
     "ask": []

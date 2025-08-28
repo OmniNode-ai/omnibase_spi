@@ -24,7 +24,7 @@
 
 from typing import Protocol
 
-from omnibase.model.core.model_reducer import ActionModel, ModelState
+from omnibase.protocols.types.core_types import ProtocolAction, ProtocolState
 
 
 class ProtocolReducer(Protocol):
@@ -33,12 +33,14 @@ class ProtocolReducer(Protocol):
 
     Example:
         class MyReducer:
-            def initial_state(self) -> ModelState:
+            def initial_state(self) -> ProtocolState:
                 ...
-            def dispatch(self, state: ModelState, action: ActionModel) -> ModelState:
+            def dispatch(self, state: ProtocolState, action: ProtocolAction) -> ProtocolState:
                 ...
     """
 
-    def initial_state(self) -> ModelState: ...
+    def initial_state(self) -> ProtocolState:
+        ...
 
-    def dispatch(self, state: ModelState, action: ActionModel) -> ModelState: ...
+    def dispatch(self, state: ProtocolState, action: ProtocolAction) -> ProtocolState:
+        ...
