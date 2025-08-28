@@ -22,12 +22,9 @@
 # === /OmniNode:Metadata ===
 
 
-from typing import TYPE_CHECKING, Any, Protocol, Tuple, Union
+from typing import Protocol, Tuple
 
-from omnibase.enums import NodeMetadataField
-
-if TYPE_CHECKING:
-    from omnibase.model.core.model_node_metadata import NodeMetadataBlock
+from omnibase.protocols.types import ProtocolNodeMetadata, ProtocolSerializationResult
 
 
 class ProtocolCanonicalSerializer(Protocol):
@@ -43,13 +40,12 @@ class ProtocolCanonicalSerializer(Protocol):
 
     def canonicalize_metadata_block(
         self,
-        block: Union[dict[str, Any], "NodeMetadataBlock"],
-        volatile_fields: Tuple[NodeMetadataField, ...] = (
-            NodeMetadataField.HASH,
-            NodeMetadataField.LAST_MODIFIED_AT,
+        block: ProtocolNodeMetadata,
+        volatile_fields: Tuple[str, ...] = (
+            "hash",
+            "last_modified_at",
         ),
         placeholder: str = "<PLACEHOLDER>",
-        **kwargs: Any,
     ) -> str:
         """
         Canonicalize a metadata block for deterministic serialization and hash computation.
@@ -71,14 +67,13 @@ class ProtocolCanonicalSerializer(Protocol):
 
     def canonicalize_for_hash(
         self,
-        block: Union[dict[str, Any], "NodeMetadataBlock"],
+        block: ProtocolNodeMetadata,
         body: str,
-        volatile_fields: Tuple[NodeMetadataField, ...] = (
-            NodeMetadataField.HASH,
-            NodeMetadataField.LAST_MODIFIED_AT,
+        volatile_fields: Tuple[str, ...] = (
+            "hash",
+            "last_modified_at",
         ),
         placeholder: str = "<PLACEHOLDER>",
-        **kwargs: Any,
     ) -> str:
         """
         Canonicalize the full content (block + body) for hash computation.
