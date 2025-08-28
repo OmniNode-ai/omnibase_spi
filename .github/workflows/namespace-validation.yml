@@ -1,0 +1,116 @@
+name: Namespace Isolation Validation
+
+on:
+  push:
+    branches: [ main, development, 'fix/*', 'feature/*' ]
+  pull_request:
+    branches: [ main, development ]
+
+jobs:
+  validate-namespace-isolation:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.11, 3.12, 3.13]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: latest
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+
+    - name: Load cached venv
+      id: cached-poetry-dependencies
+      uses: actions/cache@v3
+      with:
+        path: .venv
+        key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}
+
+    - name: Install dependencies
+      if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+      run: poetry install --no-interaction --no-root
+
+    - name: Install project
+      run: poetry install --no-interaction
+
+    - name: Run namespace isolation validation
+      run: |
+        chmod +x ./scripts/validate-namespace-isolation.sh
+        ./scripts/validate-namespace-isolation.sh
+
+    - name: Validate package can be built
+      run: poetry build
+
+    - name: Test package installation in isolation
+      run: |
+        # Create a clean virtual environment to test installation
+        python -m venv /tmp/test-env
+        source /tmp/test-env/bin/activate
+        pip install dist/*.whl
+        python -c "
+        import sys
+        print('Testing import isolation...')
+        
+        # Should be able to import omnibase.protocols without any external dependencies
+        from omnibase.protocols import ProtocolSimpleSerializer
+        from omnibase.protocols.types import LogLevel, ProtocolLogEntry
+        
+        # Verify no external omnibase modules are loaded
+        external_modules = [name for name in sys.modules.keys() 
+                          if name.startswith('omnibase.') and not name.startswith('omnibase.protocols')]
+        
+        if external_modules:
+            print(f'FAILURE: External omnibase modules loaded: {external_modules}')
+            sys.exit(1)
+        else:
+            print('SUCCESS: No external omnibase dependencies loaded!')
+        "
+
+  validate-cross-compatibility:
+    runs-on: ubuntu-latest
+    needs: validate-namespace-isolation
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
+
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+
+    - name: Test with different typing configurations
+      run: |
+        poetry install --no-interaction
+        
+        # Test with strict mypy settings
+        echo "
+        [tool.mypy]
+        strict = true
+        warn_return_any = true
+        warn_unused_configs = true
+        disallow_untyped_defs = true
+        " >> pyproject.toml
+        
+        poetry run mypy src/omnibase/protocols --ignore-missing-imports || {
+          echo "Strict mypy validation failed - there may be typing issues"
+          exit 1
+        }
+
+    - name: Validate README and documentation
+      run: |
+        # Ensure the README mentions the namespace isolation
+        if ! grep -q "namespace.*isolat" README.md; then
+          echo "WARNING: README should mention namespace isolation"
+        fi

@@ -73,6 +73,9 @@ poetry shell
 
 # Install pre-commit hooks
 poetry run pre-commit install
+
+# Install pre-push hooks for namespace validation
+poetry run pre-commit install --hook-type pre-push -c .pre-commit-config-push.yaml
 ```
 
 ### 5. Configure Type Checking
@@ -103,6 +106,51 @@ repos:
     hooks:
       - id: mypy
 ```
+
+## Namespace Isolation & Validation
+
+### Critical: Complete Namespace Isolation
+This SPI package maintains **complete namespace isolation** to prevent circular dependencies when installed by omnibase-core. All imports must use `omnibase.protocols.*` paths only.
+
+### Validation Tools
+
+#### 1. Pre-Push Hook Validation
+```bash
+# Manual validation
+./scripts/validate-namespace-isolation.sh
+
+# Validates:
+# ✅ No external omnibase imports (only omnibase.protocols.* allowed)  
+# ✅ Protocol naming conventions (must start with "Protocol")
+# ✅ Strong typing (no Any usage)
+# ✅ Namespace isolation tests pass
+```
+
+#### 2. CI/CD Validation
+- **GitHub Actions**: Automatic validation on all pushes and PRs
+- **Multi-Python**: Tests on Python 3.11, 3.12, 3.13
+- **Isolation Testing**: Verifies package can be installed without external dependencies
+- **Cross-compatibility**: Validates with strict mypy settings
+
+#### 3. Development Checks
+```bash
+# Quick namespace check
+grep -r "from omnibase\." src/ | grep -v "from omnibase.protocols"
+# Should return no results
+
+# Run namespace isolation tests
+poetry run pytest tests/test_protocol_imports.py -v
+
+# Full validation suite
+poetry run pytest && poetry build
+```
+
+### Namespace Rules
+1. **✅ ALLOWED**: `from omnibase.protocols.types import ...`
+2. **✅ ALLOWED**: `from omnibase.protocols.core import ...`  
+3. **❌ FORBIDDEN**: `from omnibase.model import ...`
+4. **❌ FORBIDDEN**: `from omnibase.core import ...`
+5. **❌ FORBIDDEN**: Any imports from external omnibase modules
 
 ## Protocol Design Guidelines
 
