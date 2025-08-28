@@ -49,12 +49,12 @@ class ProtocolCoreLogging(Protocol):
 
     def trace_function_lifecycle(self, func: F) -> F:
         """
-        Decorator for function lifecycle logging.
+        Enable function lifecycle tracing.
 
         Args:
-            func: Function to decorate
+            func: Function to trace
 
         Returns:
-            Decorated function
+            Function with tracing capability
         """
         ...

@@ -5,15 +5,16 @@ Protocol interface for Onex contract validation and compliance checking.
 Defines the contract for validating Onex patterns and contract compliance.
 """
 
-from enum import Enum
-from typing import Dict, List, Protocol
+from typing import Dict, List, Literal, Protocol
+
+from omnibase.protocols.types.core_types import ProtocolDateTime, ProtocolSemVer
 
 
 # Protocol types for ONEX validation data structures
 class ProtocolOnexContractData(Protocol):
     """ONEX contract data structure protocol."""
 
-    contract_version: str
+    contract_version: ProtocolSemVer
     node_name: str
     node_type: str
     input_model: str
@@ -33,8 +34,8 @@ class ProtocolOnexMetadata(Protocol):
     """ONEX metadata structure protocol."""
 
     tool_name: str
-    tool_version: str
-    timestamp: str
+    tool_version: ProtocolSemVer
+    timestamp: ProtocolDateTime
     environment: str
 
 
@@ -42,7 +43,7 @@ class ProtocolOnexSchema(Protocol):
     """ONEX schema definition protocol."""
 
     schema_type: str
-    version: str
+    version: ProtocolSemVer
     properties: Dict[str, str]
 
 
@@ -56,32 +57,28 @@ class ProtocolOnexValidationReport(Protocol):
     summary: str
 
 
-class EnumOnexComplianceLevel(str, Enum):
-    """Onex compliance levels."""
+# Onex compliance levels - using Literal instead of Enum
+OnexComplianceLevel = Literal[
+    "fully_compliant", "partially_compliant", "non_compliant", "validation_error"
+]
 
-    FULLY_COMPLIANT = "fully_compliant"
-    PARTIALLY_COMPLIANT = "partially_compliant"
-    NON_COMPLIANT = "non_compliant"
-    VALIDATION_ERROR = "validation_error"
-
-
-class EnumValidationType(str, Enum):
-    """Types of validation to perform."""
-
-    ENVELOPE_STRUCTURE = "envelope_structure"
-    REPLY_STRUCTURE = "reply_structure"
-    CONTRACT_COMPLIANCE = "contract_compliance"
-    SECURITY_VALIDATION = "security_validation"
-    METADATA_VALIDATION = "metadata_validation"
-    FULL_VALIDATION = "full_validation"
+# Types of validation to perform - using Literal instead of Enum
+ValidationType = Literal[
+    "envelope_structure",
+    "reply_structure",
+    "contract_compliance",
+    "security_validation",
+    "metadata_validation",
+    "full_validation",
+]
 
 
 class ProtocolOnexValidationResult(Protocol):
     """Result of Onex validation protocol."""
 
     is_valid: bool
-    compliance_level: EnumOnexComplianceLevel
-    validation_type: EnumValidationType
+    compliance_level: OnexComplianceLevel
+    validation_type: ValidationType
     errors: List[str]
     warnings: List[str]
     metadata: ProtocolOnexMetadata
@@ -238,7 +235,7 @@ class ProtocolOnexValidation(Protocol):
         ...
 
     def get_validation_schema(
-        self, validation_type: EnumValidationType
+        self, validation_type: ValidationType
     ) -> ProtocolOnexSchema:
         """
         Get validation schema for specified validation type.

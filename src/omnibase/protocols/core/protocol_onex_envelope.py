@@ -5,18 +5,17 @@ Protocol interface for Onex standard envelope pattern.
 Defines the contract for request envelopes with metadata, correlation IDs, and security context.
 """
 
-from abc import ABC, abstractmethod
-from datetime import datetime
-from typing import Dict, Optional, Union
+from typing import Dict, Optional, Protocol, Union
 from uuid import UUID
 
 from pydantic import BaseModel
 
 from ..models.model_onex_security_context import ModelOnexSecurityContext
 from ..protocols.protocol_onex_validation import ModelOnexMetadata
+from ..types.core_types import ProtocolDateTime
 
 
-class ProtocolOnexEnvelope(ABC):
+class ProtocolOnexEnvelope(Protocol):
     """
     Protocol interface for Onex envelope pattern.
 
@@ -24,7 +23,6 @@ class ProtocolOnexEnvelope(ABC):
     Provides standardized request wrapping with metadata and security context.
     """
 
-    @abstractmethod
     def create_envelope(
         self,
         payload: BaseModel,
@@ -44,9 +42,8 @@ class ProtocolOnexEnvelope(ABC):
         Returns:
             Onex envelope model containing wrapped payload and metadata
         """
-        pass
+        ...
 
-    @abstractmethod
     def extract_payload(self, envelope: BaseModel) -> BaseModel:
         """
         Extract the payload from an Onex envelope.
@@ -57,9 +54,8 @@ class ProtocolOnexEnvelope(ABC):
         Returns:
             The unwrapped payload data
         """
-        pass
+        ...
 
-    @abstractmethod
     def get_correlation_id(self, envelope: BaseModel) -> Optional[UUID]:
         """
         Get the correlation ID from an Onex envelope.
@@ -70,9 +66,8 @@ class ProtocolOnexEnvelope(ABC):
         Returns:
             The correlation ID if present, None otherwise
         """
-        pass
+        ...
 
-    @abstractmethod
     def get_security_context(
         self, envelope: BaseModel
     ) -> Optional[ModelOnexSecurityContext]:
@@ -85,9 +80,8 @@ class ProtocolOnexEnvelope(ABC):
         Returns:
             The security context if present, None otherwise
         """
-        pass
+        ...
 
-    @abstractmethod
     def get_metadata(self, envelope: BaseModel) -> Optional[ModelOnexMetadata]:
         """
         Get all metadata from an Onex envelope.
@@ -98,9 +92,8 @@ class ProtocolOnexEnvelope(ABC):
         Returns:
             Dictionary containing all envelope metadata
         """
-        pass
+        ...
 
-    @abstractmethod
     def validate_envelope(self, envelope: BaseModel) -> bool:
         """
         Validate an Onex envelope for completeness and compliance.
@@ -111,10 +104,9 @@ class ProtocolOnexEnvelope(ABC):
         Returns:
             True if envelope is valid, False otherwise
         """
-        pass
+        ...
 
-    @abstractmethod
-    def get_timestamp(self, envelope: BaseModel) -> datetime:
+    def get_timestamp(self, envelope: BaseModel) -> ProtocolDateTime:
         """
         Get the creation timestamp from an Onex envelope.
 
@@ -124,9 +116,8 @@ class ProtocolOnexEnvelope(ABC):
         Returns:
             The envelope creation timestamp
         """
-        pass
+        ...
 
-    @abstractmethod
     def get_source_tool(self, envelope: BaseModel) -> Optional[str]:
         """
         Get the source tool identifier from an Onex envelope.
@@ -137,9 +128,8 @@ class ProtocolOnexEnvelope(ABC):
         Returns:
             The source tool identifier if present, None otherwise
         """
-        pass
+        ...
 
-    @abstractmethod
     def get_target_tool(self, envelope: BaseModel) -> Optional[str]:
         """
         Get the target tool identifier from an Onex envelope.
@@ -150,9 +140,8 @@ class ProtocolOnexEnvelope(ABC):
         Returns:
             The target tool identifier if present, None otherwise
         """
-        pass
+        ...
 
-    @abstractmethod
     def with_metadata(
         self, envelope: BaseModel, metadata: ModelOnexMetadata
     ) -> BaseModel:
@@ -167,9 +156,8 @@ class ProtocolOnexEnvelope(ABC):
         Returns:
             Updated envelope with new metadata
         """
-        pass
+        ...
 
-    @abstractmethod
     def is_onex_compliant(self, envelope: BaseModel) -> bool:
         """
         Check if envelope follows Onex standard compliance.
@@ -180,4 +168,4 @@ class ProtocolOnexEnvelope(ABC):
         Returns:
             True if envelope is Onex compliant, False otherwise
         """
-        pass
+        ...

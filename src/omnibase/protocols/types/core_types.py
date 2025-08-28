@@ -4,8 +4,26 @@ Core protocol types for ONEX SPI interfaces.
 Domain: Core system protocols (logging, serialization, validation)
 """
 
+from datetime import datetime
 from typing import Dict, Literal, Optional, Protocol, Union
 from uuid import UUID
+
+
+# Semantic version protocol - for strong version typing
+class ProtocolSemVer(Protocol):
+    """Protocol for semantic version objects."""
+
+    major: int
+    minor: int
+    patch: int
+
+    def __str__(self) -> str:
+        """Return string representation (e.g., '1.2.3')."""
+        ...
+
+
+# Datetime protocol alias - ensures consistent datetime usage
+ProtocolDateTime = datetime
 
 # Log level types - using string literals instead of enums
 LogLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
@@ -39,7 +57,7 @@ class ProtocolLogEntry(Protocol):
     level: LogLevel
     message: str
     correlation_id: UUID
-    timestamp: float
+    timestamp: ProtocolDateTime
     context: Dict[str, ContextValue]
 
 
@@ -79,9 +97,9 @@ class ProtocolMetadata(Protocol):
     """Protocol for structured metadata - attribute-based for model compatibility."""
 
     data: Dict[str, ContextValue]
-    version: str
-    created_at: float
-    updated_at: Optional[float]
+    version: ProtocolSemVer
+    created_at: ProtocolDateTime
+    updated_at: Optional[ProtocolDateTime]
 
 
 # Behavior protocols for operations (method-based)
@@ -115,15 +133,15 @@ class ProtocolAction(Protocol):
 
     type: str
     payload: ProtocolActionPayload
-    timestamp: float
+    timestamp: ProtocolDateTime
 
 
 class ProtocolState(Protocol):
     """Protocol for reducer state."""
 
     metadata: ProtocolMetadata
-    version: int
-    last_updated: float
+    version: int  # This is a sequence number, not semver
+    last_updated: ProtocolDateTime
 
 
 # Schema and node metadata protocols
@@ -133,13 +151,13 @@ class ProtocolNodeMetadataBlock(Protocol):
     uuid: str
     name: str
     description: str
-    version: str
-    metadata_version: str
+    version: ProtocolSemVer
+    metadata_version: ProtocolSemVer
     namespace: str
-    created_at: str
-    last_modified_at: str
+    created_at: ProtocolDateTime
+    last_modified_at: ProtocolDateTime
     lifecycle: str
-    protocol_version: str
+    protocol_version: ProtocolSemVer
 
 
 class ProtocolSchemaModel(Protocol):
@@ -148,7 +166,7 @@ class ProtocolSchemaModel(Protocol):
     schema_id: str
     schema_type: str
     schema_data: Dict[str, ContextValue]
-    version: str
+    version: ProtocolSemVer
     is_valid: bool
 
 

@@ -27,6 +27,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Optional, Protocol
 
+from omnibase.protocols.types.core_types import ProtocolSemVer
 from omnibase.protocols.types.file_handling_types import (
     ProtocolCanHandleResult,
     ProtocolExtractedBlock,
@@ -51,7 +52,7 @@ class ProtocolFileTypeHandler(Protocol):
         ...
 
     @property
-    def handler_version(self) -> str:
+    def handler_version(self) -> ProtocolSemVer:
         ...
 
     @property

@@ -7,6 +7,8 @@ Domain: Event-driven architecture protocols
 from typing import Dict, Literal, Protocol, Union
 from uuid import UUID
 
+from omnibase.protocols.types.core_types import ProtocolDateTime
+
 # Event data types - more specific than Any
 EventData = Union[
     str, int, float, bool, list[str], Dict[str, Union[str, int, float, bool]]
@@ -26,7 +28,7 @@ class ProtocolEvent(Protocol):
     event_type: str
     event_data: Dict[str, EventData]
     correlation_id: UUID
-    timestamp: float
+    timestamp: ProtocolDateTime
     source: str
 
 
@@ -46,7 +48,7 @@ class ProtocolSecurityContext(Protocol):
     user_id: str | None
     permissions: list[str]
     auth_status: AuthStatus
-    token_expires_at: float | None
+    token_expires_at: ProtocolDateTime | None
 
 
 class ProtocolEventCredentials(Protocol):
@@ -75,7 +77,7 @@ class ProtocolOnexEvent(Protocol):
 
     event_id: UUID
     event_type: str
-    timestamp: float
+    timestamp: ProtocolDateTime
     source: str
     payload: Dict[str, EventData]
     correlation_id: UUID

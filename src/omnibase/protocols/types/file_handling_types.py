@@ -8,6 +8,8 @@ from pathlib import Path
 from typing import Dict, List, Literal, Optional, Protocol, Union
 from uuid import UUID
 
+from omnibase.protocols.types.core_types import ProtocolDateTime, ProtocolSemVer
+
 # File operation types
 FileOperation = Literal["read", "write", "append", "delete", "move", "copy"]
 FileStatus = Literal["exists", "missing", "locked", "corrupted", "accessible"]
@@ -109,7 +111,7 @@ class ProtocolHandlerMetadata(Protocol):
     """Protocol for handler metadata."""
 
     name: str
-    version: str
+    version: ProtocolSemVer
     author: str
     description: str
     supported_extensions: List[str]
@@ -134,7 +136,7 @@ class ProtocolSerializedBlock(Protocol):
 
     serialized_data: str
     format: str
-    version: str
+    version: ProtocolSemVer
     file_metadata: ProtocolFileMetadata
 
 
@@ -155,7 +157,7 @@ class ProtocolOnexResult(Protocol):
     message: str
     result_data: Optional[ProtocolResultData]
     error_code: Optional[str]
-    timestamp: float
+    timestamp: ProtocolDateTime
 
 
 # Behavior protocols for operations (method-based)

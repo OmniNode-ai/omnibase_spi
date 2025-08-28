@@ -31,7 +31,6 @@ to enable testing and cross-node registry access while maintaining proper
 architectural boundaries.
 """
 
-from enum import Enum
 from typing import Any, Callable, Dict, List, Literal, Optional, Protocol
 
 from omnibase.protocols.types.container_types import (
@@ -40,20 +39,16 @@ from omnibase.protocols.types.container_types import (
     RegistrationStatus,
     ServiceStatus,
 )
+from omnibase.protocols.types.core_types import ProtocolSemVer
 
 # Status type for ONEX systems
 OnexStatus = Literal["ACTIVE", "INACTIVE", "ERROR", "UNKNOWN"]
 
 
-class RegistryArtifactType(str, Enum):
-    """Shared enumeration of registry artifact types."""
-
-    NODES = "nodes"
-    CLI_TOOLS = "cli_tools"
-    RUNTIMES = "runtimes"
-    ADAPTERS = "adapters"
-    CONTRACTS = "contracts"
-    PACKAGES = "packages"
+# Registry artifact types - using Literal instead of Enum
+RegistryArtifactType = Literal[
+    "nodes", "cli_tools", "runtimes", "adapters", "contracts", "packages"
+]
 
 
 class ProtocolRegistryArtifactMetadata(Protocol):
@@ -69,7 +64,7 @@ class ProtocolRegistryArtifactInfo(Protocol):
     """Protocol for registry artifact information."""
 
     name: str
-    version: str
+    version: ProtocolSemVer
     artifact_type: RegistryArtifactType
     path: str
     metadata: ProtocolRegistryArtifactMetadata

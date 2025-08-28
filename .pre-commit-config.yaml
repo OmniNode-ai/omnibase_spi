@@ -11,3 +11,11 @@ repos:
     rev: v1.0.0
     hooks:
       - id: mypy
+  - repo: local
+    hooks:
+      - id: validate-spi-purity
+        name: Validate SPI Purity
+        entry: scripts/validate-spi-purity.sh
+        language: script
+        files: ^src/.*\.py$
+        description: "Ensure SPI contains only pure protocol definitions, no implementations"

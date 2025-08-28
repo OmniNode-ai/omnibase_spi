@@ -7,6 +7,8 @@ Domain: Service and handler discovery protocols
 from typing import Dict, Literal, Protocol, Union
 from uuid import UUID
 
+from omnibase.protocols.types.core_types import ProtocolSemVer
+
 # Discovery result types
 DiscoveryStatus = Literal["found", "not_found", "error", "timeout"]
 HandlerStatus = Literal["available", "busy", "offline", "error"]
@@ -22,7 +24,7 @@ class ProtocolHandlerCapability(Protocol):
     capability_name: str
     capability_value: CapabilityValue
     is_required: bool
-    version: str
+    version: ProtocolSemVer
 
 
 class ProtocolHandlerInfo(Protocol):
