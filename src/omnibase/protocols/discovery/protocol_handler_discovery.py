@@ -29,7 +29,7 @@ without requiring hardcoded imports in the core registry. It enables plugin-base
 architecture where handlers can be discovered dynamically.
 """
 
-from typing import Any, Dict, List, Optional, Protocol, Type
+from typing import Any, Dict, List, Protocol, Type
 
 from omnibase.protocols.file_handling.protocol_file_type_handler import (
     ProtocolFileTypeHandler,

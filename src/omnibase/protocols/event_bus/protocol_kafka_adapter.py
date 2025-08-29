@@ -6,7 +6,7 @@ Protocol definition for Kafka backend implementations.
 Defines the contract for Kafka-specific event bus adapters.
 """
 
-from typing import Dict, Optional, Protocol, runtime_checkable
+from typing import Optional, Protocol, runtime_checkable
 
 from .protocol_event_bus import ProtocolEventBusAdapter
 

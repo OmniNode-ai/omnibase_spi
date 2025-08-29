@@ -31,14 +31,8 @@ to enable testing and cross-node registry access while maintaining proper
 architectural boundaries.
 """
 
-from typing import Any, Callable, Dict, List, Literal, Optional, Protocol
+from typing import List, Literal, Optional, Protocol
 
-from omnibase.protocols.types.container_types import (
-    ProtocolServiceInfo,
-    ProtocolServiceRegistry,
-    RegistrationStatus,
-    ServiceStatus,
-)
 from omnibase.protocols.types.core_types import ProtocolSemVer
 
 # Status type for ONEX systems

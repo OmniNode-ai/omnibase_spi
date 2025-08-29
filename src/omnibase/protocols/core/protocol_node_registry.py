@@ -9,7 +9,6 @@ Integrates with Consul-based discovery while maintaining clean protocol boundari
 """
 
 from typing import Dict, List, Optional, Protocol, runtime_checkable
-from uuid import UUID
 
 from omnibase.protocols.types.core_types import (
     ContextValue,

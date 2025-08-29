@@ -33,7 +33,7 @@ from typing import TYPE_CHECKING, Protocol
 if TYPE_CHECKING:
     from omnibase.protocols.types.core_types import ProtocolNodeMetadataBlock
 
-from omnibase.protocols.types.core_types import ProtocolSchemaModel
+from omnibase.protocols.types.core_types import ProtocolSchemaObject
 
 
 class ProtocolSchemaLoader(Protocol):
@@ -42,13 +42,10 @@ class ProtocolSchemaLoader(Protocol):
     All methods use Path objects and return strongly-typed models as appropriate.
     """
 
-    def load_onex_yaml(self, path: Path) -> "ProtocolNodeMetadataBlock":
-        ...
+    def load_onex_yaml(self, path: Path) -> "ProtocolNodeMetadataBlock": ...
 
-    def load_json_schema(self, path: Path) -> ProtocolSchemaModel:
-        ...
+    def load_json_schema(self, path: Path) -> ProtocolSchemaObject: ...
 
     def load_schema_for_node(
         self, node: "ProtocolNodeMetadataBlock"
-    ) -> ProtocolSchemaModel:
-        ...
+    ) -> ProtocolSchemaObject: ...

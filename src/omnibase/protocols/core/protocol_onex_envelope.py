@@ -5,14 +5,13 @@ Protocol interface for Onex standard envelope pattern.
 Defines the contract for request envelopes with metadata, correlation IDs, and security context.
 """
 
-from typing import Dict, Optional, Protocol
+from typing import Optional, Protocol
 from uuid import UUID
 
 from pydantic import BaseModel
 
-from ..models.onex_security_context import OnexSecurityContext
-from ..protocols.protocol_onex_validation import ProtocolOnexMetadata
 from ..types.core_types import ProtocolDateTime
+from .protocol_onex_validation import ProtocolOnexMetadata, ProtocolOnexSecurityContext
 
 
 class ProtocolOnexEnvelope(Protocol):
@@ -27,7 +26,7 @@ class ProtocolOnexEnvelope(Protocol):
         self,
         payload: BaseModel,
         correlation_id: Optional[UUID] = None,
-        security_context: Optional[OnexSecurityContext] = None,
+        security_context: Optional[ProtocolOnexSecurityContext] = None,
         metadata: Optional[ProtocolOnexMetadata] = None,
     ) -> BaseModel:
         """
@@ -70,7 +69,7 @@ class ProtocolOnexEnvelope(Protocol):
 
     def get_security_context(
         self, envelope: BaseModel
-    ) -> Optional[OnexSecurityContext]:
+    ) -> Optional[ProtocolOnexSecurityContext]:
         """
         Get the security context from an Onex envelope.
 

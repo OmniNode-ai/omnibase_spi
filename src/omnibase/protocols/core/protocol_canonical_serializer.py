@@ -24,7 +24,7 @@
 
 from typing import Protocol, Tuple
 
-from omnibase.protocols.types import ProtocolNodeMetadata, ProtocolSerializationResult
+from omnibase.protocols.types import ProtocolNodeMetadata
 
 
 class ProtocolCanonicalSerializer(Protocol):

@@ -4,7 +4,7 @@ Container protocol types for ONEX SPI interfaces.
 Domain: Dependency injection and service registry protocols
 """
 
-from typing import Dict, Literal, Protocol, Type, TypeVar, Union
+from typing import Dict, Literal, Protocol, TypeVar, Union
 from uuid import UUID
 
 # Generic type for services
