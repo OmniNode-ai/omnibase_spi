@@ -33,7 +33,7 @@ class ProtocolRedpandaAdapter(ProtocolKafkaAdapter, Protocol):
         Args:
             bootstrap_servers: Redpanda broker addresses
             environment: Environment name for topic isolation
-            group: Tool group name for mini-mesh isolation
+            group: Node group name for mini-mesh isolation
             config: Optional Redpanda configuration protocol
         """
         ...

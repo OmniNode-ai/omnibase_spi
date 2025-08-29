@@ -48,7 +48,7 @@ class ProtocolKafkaAdapter(ProtocolEventBusAdapter, Protocol):
         Args:
             bootstrap_servers: Kafka broker addresses
             environment: Environment name for topic isolation
-            group: Tool group name for mini-mesh isolation
+            group: Node group name for mini-mesh isolation
             config: Optional Kafka configuration protocol
         """
         ...

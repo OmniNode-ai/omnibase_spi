@@ -3,7 +3,7 @@
 Node Registry Protocol - ONEX SPI Interface.
 
 Protocol definition for node discovery and registration in distributed environments.
-Supports the ONEX Messaging Design v0.3 with environment isolation and tool groups.
+Supports the ONEX Messaging Design v0.3 with environment isolation and node groups.
 
 Integrates with Consul-based discovery while maintaining clean protocol boundaries.
 """
@@ -71,7 +71,7 @@ class ProtocolNodeRegistry(Protocol):
 
     Supports the ONEX Messaging Design v0.3 patterns:
     - Environment isolation (dev, staging, prod)
-    - Tool group mini-meshes
+    - Node group mini-meshes
     - Consul-based discovery integration
     - Health monitoring and heartbeat tracking
 
@@ -126,13 +126,13 @@ class ProtocolNodeRegistry(Protocol):
         registry: ProtocolNodeRegistry = RegistryConsulNode("prod", "consul.company.com:8500")
 
         # Register current node
-        node_info = ModelWorkerNodeInfo(
+        node_info = WorkerNodeInfo(
             node_id="worker-001",
             node_type="COMPUTE",
             node_name="Data Processor",
             environment="prod",
             group="analytics",
-            version=ModelSemVer(1, 2, 3),
+            version=SemVer(1, 2, 3),
             health_status="healthy",
             endpoint="10.0.1.15:8080",
             metadata={"cpu_cores": 8, "memory_gb": 32},
@@ -174,7 +174,7 @@ class ProtocolNodeRegistry(Protocol):
 
     Node Discovery Patterns:
         - Environment-based isolation: `prod-analytics-COMPUTE`
-        - Group-based discovery: Find all nodes in a tool group
+        - Group-based discovery: Find all nodes in a node group
         - Health-based filtering: Only discover healthy nodes
         - Type-based filtering: Find specific node types (COMPUTE, ORCHESTRATOR, etc.)
         - Watch-based monitoring: Real-time notifications of node changes
@@ -267,7 +267,7 @@ class ProtocolNodeRegistry(Protocol):
         Args:
             node_type: Filter by node type
             environment: Filter by environment (default: current)
-            group: Filter by tool group
+            group: Filter by node group
             health_filter: Filter by health status
 
         Returns:
@@ -289,10 +289,10 @@ class ProtocolNodeRegistry(Protocol):
 
     async def get_nodes_by_group(self, group: str) -> List[ProtocolNodeInfo]:
         """
-        Get all nodes in a tool group.
+        Get all nodes in a node group.
 
         Args:
-            group: Tool group name
+            group: Node group name
 
         Returns:
             List of nodes in the group
@@ -301,10 +301,10 @@ class ProtocolNodeRegistry(Protocol):
 
     async def get_gateway_for_group(self, group: str) -> Optional[ProtocolNodeInfo]:
         """
-        Get the Group Gateway node for a tool group.
+        Get the Group Gateway node for a node group.
 
         Args:
-            group: Tool group name
+            group: Node group name
 
         Returns:
             Gateway node info or None if no gateway

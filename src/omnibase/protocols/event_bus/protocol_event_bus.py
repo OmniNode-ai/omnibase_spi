@@ -2,12 +2,12 @@
 # author: OmniNode Team
 # copyright: OmniNode.ai
 # created_at: '2025-05-28T12:36:27.128231'
-# description: Stamped by ToolPython
+# description: Stamped by NodePython
 # entrypoint: python://protocol_event_bus
 # hash: d08b73065d9e8de6ac3b18881f8669d08f07ca6678ec78d1f0cdb96e3b9016eb
 # last_modified_at: '2025-05-29T14:14:00.220362+00:00'
 # lifecycle: active
-# meta_type: tool
+# meta_type: node
 # metadata_version: 0.1.0
 # name: protocol_event_bus.py
 # namespace: python://omnibase.protocol.protocol_event_bus
@@ -55,7 +55,7 @@ class ProtocolEventBusAdapter(Protocol):
     Implements the ONEX Messaging Design v0.3 Event Bus Adapter interface
     enabling drop-in support for both Kafka and Redpanda without code changes.
 
-    Environment isolation and tool group mini-meshes are supported through
+    Environment isolation and node group mini-meshes are supported through
     topic naming conventions and group isolation patterns.
 
     Usage Example:
@@ -106,7 +106,7 @@ class ProtocolEventBusAdapter(Protocol):
 
     Topic Naming Conventions:
         - Environment isolation: `{env}-{topic}` (e.g., "prod-user-events")
-        - Tool group isolation: `{group}-{topic}` (e.g., "auth-user-events")
+        - Node group isolation: `{group}-{topic}` (e.g., "auth-user-events")
         - Combined: `{env}-{group}-{topic}` (e.g., "prod-auth-user-events")
     """
 
@@ -155,7 +155,7 @@ class ProtocolEventBus(Protocol):
 
     Implements the ONEX Messaging Design v0.3:
     - Environment isolation (dev, staging, prod)
-    - Tool group mini-meshes
+    - Node group mini-meshes
     - Kafka/Redpanda adapter pattern
     - Standardized topic naming and headers
     """
@@ -173,7 +173,7 @@ class ProtocolEventBus(Protocol):
         Args:
             adapter: EventBusAdapter implementation (Kafka/Redpanda)
             environment: Environment name (dev, staging, prod)
-            group: Tool group name for mini-mesh isolation
+            group: Node group name for mini-mesh isolation
         """
         ...
 
@@ -236,12 +236,12 @@ class ProtocolEventBus(Protocol):
         self, command: str, payload: Dict[str, Any], target_group: str
     ) -> None:
         """
-        Send command to specific tool group.
+        Send command to specific node group.
 
         Args:
             command: Command type
             payload: Command payload
-            target_group: Target tool group name
+            target_group: Target node group name
         """
         ...
 

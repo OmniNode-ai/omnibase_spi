@@ -2,12 +2,12 @@
 # author: OmniNode Team
 # copyright: OmniNode.ai
 # created_at: '2025-05-28T13:24:08.142263'
-# description: Stamped by ToolPython
+# description: Stamped by NodePython
 # entrypoint: python://protocol_schema_loader
 # hash: 54d22bb99ec2490ef26d82ee55400b98fa3774a1cf59e9e600ee05023501e133
 # last_modified_at: '2025-05-29T14:14:00.338636+00:00'
 # lifecycle: active
-# meta_type: tool
+# meta_type: node
 # metadata_version: 0.1.0
 # name: protocol_schema_loader.py
 # namespace: python://omnibase.protocol.protocol_schema_loader

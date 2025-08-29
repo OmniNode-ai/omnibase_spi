@@ -2,12 +2,12 @@
 # author: OmniNode Team
 # copyright: OmniNode.ai
 # created_at: '2025-05-28T12:36:27.276226'
-# description: Stamped by ToolPython
+# description: Stamped by NodePython
 # entrypoint: python://protocol_artifact_container
 # hash: a08694d4a43c239f7653f23bcaf0645dcc77cc1b8afeeaec3f1bceecfafc579b
 # last_modified_at: '2025-08-29T00:00:00.000000+00:00'
 # lifecycle: active
-# meta_type: tool
+# meta_type: node
 # metadata_version: 0.1.0
 # name: protocol_artifact_container.py
 # namespace: python://omnibase.protocol.protocol_artifact_container

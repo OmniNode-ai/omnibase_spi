@@ -3,7 +3,7 @@ ONEX Event Bus Protocols - SPI Interface Exports.
 
 Event-driven messaging protocols supporting the ONEX Messaging Design v0.3:
 - EventBusAdapter for pluggable Kafka/Redpanda backends
-- Environment isolation and tool group mini-meshes  
+- Environment isolation and node group mini-meshes  
 - Distributed messaging with standardized interfaces
 """
 

@@ -2,12 +2,12 @@
 # author: OmniNode Team
 # copyright: OmniNode.ai
 # created_at: '2025-05-28T13:24:08.112424'
-# description: Stamped by ToolPython
+# description: Stamped by NodePython
 # entrypoint: python://protocol_canonical_serializer
 # hash: 708077b54c6495b16cebfc3a5236b6bb7b817f62d5d819f739a822b14d1db345
 # last_modified_at: '2025-05-29T14:14:00.185820+00:00'
 # lifecycle: active
-# meta_type: tool
+# meta_type: node
 # metadata_version: 0.1.0
 # name: protocol_canonical_serializer.py
 # namespace: python://omnibase.protocol.protocol_canonical_serializer

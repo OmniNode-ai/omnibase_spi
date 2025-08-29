@@ -2,12 +2,12 @@
 # author: OmniNode Team
 # copyright: OmniNode.ai
 # created_at: '2025-05-28T12:36:27.169382'
-# description: Stamped by ToolPython
+# description: Stamped by NodePython
 # entrypoint: python://protocol_file_type_node
 # hash: f865199088b42907bcfd03147a6071a4ec1c21659e83436e8b30537c67f30d6c
 # last_modified_at: '2025-05-29T14:14:00.255085+00:00'
 # lifecycle: active
-# meta_type: tool
+# meta_type: node
 # metadata_version: 0.1.0
 # name: protocol_file_type_node.py
 # namespace: python://omnibase.protocol.protocol_file_type_node
@@ -64,9 +64,9 @@ class ProtocolFileTypeHandler(Protocol):
         # Implementation example (not part of SPI)
         class NodePythonFileProcessor:
             def __init__(self):
-                self._metadata = ModelNodeMetadata(
+                self._metadata = NodeMetadata(
                     node_name="python",
-                    version=ModelSemVer(1, 0, 0),
+                    version=SemVer(1, 0, 0),
                     author="ONEX Team",
                     description="Python file processing node with AST-based metadata extraction",
                     supported_extensions=[".py", ".pyw"],
@@ -86,7 +86,7 @@ class ProtocolFileTypeHandler(Protocol):
             def can_handle(self, path: Path, content: str) -> ProtocolCanHandleResult:
                 # Check file extension
                 if path.suffix.lower() in ['.py', '.pyw']:
-                    return ModelCanHandleResult(
+                    return CanHandleResult(
                         can_handle=True,
                         confidence=0.9,
                         reason="Python file extension detected"
@@ -94,7 +94,7 @@ class ProtocolFileTypeHandler(Protocol):
 
                 # Check for Python shebang
                 if content.startswith('#!/usr/bin/env python') or content.startswith('#!/usr/bin/python'):
-                    return ModelCanHandleResult(
+                    return CanHandleResult(
                         can_handle=True,
                         confidence=0.8,
                         reason="Python shebang detected"
@@ -102,13 +102,13 @@ class ProtocolFileTypeHandler(Protocol):
 
                 # Check for Python-specific imports
                 if any(line.strip().startswith(('import ', 'from ')) for line in content.split('\n')[:10]):
-                    return ModelCanHandleResult(
+                    return CanHandleResult(
                         can_handle=True,
                         confidence=0.7,
                         reason="Python import statements detected"
                     )
 
-                return ModelCanHandleResult(
+                return CanHandleResult(
                     can_handle=False,
                     confidence=0.0,
                     reason="No Python indicators found"
@@ -139,7 +139,7 @@ class ProtocolFileTypeHandler(Protocol):
                         "runtime_language_hint": f"python>={sys.version_info.major}.{sys.version_info.minor}"
                     }
 
-                    return ModelExtractedBlock(
+                    return ExtractedBlock(
                         success=True,
                         metadata=metadata,
                         raw_content=content,
@@ -147,7 +147,7 @@ class ProtocolFileTypeHandler(Protocol):
                     )
 
                 except SyntaxError as e:
-                    return ModelExtractedBlock(
+                    return ExtractedBlock(
                         success=False,
                         error=f"Python syntax error: {e}",
                         raw_content=content
@@ -156,14 +156,14 @@ class ProtocolFileTypeHandler(Protocol):
             def stamp(self, path: Path, content: str, options: ProtocolStampOptions) -> ProtocolOnexResult:
                 # Create ONEX metadata stamp for Python file
                 if options.dry_run:
-                    return ModelOnexResult(
+                    return OnexResult(
                         success=True,
                         message=f"Would stamp {path.name} with Python metadata"
                     )
 
                 extracted = self.extract_block(path, content)
                 if not extracted.success:
-                    return ModelOnexResult(
+                    return OnexResult(
                         success=False,
                         message=f"Failed to extract metadata: {extracted.error}"
                     )
@@ -183,12 +183,12 @@ class ProtocolFileTypeHandler(Protocol):
                 stamped_content = '\n'.join(metadata_lines) + content
 
                 if not options.force and self._has_existing_stamp(content):
-                    return ModelOnexResult(
+                    return OnexResult(
                         success=False,
                         message="File already has metadata stamp. Use force=True to overwrite."
                     )
 
-                return ModelOnexResult(
+                return OnexResult(
                     success=True,
                     message=f"Successfully stamped {path.name}",
                     result_content=stamped_content
@@ -219,7 +219,7 @@ class ProtocolFileTypeHandler(Protocol):
                     # Skip docstring check for now due to quote parsing issues
                     pass
 
-                return ModelOnexResult(
+                return OnexResult(
                     success=len(errors) == 0,
                     message=f"Validation {'passed' if len(errors) == 0 else 'failed'}",
                     errors=errors,
@@ -244,7 +244,7 @@ class ProtocolFileTypeHandler(Protocol):
                 print(f"Extracted metadata: {extracted.metadata}")
 
                 # Stamp the file
-                stamp_options = ModelStampOptions(
+                stamp_options = StampOptions(
                     force=False,
                     backup=True,
                     dry_run=False
@@ -258,7 +258,7 @@ class ProtocolFileTypeHandler(Protocol):
                         f.write(result.result_content)
 
                 # Validate the stamped file
-                validation_options = ModelValidationOptions(
+                validation_options = ValidationOptions(
                     strict=True,
                     verbose=True,
                     check_syntax=True

@@ -77,7 +77,7 @@ class ProtocolHandlerDiscovery(Protocol):
                             # Create temporary instance to extract metadata
                             temp_instance = node_class()
 
-                            node_info = ModelNodeInfo(
+                            node_info = NodeInfo(
                                 node_class=node_class,
                                 name=entry_point.name,
                                 source="entry_point",
@@ -129,7 +129,7 @@ class ProtocolHandlerDiscovery(Protocol):
                         module = importlib.import_module(module_path)
                         node_class = getattr(module, class_name)
 
-                        node_info = ModelNodeInfo(
+                        node_info = NodeInfo(
                             node_class=node_class,
                             name=node_config["name"],
                             source="config_file",
@@ -178,7 +178,7 @@ class ProtocolHandlerDiscovery(Protocol):
                         # Extract metadata from temporary instance
                         temp_instance = node_class()
 
-                        node_info = ModelNodeInfo(
+                        node_info = NodeInfo(
                             node_class=node_class,
                             name=node_name,
                             source="environment",
