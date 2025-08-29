@@ -11,8 +11,7 @@ Integrates with Consul-based discovery while maintaining clean protocol boundari
 from typing import Dict, List, Optional, Protocol, runtime_checkable
 from uuid import UUID
 
-from omnibase.enums.enum_health_status import EnumHealthStatus
-from omnibase.enums.enum_node_type import EnumNodeType
+from omnibase.enums.node import EnumHealthStatus, EnumNodeType
 from omnibase.protocols.types.core_types import ProtocolDateTime, ProtocolSemVer
 
 
