@@ -11,8 +11,7 @@ Integrates with Consul-based discovery while maintaining clean protocol boundari
 from typing import Dict, List, Optional, Protocol, runtime_checkable
 from uuid import UUID
 
-from omnibase.enums.node import EnumHealthStatus, EnumNodeType
-from omnibase.protocols.types.core_types import ProtocolDateTime, ProtocolSemVer
+from omnibase.protocols.types.core_types import HealthStatus, NodeType, ProtocolDateTime, ProtocolSemVer
 
 
 @runtime_checkable
@@ -20,12 +19,12 @@ class ProtocolNodeInfo(Protocol):
     """Protocol for node information objects."""
 
     node_id: str
-    node_type: EnumNodeType
+    node_type: NodeType
     node_name: str
     environment: str
     group: str
     version: ProtocolSemVer
-    health_status: EnumHealthStatus
+    health_status: HealthStatus
     endpoint: str
     metadata: Dict[str, object]
     registered_at: ProtocolDateTime
@@ -89,7 +88,7 @@ class ProtocolNodeRegistry(Protocol):
     async def update_node_health(
         self,
         node_id: str,
-        health_status: EnumHealthStatus,
+        health_status: HealthStatus,
         metadata: Optional[Dict[str, object]] = None,
     ) -> bool:
         """

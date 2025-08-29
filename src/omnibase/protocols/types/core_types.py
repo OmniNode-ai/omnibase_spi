@@ -28,6 +28,10 @@ ProtocolDateTime = datetime
 # Log level types - using string literals instead of enums
 LogLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 
+# Node-related types - using string literals for SPI purity
+NodeType = Literal["COMPUTE", "EFFECT", "REDUCER", "ORCHESTRATOR"]
+HealthStatus = Literal["healthy", "degraded", "unhealthy", "critical", "unknown", "warning", "unreachable", "available", "unavailable", "error"]
+
 # Context value types - specific typed values for logging context
 ContextValue = Union[str, int, float, bool, list[str], Dict[str, str]]
 
