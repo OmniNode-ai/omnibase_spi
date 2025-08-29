@@ -5,7 +5,7 @@ Domain: Core system protocols (logging, serialization, validation)
 """
 
 from datetime import datetime
-from typing import Dict, Literal, Optional, Protocol, Union
+from typing import Dict, Literal, Optional, Protocol
 from uuid import UUID
 
 
@@ -44,12 +44,12 @@ HealthStatus = Literal[
 ]
 
 # Context value types - specific typed values for logging context
-ContextValue = Union[str, int, float, bool, list[str], Dict[str, str]]
+ContextValue = str | int | float | bool | list[str] | Dict[str, str]
 
 
 # Configuration value protocol - for type-safe configuration
 class ProtocolConfigValue(Protocol):
-    """Protocol for configuration values - attribute-based for model compatibility."""
+    """Protocol for configuration values - attribute-based for data compatibility."""
 
     key: str
     value: ContextValue
@@ -118,7 +118,7 @@ ValidationMode = Literal["strict", "lenient", "smoke", "regression", "integratio
 
 # Metadata protocols for type safety
 class ProtocolMetadata(Protocol):
-    """Protocol for structured metadata - attribute-based for model compatibility."""
+    """Protocol for structured metadata - attribute-based for data compatibility."""
 
     data: Dict[str, ContextValue]
     version: ProtocolSemVer
@@ -130,17 +130,13 @@ class ProtocolMetadata(Protocol):
 class ProtocolMetadataOperations(Protocol):
     """Protocol for metadata operations - method-based for services."""
 
-    def get_value(self, key: str) -> ContextValue:
-        ...
+    def get_value(self, key: str) -> ContextValue: ...
 
-    def has_key(self, key: str) -> bool:
-        ...
+    def has_key(self, key: str) -> bool: ...
 
-    def keys(self) -> list[str]:
-        ...
+    def keys(self) -> list[str]: ...
 
-    def update_value(self, key: str, value: ContextValue) -> None:
-        ...
+    def update_value(self, key: str, value: ContextValue) -> None: ...
 
 
 # Reducer protocol types with stronger typing
@@ -184,8 +180,8 @@ class ProtocolNodeMetadataBlock(Protocol):
     protocol_version: ProtocolSemVer
 
 
-class ProtocolSchemaModel(Protocol):
-    """Protocol for schema model objects."""
+class ProtocolSchemaObject(Protocol):
+    """Protocol for schema data objects."""
 
     schema_id: str
     schema_type: str

@@ -5,13 +5,13 @@ Protocol interface for Onex standard envelope pattern.
 Defines the contract for request envelopes with metadata, correlation IDs, and security context.
 """
 
-from typing import Dict, Optional, Protocol, Union
+from typing import Dict, Optional, Protocol
 from uuid import UUID
 
 from pydantic import BaseModel
 
-from ..models.model_onex_security_context import ModelOnexSecurityContext
-from ..protocols.protocol_onex_validation import ModelOnexMetadata
+from ..models.onex_security_context import OnexSecurityContext
+from ..protocols.protocol_onex_validation import ProtocolOnexMetadata
 from ..types.core_types import ProtocolDateTime
 
 
@@ -27,8 +27,8 @@ class ProtocolOnexEnvelope(Protocol):
         self,
         payload: BaseModel,
         correlation_id: Optional[UUID] = None,
-        security_context: Optional[ModelOnexSecurityContext] = None,
-        metadata: Optional[ModelOnexMetadata] = None,
+        security_context: Optional[OnexSecurityContext] = None,
+        metadata: Optional[ProtocolOnexMetadata] = None,
     ) -> BaseModel:
         """
         Create an Onex envelope wrapping the provided payload.
@@ -40,7 +40,7 @@ class ProtocolOnexEnvelope(Protocol):
             metadata: Additional metadata for the request
 
         Returns:
-            Onex envelope model containing wrapped payload and metadata
+            Onex envelope containing wrapped payload and metadata
         """
         ...
 
@@ -70,7 +70,7 @@ class ProtocolOnexEnvelope(Protocol):
 
     def get_security_context(
         self, envelope: BaseModel
-    ) -> Optional[ModelOnexSecurityContext]:
+    ) -> Optional[OnexSecurityContext]:
         """
         Get the security context from an Onex envelope.
 
@@ -82,7 +82,7 @@ class ProtocolOnexEnvelope(Protocol):
         """
         ...
 
-    def get_metadata(self, envelope: BaseModel) -> Optional[ModelOnexMetadata]:
+    def get_metadata(self, envelope: BaseModel) -> Optional[ProtocolOnexMetadata]:
         """
         Get all metadata from an Onex envelope.
 
@@ -143,7 +143,7 @@ class ProtocolOnexEnvelope(Protocol):
         ...
 
     def with_metadata(
-        self, envelope: BaseModel, metadata: ModelOnexMetadata
+        self, envelope: BaseModel, metadata: ProtocolOnexMetadata
     ) -> BaseModel:
         """
         Add metadata to an Onex envelope.

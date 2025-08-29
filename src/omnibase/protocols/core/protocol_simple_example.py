@@ -2,13 +2,13 @@
 Simple Example Protocol - Demonstrating zero-dependency protocol design.
 
 This serves as a template for creating protocols that don't depend on
-external model types.
+external data types.
 """
 
 from typing import TYPE_CHECKING, Any, Dict, Optional, Protocol
 
 if TYPE_CHECKING:
-    # Forward references to models that would be defined elsewhere
+    # Forward references to data types that would be defined elsewhere
     from typing import TypeVar
 
     T = TypeVar("T")

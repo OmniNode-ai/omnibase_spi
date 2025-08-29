@@ -34,7 +34,7 @@ class ProtocolCanonicalSerializer(Protocol):
     All field references must use canonical Enums (e.g., NodeMetadataField), not string literals.
     Implementations may support YAML, JSON, or other formats.
 
-    NOTE: This protocol uses TYPE_CHECKING and forward references for model types to avoid circular imports
+    NOTE: This protocol uses TYPE_CHECKING and forward references for data types to avoid circular imports
     while maintaining strong typing. This is the canonical pattern for all ONEX protocol interfaces.
     """
 
@@ -49,7 +49,7 @@ class ProtocolCanonicalSerializer(Protocol):
     ) -> str:
         """
         Canonicalize a metadata block for deterministic serialization and hash computation.
-        - Accepts a dict or model instance.
+        - Accepts a dict or data instance.
         - Replaces volatile fields (e.g., hash, last_modified_at) with a protocol placeholder.
         - Returns the canonical serialized string.
         """

@@ -19,3 +19,9 @@ repos:
         language: script
         files: ^src/.*\.py$
         description: "Ensure SPI contains only pure protocol definitions, no implementations"
+      - id: validate-forbidden-patterns
+        name: Validate Forbidden Patterns
+        entry: scripts/validate-forbidden-patterns.sh
+        language: script
+        files: ^src/.*\.py$
+        description: "Check for forbidden patterns like 'model' terminology and Union types"

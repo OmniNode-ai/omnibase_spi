@@ -4,7 +4,7 @@ Discovery protocol types for ONEX SPI interfaces.
 Domain: Service and handler discovery protocols
 """
 
-from typing import Dict, Literal, Protocol, Union
+from typing import Dict, Literal, Protocol
 from uuid import UUID
 
 from omnibase.protocols.types.core_types import ProtocolSemVer
@@ -14,7 +14,7 @@ DiscoveryStatus = Literal["found", "not_found", "error", "timeout"]
 HandlerStatus = Literal["available", "busy", "offline", "error"]
 
 # Handler capability types
-CapabilityValue = Union[str, int, float, bool, list[str]]
+CapabilityValue = str | int | float | bool | list[str]
 
 
 # Handler discovery protocols

@@ -5,7 +5,7 @@ Protocol interface for Onex standard reply pattern.
 Defines the contract for response replies with status, data, and error information.
 """
 
-from typing import Any, Dict, List, Literal, Optional, Protocol, Union
+from typing import Any, Dict, List, Literal, Optional, Protocol
 from uuid import UUID
 
 from omnibase.protocols.core.protocol_onex_validation import ProtocolOnexMetadata
@@ -40,7 +40,7 @@ class ProtocolOnexReply(Protocol):
             metadata: Additional metadata for the reply
 
         Returns:
-            Onex reply model containing success status and data
+            Onex reply containing success status and data
         """
         ...
 
@@ -63,7 +63,7 @@ class ProtocolOnexReply(Protocol):
             metadata: Additional metadata for the reply
 
         Returns:
-            Onex reply model containing error status and information
+            Onex reply containing error status and information
         """
         ...
 
@@ -82,7 +82,7 @@ class ProtocolOnexReply(Protocol):
             metadata: Additional metadata for the reply
 
         Returns:
-            Onex reply model containing validation error status and details
+            Onex reply containing validation error status and details
         """
         ...
 
