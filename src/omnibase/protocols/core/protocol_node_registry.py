@@ -126,7 +126,7 @@ class ProtocolNodeRegistry(Protocol):
         self,
         node_id: str,
         health_status: HealthStatus,
-        metadata: Optional[Dict[str, ContextValue]] = None,
+        metadata: Dict[str, ContextValue],
     ) -> bool:
         """
         Update node health status.
@@ -134,7 +134,7 @@ class ProtocolNodeRegistry(Protocol):
         Args:
             node_id: Node ID to update
             health_status: New health status
-            metadata: Optional health metadata
+            metadata: Health status metadata (required for proper monitoring)
 
         Returns:
             True if update successful
