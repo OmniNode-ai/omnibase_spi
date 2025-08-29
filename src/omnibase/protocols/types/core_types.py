@@ -26,11 +26,22 @@ class ProtocolSemVer(Protocol):
 ProtocolDateTime = datetime
 
 # Log level types - using string literals instead of enums
-LogLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+LogLevel = Literal["TRACE", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 
 # Node-related types - using string literals for SPI purity
 NodeType = Literal["COMPUTE", "EFFECT", "REDUCER", "ORCHESTRATOR"]
-HealthStatus = Literal["healthy", "degraded", "unhealthy", "critical", "unknown", "warning", "unreachable", "available", "unavailable", "error"]
+HealthStatus = Literal[
+    "healthy",
+    "degraded",
+    "unhealthy",
+    "critical",
+    "unknown",
+    "warning",
+    "unreachable",
+    "available",
+    "unavailable",
+    "error",
+]
 
 # Context value types - specific typed values for logging context
 ContextValue = Union[str, int, float, bool, list[str], Dict[str, str]]
@@ -94,6 +105,15 @@ class ProtocolValidationResult(Protocol):
 
 # Status types
 NodeStatus = Literal["active", "inactive", "error", "pending"]
+
+# Execution types - using string literals for SPI purity
+ExecutionMode = Literal["direct", "inmemory", "kafka"]
+OperationStatus = Literal["success", "failed", "in_progress", "cancelled", "pending"]
+
+# Validation types - using string literals for SPI purity
+ErrorSeverity = Literal["debug", "info", "warning", "error", "critical", "fatal"]
+ValidationLevel = Literal["BASIC", "STANDARD", "COMPREHENSIVE", "PARANOID"]
+ValidationMode = Literal["strict", "lenient", "smoke", "regression", "integration"]
 
 
 # Metadata protocols for type safety

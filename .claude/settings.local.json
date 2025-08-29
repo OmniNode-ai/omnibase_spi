@@ -5,7 +5,10 @@
       "Bash(git commit:*)",
       "Bash(poetry build)",
       "Bash(gh api:*)",
-      "Bash(gh repo create:*)"
+      "Bash(gh repo create:*)",
+      "mcp__serena__read_file",
+      "mcp__serena__activate_project",
+      "mcp__serena__check_onboarding_performed"
     ],
     "deny": [],
     "ask": []
