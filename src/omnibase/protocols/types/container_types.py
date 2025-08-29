@@ -10,7 +10,7 @@ from uuid import UUID
 # Generic type for services
 T = TypeVar("T")
 
-# Registry status types
+# Legacy status types (deprecated - use comprehensive protocols instead)
 RegistrationStatus = Literal["registered", "unregistered", "failed", "pending"]
 ServiceStatus = Literal["active", "inactive", "error", "starting", "stopping"]
 
@@ -18,7 +18,7 @@ ServiceStatus = Literal["active", "inactive", "error", "starting", "stopping"]
 ConfigValue = Union[str, int, float, bool, list[str], Dict[str, Union[str, int, bool]]]
 
 
-# Service registry protocols
+# Legacy service registry protocols (deprecated - use comprehensive protocols instead)
 class ProtocolServiceInfo(Protocol):
     """Protocol for service information objects."""
 
@@ -30,8 +30,8 @@ class ProtocolServiceInfo(Protocol):
     metadata: Dict[str, ConfigValue]
 
 
-class ProtocolServiceRegistry(Protocol):
-    """Protocol for service registry objects."""
+class ProtocolServiceRegistryBasic(Protocol):
+    """Basic protocol for service registry objects (deprecated)."""
 
     registry_id: str
     total_services: int
@@ -49,7 +49,7 @@ class ProtocolContainerConfig(Protocol):
     configuration: Dict[str, ConfigValue]
 
 
-# Dependency protocols
+# Legacy dependency protocols (deprecated - use comprehensive protocols instead)
 class ProtocolDependencyInfo(Protocol):
     """Protocol for dependency information."""
 
@@ -59,8 +59,8 @@ class ProtocolDependencyInfo(Protocol):
     default_value: ConfigValue | None
 
 
-class ProtocolInjectionContext(Protocol):
-    """Protocol for dependency injection context."""
+class ProtocolInjectionContextBasic(Protocol):
+    """Basic protocol for dependency injection context (deprecated)."""
 
     target_service: str
     dependencies: list[str]

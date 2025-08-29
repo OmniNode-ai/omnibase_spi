@@ -6,14 +6,14 @@ for data structures used across ONEX service interfaces. All types follow
 the zero-dependency principle and use strong typing without Any.
 """
 
-# Container types
+# Container types (legacy - use comprehensive protocols from container package)
 from omnibase.protocols.types.container_types import (
     ConfigValue,
     ProtocolContainerConfig,
     ProtocolDependencyInfo,
-    ProtocolInjectionContext,
+    ProtocolInjectionContextBasic,
     ProtocolServiceInfo,
-    ProtocolServiceRegistry,
+    ProtocolServiceRegistryBasic,
     RegistrationStatus,
     ServiceStatus,
 )
@@ -118,15 +118,15 @@ __all__ = [
     "ProtocolEventResult",
     "ProtocolEventSubscription",
     "ProtocolSecurityContext",
-    # Container types
+    # Container types (legacy - use comprehensive protocols from container package)
     "ConfigValue",
     "RegistrationStatus",
     "ServiceStatus",
     "ProtocolContainerConfig",
     "ProtocolDependencyInfo",
-    "ProtocolInjectionContext",
+    "ProtocolInjectionContextBasic",
     "ProtocolServiceInfo",
-    "ProtocolServiceRegistry",
+    "ProtocolServiceRegistryBasic",
     # Discovery types
     "CapabilityValue",
     "DiscoveryStatus",

@@ -126,13 +126,13 @@ class ProtocolNodeRegistry(Protocol):
         registry: ProtocolNodeRegistry = RegistryConsulNode("prod", "consul.company.com:8500")
 
         # Register current node
-        node_info = WorkerNodeInfo(
+        node_info = NodeInfo(
             node_id="worker-001",
             node_type="COMPUTE",
             node_name="Data Processor",
             environment="prod",
             group="analytics",
-            version=SemVer(1, 2, 3),
+            version=ProtocolSemVer(1, 2, 3),
             health_status="healthy",
             endpoint="10.0.1.15:8080",
             metadata={"cpu_cores": 8, "memory_gb": 32},

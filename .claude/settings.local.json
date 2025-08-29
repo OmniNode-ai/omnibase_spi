@@ -15,7 +15,15 @@
       "Bash(gh run view:*)",
       "Read(/Volumes/PRO-G40/Code/omnibase_3/**)",
       "Read(/Volumes/PRO-G40/Code/omnibase_3/**)",
-      "Read(/Volumes/PRO-G40/Code/omnibase_3/**)"
+      "Read(/Volumes/PRO-G40/Code/omnibase_3/**)",
+      "Bash(gh pr diff:*)",
+      "Bash(gh run list:*)",
+      "mcp__serena__list_dir",
+      "mcp__serena__search_for_pattern",
+      "mcp__serena__think_about_task_adherence",
+      "mcp__serena__create_text_file",
+      "mcp__serena__replace_regex",
+      "mcp__serena__execute_shell_command"
     ],
     "deny": [],
     "ask": []
