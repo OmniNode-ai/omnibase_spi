@@ -22,86 +22,180 @@
 # === /OmniNode:Metadata ===
 
 
-from typing import Any, Callable, Optional, Protocol, runtime_checkable
+from dataclasses import dataclass
+from typing import Any, Awaitable, Callable, Dict, Optional, Protocol, runtime_checkable
 
-from omnibase.protocols.types.event_bus_types import (
-    ProtocolEventBusCredentials,
-    ProtocolOnexEvent,
-)
+
+@dataclass
+class ProtocolEventMessage:
+    """
+    Standard message format for ONEX event bus adapters.
+
+    Provides unified message structure for Kafka/Redpanda compatibility
+    following the ONEX Messaging Design v0.3.
+    """
+
+    topic: str
+    key: Optional[bytes]
+    value: bytes
+    headers: Dict[str, str]
+    offset: Optional[str] = None
+    partition: Optional[int] = None
+
+    async def ack(self) -> None:
+        """Acknowledge message processing (adapter-specific implementation)"""
+        pass
+
+
+@runtime_checkable
+class ProtocolEventBusAdapter(Protocol):
+    """
+    Protocol for Event Bus Adapters supporting pluggable Kafka/Redpanda backends.
+
+    Implements the ONEX Messaging Design v0.3 Event Bus Adapter interface
+    enabling drop-in support for both Kafka and Redpanda without code changes.
+
+    Environment isolation and tool group mini-meshes are supported through
+    topic naming conventions and group isolation patterns.
+    """
+
+    async def publish(
+        self, topic: str, key: Optional[bytes], value: bytes, headers: Dict[str, str]
+    ) -> None:
+        """
+        Publish message to topic.
+
+        Args:
+            topic: Target topic following ONEX naming conventions
+            key: Optional message key for partitioning
+            value: Serialized message payload
+            headers: Message metadata and routing headers
+        """
+        ...
+
+    async def subscribe(
+        self,
+        topic: str,
+        group_id: str,
+        on_message: Callable[[ProtocolEventMessage], Awaitable[None]],
+    ) -> Callable[[], Awaitable[None]]:
+        """
+        Subscribe to topic with message handler.
+
+        Args:
+            topic: Source topic following ONEX naming conventions
+            group_id: Consumer group for load balancing
+            on_message: Async message handler
+
+        Returns:
+            Unsubscribe function to clean up subscription
+        """
+        ...
+
+    async def close(self) -> None:
+        """Close adapter and clean up resources."""
+        ...
 
 
 @runtime_checkable
 class ProtocolEventBus(Protocol):
     """
-    Canonical protocol for ONEX event bus (runtime/ placement).
-    Defines publish/subscribe interface for event emission and handling.
-    All event bus implementations must conform to this interface.
-    Supports both synchronous and asynchronous methods for maximum flexibility.
-    Implementations may provide either or both, as appropriate.
-    Optionally supports clear() for test/lifecycle management.
+    ONEX event bus protocol for distributed messaging infrastructure.
 
-    # TODO: Future: Add pluggable backends (Kafka, message persistence, authentication, multi-tenant support)
+    Implements the ONEX Messaging Design v0.3:
+    - Environment isolation (dev, staging, prod)
+    - Tool group mini-meshes
+    - Kafka/Redpanda adapter pattern
+    - Standardized topic naming and headers
     """
 
     def __init__(
-        self, credentials: Optional[ProtocolEventBusCredentials] = None, **kwargs: Any
+        self,
+        adapter: ProtocolEventBusAdapter,
+        environment: str = "dev",
+        group: str = "default",
+        **kwargs: Any,
     ):
-        ...
-
-    def publish(self, event: ProtocolOnexEvent) -> None:
         """
-        Publish an event to the bus (synchronous).
+        Initialize event bus with pluggable adapter.
+
         Args:
-            event: ProtocolOnexEvent to emit
+            adapter: EventBusAdapter implementation (Kafka/Redpanda)
+            environment: Environment name (dev, staging, prod)
+            group: Tool group name for mini-mesh isolation
         """
         ...
 
-    async def publish_async(self, event: ProtocolOnexEvent) -> None:
-        """
-        Publish an event to the bus (asynchronous).
-        Args:
-            event: ProtocolOnexEvent to emit
-        """
-        ...
+    # === Distributed Messaging Interface ===
 
-    def subscribe(self, callback: Callable[[ProtocolOnexEvent], None]) -> None:
-        """
-        Subscribe a callback to receive events (synchronous).
-        Args:
-            callback: Callable invoked with each ProtocolOnexEvent
-        """
-        ...
-
-    async def subscribe_async(
-        self, callback: Callable[[ProtocolOnexEvent], None]
+    async def publish(
+        self,
+        topic: str,
+        key: Optional[bytes],
+        value: bytes,
+        headers: Optional[Dict[str, str]] = None,
     ) -> None:
         """
-        Subscribe a callback to receive events (asynchronous).
+        Publish message to topic.
+
         Args:
-            callback: Callable invoked with each ProtocolOnexEvent
+            topic: Target topic (supports ONEX naming conventions)
+            key: Optional message key for partitioning
+            value: Serialized message payload
+            headers: Optional message headers
         """
         ...
 
-    def unsubscribe(self, callback: Callable[[ProtocolOnexEvent], None]) -> None:
+    async def subscribe(
+        self,
+        topic: str,
+        group_id: str,
+        on_message: Callable[[ProtocolEventMessage], Awaitable[None]],
+    ) -> Callable[[], Awaitable[None]]:
         """
-        Unsubscribe a previously registered callback (synchronous).
+        Subscribe to topic with message handler.
+
         Args:
-            callback: Callable to remove
+            topic: Source topic (supports ONEX naming conventions)
+            group_id: Consumer group for load balancing
+            on_message: Message handler
+
+        Returns:
+            Unsubscribe function
         """
         ...
 
-    async def unsubscribe_async(
-        self, callback: Callable[[ProtocolOnexEvent], None]
+    async def broadcast_to_environment(
+        self,
+        command: str,
+        payload: Dict[str, Any],
+        target_environment: Optional[str] = None,
     ) -> None:
         """
-        Unsubscribe a previously registered callback (asynchronous).
+        Broadcast command to entire environment.
+
         Args:
-            callback: Callable to remove
+            command: Command type (e.g., 'introspection')
+            payload: Command payload
+            target_environment: Target env (default: current environment)
         """
         ...
 
-    def clear(self) -> None:
+    async def send_to_group(
+        self, command: str, payload: Dict[str, Any], target_group: str
+    ) -> None:
         """
-        Remove all subscribers from the event bus. Optional, for test/lifecycle management.
+        Send command to specific tool group.
+
+        Args:
+            command: Command type
+            payload: Command payload
+            target_group: Target tool group name
+        """
+        ...
+
+    async def close(self) -> None:
+        """
+        Close event bus and clean up resources.
         """
         ...
