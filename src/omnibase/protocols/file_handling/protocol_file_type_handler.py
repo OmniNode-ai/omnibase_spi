@@ -25,7 +25,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional, Protocol
+from typing import Optional, Protocol, runtime_checkable
 
 from omnibase.protocols.types.core_types import ProtocolSemVer
 from omnibase.protocols.types.file_handling_types import (
@@ -35,6 +35,24 @@ from omnibase.protocols.types.file_handling_types import (
     ProtocolOnexResult,
     ProtocolSerializedBlock,
 )
+
+
+@runtime_checkable
+class ProtocolStampOptions(Protocol):
+    """Protocol for stamping operation options."""
+
+    force: bool
+    backup: bool
+    dry_run: bool
+
+
+@runtime_checkable
+class ProtocolValidationOptions(Protocol):
+    """Protocol for validation operation options."""
+
+    strict: bool
+    verbose: bool
+    check_syntax: bool
 
 
 class ProtocolFileTypeHandler(Protocol):
@@ -91,20 +109,22 @@ class ProtocolFileTypeHandler(Protocol):
     def normalize_rest(self, rest: str) -> str:
         ...
 
-    def stamp(self, path: Path, content: str, **kwargs: object) -> ProtocolOnexResult:
+    def stamp(
+        self, path: Path, content: str, options: ProtocolStampOptions
+    ) -> ProtocolOnexResult:
         ...
 
     def pre_validate(
-        self, path: Path, content: str, **kwargs: object
+        self, path: Path, content: str, options: ProtocolValidationOptions
     ) -> Optional[ProtocolOnexResult]:
         ...
 
     def post_validate(
-        self, path: Path, content: str, **kwargs: object
+        self, path: Path, content: str, options: ProtocolValidationOptions
     ) -> Optional[ProtocolOnexResult]:
         ...
 
     def validate(
-        self, path: Path, content: str, **kwargs: object
+        self, path: Path, content: str, options: ProtocolValidationOptions
     ) -> ProtocolOnexResult:
         ...

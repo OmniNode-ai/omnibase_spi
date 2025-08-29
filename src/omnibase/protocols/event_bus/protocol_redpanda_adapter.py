@@ -6,9 +6,9 @@ Protocol definition for Redpanda backend implementations.
 Redpanda is Kafka API compatible with optimized defaults.
 """
 
-from typing import Protocol, runtime_checkable
+from typing import Dict, Optional, Protocol, runtime_checkable
 
-from .protocol_kafka_adapter import ProtocolKafkaAdapter
+from .protocol_kafka_adapter import ProtocolKafkaAdapter, ProtocolKafkaConfig
 
 
 @runtime_checkable
@@ -25,7 +25,7 @@ class ProtocolRedpandaAdapter(ProtocolKafkaAdapter, Protocol):
         bootstrap_servers: str = "localhost:9092",
         environment: str = "dev",
         group: str = "default",
-        **redpanda_config,
+        config: Optional[ProtocolKafkaConfig] = None,
     ):
         """
         Initialize Redpanda adapter with optimized defaults.
@@ -34,11 +34,11 @@ class ProtocolRedpandaAdapter(ProtocolKafkaAdapter, Protocol):
             bootstrap_servers: Redpanda broker addresses
             environment: Environment name for topic isolation
             group: Tool group name for mini-mesh isolation
-            **redpanda_config: Redpanda-specific configuration overrides
+            config: Optional Redpanda configuration protocol
         """
         ...
 
     @property
-    def redpanda_optimized_defaults(self) -> dict:
+    def redpanda_optimized_defaults(self) -> Dict[str, str]:
         """Get Redpanda-optimized configuration defaults."""
         ...

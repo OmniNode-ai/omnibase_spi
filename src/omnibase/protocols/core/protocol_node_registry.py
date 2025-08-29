@@ -11,7 +11,41 @@ Integrates with Consul-based discovery while maintaining clean protocol boundari
 from typing import Dict, List, Optional, Protocol, runtime_checkable
 from uuid import UUID
 
-from omnibase.protocols.types.core_types import HealthStatus, NodeType, ProtocolDateTime, ProtocolSemVer
+from omnibase.protocols.types.core_types import (
+    ContextValue,
+    HealthStatus,
+    NodeType,
+    ProtocolDateTime,
+    ProtocolSemVer,
+)
+
+
+@runtime_checkable
+class ProtocolNodeChangeCallback(Protocol):
+    """Protocol for node change callback functions."""
+
+    def __call__(self, node_info: "ProtocolNodeInfo", change_type: str) -> None:
+        """Handle node registry changes."""
+        ...
+
+
+@runtime_checkable
+class ProtocolWatchHandle(Protocol):
+    """Protocol for watch handle objects."""
+
+    watch_id: str
+    is_active: bool
+
+
+@runtime_checkable
+class ProtocolNodeRegistryConfig(Protocol):
+    """Protocol for node registry configuration."""
+
+    consul_host: str
+    consul_port: int
+    consul_token: Optional[str]
+    health_check_interval: int
+    retry_attempts: int
 
 
 @runtime_checkable
@@ -26,7 +60,7 @@ class ProtocolNodeInfo(Protocol):
     version: ProtocolSemVer
     health_status: HealthStatus
     endpoint: str
-    metadata: Dict[str, object]
+    metadata: Dict[str, ContextValue]
     registered_at: ProtocolDateTime
     last_heartbeat: ProtocolDateTime
 
@@ -46,7 +80,10 @@ class ProtocolNodeRegistry(Protocol):
     """
 
     def __init__(
-        self, environment: str = "dev", consul_endpoint: Optional[str] = None, **config
+        self,
+        environment: str = "dev",
+        consul_endpoint: Optional[str] = None,
+        config: Optional[ProtocolNodeRegistryConfig] = None,
     ):
         """
         Initialize node registry.
@@ -54,7 +91,7 @@ class ProtocolNodeRegistry(Protocol):
         Args:
             environment: Environment name (dev, staging, prod)
             consul_endpoint: Optional Consul endpoint override
-            **config: Registry-specific configuration
+            config: Optional registry configuration protocol
         """
         ...
 
@@ -89,7 +126,7 @@ class ProtocolNodeRegistry(Protocol):
         self,
         node_id: str,
         health_status: HealthStatus,
-        metadata: Optional[Dict[str, object]] = None,
+        metadata: Optional[Dict[str, ContextValue]] = None,
     ) -> bool:
         """
         Update node health status.
@@ -118,10 +155,10 @@ class ProtocolNodeRegistry(Protocol):
 
     async def discover_nodes(
         self,
-        node_type: Optional[EnumNodeType] = None,
+        node_type: Optional[NodeType] = None,
         environment: Optional[str] = None,
         group: Optional[str] = None,
-        health_filter: Optional[EnumHealthStatus] = None,
+        health_filter: Optional[HealthStatus] = None,
     ) -> List[ProtocolNodeInfo]:
         """
         Discover nodes matching criteria.
@@ -175,10 +212,10 @@ class ProtocolNodeRegistry(Protocol):
 
     async def watch_node_changes(
         self,
-        callback,
-        node_type: Optional[EnumNodeType] = None,
+        callback: ProtocolNodeChangeCallback,
+        node_type: Optional[NodeType] = None,
         group: Optional[str] = None,
-    ) -> object:
+    ) -> ProtocolWatchHandle:
         """
         Watch for node registry changes.
 
@@ -192,7 +229,7 @@ class ProtocolNodeRegistry(Protocol):
         """
         ...
 
-    async def stop_watch(self, watch_handle: object) -> None:
+    async def stop_watch(self, watch_handle: ProtocolWatchHandle) -> None:
         """
         Stop watching node changes.
 

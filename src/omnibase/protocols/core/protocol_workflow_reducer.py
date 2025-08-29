@@ -8,15 +8,22 @@ asynchronous orchestration with observable state changes.
 Author: ONEX Framework Team
 """
 
-from typing import Any, Dict, List, Optional, Protocol
-
-from llama_index.core.workflow import Workflow
+from typing import Any, Dict, List, Optional, Protocol, runtime_checkable
 
 from omnibase.protocols.types.core_types import (
     ProtocolAction,
     ProtocolNodeResult,
     ProtocolState,
 )
+
+
+@runtime_checkable
+class ProtocolWorkflow(Protocol):
+    """Protocol for workflow objects - replaces LlamaIndex dependency."""
+
+    async def run(self, **kwargs: Any) -> Any:
+        """Execute the workflow with given parameters."""
+        ...
 
 
 class ProtocolWorkflowReducer(Protocol):
@@ -76,7 +83,7 @@ class ProtocolWorkflowReducer(Protocol):
         """
         ...
 
-    def create_workflow(self) -> Optional[Workflow]:
+    def create_workflow(self) -> Optional[ProtocolWorkflow]:
         """
         Factory method for creating LlamaIndex workflow instances.
 

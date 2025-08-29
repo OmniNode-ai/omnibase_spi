@@ -12,6 +12,21 @@ from .protocol_event_bus import ProtocolEventBusAdapter
 
 
 @runtime_checkable
+class ProtocolKafkaConfig(Protocol):
+    """Protocol for Kafka configuration parameters."""
+
+    security_protocol: str
+    sasl_mechanism: str
+    sasl_username: Optional[str]
+    sasl_password: Optional[str]
+    ssl_cafile: Optional[str]
+    auto_offset_reset: str
+    enable_auto_commit: bool
+    session_timeout_ms: int
+    request_timeout_ms: int
+
+
+@runtime_checkable
 class ProtocolKafkaAdapter(ProtocolEventBusAdapter, Protocol):
     """
     Protocol for Kafka event bus adapter implementations.
@@ -25,7 +40,7 @@ class ProtocolKafkaAdapter(ProtocolEventBusAdapter, Protocol):
         bootstrap_servers: str = "localhost:9092",
         environment: str = "dev",
         group: str = "default",
-        **kafka_config,
+        config: Optional[ProtocolKafkaConfig] = None,
     ):
         """
         Initialize Kafka adapter.
@@ -34,7 +49,7 @@ class ProtocolKafkaAdapter(ProtocolEventBusAdapter, Protocol):
             bootstrap_servers: Kafka broker addresses
             environment: Environment name for topic isolation
             group: Tool group name for mini-mesh isolation
-            **kafka_config: Additional Kafka configuration
+            config: Optional Kafka configuration protocol
         """
         ...
 
@@ -44,7 +59,7 @@ class ProtocolKafkaAdapter(ProtocolEventBusAdapter, Protocol):
         ...
 
     @property
-    def kafka_config(self) -> Dict[str, object]:
+    def kafka_config(self) -> ProtocolKafkaConfig:
         """Get Kafka-specific configuration."""
         ...
 
