@@ -76,6 +76,108 @@ class ProtocolNodeRegistry(Protocol):
     - Health monitoring and heartbeat tracking
 
     Implementations may use Consul, etcd, or other discovery backends.
+
+    Usage Example:
+        ```python
+        # Implementation example (not part of SPI)
+        class RegistryConsulNode:
+            def __init__(self, environment: str = "dev", consul_endpoint: str = "localhost:8500"):
+                self.environment = environment
+                self.consul = consul.Consul(host=consul_endpoint.split(':')[0],
+                                          port=int(consul_endpoint.split(':')[1]))
+                self.watches = {}
+
+            async def register_node(self, node_info: ProtocolNodeInfo, ttl_seconds: int = 30) -> bool:
+                # Register node in Consul with TTL health check
+                service_id = f"{node_info.node_id}-{self.environment}"
+                return await self.consul.agent.service.register(
+                    name=f"{self.environment}-{node_info.group}-{node_info.node_type}",
+                    service_id=service_id,
+                    address=node_info.endpoint.split(':')[0],
+                    port=int(node_info.endpoint.split(':')[1]),
+                    tags=[node_info.group, str(node_info.version)],
+                    meta=node_info.metadata,
+                    check=consul.Check.ttl(f"{ttl_seconds}s")
+                )
+
+            async def discover_nodes(self, node_type: Optional[NodeType] = None,
+                                   environment: Optional[str] = None,
+                                   group: Optional[str] = None) -> List[ProtocolNodeInfo]:
+                # Discover nodes from Consul catalog
+                env = environment or self.environment
+                service_filter = f"{env}-"
+                if group:
+                    service_filter += f"{group}-"
+                if node_type:
+                    service_filter += str(node_type)
+
+                services = await self.consul.catalog.services()
+                matching_nodes = []
+
+                for service_name in services:
+                    if service_name.startswith(service_filter):
+                        service_info = await self.consul.catalog.service(service_name)
+                        for node in service_info:
+                            matching_nodes.append(self._convert_to_node_info(node))
+
+                return matching_nodes
+
+        # Usage in application
+        registry: ProtocolNodeRegistry = RegistryConsulNode("prod", "consul.company.com:8500")
+
+        # Register current node
+        node_info = ModelWorkerNodeInfo(
+            node_id="worker-001",
+            node_type="COMPUTE",
+            node_name="Data Processor",
+            environment="prod",
+            group="analytics",
+            version=ModelSemVer(1, 2, 3),
+            health_status="healthy",
+            endpoint="10.0.1.15:8080",
+            metadata={"cpu_cores": 8, "memory_gb": 32},
+            registered_at=datetime.now(),
+            last_heartbeat=datetime.now()
+        )
+
+        success = await registry.register_node(node_info, ttl_seconds=60)
+        if success:
+            print(f"Registered {node_info.node_name} successfully")
+
+        # Discover compute nodes in analytics group
+        compute_nodes = await registry.discover_nodes(
+            node_type="COMPUTE",
+            environment="prod",
+            group="analytics"
+        )
+
+        print(f"Found {len(compute_nodes)} compute nodes in analytics group")
+
+        # Set up node change monitoring
+        async def on_node_change(node: ProtocolNodeInfo, change_type: str):
+            print(f"Node {node.node_name} changed: {change_type}")
+            if change_type == "unhealthy":
+                # Implement failover logic
+                await handle_node_failure(node)
+
+        watch_handle = await registry.watch_node_changes(
+            callback=on_node_change,
+            node_type="COMPUTE",
+            group="analytics"
+        )
+
+        # Send periodic heartbeats
+        while True:
+            await registry.heartbeat(node_info.node_id)
+            await asyncio.sleep(30)  # Heartbeat every 30 seconds
+        ```
+
+    Node Discovery Patterns:
+        - Environment-based isolation: `prod-analytics-COMPUTE`
+        - Group-based discovery: Find all nodes in a tool group
+        - Health-based filtering: Only discover healthy nodes
+        - Type-based filtering: Find specific node types (COMPUTE, ORCHESTRATOR, etc.)
+        - Watch-based monitoring: Real-time notifications of node changes
     """
 
     def __init__(

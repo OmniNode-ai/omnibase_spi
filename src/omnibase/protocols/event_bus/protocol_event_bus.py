@@ -57,6 +57,57 @@ class ProtocolEventBusAdapter(Protocol):
 
     Environment isolation and tool group mini-meshes are supported through
     topic naming conventions and group isolation patterns.
+
+    Usage Example:
+        ```python
+        # Implementation example (not part of SPI)
+        class KafkaAdapter:
+            async def publish(self, topic: str, key: Optional[bytes],
+                            value: bytes, headers: Dict[str, str]) -> None:
+                # Kafka-specific publishing logic
+                producer = self._get_producer()
+                await producer.send(topic, key=key, value=value, headers=headers)
+
+            async def subscribe(self, topic: str, group_id: str,
+                              on_message: Callable) -> Callable:
+                # Kafka-specific subscription logic
+                consumer = self._create_consumer(group_id)
+                consumer.subscribe([topic])
+                # Return unsubscribe function
+                return lambda: consumer.unsubscribe()
+
+        # Usage in application code
+        adapter: ProtocolEventBusAdapter = KafkaAdapter()
+
+        # Publishing events
+        await adapter.publish(
+            topic="user-events",
+            key=b"user-123",
+            value=json.dumps({"event": "user_created"}).encode(),
+            headers={"content-type": "application/json"}
+        )
+
+        # Subscribing to events
+        async def handle_message(msg: ProtocolEventMessage) -> None:
+            data = json.loads(msg.value.decode())
+            print(f"Received: {data}")
+            await msg.ack()
+
+        unsubscribe = await adapter.subscribe(
+            topic="user-events",
+            group_id="user-service",
+            on_message=handle_message
+        )
+
+        # Later cleanup
+        await unsubscribe()
+        await adapter.close()
+        ```
+
+    Topic Naming Conventions:
+        - Environment isolation: `{env}-{topic}` (e.g., "prod-user-events")
+        - Tool group isolation: `{group}-{topic}` (e.g., "auth-user-events")
+        - Combined: `{env}-{group}-{topic}` (e.g., "prod-auth-user-events")
     """
 
     async def publish(
@@ -80,12 +131,12 @@ class ProtocolEventBusAdapter(Protocol):
         on_message: Callable[[ProtocolEventMessage], Awaitable[None]],
     ) -> Callable[[], Awaitable[None]]:
         """
-        Subscribe to topic with message handler.
+        Subscribe to topic with message node.
 
         Args:
             topic: Source topic following ONEX naming conventions
             group_id: Consumer group for load balancing
-            on_message: Async message handler
+            on_message: Async message node
 
         Returns:
             Unsubscribe function to clean up subscription
@@ -153,12 +204,12 @@ class ProtocolEventBus(Protocol):
         on_message: Callable[[ProtocolEventMessage], Awaitable[None]],
     ) -> Callable[[], Awaitable[None]]:
         """
-        Subscribe to topic with message handler.
+        Subscribe to topic with message node.
 
         Args:
             topic: Source topic (supports ONEX naming conventions)
             group_id: Consumer group for load balancing
-            on_message: Message handler
+            on_message: Message node
 
         Returns:
             Unsubscribe function

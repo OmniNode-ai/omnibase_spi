@@ -88,16 +88,16 @@ class ProtocolFileTypeResult(Protocol):
 
 
 class ProtocolHandlerMatch(Protocol):
-    """Protocol for handler matching results."""
+    """Protocol for node matching results."""
 
-    handler_id: UUID
-    handler_name: str
+    node_id: UUID
+    node_name: str
     match_confidence: float
     can_handle: bool
     required_capabilities: list[str]
 
 
-# Protocol types for file type handlers
+# Protocol types for file type nodes
 class ProtocolCanHandleResult(Protocol):
     """Protocol for can handle determination results."""
 
@@ -108,7 +108,7 @@ class ProtocolCanHandleResult(Protocol):
 
 
 class ProtocolHandlerMetadata(Protocol):
-    """Protocol for handler metadata."""
+    """Protocol for node metadata."""
 
     name: str
     version: ProtocolSemVer

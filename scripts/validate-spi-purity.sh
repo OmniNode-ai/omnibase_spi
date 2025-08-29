@@ -57,82 +57,252 @@ done < <(grep -rn "class.*ABC" src/ --include="*.py" || true)
 # Check for concrete method implementations (methods with actual code, not just ...)
 echo "Checking for concrete method implementations..."
 TEMP_FILE=$(mktemp)
-# Find all method definitions and check if they have implementations
-grep -rn "def.*\(self.*\):" src/ --include="*.py" > "$TEMP_FILE" || true
+# Find all method definitions and check if they have implementations, excluding docstring examples
+python3 -c "
+import re
+import sys
+from pathlib import Path
+
+def is_in_docstring_or_comment(file_path, line_num):
+    '''Check if a line is inside a docstring or comment block'''
+    try:
+        with open(file_path, 'r') as f:
+            lines = f.readlines()
+        
+        in_triple_quote = False
+        quote_char = None
+        
+        for i, line in enumerate(lines[:line_num], 1):
+            stripped = line.strip()
+            
+            # Skip empty lines and comments
+            if not stripped or stripped.startswith('#'):
+                continue
+                
+            # Check for triple quote start/end
+            if '\"\"\"' in line:
+                if not in_triple_quote:
+                    in_triple_quote = True
+                    quote_char = '\"\"\"'
+                elif quote_char == '\"\"\"':
+                    in_triple_quote = False
+                    quote_char = None
+            elif \"'''\" in line:
+                if not in_triple_quote:
+                    in_triple_quote = True
+                    quote_char = \"'''\"
+                elif quote_char == \"'''\": 
+                    in_triple_quote = False
+                    quote_char = None
+                    
+        return in_triple_quote
+    except:
+        return False
+
+# Find method definitions outside docstrings
+for py_file in Path('src').rglob('*.py'):
+    try:
+        with open(py_file, 'r') as f:
+            lines = f.readlines()
+        
+        for i, line in enumerate(lines, 1):
+            if re.match(r'.*def.*\(self.*\):', line.strip()):
+                if not is_in_docstring_or_comment(py_file, i):
+                    # Check next few lines for implementation
+                    next_lines = lines[i:i+5] if i < len(lines) else []
+                    impl_found = False
+                    
+                    for next_line in next_lines:
+                        stripped = next_line.strip()
+                        if stripped and not stripped.startswith('#'):
+                            if not re.match(r'^(\.\.\.|\"\"\"|\'\'\'|pass)$', stripped):
+                                if re.search(r'(return [^.]|raise [^N]|if |for |while |try:|except|print|=)', stripped):
+                                    impl_found = True
+                                    break
+                    
+                    if impl_found:
+                        print(f'{py_file}:{i}:{line.strip()}')
+    except:
+        continue
+" > "$TEMP_FILE" 2>/dev/null || true
+
 while IFS=: read -r file line content; do
-    # Skip if it's just an abstract method with ...
-    if [[ $content =~ def.*\(self.*\):$ ]]; then
-        # Check the next few lines for actual implementation
-        next_lines=$(sed -n "$((line+1)),$((line+5))p" "$file" 2>/dev/null || echo "")
-        if [[ ! $next_lines =~ ^[[:space:]]*\.\.\.[[:space:]]*$ ]] && [[ ! $next_lines =~ ^[[:space:]]*\".*\"[[:space:]]*$ ]] && [[ ! $next_lines =~ ^[[:space:]]*pass[[:space:]]*$ ]]; then
-            # Check if there's actual implementation code
-            if echo "$next_lines" | grep -q -E "(return [^.]|raise [^N]|if |for |while |try:|except|print|=)" 2>/dev/null; then
-                report_violation "$file" "$line" "$content" "SPI should not contain concrete method implementations"
-            fi
-        fi
+    if [[ -n "$content" ]]; then
+        report_violation "$file" "$line" "$content" "SPI should not contain concrete method implementations"
     fi
 done < "$TEMP_FILE"
 rm "$TEMP_FILE"
 
 # Check for imports that suggest implementation (not just type definitions)
 echo "Checking for implementation imports..."
-IMPLEMENTATION_IMPORTS=(
-    "from abc import ABC"
-    "from enum import Enum" 
-    "import asyncio"
-    "from datetime import datetime$"
-    "import logging"
-    "import os"
-    "import sys"
-    "import json"
-    "import yaml"
-    "import requests"
-    "import sqlite3"
-    "import psycopg2"
-    "import redis"
-)
+TEMP_IMPORT_FILE=$(mktemp)
 
-for import_pattern in "${IMPLEMENTATION_IMPORTS[@]}"; do
-    while IFS=: read -r file line content; do
-        # Allow datetime import only in core_types.py for ProtocolDateTime
-        if [[ $import_pattern == "from datetime import datetime$" ]] && [[ $file == *"core_types.py" ]]; then
-            continue
-        fi
-        # Allow enum import temporarily during migration (but report as warning)
-        if [[ $import_pattern == "from enum import Enum" ]]; then
-            echo -e "${YELLOW}⚠️  WARNING${NC} in ${file}:${line}"
-            echo -e "   ${YELLOW}Found:${NC} ${content}"
-            echo -e "   ${YELLOW}Issue:${NC} Enum import detected - should be migrated to Literal types"
-            echo
-        else
-            report_violation "$file" "$line" "$content" "SPI should not import implementation libraries"
-        fi
-    done < <(grep -rn "$import_pattern" src/ --include="*.py" || true)
-done
+python3 -c "
+import re
+import sys
+from pathlib import Path
 
-# Check for hardcoded values that suggest implementation logic
+def is_in_docstring_or_comment(file_path, line_num):
+    '''Check if a line is inside a docstring or comment block'''
+    try:
+        with open(file_path, 'r') as f:
+            lines = f.readlines()
+        
+        in_triple_quote = False
+        quote_char = None
+        
+        for i, line in enumerate(lines[:line_num], 1):
+            stripped = line.strip()
+            
+            # Skip empty lines and comments
+            if not stripped or stripped.startswith('#'):
+                continue
+                
+            # Check for triple quote start/end
+            if '\"\"\"' in line:
+                if not in_triple_quote:
+                    in_triple_quote = True
+                    quote_char = '\"\"\"'
+                elif quote_char == '\"\"\"':
+                    in_triple_quote = False
+                    quote_char = None
+            elif \"'''\" in line:
+                if not in_triple_quote:
+                    in_triple_quote = True
+                    quote_char = \"'''\"
+                elif quote_char == \"'''\": 
+                    in_triple_quote = False
+                    quote_char = None
+                    
+        return in_triple_quote
+    except:
+        return False
+
+import_patterns = [
+    r'from abc import ABC',
+    r'from enum import Enum',
+    r'import asyncio',
+    r'from datetime import datetime$',
+    r'import logging',
+    r'import os',
+    r'import sys',
+    r'import json',
+    r'import yaml',
+    r'import requests',
+    r'import sqlite3',
+    r'import psycopg2',
+    r'import redis'
+]
+
+# Find implementation imports outside docstrings
+for py_file in Path('src').rglob('*.py'):
+    try:
+        with open(py_file, 'r') as f:
+            lines = f.readlines()
+        
+        for i, line in enumerate(lines, 1):
+            if not is_in_docstring_or_comment(py_file, i):
+                for pattern in import_patterns:
+                    if re.search(pattern, line):
+                        # Special handling for datetime in core_types.py
+                        if pattern == r'from datetime import datetime$' and 'core_types.py' in str(py_file):
+                            continue
+                        print(f'{py_file}:{i}:{line.strip()}')
+                        break
+    except:
+        continue
+" > "$TEMP_IMPORT_FILE" 2>/dev/null || true
+
+while IFS=: read -r file line content; do
+    if [[ -n "$content" ]]; then
+        report_violation "$file" "$line" "$content" "SPI should not import implementation libraries"
+    fi
+done < "$TEMP_IMPORT_FILE"
+rm "$TEMP_IMPORT_FILE"
+
+# Check for hardcoded values that suggest implementation logic (excluding docstring examples)
 echo "Checking for implementation logic patterns..."
-IMPLEMENTATION_PATTERNS=(
-    "print\("
-    "logging\."
-    "log\."
-    "open\("
-    "with open"
-    "requests\."
-    "json\.loads"
-    "yaml\.load"
-    "os\.path"
-    "sys\."
-    "time\.sleep"
-    "asyncio\.sleep"
-    "threading\."
-)
+TEMP_LOGIC_FILE=$(mktemp)
 
-for pattern in "${IMPLEMENTATION_PATTERNS[@]}"; do
-    while IFS=: read -r file line content; do
+python3 -c "
+import re
+import sys
+from pathlib import Path
+
+def is_in_docstring_or_comment(file_path, line_num):
+    '''Check if a line is inside a docstring or comment block'''
+    try:
+        with open(file_path, 'r') as f:
+            lines = f.readlines()
+        
+        in_triple_quote = False
+        quote_char = None
+        
+        for i, line in enumerate(lines[:line_num], 1):
+            stripped = line.strip()
+            
+            # Skip empty lines and comments
+            if not stripped or stripped.startswith('#'):
+                continue
+                
+            # Check for triple quote start/end
+            if '\"\"\"' in line:
+                if not in_triple_quote:
+                    in_triple_quote = True
+                    quote_char = '\"\"\"'
+                elif quote_char == '\"\"\"':
+                    in_triple_quote = False
+                    quote_char = None
+            elif \"'''\" in line:
+                if not in_triple_quote:
+                    in_triple_quote = True
+                    quote_char = \"'''\"
+                elif quote_char == \"'''\": 
+                    in_triple_quote = False
+                    quote_char = None
+                    
+        return in_triple_quote
+    except:
+        return False
+
+patterns = [
+    r'print\(',
+    r'logging\.',
+    r'log\.',
+    r'open\(',
+    r'with open',
+    r'requests\.',
+    r'json\.loads',
+    r'yaml\.load',
+    r'os\.path',
+    r'sys\.',
+    r'time\.sleep',
+    r'asyncio\.sleep',
+    r'threading\.'
+]
+
+# Find implementation patterns outside docstrings
+for py_file in Path('src').rglob('*.py'):
+    try:
+        with open(py_file, 'r') as f:
+            lines = f.readlines()
+        
+        for i, line in enumerate(lines, 1):
+            if not is_in_docstring_or_comment(py_file, i):
+                for pattern in patterns:
+                    if re.search(pattern, line):
+                        print(f'{py_file}:{i}:{line.strip()}')
+                        break
+    except:
+        continue
+" > "$TEMP_LOGIC_FILE" 2>/dev/null || true
+
+while IFS=: read -r file line content; do
+    if [[ -n "$content" ]]; then
         report_violation "$file" "$line" "$content" "SPI should not contain implementation logic"
-    done < <(grep -rn "$pattern" src/ --include="*.py" || true)
-done
+    fi
+done < "$TEMP_LOGIC_FILE"
+rm "$TEMP_LOGIC_FILE"
 
 # Summary
 echo "----------------------------------------"

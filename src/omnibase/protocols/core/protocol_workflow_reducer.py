@@ -28,14 +28,87 @@ class ProtocolWorkflow(Protocol):
 
 class ProtocolWorkflowReducer(Protocol):
     """
-    Enhanced reducer protocol with LlamaIndex workflow support.
+    Enhanced reducer protocol with workflow support.
 
     Extends the basic reducer pattern to support:
     - Asynchronous workflow-based state transitions
     - Observable state changes via ProtocolNodeResult
-    - Complex orchestration through LlamaIndex workflows
+    - Complex orchestration through workflow patterns
     - Monadic composition with error handling
     - Event emission for monitoring and coordination
+
+    Usage Example:
+        ```python
+        # Implementation example (not part of SPI)
+        class UserWorkflowReducer:
+            def initial_state(self) -> ProtocolState:
+                return {
+                    "users": {},
+                    "session_count": 0,
+                    "last_activity": None
+                }
+
+            def dispatch(self, state: ProtocolState, action: ProtocolAction) -> ProtocolState:
+                # Synchronous state transitions
+                if action["type"] == "INCREMENT_SESSION":
+                    return {**state, "session_count": state["session_count"] + 1}
+                return state
+
+            async def dispatch_async(self, state: ProtocolState,
+                                   action: ProtocolAction) -> ProtocolNodeResult:
+                # Asynchronous workflow-based transitions
+                if action["type"] == "CREATE_USER":
+                    try:
+                        # Complex workflow: validate, create, notify
+                        user_data = await self._validate_user(action["payload"])
+                        user_id = await self._create_user_in_db(user_data)
+                        await self._send_welcome_email(user_id)
+
+                        new_state = {
+                            **state,
+                            "users": {**state["users"], user_id: user_data}
+                        }
+
+                        return ProtocolNodeResult(
+                            value=new_state,
+                            is_success=True,
+                            events=[{"type": "user_created", "user_id": user_id}]
+                        )
+                    except Exception as e:
+                        return ProtocolNodeResult(
+                            is_failure=True,
+                            error={"message": str(e), "retryable": True}
+                        )
+
+        # Usage in application
+        reducer: ProtocolWorkflowReducer = UserWorkflowReducer()
+
+        # Get initial state
+        state = reducer.initial_state()
+
+        # Synchronous dispatch
+        action = {"type": "INCREMENT_SESSION"}
+        new_state = reducer.dispatch(state, action)
+
+        # Asynchronous dispatch
+        async_action = {
+            "type": "CREATE_USER",
+            "payload": {"name": "Alice", "email": "alice@example.com"}
+        }
+        result = await reducer.dispatch_async(state, async_action)
+
+        if result.is_success:
+            final_state = result.value
+            print(f"User created, events: {result.events}")
+        else:
+            print(f"Error: {result.error}")
+        ```
+
+    State Management Patterns:
+        - Immutable state updates (always return new state objects)
+        - Event sourcing support through ProtocolNodeResult.events
+        - Error propagation via monadic composition
+        - Observable state changes for UI/monitoring integration
     """
 
     def initial_state(self) -> ProtocolState:

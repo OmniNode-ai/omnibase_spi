@@ -5,11 +5,12 @@ Domain: Core system protocols (logging, serialization, validation)
 """
 
 from datetime import datetime
-from typing import Dict, Literal, Optional, Protocol
+from typing import Dict, Literal, Optional, Protocol, runtime_checkable
 from uuid import UUID
 
 
 # Semantic version protocol - for strong version typing
+@runtime_checkable
 class ProtocolSemVer(Protocol):
     """Protocol for semantic version objects."""
 
@@ -66,6 +67,7 @@ class ProtocolLogContext(Protocol):
         ...
 
 
+@runtime_checkable
 class ProtocolLogEntry(Protocol):
     """Protocol for log entry objects."""
 
@@ -117,6 +119,7 @@ ValidationMode = Literal["strict", "lenient", "smoke", "regression", "integratio
 
 
 # Metadata protocols for type safety
+@runtime_checkable
 class ProtocolMetadata(Protocol):
     """Protocol for structured metadata - attribute-based for data compatibility."""
 

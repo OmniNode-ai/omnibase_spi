@@ -5,7 +5,7 @@ This serves as a template for creating protocols that don't depend on
 external data types.
 """
 
-from typing import TYPE_CHECKING, Any, Dict, Optional, Protocol
+from typing import TYPE_CHECKING, Any, Dict, Optional, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     # Forward references to data types that would be defined elsewhere
@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     T = TypeVar("T")
 
 
+@runtime_checkable
 class ProtocolSimpleSerializer(Protocol):
     """
     Simple serialization protocol with no external dependencies.
@@ -35,6 +36,7 @@ class ProtocolSimpleSerializer(Protocol):
         ...
 
 
+@runtime_checkable
 class ProtocolSimpleLogger(Protocol):
     """
     Simple logging protocol using only built-in types.
@@ -49,6 +51,7 @@ class ProtocolSimpleLogger(Protocol):
         ...
 
 
+@runtime_checkable
 class ProtocolSimpleEventHandler(Protocol):
     """
     Simple event handling protocol.
@@ -61,5 +64,5 @@ class ProtocolSimpleEventHandler(Protocol):
         ...
 
     def can_handle(self, event_type: str) -> bool:
-        """Check if this handler can process the given event type."""
+        """Check if this node can process the given event type."""
         ...
