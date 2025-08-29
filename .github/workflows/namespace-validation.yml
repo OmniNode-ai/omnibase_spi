@@ -1,8 +1,6 @@
 name: Namespace Isolation Validation
 
 on:
-  push:
-    branches: [ main, development, 'fix/*', 'feature/*' ]
   pull_request:
     branches: [ main, development ]
 
