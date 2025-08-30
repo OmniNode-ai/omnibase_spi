@@ -31,7 +31,7 @@ to enable testing and cross-node container access while maintaining proper
 architectural boundaries.
 """
 
-from typing import List, Literal, Optional, Protocol
+from typing import Literal, Optional, Protocol
 
 from omnibase.protocols.types.core_types import ProtocolSemVer
 

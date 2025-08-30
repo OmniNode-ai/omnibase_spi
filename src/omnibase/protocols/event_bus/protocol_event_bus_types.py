@@ -1,4 +1,4 @@
-from typing import Callable, Dict, Optional, Protocol, runtime_checkable
+from typing import Callable, Optional, Protocol, runtime_checkable
 
 from omnibase.protocols.types import ProtocolEvent
 

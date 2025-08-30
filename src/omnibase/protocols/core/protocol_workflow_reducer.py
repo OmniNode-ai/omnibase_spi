@@ -8,7 +8,7 @@ asynchronous orchestration with observable state changes.
 Author: ONEX Framework Team
 """
 
-from typing import Any, Dict, Optional, Protocol, runtime_checkable
+from typing import Any, Optional, Protocol, runtime_checkable
 
 from omnibase.protocols.types.core_types import (
     ProtocolAction,

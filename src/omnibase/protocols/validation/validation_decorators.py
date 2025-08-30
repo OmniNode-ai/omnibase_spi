@@ -16,7 +16,7 @@ Key Features:
 
 import functools
 import warnings
-from typing import TYPE_CHECKING, Any, Callable, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Callable, TypeVar, cast
 
 if TYPE_CHECKING:
     from typing_extensions import Protocol
@@ -24,7 +24,7 @@ else:
     try:
         from typing import Protocol
     except ImportError:
-        from typing_extensions import Protocol
+        pass
 
 from .protocol_validator import ProtocolValidator, ValidationResult
 

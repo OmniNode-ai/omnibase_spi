@@ -4,7 +4,7 @@ Discovery protocol types for ONEX SPI interfaces.
 Domain: Service and node discovery protocols
 """
 
-from typing import Dict, Literal, Protocol
+from typing import Literal, Protocol
 from uuid import UUID
 
 from omnibase.protocols.types.core_types import ProtocolSemVer

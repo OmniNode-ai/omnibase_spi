@@ -8,17 +8,7 @@ Supports the complete service lifecycle including registration, resolution, inje
 Focuses purely on dependency injection patterns rather than artifact or service discovery concerns.
 """
 
-from typing import (
-    Any,
-    Dict,
-    List,
-    Literal,
-    Optional,
-    Protocol,
-    Type,
-    TypeVar,
-    runtime_checkable,
-)
+from typing import Any, Literal, Optional, Protocol, Type, TypeVar, runtime_checkable
 
 from omnibase.protocols.types.core_types import (
     ContextValue,

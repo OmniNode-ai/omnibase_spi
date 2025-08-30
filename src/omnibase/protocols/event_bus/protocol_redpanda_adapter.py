@@ -6,9 +6,9 @@ Protocol definition for Redpanda backend implementations.
 Redpanda is Kafka API compatible with optimized defaults.
 """
 
-from typing import Dict, Optional, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
-from .protocol_kafka_adapter import ProtocolKafkaAdapter, ProtocolKafkaConfig
+from .protocol_kafka_adapter import ProtocolKafkaAdapter
 
 
 @runtime_checkable

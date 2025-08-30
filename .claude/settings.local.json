@@ -33,7 +33,11 @@
       "Read(/Volumes/PRO-G40/Code/omnibase_3/src/omnibase/enums/**)",
       "Read(/Volumes/PRO-G40/Code/omnibase_3/src/omnibase/constants/**)",
       "Bash(./scripts/validate-spi-purity.sh:*)",
-      "Bash(./scripts/validate-no-deprecated.sh:*)"
+      "Bash(./scripts/validate-no-deprecated.sh:*)",
+      "mcp__serena__onboarding",
+      "mcp__serena__write_memory",
+      "mcp__serena__think_about_whether_you_are_done",
+      "mcp__serena__read_memory"
     ],
     "deny": [],
     "ask": []

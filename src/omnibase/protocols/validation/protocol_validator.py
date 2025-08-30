@@ -15,8 +15,7 @@ Key Features:
 """
 
 import inspect
-import typing
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union, get_type_hints
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, get_type_hints
 
 if TYPE_CHECKING:
     from typing_extensions import Protocol
@@ -24,9 +23,7 @@ else:
     try:
         from typing import Protocol
     except ImportError:
-        from typing_extensions import Protocol
-
-from omnibase.protocols.types.core_types import ContextValue
+        pass
 
 
 class ValidationError:

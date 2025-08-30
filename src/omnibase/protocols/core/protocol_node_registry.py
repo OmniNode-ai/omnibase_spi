@@ -8,7 +8,7 @@ Supports the ONEX Messaging Design v0.3 with environment isolation and node grou
 Integrates with Consul-based discovery while maintaining clean protocol boundaries.
 """
 
-from typing import Dict, List, Optional, Protocol, runtime_checkable
+from typing import Optional, Protocol, runtime_checkable
 
 from omnibase.protocols.types.core_types import (
     ContextValue,

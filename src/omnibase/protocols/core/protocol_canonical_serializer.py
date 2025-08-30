@@ -22,7 +22,7 @@
 # === /OmniNode:Metadata ===
 
 
-from typing import Protocol, Tuple
+from typing import Protocol
 
 from omnibase.protocols.types import ProtocolNodeMetadata
 

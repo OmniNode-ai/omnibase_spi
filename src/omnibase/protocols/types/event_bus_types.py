@@ -4,7 +4,7 @@ Event bus protocol types for ONEX SPI interfaces.
 Domain: Event-driven architecture protocols
 """
 
-from typing import Dict, Literal, Protocol, Union
+from typing import Literal, Protocol, Union
 from uuid import UUID
 
 from omnibase.protocols.types.core_types import ProtocolDateTime

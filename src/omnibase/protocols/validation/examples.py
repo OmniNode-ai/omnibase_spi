@@ -14,8 +14,7 @@ Examples Include:
 - Error handling and debugging
 """
 
-from datetime import datetime
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 # Import protocols for examples
 from omnibase.protocols.container.protocol_artifact_container import (
@@ -23,25 +22,16 @@ from omnibase.protocols.container.protocol_artifact_container import (
     ProtocolArtifactContainer,
     ProtocolArtifactContainerStatus,
     ProtocolArtifactInfo,
-    ProtocolArtifactMetadata,
-)
-from omnibase.protocols.core.protocol_node_registry import (
-    ProtocolNodeInfo,
-    ProtocolNodeRegistry,
 )
 from omnibase.protocols.discovery.protocol_handler_discovery import (
     ProtocolHandlerDiscovery,
     ProtocolHandlerInfo,
 )
-from omnibase.protocols.types.core_types import ProtocolSemVer
 
 # Import validation utilities
 from omnibase.protocols.validation import (
     ArtifactContainerValidator,
     HandlerDiscoveryValidator,
-    NodeRegistryValidator,
-    ProtocolValidator,
-    ValidationResult,
     validate_protocol_implementation,
     validation_decorator,
 )
@@ -453,7 +443,7 @@ def example_error_handling():
             error_types[error_type] = []
         error_types[error_type].append(error)
 
-    print(f"\nError type breakdown:")
+    print("\nError type breakdown:")
     for error_type, errors in error_types.items():
         print(f"  {error_type}: {len(errors)} occurrences")
         for error in errors[:2]:  # Show first 2 of each type

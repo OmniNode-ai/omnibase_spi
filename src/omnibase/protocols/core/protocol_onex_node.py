@@ -22,7 +22,7 @@
 # === /OmniNode:Metadata ===
 
 
-from typing import Any, Dict, Protocol, Type
+from typing import Any, Protocol, Type
 
 
 class ProtocolOnexNode(Protocol):

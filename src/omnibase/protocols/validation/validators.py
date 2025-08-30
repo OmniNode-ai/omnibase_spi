@@ -13,7 +13,7 @@ Key Features:
 - Clear development guidance for protocol implementations
 """
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, List
 
 if TYPE_CHECKING:
     from typing_extensions import Protocol
@@ -21,23 +21,14 @@ else:
     try:
         from typing import Protocol
     except ImportError:
-        from typing_extensions import Protocol
+        pass
 
 from omnibase.protocols.container.protocol_artifact_container import (
-    ContainerArtifactType,
     ProtocolArtifactContainer,
-    ProtocolArtifactContainerStatus,
-    ProtocolArtifactInfo,
 )
-from omnibase.protocols.core.protocol_node_registry import (
-    ProtocolNodeInfo,
-    ProtocolNodeRegistry,
-    ProtocolNodeRegistryConfig,
-)
+from omnibase.protocols.core.protocol_node_registry import ProtocolNodeRegistry
 from omnibase.protocols.discovery.protocol_handler_discovery import (
     ProtocolHandlerDiscovery,
-    ProtocolHandlerInfo,
-    ProtocolNodeDiscoveryRegistry,
 )
 
 from .protocol_validator import ProtocolValidator, ValidationError, ValidationResult

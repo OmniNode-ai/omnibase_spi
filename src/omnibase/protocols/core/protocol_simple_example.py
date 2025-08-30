@@ -5,7 +5,7 @@ This serves as a template for creating protocols that don't depend on
 external data types.
 """
 
-from typing import TYPE_CHECKING, Any, Dict, Optional, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Optional, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     # Forward references to data types that would be defined elsewhere

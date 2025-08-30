@@ -5,7 +5,7 @@ Protocol interface for Onex contract validation and compliance checking.
 Defines the contract for validating Onex patterns and contract compliance.
 """
 
-from typing import Dict, List, Literal, Protocol
+from typing import Literal, Protocol
 
 from omnibase.protocols.types.core_types import ProtocolDateTime, ProtocolSemVer
 

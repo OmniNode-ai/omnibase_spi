@@ -8,7 +8,7 @@ This protocol enables core modules to request logging services without
 creating circular dependencies.
 """
 
-from typing import Callable, Dict, Optional, Protocol, TypeVar
+from typing import Callable, Optional, Protocol, TypeVar
 
 from omnibase.protocols.types import ContextValue, LogLevel
 
