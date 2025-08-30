@@ -12,6 +12,7 @@ from typing import Any, Literal, Optional, Protocol, Type, TypeVar, runtime_chec
 
 from omnibase.protocols.types.core_types import (
     ContextValue,
+    HealthStatus,
     OperationStatus,
     ProtocolDateTime,
     ProtocolSemVer,
@@ -37,10 +38,8 @@ ServiceResolutionStatus = Literal[
 # Dependency injection scope types
 InjectionScope = Literal["request", "session", "thread", "process", "global", "custom"]
 
-# Service health status types
-ServiceHealthStatus = Literal[
-    "healthy", "degraded", "unhealthy", "initializing", "disposing", "error"
-]
+# Service health status types - using consolidated HealthStatus
+ServiceHealthStatus = HealthStatus
 
 
 @runtime_checkable

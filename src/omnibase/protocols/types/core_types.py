@@ -26,8 +26,8 @@ class ProtocolSemVer(Protocol):
 # Datetime protocol alias - ensures consistent datetime usage
 ProtocolDateTime = datetime
 
-# Log level types - using string literals instead of enums
-LogLevel = Literal["TRACE", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+# Log level types - using string literals instead of enums (includes FATAL for error severity)
+LogLevel = Literal["TRACE", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL", "FATAL"]
 
 # Node-related types - using string literals for SPI purity
 NodeType = Literal["COMPUTE", "EFFECT", "REDUCER", "ORCHESTRATOR"]
@@ -41,6 +41,8 @@ HealthStatus = Literal[
     "unreachable",
     "available",
     "unavailable",
+    "initializing",
+    "disposing",
     "error",
 ]
 
@@ -105,15 +107,20 @@ class ProtocolValidationResult(Protocol):
     warnings: list[str]
 
 
-# Status types
+# Base status types - consolidated from multiple duplicates
+BaseStatus = Literal[
+    "pending", "processing", "completed", "failed", "cancelled", "skipped"
+]
+
+# Domain-specific status types
 NodeStatus = Literal["active", "inactive", "error", "pending"]
 
 # Execution types - using string literals for SPI purity
 ExecutionMode = Literal["direct", "inmemory", "kafka"]
 OperationStatus = Literal["success", "failed", "in_progress", "cancelled", "pending"]
 
-# Validation types - using string literals for SPI purity
-ErrorSeverity = Literal["debug", "info", "warning", "error", "critical", "fatal"]
+# Validation types - using string literals for SPI purity (ErrorSeverity consolidated into LogLevel)
+# Use LogLevel for error severity instead of separate ErrorSeverity type
 ValidationLevel = Literal["BASIC", "STANDARD", "COMPREHENSIVE", "PARANOID"]
 ValidationMode = Literal["strict", "lenient", "smoke", "regression", "integration"]
 

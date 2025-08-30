@@ -7,15 +7,15 @@ Domain: Event-driven architecture protocols
 from typing import Literal, Protocol, Union
 from uuid import UUID
 
-from omnibase.protocols.types.core_types import ProtocolDateTime
+from omnibase.protocols.types.core_types import BaseStatus, ProtocolDateTime
 
 # Event data types - more specific than Any
 EventData = Union[
     str, int, float, bool, list[str], dict[str, Union[str, int, float, bool]]
 ]
 
-# Event status types
-EventStatus = Literal["pending", "processing", "completed", "failed", "cancelled"]
+# Event status types - using consolidated BaseStatus
+EventStatus = BaseStatus
 
 # Authentication types
 AuthStatus = Literal["authenticated", "unauthenticated", "expired", "invalid"]
@@ -51,14 +51,7 @@ class ProtocolSecurityContext(Protocol):
     token_expires_at: ProtocolDateTime | None
 
 
-class ProtocolEventCredentials(Protocol):
-    """Protocol for event bus credentials."""
-
-    username: str
-    password: str
-    host: str
-    port: int
-    virtual_host: str | None
+# ProtocolEventCredentials removed - consolidated into ProtocolEventBusCredentials below
 
 
 # Event subscription protocols

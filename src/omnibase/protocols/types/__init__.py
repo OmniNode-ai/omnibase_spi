@@ -8,7 +8,9 @@ the zero-dependency principle and use strong typing without Any.
 
 # Core types
 from omnibase.protocols.types.core_types import (
+    BaseStatus,
     ContextValue,
+    HealthStatus,
     LogLevel,
     NodeStatus,
     ProtocolAction,
@@ -47,7 +49,6 @@ from omnibase.protocols.types.event_bus_types import (
     EventData,
     EventStatus,
     ProtocolEvent,
-    ProtocolEventCredentials,
     ProtocolEventResult,
     ProtocolEventSubscription,
     ProtocolSecurityContext,
@@ -78,7 +79,9 @@ from omnibase.protocols.types.file_handling_types import (
 
 __all__ = [
     # Core types
+    "BaseStatus",
     "ContextValue",
+    "HealthStatus",
     "LogLevel",
     "NodeStatus",
     "ProtocolAction",
@@ -102,7 +105,6 @@ __all__ = [
     "EventData",
     "EventStatus",
     "ProtocolEvent",
-    "ProtocolEventCredentials",
     "ProtocolEventResult",
     "ProtocolEventSubscription",
     "ProtocolSecurityContext",
