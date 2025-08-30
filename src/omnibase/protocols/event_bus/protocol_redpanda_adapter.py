@@ -20,7 +20,6 @@ class ProtocolRedpandaAdapter(ProtocolKafkaAdapter, Protocol):
     but with Redpanda-optimized defaults and configurations.
     """
 
-
     @property
     def redpanda_optimized_defaults(self) -> Dict[str, str]:
         """Get Redpanda-optimized configuration defaults."""

@@ -30,10 +30,10 @@ class ProtocolEventBus(Protocol):
     All event bus implementations must expose a unique, stable bus_id (str) for diagnostics, registry, and introspection.
     """
 
-    def __init__(
-        self,
-        credentials: Optional[ProtocolEventBusCredentials] = None,
-    ) -> None: ...
+    @property
+    def credentials(self) -> Optional[ProtocolEventBusCredentials]:
+        """Get event bus credentials."""
+        ...
 
     def publish(self, event: ProtocolEvent) -> None: ...
 

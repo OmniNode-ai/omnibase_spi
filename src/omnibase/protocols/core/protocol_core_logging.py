@@ -29,7 +29,7 @@ class ProtocolCoreLogging(Protocol):
         self,
         level: LogLevel,
         message: str,
-        event_type: str = "generic",
+        event_type: str,
         node_id: Optional[str] = None,
         correlation_id: Optional[str] = None,
         data: Optional[Dict[str, ContextValue]] = None,

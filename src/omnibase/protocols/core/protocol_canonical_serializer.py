@@ -41,11 +41,8 @@ class ProtocolCanonicalSerializer(Protocol):
     def canonicalize_metadata_block(
         self,
         block: ProtocolNodeMetadata,
-        volatile_fields: Tuple[str, ...] = (
-            "hash",
-            "last_modified_at",
-        ),
-        placeholder: str = "<PLACEHOLDER>",
+        volatile_fields: Tuple[str, ...],
+        placeholder: str,
     ) -> str:
         """
         Canonicalize a metadata block for deterministic serialization and hash computation.
@@ -69,11 +66,8 @@ class ProtocolCanonicalSerializer(Protocol):
         self,
         block: ProtocolNodeMetadata,
         body: str,
-        volatile_fields: Tuple[str, ...] = (
-            "hash",
-            "last_modified_at",
-        ),
-        placeholder: str = "<PLACEHOLDER>",
+        volatile_fields: Tuple[str, ...],
+        placeholder: str,
     ) -> str:
         """
         Canonicalize the full content (block + body) for hash computation.

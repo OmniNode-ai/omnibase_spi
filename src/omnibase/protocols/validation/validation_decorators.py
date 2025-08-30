@@ -39,16 +39,17 @@ class ProtocolValidationError(Exception):
     for detailed error information.
     """
 
-    def __init__(self, validation_result: ValidationResult):
-        self.validation_result = validation_result
-        super().__init__(validation_result.get_summary())
+    @property
+    def validation_result(self) -> ValidationResult:
+        """Get validation result."""
+        ...
 
 
 def validation_decorator(
     protocol: Any,
-    strict_mode: bool = True,
-    raise_on_error: bool = False,
-    development_only: bool = True,
+    strict_mode: bool,
+    raise_on_error: bool,
+    development_only: bool,
 ) -> Callable[[Any], Any]:
     """
     Class decorator for protocol validation.

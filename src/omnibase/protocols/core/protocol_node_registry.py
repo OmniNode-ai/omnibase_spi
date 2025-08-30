@@ -180,24 +180,23 @@ class ProtocolNodeRegistry(Protocol):
         - Watch-based monitoring: Real-time notifications of node changes
     """
 
-    def __init__(
-        self,
-        environment: str = "dev",
-        consul_endpoint: Optional[str] = None,
-        config: Optional[ProtocolNodeRegistryConfig] = None,
-    ):
-        """
-        Initialize node registry.
+    @property
+    def environment(self) -> str:
+        """Get environment name (dev, staging, prod)."""
+        ...
 
-        Args:
-            environment: Environment name (dev, staging, prod)
-            consul_endpoint: Optional Consul endpoint override
-            config: Optional registry configuration protocol
-        """
+    @property
+    def consul_endpoint(self) -> Optional[str]:
+        """Get Consul endpoint configuration."""
+        ...
+
+    @property
+    def config(self) -> Optional[ProtocolNodeRegistryConfig]:
+        """Get registry configuration protocol."""
         ...
 
     async def register_node(
-        self, node_info: ProtocolNodeInfo, ttl_seconds: int = 30
+        self, node_info: ProtocolNodeInfo, ttl_seconds: int
     ) -> bool:
         """
         Register a node in the registry.

@@ -494,28 +494,27 @@ class ProtocolServiceRegistry(Protocol):
         - **Decorator-based registration**: Use decorators for automatic registration
     """
 
-    def __init__(
-        self,
-        config: ProtocolServiceRegistryConfig,
-        validator: Optional[ProtocolServiceValidator] = None,
-        factory: Optional[ProtocolServiceFactory] = None,
-    ):
-        """
-        Initialize service registry.
+    @property
+    def config(self) -> ProtocolServiceRegistryConfig:
+        """Get registry configuration protocol."""
+        ...
 
-        Args:
-            config: Registry configuration protocol
-            validator: Optional service validator
-            factory: Optional service factory
-        """
+    @property
+    def validator(self) -> Optional[ProtocolServiceValidator]:
+        """Get service validator."""
+        ...
+
+    @property
+    def factory(self) -> Optional[ProtocolServiceFactory]:
+        """Get service factory."""
         ...
 
     async def register_service(
         self,
         interface: Type[TInterface],
         implementation: Type[TImplementation],
-        lifecycle: ServiceLifecycle = "transient",
-        scope: InjectionScope = "global",
+        lifecycle: ServiceLifecycle,
+        scope: InjectionScope,
         configuration: Optional[Dict[str, ContextValue]] = None,
     ) -> str:
         """

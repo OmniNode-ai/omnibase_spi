@@ -39,17 +39,17 @@ class ProtocolKafkaAdapter(ProtocolEventBusAdapter, Protocol):
     def bootstrap_servers(self) -> str:
         """Get Kafka bootstrap servers configuration."""
         ...
-        
-    @property 
+
+    @property
     def environment(self) -> str:
         """Get environment name for topic isolation."""
         ...
-        
+
     @property
-    def group(self) -> str: 
+    def group(self) -> str:
         """Get node group name for mini-mesh isolation."""
         ...
-        
+
     @property
     def config(self) -> Optional[ProtocolKafkaConfig]:
         """Get Kafka configuration protocol."""
