@@ -22,29 +22,31 @@
 # === /OmniNode:Metadata ===
 
 
-from dataclasses import dataclass
 from typing import Any, Awaitable, Callable, Dict, Optional, Protocol, runtime_checkable
 
 
-@dataclass
-class ProtocolEventMessage:
+@runtime_checkable
+class ProtocolEventMessage(Protocol):
     """
-    Standard message format for ONEX event bus adapters.
+    Protocol for ONEX event bus message objects.
 
-    Provides unified message structure for Kafka/Redpanda compatibility
-    following the ONEX Messaging Design v0.3.
+    Defines the contract that all event message implementations must satisfy
+    for Kafka/Redpanda compatibility following the ONEX Messaging Design v0.3.
+    
+    Implementations can use dataclass, NamedTuple, or custom classes as long
+    as they provide the required attributes and methods.
     """
 
     topic: str
     key: Optional[bytes]
     value: bytes
     headers: Dict[str, str]
-    offset: Optional[str] = None
-    partition: Optional[int] = None
+    offset: Optional[str]
+    partition: Optional[int]
 
     async def ack(self) -> None:
-        """Acknowledge message processing (adapter-specific implementation)"""
-        pass
+        """Acknowledge message processing (adapter-specific implementation)."""
+        ...
 
 
 @runtime_checkable
