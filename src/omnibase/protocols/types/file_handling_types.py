@@ -8,12 +8,16 @@ from pathlib import Path
 from typing import Literal, Optional, Protocol
 from uuid import UUID
 
-from omnibase.protocols.types.core_types import ProtocolDateTime, ProtocolSemVer
+from omnibase.protocols.types.core_types import (
+    BaseStatus,
+    ProtocolDateTime,
+    ProtocolSemVer,
+)
 
 # File operation types
 FileOperation = Literal["read", "write", "append", "delete", "move", "copy"]
 FileStatus = Literal["exists", "missing", "locked", "corrupted", "accessible"]
-ProcessingStatus = Literal["pending", "processing", "completed", "failed", "skipped"]
+ProcessingStatus = BaseStatus
 
 # File content types - more specific than Any
 FileContent = str | bytes

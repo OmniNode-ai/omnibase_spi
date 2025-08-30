@@ -369,9 +369,7 @@ def should_exclude_file(file_path: Path) -> bool:
     if "/test_" in path_str or path_str.endswith("_test.py"):
         return True
 
-    # Exclude validation utilities
-    if "/validation/" in path_str:
-        return True
+    # Note: validation utilities should follow SPI purity rules too
 
     # Exclude examples
     if "example" in path_str.lower():
@@ -420,11 +418,8 @@ def main() -> None:
 
     all_violations = []
 
-    # Find all Python files, excluding validation directory (contains reference implementations)
+    # Find all Python files in SPI layer
     for py_file in src_path.rglob("*.py"):
-        # Skip validation directory - it contains reference implementations, not pure SPI protocols
-        if "validation" in py_file.parts:
-            continue
         violations = validate_file(py_file)
         all_violations.extend(violations)
 

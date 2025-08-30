@@ -60,9 +60,11 @@ class ProtocolHandlerDiscovery(Protocol):
         ```python
         # Implementation example (not part of SPI)
         class EntryPointNodeDiscovery:
-            def __init__(self, group_name: str = "onex.file_nodes"):
-                self.group_name = group_name
-                self.discovered_nodes = []
+            @property
+            def group_name(self) -> str: ...
+
+            @property
+            def discovered_nodes(self) -> list[Any]: ...
 
             def discover_nodes(self) -> list[ProtocolHandlerInfo]:
                 # Discover nodes from Python entry points
@@ -106,8 +108,8 @@ class ProtocolHandlerDiscovery(Protocol):
                 return f"EntryPoint[{self.group_name}]"
 
         class ConfigFileNodeDiscovery:
-            def __init__(self, config_path: str = "nodes.yaml"):
-                self.config_path = Path(config_path)
+            @property
+            def config_path(self) -> Any: ...
 
             def discover_nodes(self) -> list[ProtocolHandlerInfo]:
                 # Discover nodes from configuration file
@@ -156,8 +158,8 @@ class ProtocolHandlerDiscovery(Protocol):
                 return f"ConfigFile[{self.config_path}]"
 
         class EnvironmentNodeDiscovery:
-            def __init__(self, env_prefix: str = "ONEX_NODE_"):
-                self.env_prefix = env_prefix
+            @property
+            def env_prefix(self) -> str: ...
 
             def discover_nodes(self) -> list[ProtocolHandlerInfo]:
                 # Discover nodes from environment variables
@@ -168,7 +170,7 @@ class ProtocolHandlerDiscovery(Protocol):
                         continue
 
                     try:
-                        # Environment format: ONEX_NODE_PYTHON=module.path:ClassName
+                        # Environment format: {env_prefix}PYTHON=module.path:ClassName
                         node_name = env_key[len(self.env_prefix):].lower()
                         module_path, class_name = env_value.split(":")
 
@@ -207,9 +209,9 @@ class ProtocolHandlerDiscovery(Protocol):
         registry: ProtocolNodeDiscoveryRegistry = NodeDiscoveryRegistryImpl()
 
         # Register multiple discovery sources
-        entry_point_discovery: ProtocolHandlerDiscovery = EntryPointNodeDiscovery("onex.file_nodes")
-        config_discovery: ProtocolHandlerDiscovery = ConfigFileNodeDiscovery("config/nodes.yaml")
-        env_discovery: ProtocolHandlerDiscovery = EnvironmentNodeDiscovery("ONEX_NODE_")
+        entry_point_discovery: ProtocolHandlerDiscovery = EntryPointNodeDiscovery(group_name="your.entry.point.group")
+        config_discovery: ProtocolHandlerDiscovery = ConfigFileNodeDiscovery(config_path="path/to/config.yaml")
+        env_discovery: ProtocolHandlerDiscovery = EnvironmentNodeDiscovery(env_prefix="YOUR_NODE_PREFIX_")
 
         registry.register_discovery_source(entry_point_discovery)
         registry.register_discovery_source(config_discovery)

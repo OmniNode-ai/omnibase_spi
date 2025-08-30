@@ -94,7 +94,7 @@ pip install -e .
 python -m venv /tmp/test-env
 source /tmp/test-env/bin/activate
 pip install dist/*.whl
-python -c "from omnibase.protocols import ProtocolSimpleSerializer; print('Success!')"
+python -c "from omnibase.protocols.types import LogLevel; print('Success!')"
 ```
 
 ## Git Operations & Development Workflow
@@ -209,7 +209,7 @@ source /tmp/test-env/bin/activate
 pip install dist/*.whl
 python -c "
 import sys
-from omnibase.protocols import ProtocolSimpleSerializer
+from omnibase.protocols.types import LogLevel
 external_modules = [name for name in sys.modules.keys() 
                    if name.startswith('omnibase.') and not name.startswith('omnibase.protocols')]
 if external_modules:

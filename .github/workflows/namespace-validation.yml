@@ -56,7 +56,6 @@ jobs:
         print('Testing import isolation...')
         
         # Should be able to import omnibase.protocols without any external dependencies
-        from omnibase.protocols import ProtocolSimpleSerializer
         from omnibase.protocols.types import LogLevel, ProtocolLogEntry
         
         # Verify no external omnibase modules are loaded

@@ -122,7 +122,7 @@ class ProtocolWorkflowReducer(Protocol):
 
     def dispatch(self, state: ProtocolState, action: ProtocolAction) -> ProtocolState:
         """
-        Synchronous state transition for simple operations.
+        Synchronous state transition for basic operations.
 
         Args:
             state: Current state
