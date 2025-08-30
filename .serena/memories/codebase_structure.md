@@ -27,7 +27,7 @@ src/omnibase/protocols/
 │   └── file_handling_types.py      # File handling types
 ├── core/                           # Core system protocols
 │   ├── __init__.py
-│   ├── protocol_simple_example.py  # Template protocol
+│   ├── [removed - template protocols]
 │   ├── protocol_canonical_serializer.py
 │   ├── protocol_schema_loader.py
 │   ├── protocol_workflow_reducer.py

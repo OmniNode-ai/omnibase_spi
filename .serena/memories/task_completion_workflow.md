@@ -178,7 +178,7 @@ source /tmp/test-env/bin/activate
 pip install dist/*.whl
 python -c "
 import sys
-from omnibase.protocols import ProtocolSimpleSerializer
+from omnibase.protocols.types import LogLevel
 external_modules = [name for name in sys.modules.keys() 
                    if name.startswith('omnibase.') and not name.startswith('omnibase.protocols')]
 assert len(external_modules) == 0, f'External modules: {external_modules}'

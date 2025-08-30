@@ -31,3 +31,9 @@ repos:
         language: script
         files: ^src/.*\.py$
         description: "Prevent legacy/deprecated code patterns and ensure clean modern codebase"
+      - id: validate-no-simple
+        name: Validate No Simple Terminology
+        entry: scripts/validate-no-simple.sh
+        language: script
+        files: ^(src/|tests/).*\.py$
+        description: "Prevent use of 'simple' terminology in codebase"

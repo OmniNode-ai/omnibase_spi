@@ -266,7 +266,7 @@ validator = ProtocolValidator(strict_mode=False)
 
 See [`examples.py`](./examples.py) for comprehensive usage examples including:
 
-1. **Basic Validation**: Simple protocol validation
+1. **Basic Validation**: Core protocol validation
 2. **Validation Decorators**: Automatic validation on instantiation
 3. **Specialized Validators**: Domain-specific validation
 4. **Handler Discovery**: Validating discovery implementations  

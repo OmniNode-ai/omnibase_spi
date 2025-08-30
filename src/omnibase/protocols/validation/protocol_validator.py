@@ -395,7 +395,7 @@ class ProtocolValidator:
         """Check if implementation type is compatible with expected protocol type."""
         # Basic compatibility check - this could be enhanced for more sophisticated type checking
         try:
-            # Handle simple cases
+            # Handle basic cases
             if impl_type == expected_type:
                 return True
 
