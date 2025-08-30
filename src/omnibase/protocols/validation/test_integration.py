@@ -7,7 +7,7 @@ to ensure they work correctly in the omnibase-spi environment.
 """
 
 import sys
-from typing import List, Optional
+from typing import Any, List, Optional
 
 # Import protocols to test
 from omnibase.protocols.container.protocol_artifact_container import (
@@ -33,15 +33,15 @@ from omnibase.protocols.validation import (
 )
 
 
-def test_artifact_container_validation():
+def test_artifact_container_validation() -> bool:
     """Test artifact container validation with complete implementation."""
     print("=== Testing Artifact Container Validation ===")
 
     class TestArtifactContainer:
         """Complete test implementation of ProtocolArtifactContainer."""
 
-        def __init__(self):
-            self.artifacts = []
+        def __init__(self) -> None:
+            self.artifacts: List[ProtocolArtifactInfo] = []
 
         def get_status(self) -> ProtocolArtifactContainerStatus:
             class Status:
@@ -51,9 +51,9 @@ def test_artifact_container_validation():
                 valid_artifact_count = len(self.artifacts)
                 invalid_artifact_count = 0
                 wip_artifact_count = 0
-                artifact_types_found = []
+                artifact_types_found: List[str] = []
 
-            return Status()
+            return Status()  # type: ignore
 
         def get_artifacts(self) -> List[ProtocolArtifactInfo]:
             return self.artifacts
@@ -85,7 +85,7 @@ def test_artifact_container_validation():
     print("\n--- Basic Protocol Validation ---")
     container = TestArtifactContainer()
     result = validate_protocol_implementation(
-        container, ProtocolArtifactContainer, strict_mode=True, print_results=False
+        container, ProtocolArtifactContainer, True, False
     )
 
     print(f"Result: {'✓ PASSED' if result.is_valid else '✗ FAILED'}")
@@ -107,22 +107,20 @@ def test_artifact_container_validation():
     return result.is_valid
 
 
-def test_handler_discovery_validation():
+def test_handler_discovery_validation() -> bool:
     """Test handler discovery validation."""
     print("\n=== Testing Handler Discovery Validation ===")
 
     class TestHandlerDiscovery:
         """Complete test implementation of ProtocolHandlerDiscovery."""
 
-        def __init__(self):
+        def __init__(self) -> None:
             self.source_name = "TestDiscovery"
 
         def discover_nodes(self) -> List[ProtocolHandlerInfo]:
             # Create mock handler info objects
-            handlers = []
-
             class MockHandlerInfo:
-                def __init__(self, name: str):
+                def __init__(self, name: str) -> None:
                     self.node_class = type(f"Handler{name}", (), {})  # Mock class
                     self.name = name
                     self.source = "test_discovery"
@@ -131,17 +129,16 @@ def test_handler_discovery_validation():
                     self.special_files = ["test.config", "mock.yaml"]
                     self.metadata = {"test": True, "mock": True}
 
-            handlers.append(MockHandlerInfo("TestHandler"))
-            handlers.append(MockHandlerInfo("MockHandler"))
-
-            return handlers
+            mock1 = MockHandlerInfo("TestHandler")
+            mock2 = MockHandlerInfo("MockHandler")
+            return [mock1, mock2]
 
         def get_source_name(self) -> str:
             return self.source_name
 
     print("\n--- Handler Discovery Validation ---")
     discovery = TestHandlerDiscovery()
-    validator = HandlerDiscoveryValidator(strict_mode=True)
+    validator = HandlerDiscoveryValidator()
     result = validator.validate_implementation(discovery, ProtocolHandlerDiscovery)
 
     print(f"Result: {'✓ PASSED' if result.is_valid else '✗ FAILED'}")
@@ -155,15 +152,15 @@ def test_handler_discovery_validation():
     return result.is_valid
 
 
-def test_validation_decorator():
+def test_validation_decorator() -> bool:
     """Test validation decorator functionality."""
     print("\n=== Testing Validation Decorator ===")
 
-    @validation_decorator(ProtocolArtifactContainer, raise_on_error=False)
+    @validation_decorator(ProtocolArtifactContainer, True, False, True)
     class DecoratedContainer:
         """Container with validation decorator."""
 
-        def get_status(self):
+        def get_status(self) -> Any:
             class Status:
                 status = "ACTIVE"
                 message = "Decorated container active"
@@ -171,20 +168,26 @@ def test_validation_decorator():
                 valid_artifact_count = 0
                 invalid_artifact_count = 0
                 wip_artifact_count = 0
-                artifact_types_found = []
+                artifact_types_found: List[str] = []
 
             return Status()
 
-        def get_artifacts(self):
+        def get_artifacts(self) -> List[ProtocolArtifactInfo]:
             return []
 
-        def get_artifacts_by_type(self, artifact_type):
+        def get_artifacts_by_type(
+            self, artifact_type: ContainerArtifactType
+        ) -> List[ProtocolArtifactInfo]:
             return []
 
-        def get_artifact_by_name(self, name, artifact_type=None):
+        def get_artifact_by_name(
+            self, name: str, artifact_type: Optional[ContainerArtifactType] = None
+        ) -> ProtocolArtifactInfo:
             raise ValueError("Not found")
 
-        def has_artifact(self, name, artifact_type=None):
+        def has_artifact(
+            self, name: str, artifact_type: Optional[ContainerArtifactType] = None
+        ) -> bool:
             return False
 
     print("\n--- Creating Decorated Container ---")
@@ -198,14 +201,14 @@ def test_validation_decorator():
         return False
 
 
-def test_error_scenarios():
+def test_error_scenarios() -> bool:
     """Test validation with intentionally broken implementations."""
     print("\n=== Testing Error Scenarios ===")
 
     class BrokenContainer:
         """Intentionally broken container implementation."""
 
-        def get_status(self):
+        def get_status(self) -> str:
             return "just a string"  # Wrong return type
 
         # Missing all other required methods
@@ -213,7 +216,7 @@ def test_error_scenarios():
     print("\n--- Broken Container Validation ---")
     container = BrokenContainer()
     result = validate_protocol_implementation(
-        container, ProtocolArtifactContainer, strict_mode=True, print_results=False
+        container, ProtocolArtifactContainer, True, False
     )
 
     print(
@@ -232,7 +235,7 @@ def test_error_scenarios():
     return not result.is_valid
 
 
-def run_integration_tests():
+def run_integration_tests() -> bool:
     """Run all integration tests."""
     print("ONEX SPI Protocol Validation Integration Tests")
     print("=" * 60)

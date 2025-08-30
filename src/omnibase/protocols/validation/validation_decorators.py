@@ -16,12 +16,15 @@ Key Features:
 
 import functools
 import warnings
-from typing import Any, Callable, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Callable, TypeVar, Union, cast
 
-try:
-    from typing import Protocol
-except ImportError:
+if TYPE_CHECKING:
     from typing_extensions import Protocol
+else:
+    try:
+        from typing import Protocol
+    except ImportError:
+        from typing_extensions import Protocol
 
 from .protocol_validator import ProtocolValidator, ValidationResult
 
@@ -39,10 +42,9 @@ class ProtocolValidationError(Exception):
     for detailed error information.
     """
 
-    @property
-    def validation_result(self) -> ValidationResult:
-        """Get validation result."""
-        ...
+    def __init__(self, validation_result: ValidationResult):
+        self.validation_result = validation_result
+        super().__init__(validation_result.get_summary())
 
 
 def validation_decorator(
@@ -86,7 +88,7 @@ def validation_decorator(
         original_init = cls.__init__
 
         @functools.wraps(original_init)
-        def validated_init(self, *args, **kwargs):
+        def validated_init(self: Any, *args: Any, **kwargs: Any) -> None:
             # Call original __init__ first
             original_init(self, *args, **kwargs)
 
@@ -125,10 +127,10 @@ def validation_decorator(
 
 
 def validate_method_protocol(
-    expected_signature: Callable,
+    expected_signature: Callable[..., Any],
     validate_return_type: bool = True,
     development_only: bool = True,
-) -> Callable:
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """
     Method decorator for protocol method validation.
 
@@ -151,9 +153,9 @@ def validate_method_protocol(
                 return self._create_status()
     """
 
-    def decorator(func: Callable) -> Callable:
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @functools.wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             # Skip validation in production if development_only is True
             if development_only and not _is_development_mode():
                 return func(*args, **kwargs)
@@ -174,7 +176,7 @@ def validate_method_protocol(
 
             return return_value
 
-        wrapper._protocol_validation_info = {
+        cast(Any, wrapper)._protocol_validation_info = {
             "expected_signature": expected_signature,
             "validate_return_type": validate_return_type,
         }
@@ -187,7 +189,7 @@ def validate_method_protocol(
 def validate_protocol_implementation(
     implementation: Any,
     protocol: Any,
-    strict_mode: bool = True,
+    strict_mode: bool,
     print_results: bool = True,
 ) -> ValidationResult:
     """
@@ -293,7 +295,7 @@ def _is_development_mode() -> bool:
 
 
 def _validate_method_signature(
-    func: Callable, expected_func: Callable
+    func: Callable[..., Any], expected_func: Callable[..., Any]
 ) -> ValidationResult:
     """Validate that a method signature matches expected signature."""
     import inspect
@@ -342,7 +344,7 @@ def _validate_method_signature(
 
 
 def _validate_return_type(
-    return_value: Any, expected_func: Callable, func_name: str
+    return_value: Any, expected_func: Callable[..., Any], func_name: str
 ) -> None:
     """Validate return type against expected function return type."""
     # Basic return type validation - could be enhanced

@@ -16,12 +16,15 @@ Key Features:
 
 import inspect
 import typing
-from typing import Any, Dict, List, Optional, Union, get_type_hints
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union, get_type_hints
 
-try:
-    from typing import Protocol
-except ImportError:
+if TYPE_CHECKING:
     from typing_extensions import Protocol
+else:
+    try:
+        from typing import Protocol
+    except ImportError:
+        from typing_extensions import Protocol
 
 from omnibase.protocols.types.core_types import ContextValue
 
@@ -37,25 +40,17 @@ class ValidationError:
         severity: Error severity level (error, warning, info)
     """
 
-    @property
-    def error_type(self) -> str:
-        """Get error type."""
-        ...
-
-    @property
-    def message(self) -> str:
-        """Get error message."""
-        ...
-
-    @property
-    def context(self) -> Dict[str, Any]:
-        """Get error context."""
-        ...
-
-    @property
-    def severity(self) -> str:
-        """Get error severity level."""
-        ...
+    def __init__(
+        self,
+        error_type: str,
+        message: str,
+        context: Optional[Dict[str, Any]] = None,
+        severity: str = "error",
+    ):
+        self.error_type = error_type
+        self.message = message
+        self.context = context or {}
+        self.severity = severity
 
     def __str__(self) -> str:
         context_str = ""
@@ -80,25 +75,11 @@ class ValidationResult:
         implementation_name: Name of the implementation being validated
     """
 
-    @property
-    def protocol_name(self) -> str:
-        """Get protocol name."""
-        ...
-
-    @property
-    def implementation_name(self) -> str:
-        """Get implementation name."""
-        ...
-
-    @property
-    def errors(self) -> List[ValidationError]:
-        """Get validation errors."""
-        ...
-
-    @property
-    def warnings(self) -> List[ValidationError]:
-        """Get validation warnings."""
-        ...
+    def __init__(self, protocol_name: str, implementation_name: str):
+        self.protocol_name = protocol_name
+        self.implementation_name = implementation_name
+        self.errors: List[ValidationError] = []
+        self.warnings: List[ValidationError] = []
 
     @property
     def is_valid(self) -> bool:
@@ -163,10 +144,16 @@ class ProtocolValidator:
                 print(f"Error: {error}")
     """
 
-    @property
-    def strict_mode(self) -> bool:
-        """Get strict mode setting for validation."""
-        ...
+    def __init__(self, strict_mode: bool = True):
+        """
+        Initialize protocol validator.
+
+        Args:
+            strict_mode: If True, perform comprehensive validation including
+                       type annotations and method signatures. If False, only
+                       check basic method presence.
+        """
+        self.strict_mode = strict_mode
 
     def validate_implementation(
         self, implementation: Any, protocol: Any
@@ -446,5 +433,5 @@ def validate_protocol_implementation(
         if not result.is_valid:
             print(result.get_summary())
     """
-    validator = ProtocolValidator()
+    validator = ProtocolValidator(strict_mode=strict_mode)
     return validator.validate_implementation(implementation, protocol)

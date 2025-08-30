@@ -59,7 +59,7 @@ class ProtocolNodeInfo(Protocol):
     version: ProtocolSemVer
     health_status: HealthStatus
     endpoint: str
-    metadata: Dict[str, ContextValue]
+    metadata: dict[str, ContextValue]
     registered_at: ProtocolDateTime
     last_heartbeat: ProtocolDateTime
 
@@ -102,7 +102,7 @@ class ProtocolNodeRegistry(Protocol):
 
             async def discover_nodes(self, node_type: Optional[NodeType] = None,
                                    environment: Optional[str] = None,
-                                   group: Optional[str] = None) -> List[ProtocolNodeInfo]:
+                                   group: Optional[str] = None) -> list[ProtocolNodeInfo]:
                 # Discover nodes from Consul catalog
                 env = environment or self.environment
                 service_filter = f"{env}-"
@@ -226,7 +226,7 @@ class ProtocolNodeRegistry(Protocol):
         self,
         node_id: str,
         health_status: HealthStatus,
-        metadata: Dict[str, ContextValue],
+        metadata: dict[str, ContextValue],
     ) -> bool:
         """
         Update node health status.
@@ -259,7 +259,7 @@ class ProtocolNodeRegistry(Protocol):
         environment: Optional[str] = None,
         group: Optional[str] = None,
         health_filter: Optional[HealthStatus] = None,
-    ) -> List[ProtocolNodeInfo]:
+    ) -> list[ProtocolNodeInfo]:
         """
         Discover nodes matching criteria.
 
@@ -286,7 +286,7 @@ class ProtocolNodeRegistry(Protocol):
         """
         ...
 
-    async def get_nodes_by_group(self, group: str) -> List[ProtocolNodeInfo]:
+    async def get_nodes_by_group(self, group: str) -> list[ProtocolNodeInfo]:
         """
         Get all nodes in a node group.
 

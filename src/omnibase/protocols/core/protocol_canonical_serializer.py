@@ -41,7 +41,7 @@ class ProtocolCanonicalSerializer(Protocol):
     def canonicalize_metadata_block(
         self,
         block: ProtocolNodeMetadata,
-        volatile_fields: Tuple[str, ...],
+        volatile_fields: tuple[str, ...],
         placeholder: str,
     ) -> str:
         """
@@ -66,7 +66,7 @@ class ProtocolCanonicalSerializer(Protocol):
         self,
         block: ProtocolNodeMetadata,
         body: str,
-        volatile_fields: Tuple[str, ...],
+        volatile_fields: tuple[str, ...],
         placeholder: str,
     ) -> str:
         """

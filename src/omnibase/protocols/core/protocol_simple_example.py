@@ -58,8 +58,8 @@ class ProtocolSimpleEventHandler(Protocol):
     """
 
     def handle_event(
-        self, event_type: str, event_data: Dict[str, Any]
-    ) -> Optional[Dict[str, Any]]:
+        self, event_type: str, event_data: dict[str, Any]
+    ) -> Optional[dict[str, Any]]:
         """Handle an event and optionally return response data."""
         ...
 

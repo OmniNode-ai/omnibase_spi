@@ -44,7 +44,7 @@ class ProtocolOnexSchema(Protocol):
 
     schema_type: str
     version: ProtocolSemVer
-    properties: Dict[str, str]
+    properties: dict[str, str]
 
 
 class ProtocolOnexValidationReport(Protocol):
@@ -79,8 +79,8 @@ class ProtocolOnexValidationResult(Protocol):
     is_valid: bool
     compliance_level: OnexComplianceLevel
     validation_type: ValidationType
-    errors: List[str]
-    warnings: List[str]
+    errors: list[str]
+    warnings: list[str]
     metadata: ProtocolOnexMetadata
 
 
@@ -178,8 +178,8 @@ class ProtocolOnexValidation(Protocol):
         ...
 
     def check_required_fields(
-        self, data: ProtocolOnexContractData, required_fields: List[str]
-    ) -> List[str]:
+        self, data: ProtocolOnexContractData, required_fields: list[str]
+    ) -> list[str]:
         """
         Check for required fields in data structure.
 
@@ -264,7 +264,7 @@ class ProtocolOnexValidation(Protocol):
         ...
 
     def generate_validation_report(
-        self, results: List[ProtocolOnexValidationResult]
+        self, results: list[ProtocolOnexValidationResult]
     ) -> ProtocolOnexValidationReport:
         """
         Generate comprehensive validation report from multiple results.
@@ -278,7 +278,7 @@ class ProtocolOnexValidation(Protocol):
         ...
 
     def is_production_ready(
-        self, validation_results: List[ProtocolOnexValidationResult]
+        self, validation_results: list[ProtocolOnexValidationResult]
     ) -> bool:
         """
         Determine if validation results indicate production readiness.

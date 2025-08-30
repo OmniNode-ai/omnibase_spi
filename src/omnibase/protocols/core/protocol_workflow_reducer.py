@@ -183,22 +183,22 @@ class ProtocolWorkflowReducer(Protocol):
         # Default implementation allows all transitions
         return True
 
-    def get_state_schema(self) -> Optional[Dict[str, Any]]:
+    def get_state_schema(self) -> Optional[dict[str, Any]]:
         """
         Get the schema definition for this reducer's state.
 
         Returns:
-            Optional[Dict[str, Any]]: JSON schema for state validation,
+            Optional[dict[str, Any]]: JSON schema for state validation,
                                     or None if not available
         """
         return None
 
-    def get_action_schema(self) -> Optional[Dict[str, Any]]:
+    def get_action_schema(self) -> Optional[dict[str, Any]]:
         """
         Get the schema definition for actions this reducer handles.
 
         Returns:
-            Optional[Dict[str, Any]]: JSON schema for action validation,
+            Optional[dict[str, Any]]: JSON schema for action validation,
                                     or None if not available
         """
         return None

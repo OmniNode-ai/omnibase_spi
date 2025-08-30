@@ -5,7 +5,7 @@ Domain: Core system protocols (logging, serialization, validation)
 """
 
 from datetime import datetime
-from typing import Dict, Literal, Optional, Protocol, runtime_checkable
+from typing import Literal, Optional, Protocol, runtime_checkable
 from uuid import UUID
 
 
@@ -45,7 +45,7 @@ HealthStatus = Literal[
 ]
 
 # Context value types - specific typed values for logging context
-ContextValue = str | int | float | bool | list[str] | Dict[str, str]
+ContextValue = str | int | float | bool | list[str] | dict[str, str]
 
 
 # Configuration value protocol - for type-safe configuration
@@ -62,7 +62,7 @@ class ProtocolConfigValue(Protocol):
 class ProtocolLogContext(Protocol):
     """Protocol for log context objects."""
 
-    def to_dict(self) -> Dict[str, ContextValue]:
+    def to_dict(self) -> dict[str, ContextValue]:
         """Convert context to dictionary with typed values."""
         ...
 
@@ -75,7 +75,7 @@ class ProtocolLogEntry(Protocol):
     message: str
     correlation_id: UUID
     timestamp: ProtocolDateTime
-    context: Dict[str, ContextValue]
+    context: dict[str, ContextValue]
 
 
 # Core serialization protocols
@@ -93,7 +93,7 @@ class ProtocolNodeMetadata(Protocol):
 
     node_id: str
     node_type: str
-    metadata: Dict[str, ContextValue]
+    metadata: dict[str, ContextValue]
 
 
 # Core validation protocols
@@ -123,7 +123,7 @@ ValidationMode = Literal["strict", "lenient", "smoke", "regression", "integratio
 class ProtocolMetadata(Protocol):
     """Protocol for structured metadata - attribute-based for data compatibility."""
 
-    data: Dict[str, ContextValue]
+    data: dict[str, ContextValue]
     version: ProtocolSemVer
     created_at: ProtocolDateTime
     updated_at: Optional[ProtocolDateTime]
@@ -148,7 +148,7 @@ class ProtocolActionPayload(Protocol):
 
     target_id: str
     operation: str
-    parameters: Dict[str, ContextValue]
+    parameters: dict[str, ContextValue]
 
 
 class ProtocolAction(Protocol):
@@ -188,7 +188,7 @@ class ProtocolSchemaObject(Protocol):
 
     schema_id: str
     schema_type: str
-    schema_data: Dict[str, ContextValue]
+    schema_data: dict[str, ContextValue]
     version: ProtocolSemVer
     is_valid: bool
 
@@ -209,7 +209,7 @@ class ProtocolSystemEvent(Protocol):
     """Protocol for system events."""
 
     type: str
-    payload: Dict[str, ContextValue]
+    payload: dict[str, ContextValue]
     timestamp: float
     source: str
 
@@ -223,6 +223,6 @@ class ProtocolNodeResult(Protocol):
     error: Optional[ProtocolErrorInfo]
     trust_score: float
     provenance: list[str]
-    metadata: Dict[str, ContextValue]
+    metadata: dict[str, ContextValue]
     events: list[ProtocolSystemEvent]
-    state_delta: Dict[str, ContextValue]
+    state_delta: dict[str, ContextValue]

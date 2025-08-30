@@ -64,7 +64,7 @@ class ProtocolLogger(Protocol):
 
     def log(self, entry: ProtocolLogEntry) -> None:
         """
-        Log a structured log entry (legacy interface).
+        Log a structured log entry.
 
         Args:
             entry: Structured log entry to emit

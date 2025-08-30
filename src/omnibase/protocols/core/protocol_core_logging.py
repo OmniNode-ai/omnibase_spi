@@ -32,7 +32,7 @@ class ProtocolCoreLogging(Protocol):
         event_type: str,
         node_id: Optional[str] = None,
         correlation_id: Optional[str] = None,
-        data: Optional[Dict[str, ContextValue]] = None,
+        data: Optional[dict[str, ContextValue]] = None,
     ) -> None:
         """
         Emit a structured log event synchronously.

@@ -49,7 +49,7 @@ class ProtocolOnexNode(Protocol):
         """
         ...
 
-    def get_node_config(self) -> Dict[str, Any]:
+    def get_node_config(self) -> dict[str, Any]:
         """
         Get the node's configuration information.
 

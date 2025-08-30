@@ -43,9 +43,9 @@ class ProtocolHandlerInfo(Protocol):
     name: str
     source: str  # "core", "runtime", "node-local", "plugin"
     priority: int
-    extensions: List[str]
-    special_files: List[str]
-    metadata: Dict[str, Any]
+    extensions: list[str]
+    special_files: list[str]
+    metadata: dict[str, Any]
 
 
 class ProtocolHandlerDiscovery(Protocol):
@@ -64,7 +64,7 @@ class ProtocolHandlerDiscovery(Protocol):
                 self.group_name = group_name
                 self.discovered_nodes = []
 
-            def discover_nodes(self) -> List[ProtocolHandlerInfo]:
+            def discover_nodes(self) -> list[ProtocolHandlerInfo]:
                 # Discover nodes from Python entry points
                 nodes = []
 
@@ -109,7 +109,7 @@ class ProtocolHandlerDiscovery(Protocol):
             def __init__(self, config_path: str = "nodes.yaml"):
                 self.config_path = Path(config_path)
 
-            def discover_nodes(self) -> List[ProtocolHandlerInfo]:
+            def discover_nodes(self) -> list[ProtocolHandlerInfo]:
                 # Discover nodes from configuration file
                 nodes = []
 
@@ -159,7 +159,7 @@ class ProtocolHandlerDiscovery(Protocol):
             def __init__(self, env_prefix: str = "ONEX_NODE_"):
                 self.env_prefix = env_prefix
 
-            def discover_nodes(self) -> List[ProtocolHandlerInfo]:
+            def discover_nodes(self) -> list[ProtocolHandlerInfo]:
                 # Discover nodes from environment variables
                 nodes = []
 
@@ -237,7 +237,7 @@ class ProtocolHandlerDiscovery(Protocol):
         - Error Handling: Graceful fallback when nodes fail to load
     """
 
-    def discover_nodes(self) -> List[ProtocolHandlerInfo]:
+    def discover_nodes(self) -> list[ProtocolHandlerInfo]:
         """
         Discover available nodes.
 

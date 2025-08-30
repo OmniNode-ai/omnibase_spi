@@ -15,7 +15,7 @@ class ProtocolEventBusCredentials(Protocol):
     cert: Optional[str]
     key: Optional[str]
     ca: Optional[str]
-    extra: Optional[Dict[str, str]]
+    extra: Optional[dict[str, str]]
 
 
 @runtime_checkable

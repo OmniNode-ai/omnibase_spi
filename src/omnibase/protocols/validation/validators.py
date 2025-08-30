@@ -13,12 +13,15 @@ Key Features:
 - Clear development guidance for protocol implementations
 """
 
-from typing import Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
-try:
-    from typing import Protocol
-except ImportError:
+if TYPE_CHECKING:
     from typing_extensions import Protocol
+else:
+    try:
+        from typing import Protocol
+    except ImportError:
+        from typing_extensions import Protocol
 
 from omnibase.protocols.container.protocol_artifact_container import (
     ContainerArtifactType,

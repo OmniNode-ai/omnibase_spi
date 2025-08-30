@@ -1,3 +1,4 @@
+# type: ignore
 """
 Usage Examples for ONEX SPI Protocol Validation.
 

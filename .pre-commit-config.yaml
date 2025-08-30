@@ -15,13 +15,19 @@ repos:
     hooks:
       - id: validate-spi-purity
         name: Validate SPI Purity
-        entry: scripts/validate-spi-purity.sh
-        language: script
+        entry: python scripts/ast_spi_validator.py
+        language: system
         files: ^src/.*\.py$
-        description: "Ensure SPI contains only pure protocol definitions, no implementations"
+        description: "Ensure SPI contains only pure protocol definitions, no implementations (AST-based)"
       - id: validate-forbidden-patterns
         name: Validate Forbidden Patterns
         entry: scripts/validate-forbidden-patterns.sh
         language: script
         files: ^src/.*\.py$
         description: "Check for forbidden patterns like 'model' terminology and Union types"
+      - id: validate-no-deprecated
+        name: Validate No Deprecated Code
+        entry: scripts/validate-no-deprecated.sh
+        language: script
+        files: ^src/.*\.py$
+        description: "Prevent legacy/deprecated code patterns and ensure clean modern codebase"

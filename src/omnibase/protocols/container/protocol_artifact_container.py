@@ -74,7 +74,7 @@ class ProtocolArtifactContainerStatus(Protocol):
     valid_artifact_count: int
     invalid_artifact_count: int
     wip_artifact_count: int
-    artifact_types_found: List[ContainerArtifactType]
+    artifact_types_found: list[ContainerArtifactType]
 
 
 class ProtocolArtifactContainer(Protocol):
@@ -90,13 +90,13 @@ class ProtocolArtifactContainer(Protocol):
         """Get container loading status and statistics."""
         ...
 
-    def get_artifacts(self) -> List[ProtocolArtifactInfo]:
+    def get_artifacts(self) -> list[ProtocolArtifactInfo]:
         """Get all artifacts in the container."""
         ...
 
     def get_artifacts_by_type(
         self, artifact_type: ContainerArtifactType
-    ) -> List[ProtocolArtifactInfo]:
+    ) -> list[ProtocolArtifactInfo]:
         """Get artifacts filtered by type."""
         ...
 

@@ -35,7 +35,7 @@ class ProtocolHandlerInfo(Protocol):
     node_type: str
     status: HandlerStatus
     capabilities: list[str]
-    metadata: Dict[str, CapabilityValue]
+    metadata: dict[str, CapabilityValue]
 
 
 class ProtocolDiscoveryQuery(Protocol):
@@ -44,7 +44,7 @@ class ProtocolDiscoveryQuery(Protocol):
     query_id: UUID
     target_type: str
     required_capabilities: list[str]
-    filters: Dict[str, str]
+    filters: dict[str, str]
     timeout_seconds: float
 
 
@@ -63,7 +63,7 @@ class ProtocolHandlerRegistration(Protocol):
     """Protocol for node registration objects."""
 
     node_id: UUID
-    registration_data: Dict[str, CapabilityValue]
+    registration_data: dict[str, CapabilityValue]
     registration_time: float
     expires_at: float | None
     is_active: bool

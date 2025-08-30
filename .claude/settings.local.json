@@ -24,7 +24,16 @@
       "mcp__serena__replace_regex",
       "mcp__serena__execute_shell_command",
       "Bash(rm:*)",
-      "Bash(bash:*)"
+      "Bash(bash:*)",
+      "Read(/Volumes/PRO-G40/Code/omnibase_3/src/**)",
+      "Read(/Volumes/PRO-G40/Code/omnibase_3/src/omnibase/tools/ai/tool_workflow_orchestrator/v1_0_0/utils/**)",
+      "Read(/Volumes/PRO-G40/Code/omnibase_3/src/**)",
+      "Read(/Volumes/PRO-G40/Code/omnibase_3/src/**)",
+      "Read(/Volumes/PRO-G40/Code/omnibase_3/src/**)",
+      "Read(/Volumes/PRO-G40/Code/omnibase_3/src/omnibase/enums/**)",
+      "Read(/Volumes/PRO-G40/Code/omnibase_3/src/omnibase/constants/**)",
+      "Bash(./scripts/validate-spi-purity.sh:*)",
+      "Bash(./scripts/validate-no-deprecated.sh:*)"
     ],
     "deny": [],
     "ask": []

@@ -290,7 +290,7 @@ class ProtocolEventBus(Protocol):
     async def broadcast_to_environment(
         self,
         command: str,
-        payload: Dict[str, Any],
+        payload: dict[str, Any],
         target_environment: Optional[str] = None,
     ) -> None:
         """
@@ -304,7 +304,7 @@ class ProtocolEventBus(Protocol):
         ...
 
     async def send_to_group(
-        self, command: str, payload: Dict[str, Any], target_group: str
+        self, command: str, payload: dict[str, Any], target_group: str
     ) -> None:
         """
         Send command to specific node group.

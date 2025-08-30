@@ -69,7 +69,7 @@ class ProtocolOnexReply(Protocol):
 
     def create_validation_error_reply(
         self,
-        validation_errors: List[str],
+        validation_errors: list[str],
         correlation_id: Optional[UUID] = None,
         metadata: Optional[ProtocolOnexMetadata] = None,
     ) -> Any:

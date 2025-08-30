@@ -28,7 +28,6 @@ from .protocol_service_registry import (
     ProtocolServiceValidator,
     ServiceHealthStatus,
     ServiceLifecycle,
-    ServiceRegistrationStatus,
     ServiceResolutionStatus,
 )
 
@@ -41,7 +40,6 @@ __all__ = [
     "ProtocolArtifactContainer",
     # Comprehensive service registry types
     "ServiceLifecycle",
-    "ServiceRegistrationStatus",
     "ServiceResolutionStatus",
     "ServiceHealthStatus",
     "InjectionScope",

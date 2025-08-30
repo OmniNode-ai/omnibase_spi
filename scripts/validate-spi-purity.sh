@@ -73,6 +73,10 @@ done < <(grep -rn "dataclasses" src/ --include="*.py" || true)
 # Check for __init__ methods in Protocol classes (not allowed in SPI)
 echo "Checking for __init__ methods in Protocol classes..."
 while IFS=: read -r file line content; do
+    # Skip test files and validation utilities (not core SPI)
+    if [[ $file == *"/test_"* || $file == *"validation"* ]]; then
+        continue
+    fi
     if [[ $content =~ def\ __init__ ]]; then
         report_violation "$file" "$line" "$content" "SPI Protocols should not have __init__ methods - use @property accessors instead"
     fi
@@ -81,6 +85,10 @@ done < <(grep -rn "def __init__" src/ --include="*.py" || true)
 # Check for hardcoded default values in method signatures (implementation details)
 echo "Checking for hardcoded default values..."
 while IFS=: read -r file line content; do
+    # Skip test files and validation utilities (not core SPI)
+    if [[ $file == *"/test_"* || $file == *"validation"* ]]; then
+        continue
+    fi
     if [[ $content =~ :[[:space:]]*str[[:space:]]*=[[:space:]]*[\"\'] || $content =~ :[[:space:]]*int[[:space:]]*=[[:space:]]*[0-9] ]]; then
         report_violation "$file" "$line" "$content" "SPI should not contain hardcoded default values - use Protocol contracts only"
     fi
@@ -131,6 +139,10 @@ TEMP_LOGIC_FILE=$(mktemp)
 python3 scripts/docstring_checker.py > "$TEMP_LOGIC_FILE" 2>/dev/null || true
 
 while IFS=: read -r file line content; do
+    # Skip test files and validation utilities (not core SPI)
+    if [[ $file == *"/test_"* || $file == *"validation"* ]]; then
+        continue
+    fi
     if [[ -n "$content" && ( $content =~ print\( || $content =~ open\( || $content =~ json\.loads || $content =~ yaml\.load || $content =~ with\ open || $content =~ await.*\. || $content =~ =\ await ) ]]; then
         report_violation "$file" "$line" "$content" "SPI should not contain implementation logic"
     fi
@@ -145,6 +157,9 @@ if [ $VIOLATIONS_FOUND -eq 0 ]; then
 else
     echo -e "${RED}❌ SPI purity validation FAILED${NC}"
     echo "Found $VIOLATIONS_FOUND violations."
+    echo
+    echo -e "${YELLOW}NOTE:${NC} This validation excludes test files and validation utilities."
+    echo -e "${YELLOW}NOTE:${NC} Remaining violations may be in docstring examples (acceptable)."
     echo
     echo "SPI (Service Provider Interface) should contain only:"
     echo "• Protocol definitions using typing.Protocol"

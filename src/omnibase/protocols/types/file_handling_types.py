@@ -5,7 +5,7 @@ Domain: File processing and writing protocols
 """
 
 from pathlib import Path
-from typing import Dict, List, Literal, Optional, Protocol
+from typing import Literal, Optional, Protocol
 from uuid import UUID
 
 from omnibase.protocols.types.core_types import ProtocolDateTime, ProtocolSemVer
@@ -114,8 +114,8 @@ class ProtocolHandlerMetadata(Protocol):
     version: ProtocolSemVer
     author: str
     description: str
-    supported_extensions: List[str]
-    supported_filenames: List[str]
+    supported_extensions: list[str]
+    supported_filenames: list[str]
     priority: int
     requires_content_analysis: bool
 
@@ -145,9 +145,9 @@ class ProtocolResultData(Protocol):
     """Protocol for operation result data - attribute-based for data compatibility."""
 
     output_path: Optional[Path]
-    processed_files: List[Path]
-    metrics: Dict[str, float]
-    warnings: List[str]
+    processed_files: list[Path]
+    metrics: dict[str, float]
+    warnings: list[str]
 
 
 class ProtocolOnexResult(Protocol):
@@ -179,7 +179,7 @@ class ProtocolResultOperations(Protocol):
     def format_result(self, result: ProtocolOnexResult) -> str: ...
 
     def merge_results(
-        self, results: List[ProtocolOnexResult]
+        self, results: list[ProtocolOnexResult]
     ) -> ProtocolOnexResult: ...
 
     def validate_result(self, result: ProtocolOnexResult) -> bool: ...

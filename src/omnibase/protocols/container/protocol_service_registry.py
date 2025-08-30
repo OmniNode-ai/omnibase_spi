@@ -38,10 +38,6 @@ ServiceLifecycle = Literal[
     "singleton", "transient", "scoped", "pooled", "lazy", "eager"
 ]
 
-# Service registration status types
-ServiceRegistrationStatus = Literal[
-    "registered", "unregistered", "failed", "pending", "conflict", "invalid"
-]
 
 # Service resolution status types
 ServiceResolutionStatus = Literal[
@@ -67,8 +63,8 @@ class ProtocolServiceMetadata(Protocol):
     service_implementation: str
     version: ProtocolSemVer
     description: Optional[str]
-    tags: List[str]
-    configuration: Dict[str, ContextValue]
+    tags: list[str]
+    configuration: dict[str, ContextValue]
     created_at: ProtocolDateTime
     last_modified_at: Optional[ProtocolDateTime]
 
@@ -84,7 +80,7 @@ class ProtocolServiceDependency(Protocol):
     is_circular: bool
     injection_point: str  # constructor, property, method
     default_value: Optional[Any]
-    metadata: Dict[str, ContextValue]
+    metadata: dict[str, ContextValue]
 
 
 @runtime_checkable
@@ -95,8 +91,10 @@ class ProtocolServiceRegistration(Protocol):
     service_metadata: ProtocolServiceMetadata
     lifecycle: ServiceLifecycle
     scope: InjectionScope
-    dependencies: List[ProtocolServiceDependency]
-    registration_status: ServiceRegistrationStatus
+    dependencies: list[ProtocolServiceDependency]
+    registration_status: Literal[
+        "registered", "unregistered", "failed", "pending", "conflict", "invalid"
+    ]
     health_status: ServiceHealthStatus
     registration_time: ProtocolDateTime
     last_access_time: Optional[ProtocolDateTime]
@@ -118,7 +116,7 @@ class ProtocolServiceInstance(Protocol):
     last_accessed: ProtocolDateTime
     access_count: int
     is_disposed: bool
-    metadata: Dict[str, ContextValue]
+    metadata: dict[str, ContextValue]
 
 
 @runtime_checkable
@@ -126,12 +124,12 @@ class ProtocolDependencyGraph(Protocol):
     """Protocol for dependency graph information."""
 
     service_id: str
-    dependencies: List[str]
-    dependents: List[str]
+    dependencies: list[str]
+    dependents: list[str]
     depth_level: int
-    circular_references: List[str]
-    resolution_order: List[str]
-    metadata: Dict[str, ContextValue]
+    circular_references: list[str]
+    resolution_order: list[str]
+    metadata: dict[str, ContextValue]
 
 
 @runtime_checkable
@@ -141,12 +139,12 @@ class ProtocolInjectionContext(Protocol):
     context_id: str
     target_service_id: str
     scope: InjectionScope
-    resolved_dependencies: Dict[str, Any]
+    resolved_dependencies: dict[str, Any]
     injection_time: ProtocolDateTime
     resolution_status: ServiceResolutionStatus
     error_details: Optional[str]
-    resolution_path: List[str]
-    metadata: Dict[str, ContextValue]
+    resolution_path: list[str]
+    metadata: dict[str, ContextValue]
 
 
 @runtime_checkable
@@ -160,9 +158,9 @@ class ProtocolServiceRegistryStatus(Protocol):
     active_instances: int
     failed_registrations: int
     circular_dependencies: int
-    lifecycle_distribution: Dict[ServiceLifecycle, int]
-    scope_distribution: Dict[InjectionScope, int]
-    health_summary: Dict[ServiceHealthStatus, int]
+    lifecycle_distribution: dict[ServiceLifecycle, int]
+    scope_distribution: dict[InjectionScope, int]
+    health_summary: dict[ServiceHealthStatus, int]
     memory_usage_bytes: Optional[int]
     average_resolution_time_ms: Optional[float]
     last_updated: ProtocolDateTime
@@ -180,7 +178,7 @@ class ProtocolServiceRegistryConfig(Protocol):
     instance_pooling_enabled: bool
     health_monitoring_enabled: bool
     performance_monitoring_enabled: bool
-    configuration: Dict[str, ContextValue]
+    configuration: dict[str, ContextValue]
 
 
 @runtime_checkable
@@ -191,11 +189,11 @@ class ProtocolServiceValidator(Protocol):
         """Validate a service registration."""
         ...
 
-    def validate_dependency_graph(self, graph: ProtocolDependencyGraph) -> List[str]:
+    def validate_dependency_graph(self, graph: ProtocolDependencyGraph) -> list[str]:
         """Validate dependency graph and return validation errors."""
         ...
 
-    def detect_circular_dependencies(self, service_id: str) -> List[str]:
+    def detect_circular_dependencies(self, service_id: str) -> list[str]:
         """Detect circular dependencies for a service."""
         ...
 
@@ -236,9 +234,9 @@ class ProtocolServiceRegistry(Protocol):
         class ServiceRegistryImpl:
             def __init__(self, config: ProtocolServiceRegistryConfig):
                 self.config = config
-                self.registrations: Dict[str, ProtocolServiceRegistration] = {}
-                self.instances: Dict[str, List[ProtocolServiceInstance]] = {}
-                self.dependency_graph: Dict[str, ProtocolDependencyGraph] = {}
+                self.registrations: dict[str, ProtocolServiceRegistration] = {}
+                self.instances: dict[str, list[ProtocolServiceInstance]] = {}
+                self.dependency_graph: dict[str, ProtocolDependencyGraph] = {}
 
             async def register_service(
                 self,
@@ -515,7 +513,7 @@ class ProtocolServiceRegistry(Protocol):
         implementation: Type[TImplementation],
         lifecycle: ServiceLifecycle,
         scope: InjectionScope,
-        configuration: Optional[Dict[str, ContextValue]] = None,
+        configuration: Optional[dict[str, ContextValue]] = None,
     ) -> str:
         """
         Register a service implementation for an interface.
@@ -540,7 +538,7 @@ class ProtocolServiceRegistry(Protocol):
         interface: Type[TInterface],
         instance: TInterface,
         scope: InjectionScope = "global",
-        metadata: Optional[Dict[str, ContextValue]] = None,
+        metadata: Optional[dict[str, ContextValue]] = None,
     ) -> str:
         """
         Register a service instance directly.
@@ -593,7 +591,7 @@ class ProtocolServiceRegistry(Protocol):
         self,
         interface: Type[TInterface],
         scope: Optional[InjectionScope] = None,
-        context: Optional[Dict[str, ContextValue]] = None,
+        context: Optional[dict[str, ContextValue]] = None,
     ) -> TInterface:
         """
         Resolve a service instance by interface.
@@ -634,7 +632,7 @@ class ProtocolServiceRegistry(Protocol):
         self,
         interface: Type[TInterface],
         scope: Optional[InjectionScope] = None,
-    ) -> List[TInterface]:
+    ) -> list[TInterface]:
         """
         Resolve all registered implementations of an interface.
 
@@ -680,7 +678,7 @@ class ProtocolServiceRegistry(Protocol):
 
     async def get_registrations_by_interface(
         self, interface: Type[T]
-    ) -> List[ProtocolServiceRegistration]:
+    ) -> list[ProtocolServiceRegistration]:
         """
         Get all registrations for an interface.
 
@@ -692,7 +690,7 @@ class ProtocolServiceRegistry(Protocol):
         """
         ...
 
-    async def get_all_registrations(self) -> List[ProtocolServiceRegistration]:
+    async def get_all_registrations(self) -> list[ProtocolServiceRegistration]:
         """
         Get all service registrations.
 
@@ -703,7 +701,7 @@ class ProtocolServiceRegistry(Protocol):
 
     async def get_active_instances(
         self, registration_id: Optional[str] = None
-    ) -> List[ProtocolServiceInstance]:
+    ) -> list[ProtocolServiceInstance]:
         """
         Get active service instances.
 
@@ -746,7 +744,7 @@ class ProtocolServiceRegistry(Protocol):
 
     async def detect_circular_dependencies(
         self, registration: ProtocolServiceRegistration
-    ) -> List[str]:
+    ) -> list[str]:
         """
         Detect circular dependencies for a registration.
 
@@ -798,7 +796,7 @@ class ProtocolServiceRegistry(Protocol):
     async def update_service_configuration(
         self,
         registration_id: str,
-        configuration: Dict[str, ContextValue],
+        configuration: dict[str, ContextValue],
     ) -> bool:
         """
         Update service configuration.
