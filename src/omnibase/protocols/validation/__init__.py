@@ -36,7 +36,10 @@ Usage:
 """
 
 from .protocol_validator import ProtocolValidator, ValidationResult
-from .validation_decorators import validate_protocol_implementation, validation_decorator
+from .validation_decorators import (
+    validate_protocol_implementation,
+    validation_decorator,
+)
 from .validators import (
     ArtifactContainerValidator,
     HandlerDiscoveryValidator,

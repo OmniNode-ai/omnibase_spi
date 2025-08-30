@@ -8,7 +8,17 @@ Supports the complete service lifecycle including registration, resolution, inje
 Focuses purely on dependency injection patterns rather than artifact or service discovery concerns.
 """
 
-from typing import Any, Dict, List, Literal, Optional, Protocol, Type, TypeVar, runtime_checkable
+from typing import (
+    Any,
+    Dict,
+    List,
+    Literal,
+    Optional,
+    Protocol,
+    Type,
+    TypeVar,
+    runtime_checkable,
+)
 
 from omnibase.protocols.types.core_types import (
     ContextValue,
@@ -39,9 +49,7 @@ ServiceResolutionStatus = Literal[
 ]
 
 # Dependency injection scope types
-InjectionScope = Literal[
-    "request", "session", "thread", "process", "global", "custom"
-]
+InjectionScope = Literal["request", "session", "thread", "process", "global", "custom"]
 
 # Service health status types
 ServiceHealthStatus = Literal[
@@ -179,21 +187,15 @@ class ProtocolServiceRegistryConfig(Protocol):
 class ProtocolServiceValidator(Protocol):
     """Protocol for service validation operations."""
 
-    def validate_registration(
-        self, registration: ProtocolServiceRegistration
-    ) -> bool:
+    def validate_registration(self, registration: ProtocolServiceRegistration) -> bool:
         """Validate a service registration."""
         ...
 
-    def validate_dependency_graph(
-        self, graph: ProtocolDependencyGraph
-    ) -> List[str]:
+    def validate_dependency_graph(self, graph: ProtocolDependencyGraph) -> List[str]:
         """Validate dependency graph and return validation errors."""
         ...
 
-    def detect_circular_dependencies(
-        self, service_id: str
-    ) -> List[str]:
+    def detect_circular_dependencies(self, service_id: str) -> List[str]:
         """Detect circular dependencies for a service."""
         ...
 
@@ -203,14 +205,14 @@ class ProtocolServiceFactory(Protocol):
     """Protocol for service factory operations."""
 
     def create_instance(
-        self, registration: ProtocolServiceRegistration, context: ProtocolInjectionContext
+        self,
+        registration: ProtocolServiceRegistration,
+        context: ProtocolInjectionContext,
     ) -> Any:
         """Create a service instance."""
         ...
 
-    def dispose_instance(
-        self, instance: ProtocolServiceInstance
-    ) -> bool:
+    def dispose_instance(self, instance: ProtocolServiceInstance) -> bool:
         """Dispose a service instance."""
         ...
 
