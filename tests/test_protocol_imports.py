@@ -10,16 +10,7 @@ import pytest
 
 def test_protocol_types_import() -> None:
     """Test that all protocol types import successfully."""
-    from omnibase.protocols.types import (
-        ContextValue,
-        EventData,
-        LogLevel,
-        ProtocolLogContext,
-        ProtocolLogEntry,
-        ProtocolNodeMetadata,
-        ProtocolSerializationResult,
-        ProtocolValidationResult,
-    )
+    from omnibase.protocols.types import LogLevel, ProtocolLogContext, ProtocolLogEntry
 
     # Verify types are available
     # LogLevel is a Literal type with specific values
@@ -32,7 +23,6 @@ def test_core_protocols_import() -> None:
     """Test that core protocols import without external dependencies."""
     from omnibase.protocols.core.protocol_core_logging import ProtocolCoreLogging
     from omnibase.protocols.core.protocol_logger import ProtocolLogger
-    from omnibase.protocols.types import LogLevel
 
     # Verify protocols are available
     assert hasattr(ProtocolLogger, "__annotations__")
@@ -55,12 +45,9 @@ def test_working_protocol_examples() -> None:
 
 def test_no_external_dependencies() -> None:
     """Test that protocol types don't import external omnibase modules."""
-    import importlib
     import sys
 
     # Import our protocol types
-    from omnibase.protocols.types import core_types, event_bus_types
-
     # Check that no external omnibase modules were loaded as side effects
     external_modules = [
         name

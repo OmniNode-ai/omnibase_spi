@@ -5,7 +5,7 @@ Domain: File processing and writing protocols
 """
 
 from pathlib import Path
-from typing import Dict, List, Literal, Optional, Protocol, Union
+from typing import Literal, Optional, Protocol
 from uuid import UUID
 
 from omnibase.protocols.types.core_types import ProtocolDateTime, ProtocolSemVer
@@ -16,12 +16,12 @@ FileStatus = Literal["exists", "missing", "locked", "corrupted", "accessible"]
 ProcessingStatus = Literal["pending", "processing", "completed", "failed", "skipped"]
 
 # File content types - more specific than Any
-FileContent = Union[str, bytes]
+FileContent = str | bytes
 
 
 # File metadata protocol for type safety
 class ProtocolFileMetadata(Protocol):
-    """Protocol for file metadata - attribute-based for model compatibility."""
+    """Protocol for file metadata - attribute-based for data compatibility."""
 
     size: int
     mime_type: str
@@ -88,16 +88,16 @@ class ProtocolFileTypeResult(Protocol):
 
 
 class ProtocolHandlerMatch(Protocol):
-    """Protocol for handler matching results."""
+    """Protocol for node matching results."""
 
-    handler_id: UUID
-    handler_name: str
+    node_id: UUID
+    node_name: str
     match_confidence: float
     can_handle: bool
     required_capabilities: list[str]
 
 
-# Protocol types for file type handlers
+# Protocol types for file type nodes
 class ProtocolCanHandleResult(Protocol):
     """Protocol for can handle determination results."""
 
@@ -108,14 +108,14 @@ class ProtocolCanHandleResult(Protocol):
 
 
 class ProtocolHandlerMetadata(Protocol):
-    """Protocol for handler metadata."""
+    """Protocol for node metadata."""
 
     name: str
     version: ProtocolSemVer
     author: str
     description: str
-    supported_extensions: List[str]
-    supported_filenames: List[str]
+    supported_extensions: list[str]
+    supported_filenames: list[str]
     priority: int
     requires_content_analysis: bool
 
@@ -142,12 +142,12 @@ class ProtocolSerializedBlock(Protocol):
 
 # Result data protocol for type safety
 class ProtocolResultData(Protocol):
-    """Protocol for operation result data - attribute-based for model compatibility."""
+    """Protocol for operation result data - attribute-based for data compatibility."""
 
     output_path: Optional[Path]
-    processed_files: List[Path]
-    metrics: Dict[str, float]
-    warnings: List[str]
+    processed_files: list[Path]
+    metrics: dict[str, float]
+    warnings: list[str]
 
 
 class ProtocolOnexResult(Protocol):
@@ -164,26 +164,22 @@ class ProtocolOnexResult(Protocol):
 class ProtocolFileMetadataOperations(Protocol):
     """Protocol for file metadata operations - method-based for services."""
 
-    def validate_metadata(self, metadata: ProtocolFileMetadata) -> bool:
-        ...
+    def validate_metadata(self, metadata: ProtocolFileMetadata) -> bool: ...
 
-    def serialize_metadata(self, metadata: ProtocolFileMetadata) -> str:
-        ...
+    def serialize_metadata(self, metadata: ProtocolFileMetadata) -> str: ...
 
     def compare_metadata(
         self, meta1: ProtocolFileMetadata, meta2: ProtocolFileMetadata
-    ) -> bool:
-        ...
+    ) -> bool: ...
 
 
 class ProtocolResultOperations(Protocol):
     """Protocol for result operations - method-based for services."""
 
-    def format_result(self, result: ProtocolOnexResult) -> str:
-        ...
+    def format_result(self, result: ProtocolOnexResult) -> str: ...
 
-    def merge_results(self, results: List[ProtocolOnexResult]) -> ProtocolOnexResult:
-        ...
+    def merge_results(
+        self, results: list[ProtocolOnexResult]
+    ) -> ProtocolOnexResult: ...
 
-    def validate_result(self, result: ProtocolOnexResult) -> bool:
-        ...
+    def validate_result(self, result: ProtocolOnexResult) -> bool: ...

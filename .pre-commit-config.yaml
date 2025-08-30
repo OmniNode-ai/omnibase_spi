@@ -1,21 +1,33 @@
 repos:
   - repo: https://github.com/psf/black
-    rev: 23.3.0
+    rev: 24.8.0
     hooks:
       - id: black
   - repo: https://github.com/pycqa/isort
-    rev: 5.12.0
+    rev: 5.13.2
     hooks:
       - id: isort
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.0.0
+    rev: v1.11.2
     hooks:
       - id: mypy
   - repo: local
     hooks:
       - id: validate-spi-purity
         name: Validate SPI Purity
-        entry: scripts/validate-spi-purity.sh
+        entry: python scripts/ast_spi_validator.py
+        language: system
+        files: ^src/.*\.py$
+        description: "Ensure SPI contains only pure protocol definitions, no implementations (AST-based)"
+      - id: validate-forbidden-patterns
+        name: Validate Forbidden Patterns
+        entry: scripts/validate-forbidden-patterns.sh
         language: script
         files: ^src/.*\.py$
-        description: "Ensure SPI contains only pure protocol definitions, no implementations"
+        description: "Check for forbidden patterns like 'model' terminology and Union types"
+      - id: validate-no-deprecated
+        name: Validate No Deprecated Code
+        entry: scripts/validate-no-deprecated.sh
+        language: script
+        files: ^src/.*\.py$
+        description: "Prevent legacy/deprecated code patterns and ensure clean modern codebase"

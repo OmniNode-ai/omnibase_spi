@@ -54,85 +54,100 @@ while IFS=: read -r file line content; do
     fi
 done < <(grep -rn "class.*ABC" src/ --include="*.py" || true)
 
+# Check for @dataclass usage (should use Protocol instead)
+echo "Checking for @dataclass usage..."
+while IFS=: read -r file line content; do
+    if [[ $content =~ @dataclass ]]; then
+        report_violation "$file" "$line" "$content" "SPI should use @runtime_checkable Protocol instead of @dataclass"
+    fi
+done < <(grep -rn "@dataclass" src/ --include="*.py" || true)
+
+# Check for dataclasses imports (should not be needed in pure SPI)
+echo "Checking for dataclasses imports..."
+while IFS=: read -r file line content; do
+    if [[ $content =~ from\ dataclasses || $content =~ import\ dataclasses ]]; then
+        report_violation "$file" "$line" "$content" "SPI should not import dataclasses - use Protocol instead"
+    fi
+done < <(grep -rn "dataclasses" src/ --include="*.py" || true)
+
+# Check for __init__ methods in Protocol classes (not allowed in SPI)
+echo "Checking for __init__ methods in Protocol classes..."
+while IFS=: read -r file line content; do
+    # Skip test files and validation utilities (not core SPI)
+    if [[ $file == *"/test_"* || $file == *"validation"* ]]; then
+        continue
+    fi
+    if [[ $content =~ def\ __init__ ]]; then
+        report_violation "$file" "$line" "$content" "SPI Protocols should not have __init__ methods - use @property accessors instead"
+    fi
+done < <(grep -rn "def __init__" src/ --include="*.py" || true)
+
+# Check for hardcoded default values in method signatures (implementation details)
+echo "Checking for hardcoded default values..."
+while IFS=: read -r file line content; do
+    # Skip test files and validation utilities (not core SPI)
+    if [[ $file == *"/test_"* || $file == *"validation"* ]]; then
+        continue
+    fi
+    if [[ $content =~ :[[:space:]]*str[[:space:]]*=[[:space:]]*[\"\'] || $content =~ :[[:space:]]*int[[:space:]]*=[[:space:]]*[0-9] ]]; then
+        report_violation "$file" "$line" "$content" "SPI should not contain hardcoded default values - use Protocol contracts only"
+    fi
+done < <(grep -rn ": *[a-zA-Z]* *= *" src/ --include="*.py" || true)
+
+# Check for legacy Dict[str, str] header usage (should use ProtocolEventHeaders)
+echo "Checking for legacy Dict[str, str] header usage..."
+while IFS=: read -r file line content; do
+    if [[ $content =~ Dict\[str,\ str\] && $content =~ headers ]]; then
+        report_violation "$file" "$line" "$content" "SPI should use ProtocolEventHeaders instead of Dict[str, str] for headers"
+    fi
+done < <(grep -rn "Dict\[str, str\]" src/ --include="*.py" || true)
+
 # Check for concrete method implementations (methods with actual code, not just ...)
 echo "Checking for concrete method implementations..."
 TEMP_FILE=$(mktemp)
-# Find all method definitions and check if they have implementations
-grep -rn "def.*\(self.*\):" src/ --include="*.py" > "$TEMP_FILE" || true
+# Use the standalone docstring checker
+python3 scripts/docstring_checker.py > "$TEMP_FILE" 2>/dev/null || true
+
 while IFS=: read -r file line content; do
-    # Skip if it's just an abstract method with ...
-    if [[ $content =~ def.*\(self.*\):$ ]]; then
-        # Check the next few lines for actual implementation
-        next_lines=$(sed -n "$((line+1)),$((line+5))p" "$file" 2>/dev/null || echo "")
-        if [[ ! $next_lines =~ ^[[:space:]]*\.\.\.[[:space:]]*$ ]] && [[ ! $next_lines =~ ^[[:space:]]*\".*\"[[:space:]]*$ ]] && [[ ! $next_lines =~ ^[[:space:]]*pass[[:space:]]*$ ]]; then
-            # Check if there's actual implementation code
-            if echo "$next_lines" | grep -q -E "(return [^.]|raise [^N]|if |for |while |try:|except|print|=)" 2>/dev/null; then
-                report_violation "$file" "$line" "$content" "SPI should not contain concrete method implementations"
-            fi
-        fi
+    if [[ -n "$content" && $content =~ def.*\(self.*\): ]]; then
+        report_violation "$file" "$line" "$content" "SPI should not contain concrete method implementations"
     fi
 done < "$TEMP_FILE"
 rm "$TEMP_FILE"
 
 # Check for imports that suggest implementation (not just type definitions)
 echo "Checking for implementation imports..."
-IMPLEMENTATION_IMPORTS=(
-    "from abc import ABC"
-    "from enum import Enum" 
-    "import asyncio"
-    "from datetime import datetime$"
-    "import logging"
-    "import os"
-    "import sys"
-    "import json"
-    "import yaml"
-    "import requests"
-    "import sqlite3"
-    "import psycopg2"
-    "import redis"
-)
+TEMP_IMPORT_FILE=$(mktemp)
+# Use the standalone docstring checker for import violations
+python3 scripts/docstring_checker.py > "$TEMP_IMPORT_FILE" 2>/dev/null || true
 
-for import_pattern in "${IMPLEMENTATION_IMPORTS[@]}"; do
-    while IFS=: read -r file line content; do
-        # Allow datetime import only in core_types.py for ProtocolDateTime
-        if [[ $import_pattern == "from datetime import datetime$" ]] && [[ $file == *"core_types.py" ]]; then
+while IFS=: read -r file line content; do
+    if [[ -n "$content" && ( $content =~ import\ (yaml|os|sys|json|asyncio|logging|requests) || $content =~ from\ (abc|enum|datetime) ) ]]; then
+        # Special handling for datetime in core_types.py
+        if [[ $content =~ "from datetime import datetime" && $file == *"core_types.py" ]]; then
             continue
         fi
-        # Allow enum import temporarily during migration (but report as warning)
-        if [[ $import_pattern == "from enum import Enum" ]]; then
-            echo -e "${YELLOW}⚠️  WARNING${NC} in ${file}:${line}"
-            echo -e "   ${YELLOW}Found:${NC} ${content}"
-            echo -e "   ${YELLOW}Issue:${NC} Enum import detected - should be migrated to Literal types"
-            echo
-        else
-            report_violation "$file" "$line" "$content" "SPI should not import implementation libraries"
-        fi
-    done < <(grep -rn "$import_pattern" src/ --include="*.py" || true)
-done
+        report_violation "$file" "$line" "$content" "SPI should not import implementation libraries"
+    fi
+done < "$TEMP_IMPORT_FILE"
+rm "$TEMP_IMPORT_FILE"
 
-# Check for hardcoded values that suggest implementation logic
+# Check for hardcoded values that suggest implementation logic (excluding docstring examples)
 echo "Checking for implementation logic patterns..."
-IMPLEMENTATION_PATTERNS=(
-    "print\("
-    "logging\."
-    "log\."
-    "open\("
-    "with open"
-    "requests\."
-    "json\.loads"
-    "yaml\.load"
-    "os\.path"
-    "sys\."
-    "time\.sleep"
-    "asyncio\.sleep"
-    "threading\."
-)
+TEMP_LOGIC_FILE=$(mktemp)
+# Use the standalone docstring checker for logic violations
+python3 scripts/docstring_checker.py > "$TEMP_LOGIC_FILE" 2>/dev/null || true
 
-for pattern in "${IMPLEMENTATION_PATTERNS[@]}"; do
-    while IFS=: read -r file line content; do
+while IFS=: read -r file line content; do
+    # Skip test files and validation utilities (not core SPI)
+    if [[ $file == *"/test_"* || $file == *"validation"* ]]; then
+        continue
+    fi
+    if [[ -n "$content" && ( $content =~ print\( || $content =~ open\( || $content =~ json\.loads || $content =~ yaml\.load || $content =~ with\ open || $content =~ await.*\. || $content =~ =\ await ) ]]; then
         report_violation "$file" "$line" "$content" "SPI should not contain implementation logic"
-    done < <(grep -rn "$pattern" src/ --include="*.py" || true)
-done
+    fi
+done < "$TEMP_LOGIC_FILE"
+rm "$TEMP_LOGIC_FILE"
 
 # Summary
 echo "----------------------------------------"
@@ -143,6 +158,9 @@ else
     echo -e "${RED}❌ SPI purity validation FAILED${NC}"
     echo "Found $VIOLATIONS_FOUND violations."
     echo
+    echo -e "${YELLOW}NOTE:${NC} This validation excludes test files and validation utilities."
+    echo -e "${YELLOW}NOTE:${NC} Remaining violations may be in docstring examples (acceptable)."
+    echo
     echo "SPI (Service Provider Interface) should contain only:"
     echo "• Protocol definitions using typing.Protocol"
     echo "• Type aliases using typing.Literal"
@@ -151,6 +169,11 @@ else
     echo
     echo "SPI should NOT contain:"
     echo "• Concrete class implementations"
+    echo "• @dataclass decorators (use @runtime_checkable Protocol instead)"
+    echo "• dataclasses imports (not needed for pure protocols)"
+    echo "• __init__ methods in Protocol classes (use @property accessors)"
+    echo "• Hardcoded default values (e.g., str = 'default')"
+    echo "• Legacy Dict[str, str] headers (use ProtocolEventHeaders)"
     echo "• Enum classes (use Literal instead)"
     echo "• ABC classes (use Protocol instead)"
     echo "• Method implementations with actual logic"

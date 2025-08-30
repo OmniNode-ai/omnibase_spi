@@ -4,14 +4,14 @@ Event bus protocol types for ONEX SPI interfaces.
 Domain: Event-driven architecture protocols
 """
 
-from typing import Dict, Literal, Protocol, Union
+from typing import Literal, Protocol, Union
 from uuid import UUID
 
 from omnibase.protocols.types.core_types import ProtocolDateTime
 
 # Event data types - more specific than Any
 EventData = Union[
-    str, int, float, bool, list[str], Dict[str, Union[str, int, float, bool]]
+    str, int, float, bool, list[str], dict[str, Union[str, int, float, bool]]
 ]
 
 # Event status types
@@ -26,7 +26,7 @@ class ProtocolEvent(Protocol):
     """Protocol for event objects."""
 
     event_type: str
-    event_data: Dict[str, EventData]
+    event_data: dict[str, EventData]
     correlation_id: UUID
     timestamp: ProtocolDateTime
     source: str
@@ -67,7 +67,7 @@ class ProtocolEventSubscription(Protocol):
 
     event_type: str
     subscriber_id: str
-    filter_criteria: Dict[str, str]
+    filter_criteria: dict[str, str]
     is_active: bool
 
 
@@ -79,9 +79,9 @@ class ProtocolOnexEvent(Protocol):
     event_type: str
     timestamp: ProtocolDateTime
     source: str
-    payload: Dict[str, EventData]
+    payload: dict[str, EventData]
     correlation_id: UUID
-    metadata: Dict[str, EventData]
+    metadata: dict[str, EventData]
 
 
 class ProtocolEventBusCredentials(Protocol):

@@ -6,18 +6,6 @@ for data structures used across ONEX service interfaces. All types follow
 the zero-dependency principle and use strong typing without Any.
 """
 
-# Container types
-from omnibase.protocols.types.container_types import (
-    ConfigValue,
-    ProtocolContainerConfig,
-    ProtocolDependencyInfo,
-    ProtocolInjectionContext,
-    ProtocolServiceInfo,
-    ProtocolServiceRegistry,
-    RegistrationStatus,
-    ServiceStatus,
-)
-
 # Core types
 from omnibase.protocols.types.core_types import (
     ContextValue,
@@ -34,7 +22,7 @@ from omnibase.protocols.types.core_types import (
     ProtocolNodeMetadata,
     ProtocolNodeMetadataBlock,
     ProtocolNodeResult,
-    ProtocolSchemaModel,
+    ProtocolSchemaObject,
     ProtocolSerializationResult,
     ProtocolState,
     ProtocolSystemEvent,
@@ -104,7 +92,7 @@ __all__ = [
     "ProtocolNodeMetadata",
     "ProtocolNodeMetadataBlock",
     "ProtocolNodeResult",
-    "ProtocolSchemaModel",
+    "ProtocolSchemaObject",
     "ProtocolSerializationResult",
     "ProtocolState",
     "ProtocolSystemEvent",
@@ -118,15 +106,6 @@ __all__ = [
     "ProtocolEventResult",
     "ProtocolEventSubscription",
     "ProtocolSecurityContext",
-    # Container types
-    "ConfigValue",
-    "RegistrationStatus",
-    "ServiceStatus",
-    "ProtocolContainerConfig",
-    "ProtocolDependencyInfo",
-    "ProtocolInjectionContext",
-    "ProtocolServiceInfo",
-    "ProtocolServiceRegistry",
     # Discovery types
     "CapabilityValue",
     "DiscoveryStatus",
@@ -138,7 +117,6 @@ __all__ = [
     "ProtocolHandlerRegistration",
     # File handling types
     "FileContent",
-    "FileMetadata",
     "FileOperation",
     "FileStatus",
     "ProcessingStatus",

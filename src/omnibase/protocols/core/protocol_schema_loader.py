@@ -2,12 +2,12 @@
 # author: OmniNode Team
 # copyright: OmniNode.ai
 # created_at: '2025-05-28T13:24:08.142263'
-# description: Stamped by ToolPython
+# description: Stamped by NodePython
 # entrypoint: python://protocol_schema_loader
 # hash: 54d22bb99ec2490ef26d82ee55400b98fa3774a1cf59e9e600ee05023501e133
 # last_modified_at: '2025-05-29T14:14:00.338636+00:00'
 # lifecycle: active
-# meta_type: tool
+# meta_type: node
 # metadata_version: 0.1.0
 # name: protocol_schema_loader.py
 # namespace: python://omnibase.protocol.protocol_schema_loader
@@ -33,7 +33,7 @@ from typing import TYPE_CHECKING, Protocol
 if TYPE_CHECKING:
     from omnibase.protocols.types.core_types import ProtocolNodeMetadataBlock
 
-from omnibase.protocols.types.core_types import ProtocolSchemaModel
+from omnibase.protocols.types.core_types import ProtocolSchemaObject
 
 
 class ProtocolSchemaLoader(Protocol):
@@ -42,13 +42,10 @@ class ProtocolSchemaLoader(Protocol):
     All methods use Path objects and return strongly-typed models as appropriate.
     """
 
-    def load_onex_yaml(self, path: Path) -> "ProtocolNodeMetadataBlock":
-        ...
+    def load_onex_yaml(self, path: Path) -> "ProtocolNodeMetadataBlock": ...
 
-    def load_json_schema(self, path: Path) -> ProtocolSchemaModel:
-        ...
+    def load_json_schema(self, path: Path) -> ProtocolSchemaObject: ...
 
     def load_schema_for_node(
         self, node: "ProtocolNodeMetadataBlock"
-    ) -> ProtocolSchemaModel:
-        ...
+    ) -> ProtocolSchemaObject: ...

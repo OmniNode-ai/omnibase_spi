@@ -8,11 +8,12 @@ This protocol enables core modules to request logging services without
 creating circular dependencies.
 """
 
-from typing import Callable, Dict, Optional, Protocol, TypeVar
+from typing import Callable, Optional, Protocol, TypeVar
 
 from omnibase.protocols.types import ContextValue, LogLevel
 
 # Type variable for function decorators - preserves specific function signatures
+# Using object as return type to avoid Any while maintaining generic capability
 F = TypeVar("F", bound=Callable[..., object])
 
 
@@ -28,10 +29,10 @@ class ProtocolCoreLogging(Protocol):
         self,
         level: LogLevel,
         message: str,
-        event_type: str = "generic",
+        event_type: str,
         node_id: Optional[str] = None,
         correlation_id: Optional[str] = None,
-        data: Optional[Dict[str, ContextValue]] = None,
+        data: Optional[dict[str, ContextValue]] = None,
     ) -> None:
         """
         Emit a structured log event synchronously.

@@ -1,23 +1,38 @@
-[tool.poetry]
+[project]
 name = "omnibase-spi"
-version = "0.0.2"
+version = "0.1.0"
 description = "ONEX Service Provider Interface - Protocol definitions"
-authors = ["OmniNode Team <team@omninode.ai>"]
-license = "MIT"
+authors = [{name = "OmniNode Team", email = "team@omninode.ai"}]
+license = {text = "MIT"}
 readme = "README.md"
+requires-python = ">=3.12"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+dependencies = [
+    "typing-extensions>=4.5.0",
+    "pydantic>=2.11.7",
+]
+
+[tool.poetry]
 packages = [{include = "omnibase", from = "src"}]
 
 [tool.poetry.dependencies]
-python = "^3.11"
-typing-extensions = "^4.5.0"
-pydantic = "^2.11.7"
+python = "^3.12"
 
 [tool.poetry.group.dev.dependencies]
-mypy = "^1.0.0"
-black = "^23.0.0"
-isort = "^5.12.0"
-pre-commit = "^3.0.0"
+mypy = "^1.13.0"
+black = "^24.10.0"
+isort = "^5.13.0"
+pre-commit = "^4.0.0"
 pytest = "^8.4.1"
+ruff = "^0.8.0"
 
 [build-system]
 requires = ["poetry-core"]
@@ -25,7 +40,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.black]
 line-length = 88
-target-version = ['py311']
+target-version = ['py312']
 include = '\.pyi?$'
 
 [tool.isort]

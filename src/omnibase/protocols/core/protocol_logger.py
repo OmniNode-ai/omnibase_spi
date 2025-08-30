@@ -2,12 +2,12 @@
 # author: OmniNode Team
 # copyright: OmniNode.ai
 # created_at: '2025-05-28T12:36:27.202429'
-# description: Stamped by ToolPython
+# description: Stamped by NodePython
 # entrypoint: python://protocol_logger
 # hash: acdddae45e452c0a6de44fa250471b51ec1c8edbff4041180129a32392324405
 # last_modified_at: '2025-05-29T14:14:00.269378+00:00'
 # lifecycle: active
-# meta_type: tool
+# meta_type: node
 # metadata_version: 0.1.0
 # name: protocol_logger.py
 # namespace: python://omnibase.protocol.protocol_logger
@@ -64,7 +64,7 @@ class ProtocolLogger(Protocol):
 
     def log(self, entry: ProtocolLogEntry) -> None:
         """
-        Log a structured log entry (legacy interface).
+        Log a structured log entry.
 
         Args:
             entry: Structured log entry to emit

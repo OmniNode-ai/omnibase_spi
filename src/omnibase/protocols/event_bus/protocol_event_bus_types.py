@@ -1,6 +1,6 @@
-from typing import Callable, Dict, Optional, Protocol, runtime_checkable
+from typing import Callable, Optional, Protocol, runtime_checkable
 
-from omnibase.protocols.types import EventData, ProtocolEvent, ProtocolEventCredentials
+from omnibase.protocols.types import ProtocolEvent
 
 
 class ProtocolEventBusCredentials(Protocol):
@@ -15,7 +15,7 @@ class ProtocolEventBusCredentials(Protocol):
     cert: Optional[str]
     key: Optional[str]
     ca: Optional[str]
-    extra: Optional[Dict[str, str]]
+    extra: Optional[dict[str, str]]
 
 
 @runtime_checkable
@@ -30,34 +30,28 @@ class ProtocolEventBus(Protocol):
     All event bus implementations must expose a unique, stable bus_id (str) for diagnostics, registry, and introspection.
     """
 
-    def __init__(
-        self,
-        credentials: Optional[ProtocolEventBusCredentials] = None,
-    ) -> None:
+    @property
+    def credentials(self) -> Optional[ProtocolEventBusCredentials]:
+        """Get event bus credentials."""
         ...
 
-    def publish(self, event: ProtocolEvent) -> None:
-        ...
+    def publish(self, event: ProtocolEvent) -> None: ...
 
-    async def publish_async(self, event: ProtocolEvent) -> None:
-        ...
+    async def publish_async(self, event: ProtocolEvent) -> None: ...
 
-    def subscribe(self, callback: Callable[[ProtocolEvent], None]) -> None:
-        ...
+    def subscribe(self, callback: Callable[[ProtocolEvent], None]) -> None: ...
 
-    async def subscribe_async(self, callback: Callable[[ProtocolEvent], None]) -> None:
-        ...
+    async def subscribe_async(
+        self, callback: Callable[[ProtocolEvent], None]
+    ) -> None: ...
 
-    def unsubscribe(self, callback: Callable[[ProtocolEvent], None]) -> None:
-        ...
+    def unsubscribe(self, callback: Callable[[ProtocolEvent], None]) -> None: ...
 
     async def unsubscribe_async(
         self, callback: Callable[[ProtocolEvent], None]
-    ) -> None:
-        ...
+    ) -> None: ...
 
-    def clear(self) -> None:
-        ...
+    def clear(self) -> None: ...
 
     @property
     def bus_id(self) -> str:

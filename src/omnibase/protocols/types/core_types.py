@@ -5,11 +5,12 @@ Domain: Core system protocols (logging, serialization, validation)
 """
 
 from datetime import datetime
-from typing import Dict, Literal, Optional, Protocol, Union
+from typing import Literal, Optional, Protocol, runtime_checkable
 from uuid import UUID
 
 
 # Semantic version protocol - for strong version typing
+@runtime_checkable
 class ProtocolSemVer(Protocol):
     """Protocol for semantic version objects."""
 
@@ -26,15 +27,30 @@ class ProtocolSemVer(Protocol):
 ProtocolDateTime = datetime
 
 # Log level types - using string literals instead of enums
-LogLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+LogLevel = Literal["TRACE", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+
+# Node-related types - using string literals for SPI purity
+NodeType = Literal["COMPUTE", "EFFECT", "REDUCER", "ORCHESTRATOR"]
+HealthStatus = Literal[
+    "healthy",
+    "degraded",
+    "unhealthy",
+    "critical",
+    "unknown",
+    "warning",
+    "unreachable",
+    "available",
+    "unavailable",
+    "error",
+]
 
 # Context value types - specific typed values for logging context
-ContextValue = Union[str, int, float, bool, list[str], Dict[str, str]]
+ContextValue = str | int | float | bool | list[str] | dict[str, str]
 
 
 # Configuration value protocol - for type-safe configuration
 class ProtocolConfigValue(Protocol):
-    """Protocol for configuration values - attribute-based for model compatibility."""
+    """Protocol for configuration values - attribute-based for data compatibility."""
 
     key: str
     value: ContextValue
@@ -46,11 +62,12 @@ class ProtocolConfigValue(Protocol):
 class ProtocolLogContext(Protocol):
     """Protocol for log context objects."""
 
-    def to_dict(self) -> Dict[str, ContextValue]:
+    def to_dict(self) -> dict[str, ContextValue]:
         """Convert context to dictionary with typed values."""
         ...
 
 
+@runtime_checkable
 class ProtocolLogEntry(Protocol):
     """Protocol for log entry objects."""
 
@@ -58,7 +75,7 @@ class ProtocolLogEntry(Protocol):
     message: str
     correlation_id: UUID
     timestamp: ProtocolDateTime
-    context: Dict[str, ContextValue]
+    context: dict[str, ContextValue]
 
 
 # Core serialization protocols
@@ -76,7 +93,7 @@ class ProtocolNodeMetadata(Protocol):
 
     node_id: str
     node_type: str
-    metadata: Dict[str, ContextValue]
+    metadata: dict[str, ContextValue]
 
 
 # Core validation protocols
@@ -91,12 +108,22 @@ class ProtocolValidationResult(Protocol):
 # Status types
 NodeStatus = Literal["active", "inactive", "error", "pending"]
 
+# Execution types - using string literals for SPI purity
+ExecutionMode = Literal["direct", "inmemory", "kafka"]
+OperationStatus = Literal["success", "failed", "in_progress", "cancelled", "pending"]
+
+# Validation types - using string literals for SPI purity
+ErrorSeverity = Literal["debug", "info", "warning", "error", "critical", "fatal"]
+ValidationLevel = Literal["BASIC", "STANDARD", "COMPREHENSIVE", "PARANOID"]
+ValidationMode = Literal["strict", "lenient", "smoke", "regression", "integration"]
+
 
 # Metadata protocols for type safety
+@runtime_checkable
 class ProtocolMetadata(Protocol):
-    """Protocol for structured metadata - attribute-based for model compatibility."""
+    """Protocol for structured metadata - attribute-based for data compatibility."""
 
-    data: Dict[str, ContextValue]
+    data: dict[str, ContextValue]
     version: ProtocolSemVer
     created_at: ProtocolDateTime
     updated_at: Optional[ProtocolDateTime]
@@ -106,17 +133,13 @@ class ProtocolMetadata(Protocol):
 class ProtocolMetadataOperations(Protocol):
     """Protocol for metadata operations - method-based for services."""
 
-    def get_value(self, key: str) -> ContextValue:
-        ...
+    def get_value(self, key: str) -> ContextValue: ...
 
-    def has_key(self, key: str) -> bool:
-        ...
+    def has_key(self, key: str) -> bool: ...
 
-    def keys(self) -> list[str]:
-        ...
+    def keys(self) -> list[str]: ...
 
-    def update_value(self, key: str, value: ContextValue) -> None:
-        ...
+    def update_value(self, key: str, value: ContextValue) -> None: ...
 
 
 # Reducer protocol types with stronger typing
@@ -125,7 +148,7 @@ class ProtocolActionPayload(Protocol):
 
     target_id: str
     operation: str
-    parameters: Dict[str, ContextValue]
+    parameters: dict[str, ContextValue]
 
 
 class ProtocolAction(Protocol):
@@ -160,12 +183,12 @@ class ProtocolNodeMetadataBlock(Protocol):
     protocol_version: ProtocolSemVer
 
 
-class ProtocolSchemaModel(Protocol):
-    """Protocol for schema model objects."""
+class ProtocolSchemaObject(Protocol):
+    """Protocol for schema data objects."""
 
     schema_id: str
     schema_type: str
-    schema_data: Dict[str, ContextValue]
+    schema_data: dict[str, ContextValue]
     version: ProtocolSemVer
     is_valid: bool
 
@@ -186,7 +209,7 @@ class ProtocolSystemEvent(Protocol):
     """Protocol for system events."""
 
     type: str
-    payload: Dict[str, ContextValue]
+    payload: dict[str, ContextValue]
     timestamp: float
     source: str
 
@@ -200,6 +223,6 @@ class ProtocolNodeResult(Protocol):
     error: Optional[ProtocolErrorInfo]
     trust_score: float
     provenance: list[str]
-    metadata: Dict[str, ContextValue]
+    metadata: dict[str, ContextValue]
     events: list[ProtocolSystemEvent]
-    state_delta: Dict[str, ContextValue]
+    state_delta: dict[str, ContextValue]

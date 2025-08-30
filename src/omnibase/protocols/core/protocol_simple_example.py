@@ -2,18 +2,19 @@
 Simple Example Protocol - Demonstrating zero-dependency protocol design.
 
 This serves as a template for creating protocols that don't depend on
-external model types.
+external data types.
 """
 
-from typing import TYPE_CHECKING, Any, Dict, Optional, Protocol
+from typing import TYPE_CHECKING, Any, Optional, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    # Forward references to models that would be defined elsewhere
+    # Forward references to data types that would be defined elsewhere
     from typing import TypeVar
 
     T = TypeVar("T")
 
 
+@runtime_checkable
 class ProtocolSimpleSerializer(Protocol):
     """
     Simple serialization protocol with no external dependencies.
@@ -35,6 +36,7 @@ class ProtocolSimpleSerializer(Protocol):
         ...
 
 
+@runtime_checkable
 class ProtocolSimpleLogger(Protocol):
     """
     Simple logging protocol using only built-in types.
@@ -49,17 +51,18 @@ class ProtocolSimpleLogger(Protocol):
         ...
 
 
+@runtime_checkable
 class ProtocolSimpleEventHandler(Protocol):
     """
     Simple event handling protocol.
     """
 
     def handle_event(
-        self, event_type: str, event_data: Dict[str, Any]
-    ) -> Optional[Dict[str, Any]]:
+        self, event_type: str, event_data: dict[str, Any]
+    ) -> Optional[dict[str, Any]]:
         """Handle an event and optionally return response data."""
         ...
 
     def can_handle(self, event_type: str) -> bool:
-        """Check if this handler can process the given event type."""
+        """Check if this node can process the given event type."""
         ...

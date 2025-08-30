@@ -1,55 +1,82 @@
-# Suggested Commands: omnibase-spi
+# Essential Development Commands for omnibase-spi
 
-## Development Environment Setup
+## Initial Setup
 ```bash
-# Install dependencies and create virtual environment
+# Clone and enter repository
+cd /Volumes/PRO-G40/Code/omnibase-spi
+
+# Install Poetry dependencies and create virtual environment
 poetry install
+
+# Install pre-commit hooks (essential for validation)
+poetry run pre-commit install
+poetry run pre-commit install --hook-type pre-push -c .pre-commit-config-push.yaml
 
 # Activate virtual environment (optional - poetry run handles this)
 poetry shell
-
-# Install pre-commit hooks for code quality
-poetry run pre-commit install
-
-# Install pre-push hooks for namespace validation
-poetry run pre-commit install --hook-type pre-push -c .pre-commit-config-push.yaml
 ```
 
-## Code Quality and Validation
+## Code Quality & Validation Commands
+
+### Essential Validation (run before commits)
 ```bash
-# Type checking (strict MyPy configuration)
+# Complete namespace isolation validation
+./scripts/validate-namespace-isolation.sh
+
+# AST-based SPI purity validation
+poetry run python scripts/ast_spi_validator.py
+
+# Deprecated code validation
+./scripts/validate-no-deprecated.sh
+
+# Run all protocol import tests
+poetry run pytest tests/test_protocol_imports.py -v
+
+# Type checking with mypy (strict configuration)
 poetry run mypy src/
 
 # Code formatting
 poetry run black src/ tests/
-
-# Import sorting
 poetry run isort src/ tests/
 
+# Linting
+poetry run ruff check src/ tests/
+```
+
+### Pre-commit Validation
+```bash
 # Run all pre-commit hooks manually
 poetry run pre-commit run --all-files
+
+# Test specific hooks
+poetry run pre-commit run validate-spi-purity --all-files
+poetry run pre-commit run validate-namespace-isolation --all-files
+poetry run pre-commit run validate-no-deprecated --all-files
 
 # Quick namespace isolation check
 grep -r "from omnibase\." src/ | grep -v "from omnibase.protocols"
 # Should return no results
 ```
 
-## Testing and Validation
+## Testing Commands
 ```bash
 # Run all tests
 poetry run pytest
 
+# Run specific test file with verbose output
+poetry run pytest tests/test_protocol_imports.py -v
+
+# Run tests with coverage
+poetry run pytest --cov=src/omnibase/protocols
+
 # Run namespace isolation tests specifically
 poetry run pytest tests/test_protocol_imports.py -v
 
-# Validate namespace isolation with custom script
-./scripts/validate-namespace-isolation.sh
-
-# Validate SPI purity (if script exists)
+# Validate SPI purity
 ./scripts/validate-spi-purity.sh
 ```
 
-## Build and Package
+## Build & Distribution
 ```bash
 # Build package for distribution
 poetry build
@@ -62,21 +89,30 @@ pip install dist/omnibase_spi-*.whl
 
 # Install in development mode
 pip install -e .
+
+# Test package installation in isolation
+python -m venv /tmp/test-env
+source /tmp/test-env/bin/activate
+pip install dist/*.whl
+python -c "from omnibase.protocols import ProtocolSimpleSerializer; print('Success!')"
 ```
 
-## Git Operations
+## Git Operations & Development Workflow
 ```bash
 # Check current status
 git status
+git diff
 
-# Add changes
+# Add and commit (pre-commit hooks will run automatically)
 git add .
+git commit -m "Description of changes"
 
-# Commit with validation hooks
-git commit -m "Your commit message"
+# Push with namespace validation (pre-push hooks will run)
+git push origin feature-branch
 
-# Push with namespace validation
-git push origin branch-name
+# Merge main into feature branch
+git fetch origin
+git merge origin/main
 ```
 
 ## Quick Development Workflow
@@ -90,6 +126,24 @@ poetry run pytest && \
 
 # One-liner for quick check
 poetry run pre-commit run --all-files && poetry run pytest
+```
+
+## Package Management
+```bash
+# Show package info
+poetry show
+
+# Show dependency tree
+poetry show --tree
+
+# Check for outdated packages
+poetry show --outdated
+
+# Update dependencies
+poetry update
+
+# Add development dependency
+poetry add --group dev package-name
 ```
 
 ## Debugging and Analysis
@@ -107,19 +161,20 @@ find src/ -name "protocol_*.py" -type f
 python -c "import sys; sys.path.insert(0, 'src'); import omnibase.protocols"
 ```
 
-## Package Information
+## Troubleshooting Commands
 ```bash
-# Show package info
-poetry show
+# Check Python version
+python --version  # Should be 3.12+
 
-# Show dependency tree
-poetry show --tree
+# Reinstall dependencies
+poetry install --no-cache
 
-# Check outdated packages
-poetry show --outdated
+# Clear Poetry cache
+poetry cache clear . --all
 
-# Update dependencies
-poetry update
+# Reset virtual environment
+poetry env remove python
+poetry install
 ```
 
 ## System-Specific Commands (macOS Darwin)
@@ -135,4 +190,32 @@ ls -la src/omnibase/protocols/
 
 # Check Python version
 python3 --version
+
+# View file content
+cat filename.py
+head -n 20 filename.py
+tail -n 10 filename.py
+```
+
+## CI/CD Validation (Local Testing)
+```bash
+# Simulate GitHub Actions validation locally
+poetry run pytest
+poetry build
+
+# Test package installation like CI does
+python -m venv /tmp/test-env
+source /tmp/test-env/bin/activate
+pip install dist/*.whl
+python -c "
+import sys
+from omnibase.protocols import ProtocolSimpleSerializer
+external_modules = [name for name in sys.modules.keys() 
+                   if name.startswith('omnibase.') and not name.startswith('omnibase.protocols')]
+if external_modules:
+    print(f'FAILURE: External omnibase modules loaded: {external_modules}')
+    sys.exit(1)
+else:
+    print('SUCCESS: No external omnibase dependencies loaded!')
+"
 ```

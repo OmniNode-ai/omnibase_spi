@@ -2,12 +2,12 @@
 # author: OmniNode Team
 # copyright: OmniNode.ai
 # created_at: '2025-05-28T12:36:27.265467'
-# description: Stamped by ToolPython
+# description: Stamped by NodePython
 # entrypoint: python://protocol_reducer
 # hash: 7ff603ab91d1133ad6d436a666a68896cf286019e69b8e61508ead16f411626f
 # last_modified_at: '2025-05-29T14:14:00.317784+00:00'
 # lifecycle: active
-# meta_type: tool
+# meta_type: node
 # metadata_version: 0.1.0
 # name: protocol_reducer.py
 # namespace: python://omnibase.protocol.protocol_reducer
@@ -39,8 +39,8 @@ class ProtocolReducer(Protocol):
                 ...
     """
 
-    def initial_state(self) -> ProtocolState:
-        ...
+    def initial_state(self) -> ProtocolState: ...
 
-    def dispatch(self, state: ProtocolState, action: ProtocolAction) -> ProtocolState:
-        ...
+    def dispatch(
+        self, state: ProtocolState, action: ProtocolAction
+    ) -> ProtocolState: ...
