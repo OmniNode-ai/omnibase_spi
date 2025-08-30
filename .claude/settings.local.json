@@ -39,7 +39,12 @@
       "mcp__serena__think_about_whether_you_are_done",
       "mcp__serena__read_memory",
       "Bash(git commit:*)",
-      "Bash(git merge:*)"
+      "Bash(git merge:*)",
+      "mcp__archon__health_check",
+      "mcp__archon__list_projects",
+      "mcp__archon__create_project",
+      "mcp__archon__create_task",
+      "mcp__archon__update_task"
     ],
     "deny": [],
     "ask": []

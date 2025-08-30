@@ -420,8 +420,11 @@ def main() -> None:
 
     all_violations = []
 
-    # Find all Python files
+    # Find all Python files, excluding validation directory (contains reference implementations)
     for py_file in src_path.rglob("*.py"):
+        # Skip validation directory - it contains reference implementations, not pure SPI protocols
+        if "validation" in py_file.parts:
+            continue
         violations = validate_file(py_file)
         all_violations.extend(violations)
 

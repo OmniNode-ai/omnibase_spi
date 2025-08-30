@@ -2,6 +2,15 @@
 
 Enhanced runtime validation helpers for protocol implementations in the omnibase-spi project.
 
+## ⚠️ Architecture Note
+
+This module contains **reference implementations and validation utilities**, not pure SPI protocol definitions. It is intentionally excluded from SPI purity validation checks to maintain clear architectural separation between:
+
+- **Pure SPI Protocols** (interface definitions only)
+- **Reference Implementations** (concrete classes with logic)
+
+This separation ensures the core SPI maintains zero dependencies while providing practical validation tools.
+
 ## Overview
 
 This module provides comprehensive runtime validation utilities for ONEX SPI protocol implementations. These tools help catch protocol misuse early during development, providing clear error messages and improving developer experience while maintaining SPI purity (zero external dependencies).
