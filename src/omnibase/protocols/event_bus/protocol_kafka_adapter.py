@@ -35,27 +35,24 @@ class ProtocolKafkaAdapter(ProtocolEventBusAdapter, Protocol):
     and connection management protocols.
     """
 
-    def __init__(
-        self,
-        bootstrap_servers: str = "localhost:9092",
-        environment: str = "dev",
-        group: str = "default",
-        config: Optional[ProtocolKafkaConfig] = None,
-    ):
-        """
-        Initialize Kafka adapter.
-
-        Args:
-            bootstrap_servers: Kafka broker addresses
-            environment: Environment name for topic isolation
-            group: Node group name for mini-mesh isolation
-            config: Optional Kafka configuration protocol
-        """
-        ...
-
     @property
     def bootstrap_servers(self) -> str:
         """Get Kafka bootstrap servers configuration."""
+        ...
+        
+    @property 
+    def environment(self) -> str:
+        """Get environment name for topic isolation."""
+        ...
+        
+    @property
+    def group(self) -> str: 
+        """Get node group name for mini-mesh isolation."""
+        ...
+        
+    @property
+    def config(self) -> Optional[ProtocolKafkaConfig]:
+        """Get Kafka configuration protocol."""
         ...
 
     @property

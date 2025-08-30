@@ -20,23 +20,6 @@ class ProtocolRedpandaAdapter(ProtocolKafkaAdapter, Protocol):
     but with Redpanda-optimized defaults and configurations.
     """
 
-    def __init__(
-        self,
-        bootstrap_servers: str = "localhost:9092",
-        environment: str = "dev",
-        group: str = "default",
-        config: Optional[ProtocolKafkaConfig] = None,
-    ):
-        """
-        Initialize Redpanda adapter with optimized defaults.
-
-        Args:
-            bootstrap_servers: Redpanda broker addresses
-            environment: Environment name for topic isolation
-            group: Node group name for mini-mesh isolation
-            config: Optional Redpanda configuration protocol
-        """
-        ...
 
     @property
     def redpanda_optimized_defaults(self) -> Dict[str, str]:

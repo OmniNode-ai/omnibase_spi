@@ -70,6 +70,30 @@ while IFS=: read -r file line content; do
     fi
 done < <(grep -rn "dataclasses" src/ --include="*.py" || true)
 
+# Check for __init__ methods in Protocol classes (not allowed in SPI)
+echo "Checking for __init__ methods in Protocol classes..."
+while IFS=: read -r file line content; do
+    if [[ $content =~ def\ __init__ ]]; then
+        report_violation "$file" "$line" "$content" "SPI Protocols should not have __init__ methods - use @property accessors instead"
+    fi
+done < <(grep -rn "def __init__" src/ --include="*.py" || true)
+
+# Check for hardcoded default values in method signatures (implementation details)
+echo "Checking for hardcoded default values..."
+while IFS=: read -r file line content; do
+    if [[ $content =~ :[[:space:]]*str[[:space:]]*=[[:space:]]*[\"\'] || $content =~ :[[:space:]]*int[[:space:]]*=[[:space:]]*[0-9] ]]; then
+        report_violation "$file" "$line" "$content" "SPI should not contain hardcoded default values - use Protocol contracts only"
+    fi
+done < <(grep -rn ": *[a-zA-Z]* *= *" src/ --include="*.py" || true)
+
+# Check for legacy Dict[str, str] header usage (should use ProtocolEventHeaders)
+echo "Checking for legacy Dict[str, str] header usage..."
+while IFS=: read -r file line content; do
+    if [[ $content =~ Dict\[str,\ str\] && $content =~ headers ]]; then
+        report_violation "$file" "$line" "$content" "SPI should use ProtocolEventHeaders instead of Dict[str, str] for headers"
+    fi
+done < <(grep -rn "Dict\[str, str\]" src/ --include="*.py" || true)
+
 # Check for concrete method implementations (methods with actual code, not just ...)
 echo "Checking for concrete method implementations..."
 TEMP_FILE=$(mktemp)
@@ -132,6 +156,9 @@ else
     echo "• Concrete class implementations"
     echo "• @dataclass decorators (use @runtime_checkable Protocol instead)"
     echo "• dataclasses imports (not needed for pure protocols)"
+    echo "• __init__ methods in Protocol classes (use @property accessors)"
+    echo "• Hardcoded default values (e.g., str = 'default')"
+    echo "• Legacy Dict[str, str] headers (use ProtocolEventHeaders)"
     echo "• Enum classes (use Literal instead)"
     echo "• ABC classes (use Protocol instead)"
     echo "• Method implementations with actual logic"

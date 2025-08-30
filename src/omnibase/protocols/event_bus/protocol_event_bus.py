@@ -22,7 +22,47 @@
 # === /OmniNode:Metadata ===
 
 
-from typing import Any, Awaitable, Callable, Dict, Optional, Protocol, runtime_checkable
+from datetime import datetime
+from typing import Any, Awaitable, Callable, Dict, Literal, NotRequired, Optional, Protocol, Required, TypedDict, runtime_checkable
+from uuid import UUID
+
+from omnibase.protocols.types.core_types import ProtocolDateTime, ProtocolSemVer
+
+
+class ProtocolEventHeaders(TypedDict):
+    """
+    Standardized headers for ONEX event bus messages.
+    
+    Enforces strict interoperability across all agents and prevents
+    integration failures from header naming inconsistencies.
+    Based on ONEX messaging patterns and distributed tracing requirements.
+    
+    ID Format Specifications:
+    - UUID format: "550e8400-e29b-41d4-a716-446655440000" (32 hex digits with hyphens)
+    - OpenTelemetry Trace ID: "4bf92f3577b34da6a3ce929d0e0e4736" (32 hex digits, no hyphens)
+    - OpenTelemetry Span ID: "00f067aa0ba902b7" (16 hex digits, no hyphens)
+    """
+    # REQUIRED - Essential for system operation and observability
+    content_type: Required[str]         # MIME type: "application/json", "application/avro", etc.
+    correlation_id: Required[UUID]      # UUID format for distributed business tracing
+    message_id: Required[UUID]          # UUID format for unique message identification
+    timestamp: Required[ProtocolDateTime]  # Message creation timestamp (datetime object)
+    source: Required[str]               # Source agent/service identifier  
+    event_type: Required[str]           # Event classification (e.g., "core.node.start")
+    schema_version: Required[ProtocolSemVer]  # Message schema version for compatibility
+    
+    # OPTIONAL - Standardized but not mandatory for all messages
+    destination: NotRequired[str]       # Target agent/service (for direct routing)
+    trace_id: NotRequired[str]          # OpenTelemetry trace ID (32 hex chars, no hyphens)
+    span_id: NotRequired[str]           # OpenTelemetry span ID (16 hex chars, no hyphens)
+    parent_span_id: NotRequired[str]    # Parent span ID (16 hex chars, no hyphens)
+    operation_name: NotRequired[str]    # Operation being performed (for tracing context)
+    priority: NotRequired[Literal["low", "normal", "high", "critical"]]  # Message priority
+    routing_key: NotRequired[str]       # Kafka/messaging routing key
+    partition_key: NotRequired[str]     # Explicit partition assignment key  
+    retry_count: NotRequired[int]       # Number of retry attempts (for error handling)
+    max_retries: NotRequired[int]       # Maximum retry attempts allowed
+    ttl_seconds: NotRequired[int]       # Message time-to-live in seconds
 
 
 @runtime_checkable
@@ -40,7 +80,7 @@ class ProtocolEventMessage(Protocol):
     topic: str
     key: Optional[bytes]
     value: bytes
-    headers: Dict[str, str]
+    headers: ProtocolEventHeaders
     offset: Optional[str]
     partition: Optional[int]
 
@@ -65,7 +105,7 @@ class ProtocolEventBusAdapter(Protocol):
         # Implementation example (not part of SPI)
         class KafkaAdapter:
             async def publish(self, topic: str, key: Optional[bytes],
-                            value: bytes, headers: Dict[str, str]) -> None:
+                            value: bytes, headers: ProtocolEventHeaders) -> None:
                 # Kafka-specific publishing logic
                 producer = self._get_producer()
                 await producer.send(topic, key=key, value=value, headers=headers)
@@ -81,12 +121,20 @@ class ProtocolEventBusAdapter(Protocol):
         # Usage in application code
         adapter: ProtocolEventBusAdapter = KafkaAdapter()
 
-        # Publishing events
+        # Publishing events  
         await adapter.publish(
             topic="user-events",
-            key=b"user-123",
+            key=b"user-123", 
             value=json.dumps({"event": "user_created"}).encode(),
-            headers={"content-type": "application/json"}
+            headers={
+                "content_type": "application/json",
+                "correlation_id": uuid.uuid4(),
+                "message_id": uuid.uuid4(),
+                "timestamp": datetime.now(),
+                "source": "example-service", 
+                "event_type": "user.created",
+                "schema_version": SemVerImplementation(1, 0, 0)  # Implementation example
+            }
         )
 
         # Subscribing to events
@@ -113,7 +161,7 @@ class ProtocolEventBusAdapter(Protocol):
     """
 
     async def publish(
-        self, topic: str, key: Optional[bytes], value: bytes, headers: Dict[str, str]
+        self, topic: str, key: Optional[bytes], value: bytes, headers: ProtocolEventHeaders
     ) -> None:
         """
         Publish message to topic.
@@ -162,21 +210,19 @@ class ProtocolEventBus(Protocol):
     - Standardized topic naming and headers
     """
 
-    def __init__(
-        self,
-        adapter: ProtocolEventBusAdapter,
-        environment: str = "dev",
-        group: str = "default",
-        **kwargs: Any,
-    ):
-        """
-        Initialize event bus with pluggable adapter.
-
-        Args:
-            adapter: EventBusAdapter implementation (Kafka/Redpanda)
-            environment: Environment name (dev, staging, prod)
-            group: Node group name for mini-mesh isolation
-        """
+    @property
+    def adapter(self) -> ProtocolEventBusAdapter:
+        """Get the event bus adapter implementation."""
+        ...
+        
+    @property  
+    def environment(self) -> str:
+        """Get environment name for topic isolation."""
+        ...
+        
+    @property
+    def group(self) -> str:
+        """Get node group name for mini-mesh isolation."""
         ...
 
     # === Distributed Messaging Interface ===
@@ -186,7 +232,7 @@ class ProtocolEventBus(Protocol):
         topic: str,
         key: Optional[bytes],
         value: bytes,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[ProtocolEventHeaders] = None,
     ) -> None:
         """
         Publish message to topic.
