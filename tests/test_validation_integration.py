@@ -45,13 +45,18 @@ def test_artifact_container_validation() -> None:
 
             class Status:
                 def __init__(self) -> None:
-                    self.status = "ACTIVE"
+                    from omnibase.protocols.container.protocol_artifact_container import (
+                        ContainerArtifactType,
+                        OnexStatus,
+                    )
+
+                    self.status: OnexStatus = "ACTIVE"
                     self.message = "Test container is active"
                     self.artifact_count = len(artifacts)
                     self.valid_artifact_count = len(artifacts)
                     self.invalid_artifact_count = 0
                     self.wip_artifact_count = 0
-                    self.artifact_types_found: List[str] = []
+                    self.artifact_types_found: List[ContainerArtifactType] = []
 
             return Status()
 
@@ -169,13 +174,18 @@ def test_validation_decorator() -> None:
         def get_status(self) -> ProtocolArtifactContainerStatus:
             class Status:
                 def __init__(self) -> None:
-                    self.status = "ACTIVE"
+                    from omnibase.protocols.container.protocol_artifact_container import (
+                        ContainerArtifactType,
+                        OnexStatus,
+                    )
+
+                    self.status: OnexStatus = "ACTIVE"
                     self.message = "Decorated container active"
                     self.artifact_count = 0
                     self.valid_artifact_count = 0
                     self.invalid_artifact_count = 0
                     self.wip_artifact_count = 0
-                    self.artifact_types_found: List[str] = []
+                    self.artifact_types_found: List[ContainerArtifactType] = []
 
             return Status()
 

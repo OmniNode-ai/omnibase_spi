@@ -47,19 +47,24 @@ def test_no_basic_protocols_remain() -> None:
 
 def test_consolidated_types_available() -> None:
     """Test that consolidated types are properly available."""
+    from typing import get_args
+
     from omnibase.protocols.types import BaseStatus, HealthStatus, LogLevel
 
     # Test BaseStatus has expected values
-    assert "pending" in BaseStatus.__args__
-    assert "completed" in BaseStatus.__args__
-    assert "failed" in BaseStatus.__args__
+    base_status_values = get_args(BaseStatus)
+    assert "pending" in base_status_values
+    assert "completed" in base_status_values
+    assert "failed" in base_status_values
 
     # Test HealthStatus has expected values
-    assert "healthy" in HealthStatus.__args__
-    assert "unhealthy" in HealthStatus.__args__
-    assert "critical" in HealthStatus.__args__
+    health_status_values = get_args(HealthStatus)
+    assert "healthy" in health_status_values
+    assert "unhealthy" in health_status_values
+    assert "critical" in health_status_values
 
     # Test LogLevel includes FATAL
-    assert "FATAL" in LogLevel.__args__
-    assert "CRITICAL" in LogLevel.__args__
-    assert "ERROR" in LogLevel.__args__
+    log_level_values = get_args(LogLevel)
+    assert "FATAL" in log_level_values
+    assert "CRITICAL" in log_level_values
+    assert "ERROR" in log_level_values
