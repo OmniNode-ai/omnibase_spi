@@ -26,10 +26,13 @@ poetry shell
 # AST-based SPI purity validation
 poetry run python scripts/ast_spi_validator.py
 
+# Deprecated code validation
+./scripts/validate-no-deprecated.sh
+
 # Run all protocol import tests
 poetry run pytest tests/test_protocol_imports.py -v
 
-# Type checking with mypy
+# Type checking with mypy (strict configuration)
 poetry run mypy src/
 
 # Code formatting
@@ -45,9 +48,14 @@ poetry run ruff check src/ tests/
 # Run all pre-commit hooks manually
 poetry run pre-commit run --all-files
 
-# Test specific hook
+# Test specific hooks
 poetry run pre-commit run validate-spi-purity --all-files
 poetry run pre-commit run validate-namespace-isolation --all-files
+poetry run pre-commit run validate-no-deprecated --all-files
+
+# Quick namespace isolation check
+grep -r "from omnibase\." src/ | grep -v "from omnibase.protocols"
+# Should return no results
 ```
 
 ## Testing Commands
@@ -55,20 +63,32 @@ poetry run pre-commit run validate-namespace-isolation --all-files
 # Run all tests
 poetry run pytest
 
-# Run specific test file
+# Run specific test file with verbose output
 poetry run pytest tests/test_protocol_imports.py -v
 
 # Run tests with coverage
 poetry run pytest --cov=src/omnibase/protocols
+
+# Run namespace isolation tests specifically
+poetry run pytest tests/test_protocol_imports.py -v
+
+# Validate SPI purity
+./scripts/validate-spi-purity.sh
 ```
 
 ## Build & Distribution
 ```bash
-# Build package
+# Build package for distribution
 poetry build
 
-# Install package locally for testing
-pip install dist/*.whl
+# Check package contents
+tar -tzf dist/omnibase_spi-*.tar.gz | head -20
+
+# Install locally for testing
+pip install dist/omnibase_spi-*.whl
+
+# Install in development mode
+pip install -e .
 
 # Test package installation in isolation
 python -m venv /tmp/test-env
@@ -77,9 +97,9 @@ pip install dist/*.whl
 python -c "from omnibase.protocols import ProtocolSimpleSerializer; print('Success!')"
 ```
 
-## Development Workflow Commands
+## Git Operations & Development Workflow
 ```bash
-# Check what's changed
+# Check current status
 git status
 git diff
 
@@ -87,23 +107,58 @@ git diff
 git add .
 git commit -m "Description of changes"
 
-# Push (pre-push hooks will run namespace validation)
+# Push with namespace validation (pre-push hooks will run)
 git push origin feature-branch
+
+# Merge main into feature branch
+git fetch origin
+git merge origin/main
+```
+
+## Quick Development Workflow
+```bash
+# Full validation before commit
+poetry run mypy src/ && \
+poetry run black src/ tests/ && \
+poetry run isort src/ tests/ && \
+poetry run pytest && \
+./scripts/validate-namespace-isolation.sh
+
+# One-liner for quick check
+poetry run pre-commit run --all-files && poetry run pytest
 ```
 
 ## Package Management
 ```bash
-# Add development dependency
-poetry add --group dev package-name
-
-# Update dependencies
-poetry update
+# Show package info
+poetry show
 
 # Show dependency tree
 poetry show --tree
 
 # Check for outdated packages
 poetry show --outdated
+
+# Update dependencies
+poetry update
+
+# Add development dependency
+poetry add --group dev package-name
+```
+
+## Debugging and Analysis
+```bash
+# Find protocol classes
+grep -r "^class Protocol" src/ --include="*.py"
+
+# Check for Any type usage (should be minimal)
+grep -r "Any" src/ --include="*.py"
+
+# List all protocol files
+find src/ -name "protocol_*.py" -type f
+
+# Check imports in specific file
+python -c "import sys; sys.path.insert(0, 'src'); import omnibase.protocols"
 ```
 
 ## Troubleshooting Commands
@@ -122,19 +177,19 @@ poetry env remove python
 poetry install
 ```
 
-## macOS-Specific Commands
+## System-Specific Commands (macOS Darwin)
 ```bash
-# List files
-ls -la
+# Find files (macOS find)
+find src/ -name "*.py" -type f | head -10
 
-# Find files
-find . -name "*.py" -type f
+# Search with ripgrep (if available)
+rg "Protocol" src/ --type py
 
-# Search in files
-grep -r "pattern" src/
+# List directory tree
+ls -la src/omnibase/protocols/
 
-# Change directory
-cd path/to/directory
+# Check Python version
+python3 --version
 
 # View file content
 cat filename.py
