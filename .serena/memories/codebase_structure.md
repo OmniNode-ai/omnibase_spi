@@ -36,7 +36,7 @@ src/omnibase/protocols/
 │   ├── protocol_onex_node.py
 │   ├── protocol_onex_validation.py
 │   ├── protocol_reducer.py
-│   ├── protocol_core_logging.py
+│   ├── [removed - duplicate logging protocol]
 │   └── protocol_logger.py
 ├── event_bus/                      # Event system protocols
 │   ├── __init__.py
