@@ -30,7 +30,7 @@ from omnibase.protocols.validation import (
 )
 
 
-def test_artifact_container_validation() -> bool:
+def test_artifact_container_validation() -> None:
     """Test artifact container validation with complete implementation."""
     print("=== Testing Artifact Container Validation ===")
 
@@ -41,16 +41,19 @@ def test_artifact_container_validation() -> bool:
             self.artifacts: List[ProtocolArtifactInfo] = []
 
         def get_status(self) -> ProtocolArtifactContainerStatus:
-            class Status:
-                status = "ACTIVE"
-                message = "Test container is active"
-                artifact_count = len(self.artifacts)
-                valid_artifact_count = len(self.artifacts)
-                invalid_artifact_count = 0
-                wip_artifact_count = 0
-                artifact_types_found: List[str] = []
+            artifacts = self.artifacts  # Capture in local scope
 
-            return Status()  # type: ignore
+            class Status:
+                def __init__(self) -> None:
+                    self.status = "ACTIVE"
+                    self.message = "Test container is active"
+                    self.artifact_count = len(artifacts)
+                    self.valid_artifact_count = len(artifacts)
+                    self.invalid_artifact_count = 0
+                    self.wip_artifact_count = 0
+                    self.artifact_types_found: List[str] = []
+
+            return Status()
 
         def get_artifacts(self) -> List[ProtocolArtifactInfo]:
             return self.artifacts
@@ -101,10 +104,13 @@ def test_artifact_container_validation() -> bool:
         for warning in result.warnings:
             print(f"  - {warning.error_type}: {warning.message}")
 
-    return result.is_valid
+    # Use assertion instead of returning value
+    assert (
+        result.is_valid
+    ), f"Artifact container validation failed with {len(result.errors)} errors"
 
 
-def test_handler_discovery_validation() -> bool:
+def test_handler_discovery_validation() -> None:
     """Test handler discovery validation."""
     print("\n=== Testing Handler Discovery Validation ===")
 
@@ -146,10 +152,13 @@ def test_handler_discovery_validation() -> bool:
         for warning in result.warnings:
             print(f"  - {warning.error_type}: {warning.message}")
 
-    return result.is_valid
+    # Use assertion instead of returning value
+    assert (
+        result.is_valid
+    ), f"Handler discovery validation failed with {len(result.errors)} errors"
 
 
-def test_validation_decorator() -> bool:
+def test_validation_decorator() -> None:
     """Test validation decorator functionality."""
     print("\n=== Testing Validation Decorator ===")
 
@@ -157,15 +166,16 @@ def test_validation_decorator() -> bool:
     class DecoratedContainer:
         """Container with validation decorator."""
 
-        def get_status(self) -> Any:
+        def get_status(self) -> ProtocolArtifactContainerStatus:
             class Status:
-                status = "ACTIVE"
-                message = "Decorated container active"
-                artifact_count = 0
-                valid_artifact_count = 0
-                invalid_artifact_count = 0
-                wip_artifact_count = 0
-                artifact_types_found: List[str] = []
+                def __init__(self) -> None:
+                    self.status = "ACTIVE"
+                    self.message = "Decorated container active"
+                    self.artifact_count = 0
+                    self.valid_artifact_count = 0
+                    self.invalid_artifact_count = 0
+                    self.wip_artifact_count = 0
+                    self.artifact_types_found: List[str] = []
 
             return Status()
 
@@ -192,13 +202,12 @@ def test_validation_decorator() -> bool:
         container = DecoratedContainer()
         print("✓ Decorated container created successfully")
         print("  Validation occurred automatically during instantiation")
-        return True
     except Exception as e:
         print(f"✗ Decorated container creation failed: {e}")
-        return False
+        assert False, f"Decorated container creation failed: {e}"
 
 
-def test_error_scenarios() -> bool:
+def test_error_scenarios() -> None:
     """Test validation with intentionally broken implementations."""
     print("\n=== Testing Error Scenarios ===")
 
@@ -228,11 +237,13 @@ def test_error_scenarios() -> bool:
         if len(result.errors) > 3:
             print(f"  ... and {len(result.errors) - 3} more errors")
 
-    # This should fail, so return True if it properly detected errors
-    return not result.is_valid
+    # This should fail, so assert that it properly detected errors
+    assert (
+        not result.is_valid
+    ), "Error scenario validation should have failed but passed"
 
 
-def run_integration_tests() -> bool:
+def run_integration_tests() -> None:
     """Run all integration tests."""
     print("ONEX SPI Protocol Validation Integration Tests")
     print("=" * 60)
@@ -247,9 +258,12 @@ def run_integration_tests() -> bool:
     results = []
     for test_name, test_func in tests:
         try:
-            result = test_func()
-            results.append((test_name, result))
-            print(f"\n{'✓ PASSED' if result else '✗ FAILED'}: {test_name}")
+            test_func()  # No longer expecting return value
+            results.append((test_name, True))
+            print(f"\n✓ PASSED: {test_name}")
+        except AssertionError as e:
+            results.append((test_name, False))
+            print(f"\n✗ FAILED: {test_name} - {e}")
         except Exception as e:
             results.append((test_name, False))
             print(f"\n✗ ERROR in {test_name}: {e}")
@@ -273,12 +287,16 @@ def run_integration_tests() -> bool:
 
     if passed == total:
         print("🎉 All integration tests passed!")
-        return True
     else:
         print("❌ Some tests failed - check output above")
-        return False
+        assert passed == total, f"Integration tests failed: {passed}/{total} passed"
 
 
 if __name__ == "__main__":
-    success = run_integration_tests()
-    sys.exit(0 if success else 1)
+    try:
+        run_integration_tests()
+        print("All tests passed!")
+        sys.exit(0)
+    except AssertionError as e:
+        print(f"Test failed: {e}")
+        sys.exit(1)

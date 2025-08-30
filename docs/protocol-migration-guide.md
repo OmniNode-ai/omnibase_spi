@@ -67,8 +67,13 @@ def has_artifact(name: str) -> bool                  # Same method signature
 
 #### What Changed
 - **Old**: Direct handler registration model
-- **New**: Discovery-based registration with multiple sources
-- **Reason**: Support for plugin architectures and flexible handler discovery
+- **New**: Discovery-based node registration with multiple sources
+- **Reason**: Support for plugin architectures and flexible node discovery
+
+#### Terminology Clarification
+- **Handler**: File type implementation (e.g., `ProtocolFileTypeHandler`)
+- **Node**: Deployed/discovered instance of a handler  
+- **Discovery**: Process of finding and registering handler nodes
 
 #### Migration Complexity: **HIGH** ⚠️
 This migration requires architectural changes to support the new discovery pattern.
@@ -78,7 +83,7 @@ This migration requires architectural changes to support the new discovery patte
 # OLD - Direct handler registry
 from omnibase.protocols.handler.protocol_handler_registry import ProtocolHandlerRegistry
 
-# NEW - Discovery-based registry
+# NEW - Discovery-based node registry
 from omnibase.protocols.discovery.protocol_handler_discovery import (
     ProtocolNodeDiscoveryRegistry,
     ProtocolHandlerDiscovery
@@ -107,19 +112,19 @@ class NewHandlerSystem:
         self.setup_discovery_sources()
     
     def setup_discovery_sources(self):
-        # Entry point discovery
+        # Entry point node discovery
         entry_discovery: ProtocolHandlerDiscovery = EntryPointDiscovery("onex.handlers")
         self.registry.register_discovery_source(entry_discovery)
         
-        # Config file discovery
+        # Config file node discovery
         config_discovery: ProtocolHandlerDiscovery = ConfigFileDiscovery("config/handlers.yaml")
         self.registry.register_discovery_source(config_discovery)
         
-        # Environment discovery
+        # Environment node discovery
         env_discovery: ProtocolHandlerDiscovery = EnvironmentDiscovery("ONEX_HANDLER_")
         self.registry.register_discovery_source(env_discovery)
         
-        # Trigger discovery
+        # Trigger node discovery and registration
         self.registry.discover_and_register_nodes()
 ```
 
@@ -131,7 +136,7 @@ class OldHandlerInfo:
         self.handler_class = handler_class
         self.extensions = extensions
 
-# NEW - Rich handler metadata
+# NEW - Rich node metadata  
 class NewHandlerInfo:
     def __init__(self):
         self.node_class: Type[ProtocolFileTypeHandler] = handler_class
