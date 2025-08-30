@@ -63,213 +63,41 @@ class ProtocolFileTypeHandler(Protocol):
         ```python
         # Implementation example (not part of SPI)
         class NodePythonFileProcessor:
-            def __init__(self):
-                self._metadata = NodeMetadata(
-                    node_name="python",
-                    version=SemVer(1, 0, 0),
-                    author="ONEX Team",
-                    description="Python file processing node with AST-based metadata extraction",
-                    supported_extensions=[".py", ".pyw"],
-                    supported_filenames=["__init__.py", "setup.py"],
-                    priority=100,
-                    requires_content_analysis=True
-                )
-
             @property
             def metadata(self) -> ProtocolNodeMetadata:
-                return self._metadata
+                # Implementation would return configured metadata
+                ...
 
             @property
             def node_name(self) -> str:
-                return "python"
+                # Implementation returns node identifier
+                ...
 
             def can_handle(self, path: Path, content: str) -> ProtocolCanHandleResult:
-                # Check file extension
-                if path.suffix.lower() in ['.py', '.pyw']:
-                    return CanHandleResult(
-                        can_handle=True,
-                        confidence=0.9,
-                        reason="Python file extension detected"
-                    )
-
-                # Check for Python shebang
-                if content.startswith('#!/usr/bin/env python') or content.startswith('#!/usr/bin/python'):
-                    return CanHandleResult(
-                        can_handle=True,
-                        confidence=0.8,
-                        reason="Python shebang detected"
-                    )
-
-                # Check for Python-specific imports
-                if any(line.strip().startswith(('import ', 'from ')) for line in content.split('\n')[:10]):
-                    return CanHandleResult(
-                        can_handle=True,
-                        confidence=0.7,
-                        reason="Python import statements detected"
-                    )
-
-                return CanHandleResult(
-                    can_handle=False,
-                    confidence=0.0,
-                    reason="No Python indicators found"
-                )
+                # Implementation determines if file can be processed
+                ...
 
             def extract_block(self, path: Path, content: str) -> ProtocolExtractedBlock:
-                # Extract metadata using AST parsing
-                try:
-                    tree = ast.parse(content)
-
-                    # Extract docstring
-                    docstring = ast.get_docstring(tree) or "Python module"
-
-                    # Extract imports, classes, functions
-                    imports = [node.names[0].name for node in ast.walk(tree)
-                              if isinstance(node, ast.Import)]
-                    classes = [node.name for node in ast.walk(tree)
-                              if isinstance(node, ast.ClassDef)]
-                    functions = [node.name for node in ast.walk(tree)
-                                if isinstance(node, ast.FunctionDef)]
-
-                    metadata = {
-                        "description": docstring,
-                        "entrypoint": f"python://{path.stem}",
-                        "imports": imports,
-                        "classes": classes,
-                        "functions": functions,
-                        "runtime_language_hint": f"python>={sys.version_info.major}.{sys.version_info.minor}"
-                    }
-
-                    return ExtractedBlock(
-                        success=True,
-                        metadata=metadata,
-                        raw_content=content,
-                        normalized_content=self.normalize_rest(content)
-                    )
-
-                except SyntaxError as e:
-                    return ExtractedBlock(
-                        success=False,
-                        error=f"Python syntax error: {e}",
-                        raw_content=content
-                    )
+                # Implementation extracts structured block from file content
+                ...
 
             def stamp(self, path: Path, content: str, options: ProtocolStampOptions) -> ProtocolOnexResult:
-                # Create ONEX metadata stamp for Python file
-                if options.dry_run:
-                    return OnexResult(
-                        success=True,
-                        message=f"Would stamp {path.name} with Python metadata"
-                    )
-
-                extracted = self.extract_block(path, content)
-                if not extracted.success:
-                    return OnexResult(
-                        success=False,
-                        message=f"Failed to extract metadata: {extracted.error}"
-                    )
-
-                # Generate metadata block
-                metadata_lines = [
-                    "# === OmniNode:Metadata ===",
-                    f"# author: {extracted.metadata.get('author', 'Unknown')}",
-                    f"# description: {extracted.metadata.get('description', 'Python module')}",
-                    f"# entrypoint: {extracted.metadata.get('entrypoint')}",
-                    f"# runtime_language_hint: {extracted.metadata.get('runtime_language_hint')}",
-                    f"# version: 1.0.0",
-                    "# === /OmniNode:Metadata ===",
-                    ""
-                ]
-
-                stamped_content = '\n'.join(metadata_lines) + content
-
-                if not options.force and self._has_existing_stamp(content):
-                    return OnexResult(
-                        success=False,
-                        message="File already has metadata stamp. Use force=True to overwrite."
-                    )
-
-                return OnexResult(
-                    success=True,
-                    message=f"Successfully stamped {path.name}",
-                    result_content=stamped_content
-                )
+                # Implementation adds metadata stamp to file
+                ...
 
             def validate(self, path: Path, content: str, options: ProtocolValidationOptions) -> ProtocolOnexResult:
-                # Validate Python file and its metadata
-                errors = []
-                warnings = []
-
-                # Check syntax
-                if options.check_syntax:
-                    try:
-                        ast.parse(content)
-                    except SyntaxError as e:
-                        errors.append(f"Python syntax error: {e}")
-
-                # Validate metadata block if present
-                if self._has_existing_stamp(content):
-                    metadata_validation = self._validate_metadata_block(content)
-                    errors.extend(metadata_validation.get('errors', []))
-                    warnings.extend(metadata_validation.get('warnings', []))
-                else:
-                    warnings.append("No ONEX metadata stamp found")
-
-                # Check for required elements
-                if options.strict:
-                    # Skip docstring check for now due to quote parsing issues
-                    pass
-
-                return OnexResult(
-                    success=len(errors) == 0,
-                    message=f"Validation {'passed' if len(errors) == 0 else 'failed'}",
-                    errors=errors,
-                    warnings=warnings
-                )
+                # Implementation validates file content and metadata
+                ...
 
         # Usage in application
         node: ProtocolFileTypeHandler = NodePythonFileProcessor()
 
         # Check if node can process a file
-        python_file = Path("example.py")
-        with open(python_file) as f:
-            content = f.read()
-
-        can_handle = node.can_handle(python_file, content)
-        if can_handle.can_handle:
-            print(f"Node can process file with {can_handle.confidence} confidence: {can_handle.reason}")
-
-            # Extract metadata
-            extracted = node.extract_block(python_file, content)
-            if extracted.success:
-                print(f"Extracted metadata: {extracted.metadata}")
-
-                # Stamp the file
-                stamp_options = StampOptions(
-                    force=False,
-                    backup=True,
-                    dry_run=False
-                )
-
-                result = node.stamp(python_file, content, stamp_options)
-                if result.success:
-                    print(f"File stamped successfully: {result.message}")
-                    # Write stamped content back to file
-                    with open(python_file, 'w') as f:
-                        f.write(result.result_content)
-
-                # Validate the stamped file
-                validation_options = ValidationOptions(
-                    strict=True,
-                    verbose=True,
-                    check_syntax=True
-                )
-
-                validation = node.validate(python_file, result.result_content, validation_options)
-                if validation.success:
-                    print("File validation passed")
-                else:
-                    print(f"Validation errors: {validation.errors}")
-                    print(f"Validation warnings: {validation.warnings}")
+        result = node.can_handle(Path("example.py"), "file_content")
+        if result.can_handle:
+            # Extract, stamp, and validate file
+            block = node.extract_block(Path("example.py"), "file_content")
+            # ... implementation handles file operations
         ```
 
     Node Implementation Patterns:

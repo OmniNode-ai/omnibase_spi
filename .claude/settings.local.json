@@ -46,7 +46,8 @@
       "mcp__archon__create_task",
       "mcp__archon__update_task",
       "Bash(git checkout:*)",
-      "Read(//**)"
+      "Read(//**)",
+      "Bash(pytest:*)"
     ],
     "deny": [],
     "ask": []
