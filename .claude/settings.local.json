@@ -2,7 +2,6 @@
   "permissions": {
     "allow": [
       "Bash(git init:*)",
-      "Bash(git commit:*)",
       "Bash(poetry build)",
       "Bash(gh api:*)",
       "Bash(gh repo create:*)",
@@ -23,7 +22,9 @@
       "mcp__serena__think_about_task_adherence",
       "mcp__serena__create_text_file",
       "mcp__serena__replace_regex",
-      "mcp__serena__execute_shell_command"
+      "mcp__serena__execute_shell_command",
+      "Bash(rm:*)",
+      "Bash(bash:*)"
     ],
     "deny": [],
     "ask": []

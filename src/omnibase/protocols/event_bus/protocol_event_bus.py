@@ -32,7 +32,7 @@ class ProtocolEventMessage(Protocol):
 
     Defines the contract that all event message implementations must satisfy
     for Kafka/Redpanda compatibility following the ONEX Messaging Design v0.3.
-    
+
     Implementations can use dataclass, NamedTuple, or custom classes as long
     as they provide the required attributes and methods.
     """
