@@ -221,18 +221,24 @@ class ProtocolServiceRegistry(Protocol):
         from datetime import datetime
 
         class ServiceRegistryImpl:
-            def __init__(self, config: ProtocolServiceRegistryConfig):
-                self.config = config
-                self.registrations: dict[str, ProtocolServiceRegistration] = {}
-                self.instances: dict[str, list[ProtocolServiceInstance]] = {}
-                self.dependency_graph: dict[str, ProtocolDependencyGraph] = {}
+            @property
+            def config(self) -> ProtocolServiceRegistryConfig: ...
+
+            @property
+            def registrations(self) -> dict[str, ProtocolServiceRegistration]: ...
+
+            @property
+            def instances(self) -> dict[str, list[ProtocolServiceInstance]]: ...
+
+            @property
+            def dependency_graph(self) -> dict[str, ProtocolDependencyGraph]: ...
 
             async def register_service(
                 self,
                 interface: Type[TInterface],
                 implementation: Type[TImplementation],
-                lifecycle: ServiceLifecycle = "transient",
-                scope: InjectionScope = "global"
+                lifecycle: ServiceLifecycle,
+                scope: InjectionScope
             ) -> str:
                 # Create service metadata
                 metadata = ServiceMetadata(
@@ -400,8 +406,8 @@ class ProtocolServiceRegistry(Protocol):
 
         # Define service implementations
         class DatabaseUserRepository:
-            def __init__(self, db_connection: IDatabase):
-                self.db = db_connection
+            @property
+            def db(self) -> Any: ...
 
             async def get_user(self, user_id: str) -> User:
                 # Database operations
@@ -412,8 +418,8 @@ class ProtocolServiceRegistry(Protocol):
                 pass
 
         class SMTPEmailService:
-            def __init__(self, smtp_config: dict):
-                self.config = smtp_config
+            @property
+            def config(self) -> dict[str, Any]: ...
 
             async def send_email(self, to: str, subject: str, body: str) -> bool:
                 # SMTP operations

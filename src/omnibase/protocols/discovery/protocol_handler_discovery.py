@@ -60,9 +60,11 @@ class ProtocolHandlerDiscovery(Protocol):
         ```python
         # Implementation example (not part of SPI)
         class EntryPointNodeDiscovery:
-            def __init__(self, group_name: str):
-                self.group_name = group_name
-                self.discovered_nodes = []
+            @property
+            def group_name(self) -> str: ...
+
+            @property
+            def discovered_nodes(self) -> list[Any]: ...
 
             def discover_nodes(self) -> list[ProtocolHandlerInfo]:
                 # Discover nodes from Python entry points
@@ -106,8 +108,8 @@ class ProtocolHandlerDiscovery(Protocol):
                 return f"EntryPoint[{self.group_name}]"
 
         class ConfigFileNodeDiscovery:
-            def __init__(self, config_path: str):
-                self.config_path = Path(config_path)
+            @property
+            def config_path(self) -> Any: ...
 
             def discover_nodes(self) -> list[ProtocolHandlerInfo]:
                 # Discover nodes from configuration file
@@ -156,8 +158,8 @@ class ProtocolHandlerDiscovery(Protocol):
                 return f"ConfigFile[{self.config_path}]"
 
         class EnvironmentNodeDiscovery:
-            def __init__(self, env_prefix: str):
-                self.env_prefix = env_prefix
+            @property
+            def env_prefix(self) -> str: ...
 
             def discover_nodes(self) -> list[ProtocolHandlerInfo]:
                 # Discover nodes from environment variables

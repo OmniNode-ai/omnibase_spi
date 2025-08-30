@@ -81,13 +81,16 @@ class ProtocolNodeRegistry(Protocol):
         ```python
         # Implementation example (not part of SPI)
         class RegistryConsulNode:
-            def __init__(self, environment: str = "dev", consul_endpoint: str = "localhost:8500"):
-                self.environment = environment
-                self.consul = consul.Consul(host=consul_endpoint.split(':')[0],
-                                          port=int(consul_endpoint.split(':')[1]))
-                self.watches = {}
+            @property
+            def environment(self) -> str: ...
 
-            async def register_node(self, node_info: ProtocolNodeInfo, ttl_seconds: int = 30) -> bool:
+            @property
+            def consul_endpoint(self) -> str: ...
+
+            @property
+            def watches(self) -> dict[str, object]: ...
+
+            async def register_node(self, node_info: ProtocolNodeInfo, ttl_seconds: int) -> bool:
                 # Register node in Consul with TTL health check
                 service_id = f"{node_info.node_id}-{self.environment}"
                 return await self.consul.agent.service.register(
