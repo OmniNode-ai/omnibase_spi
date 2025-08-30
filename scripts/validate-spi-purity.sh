@@ -54,6 +54,22 @@ while IFS=: read -r file line content; do
     fi
 done < <(grep -rn "class.*ABC" src/ --include="*.py" || true)
 
+# Check for @dataclass usage (should use Protocol instead)
+echo "Checking for @dataclass usage..."
+while IFS=: read -r file line content; do
+    if [[ $content =~ @dataclass ]]; then
+        report_violation "$file" "$line" "$content" "SPI should use @runtime_checkable Protocol instead of @dataclass"
+    fi
+done < <(grep -rn "@dataclass" src/ --include="*.py" || true)
+
+# Check for dataclasses imports (should not be needed in pure SPI)
+echo "Checking for dataclasses imports..."
+while IFS=: read -r file line content; do
+    if [[ $content =~ from\ dataclasses || $content =~ import\ dataclasses ]]; then
+        report_violation "$file" "$line" "$content" "SPI should not import dataclasses - use Protocol instead"
+    fi
+done < <(grep -rn "dataclasses" src/ --include="*.py" || true)
+
 # Check for concrete method implementations (methods with actual code, not just ...)
 echo "Checking for concrete method implementations..."
 TEMP_FILE=$(mktemp)
@@ -114,6 +130,8 @@ else
     echo
     echo "SPI should NOT contain:"
     echo "• Concrete class implementations"
+    echo "• @dataclass decorators (use @runtime_checkable Protocol instead)"
+    echo "• dataclasses imports (not needed for pure protocols)"
     echo "• Enum classes (use Literal instead)"
     echo "• ABC classes (use Protocol instead)"
     echo "• Method implementations with actual logic"
