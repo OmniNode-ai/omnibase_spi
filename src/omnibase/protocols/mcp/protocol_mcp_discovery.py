@@ -34,8 +34,8 @@ class ProtocolMCPServiceDiscovery(Protocol):
 
     async def discover_mcp_services(
         self,
-        service_type: Optional[MCPSubsystemType] = None,
-        timeout_seconds: int = 10,
+        service_type: Optional[MCPSubsystemType],
+        timeout_seconds: int,
     ) -> list[ProtocolMCPDiscoveryInfo]:
         """
         Discover available MCP services on the network.
@@ -50,7 +50,7 @@ class ProtocolMCPServiceDiscovery(Protocol):
         ...
 
     async def discover_registries(
-        self, timeout_seconds: int = 10
+        self, timeout_seconds: int
     ) -> list[ProtocolMCPDiscoveryInfo]:
         """
         Discover available MCP registries.
@@ -66,7 +66,7 @@ class ProtocolMCPServiceDiscovery(Protocol):
     async def register_service_for_discovery(
         self,
         service_info: ProtocolMCPDiscoveryInfo,
-        ttl_seconds: int = 300,
+        ttl_seconds: int,
     ) -> bool:
         """
         Register a service for network discovery.
@@ -95,7 +95,7 @@ class ProtocolMCPServiceDiscovery(Protocol):
     async def monitor_service_changes(
         self,
         callback: Callable[[Any], Any],
-        service_type: Optional[MCPSubsystemType] = None,
+        service_type: Optional[MCPSubsystemType],
     ) -> bool:
         """
         Monitor for service discovery changes.
@@ -118,156 +118,6 @@ class ProtocolMCPDiscovery(Protocol):
     Provides complete discovery capabilities including service discovery,
     health monitoring, and automatic registry coordination.
 
-    Usage Example:
-        ```python
-        # Discovery implementation (not part of SPI)
-        class MCPDiscoveryImpl:
-            def __init__(self, discovery_backend: str = "mdns"):
-                self.backend = discovery_backend
-                self.discovered_services: dict[str, ProtocolMCPDiscoveryInfo] = {}
-                self.service_health: dict[str, HealthStatus] = {}
-                self.monitors: list[callable] = []
-
-            async def discover_available_subsystems(
-                self,
-                service_type: Optional[MCPSubsystemType] = None,
-                health_check: bool = True
-            ) -> list[ProtocolMCPSubsystemRegistration]:
-                # Discover services
-                discovered = await self.service_discovery.discover_mcp_services(
-                    service_type=service_type
-                )
-
-                subsystems = []
-                for service in discovered:
-                    if health_check:
-                        # Perform health check
-                        health = await self._check_service_health(service)
-                        if health != "healthy":
-                            continue
-
-                    # Query service for registration info
-                    try:
-                        async with httpx.AsyncClient() as client:
-                            response = await client.get(
-                                f"{service.service_url}/api/v1/info",
-                                timeout=10
-                            )
-
-                            if response.status_code == 200:
-                                info = response.json()
-                                subsystem = self._convert_to_registration(info, service)
-                                subsystems.append(subsystem)
-
-                    except Exception as e:
-                        print(f"Failed to query service {service.service_name}: {e}")
-                        continue
-
-                return subsystems
-
-            async def find_optimal_registry(
-                self,
-                criteria: dict[str, Any] = None
-            ) -> Optional[ProtocolMCPDiscoveryInfo]:
-                # Discover all registries
-                registries = await self.service_discovery.discover_registries()
-
-                if not registries:
-                    return None
-
-                # Apply selection criteria
-                criteria = criteria or {}
-                best_registry = None
-                best_score = -1
-
-                for registry in registries:
-                    # Check health
-                    health = await self._check_service_health(registry)
-                    if health != "healthy":
-                        continue
-
-                    # Calculate selection score
-                    score = await self._calculate_registry_score(registry, criteria)
-                    if score > best_score:
-                        best_score = score
-                        best_registry = registry
-
-                return best_registry
-
-            async def coordinate_multi_registry(
-                self,
-                registries: list[ProtocolMCPDiscoveryInfo],
-                coordination_strategy: str = "primary_backup"
-            ) -> dict[str, Any]:
-                if coordination_strategy == "primary_backup":
-                    # Select primary registry
-                    primary = await self._select_primary_registry(registries)
-                    backups = [r for r in registries if r != primary]
-
-                    return {
-                        "strategy": "primary_backup",
-                        "primary": primary,
-                        "backups": backups,
-                        "failover_enabled": True
-                    }
-
-                elif coordination_strategy == "load_balanced":
-                    # Configure load balancing
-                    return {
-                        "strategy": "load_balanced",
-                        "registries": registries,
-                        "load_balancer_config": {
-                            "algorithm": "round_robin",
-                            "health_check_interval": 30
-                        }
-                    }
-
-                elif coordination_strategy == "federated":
-                    # Configure federation
-                    return {
-                        "strategy": "federated",
-                        "registries": registries,
-                        "federation_config": {
-                            "sync_interval": 60,
-                            "conflict_resolution": "timestamp"
-                        }
-                    }
-
-                else:
-                    raise ValueError(f"Unknown coordination strategy: {coordination_strategy}")
-
-        # Usage in MCP system
-        discovery: ProtocolMCPDiscovery = MCPDiscoveryImpl()
-
-        # Discover available subsystems
-        subsystems = await discovery.discover_available_subsystems(
-            service_type="analytics",
-            health_check=True
-        )
-        print(f"Found {len(subsystems)} analytics subsystems")
-
-        # Find optimal registry
-        registry = await discovery.find_optimal_registry(
-            criteria={"region": "us-west-2", "load_threshold": 0.8}
-        )
-
-        if registry:
-            print(f"Selected registry: {registry.service_name} at {registry.service_url}")
-
-        # Monitor for changes
-        await discovery.monitor_network_changes(
-            callback=lambda changes: print(f"Network changes: {changes}"),
-            service_types=["compute", "analytics"]
-        )
-
-        # Coordinate multiple registries
-        registries = await discovery.service_discovery.discover_registries()
-        coordination = await discovery.coordinate_multi_registry(
-            registries, "primary_backup"
-        )
-        print(f"Registry coordination: {coordination['strategy']}")
-        ```
-
     Key Features:
         - **Multi-Protocol Discovery**: Support DNS-SD, Consul, etcd, and other backends
         - **Health-Aware Discovery**: Filter services based on health status
@@ -285,9 +135,9 @@ class ProtocolMCPDiscovery(Protocol):
 
     async def discover_available_subsystems(
         self,
-        service_type: Optional[MCPSubsystemType] = None,
-        health_check: bool = True,
-        timeout_seconds: int = 30,
+        service_type: Optional[MCPSubsystemType],
+        health_check: bool,
+        timeout_seconds: int,
     ) -> list[ProtocolMCPSubsystemRegistration]:
         """
         Discover available MCP subsystems across the network.
@@ -304,9 +154,9 @@ class ProtocolMCPDiscovery(Protocol):
 
     async def discover_available_tools(
         self,
-        service_type: Optional[MCPSubsystemType] = None,
-        tool_tags: Optional[list[str]] = None,
-        health_check: bool = True,
+        service_type: Optional[MCPSubsystemType],
+        tool_tags: Optional[list[str]],
+        health_check: bool,
     ) -> dict[str, list[str]]:
         """
         Discover available tools across all subsystems.
@@ -323,8 +173,8 @@ class ProtocolMCPDiscovery(Protocol):
 
     async def find_optimal_registry(
         self,
-        criteria: Optional[dict[str, Any]] = None,
-        timeout_seconds: int = 20,
+        criteria: Optional[dict[str, Any]],
+        timeout_seconds: int,
     ) -> Optional[ProtocolMCPDiscoveryInfo]:
         """
         Find the optimal MCP registry based on selection criteria.
@@ -341,7 +191,7 @@ class ProtocolMCPDiscovery(Protocol):
     async def coordinate_multi_registry(
         self,
         registries: list[ProtocolMCPDiscoveryInfo],
-        coordination_strategy: str = "primary_backup",
+        coordination_strategy: str,
     ) -> dict[str, Any]:
         """
         Coordinate multiple MCP registries with specified strategy.
@@ -358,8 +208,8 @@ class ProtocolMCPDiscovery(Protocol):
     async def monitor_network_changes(
         self,
         callback: Callable[[Any], Any],
-        service_types: Optional[list[MCPSubsystemType]] = None,
-        change_types: Optional[list[str]] = None,
+        service_types: Optional[list[MCPSubsystemType]],
+        change_types: Optional[list[str]],
     ) -> bool:
         """
         Monitor network for service changes and notify via callback.
@@ -389,7 +239,7 @@ class ProtocolMCPDiscovery(Protocol):
     async def test_service_connectivity(
         self,
         service_info: ProtocolMCPDiscoveryInfo,
-        test_tools: bool = False,
+        test_tools: bool,
     ) -> dict[str, Any]:
         """
         Test connectivity and functionality of a discovered service.
@@ -419,8 +269,8 @@ class ProtocolMCPDiscovery(Protocol):
 
     async def update_service_cache(
         self,
-        force_refresh: bool = False,
-        service_type: Optional[MCPSubsystemType] = None,
+        force_refresh: bool,
+        service_type: Optional[MCPSubsystemType],
     ) -> int:
         """
         Update the local cache of discovered services.

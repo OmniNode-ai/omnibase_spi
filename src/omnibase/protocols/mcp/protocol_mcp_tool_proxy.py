@@ -34,7 +34,7 @@ class ProtocolMCPToolRouter(Protocol):
         self,
         tool_name: str,
         parameters: dict[str, ContextValue],
-        routing_policy: Optional[str] = None,
+        routing_policy: Optional[str],
     ) -> Optional[ProtocolMCPToolDefinition]:
         """
         Select the best tool implementation for execution.
@@ -103,7 +103,7 @@ class ProtocolMCPToolExecutor(Protocol):
         parameters: dict[str, ContextValue],
         execution_id: str,
         correlation_id: UUID,
-        timeout_seconds: Optional[int] = None,
+        timeout_seconds: Optional[int],
     ) -> dict[str, Any]:
         """
         Execute a tool on a specific subsystem.
@@ -132,7 +132,7 @@ class ProtocolMCPToolExecutor(Protocol):
         parameters: dict[str, ContextValue],
         execution_id: str,
         correlation_id: UUID,
-        max_retries: Optional[int] = None,
+        max_retries: Optional[int],
     ) -> dict[str, Any]:
         """
         Execute tool with retry logic on failure.
@@ -185,139 +185,6 @@ class ProtocolMCPToolProxy(Protocol):
     Combines routing, execution, and result management to provide
     a complete tool proxy solution for the MCP registry system.
 
-    Usage Example:
-        ```python
-        # Proxy implementation (not part of SPI)
-        class MCPToolProxyImpl:
-            def __init__(
-                self,
-                router: ProtocolMCPToolRouter,
-                executor: ProtocolMCPToolExecutor
-            ):
-                self.router = router
-                self.executor = executor
-                self.active_executions: dict[str, ProtocolMCPToolExecution] = {}
-                self.execution_history: list[ProtocolMCPToolExecution] = []
-
-            async def proxy_tool_execution(
-                self,
-                tool_name: str,
-                parameters: dict[str, ContextValue],
-                correlation_id: UUID,
-                timeout_seconds: Optional[int] = None,
-                routing_policy: Optional[str] = None,
-                preferred_subsystem: Optional[str] = None
-            ) -> dict[str, Any]:
-                # Create execution tracking
-                execution_id = str(uuid4())
-                execution = MCPToolExecution(
-                    execution_id=execution_id,
-                    tool_name=tool_name,
-                    subsystem_id="",  # Will be set after routing
-                    parameters=parameters,
-                    execution_status="pending",
-                    started_at=datetime.now(),
-                    completed_at=None,
-                    duration_ms=None,
-                    result=None,
-                    error_message=None,
-                    retry_count=0,
-                    correlation_id=correlation_id,
-                    metadata={"routing_policy": routing_policy or "default"}
-                )
-
-                self.active_executions[execution_id] = execution
-
-                try:
-                    # Route to appropriate implementation
-                    if preferred_subsystem:
-                        tool_def = await self._find_tool_in_subsystem(
-                            tool_name, preferred_subsystem
-                        )
-                        if not tool_def:
-                            raise ValueError(f"Tool {tool_name} not found in subsystem {preferred_subsystem}")
-                    else:
-                        tool_def = await self.router.select_tool_implementation(
-                            tool_name, parameters, routing_policy
-                        )
-                        if not tool_def:
-                            raise ValueError(f"No available implementation for tool: {tool_name}")
-
-                    # Get subsystem for tool
-                    subsystem = await self._get_subsystem_for_tool(tool_def)
-                    execution.subsystem_id = subsystem.subsystem_metadata.subsystem_id
-                    execution.execution_status = "running"
-
-                    # Execute tool
-                    result = await self.executor.execute_with_retry(
-                        tool_def=tool_def,
-                        subsystem=subsystem,
-                        parameters=parameters,
-                        execution_id=execution_id,
-                        correlation_id=correlation_id,
-                        max_retries=tool_def.retry_count
-                    )
-
-                    # Update execution tracking
-                    execution.result = result
-                    execution.execution_status = "completed"
-                    execution.completed_at = datetime.now()
-                    execution.duration_ms = int(
-                        (execution.completed_at - execution.started_at).total_seconds() * 1000
-                    )
-
-                    return result
-
-                except Exception as e:
-                    # Handle execution failure
-                    execution.execution_status = "failed"
-                    execution.error_message = str(e)
-                    execution.completed_at = datetime.now()
-                    execution.duration_ms = int(
-                        (execution.completed_at - execution.started_at).total_seconds() * 1000
-                    )
-
-                    raise
-
-                finally:
-                    # Move to history and cleanup
-                    if execution_id in self.active_executions:
-                        del self.active_executions[execution_id]
-                    self.execution_history.append(execution)
-
-                    # Keep history bounded
-                    if len(self.execution_history) > 1000:
-                        self.execution_history = self.execution_history[-500:]
-
-        # Usage in registry
-        proxy: ProtocolMCPToolProxy = MCPToolProxyImpl(router, executor)
-
-        # Execute tool with automatic routing
-        result = await proxy.proxy_tool_execution(
-            tool_name="analyze_data",
-            parameters={"dataset_id": "data-123", "analysis_type": "detailed"},
-            correlation_id=uuid4(),
-            routing_policy="least_loaded"
-        )
-
-        # Execute with preferred subsystem
-        result = await proxy.proxy_tool_execution(
-            tool_name="process_batch",
-            parameters={"batch_id": "batch-456"},
-            correlation_id=uuid4(),
-            preferred_subsystem="data-processor-1"
-        )
-
-        # Monitor active executions
-        active = await proxy.get_active_executions()
-        print(f"Currently running: {len(active)} executions")
-
-        # Get execution metrics
-        metrics = await proxy.get_execution_metrics()
-        print(f"Success rate: {metrics['success_rate']}%")
-        print(f"Average duration: {metrics['average_duration_ms']}ms")
-        ```
-
     Key Features:
         - **Intelligent Routing**: Route tools to optimal subsystem implementations
         - **Load Balancing**: Distribute load across multiple implementations
@@ -343,9 +210,9 @@ class ProtocolMCPToolProxy(Protocol):
         tool_name: str,
         parameters: dict[str, ContextValue],
         correlation_id: UUID,
-        timeout_seconds: Optional[int] = None,
-        routing_policy: Optional[str] = None,
-        preferred_subsystem: Optional[str] = None,
+        timeout_seconds: Optional[int],
+        routing_policy: Optional[str],
+        preferred_subsystem: Optional[str],
     ) -> dict[str, Any]:
         """
         Proxy tool execution with intelligent routing and error handling.
@@ -372,7 +239,7 @@ class ProtocolMCPToolProxy(Protocol):
         self,
         requests: list[dict[str, Any]],
         correlation_id: UUID,
-        max_parallel: int = 10,
+        max_parallel: int,
     ) -> list[dict[str, Any]]:
         """
         Execute multiple tools in parallel with batching.
@@ -403,10 +270,10 @@ class ProtocolMCPToolProxy(Protocol):
 
     async def get_execution_history(
         self,
-        tool_name: Optional[str] = None,
-        subsystem_id: Optional[str] = None,
-        correlation_id: Optional[UUID] = None,
-        limit: int = 100,
+        tool_name: Optional[str],
+        subsystem_id: Optional[str],
+        correlation_id: Optional[UUID],
+        limit: int,
     ) -> list[ProtocolMCPToolExecution]:
         """
         Get tool execution history with filtering.
@@ -436,8 +303,8 @@ class ProtocolMCPToolProxy(Protocol):
 
     async def cancel_all_executions(
         self,
-        tool_name: Optional[str] = None,
-        subsystem_id: Optional[str] = None,
+        tool_name: Optional[str],
+        subsystem_id: Optional[str],
     ) -> int:
         """
         Cancel multiple running executions.
@@ -453,8 +320,8 @@ class ProtocolMCPToolProxy(Protocol):
 
     async def get_execution_metrics(
         self,
-        time_range_hours: int = 24,
-        tool_name: Optional[str] = None,
+        time_range_hours: int,
+        tool_name: Optional[str],
     ) -> dict[str, Any]:
         """
         Get execution metrics and statistics.

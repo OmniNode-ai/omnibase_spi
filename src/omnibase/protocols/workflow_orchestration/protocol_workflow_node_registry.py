@@ -119,164 +119,6 @@ class ProtocolWorkflowNodeRegistry(Protocol):
     - Resource utilization tracking
     - Performance-based routing
 
-    Usage Example:
-        ```python
-        # Implementation example (not part of SPI)
-        class WorkflowNodeRegistry:
-            def __init__(self, base_registry: ProtocolNodeRegistry):
-                self.base_registry = base_registry
-                self.capability_index: dict[str, list[str]] = {}
-                self.workload_tracker: dict[str, dict[str, Any]] = {}
-
-            async def discover_nodes_for_task(
-                self,
-                task_config: ProtocolTaskConfiguration,
-                scheduling_criteria: ProtocolTaskSchedulingCriteria
-            ) -> ProtocolNodeSchedulingResult:
-                # Find nodes that can execute the task
-                all_nodes = await self.base_registry.discover_nodes(
-                    node_type=scheduling_criteria.node_type
-                )
-
-                suitable_nodes = []
-                for node in all_nodes:
-                    workflow_node = await self.get_workflow_node_info(node.node_id)
-                    if self._can_execute_task(workflow_node, task_config, scheduling_criteria):
-                        suitable_nodes.append(workflow_node)
-
-                # Score and rank nodes
-                scored_nodes = []
-                for node in suitable_nodes:
-                    score = self._calculate_scheduling_score(node, task_config, scheduling_criteria)
-                    scored_nodes.append((node, score))
-
-                scored_nodes.sort(key=lambda x: x[1], reverse=True)
-
-                selected_nodes = [node for node, score in scored_nodes[:3]]  # Top 3
-                fallback_nodes = [node for node, score in scored_nodes[3:6]]  # Next 3
-
-                return ProtocolNodeSchedulingResult(
-                    selected_nodes=selected_nodes,
-                    scheduling_score=scored_nodes[0][1] if scored_nodes else 0.0,
-                    scheduling_rationale=f"Selected based on capabilities and load",
-                    fallback_nodes=fallback_nodes,
-                    resource_allocation=self._allocate_resources(selected_nodes[0], task_config),
-                    estimated_completion_time=self._estimate_completion_time(selected_nodes[0], task_config),
-                    constraints_satisfied=self._check_constraints(selected_nodes[0], scheduling_criteria)
-                )
-
-            async def update_node_workload(
-                self,
-                node_id: str,
-                task_id: UUID,
-                workload_change: str
-            ) -> None:
-                # Update node workload tracking
-                if node_id not in self.workload_tracker:
-                    self.workload_tracker[node_id] = {"tasks": {}, "resource_usage": {}}
-
-                if workload_change == "add":
-                    self.workload_tracker[node_id]["tasks"][str(task_id)] = {
-                        "started_at": datetime.utcnow(),
-                        "status": "running"
-                    }
-                elif workload_change == "remove":
-                    self.workload_tracker[node_id]["tasks"].pop(str(task_id), None)
-
-                # Update node health based on workload
-                await self.base_registry.update_node_health(
-                    node_id,
-                    self._calculate_health_from_workload(node_id),
-                    {"workload": self.workload_tracker[node_id]}
-                )
-
-            async def register_workflow_capability(
-                self,
-                node_id: str,
-                capability: ProtocolWorkflowNodeCapability
-            ) -> bool:
-                # Register new workflow capability for node
-                if capability.capability_name not in self.capability_index:
-                    self.capability_index[capability.capability_name] = []
-
-                if node_id not in self.capability_index[capability.capability_name]:
-                    self.capability_index[capability.capability_name].append(node_id)
-
-                # Update node metadata with capability
-                node_info = await self.base_registry.get_node(node_id)
-                if node_info:
-                    updated_metadata = node_info.metadata.copy()
-                    if "workflow_capabilities" not in updated_metadata:
-                        updated_metadata["workflow_capabilities"] = []
-                    updated_metadata["workflow_capabilities"].append({
-                        "capability_id": capability.capability_id,
-                        "capability_name": capability.capability_name,
-                        "version": capability.capability_version,
-                        "supported_task_types": capability.supported_task_types
-                    })
-
-                    await self.base_registry.update_node_health(
-                        node_id,
-                        node_info.health_status,
-                        updated_metadata
-                    )
-
-                return True
-
-        # Usage in application
-        workflow_registry: ProtocolWorkflowNodeRegistry = WorkflowNodeRegistry(base_registry)
-
-        # Register workflow capability
-        compute_capability = WorkflowNodeCapability(
-            capability_id="data-processing-v1",
-            capability_name="data_processing",
-            capability_version="1.0.0",
-            supported_task_types=["compute"],
-            supported_node_types=["COMPUTE"],
-            resource_requirements={"cpu_cores": 4, "memory_gb": 8},
-            configuration_schema={"batch_size": "integer", "timeout": "integer"},
-            performance_characteristics={"throughput_per_second": 1000.0, "latency_ms": 50.0},
-            availability_constraints={"max_concurrent_tasks": 10}
-        )
-
-        await workflow_registry.register_workflow_capability("compute-node-001", compute_capability)
-
-        # Discover nodes for task execution based on task configuration
-
-        scheduling_criteria = TaskSchedulingCriteria(
-            task_type="compute",
-            node_type="COMPUTE",
-            required_capabilities=["data_processing"],
-            preferred_capabilities=["caching", "compression"],
-            resource_requirements={"cpu_cores": 2, "memory_gb": 1},
-            priority="high"
-        )
-
-        scheduling_result = await workflow_registry.discover_nodes_for_task(
-            task_config,
-            scheduling_criteria
-        )
-
-        if scheduling_result.selected_nodes:
-            selected_node = scheduling_result.selected_nodes[0]
-            print(f"Selected node {selected_node.node_id} with score {scheduling_result.scheduling_score}")
-
-            # Update workload when task starts
-            await workflow_registry.update_node_workload(
-                selected_node.node_id,
-                task_config.task_id,
-                "add"
-            )
-
-            # Execute task...
-
-            # Update workload when task completes
-            await workflow_registry.update_node_workload(
-                selected_node.node_id,
-                task_config.task_id,
-                "remove"
-            )
-        ```
     """
 
     # Base registry access
@@ -306,8 +148,8 @@ class ProtocolWorkflowNodeRegistry(Protocol):
     async def discover_nodes_by_capability(
         self,
         capability_name: str,
-        capability_version: Optional[str] = None,
-        min_availability: Optional[float] = None,
+        capability_version: Optional[str],
+        min_availability: Optional[float],
     ) -> list[ProtocolWorkflowNodeInfo]:
         """
         Discover nodes by workflow capability.
@@ -323,7 +165,7 @@ class ProtocolWorkflowNodeRegistry(Protocol):
         ...
 
     async def discover_nodes_for_workflow_type(
-        self, workflow_type: str, required_node_types: Optional[list[NodeType]] = None
+        self, workflow_type: str, required_node_types: Optional[list[NodeType]]
     ) -> list[ProtocolWorkflowNodeInfo]:
         """
         Discover nodes that can execute specific workflow type.
@@ -505,8 +347,8 @@ class ProtocolWorkflowNodeRegistry(Protocol):
     async def get_node_performance_history(
         self,
         node_id: str,
-        task_type: Optional[TaskType] = None,
-        time_window_seconds: int = 3600,
+        task_type: Optional[TaskType],
+        time_window_seconds: int,
     ) -> dict[str, Any]:
         """
         Get historical performance data for node.
@@ -526,7 +368,7 @@ class ProtocolWorkflowNodeRegistry(Protocol):
         self,
         node_id: str,
         availability_status: str,
-        metadata: Optional[dict[str, Any]] = None,
+        metadata: Optional[dict[str, Any]],
     ) -> bool:
         """
         Update node availability status.
@@ -542,7 +384,7 @@ class ProtocolWorkflowNodeRegistry(Protocol):
         ...
 
     async def get_cluster_health_summary(
-        self, workflow_type: Optional[str] = None, node_group: Optional[str] = None
+        self, workflow_type: Optional[str], node_group: Optional[str]
     ) -> dict[str, Any]:
         """
         Get cluster health summary for workflow execution.

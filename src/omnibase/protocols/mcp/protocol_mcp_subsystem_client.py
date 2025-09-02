@@ -51,177 +51,6 @@ class ProtocolMCPSubsystemClient(Protocol):
     Provides the client-side interface for subsystems to register with
     and interact with the central MCP registry infrastructure.
 
-    Usage Example:
-        ```python
-        # Client implementation (not part of SPI)
-        class MCPSubsystemClientImpl:
-            def __init__(self, config: ProtocolMCPSubsystemConfig):
-                self.config = config
-                self.registration_id: Optional[str] = None
-                self.lifecycle_state = "initializing"
-                self.heartbeat_task: Optional[asyncio.Task] = None
-                self.tool_handlers: dict[str, Callable] = {}
-
-            async def register_subsystem(self) -> str:
-                # Validate configuration
-                validation = await self.validate_configuration()
-                if not validation.is_valid:
-                    raise ValueError(f"Invalid configuration: {validation.errors}")
-
-                # Register with central registry
-                async with httpx.AsyncClient() as client:
-                    response = await client.post(
-                        f"{self.config.registry_url}/api/v1/registry/register",
-                        json={
-                            "subsystem_metadata": self.config.subsystem_metadata.__dict__,
-                            "tools": [tool.__dict__ for tool in self.config.tool_definitions],
-                            "api_key": self.config.api_key,
-                            "configuration": self.config.configuration
-                        },
-                        timeout=self.config.timeout_seconds
-                    )
-
-                if response.status_code == 201:
-                    result = response.json()
-                    self.registration_id = result["registration_id"]
-                    self.lifecycle_state = "active"
-
-                    # Start heartbeat
-                    if self.config.heartbeat_interval > 0:
-                        await self.start_heartbeat()
-
-                    return self.registration_id
-                else:
-                    raise RuntimeError(f"Registration failed: {response.text}")
-
-            async def start_heartbeat(self) -> bool:
-                if not self.registration_id:
-                    raise ValueError("Must register subsystem before starting heartbeat")
-
-                async def heartbeat_loop():
-                    while self.lifecycle_state == "active":
-                        try:
-                            await self.send_heartbeat()
-                            await asyncio.sleep(self.config.heartbeat_interval)
-                        except Exception as e:
-                            print(f"Heartbeat error: {e}")
-                            await asyncio.sleep(self.config.heartbeat_interval * 2)
-
-                self.heartbeat_task = asyncio.create_task(heartbeat_loop())
-                return True
-
-            async def send_heartbeat(self) -> bool:
-                if not self.registration_id:
-                    return False
-
-                # Perform local health check
-                health_status = await self.perform_local_health_check()
-
-                async with httpx.AsyncClient() as client:
-                    response = await client.put(
-                        f"{self.config.registry_url}/api/v1/registry/{self.registration_id}/heartbeat",
-                        json={
-                            "health_status": health_status.health_status,
-                            "metadata": {
-                                "lifecycle_state": self.lifecycle_state,
-                                "active_tools": len(self.tool_handlers),
-                                "uptime_seconds": (datetime.now() - self.start_time).total_seconds()
-                            }
-                        },
-                        headers={"Authorization": f"Bearer {self.config.api_key}"},
-                        timeout=self.config.timeout_seconds
-                    )
-
-                return response.status_code == 200
-
-            async def register_tool_handler(
-                self,
-                tool_name: str,
-                handler: Callable[[dict[str, ContextValue]], dict[str, Any]]
-            ) -> bool:
-                # Validate tool is in our definitions
-                tool_def = next(
-                    (t for t in self.config.tool_definitions if t.name == tool_name),
-                    None
-                )
-                if not tool_def:
-                    raise ValueError(f"Tool not found in definitions: {tool_name}")
-
-                self.tool_handlers[tool_name] = handler
-                return True
-
-        # Usage in subsystem
-        config = SubsystemConfig(
-            subsystem_metadata=SubsystemMetadata(
-                subsystem_id="data-processor",
-                name="Data Processing Service",
-                subsystem_type="compute",
-                version=SemVer(1, 0, 0),
-                description="High-performance data processing tools",
-                base_url="http://data-processor:8080",
-                health_endpoint="/health",
-                documentation_url="http://docs.example.com/data-processor",
-                repository_url="http://github.com/org/data-processor",
-                maintainer="data-team@example.com",
-                tags=["data", "processing", "compute"],
-                capabilities=["batch_processing", "stream_processing"],
-                dependencies=["database", "message_queue"],
-                metadata={"region": "us-east-1", "tier": "production"}
-            ),
-            registry_url="http://omnimcp:8100",
-            api_key="data-processor-key-67890",
-            heartbeat_interval=30,
-            tool_definitions=[
-                ToolDefinition(
-                    name="process_batch",
-                    tool_type="function",
-                    description="Process data batch with specified algorithm",
-                    version=SemVer(1, 0, 0),
-                    parameters=[
-                        ToolParameter(
-                            name="batch_id",
-                            parameter_type="string",
-                            description="ID of batch to process",
-                            required=True,
-                            default_value=None,
-                            schema={"type": "string", "minLength": 1},
-                            constraints={"format": "uuid"},
-                            examples=["batch-12345"]
-                        )
-                    ],
-                    return_schema={"type": "object", "properties": {"status": {"type": "string"}}},
-                    execution_endpoint="/api/v1/process",
-                    timeout_seconds=600,
-                    retry_count=3,
-                    requires_auth=True,
-                    tags=["batch", "processing"],
-                    metadata={"cpu_intensive": "true"}
-                )
-            ],
-            auto_register=True,
-            retry_count=3,
-            timeout_seconds=30,
-            health_check_endpoint="/health",
-            configuration={"max_batch_size": "1000", "parallel_workers": "4"}
-        )
-
-        client: ProtocolMCPSubsystemClient = MCPSubsystemClientImpl(config)
-
-        # Register tool handler
-        async def handle_process_batch(parameters: dict[str, ContextValue]) -> dict[str, Any]:
-            batch_id = parameters["batch_id"]
-            # Process batch logic here
-            return {"status": "completed", "batch_id": batch_id, "records_processed": 1000}
-
-        await client.register_tool_handler("process_batch", handle_process_batch)
-
-        # Register with registry
-        registration_id = await client.register_subsystem()
-        print(f"Registered with ID: {registration_id}")
-
-        # Client will automatically send heartbeats
-        ```
-
     Key Features:
         - **Automatic Registration**: Register subsystem and tools with central registry
         - **Heartbeat Management**: Maintain connection with periodic health updates
@@ -274,7 +103,7 @@ class ProtocolMCPSubsystemClient(Protocol):
         """
         ...
 
-    async def start_heartbeat(self, interval: Optional[int] = None) -> bool:
+    async def start_heartbeat(self, interval: Optional[int]) -> bool:
         """
         Start periodic heartbeat to maintain registration.
 
@@ -297,8 +126,8 @@ class ProtocolMCPSubsystemClient(Protocol):
 
     async def send_heartbeat(
         self,
-        health_status: Optional[str] = None,
-        metadata: Optional[dict[str, ContextValue]] = None,
+        health_status: Optional[str],
+        metadata: Optional[dict[str, ContextValue]],
     ) -> bool:
         """
         Send immediate heartbeat to registry.
@@ -455,7 +284,7 @@ class ProtocolMCPSubsystemClient(Protocol):
         ...
 
     async def get_tool_execution_history(
-        self, tool_name: Optional[str] = None, limit: int = 50
+        self, tool_name: Optional[str], limit: int
     ) -> list[ProtocolMCPToolExecution]:
         """
         Get local tool execution history.
@@ -469,7 +298,7 @@ class ProtocolMCPSubsystemClient(Protocol):
         """
         ...
 
-    async def shutdown_gracefully(self, timeout_seconds: int = 30) -> bool:
+    async def shutdown_gracefully(self, timeout_seconds: int) -> bool:
         """
         Perform graceful shutdown of the subsystem.
 
