@@ -47,7 +47,18 @@
       "mcp__archon__update_task",
       "Bash(git checkout:*)",
       "Read(//**)",
-      "Bash(pytest:*)"
+      "Bash(pytest:*)",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__get-library-docs",
+      "mcp__archon__assess_code_quality",
+      "mcp__archon__establish_performance_baseline",
+      "mcp__archon__identify_optimization_opportunities",
+      "mcp__archon__list_tasks",
+      "mcp__archon__get_project",
+      "mcp__archon__perform_rag_query",
+      "mcp__archon__search_code_examples",
+      "mcp__archon__create_document",
+      "mcp__archon__get_task"
     ],
     "deny": [],
     "ask": []
