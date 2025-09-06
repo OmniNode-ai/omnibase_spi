@@ -5,16 +5,19 @@ Provides cache service protocols that can be implemented by different
 cache backends (in-memory, Redis, etc.) and injected via ONEXContainer.
 """
 
-from typing import Any, Optional, Protocol, runtime_checkable
+from typing import Any, Generic, Optional, Protocol, TypeVar, runtime_checkable
 
 from omnibase.protocols.types.core_types import ContextValue
 
+# Type variable for generic cache values
+T = TypeVar("T")
+
 
 @runtime_checkable
-class ProtocolCacheService(Protocol):
+class ProtocolCacheService(Protocol, Generic[T]):
     """Protocol for cache service operations."""
 
-    async def get(self, key: str) -> Optional[dict[str, Any]]:
+    async def get(self, key: str) -> Optional[T]:
         """
         Retrieve cached data by key.
 
@@ -22,19 +25,17 @@ class ProtocolCacheService(Protocol):
             key: Cache key to retrieve
 
         Returns:
-            Cached data dictionary, or None if not found or expired
+            Cached data, or None if not found or expired
         """
         ...
 
-    async def set(
-        self, key: str, value: dict[str, Any], ttl_seconds: Optional[int] = None
-    ) -> bool:
+    async def set(self, key: str, value: T, ttl_seconds: Optional[int] = None) -> bool:
         """
         Store data in cache with optional TTL.
 
         Args:
             key: Cache key to store under
-            value: Data to cache
+            value: Data to cache (must be serializable)
             ttl_seconds: Time to live in seconds, None for default
 
         Returns:
@@ -89,15 +90,15 @@ class ProtocolCacheService(Protocol):
 
 
 @runtime_checkable
-class ProtocolCacheServiceProvider(Protocol):
+class ProtocolCacheServiceProvider(Protocol, Generic[T]):
     """Protocol for cache service provider."""
 
-    def create_cache_service(self) -> ProtocolCacheService:
+    def create_cache_service(self) -> ProtocolCacheService[T]:
         """
         Create cache service instance.
 
         Returns:
-            ProtocolCacheService implementation
+            ProtocolCacheService implementation for type T
         """
         ...
 

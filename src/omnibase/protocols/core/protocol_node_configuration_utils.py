@@ -33,7 +33,9 @@ class ProtocolUtilsNodeConfiguration(Protocol):
         """
         ...
 
-    def get_timeout_ms(self, timeout_type: str, default_ms: int = 30000) -> int:
+    def get_timeout_ms(
+        self, timeout_type: str, default_ms: Optional[int] = None
+    ) -> int:
         """
         Get timeout configuration in milliseconds.
 

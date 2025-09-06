@@ -4,7 +4,7 @@ Protocol for node configuration management in ONEX architecture.
 Domain: Core configuration protocols for ONEX nodes
 """
 
-from typing import Any, Dict, Optional, Protocol, runtime_checkable
+from typing import Any, Optional, Protocol, runtime_checkable
 
 from omnibase.protocols.types.core_types import ContextValue, ProtocolConfigValue
 
@@ -36,7 +36,9 @@ class ProtocolNodeConfiguration(Protocol):
         """
         ...
 
-    def get_timeout_ms(self, timeout_type: str, default_ms: int = 30000) -> int:
+    def get_timeout_ms(
+        self, timeout_type: str, default_ms: Optional[int] = None
+    ) -> int:
         """
         Get timeout configuration in milliseconds.
 
@@ -161,6 +163,7 @@ class ProtocolNodeConfigurationProvider(Protocol):
         ...
 
 
+@runtime_checkable
 class ProtocolConfigurationError(Protocol):
     """Protocol for configuration-related errors."""
 
