@@ -4,7 +4,7 @@ Protocol for node configuration management in ONEX architecture.
 Domain: Core configuration protocols for ONEX nodes
 """
 
-from typing import Any, Optional, Protocol, runtime_checkable
+from typing import Optional, Protocol, runtime_checkable
 
 from omnibase.protocols.types.core_types import ContextValue, ProtocolConfigValue
 
@@ -16,6 +16,32 @@ class ProtocolNodeConfiguration(Protocol):
 
     Provides standardized configuration access for all ONEX nodes
     without coupling to specific configuration implementations.
+
+    Example:
+        ```python
+        # Basic usage
+        config: ProtocolNodeConfiguration = get_node_config()
+
+        # Get configuration values
+        api_url = config.get_config_value("api.base_url", "http://localhost:8080")
+        timeout = config.get_timeout_ms("api_call", 5000)
+
+        # Domain-specific configurations
+        auth_settings = config.get_security_config("authentication")
+        perf_limits = config.get_performance_config("memory.max_heap_mb")
+
+        # Check configuration availability
+        if config.has_config("feature.experimental"):
+            experimental_mode = config.get_config_value("feature.experimental")
+
+        # Validate configurations
+        is_valid = config.validate_config("api.base_url")
+        required_keys = ["database.host", "database.port", "api.key"]
+        validation_results = config.validate_required_configs(required_keys)
+
+        # Get configuration schema
+        schema = config.get_config_schema()
+        ```
     """
 
     def get_config_value(
@@ -117,6 +143,39 @@ class ProtocolNodeConfiguration(Protocol):
         """
         ...
 
+    def validate_config(self, config_key: str) -> bool:
+        """
+        Validate configuration key exists and has valid value.
+
+        Args:
+            config_key: Configuration key to validate
+
+        Returns:
+            True if configuration is valid, False otherwise
+        """
+        ...
+
+    def validate_required_configs(self, required_keys: list[str]) -> dict[str, bool]:
+        """
+        Validate multiple required configuration keys.
+
+        Args:
+            required_keys: List of configuration keys that must be present
+
+        Returns:
+            Dictionary mapping config keys to validation status
+        """
+        ...
+
+    def get_config_schema(self) -> dict[str, str]:
+        """
+        Get configuration schema with expected types.
+
+        Returns:
+            Dictionary mapping config keys to expected type names
+        """
+        ...
+
 
 @runtime_checkable
 class ProtocolNodeConfigurationProvider(Protocol):
@@ -165,8 +224,60 @@ class ProtocolNodeConfigurationProvider(Protocol):
 
 @runtime_checkable
 class ProtocolConfigurationError(Protocol):
-    """Protocol for configuration-related errors."""
+    """
+    Protocol for configuration-related errors.
+
+    Provides structured error information for configuration failures
+    with support for error formatting and context details.
+
+    Example:
+        ```python
+        error: ProtocolConfigurationError = ConfigError(
+            message="Missing required configuration",
+            key="database.host",
+            source="environment"
+        )
+
+        # String representation
+        error_msg = str(error)  # "Config error in environment: Missing required configuration (key: database.host)"
+
+        # Check if error is for specific key
+        if error.is_key_error("database.host"):
+            # Handle specific key error
+            pass
+        ```
+    """
 
     message: str
     key: Optional[str]
     source: str
+
+    def __str__(self) -> str:
+        """
+        String representation of configuration error.
+
+        Returns:
+            Formatted error message with context
+        """
+        ...
+
+    def is_key_error(self, config_key: str) -> bool:
+        """
+        Check if error is related to specific configuration key.
+
+        Args:
+            config_key: Configuration key to check
+
+        Returns:
+            True if error is for the specified key
+        """
+        ...
+
+    def get_error_context(self) -> dict[str, Optional[str]]:
+        """
+        Get error context information.
+
+        Returns:
+            Dictionary with error context (message, key, source)
+        """
+        ...

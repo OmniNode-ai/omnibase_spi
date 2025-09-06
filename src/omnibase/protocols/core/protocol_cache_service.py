@@ -5,9 +5,20 @@ Provides cache service protocols that can be implemented by different
 cache backends (in-memory, Redis, etc.) and injected via ONEXContainer.
 """
 
-from typing import Any, Generic, Optional, Protocol, TypeVar, runtime_checkable
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Generic,
+    Optional,
+    Protocol,
+    TypeVar,
+    runtime_checkable,
+)
 
 from omnibase.protocols.types.core_types import ContextValue
+
+if TYPE_CHECKING:
+    from omnibase.protocols.types.core_types import ProtocolCacheStatistics
 
 # Type variable for generic cache values
 T = TypeVar("T")
@@ -15,7 +26,30 @@ T = TypeVar("T")
 
 @runtime_checkable
 class ProtocolCacheService(Protocol, Generic[T]):
-    """Protocol for cache service operations."""
+    """
+    Protocol for cache service operations.
+
+    Generic cache service supporting any serializable value type.
+    Implementations can use in-memory, Redis, or other cache backends.
+
+    Example:
+        ```python
+        # String cache
+        cache: ProtocolCacheService[str] = get_string_cache()
+        await cache.set("user:123", "john_doe", ttl_seconds=3600)
+        username = await cache.get("user:123")  # Returns Optional[str]
+
+        # Dict cache for complex data
+        cache: ProtocolCacheService[dict[str, Any]] = get_dict_cache()
+        user_data = {"id": 123, "name": "John", "active": True}
+        await cache.set("user:123:profile", user_data, ttl_seconds=1800)
+
+        # Cache operations
+        exists = await cache.exists("user:123")
+        await cache.delete("user:123")
+        await cache.clear()  # Clear all cached data
+        ```
+    """
 
     async def get(self, key: str) -> Optional[T]:
         """
@@ -79,12 +113,12 @@ class ProtocolCacheService(Protocol, Generic[T]):
         """
         ...
 
-    def get_stats(self) -> dict[str, ContextValue]:
+    def get_stats(self) -> "ProtocolCacheStatistics":
         """
         Get cache statistics.
 
         Returns:
-            Dictionary with cache statistics (hits, misses, size, etc.)
+            Structured cache statistics with hit ratios, memory usage, etc.
         """
         ...
 

@@ -48,7 +48,7 @@ class ProtocolUtilsNodeConfiguration(Protocol):
         """
         ...
 
-    def get_security_setting(
+    def get_security_config(
         self, key: str, default: Optional[ContextValue] = None
     ) -> ContextValue:
         """
@@ -63,7 +63,7 @@ class ProtocolUtilsNodeConfiguration(Protocol):
         """
         ...
 
-    def get_performance_setting(
+    def get_performance_config(
         self, key: str, default: Optional[ContextValue] = None
     ) -> ContextValue:
         """
@@ -78,7 +78,7 @@ class ProtocolUtilsNodeConfiguration(Protocol):
         """
         ...
 
-    def get_business_logic_setting(
+    def get_business_logic_config(
         self, key: str, default: Optional[ContextValue] = None
     ) -> ContextValue:
         """
