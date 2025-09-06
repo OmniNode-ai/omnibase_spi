@@ -107,6 +107,22 @@ class ProtocolValidationResult(Protocol):
     warnings: list[str]
 
 
+# Cache service protocols
+@runtime_checkable
+class ProtocolCacheStatistics(Protocol):
+    """Protocol for structured cache service statistics."""
+
+    hit_count: int
+    miss_count: int
+    total_requests: int
+    hit_ratio: float
+    memory_usage_bytes: int
+    entry_count: int
+    eviction_count: int
+    last_accessed: Optional[datetime]
+    cache_size_limit: Optional[int]
+
+
 # Base status types - consolidated from multiple duplicates
 BaseStatus = Literal[
     "pending", "processing", "completed", "failed", "cancelled", "skipped"
