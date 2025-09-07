@@ -8,18 +8,21 @@ Complete API reference documentation for all protocols, types, and interfaces in
 
 The API reference is organized by domain, matching the package structure:
 
-### Core Protocols and Types
-- **[Core Types](core-types.md)** - Fundamental type definitions and base protocols
-- **[Core Protocols](core-protocols.md)** - System-level protocol interfaces
+### Available API Documentation
 
-### Domain-Specific Protocols
+- **[Core Types](core-types.md)** - Fundamental type definitions and base system protocols
 - **[Workflow Orchestration](workflow-orchestration.md)** - Event-driven FSM orchestration protocols
 - **[MCP Integration](mcp.md)** - Model Context Protocol integration interfaces
-- **[Event Bus](event-bus.md)** - Event messaging and streaming protocols
-- **[Container](container.md)** - Dependency injection and service location protocols
-- **[Discovery](discovery.md)** - Service discovery and handler discovery protocols
-- **[File Handling](file-handling.md)** - File processing and type handling protocols
-- **[Validation](validation.md)** - Input validation and schema validation protocols
+
+### Additional Protocols
+
+The following protocol domains are defined in the codebase but detailed API documentation is available in the source code:
+
+- **Event Bus Protocols** - Event messaging and streaming (see `src/omnibase/protocols/event_bus/`)
+- **Container Protocols** - Dependency injection and service location (see `src/omnibase/protocols/container/`)
+- **Discovery Protocols** - Service discovery and handler discovery (see `src/omnibase/protocols/discovery/`)
+- **File Handling Protocols** - File processing and type handling (see `src/omnibase/protocols/file_handling/`)
+- **Validation Protocols** - Input validation and schema validation (see `src/omnibase/protocols/validation/`)
 
 ## Documentation Conventions
 
