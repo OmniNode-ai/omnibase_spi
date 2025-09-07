@@ -58,7 +58,13 @@
       "mcp__archon__perform_rag_query",
       "mcp__archon__search_code_examples",
       "mcp__archon__create_document",
-      "mcp__archon__get_task"
+      "mcp__archon__get_task",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebSearch",
+      "mcp__archon__get_available_sources",
+      "mcp__serena__think_about_collected_information",
+      "mcp__serena__get_symbols_overview"
     ],
     "deny": [],
     "ask": []
