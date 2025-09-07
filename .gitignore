@@ -241,3 +241,10 @@ docs_archived/
 # Codanna index files (keep configuration, ignore generated index data)
 .codanna/index/*
 .serena/cache/*
+
+# Claude Code session and runtime files
+sessions/
+.claude/agents/
+.claude/commands/
+.claude/hooks/
+.claude/state/
