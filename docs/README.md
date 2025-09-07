@@ -8,9 +8,8 @@ Welcome to the comprehensive documentation for omnibase-spi, the Service Provide
 
 ### Getting Started
 - **[Quick Start Guide](quick-start.md)** - Fast onboarding with executable examples
-- **[Installation & Setup](getting-started/installation.md)** - Detailed installation instructions  
-- **[Core Concepts](getting-started/core-concepts.md)** - Understanding protocols and SPI design
-- **[Your First Protocol](getting-started/first-protocol.md)** - Tutorial: implementing your first protocol
+- **[Developer Guide](developer-guide/README.md)** - Complete setup and development workflow
+- **[Architecture Overview](architecture/README.md)** - Understanding protocols and SPI design principles
 
 ### Developer Resources
 - **[Developer Guide](developer-guide/README.md)** - Complete development workflow and best practices
@@ -25,35 +24,23 @@ Welcome to the comprehensive documentation for omnibase-spi, the Service Provide
 - **[Core Types & Protocols](api-reference/core-types.md)** - Fundamental system types and contracts
 - **[Workflow Orchestration](api-reference/workflow-orchestration.md)** - Event-driven FSM and orchestration protocols  
 - **[MCP Integration](api-reference/mcp.md)** - Model Context Protocol multi-subsystem coordination
-- **[Event Bus Protocols](api-reference/event-bus-protocols.md)** - Event-driven architecture contracts
-- **[Container Protocols](api-reference/container-protocols.md)** - Dependency injection and service location
 
 ### Specialized Documentation
 - **[SPI Architecture](architecture/spi-architecture.md)** - Service Provider Interface design principles
-- **[Namespace Isolation](architecture/namespace-isolation.md)** - Understanding namespace separation
-- **[Protocol Design Patterns](architecture/protocol-patterns.md)** - Common protocol design patterns
-- **[Event Sourcing Patterns](architecture/event-sourcing.md)** - Event sourcing and workflow orchestration
-- **[MCP Coordination](architecture/mcp-coordination.md)** - Multi-subsystem tool coordination patterns
+- **[Protocol Composition Patterns](protocol-composition-patterns.md)** - Common protocol design patterns
+- **[Protocol Migration Guide](protocol-migration-guide.md)** - Protocol evolution and upgrade strategies
+- **[Protocol Selection Guide](protocol-selection-guide.md)** - Decision framework for choosing protocols
 
 ### Implementation Guides
-- **[Framework Integration](integration/framework-integration.md)** - FastAPI, Django, Flask integration patterns
-- **[Dependency Injection](integration/dependency-injection.md)** - Service container and protocol binding
-- **[Testing Integration](integration/testing-integration.md)** - Protocol compliance testing
-- **[Performance Optimization](integration/performance.md)** - High-performance protocol implementations
-
-### Reference Materials
-- **[FAQ](reference/faq.md)** - Frequently asked questions
-- **[Troubleshooting](reference/troubleshooting.md)** - Common issues and solutions
-- **[Glossary](reference/glossary.md)** - Technical terms and definitions
-- **[Best Practices](best-practices/)** - Protocol design and implementation guidelines
+- **[Integration Guide](integration/README.md)** - Framework integration patterns and dependency injection
 
 ## Quick Navigation
 
 ### For New Users
 1. Start with the [Quick Start Guide](quick-start.md) for immediate hands-on experience
-2. Read [Core Concepts](getting-started/core-concepts.md) to understand SPI design
-3. Follow the [Installation Guide](getting-started/installation.md) for setup
-4. Try the [First Protocol Tutorial](getting-started/first-protocol.md)
+2. Read the [Developer Guide](developer-guide/README.md) for setup and workflow
+3. Review the [Architecture Overview](architecture/README.md) to understand SPI design
+4. Try the protocol examples in the API Reference
 
 ### For Developers
 1. Read the [Developer Guide](developer-guide/README.md) for complete workflow coverage
@@ -63,9 +50,9 @@ Welcome to the comprehensive documentation for omnibase-spi, the Service Provide
 
 ### For Architects
 1. Review [Architecture Overview](architecture/README.md) for design principles and patterns
-2. Understand [Event Sourcing Patterns](architecture/event-sourcing.md) for workflow orchestration
-3. Study [MCP Coordination](architecture/mcp-coordination.md) for multi-subsystem integration
-4. Consider [Migration Strategies](migration.md) for protocol evolution
+2. Study [Protocol Composition Patterns](protocol-composition-patterns.md) for advanced protocol design
+3. Review [SPI Architecture](architecture/spi-architecture.md) for architectural decisions
+4. Consider [Migration Guide](migration.md) for protocol evolution
 
 ### Key Domains
 
