@@ -7,6 +7,8 @@ and follow ONEX SPI design principles.
 
 import importlib
 import pkgutil
+import subprocess
+import sys
 from typing import Any
 
 import pytest
@@ -68,3 +70,34 @@ def test_consolidated_types_available() -> None:
     assert "FATAL" in log_level_values
     assert "CRITICAL" in log_level_values
     assert "ERROR" in log_level_values
+
+
+def test_clean_environment_import() -> None:
+    """Test that omnibase_spi can be imported in a clean environment."""
+    # This integration test validates the package can be imported
+    # without any external dependencies in a subprocess
+    test_script = """
+import sys
+try:
+    from omnibase_spi.protocols.types import LogLevel
+    print("SUCCESS: omnibase_spi imported successfully")
+    print(f"LogLevel type available: {'FATAL' in LogLevel.__args__}")
+    sys.exit(0)
+except ImportError as e:
+    print(f"FAILURE: Import error: {e}")
+    sys.exit(1)
+except Exception as e:
+    print(f"FAILURE: Unexpected error: {e}")
+    sys.exit(1)
+"""
+
+    result = subprocess.run(
+        [sys.executable, "-c", test_script], capture_output=True, text=True, timeout=30
+    )
+
+    # Check that the subprocess succeeded
+    assert result.returncode == 0, f"Clean import failed: {result.stderr}"
+    assert "SUCCESS" in result.stdout, f"Success message not found: {result.stdout}"
+    assert (
+        "LogLevel type available: True" in result.stdout
+    ), "LogLevel not properly imported"
