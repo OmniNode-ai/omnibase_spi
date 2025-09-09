@@ -64,7 +64,8 @@
       "WebSearch",
       "mcp__archon__get_available_sources",
       "mcp__serena__think_about_collected_information",
-      "mcp__serena__get_symbols_overview"
+      "mcp__serena__get_symbols_overview",
+      "mcp__serena__find_file"
     ],
     "deny": [],
     "ask": []
