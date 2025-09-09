@@ -71,6 +71,7 @@ from omnibase_spi.protocols.container import (
 
 # Most frequently used core protocols
 from omnibase_spi.protocols.core import ProtocolCacheService  # Caching abstractions
+from omnibase_spi.protocols.core import ProtocolLogger  # Structured logging
 from omnibase_spi.protocols.core import (
     ProtocolNodeRegistry,  # Node discovery and management
 )
@@ -120,6 +121,7 @@ __all__ = [
     "ProtocolNodeRegistry",
     "ProtocolWorkflowReducer",
     "ProtocolCacheService",
+    "ProtocolLogger",
     # Workflow orchestration protocols
     "ProtocolWorkflowEventBus",
     "ProtocolWorkflowNodeRegistry",

@@ -10,6 +10,7 @@ from omnibase_spi.protocols.core.protocol_cache_service import (
     ProtocolCacheService,
     ProtocolCacheServiceProvider,
 )
+from omnibase_spi.protocols.core.protocol_logger import ProtocolLogger
 from omnibase_spi.protocols.core.protocol_node_configuration import (
     ProtocolConfigurationError,
     ProtocolNodeConfiguration,
@@ -40,4 +41,6 @@ __all__ = [
     # Cache service protocols
     "ProtocolCacheService",
     "ProtocolCacheServiceProvider",
+    # Logging protocols
+    "ProtocolLogger",
 ]

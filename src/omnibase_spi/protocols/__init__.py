@@ -57,11 +57,12 @@ from omnibase_spi.protocols.container import (
     ServiceResolutionStatus,
 )
 
-# Core protocols (11 protocols)
+# Core protocols (12 protocols)
 from omnibase_spi.protocols.core import (
     ProtocolCacheService,
     ProtocolCacheServiceProvider,
     ProtocolConfigurationError,
+    ProtocolLogger,
     ProtocolNodeConfiguration,
     ProtocolNodeConfigurationProvider,
     ProtocolNodeInfo,
@@ -151,6 +152,7 @@ __all__ = [
     "ProtocolConfigurationError",
     "ProtocolCacheService",
     "ProtocolCacheServiceProvider",
+    "ProtocolLogger",
     # Workflow orchestration protocols
     "ProtocolWorkflowEventBus",
     "ProtocolWorkflowEventHandler",
