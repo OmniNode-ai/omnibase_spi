@@ -62,8 +62,8 @@ Architecture:
     - Zero runtime dependencies except typing-extensions and pydantic
 """
 
-import sys
-from typing import TYPE_CHECKING, Any
+import importlib
+from typing import TYPE_CHECKING, Any, cast
 
 __version__ = "0.1.0"
 __author__ = "OmniNode Team"
@@ -97,7 +97,7 @@ _LAZY_PROTOCOL_MAP = {
 }
 
 # Cache for loaded protocols to avoid repeated imports
-_protocol_cache: dict[str, Any] = {}
+_protocol_cache: dict[str, type] = {}
 
 
 def _get_protocol_count() -> int:
@@ -105,7 +105,12 @@ def _get_protocol_count() -> int:
     return len(_LAZY_PROTOCOL_MAP)
 
 
-def _load_protocol(protocol_name: str) -> Any:
+def _clear_protocol_cache() -> None:
+    """Clear protocol cache for testing or memory management."""
+    _protocol_cache.clear()
+
+
+def _load_protocol(protocol_name: str) -> type:
     """
     Lazy load a protocol on first access.
 
@@ -128,25 +133,19 @@ def _load_protocol(protocol_name: str) -> Any:
     module_path = _LAZY_PROTOCOL_MAP[protocol_name]
 
     try:
-        # Import the module containing the protocol
-        module = __import__(module_path, fromlist=[protocol_name])
+        # Import the module containing the protocol using importlib
+        module = importlib.import_module(module_path)
 
         # Get the protocol class from the module
         protocol_class = getattr(module, protocol_name)
 
         # Cache for future access
-        _protocol_cache[protocol_name] = protocol_class
+        _protocol_cache[protocol_name] = cast(type, protocol_class)
 
-        return protocol_class
+        return cast(type, protocol_class)
 
-    except ImportError as e:
-        raise ImportError(
-            f"Failed to import protocol {protocol_name} from {module_path}: {e}"
-        )
-    except AttributeError as e:
-        raise AttributeError(
-            f"Protocol {protocol_name} not found in module {module_path}: {e}"
-        )
+    except (ImportError, AttributeError) as e:
+        raise ImportError(f"Failed to load protocol {protocol_name}: {e}") from e
 
 
 def __getattr__(name: str) -> Any:
