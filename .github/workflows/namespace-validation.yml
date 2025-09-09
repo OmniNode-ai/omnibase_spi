@@ -85,7 +85,7 @@ jobs:
         
         # Check that version is consistent across files
         VERSION=$(grep '^version = ' pyproject.toml | cut -d'"' -f2)
-        if ! grep -q "__version__ = \"$VERSION\"" src/omnibase/__init__.py; then
+        if ! grep -q "__version__ = \"$VERSION\"" src/omnibase_spi/__init__.py; then
           echo "ERROR: Version mismatch between pyproject.toml and __init__.py"
           exit 1
         fi
