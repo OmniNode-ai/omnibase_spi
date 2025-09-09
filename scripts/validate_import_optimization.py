@@ -168,7 +168,7 @@ class ImportOptimizationValidator:
             initial_modules = set(sys.modules.keys())
 
             # Access a protocol - should trigger lazy loading
-            protocol_logger = omnibase_spi.ProtocolLogger  # type: ignore[attr-defined]
+            protocol_logger = omnibase_spi.ProtocolLogger
 
             if protocol_logger is None:
                 return {
@@ -182,7 +182,7 @@ class ImportOptimizationValidator:
             new_modules = after_modules - initial_modules
 
             # Second access should return same instance (cached)
-            protocol_logger2 = omnibase_spi.ProtocolLogger  # type: ignore[attr-defined]
+            protocol_logger2 = omnibase_spi.ProtocolLogger
 
             if protocol_logger is not protocol_logger2:
                 return {
@@ -275,7 +275,7 @@ class ImportOptimizationValidator:
 
         try:
             # Test 1: Root import
-            from omnibase_spi import ProtocolLogger  # type: ignore[attr-defined]
+            from omnibase_spi import ProtocolLogger
 
             compatibility_tests.append("Root import: ✅")
 
@@ -284,10 +284,7 @@ class ImportOptimizationValidator:
 
         try:
             # Test 2: Multiple imports
-            from omnibase_spi import (  # type: ignore[attr-defined]
-                ProtocolEventBus,
-                ProtocolLogger,
-            )
+            from omnibase_spi import ProtocolEventBus, ProtocolLogger
 
             compatibility_tests.append("Multiple imports: ✅")
 
@@ -296,7 +293,7 @@ class ImportOptimizationValidator:
 
         try:
             # Test 3: Import with alias
-            from omnibase_spi import ProtocolLogger as Logger  # type: ignore[attr-defined]
+            from omnibase_spi import ProtocolLogger as Logger
 
             compatibility_tests.append("Import with alias: ✅")
 

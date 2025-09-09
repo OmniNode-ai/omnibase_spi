@@ -67,7 +67,7 @@ class TestImportPerformance:
         initial_modules = set(sys.modules.keys())
 
         # Access a protocol - this should trigger lazy loading
-        protocol_logger = omnibase_spi.ProtocolLogger  # type: ignore[attr-defined]
+        protocol_logger = omnibase_spi.ProtocolLogger
         assert protocol_logger is not None
 
         # Check that the protocol module was loaded
@@ -155,11 +155,11 @@ class TestLazyLoading:
             mock_load.return_value = "MockProtocol"
 
             # Access a protocol
-            result = omnibase_spi.ProtocolLogger  # type: ignore[attr-defined]
+            result = omnibase_spi.ProtocolLogger
 
             # Verify lazy loading was called
             mock_load.assert_called_once_with("ProtocolLogger")
-            assert result == "MockProtocol"  # type: ignore[comparison-overlap]
+            assert result == "MockProtocol"
 
     def test_protocol_caching(self) -> None:
         """Test that protocols are cached after first load."""
@@ -171,10 +171,10 @@ class TestLazyLoading:
             omnibase_spi._protocol_cache.clear()
 
         # First access
-        protocol1 = omnibase_spi.ProtocolLogger  # type: ignore[attr-defined]
+        protocol1 = omnibase_spi.ProtocolLogger
 
         # Second access should return same instance
-        protocol2 = omnibase_spi.ProtocolLogger  # type: ignore[attr-defined]
+        protocol2 = omnibase_spi.ProtocolLogger
 
         assert (
             protocol1 is protocol2
@@ -276,21 +276,18 @@ class TestImportValidation:
         # Test that old import patterns still work
         try:
             # Standard import pattern
-            from omnibase_spi import ProtocolLogger  # type: ignore[attr-defined]
+            from omnibase_spi import ProtocolLogger
 
             assert ProtocolLogger is not None
 
             # Multiple imports
-            from omnibase_spi import (  # type: ignore[attr-defined]
-                ProtocolEventBus,
-                ProtocolLogger,
-            )
+            from omnibase_spi import ProtocolEventBus, ProtocolLogger
 
             assert ProtocolLogger is not None
             assert ProtocolEventBus is not None
 
             # Import with alias
-            from omnibase_spi import ProtocolLogger as Logger  # type: ignore[attr-defined]
+            from omnibase_spi import ProtocolLogger as Logger
 
             assert Logger is not None
 
@@ -423,7 +420,7 @@ class TestPerformanceOptimization:
         root_import_overhead = modules_after_root - modules_before
 
         # Access one protocol
-        _ = omnibase_spi.ProtocolLogger  # type: ignore[attr-defined]
+        _ = omnibase_spi.ProtocolLogger
 
         # Measure modules after protocol access
         modules_after_protocol = len(sys.modules)
@@ -457,7 +454,7 @@ class TestPerformanceOptimization:
 
         # Test protocol access time through lazy loading
         start_time = time.perf_counter()
-        _ = omnibase_spi.ProtocolLogger  # type: ignore[attr-defined]
+        _ = omnibase_spi.ProtocolLogger
         lazy_access_time = (time.perf_counter() - start_time) * 1000
 
         # The total lazy loading time should be competitive with direct imports
@@ -490,11 +487,11 @@ def test_complete_optimization_integration() -> None:
     assert len(protocols) >= 10, "Should have adequate protocol coverage"
 
     # 3. Test lazy loading functionality
-    protocol = omnibase_spi.ProtocolLogger  # type: ignore[attr-defined]
+    protocol = omnibase_spi.ProtocolLogger
     assert protocol is not None, "Lazy loading should work"
 
     # 4. Test caching
-    protocol2 = omnibase_spi.ProtocolLogger  # type: ignore[attr-defined]
+    protocol2 = omnibase_spi.ProtocolLogger
     assert protocol is protocol2, "Caching should work"
 
     # 5. Test introspection
