@@ -109,7 +109,7 @@ Business logic interfaces that use Layer 1 types:
 ```python
 # src/omnibase/protocols/core/protocol_logger.py
 from typing import Protocol, Dict, Any
-from omnibase.protocols.types.core_types import LogLevel, ContextValue
+from omnibase_spi.protocols.types.core_types import LogLevel, ContextValue
 
 class ProtocolLogger(Protocol):
     """Core logging protocol using strong types."""
@@ -142,8 +142,8 @@ Specialized interfaces for particular domains:
 ```python
 # src/omnibase/protocols/event_bus/protocol_event_bus.py
 from typing import Protocol, TYPE_CHECKING
-from omnibase.protocols.types.event_bus_types import EventType
-from omnibase.protocols.core.protocol_logger import ProtocolLogger
+from omnibase_spi.protocols.types.event_bus_types import EventType
+from omnibase_spi.protocols.core.protocol_logger import ProtocolLogger
 
 if TYPE_CHECKING:
     from external.event.models import Event
@@ -181,8 +181,8 @@ Consumer code that implements and uses protocols:
 
 ```python
 # In consuming applications (not in omnibase-spi)
-from omnibase.protocols.core.protocol_logger import ProtocolLogger
-from omnibase.protocols.event_bus.protocol_event_bus import ProtocolEventBus
+from omnibase_spi.protocols.core.protocol_logger import ProtocolLogger
+from omnibase_spi.protocols.event_bus.protocol_event_bus import ProtocolEventBus
 
 class MyApplication:
     """Application using protocol-based dependencies."""
@@ -223,8 +223,8 @@ Combine multiple protocols for complex interfaces:
 
 ```python
 from typing import Protocol
-from omnibase.protocols.core.protocol_logger import ProtocolLogger
-from omnibase.protocols.core.protocol_canonical_serializer import ProtocolCanonicalSerializer
+from omnibase_spi.protocols.core.protocol_logger import ProtocolLogger
+from omnibase_spi.protocols.core.protocol_canonical_serializer import ProtocolCanonicalSerializer
 
 class ProtocolAuditableService(Protocol):
     """Service that requires both logging and serialization."""
@@ -333,7 +333,7 @@ Define protocols for behavioral contracts rather than data:
 
 ```python
 from typing import Protocol, ContextManager, Any
-from omnibase.protocols.types.core_types import ContextValue
+from omnibase_spi.protocols.types.core_types import ContextValue
 
 class ProtocolTransactional(Protocol):
     """Protocol for transactional behavior."""

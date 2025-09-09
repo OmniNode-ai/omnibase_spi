@@ -19,8 +19,8 @@ Comprehensive guide for integrating omnibase-spi protocols into existing applica
 
 ```python
 from typing import Type, TypeVar, Dict, Any, Optional
-from omnibase.protocols.core import ProtocolLogger, ProtocolCacheService
-from omnibase.protocols.workflow_orchestration import ProtocolWorkflowEventBus
+from omnibase_spi.protocols.core import ProtocolLogger, ProtocolCacheService
+from omnibase_spi.protocols.workflow_orchestration import ProtocolWorkflowEventBus
 
 T = TypeVar('T')
 
@@ -365,8 +365,8 @@ async def shutdown_event():
 ```python
 # django_project/protocols.py
 from django.conf import settings
-from omnibase.protocols.core import ProtocolLogger
-from omnibase.protocols.workflow_orchestration import ProtocolUserService
+from omnibase_spi.protocols.core import ProtocolLogger
+from omnibase_spi.protocols.workflow_orchestration import ProtocolUserService
 
 class DjangoServiceRegistry:
     """Django-specific service registry."""

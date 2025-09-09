@@ -12,13 +12,13 @@ from typing import Any, List, Optional
 import pytest
 
 # Import protocols to test
-from omnibase.protocols.container.protocol_artifact_container import (
+from omnibase_spi.protocols.container.protocol_artifact_container import (
     ContainerArtifactType,
     ProtocolArtifactContainer,
     ProtocolArtifactContainerStatus,
     ProtocolArtifactInfo,
 )
-from omnibase.protocols.discovery.protocol_handler_discovery import (
+from omnibase_spi.protocols.discovery.protocol_handler_discovery import (
     ProtocolHandlerDiscovery,
     ProtocolHandlerInfo,
 )
@@ -81,7 +81,7 @@ def test_artifact_container_validation() -> None:
 
             class Status:
                 def __init__(self) -> None:
-                    from omnibase.protocols.container.protocol_artifact_container import (
+                    from omnibase_spi.protocols.container.protocol_artifact_container import (
                         ContainerArtifactType,
                         OnexStatus,
                     )
@@ -216,7 +216,7 @@ def test_validation_decorator() -> None:
         def get_status(self) -> ProtocolArtifactContainerStatus:
             class Status:
                 def __init__(self) -> None:
-                    from omnibase.protocols.container.protocol_artifact_container import (
+                    from omnibase_spi.protocols.container.protocol_artifact_container import (
                         ContainerArtifactType,
                         OnexStatus,
                     )

@@ -110,7 +110,7 @@ repos:
 ## Namespace Isolation & Validation
 
 ### Critical: Complete Namespace Isolation
-This SPI package maintains **complete namespace isolation** to prevent circular dependencies when installed by omnibase-core. All imports must use `omnibase.protocols.*` paths only.
+This SPI package maintains **complete namespace isolation** to prevent circular dependencies when installed by omnibase-core. All imports must use `omnibase_spi.protocols.*` paths only.
 
 ### Validation Tools
 
@@ -120,7 +120,7 @@ This SPI package maintains **complete namespace isolation** to prevent circular 
 ./scripts/validate-namespace-isolation.sh
 
 # Validates:
-# ✅ No external omnibase imports (only omnibase.protocols.* allowed)  
+# ✅ No external omnibase imports (only omnibase_spi.protocols.* allowed)  
 # ✅ Protocol naming conventions (must start with "Protocol")
 # ✅ Strong typing (no Any usage)
 # ✅ Namespace isolation tests pass
@@ -135,7 +135,7 @@ This SPI package maintains **complete namespace isolation** to prevent circular 
 #### 3. Development Checks
 ```bash
 # Quick namespace check
-grep -r "from omnibase\." src/ | grep -v "from omnibase.protocols"
+grep -r "from omnibase\." src/ | grep -v "from omnibase_spi.protocols"
 # Should return no results
 
 # Run namespace isolation tests
@@ -146,10 +146,10 @@ poetry run pytest && poetry build
 ```
 
 ### Namespace Rules
-1. **✅ ALLOWED**: `from omnibase.protocols.types import ...`
-2. **✅ ALLOWED**: `from omnibase.protocols.core import ...`  
-3. **❌ FORBIDDEN**: `from omnibase.model import ...`
-4. **❌ FORBIDDEN**: `from omnibase.core import ...`
+1. **✅ ALLOWED**: `from omnibase_spi.protocols.types import ...`
+2. **✅ ALLOWED**: `from omnibase_spi.protocols.core import ...`  
+3. **❌ FORBIDDEN**: `from omnibase_spi.model import ...`
+4. **❌ FORBIDDEN**: `from omnibase_spi.core import ...`
 5. **❌ FORBIDDEN**: Any imports from external omnibase modules
 
 ## Protocol Design Guidelines
@@ -178,12 +178,12 @@ class ProtocolExample(Protocol):
 ```python
 # Good: Forward reference with TYPE_CHECKING
 if TYPE_CHECKING:
-    from omnibase.model.core.model_node_metadata import NodeMetadataBlock
+    from omnibase_spi.model.core.model_node_metadata import NodeMetadataBlock
 
 def process(self, block: "NodeMetadataBlock") -> str: ...
 
 # Bad: Direct import creates dependency
-from omnibase.model.core.model_node_metadata import NodeMetadataBlock
+from omnibase_spi.model.core.model_node_metadata import NodeMetadataBlock
 ```
 
 ## Integration with omnibase-core
@@ -192,7 +192,7 @@ This repository provides the protocol contracts that `omnibase-core` implements:
 
 ```python
 # In omnibase-core implementations
-from omnibase.protocols.event_bus.protocol_event_bus import ProtocolEventBus
+from omnibase_spi.protocols.event_bus.protocol_event_bus import ProtocolEventBus
 
 class EventBusImplementation(ProtocolEventBus):
     """Concrete implementation of the protocol."""
@@ -221,8 +221,8 @@ pip install -e /path/to/omnibase-spi
 
 Import protocols in other packages:
 ```python
-from omnibase.protocols.core.protocol_canonical_serializer import ProtocolCanonicalSerializer
-from omnibase.protocols.event_bus.protocol_event_bus import ProtocolEventBus
+from omnibase_spi.protocols.core.protocol_canonical_serializer import ProtocolCanonicalSerializer
+from omnibase_spi.protocols.event_bus.protocol_event_bus import ProtocolEventBus
 ```
 
 ## Next Steps

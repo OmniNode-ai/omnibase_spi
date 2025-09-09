@@ -29,7 +29,7 @@ protocols/
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    from omnibase.protocols.types.core_types import ProtocolSerializationResult
+    from omnibase_spi.protocols.types.core_types import ProtocolSerializationResult
 
 @runtime_checkable
 class ProtocolCanonicalSerializer(Protocol):
@@ -51,8 +51,8 @@ from typing import TYPE_CHECKING, Protocol
 
 if TYPE_CHECKING:
     # Only imported for type checking, not runtime
-    from omnibase.protocols.types.event_bus_types import EventData
-    from omnibase.protocols.types.core_types import ProtocolValidationResult
+    from omnibase_spi.protocols.types.event_bus_types import EventData
+    from omnibase_spi.protocols.types.core_types import ProtocolValidationResult
 
 class ProtocolEventHandler(Protocol):
     def handle(self, event: "EventData") -> "ProtocolValidationResult":

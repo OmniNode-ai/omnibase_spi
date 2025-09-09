@@ -29,7 +29,7 @@ poetry run pytest
 # ✅ Namespace isolation tests pass
 
 # 6. Manual namespace check
-grep -r "from omnibase\." src/ | grep -v "from omnibase.protocols"
+grep -r "from omnibase\." src/ | grep -v "from omnibase_spi.protocols"
 # Must return NO results
 
 # 7. Check for forbidden imports
@@ -40,7 +40,7 @@ grep -r "from omnibase\.core\|from omnibase\.model" src/
 ## Protocol Validation
 ```bash
 # 8. Verify protocol completeness
-python -c "from omnibase.protocols import *; print('Import successful')"
+python -c "from omnibase_spi.protocols import *; print('Import successful')"
 # Must import without errors
 
 # 9. Check protocol naming
@@ -83,7 +83,7 @@ poetry build
 
 # 17. Test installation
 pip install dist/omnibase_spi-*.whl
-python -c "import omnibase.protocols; print('Package works')"
+python -c "import omnibase_spi.protocols; print('Package works')"
 pip uninstall omnibase-spi -y
 ```
 

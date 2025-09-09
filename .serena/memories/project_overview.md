@@ -10,7 +10,7 @@ This repository contains pure protocol interfaces for the ONEX framework with ze
 - **Forward References**: Uses `TYPE_CHECKING` imports to avoid circular dependencies
 
 ## Key Architectural Principles
-1. **Complete Namespace Isolation**: Only `omnibase.protocols.*` imports allowed
+1. **Complete Namespace Isolation**: Only `omnibase_spi.protocols.*` imports allowed
 2. **SPI Purity**: No concrete implementations, only pure protocol definitions
 3. **Strong Typing**: Minimal use of `Any` types, comprehensive type hints
 4. **Protocol Contracts**: All service interfaces defined as Protocol classes

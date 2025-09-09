@@ -50,8 +50,8 @@ from datetime import datetime
 from typing_extensions import Literal
 from pydantic import BaseModel
 
-# Local imports (only omnibase.protocols.*)
-from omnibase.protocols.types.core_types import ProtocolSemVer
+# Local imports (only omnibase_spi.protocols.*)
+from omnibase_spi.protocols.types.core_types import ProtocolSemVer
 
 # TYPE_CHECKING imports
 if TYPE_CHECKING:

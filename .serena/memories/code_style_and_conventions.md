@@ -20,19 +20,19 @@
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    from omnibase.protocols.types.core_types import SomeType
+    from omnibase_spi.protocols.types.core_types import SomeType
 
 @runtime_checkable
 class ProtocolExample(Protocol):
     def method(self) -> "SomeType": ...
 
 # FORBIDDEN: Direct imports that create dependencies
-from omnibase.model.core.some_model import SomeModel  # ❌ NEVER
+from omnibase_spi.model.core.some_model import SomeModel  # ❌ NEVER
 ```
 
 ### 4. Namespace Isolation Rules
-- **✅ ALLOWED**: `from omnibase.protocols.* import ...`
-- **❌ FORBIDDEN**: `from omnibase.* import ...` (anything outside protocols)
+- **✅ ALLOWED**: `from omnibase_spi.protocols.* import ...`
+- **❌ FORBIDDEN**: `from omnibase_spi.* import ...` (anything outside protocols)
 - **❌ FORBIDDEN**: Any imports from external omnibase modules
 - **❌ FORBIDDEN**: Implementation library imports (os, sys, json, etc.)
 
@@ -49,7 +49,7 @@ from omnibase.model.core.some_model import SomeModel  # ❌ NEVER
 from typing import TYPE_CHECKING, Protocol
 
 if TYPE_CHECKING:
-    from omnibase.protocols.types.event_bus_types import EventData
+    from omnibase_spi.protocols.types.event_bus_types import EventData
 
 class ProtocolEventHandler(Protocol):
     def handle_event(self, data: "EventData") -> bool: ...
@@ -168,8 +168,8 @@ class ProtocolBad(Protocol):
 ### 2. Import Violations
 ```python
 # ❌ FORBIDDEN: External omnibase imports
-from omnibase.core import SomeClass
-from omnibase.model.core import SomeModel
+from omnibase_spi.core import SomeClass
+from omnibase_spi.model.core import SomeModel
 
 # ❌ FORBIDDEN: Implementation library imports
 import os

@@ -17,7 +17,7 @@ A pure protocol interface repository defining service contracts for the ONEX dis
 ### Core Principles
 
 1. **Protocol-First Design**: All services defined through Python `Protocol` interfaces
-2. **Namespace Isolation**: Complete separation from implementation packages (`omnibase.protocols.*` only)
+2. **Namespace Isolation**: Complete separation from implementation packages (`omnibase_spi.protocols.*` only)
 3. **Event Sourcing Patterns**: Sequence numbers, causation tracking, and replay capabilities
 4. **Workflow Isolation**: `{workflowType, instanceId}` isolation with correlation chains
 5. **Type Safety**: Strong typing with no `Any` usage in public interfaces
@@ -25,7 +25,7 @@ A pure protocol interface repository defining service contracts for the ONEX dis
 ### Domain Organization
 
 ```
-src/omnibase/protocols/
+src/omnibase_spi/protocols/
 ├── core/                         # System-level contracts
 │   ├── protocol_onex_envelope.py    # Message envelope patterns
 │   ├── protocol_onex_reply.py       # Request-response contracts
@@ -60,12 +60,12 @@ src/omnibase/protocols/
 **Event-Driven FSM with Event Sourcing**
 
 ```python
-from omnibase.protocols.workflow_orchestration import (
+from omnibase_spi.protocols.workflow_orchestration import (
     ProtocolWorkflowEventBus,
     ProtocolWorkflowNodeRegistry, 
     ProtocolWorkflowPersistence
 )
-from omnibase.protocols.types.workflow_orchestration_types import (
+from omnibase_spi.protocols.types.workflow_orchestration_types import (
     ProtocolWorkflowEvent,
     ProtocolWorkflowSnapshot,
     WorkflowState,
@@ -102,12 +102,12 @@ workflow_instance = ProtocolWorkflowSnapshot(
 **Distributed Tool Coordination**
 
 ```python
-from omnibase.protocols.mcp import (
+from omnibase_spi.protocols.mcp import (
     ProtocolMCPRegistry,
     ProtocolMCPToolProxy,
     ProtocolMCPMonitor
 )
-from omnibase.protocols.types.mcp_types import (
+from omnibase_spi.protocols.types.mcp_types import (
     ProtocolMCPToolDefinition,
     ProtocolMCPSubsystemRegistration,
     MCPToolType,
@@ -145,11 +145,11 @@ async def register_mcp_subsystem(registry: ProtocolMCPRegistry):
 **Distributed Event Patterns**
 
 ```python
-from omnibase.protocols.event_bus import (
+from omnibase_spi.protocols.event_bus import (
     ProtocolEventBus,
     ProtocolKafkaAdapter
 )
-from omnibase.protocols.types.event_bus_types import (
+from omnibase_spi.protocols.types.event_bus_types import (
     EventMessage,
     EventMetadata
 )
@@ -169,11 +169,11 @@ async def setup_event_handling(event_bus: ProtocolEventBus):
 **Dynamic Service Coordination**
 
 ```python
-from omnibase.protocols.container import (
+from omnibase_spi.protocols.container import (
     ProtocolServiceRegistry,
     ProtocolArtifactContainer
 )
-from omnibase.protocols.core import ProtocolNodeRegistry
+from omnibase_spi.protocols.core import ProtocolNodeRegistry
 
 # Service registration with capabilities
 async def register_workflow_node(registry: ProtocolNodeRegistry):
@@ -263,19 +263,19 @@ class ProtocolWorkflowExample(Protocol):
 
 ```python
 # ✅ ALLOWED - SPI-only imports
-from omnibase.protocols.types.workflow_orchestration_types import WorkflowState
-from omnibase.protocols.core.protocol_workflow_reducer import ProtocolWorkflowReducer
+from omnibase_spi.protocols.types.workflow_orchestration_types import WorkflowState
+from omnibase_spi.protocols.core.protocol_workflow_reducer import ProtocolWorkflowReducer
 
 # ✅ ALLOWED - Forward references with TYPE_CHECKING
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from omnibase.protocols.types.core_types import NodeMetadata
+    from omnibase_spi.protocols.types.core_types import NodeMetadata
     
 def process_node(self, node: "NodeMetadata") -> str: ...
 
 # ❌ FORBIDDEN - Implementation imports
-from omnibase.model.workflow import WorkflowInstance  # Breaks SPI purity
-from omnibase.core.services import ServiceManager     # Creates dependency
+from omnibase_spi.model.workflow import WorkflowInstance  # Breaks SPI purity
+from omnibase_spi.core.services import ServiceManager     # Creates dependency
 ```
 
 ### Validation Tools
@@ -319,11 +319,11 @@ poetry run pytest tests/test_protocol_imports.py -v
 **1. Define Protocol Interface**
 
 ```python
-# src/omnibase/protocols/domain/protocol_new_service.py
+# src/omnibase_spi/protocols/domain/protocol_new_service.py
 from typing import Protocol, runtime_checkable, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from omnibase.protocols.types.domain_types import DomainType
+    from omnibase_spi.protocols.types.domain_types import DomainType
 
 @runtime_checkable  
 class ProtocolNewService(Protocol):
@@ -337,7 +337,7 @@ class ProtocolNewService(Protocol):
 **2. Add Type Definitions**
 
 ```python
-# src/omnibase/protocols/types/domain_types.py
+# src/omnibase_spi/protocols/types/domain_types.py
 from typing import Protocol, Literal
 
 ServiceStatus = Literal["active", "inactive", "pending"]
@@ -350,7 +350,7 @@ class ProtocolDomainType(Protocol):
 **3. Update Package Imports**
 
 ```python
-# src/omnibase/protocols/domain/__init__.py
+# src/omnibase_spi/protocols/domain/__init__.py
 """Domain protocol interfaces."""
 
 from .protocol_new_service import ProtocolNewService
@@ -363,7 +363,7 @@ __all__ = ["ProtocolNewService"]
 ```python
 # tests/test_new_protocol.py
 import pytest
-from omnibase.protocols.domain import ProtocolNewService
+from omnibase_spi.protocols.domain import ProtocolNewService
 
 class MockServiceImplementation:
     """Test implementation of protocol."""
@@ -383,8 +383,8 @@ def test_protocol_compliance():
 
 ```python
 # In omnibase-core or other implementation packages
-from omnibase.protocols.workflow_orchestration import ProtocolWorkflowEventBus
-from omnibase.protocols.types.workflow_orchestration_types import ProtocolWorkflowEvent
+from omnibase_spi.protocols.workflow_orchestration import ProtocolWorkflowEventBus
+from omnibase_spi.protocols.types.workflow_orchestration_types import ProtocolWorkflowEvent
 
 class WorkflowEventBusImplementation(ProtocolWorkflowEventBus):
     """Concrete implementation of workflow event bus protocol."""

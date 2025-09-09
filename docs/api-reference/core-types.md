@@ -374,7 +374,7 @@ Rich result protocol supporting monadic composition patterns.
 ### Basic Type Usage
 
 ```python
-from omnibase.protocols.types.core_types import (
+from omnibase_spi.protocols.types.core_types import (
     LogLevel, ContextValue, ProtocolValidationResult
 )
 
@@ -401,7 +401,7 @@ def validate_input(data: str) -> ProtocolValidationResult:
 ### Metadata Protocol Usage
 
 ```python
-from omnibase.protocols.types.core_types import (
+from omnibase_spi.protocols.types.core_types import (
     ProtocolMetadata, ProtocolSemVer
 )
 from datetime import datetime
@@ -418,7 +418,7 @@ metadata = ProtocolMetadata(
 ### Configuration Protocol Usage
 
 ```python
-from omnibase.protocols.types.core_types import ProtocolConfigValue
+from omnibase_spi.protocols.types.core_types import ProtocolConfigValue
 
 # Type-safe configuration
 config = ProtocolConfigValue(
@@ -437,10 +437,10 @@ All core types are designed for maximum type safety:
 
 ```python
 from typing import TYPE_CHECKING
-from omnibase.protocols.types.core_types import ContextValue
+from omnibase_spi.protocols.types.core_types import ContextValue
 
 if TYPE_CHECKING:
-    from omnibase.protocols.types.core_types import ProtocolValidationResult
+    from omnibase_spi.protocols.types.core_types import ProtocolValidationResult
 
 def process_data(value: ContextValue) -> "ProtocolValidationResult":
     # Type checker knows ContextValue constraints
@@ -458,7 +458,7 @@ def process_data(value: ContextValue) -> "ProtocolValidationResult":
 Use runtime checking to validate implementations:
 
 ```python
-from omnibase.protocols.types.core_types import ProtocolMetadata
+from omnibase_spi.protocols.types.core_types import ProtocolMetadata
 
 def process_metadata(obj: object) -> None:
     if isinstance(obj, ProtocolMetadata):
@@ -474,7 +474,7 @@ def process_metadata(obj: object) -> None:
 Leverage rich error protocols for better debugging:
 
 ```python
-from omnibase.protocols.types.core_types import ProtocolErrorInfo
+from omnibase_spi.protocols.types.core_types import ProtocolErrorInfo
 
 def create_error_info(
     error_type: str, 
@@ -511,7 +511,7 @@ def log_context_bad(context: dict[str, Any]) -> None:
 
 ```python
 from typing import Protocol
-from omnibase.protocols.types.core_types import ProtocolMetadata
+from omnibase_spi.protocols.types.core_types import ProtocolMetadata
 
 class ProtocolEnhancedMetadata(ProtocolMetadata, Protocol):
     """Extended metadata protocol with additional fields."""
@@ -522,7 +522,7 @@ class ProtocolEnhancedMetadata(ProtocolMetadata, Protocol):
 ### Validate at Runtime
 
 ```python
-from omnibase.protocols.types.core_types import ProtocolValidationResult
+from omnibase_spi.protocols.types.core_types import ProtocolValidationResult
 
 def validate_user_input(obj: object) -> bool:
     if isinstance(obj, ProtocolValidationResult):

@@ -11,8 +11,8 @@ The discovery domain consists of specialized protocols that provide complete ser
 ### Handler Discovery Protocol
 
 ```python
-from omnibase.protocols.discovery import ProtocolHandlerDiscovery
-from omnibase.protocols.types.discovery_types import ProtocolHandlerInfo
+from omnibase_spi.protocols.discovery import ProtocolHandlerDiscovery
+from omnibase_spi.protocols.types.discovery_types import ProtocolHandlerInfo
 
 @runtime_checkable
 class ProtocolHandlerDiscovery(Protocol):
@@ -64,8 +64,8 @@ class ProtocolHandlerDiscovery(Protocol):
 ### Handler Information Protocol
 
 ```python
-from omnibase.protocols.discovery import ProtocolHandlerInfo
-from omnibase.protocols.file_handling import ProtocolFileTypeHandler
+from omnibase_spi.protocols.discovery import ProtocolHandlerInfo
+from omnibase_spi.protocols.file_handling import ProtocolFileTypeHandler
 
 @runtime_checkable
 class ProtocolHandlerInfo(Protocol):
@@ -95,7 +95,7 @@ class ProtocolHandlerInfo(Protocol):
 ### Node Discovery Registry Protocol
 
 ```python
-from omnibase.protocols.discovery import ProtocolNodeDiscoveryRegistry
+from omnibase_spi.protocols.discovery import ProtocolNodeDiscoveryRegistry
 
 @runtime_checkable
 class ProtocolNodeDiscoveryRegistry(Protocol):
@@ -165,7 +165,7 @@ class ProtocolNodeDiscoveryRegistry(Protocol):
 ### Core Discovery Types
 
 ```python
-from omnibase.protocols.types.discovery_types import (
+from omnibase_spi.protocols.types.discovery_types import (
     DiscoveryStatus,
     HandlerStatus,
     CapabilityValue,
@@ -240,7 +240,7 @@ class ProtocolHandlerRegistration(Protocol):
 ### Entry Point Discovery
 
 ```python
-from omnibase.protocols.discovery import (
+from omnibase_spi.protocols.discovery import (
     ProtocolHandlerDiscovery, 
     ProtocolNodeDiscoveryRegistry
 )
@@ -955,7 +955,7 @@ class ValidatedPluginDiscovery:
 async def setup_validated_plugin_discovery():
     """Set up plugin discovery with validation."""
     
-    from omnibase.protocols.file_handling import ProtocolFileTypeHandler
+    from omnibase_spi.protocols.file_handling import ProtocolFileTypeHandler
     
     registry: ProtocolNodeDiscoveryRegistry = NodeDiscoveryRegistryImpl()
     
@@ -989,7 +989,7 @@ async def setup_validated_plugin_discovery():
 ### File Handling Integration
 
 ```python
-from omnibase.protocols.file_handling import ProtocolFileTypeHandler
+from omnibase_spi.protocols.file_handling import ProtocolFileTypeHandler
 
 async def integrate_discovery_with_file_handling(
     registry: ProtocolNodeDiscoveryRegistry
@@ -1038,7 +1038,7 @@ async def integrate_discovery_with_file_handling(
 ### MCP Tool Integration
 
 ```python
-from omnibase.protocols.mcp import ProtocolMCPRegistry
+from omnibase_spi.protocols.mcp import ProtocolMCPRegistry
 
 async def integrate_discovery_with_mcp(
     registry: ProtocolNodeDiscoveryRegistry,

@@ -11,7 +11,7 @@ The core domain consists of system-level protocols that provide essential distri
 ### Cache Service Protocol
 
 ```python
-from omnibase.protocols.core import ProtocolCacheService, ProtocolCacheServiceProvider
+from omnibase_spi.protocols.core import ProtocolCacheService, ProtocolCacheServiceProvider
 from typing import Generic, TypeVar, Optional
 
 T = TypeVar("T")
@@ -158,7 +158,7 @@ class ProtocolCacheServiceProvider(Protocol, Generic[T]):
 ### Node Registry Protocol
 
 ```python
-from omnibase.protocols.core import ProtocolNodeRegistry, ProtocolNodeInfo
+from omnibase_spi.protocols.core import ProtocolNodeRegistry, ProtocolNodeInfo
 
 @runtime_checkable
 class ProtocolNodeRegistry(Protocol):
@@ -375,7 +375,7 @@ class ProtocolNodeRegistry(Protocol):
 ### Workflow Reducer Protocol
 
 ```python
-from omnibase.protocols.core import ProtocolWorkflowReducer
+from omnibase_spi.protocols.core import ProtocolWorkflowReducer
 
 @runtime_checkable
 class ProtocolWorkflowReducer(Protocol):
@@ -503,7 +503,7 @@ class ProtocolWorkflowReducer(Protocol):
 ### Node Configuration Protocol
 
 ```python
-from omnibase.protocols.core import (
+from omnibase_spi.protocols.core import (
     ProtocolNodeConfiguration, 
     ProtocolNodeConfigurationProvider,
     ProtocolUtilsNodeConfiguration
@@ -639,7 +639,7 @@ class ProtocolUtilsNodeConfiguration(Protocol):
 ### Core System Types
 
 ```python
-from omnibase.protocols.types.core_types import (
+from omnibase_spi.protocols.types.core_types import (
     HealthStatus,
     NodeType,
     ContextValue,
@@ -758,7 +758,7 @@ class ProtocolWatchHandle(Protocol):
 ### Basic Cache Service Usage
 
 ```python
-from omnibase.protocols.core import ProtocolCacheService
+from omnibase_spi.protocols.core import ProtocolCacheService
 
 class RedisCacheService:
     """Example Redis cache service implementation."""
@@ -891,7 +891,7 @@ async def use_cache_service():
 ### Node Registry Operations
 
 ```python
-from omnibase.protocols.core import ProtocolNodeRegistry
+from omnibase_spi.protocols.core import ProtocolNodeRegistry
 
 class ConsulNodeRegistry:
     """Example Consul-based node registry implementation."""
@@ -1129,7 +1129,7 @@ async def use_node_registry():
 ### Workflow Reducer Implementation
 
 ```python
-from omnibase.protocols.core import ProtocolWorkflowReducer
+from omnibase_spi.protocols.core import ProtocolWorkflowReducer
 
 class UserWorkflowReducer:
     """Example workflow reducer for user management."""
@@ -1771,7 +1771,7 @@ async def use_distributed_cache():
 ### Event Bus Integration
 
 ```python
-from omnibase.protocols.event_bus import ProtocolEventBus
+from omnibase_spi.protocols.event_bus import ProtocolEventBus
 
 class EventDrivenNodeRegistry:
     """Node registry that publishes events for node changes."""
@@ -1849,7 +1849,7 @@ class EventDrivenNodeRegistry:
 ### MCP Tool Integration
 
 ```python
-from omnibase.protocols.mcp import ProtocolMCPRegistry
+from omnibase_spi.protocols.mcp import ProtocolMCPRegistry
 
 class MCPAwareCacheService:
     """Cache service that can be controlled via MCP tools."""

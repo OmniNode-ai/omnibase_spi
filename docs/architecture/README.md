@@ -562,7 +562,7 @@ def validate_namespace_isolation(file_path: Path) -> list[str]:
     violations = []
     with open(file_path) as f:
         for line_no, line in enumerate(f, 1):
-            if "from omnibase.core" in line or "from omnibase.model" in line:
+            if "from omnibase_spi.core" in line or "from omnibase_spi.model" in line:
                 violations.append(f"{file_path}:{line_no}: Namespace violation")
     return violations
 ```
@@ -589,7 +589,7 @@ class ProtocolUserService(Protocol):
 # Forward references for circular dependencies
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from omnibase.protocols.types.workflow_types import WorkflowState
+    from omnibase_spi.protocols.types.workflow_types import WorkflowState
 
 def process_workflow(self, state: "WorkflowState") -> bool:
     """Use forward references to avoid circular imports."""

@@ -11,7 +11,7 @@ from typing import Any
 
 import pytest
 
-import omnibase.protocols
+import omnibase_spi.protocols
 
 
 def test_protocol_namespace_isolation() -> None:
@@ -22,7 +22,7 @@ def test_protocol_namespace_isolation() -> None:
 
     # Walk through all protocol modules
     for importer, modname, ispkg in pkgutil.walk_packages(
-        omnibase.protocols.__path__, prefix="omnibase.protocols."
+        omnibase_spi.protocols.__path__, prefix="omnibase_spi.protocols."
     ):
         if not ispkg:
             protocol_modules.append(modname)
@@ -49,7 +49,7 @@ def test_consolidated_types_available() -> None:
     """Test that consolidated types are properly available."""
     from typing import get_args
 
-    from omnibase.protocols.types import BaseStatus, HealthStatus, LogLevel
+    from omnibase_spi.protocols.types import BaseStatus, HealthStatus, LogLevel
 
     # Test BaseStatus has expected values
     base_status_values = get_args(BaseStatus)

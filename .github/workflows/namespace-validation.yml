@@ -55,12 +55,12 @@ jobs:
         import sys
         print('Testing import isolation...')
         
-        # Should be able to import omnibase.protocols without any external dependencies
-        from omnibase.protocols.types import LogLevel, ProtocolLogEntry
+        # Should be able to import omnibase_spi.protocols without any external dependencies
+        from omnibase_spi.protocols.types import LogLevel, ProtocolLogEntry
         
         # Verify no external omnibase modules are loaded
         external_modules = [name for name in sys.modules.keys() 
-                          if name.startswith('omnibase.') and not name.startswith('omnibase.protocols')]
+                          if name.startswith('omnibase_spi.') and not name.startswith('omnibase_spi.protocols')]
         
         if external_modules:
             print(f'FAILURE: External omnibase modules loaded: {external_modules}')

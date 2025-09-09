@@ -26,7 +26,7 @@ This guide helps you choose the right protocol for your specific use case within
 
 **Key Capabilities**:
 ```python
-from omnibase.protocols.container import ProtocolArtifactContainer
+from omnibase_spi.protocols.container import ProtocolArtifactContainer
 
 # Artifact management operations
 def get_status(self) -> ProtocolArtifactContainerStatus
@@ -77,7 +77,7 @@ class NodeArtifactLoader:
 
 **Key Capabilities**:
 ```python
-from omnibase.protocols.core import ProtocolNodeRegistry
+from omnibase_spi.protocols.core import ProtocolNodeRegistry
 
 # Node lifecycle management
 async def register_node(self, node_info: ProtocolNodeInfo, ttl_seconds: int = 30) -> bool
@@ -133,7 +133,7 @@ class DistributedOrchestrator:
 
 **Key Capabilities**:
 ```python
-from omnibase.protocols.discovery import ProtocolNodeDiscoveryRegistry
+from omnibase_spi.protocols.discovery import ProtocolNodeDiscoveryRegistry
 
 # Discovery source management
 def register_discovery_source(self, discovery: ProtocolHandlerDiscovery) -> None
@@ -178,7 +178,7 @@ class ExtensibleFileProcessor:
 
 **Protocol Definition**:
 ```python
-from omnibase.protocols.types.container_types import ProtocolServiceRegistry
+from omnibase_spi.protocols.types.container_types import ProtocolServiceRegistry
 
 class ProtocolServiceRegistry(Protocol):
     registry_id: str

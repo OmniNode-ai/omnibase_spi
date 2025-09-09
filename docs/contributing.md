@@ -348,14 +348,14 @@ ConfigValue = Any  # Too permissive
 # ✅ Good - forward references prevent circular imports
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from omnibase.protocols.types.user_types import User
+    from omnibase_spi.protocols.types.user_types import User
 
 @runtime_checkable
 class ProtocolUserService(Protocol):
     async def get_user(self, user_id: UUID) -> Optional["User"]: ...
 
 # ❌ Bad - direct imports can cause circular dependencies
-from omnibase.protocols.types.user_types import User  # May cause issues
+from omnibase_spi.protocols.types.user_types import User  # May cause issues
 ```
 
 ### Error Handling Guidelines
@@ -392,8 +392,8 @@ class ProtocolErrorInfo(Protocol):
 
 ```python
 # ✅ ALLOWED - SPI-only imports
-from omnibase.protocols.core import ProtocolLogger
-from omnibase.protocols.types.core_types import LogLevel, ContextValue
+from omnibase_spi.protocols.core import ProtocolLogger
+from omnibase_spi.protocols.types.core_types import LogLevel, ContextValue
 
 # ✅ ALLOWED - Standard library and typing
 from typing import Protocol, Optional, runtime_checkable
@@ -403,12 +403,12 @@ from datetime import datetime
 # ✅ ALLOWED - Forward references with TYPE_CHECKING
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from omnibase.protocols.types.workflow_types import WorkflowState
+    from omnibase_spi.protocols.types.workflow_types import WorkflowState
 
 # ❌ FORBIDDEN - Implementation library imports
 import redis                  # External implementation
 import sqlalchemy            # Database implementation  
-from omnibase.core import Logger  # Implementation package
+from omnibase_spi.core import Logger  # Implementation package
 
 # ❌ FORBIDDEN - Concrete implementations
 class ConcreteUserService:   # Implementation, not protocol
@@ -507,9 +507,9 @@ class TestDatabaseUserService(UserServiceComplianceTests):
 def test_protocol_imports_no_implementation_dependencies():
     """Verify protocols don't import implementation packages."""
     # This test should pass if SPI purity is maintained
-    from omnibase.protocols.core import ProtocolLogger
-    from omnibase.protocols.workflow_orchestration import ProtocolWorkflowEventBus
-    from omnibase.protocols.mcp import ProtocolMCPRegistry
+    from omnibase_spi.protocols.core import ProtocolLogger
+    from omnibase_spi.protocols.workflow_orchestration import ProtocolWorkflowEventBus
+    from omnibase_spi.protocols.mcp import ProtocolMCPRegistry
     
     # Verify protocols are runtime checkable
     assert hasattr(ProtocolLogger, '__runtime_checkable__')
@@ -518,9 +518,9 @@ def test_protocol_imports_no_implementation_dependencies():
 
 def test_type_definitions_are_importable():
     """Verify type definitions can be imported."""
-    from omnibase.protocols.types.core_types import LogLevel, ContextValue
-    from omnibase.protocols.types.workflow_orchestration_types import WorkflowState
-    from omnibase.protocols.types.mcp_types import MCPToolType
+    from omnibase_spi.protocols.types.core_types import LogLevel, ContextValue
+    from omnibase_spi.protocols.types.workflow_orchestration_types import WorkflowState
+    from omnibase_spi.protocols.types.mcp_types import MCPToolType
     
     # Verify type constraints work
     assert "INFO" in LogLevel.__args__
