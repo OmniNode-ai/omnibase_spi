@@ -1,4 +1,6 @@
-# ONEX Service Provider Interface (omnibase-spi)
+# ONEX Service Provider Interface (omnibase_spi)
+
+> **📦 Package Renamed**: This package has been renamed from `omnibase-spi` to `omnibase_spi` to follow Python naming conventions. See [MIGRATION.md](./MIGRATION.md) for upgrade instructions.
 
 Pure protocol interfaces for the ONEX framework with zero implementation dependencies.
 

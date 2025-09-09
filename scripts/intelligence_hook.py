@@ -4,7 +4,18 @@ Intelligence hook for git operations.
 
 This script provides a secure placeholder for git hook requirements.
 It performs minimal operations and validates input parameters to prevent
-security issues.
+security issues. Designed for integration with omnibase-spi CI/CD workflows.
+
+Security Features:
+- Environment validation (git repo, project structure)  
+- Argument sanitization (prevents shell injection)
+- Minimal permissions and safe execution
+- Error handling with appropriate exit codes
+
+Integration Points:
+- Called by git hooks during push/commit operations
+- Integrates with CI/CD pipeline for automated analysis  
+- Provides consistent exit codes for workflow decisions
 """
 
 import os
