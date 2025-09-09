@@ -46,7 +46,7 @@ class ProtocolUserService(Protocol):
         ...
 
 # Implementation (Separate Package)
-from omnibase.protocols.user import ProtocolUserService
+from omnibase_spi.protocols.user import ProtocolUserService
 
 class DatabaseUserService(ProtocolUserService):
     """Database-backed user service implementation."""
@@ -73,7 +73,7 @@ class ProtocolEventBus(Protocol):
     async def subscribe(self, handler: Callable) -> None: ...
 
 # ✅ Implementation Layer - Concrete implementations  
-from omnibase.protocols.event_bus import ProtocolEventBus
+from omnibase_spi.protocols.event_bus import ProtocolEventBus
 
 class RedisEventBus(ProtocolEventBus):
     def __init__(self, redis_client):
@@ -100,16 +100,16 @@ The omnibase-spi maintains strict namespace isolation:
 
 ```python
 # ✅ ALLOWED - SPI-only imports
-from omnibase.protocols.core import ProtocolLogger
-from omnibase.protocols.types.core_types import LogLevel
+from omnibase_spi.protocols.core import ProtocolLogger
+from omnibase_spi.protocols.types.core_types import LogLevel
 
 # ✅ ALLOWED - Forward references with TYPE_CHECKING
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from omnibase.protocols.types.workflow_types import WorkflowState
+    from omnibase_spi.protocols.types.workflow_types import WorkflowState
 
 # ❌ FORBIDDEN - Implementation imports
-from omnibase.core.services import LoggerService  # Breaks SPI purity
+from omnibase_spi.core.services import LoggerService  # Breaks SPI purity
 from redis import Redis  # External implementation dependency
 ```
 
@@ -135,7 +135,7 @@ cd omnibase-spi
 poetry install
 
 # Verify installation
-poetry run python -c "import omnibase.protocols; print('✅ Installation successful')"
+poetry run python -c "import omnibase_spi.protocols; print('✅ Installation successful')"
 ```
 
 #### 2. Development Dependencies
@@ -222,7 +222,7 @@ from typing import Optional, Protocol, runtime_checkable, TYPE_CHECKING
 from uuid import UUID
 
 if TYPE_CHECKING:
-    from omnibase.protocols.types.example_types import User, UserFilter
+    from omnibase_spi.protocols.types.example_types import User, UserFilter
 
 @runtime_checkable
 class ProtocolUserService(Protocol):
@@ -402,8 +402,8 @@ __all__ = [
 # tests/test_user_service_protocol.py
 import pytest
 from uuid import uuid4
-from omnibase.protocols.example import ProtocolUserService
-from omnibase.protocols.types.example_types import User, UserFilter
+from omnibase_spi.protocols.example import ProtocolUserService
+from omnibase_spi.protocols.types.example_types import User, UserFilter
 
 class MockUser(User):
     """Test user implementation."""
@@ -633,7 +633,7 @@ class ExternalUserServiceAdapter(ProtocolUserService):
 ### Event Sourcing with Protocols
 
 ```python
-from omnibase.protocols.workflow_orchestration import (
+from omnibase_spi.protocols.workflow_orchestration import (
     ProtocolWorkflowEventBus,
     ProtocolWorkflowEventHandler
 )
@@ -806,7 +806,7 @@ class CompositeUserManager:
 
 ```python
 from fastapi import FastAPI, Depends, HTTPException
-from omnibase.protocols.example import ProtocolUserService
+from omnibase_spi.protocols.example import ProtocolUserService
 
 app = FastAPI()
 
@@ -853,7 +853,7 @@ async def get_user(
 ```python
 # django_integration/protocols.py
 from django.conf import settings
-from omnibase.protocols.example import ProtocolUserService
+from omnibase_spi.protocols.example import ProtocolUserService
 from .services import DjangoUserService
 
 def get_user_service() -> ProtocolUserService:
@@ -894,7 +894,7 @@ async def create_user(request):
 import pytest
 from abc import ABC
 from typing import get_args
-from omnibase.protocols.example import ProtocolUserService
+from omnibase_spi.protocols.example import ProtocolUserService
 
 class UserServiceComplianceTests(ABC):
     """Abstract test suite for user service protocol compliance."""
@@ -1404,12 +1404,12 @@ class UserService(ProtocolUserService):
 
 ```python
 # Problem: Circular imports with TYPE_CHECKING
-from omnibase.protocols.types.user_types import User  # Circular import
+from omnibase_spi.protocols.types.user_types import User  # Circular import
 
 # Solution: Use TYPE_CHECKING for forward references
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from omnibase.protocols.types.user_types import User
+    from omnibase_spi.protocols.types.user_types import User
 
 async def get_user(self, user_id: UUID) -> Optional["User"]:  # Forward ref
     ...

@@ -13,7 +13,7 @@ The omnibase-core repository was created by selectively migrating foundational c
 ### Current Issue
 Both omnibase-spi and omnibase-core use the `omnibase` namespace, causing import conflicts:
 - omnibase-spi: `from omnibase import protocols`  
-- omnibase-core: `from omnibase.core import ModelNodeBase`
+- omnibase-core: `from omnibase_spi.core import ModelNodeBase`
 
 ### Planned Resolution
 - **omnibase-spi**: Keep `omnibase` namespace
@@ -22,7 +22,7 @@ Both omnibase-spi and omnibase-core use the `omnibase` namespace, causing import
 ### New Import Patterns (After Migration)
 ```python
 # omnibase-spi (unchanged)
-from omnibase.protocols.core import ProtocolWorkflowReducer
+from omnibase_spi.protocols.core import ProtocolWorkflowReducer
 
 # omnibase-core (new)
 from omnibase_core.core import ModelNodeBase
@@ -69,7 +69,7 @@ class ModelNodeBase(
 
 **Core Node & System Enums:**
 ```python
-from omnibase.enums import (
+from omnibase_spi.enums import (
     EnumNodeType,        # Node classification (compute, reducer, orchestrator, effect)
     EnumNodeStatus,      # Node operational states
     EnumHealthStatus,    # Health monitoring states
@@ -78,7 +78,7 @@ from omnibase.enums import (
 
 **Event & Execution Enums:**
 ```python  
-from omnibase.enums import (
+from omnibase_spi.enums import (
     EnumEventType,       # Event classification system
     EnumExecutionMode,   # Execution strategy options
     EnumOperationStatus, # Operation result states
@@ -87,7 +87,7 @@ from omnibase.enums import (
 
 **Error Handling & Validation Enums:**
 ```python
-from omnibase.enums import (
+from omnibase_spi.enums import (
     EnumErrorSeverity,   # Error severity levels
     EnumValidationLevel, # Validation depth levels  
     EnumValidationMode,  # Validation strategy modes
@@ -96,7 +96,7 @@ from omnibase.enums import (
 
 **Logging Enum:**
 ```python
-from omnibase.enums import EnumLogLevel  # Logging level definitions
+from omnibase_spi.enums import EnumLogLevel  # Logging level definitions
 ```
 
 ### **Benefits of Shared Enum Architecture:**
@@ -111,7 +111,7 @@ from omnibase.enums import EnumLogLevel  # Logging level definitions
 from omnibase_core.enums.enum_node_type import EnumNodeType
 
 # After (shared from SPI)
-from omnibase.enums.enum_node_type import EnumNodeType
+from omnibase_spi.enums.enum_node_type import EnumNodeType
 ```
 
 ## Migrated Components from omnibase_3
@@ -185,8 +185,8 @@ from omnibase.enums.enum_node_type import EnumNodeType
 
 ### Before (omnibase_3):
 ```python
-from omnibase.core.models.model_semver import ModelSemVer
-from omnibase.core.models.model_core_errors import CoreErrorCode
+from omnibase_spi.core.models.model_semver import ModelSemVer
+from omnibase_spi.core.models.model_core_errors import CoreErrorCode
 ```
 
 ### After (omnibase-core):
@@ -202,7 +202,7 @@ The following protocols are referenced but need omnibase-spi integration:
 
 ```python
 # Currently imported from omnibase-spi
-from omnibase.protocols.core import (
+from omnibase_spi.protocols.core import (
     ProtocolWorkflowReducer,
     ProtocolEventBus,  
     ProtocolRegistry,
@@ -215,16 +215,16 @@ from omnibase.protocols.core import (
 ### 2. Core Infrastructure Services
 ```python
 # Base service classes that extend SPI protocols
-NodeEffectService -> extends omnibase.protocols
-NodeComputeService -> extends omnibase.protocols  
-NodeReducerService -> extends omnibase.protocols
-NodeOrchestratorService -> extends omnibase.protocols
+NodeEffectService -> extends omnibase_spi.protocols
+NodeComputeService -> extends omnibase_spi.protocols  
+NodeReducerService -> extends omnibase_spi.protocols
+NodeOrchestratorService -> extends omnibase_spi.protocols
 ```
 
 ### 3. Event Bus Integration
 ```python
 # Requires event bus protocol from omnibase-spi
-from omnibase.protocols.event_bus import ProtocolEventBus
+from omnibase_spi.protocols.event_bus import ProtocolEventBus
 ```
 
 ## Implementation Status
@@ -319,7 +319,7 @@ The ProtocolEventBus has been enhanced to support the ONEX Messaging Design v0.3
 
 **New Protocol Structure:**
 ```python
-from omnibase.protocols.event_bus import (
+from omnibase_spi.protocols.event_bus import (
     EventBusAdapter,           # Abstract adapter base class
     EventMessage,              # Standardized message format
     ProtocolEventBus,          # Enhanced event bus protocol
@@ -339,7 +339,7 @@ from omnibase.protocols.event_bus import (
 **ProtocolNodeRegistry** enables distributed node coordination:
 
 ```python
-from omnibase.protocols.core import (
+from omnibase_spi.protocols.core import (
     ProtocolNodeRegistry,      # Node discovery and registration
     ProtocolNodeInfo,          # Node metadata and health
     ProtocolWorkflowReducer,   # LlamaIndex workflow integration

@@ -41,8 +41,8 @@ Protocols compose in layers from local to distributed:
 **Use Case**: Single-machine development with local file processing
 
 ```python
-from omnibase.protocols.container import ProtocolArtifactContainer
-from omnibase.protocols.discovery import ProtocolNodeDiscoveryRegistry
+from omnibase_spi.protocols.container import ProtocolArtifactContainer
+from omnibase_spi.protocols.discovery import ProtocolNodeDiscoveryRegistry
 
 class LocalDevelopmentStack:
     """Simple composition for local development."""
@@ -98,10 +98,10 @@ dev_stack.initialize()
 **Use Case**: Multi-node production system with service coordination
 
 ```python
-from omnibase.protocols.core import ProtocolNodeRegistry
-from omnibase.protocols.container import ProtocolArtifactContainer
-from omnibase.protocols.discovery import ProtocolNodeDiscoveryRegistry
-from omnibase.protocols.types.container_types import ProtocolServiceRegistry
+from omnibase_spi.protocols.core import ProtocolNodeRegistry
+from omnibase_spi.protocols.container import ProtocolArtifactContainer
+from omnibase_spi.protocols.discovery import ProtocolNodeDiscoveryRegistry
+from omnibase_spi.protocols.types.container_types import ProtocolServiceRegistry
 
 class DistributedProductionStack:
     """Full-featured composition for production deployment."""

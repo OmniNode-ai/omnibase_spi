@@ -714,11 +714,11 @@ class ProtocolWorkflowNodeRegistry(Protocol):
 ### Basic Workflow Event Handling
 
 ```python
-from omnibase.protocols.workflow_orchestration import (
+from omnibase_spi.protocols.workflow_orchestration import (
     ProtocolWorkflowEventBus,
     ProtocolWorkflowEventHandler
 )
-from omnibase.protocols.types.workflow_orchestration_types import (
+from omnibase_spi.protocols.types.workflow_orchestration_types import (
     ProtocolWorkflowEvent
 )
 
@@ -760,7 +760,7 @@ async def setup_workflow_processing(event_bus: ProtocolWorkflowEventBus):
 ```python
 from uuid import uuid4
 from datetime import datetime
-from omnibase.protocols.types.workflow_orchestration_types import (
+from omnibase_spi.protocols.types.workflow_orchestration_types import (
     ProtocolWorkflowEvent, WorkflowEventType
 )
 
@@ -804,7 +804,7 @@ async def publish_workflow_started(
 ### State Reconstruction
 
 ```python
-from omnibase.protocols.workflow_orchestration import ProtocolWorkflowPersistence
+from omnibase_spi.protocols.workflow_orchestration import ProtocolWorkflowPersistence
 
 async def recover_workflow_state(
     persistence: ProtocolWorkflowPersistence,
@@ -826,7 +826,7 @@ async def recover_workflow_state(
 ### Task Coordination
 
 ```python
-from omnibase.protocols.workflow_orchestration import ProtocolWorkflowNodeRegistry
+from omnibase_spi.protocols.workflow_orchestration import ProtocolWorkflowNodeRegistry
 
 async def schedule_tasks(
     node_registry: ProtocolWorkflowNodeRegistry,

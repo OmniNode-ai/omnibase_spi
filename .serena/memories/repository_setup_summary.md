@@ -127,7 +127,7 @@ git commit -m "Description"  # Hooks run automatically
 - Proper generic type parameters
 
 ### Import Standards
-- Only omnibase.protocols.* imports allowed
+- Only omnibase_spi.protocols.* imports allowed
 - No external omnibase module dependencies
 - No implementation library imports
 - Proper TYPE_CHECKING guards for forward references

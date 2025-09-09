@@ -11,8 +11,8 @@ The event bus domain consists of multiple specialized protocols that work togeth
 ### Core Event Bus Protocol
 
 ```python
-from omnibase.protocols.event_bus import ProtocolEventBus
-from omnibase.protocols.types.event_bus_types import EventMessage, EventMetadata
+from omnibase_spi.protocols.event_bus import ProtocolEventBus
+from omnibase_spi.protocols.types.event_bus_types import EventMessage, EventMetadata
 
 @runtime_checkable
 class ProtocolEventBus(Protocol):
@@ -87,7 +87,7 @@ class ProtocolEventBus(Protocol):
 ### Kafka Adapter Protocol
 
 ```python
-from omnibase.protocols.event_bus import ProtocolKafkaAdapter
+from omnibase_spi.protocols.event_bus import ProtocolKafkaAdapter
 
 @runtime_checkable 
 class ProtocolKafkaAdapter(Protocol):
@@ -139,7 +139,7 @@ class ProtocolKafkaAdapter(Protocol):
 ### Redpanda Adapter Protocol
 
 ```python
-from omnibase.protocols.event_bus import ProtocolRedpandaAdapter
+from omnibase_spi.protocols.event_bus import ProtocolRedpandaAdapter
 
 @runtime_checkable
 class ProtocolRedpandaAdapter(Protocol):
@@ -180,7 +180,7 @@ class ProtocolRedpandaAdapter(Protocol):
 ### Core Event Types
 
 ```python
-from omnibase.protocols.types.event_bus_types import (
+from omnibase_spi.protocols.types.event_bus_types import (
     EventMessage,
     EventMetadata, 
     SecurityContext,
@@ -274,8 +274,8 @@ class SecurityContext:
 ### Basic Event Publishing
 
 ```python
-from omnibase.protocols.event_bus import ProtocolEventBus
-from omnibase.protocols.types.event_bus_types import EventMessage, EventMetadata
+from omnibase_spi.protocols.event_bus import ProtocolEventBus
+from omnibase_spi.protocols.types.event_bus_types import EventMessage, EventMetadata
 
 async def publish_user_created_event(
     event_bus: ProtocolEventBus,
@@ -375,7 +375,7 @@ async def setup_environment_routing(
 ### Workflow Orchestration Integration
 
 ```python
-from omnibase.protocols.workflow_orchestration import ProtocolWorkflowEventBus
+from omnibase_spi.protocols.workflow_orchestration import ProtocolWorkflowEventBus
 
 # Workflow-specific event bus extends the base event bus
 class WorkflowEventBusIntegration:
@@ -410,7 +410,7 @@ class WorkflowEventBusIntegration:
 ### MCP Integration
 
 ```python
-from omnibase.protocols.mcp import ProtocolMCPRegistry
+from omnibase_spi.protocols.mcp import ProtocolMCPRegistry
 
 async def integrate_mcp_events(
     event_bus: ProtocolEventBus,
@@ -586,7 +586,7 @@ async def send_to_dead_letter_queue(
 ### Protocol Compliance Testing
 
 ```python
-from omnibase.protocols.event_bus import ProtocolEventBus
+from omnibase_spi.protocols.event_bus import ProtocolEventBus
 
 class TestEventBusCompliance:
     """Test suite for event bus protocol compliance."""

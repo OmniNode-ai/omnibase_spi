@@ -92,7 +92,7 @@ src/omnibase/protocols/
 ## Key Architectural Patterns
 
 ### Namespace Isolation
-- **Strict Imports**: Only `from omnibase.protocols.*` allowed
+- **Strict Imports**: Only `from omnibase_spi.protocols.*` allowed
 - **No External Dependencies**: No imports from omnibase-core or other packages
 - **Forward References**: Use `TYPE_CHECKING` for external model types
 

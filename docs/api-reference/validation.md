@@ -11,7 +11,7 @@ The validation domain consists of specialized protocols that provide complete va
 ### Validation Error Protocol
 
 ```python
-from omnibase.protocols.validation import ProtocolValidationError
+from omnibase_spi.protocols.validation import ProtocolValidationError
 
 @runtime_checkable
 class ProtocolValidationError(Protocol):
@@ -47,7 +47,7 @@ class ProtocolValidationError(Protocol):
 ### Validation Result Protocol
 
 ```python
-from omnibase.protocols.validation import ProtocolValidationResult
+from omnibase_spi.protocols.validation import ProtocolValidationResult
 
 @runtime_checkable
 class ProtocolValidationResult(Protocol):
@@ -118,7 +118,7 @@ class ProtocolValidationResult(Protocol):
 ### Validation Protocol
 
 ```python
-from omnibase.protocols.validation import ProtocolValidator
+from omnibase_spi.protocols.validation import ProtocolValidator
 
 @runtime_checkable
 class ProtocolValidator(Protocol):
@@ -167,7 +167,7 @@ class ProtocolValidator(Protocol):
 ### Validation Decorator Protocol
 
 ```python
-from omnibase.protocols.validation import ProtocolValidationDecorator
+from omnibase_spi.protocols.validation import ProtocolValidationDecorator
 
 @runtime_checkable
 class ProtocolValidationDecorator(Protocol):
@@ -285,8 +285,8 @@ class ValidationMetrics(TypedDict):
 ### Basic Protocol Validation
 
 ```python
-from omnibase.protocols.validation import ProtocolValidator
-from omnibase.protocols.file_handling import ProtocolFileTypeHandler
+from omnibase_spi.protocols.validation import ProtocolValidator
+from omnibase_spi.protocols.file_handling import ProtocolFileTypeHandler
 
 class BasicProtocolValidator:
     """Example implementation of protocol validator."""
@@ -1376,7 +1376,7 @@ async def use_custom_validation_rules():
 ### Event Bus Integration
 
 ```python
-from omnibase.protocols.event_bus import ProtocolEventBus
+from omnibase_spi.protocols.event_bus import ProtocolEventBus
 
 class EventDrivenValidator:
     """Validator that publishes validation events."""
@@ -1454,7 +1454,7 @@ class EventDrivenValidator:
 ### Discovery Integration
 
 ```python
-from omnibase.protocols.discovery import ProtocolNodeDiscoveryRegistry
+from omnibase_spi.protocols.discovery import ProtocolNodeDiscoveryRegistry
 
 async def validate_discovered_handlers(
     discovery_registry: ProtocolNodeDiscoveryRegistry,

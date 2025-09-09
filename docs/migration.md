@@ -106,7 +106,7 @@ class ProtocolUsageAnalyzer(ast.NodeVisitor):
         self.protocol_usage = []
     
     def visit_ImportFrom(self, node):
-        if node.module and "omnibase.protocols" in node.module:
+        if node.module and "omnibase_spi.protocols" in node.module:
             for alias in node.names:
                 self.protocol_imports.append({
                     'module': node.module,

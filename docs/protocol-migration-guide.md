@@ -25,10 +25,10 @@ This guide helps you migrate from the old protocol naming conventions to the new
 **Step 1: Update Import Statements**
 ```python
 # OLD - Before migration
-from omnibase.protocols.core.protocol_registry import ProtocolRegistry
+from omnibase_spi.protocols.core.protocol_registry import ProtocolRegistry
 
 # NEW - After migration  
-from omnibase.protocols.container.protocol_artifact_container import ProtocolArtifactContainer
+from omnibase_spi.protocols.container.protocol_artifact_container import ProtocolArtifactContainer
 ```
 
 **Step 2: Update Type Annotations**
@@ -81,10 +81,10 @@ This migration requires architectural changes to support the new discovery patte
 **Step 1: Update Core Import**
 ```python
 # OLD - Direct handler registry
-from omnibase.protocols.handler.protocol_handler_registry import ProtocolHandlerRegistry
+from omnibase_spi.protocols.handler.protocol_handler_registry import ProtocolHandlerRegistry
 
 # NEW - Discovery-based node registry
-from omnibase.protocols.discovery.protocol_handler_discovery import (
+from omnibase_spi.protocols.discovery.protocol_handler_discovery import (
     ProtocolNodeDiscoveryRegistry,
     ProtocolHandlerDiscovery
 )
@@ -205,7 +205,7 @@ def migrate_handler_registry():
 
 ```python
 # Add when implementing distributed node coordination
-from omnibase.protocols.core.protocol_node_registry import (
+from omnibase_spi.protocols.core.protocol_node_registry import (
     ProtocolNodeRegistry,
     ProtocolNodeInfo
 )
@@ -234,7 +234,7 @@ class DistributedSystem:
 
 ```python
 # Add for service registry monitoring
-from omnibase.protocols.types.container_types import ProtocolServiceRegistry
+from omnibase_spi.protocols.types.container_types import ProtocolServiceRegistry
 
 class ServiceMonitor:
     def __init__(self, registry: ProtocolServiceRegistry):
@@ -412,10 +412,10 @@ class TestE2EMigration:
 
 **Issue**: Import errors after migration
 ```python
-# Error: ModuleNotFoundError: No module named 'omnibase.protocols.core.protocol_registry'
+# Error: ModuleNotFoundError: No module named 'omnibase_spi.protocols.core.protocol_registry'
 
 # Solution: Update import paths
-from omnibase.protocols.container.protocol_artifact_container import ProtocolArtifactContainer
+from omnibase_spi.protocols.container.protocol_artifact_container import ProtocolArtifactContainer
 ```
 
 **Issue**: Handler discovery not finding expected handlers

@@ -86,7 +86,7 @@ git push origin branch-name
 ## Validation Requirements
 
 ### 1. Namespace Isolation Validation
-- ✅ No external omnibase imports (only omnibase.protocols.* allowed)
+- ✅ No external omnibase imports (only omnibase_spi.protocols.* allowed)
 - ✅ All protocol imports self-contained
 - ✅ No circular dependencies
 - ✅ Package can be installed independently
@@ -116,11 +116,11 @@ git push origin branch-name
 ### 1. Namespace Isolation Violations
 ```bash
 # Check for forbidden imports
-grep -r "from omnibase\." src/ | grep -v "from omnibase.protocols"
+grep -r "from omnibase\." src/ | grep -v "from omnibase_spi.protocols"
 
 # Fix by changing to protocol imports
-# WRONG: from omnibase.core import SomeClass
-# RIGHT: from omnibase.protocols.core.protocol_name import ProtocolName
+# WRONG: from omnibase_spi.core import SomeClass
+# RIGHT: from omnibase_spi.protocols.core.protocol_name import ProtocolName
 ```
 
 ### 2. SPI Purity Violations
@@ -178,9 +178,9 @@ source /tmp/test-env/bin/activate
 pip install dist/*.whl
 python -c "
 import sys
-from omnibase.protocols.types import LogLevel
+from omnibase_spi.protocols.types import LogLevel
 external_modules = [name for name in sys.modules.keys() 
-                   if name.startswith('omnibase.') and not name.startswith('omnibase.protocols')]
+                   if name.startswith('omnibase_spi.') and not name.startswith('omnibase_spi.protocols')]
 assert len(external_modules) == 0, f'External modules: {external_modules}'
 print('✅ Installation isolation test passed!')
 "

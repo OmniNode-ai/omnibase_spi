@@ -603,8 +603,8 @@ class ProtocolMCPMonitor(Protocol):
 ### Subsystem Registration
 
 ```python
-from omnibase.protocols.mcp import ProtocolMCPRegistry
-from omnibase.protocols.types.mcp_types import (
+from omnibase_spi.protocols.mcp import ProtocolMCPRegistry
+from omnibase_spi.protocols.types.mcp_types import (
     ProtocolMCPSubsystemMetadata,
     ProtocolMCPToolDefinition,
     ProtocolMCPToolParameter

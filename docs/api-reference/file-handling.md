@@ -11,8 +11,8 @@ The file handling domain consists of specialized protocols that provide complete
 ### File Type Handler Protocol
 
 ```python
-from omnibase.protocols.file_handling import ProtocolFileTypeHandler
-from omnibase.protocols.types.file_handling_types import (
+from omnibase_spi.protocols.file_handling import ProtocolFileTypeHandler
+from omnibase_spi.protocols.types.file_handling_types import (
     ProtocolCanHandleResult,
     ProtocolExtractedBlock,
     ProtocolSerializedBlock,
@@ -227,7 +227,7 @@ class ProtocolValidationOptions(Protocol):
 ### Core File Handling Types
 
 ```python
-from omnibase.protocols.types.file_handling_types import (
+from omnibase_spi.protocols.types.file_handling_types import (
     FileOperation,
     FileStatus,
     ProcessingStatus,
@@ -308,7 +308,7 @@ class ProtocolFileFilter(Protocol):
 ### Handler-Specific Types
 
 ```python
-from omnibase.protocols.types.file_handling_types import (
+from omnibase_spi.protocols.types.file_handling_types import (
     ProtocolCanHandleResult,
     ProtocolHandlerMetadata,
     ProtocolExtractedBlock,
@@ -424,7 +424,7 @@ class ProtocolResultOperations(Protocol):
 ### Basic File Handler Implementation
 
 ```python
-from omnibase.protocols.file_handling import ProtocolFileTypeHandler
+from omnibase_spi.protocols.file_handling import ProtocolFileTypeHandler
 from pathlib import Path
 import re
 
@@ -1397,7 +1397,7 @@ async def setup_processing_pipeline():
 ### Discovery Integration
 
 ```python
-from omnibase.protocols.discovery import ProtocolNodeDiscoveryRegistry
+from omnibase_spi.protocols.discovery import ProtocolNodeDiscoveryRegistry
 
 async def integrate_file_handling_with_discovery(
     discovery_registry: ProtocolNodeDiscoveryRegistry
@@ -1426,7 +1426,7 @@ async def integrate_file_handling_with_discovery(
 ### Event Bus Integration
 
 ```python
-from omnibase.protocols.event_bus import ProtocolEventBus
+from omnibase_spi.protocols.event_bus import ProtocolEventBus
 
 class EventDrivenFileProcessor:
     """File processor that publishes events."""

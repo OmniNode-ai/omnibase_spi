@@ -28,10 +28,10 @@ poetry install
 
 ```bash
 # Test basic import
-python -c "from omnibase.protocols.core import ProtocolLogger; print('✅ Installation successful')"
+python -c "from omnibase_spi.protocols.core import ProtocolLogger; print('✅ Installation successful')"
 
 # Check available protocols
-python -c "from omnibase.protocols import *; print('✅ All protocols imported')"
+python -c "from omnibase_spi.protocols import *; print('✅ All protocols imported')"
 ```
 
 ## 5-Minute Example: User Service
@@ -45,8 +45,8 @@ Let's create a simple user service to demonstrate the key concepts.
 from typing import Optional
 from uuid import UUID, uuid4
 from datetime import datetime
-from omnibase.protocols.core import ProtocolLogger
-from omnibase.protocols.types.core_types import LogLevel, ContextValue
+from omnibase_spi.protocols.core import ProtocolLogger
+from omnibase_spi.protocols.types.core_types import LogLevel, ContextValue
 
 # First, let's create a simple user data structure
 class User:
@@ -261,7 +261,7 @@ Expected output:
 ### 1. Protocol Usage
 ```python
 # We used the existing logger protocol
-from omnibase.protocols.core import ProtocolLogger
+from omnibase_spi.protocols.core import ProtocolLogger
 
 # Our service accepts any logger implementation
 def __init__(self, logger: ProtocolLogger):
@@ -310,7 +310,7 @@ Try using other protocols from omnibase-spi:
 
 ```python
 # Caching example
-from omnibase.protocols.core import ProtocolCacheService
+from omnibase_spi.protocols.core import ProtocolCacheService
 
 class CachedUserService:
     def __init__(
@@ -485,10 +485,10 @@ async def test_user_creation():
 #### Import Errors
 ```python
 # ❌ Wrong import
-from omnibase.protocols.core.protocol_logger import ProtocolLogger
+from omnibase_spi.protocols.core.protocol_logger import ProtocolLogger
 
 # ✅ Correct import  
-from omnibase.protocols.core import ProtocolLogger
+from omnibase_spi.protocols.core import ProtocolLogger
 ```
 
 #### Type Checking Errors

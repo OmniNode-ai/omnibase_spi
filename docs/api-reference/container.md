@@ -11,8 +11,8 @@ The container domain consists of specialized protocols that provide complete dep
 ### Service Registry Protocol
 
 ```python
-from omnibase.protocols.container import ProtocolServiceRegistry
-from omnibase.protocols.types.core_types import ServiceMetadata, HealthStatus
+from omnibase_spi.protocols.container import ProtocolServiceRegistry
+from omnibase_spi.protocols.types.core_types import ServiceMetadata, HealthStatus
 
 @runtime_checkable
 class ProtocolServiceRegistry(Protocol):
@@ -100,8 +100,8 @@ class ProtocolServiceRegistry(Protocol):
 ### Artifact Container Protocol
 
 ```python
-from omnibase.protocols.container import ProtocolArtifactContainer
-from omnibase.protocols.types.core_types import ArtifactMetadata, ArtifactStatus
+from omnibase_spi.protocols.container import ProtocolArtifactContainer
+from omnibase_spi.protocols.types.core_types import ArtifactMetadata, ArtifactStatus
 
 @runtime_checkable
 class ProtocolArtifactContainer(Protocol):
@@ -198,7 +198,7 @@ class ProtocolArtifactContainer(Protocol):
 ### Core Container Types
 
 ```python
-from omnibase.protocols.types.container_types import (
+from omnibase_spi.protocols.types.container_types import (
     ServiceScope,
     ServiceMetadata,
     ArtifactMetadata,
@@ -300,8 +300,8 @@ class DependencyGraph:
 ### Basic Service Registration
 
 ```python
-from omnibase.protocols.container import ProtocolServiceRegistry
-from omnibase.protocols.event_bus import ProtocolEventBus
+from omnibase_spi.protocols.container import ProtocolServiceRegistry
+from omnibase_spi.protocols.event_bus import ProtocolEventBus
 
 async def setup_basic_dependency_injection(
     registry: ProtocolServiceRegistry
@@ -370,7 +370,7 @@ async def resolve_services_with_health_monitoring(
 ### Artifact Management
 
 ```python
-from omnibase.protocols.container import ProtocolArtifactContainer
+from omnibase_spi.protocols.container import ProtocolArtifactContainer
 
 async def manage_plugin_artifacts(
     container: ProtocolArtifactContainer
@@ -567,7 +567,7 @@ async def implement_scope_management(
 ### Event Bus Integration
 
 ```python
-from omnibase.protocols.event_bus import ProtocolEventBus
+from omnibase_spi.protocols.event_bus import ProtocolEventBus
 
 async def integrate_container_with_event_bus(
     registry: ProtocolServiceRegistry,
@@ -617,7 +617,7 @@ async def integrate_container_with_event_bus(
 ### MCP Tool Registry Integration
 
 ```python
-from omnibase.protocols.mcp import ProtocolMCPRegistry
+from omnibase_spi.protocols.mcp import ProtocolMCPRegistry
 
 async def integrate_container_with_mcp_registry(
     registry: ProtocolServiceRegistry,
@@ -665,7 +665,7 @@ async def integrate_container_with_mcp_registry(
 
 ```python
 import pytest
-from omnibase.protocols.container import ProtocolServiceRegistry
+from omnibase_spi.protocols.container import ProtocolServiceRegistry
 
 class TestServiceRegistryCompliance:
     """Test suite for service registry protocol compliance."""

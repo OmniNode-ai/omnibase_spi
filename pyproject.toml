@@ -1,5 +1,5 @@
 [project]
-name = "omnibase-spi"
+name = "omnibase_spi"
 version = "0.1.0"
 description = "ONEX Service Provider Interface - Protocol definitions"
 authors = [{name = "OmniNode Team", email = "team@omninode.ai"}]
@@ -21,7 +21,7 @@ dependencies = [
 ]
 
 [tool.poetry]
-packages = [{include = "omnibase", from = "src"}]
+packages = [{include = "omnibase_spi", from = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.12"

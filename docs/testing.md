@@ -73,8 +73,8 @@ Create abstract test suites that verify protocol contracts:
 from abc import ABC
 import pytest
 from typing import get_args
-from omnibase.protocols.core import ProtocolUserService
-from omnibase.protocols.types.core_types import UserStatus
+from omnibase_spi.protocols.core import ProtocolUserService
+from omnibase_spi.protocols.types.core_types import UserStatus
 
 class UserServiceComplianceTests(ABC):
     """

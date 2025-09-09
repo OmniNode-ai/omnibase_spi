@@ -54,7 +54,7 @@ poetry run pre-commit run validate-namespace-isolation --all-files
 poetry run pre-commit run validate-no-deprecated --all-files
 
 # Quick namespace isolation check
-grep -r "from omnibase\." src/ | grep -v "from omnibase.protocols"
+grep -r "from omnibase\." src/ | grep -v "from omnibase_spi.protocols"
 # Should return no results
 ```
 
@@ -94,7 +94,7 @@ pip install -e .
 python -m venv /tmp/test-env
 source /tmp/test-env/bin/activate
 pip install dist/*.whl
-python -c "from omnibase.protocols.types import LogLevel; print('Success!')"
+python -c "from omnibase_spi.protocols.types import LogLevel; print('Success!')"
 ```
 
 ## Git Operations & Development Workflow
@@ -158,7 +158,7 @@ grep -r "Any" src/ --include="*.py"
 find src/ -name "protocol_*.py" -type f
 
 # Check imports in specific file
-python -c "import sys; sys.path.insert(0, 'src'); import omnibase.protocols"
+python -c "import sys; sys.path.insert(0, 'src'); import omnibase_spi.protocols"
 ```
 
 ## Troubleshooting Commands
@@ -209,9 +209,9 @@ source /tmp/test-env/bin/activate
 pip install dist/*.whl
 python -c "
 import sys
-from omnibase.protocols.types import LogLevel
+from omnibase_spi.protocols.types import LogLevel
 external_modules = [name for name in sys.modules.keys() 
-                   if name.startswith('omnibase.') and not name.startswith('omnibase.protocols')]
+                   if name.startswith('omnibase_spi.') and not name.startswith('omnibase_spi.protocols')]
 if external_modules:
     print(f'FAILURE: External omnibase modules loaded: {external_modules}')
     sys.exit(1)
