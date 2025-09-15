@@ -84,22 +84,6 @@ class ProtocolCircuitBreakerMetrics:
     half_open_successes: int
     half_open_failures: int
 
-    def get_failure_rate(self) -> float:
-        """Calculate current failure rate."""
-        if self.requests_in_window == 0:
-            return 0.0
-        return self.failures_in_window / self.requests_in_window
-
-    def get_success_rate(self) -> float:
-        """Calculate current success rate."""
-        return 1.0 - self.get_failure_rate()
-
-    def reset_window(self) -> None:
-        """Reset window-based metrics."""
-        self.requests_in_window = 0
-        self.failures_in_window = 0
-        self.successes_in_window = 0
-
 
 @runtime_checkable
 class ProtocolCircuitBreaker(Protocol):
