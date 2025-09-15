@@ -57,12 +57,21 @@ from omnibase_spi.protocols.container import (
     ServiceResolutionStatus,
 )
 
-# Core protocols (32 protocols)
+# Core protocols (41 protocols)
 from omnibase_spi.protocols.core import (
     ProtocolCacheService,
     ProtocolCacheServiceProvider,
+    ProtocolCircuitBreaker,
+    ProtocolCircuitBreakerEvent,
+    ProtocolCircuitBreakerFactory,
+    ProtocolCircuitBreakerMetrics,
+    ProtocolCircuitBreakerState,
     ProtocolClientConfigProvider,
     ProtocolConfigurationError,
+    ProtocolConfigurationManager,
+    ProtocolConfigurationManagerFactory,
+    ProtocolErrorSanitizer,
+    ProtocolErrorSanitizerFactory,
     ProtocolHttpAuthConfig,
     ProtocolHttpClient,
     ProtocolHttpClientConfig,
@@ -164,8 +173,17 @@ __all__ = [
     # Core protocols
     "ProtocolCacheService",
     "ProtocolCacheServiceProvider",
+    "ProtocolCircuitBreaker",
+    "ProtocolCircuitBreakerEvent",
+    "ProtocolCircuitBreakerFactory",
+    "ProtocolCircuitBreakerMetrics",
+    "ProtocolCircuitBreakerState",
     "ProtocolClientConfigProvider",
     "ProtocolConfigurationError",
+    "ProtocolConfigurationManager",
+    "ProtocolConfigurationManagerFactory",
+    "ProtocolErrorSanitizer",
+    "ProtocolErrorSanitizerFactory",
     "ProtocolHttpAuthConfig",
     "ProtocolHttpClient",
     "ProtocolHttpClientConfig",
@@ -264,4 +282,23 @@ __all__ = [
     "ProtocolFileTypeHandler",
     "ProtocolStampOptions",
     "ProtocolValidationOptions",
+]
+
+from .event_bus.protocol_event_bus_service import ProtocolEventBusService
+
+# Import moved protocols for easy access
+from .file_handling.protocol_file_reader import ProtocolFileReader
+from .workflow_orchestration.protocol_work_queue import (
+    AssignmentStrategy,
+    ProtocolWorkQueue,
+    WorkQueuePriority,
+)
+
+# Add to __all__ exports
+_MOVED_PROTOCOLS = [
+    "ProtocolFileReader",
+    "ProtocolWorkQueue",
+    "WorkQueuePriority",
+    "AssignmentStrategy",
+    "ProtocolEventBusService",
 ]

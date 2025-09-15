@@ -43,6 +43,13 @@ from omnibase_spi.protocols.workflow_orchestration.protocol_workflow_persistence
     ProtocolWorkflowStateStore,
 )
 
+# Work queue protocols
+from .protocol_work_queue import (
+    AssignmentStrategy,
+    ProtocolWorkQueue,
+    WorkQueuePriority,
+)
+
 __all__ = [
     # Event bus protocols
     "ProtocolWorkflowEventBus",
@@ -62,4 +69,8 @@ __all__ = [
     "ProtocolEventStoreTransaction",
     "ProtocolSnapshotStore",
     "ProtocolWorkflowStateStore",
+    # Work queue protocols
+    "ProtocolWorkQueue",
+    "WorkQueuePriority",
+    "AssignmentStrategy",
 ]

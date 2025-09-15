@@ -218,7 +218,7 @@ class ProtocolHttpStreamingResponse(Protocol):
     headers: dict[str, str]
     url: str
 
-    async def stream_content(self, chunk_size: int = 8192) -> bytes:
+    async def stream_content(self, chunk_size: int) -> bytes:
         """
         Stream response content in chunks.
 
@@ -247,7 +247,7 @@ class ProtocolHttpStreamingResponse(Protocol):
         """
         ...
 
-    async def stream_text_lines(self, encoding: str = "utf-8") -> str:
+    async def stream_text_lines(self, encoding: str) -> str:
         """
         Stream text lines from response.
 

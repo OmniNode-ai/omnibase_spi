@@ -10,6 +10,14 @@ from omnibase_spi.protocols.core.protocol_cache_service import (
     ProtocolCacheService,
     ProtocolCacheServiceProvider,
 )
+from omnibase_spi.protocols.core.protocol_circuit_breaker import (
+    ProtocolCircuitBreaker,
+    ProtocolCircuitBreakerConfig,
+    ProtocolCircuitBreakerEvent,
+    ProtocolCircuitBreakerFactory,
+    ProtocolCircuitBreakerMetrics,
+    ProtocolCircuitBreakerState,
+)
 from omnibase_spi.protocols.core.protocol_client_config import (
     ProtocolClientConfigProvider,
     ProtocolHttpAuthConfig,
@@ -17,6 +25,14 @@ from omnibase_spi.protocols.core.protocol_client_config import (
     ProtocolKafkaClientConfig,
     ProtocolKafkaConsumerConfig,
     ProtocolKafkaProducerConfig,
+)
+from omnibase_spi.protocols.core.protocol_configuration_manager import (
+    ProtocolConfigurationManager,
+    ProtocolConfigurationManagerFactory,
+)
+from omnibase_spi.protocols.core.protocol_error_sanitizer import (
+    ProtocolErrorSanitizer,
+    ProtocolErrorSanitizerFactory,
 )
 from omnibase_spi.protocols.core.protocol_http_client import (
     ProtocolHttpClient,
@@ -59,6 +75,13 @@ from omnibase_spi.protocols.core.protocol_workflow_reducer import (
 __all__ = [
     # Advanced workflow protocols
     "ProtocolWorkflowReducer",
+    # Circuit breaker fault tolerance protocols
+    "ProtocolCircuitBreaker",
+    "ProtocolCircuitBreakerConfig",
+    "ProtocolCircuitBreakerFactory",
+    "ProtocolCircuitBreakerMetrics",
+    "ProtocolCircuitBreakerState",
+    "ProtocolCircuitBreakerEvent",
     # Node discovery and registry
     "ProtocolNodeInfo",
     "ProtocolNodeRegistry",
@@ -67,6 +90,11 @@ __all__ = [
     "ProtocolNodeConfigurationProvider",
     "ProtocolUtilsNodeConfiguration",
     "ProtocolConfigurationError",
+    "ProtocolConfigurationManager",
+    "ProtocolConfigurationManagerFactory",
+    # Error sanitization protocols
+    "ProtocolErrorSanitizer",
+    "ProtocolErrorSanitizerFactory",
     # Cache service protocols
     "ProtocolCacheService",
     "ProtocolCacheServiceProvider",
