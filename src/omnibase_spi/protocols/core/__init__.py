@@ -25,6 +25,14 @@ from omnibase_spi.protocols.core.protocol_client_config import (
     ProtocolKafkaConsumerConfig,
     ProtocolKafkaProducerConfig,
 )
+from omnibase_spi.protocols.core.protocol_configuration_manager import (
+    ProtocolConfigurationManager,
+    ProtocolConfigurationManagerFactory,
+)
+from omnibase_spi.protocols.core.protocol_error_sanitizer import (
+    ProtocolErrorSanitizer,
+    ProtocolErrorSanitizerFactory,
+)
 from omnibase_spi.protocols.core.protocol_http_client import (
     ProtocolHttpClient,
     ProtocolHttpClientProvider,
@@ -80,6 +88,11 @@ __all__ = [
     "ProtocolNodeConfigurationProvider",
     "ProtocolUtilsNodeConfiguration",
     "ProtocolConfigurationError",
+    "ProtocolConfigurationManager",
+    "ProtocolConfigurationManagerFactory",
+    # Error sanitization protocols
+    "ProtocolErrorSanitizer",
+    "ProtocolErrorSanitizerFactory",
     # Cache service protocols
     "ProtocolCacheService",
     "ProtocolCacheServiceProvider",
