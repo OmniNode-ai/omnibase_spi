@@ -12,6 +12,7 @@ from omnibase_spi.protocols.core.protocol_cache_service import (
 )
 from omnibase_spi.protocols.core.protocol_circuit_breaker import (
     ProtocolCircuitBreaker,
+    ProtocolCircuitBreakerConfig,
     ProtocolCircuitBreakerEvent,
     ProtocolCircuitBreakerFactory,
     ProtocolCircuitBreakerMetrics,
@@ -76,6 +77,7 @@ __all__ = [
     "ProtocolWorkflowReducer",
     # Circuit breaker fault tolerance protocols
     "ProtocolCircuitBreaker",
+    "ProtocolCircuitBreakerConfig",
     "ProtocolCircuitBreakerFactory",
     "ProtocolCircuitBreakerMetrics",
     "ProtocolCircuitBreakerState",

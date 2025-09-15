@@ -30,9 +30,10 @@ across multiple sources following ONEX infrastructure standards.
 """
 
 from pathlib import Path
-from typing import Any, Protocol, runtime_checkable
+from typing import Any, Literal, Protocol, runtime_checkable
 
-from omnibase_core.enums.enum_environment import EnumEnvironment
+# Define environment type locally to maintain SPI purity
+ConfigurationEnvironment = Literal["development", "staging", "production", "test"]
 
 
 @runtime_checkable
@@ -65,7 +66,7 @@ class ProtocolConfigurationManager(Protocol):
         self,
         config_name: str,
         *,
-        environment: EnumEnvironment | None = None,
+        environment: ConfigurationEnvironment | None = None,
         force_reload: bool = False,
     ) -> dict[str, Any]:
         """
@@ -90,7 +91,7 @@ class ProtocolConfigurationManager(Protocol):
         config_data: dict[str, Any],
         *,
         config_name: str | None = None,
-        environment: EnumEnvironment | None = None,
+        environment: ConfigurationEnvironment | None = None,
         strict: bool = True,
     ) -> bool:
         """
@@ -116,7 +117,7 @@ class ProtocolConfigurationManager(Protocol):
         key: str,
         *,
         default: Any = None,
-        environment: EnumEnvironment | None = None,
+        environment: ConfigurationEnvironment | None = None,
     ) -> Any:
         """
         Get a specific configuration value by key.
@@ -307,7 +308,7 @@ class ProtocolConfigurationManager(Protocol):
         self,
         config_name: str,
         *,
-        environment: EnumEnvironment | None = None,
+        environment: ConfigurationEnvironment | None = None,
     ) -> bool:
         """
         Check if current configuration is valid.
@@ -411,7 +412,7 @@ class ProtocolConfigurationManagerFactory(Protocol):
     def create_custom(
         self,
         *,
-        default_environment: EnumEnvironment = EnumEnvironment.DEVELOPMENT,
+        default_environment: ConfigurationEnvironment = "development",
         allow_runtime_updates: bool = False,
         strict_validation: bool = True,
         auto_reload_on_change: bool = False,

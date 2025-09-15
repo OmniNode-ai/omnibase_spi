@@ -29,6 +29,7 @@ following ONEX standards for external dependency resilience.
 """
 
 from typing import (
+    TYPE_CHECKING,
     Any,
     Awaitable,
     Callable,
@@ -37,6 +38,9 @@ from typing import (
     TypeVar,
     runtime_checkable,
 )
+
+if TYPE_CHECKING:
+    from datetime import datetime
 
 T = TypeVar("T")
 
@@ -51,6 +55,41 @@ ProtocolCircuitBreakerState = Literal[
 ProtocolCircuitBreakerEvent = Literal[
     "success", "failure", "timeout", "state_change", "fallback_executed"
 ]
+
+
+@runtime_checkable
+class ProtocolCircuitBreakerConfig(Protocol):
+    """Configuration protocol for circuit breaker settings."""
+
+    @property
+    def failure_threshold(self) -> int:
+        """Number of failures that trigger OPEN state."""
+        ...
+
+    @property
+    def recovery_timeout_seconds(self) -> float:
+        """Timeout before transitioning from OPEN to HALF_OPEN."""
+        ...
+
+    @property
+    def half_open_max_calls(self) -> int:
+        """Maximum calls allowed in HALF_OPEN state for testing."""
+        ...
+
+    @property
+    def success_threshold(self) -> int:
+        """Required successful calls in HALF_OPEN to close circuit."""
+        ...
+
+    @property
+    def metrics_window_seconds(self) -> float:
+        """Time window for metrics calculation."""
+        ...
+
+    @property
+    def request_timeout_seconds(self) -> float:
+        """Default timeout for requests."""
+        ...
 
 
 @runtime_checkable
@@ -90,18 +129,18 @@ class ProtocolCircuitBreakerMetrics(Protocol):
         ...
 
     @property
-    def last_state_change(self) -> Any:
+    def last_state_change(self) -> "datetime | None":
         """Timestamp of last state change."""
         ...
 
     # Timing metrics
     @property
-    def last_success_time(self) -> Any:
+    def last_success_time(self) -> "datetime | None":
         """Timestamp of last successful request."""
         ...
 
     @property
-    def last_failure_time(self) -> Any:
+    def last_failure_time(self) -> "datetime | None":
         """Timestamp of last failed request."""
         ...
 
@@ -266,7 +305,7 @@ class ProtocolCircuitBreakerFactory(Protocol):
     def get_circuit_breaker(
         self,
         service_name: str,
-        config: Any = None,
+        config: ProtocolCircuitBreakerConfig | None = None,
         *,
         create_if_missing: bool = True,
     ) -> ProtocolCircuitBreaker | None:
