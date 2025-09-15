@@ -78,7 +78,7 @@ class ProtocolKafkaConsumer(Protocol):
         ...
 
     async def consume_messages(
-        self, timeout_ms: int = 1000, max_messages: int = 100
+        self, timeout_ms: int, max_messages: int
     ) -> list[ProtocolKafkaMessage]:
         """
         Consume messages from subscribed topics.
@@ -96,7 +96,7 @@ class ProtocolKafkaConsumer(Protocol):
         ...
 
     async def consume_messages_stream(
-        self, batch_timeout_ms: int = 1000
+        self, batch_timeout_ms: int
     ) -> list[ProtocolKafkaMessage]:
         """
         Stream consume messages continuously from subscribed topics.
@@ -270,7 +270,7 @@ class ProtocolKafkaBatchProducer(Protocol):
         """
         ...
 
-    async def flush_pending(self, timeout_ms: int = 30000) -> None:
+    async def flush_pending(self, timeout_ms: int) -> None:
         """
         Flush all pending messages and wait for acknowledgments.
 

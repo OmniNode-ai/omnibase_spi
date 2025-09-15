@@ -39,8 +39,7 @@ from typing import (
     runtime_checkable,
 )
 
-if TYPE_CHECKING:
-    from datetime import datetime
+# Remove datetime import - use float timestamps for SPI purity
 
 T = TypeVar("T")
 
@@ -129,19 +128,19 @@ class ProtocolCircuitBreakerMetrics(Protocol):
         ...
 
     @property
-    def last_state_change(self) -> "datetime | None":
-        """Timestamp of last state change."""
+    def last_state_change(self) -> float | None:
+        """Unix timestamp of last state change."""
         ...
 
     # Timing metrics
     @property
-    def last_success_time(self) -> "datetime | None":
-        """Timestamp of last successful request."""
+    def last_success_time(self) -> float | None:
+        """Unix timestamp of last successful request."""
         ...
 
     @property
-    def last_failure_time(self) -> "datetime | None":
-        """Timestamp of last failed request."""
+    def last_failure_time(self) -> float | None:
+        """Unix timestamp of last failed request."""
         ...
 
     @property
