@@ -54,6 +54,7 @@ class ProtocolWorkQueue(Protocol):
         Raises:
             FetchError: If fetching fails
         """
+        ...
 
     async def subscribe_to_ticket_updates(self) -> AsyncIterator[Any]:
         """
@@ -65,6 +66,7 @@ class ProtocolWorkQueue(Protocol):
         Raises:
             SubscriptionError: If subscription fails
         """
+        ...
 
     async def assign_ticket_to_agent(
         self,
@@ -86,6 +88,7 @@ class ProtocolWorkQueue(Protocol):
             TicketNotFoundError: If ticket doesn't exist
             AgentNotFoundError: If agent doesn't exist
         """
+        ...
 
     async def update_ticket_status(
         self,
@@ -109,6 +112,8 @@ class ProtocolWorkQueue(Protocol):
             TicketNotFoundError: If ticket doesn't exist
         """
 
+        ...
+
     async def update_ticket_progress(
         self,
         ticket_id: str,
@@ -128,6 +133,8 @@ class ProtocolWorkQueue(Protocol):
             UpdateError: If update fails
             TicketNotFoundError: If ticket doesn't exist
         """
+
+        ...
 
     async def complete_ticket(
         self,
@@ -149,6 +156,8 @@ class ProtocolWorkQueue(Protocol):
             TicketNotFoundError: If ticket doesn't exist
         """
 
+        ...
+
     async def fail_ticket(self, ticket_id: str, error_message: str) -> bool:
         """
         Mark a work ticket as failed with error information.
@@ -165,6 +174,8 @@ class ProtocolWorkQueue(Protocol):
             TicketNotFoundError: If ticket doesn't exist
         """
 
+        ...
+
     async def get_ticket_by_id(self, ticket_id: str) -> Any | None:
         """
         Retrieve a specific work ticket by ID.
@@ -178,6 +189,8 @@ class ProtocolWorkQueue(Protocol):
         Raises:
             FetchError: If fetching fails
         """
+
+        ...
 
     async def get_tickets_by_priority(
         self,
@@ -196,6 +209,8 @@ class ProtocolWorkQueue(Protocol):
             FetchError: If fetching fails
         """
 
+        ...
+
     async def get_tickets_by_agent(self, agent_id: str) -> list[Any]:
         """
         Retrieve work tickets assigned to a specific agent.
@@ -209,6 +224,8 @@ class ProtocolWorkQueue(Protocol):
         Raises:
             FetchError: If fetching fails
         """
+
+        ...
 
     async def get_available_tickets(
         self,
@@ -228,6 +245,8 @@ class ProtocolWorkQueue(Protocol):
         Raises:
             FetchError: If fetching fails
         """
+
+        ...
 
     async def reserve_ticket(
         self,
@@ -251,6 +270,8 @@ class ProtocolWorkQueue(Protocol):
             TicketNotFoundError: If ticket doesn't exist
         """
 
+        ...
+
     async def release_ticket_reservation(self, ticket_id: str, agent_id: str) -> bool:
         """
         Release a previously reserved ticket.
@@ -267,6 +288,8 @@ class ProtocolWorkQueue(Protocol):
             ReservationNotFoundError: If reservation doesn't exist
         """
 
+        ...
+
     async def get_queue_statistics(self) -> dict[str, int]:
         """
         Get current work queue statistics.
@@ -274,6 +297,8 @@ class ProtocolWorkQueue(Protocol):
         Returns:
             Dictionary containing queue metrics
         """
+
+        ...
 
     async def get_ticket_dependencies(self, ticket_id: str) -> list[str]:
         """
@@ -289,6 +314,8 @@ class ProtocolWorkQueue(Protocol):
             FetchError: If fetching fails
             TicketNotFoundError: If ticket doesn't exist
         """
+
+        ...
 
     async def add_ticket_dependency(
         self,
@@ -310,6 +337,8 @@ class ProtocolWorkQueue(Protocol):
             CircularDependencyError: If this would create a cycle
         """
 
+        ...
+
     async def remove_ticket_dependency(
         self,
         ticket_id: str,
@@ -329,6 +358,8 @@ class ProtocolWorkQueue(Protocol):
             DependencyError: If removing dependency fails
         """
 
+        ...
+
     async def get_blocked_tickets(self) -> list[Any]:
         """
         Get tickets that are blocked by unresolved dependencies.
@@ -340,6 +371,8 @@ class ProtocolWorkQueue(Protocol):
             FetchError: If fetching fails
         """
 
+        ...
+
     async def get_ready_tickets(self) -> list[Any]:
         """
         Get tickets that are ready for assignment (no pending dependencies).
@@ -350,6 +383,8 @@ class ProtocolWorkQueue(Protocol):
         Raises:
             FetchError: If fetching fails
         """
+
+        ...
 
     async def set_assignment_strategy(self, strategy: AssignmentStrategy) -> bool:
         """
@@ -365,6 +400,8 @@ class ProtocolWorkQueue(Protocol):
             ConfigurationError: If strategy configuration fails
         """
 
+        ...
+
     async def get_assignment_strategy(self) -> AssignmentStrategy:
         """
         Get the current work assignment strategy.
@@ -372,6 +409,8 @@ class ProtocolWorkQueue(Protocol):
         Returns:
             Current assignment strategy
         """
+
+        ...
 
     async def requeue_ticket(self, ticket_id: str, reason: str) -> bool:
         """
@@ -389,6 +428,8 @@ class ProtocolWorkQueue(Protocol):
             TicketNotFoundError: If ticket doesn't exist
         """
 
+        ...
+
     async def estimate_completion_time(self, ticket_id: str) -> Any:
         """
         Estimate completion time for a ticket based on historical data.
@@ -402,6 +443,8 @@ class ProtocolWorkQueue(Protocol):
         Raises:
             EstimationError: If estimation fails
         """
+
+        ...
 
     async def get_ticket_metrics(self, ticket_id: str) -> dict[str, float]:
         """
@@ -417,6 +460,8 @@ class ProtocolWorkQueue(Protocol):
             FetchError: If fetching fails
             TicketNotFoundError: If ticket doesn't exist
         """
+
+        ...
 
     async def create_ticket_checkpoint(
         self,
@@ -437,6 +482,8 @@ class ProtocolWorkQueue(Protocol):
             CheckpointError: If checkpoint creation fails
         """
 
+        ...
+
     async def restore_ticket_checkpoint(
         self,
         ticket_id: str,
@@ -456,3 +503,4 @@ class ProtocolWorkQueue(Protocol):
             RestoreError: If restoration fails
             CheckpointNotFoundError: If checkpoint doesn't exist
         """
+        ...
