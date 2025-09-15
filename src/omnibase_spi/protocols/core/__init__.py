@@ -10,6 +10,15 @@ from omnibase_spi.protocols.core.protocol_cache_service import (
     ProtocolCacheService,
     ProtocolCacheServiceProvider,
 )
+from omnibase_spi.protocols.core.protocol_http_client import (
+    ProtocolHttpClient,
+    ProtocolHttpClientProvider,
+    ProtocolHttpResponse,
+)
+from omnibase_spi.protocols.core.protocol_kafka_client import (
+    ProtocolKafkaClient,
+    ProtocolKafkaClientProvider,
+)
 from omnibase_spi.protocols.core.protocol_logger import ProtocolLogger
 from omnibase_spi.protocols.core.protocol_node_configuration import (
     ProtocolConfigurationError,
@@ -41,6 +50,13 @@ __all__ = [
     # Cache service protocols
     "ProtocolCacheService",
     "ProtocolCacheServiceProvider",
+    # HTTP client protocols
+    "ProtocolHttpResponse",
+    "ProtocolHttpClient",
+    "ProtocolHttpClientProvider",
+    # Kafka client protocols
+    "ProtocolKafkaClient",
+    "ProtocolKafkaClientProvider",
     # Logging protocols
     "ProtocolLogger",
 ]
