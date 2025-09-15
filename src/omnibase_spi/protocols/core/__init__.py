@@ -10,6 +10,35 @@ from omnibase_spi.protocols.core.protocol_cache_service import (
     ProtocolCacheService,
     ProtocolCacheServiceProvider,
 )
+from omnibase_spi.protocols.core.protocol_client_config import (
+    ProtocolClientConfigProvider,
+    ProtocolHttpAuthConfig,
+    ProtocolHttpClientConfig,
+    ProtocolKafkaClientConfig,
+    ProtocolKafkaConsumerConfig,
+    ProtocolKafkaProducerConfig,
+)
+from omnibase_spi.protocols.core.protocol_http_client import (
+    ProtocolHttpClient,
+    ProtocolHttpClientProvider,
+    ProtocolHttpResponse,
+)
+from omnibase_spi.protocols.core.protocol_http_extended import (
+    ProtocolHttpExtendedClient,
+    ProtocolHttpRequestBuilder,
+    ProtocolHttpStreamingResponse,
+)
+from omnibase_spi.protocols.core.protocol_kafka_client import (
+    ProtocolKafkaClient,
+    ProtocolKafkaClientProvider,
+)
+from omnibase_spi.protocols.core.protocol_kafka_extended import (
+    ProtocolKafkaBatchProducer,
+    ProtocolKafkaConsumer,
+    ProtocolKafkaExtendedClient,
+    ProtocolKafkaMessage,
+    ProtocolKafkaTransactionalProducer,
+)
 from omnibase_spi.protocols.core.protocol_logger import ProtocolLogger
 from omnibase_spi.protocols.core.protocol_node_configuration import (
     ProtocolConfigurationError,
@@ -41,6 +70,30 @@ __all__ = [
     # Cache service protocols
     "ProtocolCacheService",
     "ProtocolCacheServiceProvider",
+    # Client configuration protocols
+    "ProtocolClientConfigProvider",
+    "ProtocolHttpClientConfig",
+    "ProtocolHttpAuthConfig",
+    "ProtocolKafkaClientConfig",
+    "ProtocolKafkaProducerConfig",
+    "ProtocolKafkaConsumerConfig",
+    # HTTP client protocols
+    "ProtocolHttpResponse",
+    "ProtocolHttpClient",
+    "ProtocolHttpClientProvider",
+    # Extended HTTP protocols
+    "ProtocolHttpRequestBuilder",
+    "ProtocolHttpStreamingResponse",
+    "ProtocolHttpExtendedClient",
+    # Kafka client protocols
+    "ProtocolKafkaClient",
+    "ProtocolKafkaClientProvider",
+    # Extended Kafka protocols
+    "ProtocolKafkaMessage",
+    "ProtocolKafkaConsumer",
+    "ProtocolKafkaBatchProducer",
+    "ProtocolKafkaTransactionalProducer",
+    "ProtocolKafkaExtendedClient",
     # Logging protocols
     "ProtocolLogger",
 ]
