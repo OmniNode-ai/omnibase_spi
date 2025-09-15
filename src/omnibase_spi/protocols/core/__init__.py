@@ -10,6 +10,13 @@ from omnibase_spi.protocols.core.protocol_cache_service import (
     ProtocolCacheService,
     ProtocolCacheServiceProvider,
 )
+from omnibase_spi.protocols.core.protocol_circuit_breaker import (
+    ProtocolCircuitBreaker,
+    ProtocolCircuitBreakerEvent,
+    ProtocolCircuitBreakerFactory,
+    ProtocolCircuitBreakerMetrics,
+    ProtocolCircuitBreakerState,
+)
 from omnibase_spi.protocols.core.protocol_client_config import (
     ProtocolClientConfigProvider,
     ProtocolHttpAuthConfig,
@@ -59,6 +66,12 @@ from omnibase_spi.protocols.core.protocol_workflow_reducer import (
 __all__ = [
     # Advanced workflow protocols
     "ProtocolWorkflowReducer",
+    # Circuit breaker fault tolerance protocols
+    "ProtocolCircuitBreaker",
+    "ProtocolCircuitBreakerFactory",
+    "ProtocolCircuitBreakerMetrics",
+    "ProtocolCircuitBreakerState",
+    "ProtocolCircuitBreakerEvent",
     # Node discovery and registry
     "ProtocolNodeInfo",
     "ProtocolNodeRegistry",

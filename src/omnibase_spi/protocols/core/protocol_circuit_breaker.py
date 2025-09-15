@@ -28,61 +28,131 @@ This protocol defines the interface for circuit breaker implementations
 following ONEX standards for external dependency resilience.
 """
 
-from dataclasses import dataclass
-from datetime import datetime
-from enum import Enum
-from typing import Any, Awaitable, Callable, Protocol, TypeVar, runtime_checkable
+from typing import (
+    Any,
+    Awaitable,
+    Callable,
+    Literal,
+    Protocol,
+    TypeVar,
+    runtime_checkable,
+)
 
 T = TypeVar("T")
 
+# Circuit breaker states with clear semantics
+ProtocolCircuitBreakerState = Literal[
+    "closed",  # Normal operation, requests pass through
+    "open",  # Service is failing, requests fail fast
+    "half_open",  # Testing recovery, limited requests allowed
+]
 
-class ProtocolCircuitBreakerState(str, Enum):
-    """Circuit breaker states with clear semantics."""
-
-    CLOSED = "closed"  # Normal operation, requests pass through
-    OPEN = "open"  # Service is failing, requests fail fast
-    HALF_OPEN = "half_open"  # Testing recovery, limited requests allowed
-
-
-class ProtocolCircuitBreakerEvent(str, Enum):
-    """Events that can occur in circuit breaker lifecycle."""
-
-    SUCCESS = "success"
-    FAILURE = "failure"
-    TIMEOUT = "timeout"
-    STATE_CHANGE = "state_change"
-    FALLBACK_EXECUTED = "fallback_executed"
+# Events that can occur in circuit breaker lifecycle
+ProtocolCircuitBreakerEvent = Literal[
+    "success", "failure", "timeout", "state_change", "fallback_executed"
+]
 
 
-@dataclass
-class ProtocolCircuitBreakerMetrics:
+@runtime_checkable
+class ProtocolCircuitBreakerMetrics(Protocol):
     """Real-time circuit breaker metrics."""
 
     # Request counts
-    total_requests: int
-    successful_requests: int
-    failed_requests: int
-    timeout_requests: int
+    @property
+    def total_requests(self) -> int:
+        """Total number of requests processed."""
+        ...
+
+    @property
+    def successful_requests(self) -> int:
+        """Number of successful requests."""
+        ...
+
+    @property
+    def failed_requests(self) -> int:
+        """Number of failed requests."""
+        ...
+
+    @property
+    def timeout_requests(self) -> int:
+        """Number of timed out requests."""
+        ...
 
     # State tracking
-    current_state: ProtocolCircuitBreakerState
-    state_changes: int
-    last_state_change: datetime | None
+    @property
+    def current_state(self) -> ProtocolCircuitBreakerState:
+        """Current circuit breaker state."""
+        ...
+
+    @property
+    def state_changes(self) -> int:
+        """Number of state changes."""
+        ...
+
+    @property
+    def last_state_change(self) -> Any:
+        """Timestamp of last state change."""
+        ...
 
     # Timing metrics
-    last_success_time: datetime | None
-    last_failure_time: datetime | None
-    average_response_time_ms: float
+    @property
+    def last_success_time(self) -> Any:
+        """Timestamp of last successful request."""
+        ...
+
+    @property
+    def last_failure_time(self) -> Any:
+        """Timestamp of last failed request."""
+        ...
+
+    @property
+    def average_response_time_ms(self) -> float:
+        """Average response time in milliseconds."""
+        ...
 
     # Window-based metrics (rolling)
-    requests_in_window: int
-    failures_in_window: int
-    successes_in_window: int
+    @property
+    def requests_in_window(self) -> int:
+        """Number of requests in current window."""
+        ...
+
+    @property
+    def failures_in_window(self) -> int:
+        """Number of failures in current window."""
+        ...
+
+    @property
+    def successes_in_window(self) -> int:
+        """Number of successes in current window."""
+        ...
 
     # Half-open state tracking
-    half_open_requests: int
-    half_open_successes: int
-    half_open_failures: int
+    @property
+    def half_open_requests(self) -> int:
+        """Number of requests in half-open state."""
+        ...
+
+    @property
+    def half_open_successes(self) -> int:
+        """Number of successes in half-open state."""
+        ...
+
+    @property
+    def half_open_failures(self) -> int:
+        """Number of failures in half-open state."""
+        ...
+
+    def get_failure_rate(self) -> float:
+        """Calculate current failure rate."""
+        ...
+
+    def get_success_rate(self) -> float:
+        """Calculate current success rate."""
+        ...
+
+    def reset_window(self) -> None:
+        """Reset window-based metrics."""
+        ...
 
 
 @runtime_checkable
@@ -100,10 +170,10 @@ class ProtocolCircuitBreaker(Protocol):
                 return self._current_state
 
             async def call(self, func, fallback=None, timeout=None):
-                if self.get_state() == ProtocolCircuitBreakerState.OPEN:
+                if self.get_state() == "open":
                     if fallback:
                         return await fallback()
-                    raise CircuitBreakerOpenException()
+                    raise Exception("Circuit breaker is open")
 
                 try:
                     result = await func()
@@ -155,8 +225,8 @@ class ProtocolCircuitBreaker(Protocol):
             Result of function execution or fallback
 
         Raises:
-            CircuitBreakerOpenException: If circuit is open and no fallback
-            CircuitBreakerTimeoutException: If request times out
+            Exception: If circuit is open and no fallback provided
+            TimeoutError: If request times out
             Any exception raised by func or fallback
         """
         ...
@@ -181,18 +251,6 @@ class ProtocolCircuitBreaker(Protocol):
 
     async def record_timeout(self) -> None:
         """Record a timeout operation."""
-        ...
-
-    async def force_open(self) -> None:
-        """Force circuit breaker to OPEN state for testing or emergency."""
-        ...
-
-    async def force_close(self) -> None:
-        """Force circuit breaker to CLOSED state for testing or recovery."""
-        ...
-
-    async def force_half_open(self) -> None:
-        """Force circuit breaker to HALF_OPEN state for testing."""
         ...
 
 
@@ -259,29 +317,3 @@ class ProtocolCircuitBreakerFactory(Protocol):
             Dictionary mapping service names to circuit breakers
         """
         ...
-
-
-# Exception types that should be available for protocol implementations
-class CircuitBreakerException(Exception):
-    """Base exception for circuit breaker errors."""
-
-    def __init__(
-        self,
-        service_name: str,
-        state: ProtocolCircuitBreakerState,
-        metrics: ProtocolCircuitBreakerMetrics | None = None,
-    ):
-        self.service_name = service_name
-        self.state = state
-        self.metrics = metrics
-        super().__init__(
-            f"Circuit breaker is {state.value} for service '{service_name}'"
-        )
-
-
-class CircuitBreakerOpenException(CircuitBreakerException):
-    """Exception for when circuit breaker is in OPEN state."""
-
-
-class CircuitBreakerTimeoutException(CircuitBreakerException):
-    """Exception for when request times out."""
