@@ -86,10 +86,10 @@ class ProtocolInputValidator(Protocol):
     def validate_string(
         self,
         value: str,
-        min_length: Optional[int] = None,
-        max_length: Optional[int] = None,
-        pattern: Optional[str] = None,
-        allow_empty: bool = True,
+        min_length: Optional[int],
+        max_length: Optional[int],
+        pattern: Optional[str],
+        allow_empty: bool,
     ) -> "ProtocolValidationResult":
         """
         Validate string with comprehensive checks.
@@ -113,10 +113,10 @@ class ProtocolInputValidator(Protocol):
     def validate_numeric(
         self,
         value: Union[float, int],
-        min_value: Optional[float] = None,
-        max_value: Optional[float] = None,
-        allow_negative: bool = True,
-        precision: Optional[int] = None,
+        min_value: Optional[float],
+        max_value: Optional[float],
+        allow_negative: bool,
+        precision: Optional[int],
     ) -> "ProtocolValidationResult":
         """
         Validate numeric value with range and precision checks.
@@ -140,9 +140,9 @@ class ProtocolInputValidator(Protocol):
     def validate_collection(
         self,
         value: Union[list[object], dict[str, object]],
-        max_size: Optional[int] = None,
-        item_rules: Optional[list[str]] = None,
-        unique_items: bool = False,
+        max_size: Optional[int],
+        item_rules: Optional[list[str]],
+        unique_items: bool,
     ) -> "ProtocolValidationResult":
         """
         Validate collection (list or dict) with size and item checks.
@@ -165,8 +165,8 @@ class ProtocolInputValidator(Protocol):
     def validate_email(
         self,
         email: str,
-        check_mx: bool = False,
-        allow_international: bool = True,
+        check_mx: bool,
+        allow_international: bool,
     ) -> "ProtocolValidationResult":
         """
         Validate email address format and optionally domain.
@@ -188,9 +188,9 @@ class ProtocolInputValidator(Protocol):
     def validate_url(
         self,
         url: str,
-        allowed_schemes: Optional[list[str]] = None,
-        allow_private_ips: bool = False,
-        max_length: int = 2048,
+        allowed_schemes: Optional[list[str]],
+        allow_private_ips: bool,
+        max_length: int,
     ) -> "ProtocolValidationResult":
         """
         Validate URL format and security characteristics.
@@ -213,9 +213,9 @@ class ProtocolInputValidator(Protocol):
     def sanitize_input(
         self,
         value: str,
-        remove_html: bool = True,
-        escape_special_chars: bool = True,
-        normalize_whitespace: bool = True,
+        remove_html: bool,
+        escape_special_chars: bool,
+        normalize_whitespace: bool,
     ) -> str:
         """
         Sanitize input string for safe usage.
@@ -282,10 +282,10 @@ class ProtocolInputValidator(Protocol):
     def check_security_patterns(
         self,
         value: str,
-        check_sql_injection: bool = True,
-        check_xss: bool = True,
-        check_path_traversal: bool = True,
-        check_command_injection: bool = True,
+        check_sql_injection: bool,
+        check_xss: bool,
+        check_path_traversal: bool,
+        check_command_injection: bool,
     ) -> "ProtocolValidationResult":
         """
         Check input for common security attack patterns.

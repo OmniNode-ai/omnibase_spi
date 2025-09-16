@@ -62,7 +62,7 @@ class ProtocolMetricsCollector(Protocol):
         self,
         name: str,
         value: float,
-        tags: Optional[dict[str, str]] = None,
+        tags: Optional[dict[str, str]],
     ) -> None:
         """
         Record counter metric increment.
@@ -82,7 +82,7 @@ class ProtocolMetricsCollector(Protocol):
         self,
         name: str,
         value: float,
-        tags: Optional[dict[str, str]] = None,
+        tags: Optional[dict[str, str]],
     ) -> None:
         """
         Record gauge metric value.
@@ -102,7 +102,7 @@ class ProtocolMetricsCollector(Protocol):
         self,
         name: str,
         value: float,
-        tags: Optional[dict[str, str]] = None,
+        tags: Optional[dict[str, str]],
     ) -> None:
         """
         Record histogram metric observation.
@@ -122,7 +122,7 @@ class ProtocolMetricsCollector(Protocol):
         self,
         name: str,
         duration_seconds: float,
-        tags: Optional[dict[str, str]] = None,
+        tags: Optional[dict[str, str]],
     ) -> None:
         """
         Record timer metric for operation duration.
@@ -222,8 +222,8 @@ class ProtocolDistributedTracing(Protocol):
     def start_span(
         self,
         operation_name: str,
-        parent_span_id: Optional["UUID"] = None,
-        trace_id: Optional["UUID"] = None,
+        parent_span_id: Optional["UUID"],
+        trace_id: Optional["UUID"],
     ) -> "ProtocolTraceSpan":
         """
         Start new trace span.
@@ -284,7 +284,7 @@ class ProtocolDistributedTracing(Protocol):
         self,
         span_id: "UUID",
         message: str,
-        fields: Optional[dict[str, object]] = None,
+        fields: Optional[dict[str, object]],
     ) -> None:
         """
         Add log entry to trace span.
@@ -402,8 +402,8 @@ class ProtocolAuditLogger(Protocol):
         resource: str,
         action: str,
         outcome: "OperationStatus",
-        metadata: Optional[dict[str, object]] = None,
-        sensitivity_level: str = "internal",
+        metadata: Optional[dict[str, object]],
+        sensitivity_level: str,
     ) -> "ProtocolAuditEvent":
         """
         Log audit event.
@@ -430,7 +430,7 @@ class ProtocolAuditLogger(Protocol):
         self,
         start_time: "ProtocolDateTime",
         end_time: "ProtocolDateTime",
-        filters: Optional[dict[str, str]] = None,
+        filters: Optional[dict[str, str]],
     ) -> list["ProtocolAuditEvent"]:
         """
         Query audit events by time range and filters.
