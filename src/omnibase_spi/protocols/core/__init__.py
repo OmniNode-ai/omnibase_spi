@@ -30,10 +30,15 @@ from omnibase_spi.protocols.core.protocol_configuration_manager import (
     ProtocolConfigurationManager,
     ProtocolConfigurationManagerFactory,
 )
+from omnibase_spi.protocols.core.protocol_contract_service import (
+    ProtocolContractService,
+)
+from omnibase_spi.protocols.core.protocol_error_handler import ProtocolErrorHandler
 from omnibase_spi.protocols.core.protocol_error_sanitizer import (
     ProtocolErrorSanitizer,
     ProtocolErrorSanitizerFactory,
 )
+from omnibase_spi.protocols.core.protocol_health_monitor import ProtocolHealthMonitor
 from omnibase_spi.protocols.core.protocol_http_client import (
     ProtocolHttpClient,
     ProtocolHttpClientProvider,
@@ -44,6 +49,7 @@ from omnibase_spi.protocols.core.protocol_http_extended import (
     ProtocolHttpRequestBuilder,
     ProtocolHttpStreamingResponse,
 )
+from omnibase_spi.protocols.core.protocol_input_validator import ProtocolInputValidator
 from omnibase_spi.protocols.core.protocol_kafka_client import (
     ProtocolKafkaClient,
     ProtocolKafkaClientProvider,
@@ -68,6 +74,20 @@ from omnibase_spi.protocols.core.protocol_node_registry import (
     ProtocolNodeInfo,
     ProtocolNodeRegistry,
 )
+from omnibase_spi.protocols.core.protocol_observability import (
+    ProtocolAuditLogger,
+    ProtocolDistributedTracing,
+    ProtocolMetricsCollector,
+)
+from omnibase_spi.protocols.core.protocol_onex_node import ProtocolOnexNode
+from omnibase_spi.protocols.core.protocol_service_discovery import (
+    ProtocolServiceDiscovery,
+)
+from omnibase_spi.protocols.core.protocol_storage_backend import (
+    ProtocolStorageBackend,
+    ProtocolStorageBackendFactory,
+)
+from omnibase_spi.protocols.core.protocol_version_manager import ProtocolVersionManager
 from omnibase_spi.protocols.core.protocol_workflow_reducer import (
     ProtocolWorkflowReducer,
 )
@@ -75,6 +95,27 @@ from omnibase_spi.protocols.core.protocol_workflow_reducer import (
 __all__ = [
     # Advanced workflow protocols
     "ProtocolWorkflowReducer",
+    # Service discovery protocols
+    "ProtocolServiceDiscovery",
+    # ONEX node protocols
+    "ProtocolOnexNode",
+    # Storage backend protocols
+    "ProtocolStorageBackend",
+    "ProtocolStorageBackendFactory",
+    # Contract service protocols
+    "ProtocolContractService",
+    # Error handling protocols
+    "ProtocolErrorHandler",
+    # Health monitoring protocols
+    "ProtocolHealthMonitor",
+    # Input validation protocols
+    "ProtocolInputValidator",
+    # Version management protocols
+    "ProtocolVersionManager",
+    # Observability protocols
+    "ProtocolMetricsCollector",
+    "ProtocolDistributedTracing",
+    "ProtocolAuditLogger",
     # Circuit breaker fault tolerance protocols
     "ProtocolCircuitBreaker",
     "ProtocolCircuitBreakerConfig",

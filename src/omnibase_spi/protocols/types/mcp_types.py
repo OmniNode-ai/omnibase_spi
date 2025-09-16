@@ -235,3 +235,40 @@ class ProtocolMCPValidationResult(Protocol):
     warnings: list[ProtocolMCPValidationError]
     validation_time: ProtocolDateTime
     validation_version: ProtocolSemVer
+
+
+# Tool class and instance protocols for Tool Discovery Service
+@runtime_checkable
+class ProtocolToolClass(Protocol):
+    """Protocol for tool class objects in MCP systems."""
+
+    __name__: str
+    __module__: str
+
+    def __call__(self, *args: object, **kwargs: object) -> object:
+        """Create tool instance."""
+        ...
+
+
+@runtime_checkable
+class ProtocolToolInstance(Protocol):
+    """Protocol for tool instance objects in MCP systems."""
+
+    tool_name: str
+    tool_version: ProtocolSemVer
+    tool_type: MCPToolType
+    is_initialized: bool
+
+    def execute(self, parameters: dict[str, ContextValue]) -> dict[str, ContextValue]:
+        """Execute tool with given parameters."""
+        ...
+
+    def validate_parameters(
+        self, parameters: dict[str, ContextValue]
+    ) -> ProtocolMCPValidationResult:
+        """Validate tool parameters."""
+        ...
+
+    def health_check(self) -> dict[str, ContextValue]:
+        """Check tool health status."""
+        ...

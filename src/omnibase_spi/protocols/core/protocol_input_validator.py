@@ -1,0 +1,326 @@
+"""
+Protocol for Input Validation.
+
+Defines interfaces for standardized input validation, sanitization,
+and security-focused data validation across ONEX services.
+"""
+
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
+
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.types.core_types import (
+        ContextValue,
+        ProtocolValidationResult,
+        ValidationLevel,
+        ValidationMode,
+    )
+
+
+@runtime_checkable
+class ProtocolInputValidator(Protocol):
+    """
+    Protocol for standardized input validation across ONEX services.
+
+    Provides comprehensive input validation, sanitization, and security
+    checking to prevent injection attacks and ensure data integrity.
+
+    Key Features:
+        - Multi-level validation (basic to paranoid)
+        - Type-specific validation rules
+        - Size and format constraints
+        - Security-focused validation patterns
+        - Custom validation rule support
+        - Batch validation for performance
+
+    Usage Example:
+        ```python
+        # Implementation example (not part of SPI)
+        class InputValidatorImpl:
+            def validate_input(self, value, rules, level):
+                result = ValidationResult(is_valid=True, errors=[], warnings=[])
+
+                for rule in rules:
+                    if rule == "max_length" and len(str(value)) > 1000:
+                        result.is_valid = False
+                        result.errors.append("Input exceeds maximum length")
+
+                return result
+
+        # Usage in application code
+        validator: ProtocolInputValidator = InputValidatorImpl()
+
+        result = validator.validate_input(
+            value=user_input,
+            rules=["required", "max_length:255", "no_sql_injection"],
+            validation_level="standard"
+        )
+
+        if not result.is_valid:
+            raise ValidationError(result.errors)
+        ```
+    """
+
+    def validate_input(
+        self,
+        value: "ContextValue",
+        rules: list[str],
+        validation_level: "ValidationLevel" = "STANDARD",
+    ) -> "ProtocolValidationResult":
+        """
+        Validate input value against specified rules.
+
+        Args:
+            value: Value to validate
+            rules: List of validation rule names
+            validation_level: Thoroughness of validation
+
+        Returns:
+            Validation result with errors and warnings
+
+        Note:
+            Validation rules include type checking, size limits,
+            format validation, and security pattern detection.
+        """
+        ...
+
+    def validate_string(
+        self,
+        value: str,
+        min_length: int | None = None,
+        max_length: int | None = None,
+        pattern: str | None = None,
+        allow_empty: bool = True,
+    ) -> "ProtocolValidationResult":
+        """
+        Validate string with comprehensive checks.
+
+        Args:
+            value: String to validate
+            min_length: Minimum allowed length
+            max_length: Maximum allowed length
+            pattern: Regex pattern for format validation
+            allow_empty: Whether empty strings are allowed
+
+        Returns:
+            Validation result with detailed feedback
+
+        Note:
+            Includes checks for SQL injection, XSS, path traversal,
+            and other common security vulnerabilities.
+        """
+        ...
+
+    def validate_numeric(
+        self,
+        value: float | int,
+        min_value: float | None = None,
+        max_value: float | None = None,
+        allow_negative: bool = True,
+        precision: int | None = None,
+    ) -> "ProtocolValidationResult":
+        """
+        Validate numeric value with range and precision checks.
+
+        Args:
+            value: Numeric value to validate
+            min_value: Minimum allowed value
+            max_value: Maximum allowed value
+            allow_negative: Whether negative values are allowed
+            precision: Maximum decimal places for floats
+
+        Returns:
+            Validation result with range and precision feedback
+
+        Note:
+            Prevents numeric overflow, underflow, and precision issues
+            that could cause application vulnerabilities.
+        """
+        ...
+
+    def validate_collection(
+        self,
+        value: list[object] | dict[str, object],
+        max_size: int | None = None,
+        item_rules: list[str] | None = None,
+        unique_items: bool = False,
+    ) -> "ProtocolValidationResult":
+        """
+        Validate collection (list or dict) with size and item checks.
+
+        Args:
+            value: Collection to validate
+            max_size: Maximum number of items allowed
+            item_rules: Validation rules to apply to each item
+            unique_items: Whether items must be unique
+
+        Returns:
+            Validation result with collection and item feedback
+
+        Note:
+            Prevents DoS attacks through oversized collections
+            and validates collection structure and contents.
+        """
+        ...
+
+    def validate_email(
+        self,
+        email: str,
+        check_mx: bool = False,
+        allow_international: bool = True,
+    ) -> "ProtocolValidationResult":
+        """
+        Validate email address format and optionally domain.
+
+        Args:
+            email: Email address to validate
+            check_mx: Whether to check MX record existence
+            allow_international: Whether to allow international domains
+
+        Returns:
+            Validation result with email-specific feedback
+
+        Note:
+            Validates email format against RFC standards and
+            optionally verifies domain existence for deliverability.
+        """
+        ...
+
+    def validate_url(
+        self,
+        url: str,
+        allowed_schemes: list[str] | None = None,
+        allow_private_ips: bool = False,
+        max_length: int = 2048,
+    ) -> "ProtocolValidationResult":
+        """
+        Validate URL format and security characteristics.
+
+        Args:
+            url: URL to validate
+            allowed_schemes: List of allowed URL schemes (http, https, etc.)
+            allow_private_ips: Whether private IP addresses are allowed
+            max_length: Maximum URL length
+
+        Returns:
+            Validation result with URL-specific feedback
+
+        Note:
+            Prevents SSRF attacks by validating URL schemes and
+            blocking access to private network resources.
+        """
+        ...
+
+    def sanitize_input(
+        self,
+        value: str,
+        remove_html: bool = True,
+        escape_special_chars: bool = True,
+        normalize_whitespace: bool = True,
+    ) -> str:
+        """
+        Sanitize input string for safe usage.
+
+        Args:
+            value: String to sanitize
+            remove_html: Whether to strip HTML tags
+            escape_special_chars: Whether to escape special characters
+            normalize_whitespace: Whether to normalize whitespace
+
+        Returns:
+            Sanitized string safe for processing
+
+        Note:
+            Removes or escapes potentially dangerous content
+            while preserving legitimate data for application use.
+        """
+        ...
+
+    def validate_batch(
+        self,
+        inputs: list[dict[str, object]],
+        validation_mode: "ValidationMode" = "strict",
+    ) -> list["ProtocolValidationResult"]:
+        """
+        Validate multiple inputs in batch for performance.
+
+        Args:
+            inputs: List of input dictionaries with validation rules
+            validation_mode: Validation strictness level
+
+        Returns:
+            List of validation results corresponding to inputs
+
+        Note:
+            Batch validation reduces overhead for bulk operations
+            while maintaining individual validation feedback.
+        """
+        ...
+
+    def add_custom_rule(
+        self,
+        rule_name: str,
+        validator_function: object,
+        error_message: str,
+    ) -> bool:
+        """
+        Add custom validation rule.
+
+        Args:
+            rule_name: Name for the custom rule
+            validator_function: Function to perform validation
+            error_message: Error message for validation failures
+
+        Returns:
+            True if rule was added successfully
+
+        Note:
+            Enables domain-specific validation rules while
+            maintaining consistent validation interface.
+        """
+        ...
+
+    def check_security_patterns(
+        self,
+        value: str,
+        check_sql_injection: bool = True,
+        check_xss: bool = True,
+        check_path_traversal: bool = True,
+        check_command_injection: bool = True,
+    ) -> "ProtocolValidationResult":
+        """
+        Check input for common security attack patterns.
+
+        Args:
+            value: String to check for security threats
+            check_sql_injection: Whether to check for SQL injection
+            check_xss: Whether to check for XSS attacks
+            check_path_traversal: Whether to check for path traversal
+            check_command_injection: Whether to check for command injection
+
+        Returns:
+            Validation result with security threat analysis
+
+        Note:
+            Provides comprehensive security pattern detection
+            to prevent common web application vulnerabilities.
+        """
+        ...
+
+    def get_validation_statistics(
+        self,
+        time_window_hours: int,
+    ) -> dict[str, object]:
+        """
+        Get validation statistics for monitoring.
+
+        Args:
+            time_window_hours: Hours of statistics to include
+
+        Returns:
+            Validation statistics including failure rates and patterns
+
+        Note:
+            Provides operational visibility into validation patterns
+            and potential security threats for monitoring systems.
+        """
+        ...
