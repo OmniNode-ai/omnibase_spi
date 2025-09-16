@@ -44,6 +44,22 @@ class ProtocolOnexNode(Protocol):
         - Configuration metadata access
         - Input/output type definitions
         - Runtime compatibility validation
+
+    Breaking Changes (v2.0):
+        - get_input_type() → get_input_model() for clarity
+        - get_output_type() → get_output_model() for clarity
+
+    Migration Guide:
+        For existing implementations, rename your methods:
+        ```python
+        # Old (v1.x)
+        def get_input_type(self) -> type[Any]: ...
+        def get_output_type(self) -> type[Any]: ...
+
+        # New (v2.0+)
+        def get_input_model(self) -> type[Any]: ...
+        def get_output_model(self) -> type[Any]: ...
+        ```
     """
 
     def run(self, *args: Any, **kwargs: Any) -> Any:
@@ -89,7 +105,11 @@ class ProtocolOnexNode(Protocol):
 
     def get_input_model(self) -> type[Any]:
         """
-        Get the expected input type for this node.
+        Get the expected input model type for this node.
+
+        BREAKING CHANGE: Renamed from get_input_type() in v2.0 for clarity.
+        The "model" terminology better reflects that this defines data models,
+        not just primitive types.
 
         This method returns the type class that defines the structure
         and validation rules for inputs to this node. Used for:
@@ -99,17 +119,24 @@ class ProtocolOnexNode(Protocol):
 
         Returns:
             Type class representing the expected input structure.
-            Should be a Pydantic type or compatible structured type.
+            Should be a Pydantic model or compatible structured type.
 
         Raises:
-            NotImplementedError: If node doesn't define input type
-            RuntimeError: If input type cannot be determined
+            NotImplementedError: If node doesn't define input model
+            RuntimeError: If input model cannot be determined
+
+        Migration:
+            Replace get_input_type() calls with get_input_model()
         """
         ...
 
     def get_output_model(self) -> type[Any]:
         """
-        Get the expected output type for this node.
+        Get the expected output model type for this node.
+
+        BREAKING CHANGE: Renamed from get_output_type() in v2.0 for clarity.
+        The "model" terminology better reflects that this defines data models,
+        not just primitive types.
 
         This method returns the type class that defines the structure
         of outputs from this node. Used for:

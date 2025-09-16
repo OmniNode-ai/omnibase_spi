@@ -324,3 +324,52 @@ class ProtocolInputValidator(Protocol):
             and potential security threats for monitoring systems.
         """
         ...
+
+    def validate_with_rate_limit(
+        self,
+        value: str,
+        caller_id: str,
+        max_requests_per_minute: int,
+        validation_type: str,
+    ) -> "ProtocolValidationResult":
+        """
+        Validate input with rate limiting to prevent validation DoS attacks.
+
+        Args:
+            value: Input value to validate
+            caller_id: Unique identifier for the caller (IP, user ID, service ID)
+            max_requests_per_minute: Maximum validation requests per minute for this caller
+            validation_type: Type of validation being performed (for separate rate limits)
+
+        Returns:
+            Validation result with rate limiting status
+
+        Raises:
+            RateLimitExceedException: When caller exceeds rate limit
+
+        Note:
+            Prevents validation DoS attacks by limiting validation requests
+            per caller. Different validation types can have separate limits.
+        """
+        ...
+
+    def get_rate_limit_status(
+        self,
+        caller_id: str,
+        validation_type: str,
+    ) -> dict[str, object]:
+        """
+        Get current rate limit status for a caller.
+
+        Args:
+            caller_id: Unique identifier for the caller
+            validation_type: Type of validation to check rate limit for
+
+        Returns:
+            Rate limit status including remaining requests, reset time, etc.
+
+        Note:
+            Allows callers to check their rate limit status proactively
+            and implement appropriate backoff strategies.
+        """
+        ...

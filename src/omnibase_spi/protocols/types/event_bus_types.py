@@ -4,7 +4,7 @@ Event bus protocol types for ONEX SPI interfaces.
 Domain: Event-driven architecture protocols
 """
 
-from typing import Literal, Optional, Protocol, Union
+from typing import Literal, Optional, Protocol, TypeAlias, Union, runtime_checkable
 from uuid import UUID
 
 from omnibase_spi.protocols.types.core_types import (
@@ -13,10 +13,33 @@ from omnibase_spi.protocols.types.core_types import (
     ProtocolSemVer,
 )
 
-# Event data types - more specific than Any
-EventData = Union[
-    str, int, float, bool, list[str], dict[str, Union[str, int, float, bool]]
-]
+# === Protocol-Based Event Value Types ===
+
+
+@runtime_checkable
+class ProtocolEventValue(Protocol):
+    """Protocol for event data values supporting validation and serialization."""
+
+    def validate_for_transport(self) -> bool:
+        """Validate value is safe for event transport."""
+        ...
+
+    def serialize_for_event(self) -> dict[str, object]:
+        """Serialize value for event messaging."""
+        ...
+
+    def get_event_type_hint(self) -> str:
+        """Get type hint for event schema validation."""
+        ...
+
+
+# === Clean Type Aliases ===
+
+# Basic event primitive types
+BasicEventValue: TypeAlias = Union[str, int, float, bool]
+
+# Event data using cleaner type definitions
+EventData: TypeAlias = Union[BasicEventValue, list[str], dict[str, BasicEventValue]]
 
 # Event status types - using consolidated BaseStatus
 EventStatus = BaseStatus
