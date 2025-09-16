@@ -5,7 +5,7 @@ Defines interfaces for standardized input validation, sanitization,
 and security-focused data validation across ONEX services.
 """
 
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Optional, Protocol, Union, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types.core_types import (
@@ -86,9 +86,9 @@ class ProtocolInputValidator(Protocol):
     def validate_string(
         self,
         value: str,
-        min_length: int | None = None,
-        max_length: int | None = None,
-        pattern: str | None = None,
+        min_length: Optional[int] = None,
+        max_length: Optional[int] = None,
+        pattern: Optional[str] = None,
         allow_empty: bool = True,
     ) -> "ProtocolValidationResult":
         """
@@ -112,11 +112,11 @@ class ProtocolInputValidator(Protocol):
 
     def validate_numeric(
         self,
-        value: float | int,
-        min_value: float | None = None,
-        max_value: float | None = None,
+        value: Union[float, int],
+        min_value: Optional[float] = None,
+        max_value: Optional[float] = None,
         allow_negative: bool = True,
-        precision: int | None = None,
+        precision: Optional[int] = None,
     ) -> "ProtocolValidationResult":
         """
         Validate numeric value with range and precision checks.
@@ -139,9 +139,9 @@ class ProtocolInputValidator(Protocol):
 
     def validate_collection(
         self,
-        value: list[object] | dict[str, object],
-        max_size: int | None = None,
-        item_rules: list[str] | None = None,
+        value: Union[list[object], dict[str, object]],
+        max_size: Optional[int] = None,
+        item_rules: Optional[list[str]] = None,
         unique_items: bool = False,
     ) -> "ProtocolValidationResult":
         """
@@ -188,7 +188,7 @@ class ProtocolInputValidator(Protocol):
     def validate_url(
         self,
         url: str,
-        allowed_schemes: list[str] | None = None,
+        allowed_schemes: Optional[list[str]] = None,
         allow_private_ips: bool = False,
         max_length: int = 2048,
     ) -> "ProtocolValidationResult":

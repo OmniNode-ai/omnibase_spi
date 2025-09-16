@@ -5,7 +5,7 @@ Defines interfaces for metrics collection, distributed tracing,
 and audit logging across ONEX services for comprehensive observability.
 """
 
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Optional, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from uuid import UUID
@@ -62,7 +62,7 @@ class ProtocolMetricsCollector(Protocol):
         self,
         name: str,
         value: float,
-        tags: dict[str, str] | None = None,
+        tags: Optional[dict[str, str]] = None,
     ) -> None:
         """
         Record counter metric increment.
@@ -82,7 +82,7 @@ class ProtocolMetricsCollector(Protocol):
         self,
         name: str,
         value: float,
-        tags: dict[str, str] | None = None,
+        tags: Optional[dict[str, str]] = None,
     ) -> None:
         """
         Record gauge metric value.
@@ -102,7 +102,7 @@ class ProtocolMetricsCollector(Protocol):
         self,
         name: str,
         value: float,
-        tags: dict[str, str] | None = None,
+        tags: Optional[dict[str, str]] = None,
     ) -> None:
         """
         Record histogram metric observation.
@@ -122,7 +122,7 @@ class ProtocolMetricsCollector(Protocol):
         self,
         name: str,
         duration_seconds: float,
-        tags: dict[str, str] | None = None,
+        tags: Optional[dict[str, str]] = None,
     ) -> None:
         """
         Record timer metric for operation duration.
@@ -222,8 +222,8 @@ class ProtocolDistributedTracing(Protocol):
     def start_span(
         self,
         operation_name: str,
-        parent_span_id: "UUID | None" = None,
-        trace_id: "UUID | None" = None,
+        parent_span_id: Optional["UUID"] = None,
+        trace_id: Optional["UUID"] = None,
     ) -> "ProtocolTraceSpan":
         """
         Start new trace span.
@@ -284,7 +284,7 @@ class ProtocolDistributedTracing(Protocol):
         self,
         span_id: "UUID",
         message: str,
-        fields: dict[str, object] | None = None,
+        fields: Optional[dict[str, object]] = None,
     ) -> None:
         """
         Add log entry to trace span.
@@ -342,7 +342,7 @@ class ProtocolDistributedTracing(Protocol):
         """
         ...
 
-    def get_current_span(self) -> "ProtocolTraceSpan | None":
+    def get_current_span(self) -> Optional["ProtocolTraceSpan"]:
         """
         Get currently active trace span.
 
@@ -402,7 +402,7 @@ class ProtocolAuditLogger(Protocol):
         resource: str,
         action: str,
         outcome: "OperationStatus",
-        metadata: dict[str, object] | None = None,
+        metadata: Optional[dict[str, object]] = None,
         sensitivity_level: str = "internal",
     ) -> "ProtocolAuditEvent":
         """
@@ -430,7 +430,7 @@ class ProtocolAuditLogger(Protocol):
         self,
         start_time: "ProtocolDateTime",
         end_time: "ProtocolDateTime",
-        filters: dict[str, str] | None = None,
+        filters: Optional[dict[str, str]] = None,
     ) -> list["ProtocolAuditEvent"]:
         """
         Query audit events by time range and filters.

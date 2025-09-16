@@ -5,7 +5,7 @@ Defines interfaces for protocol versioning, compatibility checking,
 and migration support across ONEX service evolution.
 """
 
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Optional, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types.core_types import (
@@ -156,7 +156,7 @@ class ProtocolVersionManager(Protocol):
         protocol_name: str,
         version: "ProtocolSemVer",
         retirement_date: "ProtocolDateTime",
-        replacement_version: "ProtocolSemVer" | None = None,
+        replacement_version: Optional["ProtocolSemVer"] = None,
     ) -> bool:
         """
         Schedule protocol version for retirement.

@@ -5,11 +5,44 @@ Provides clean protocol interfaces for event bus operations without
 implementation dependencies or mixin complexity.
 """
 
-from typing import TYPE_CHECKING, Protocol, Union, runtime_checkable
+from typing import TYPE_CHECKING, Optional, Protocol, Union, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types.core_types import LogLevel
     from omnibase_spi.protocols.types.event_bus_types import ProtocolEventMessage
+
+
+@runtime_checkable
+class ProtocolEventBusBase(Protocol):
+    """
+    Base protocol for event bus operations.
+
+    Defines common event publishing interface that both synchronous
+    and asynchronous event buses must implement. Provides unified
+    event publishing capabilities across different execution patterns.
+
+    Key Features:
+        - Unified event publishing interface
+        - Support for both sync and async implementations
+        - Compatible with dependency injection patterns
+    """
+
+    def publish(self, event: "ProtocolEventMessage") -> None:
+        """
+        Publish event to the event bus.
+
+        Args:
+            event: Event message to publish
+
+        Raises:
+            ValueError: If event format is invalid
+            RuntimeError: If event bus is unavailable
+
+        Note:
+            Implementations may handle this synchronously or asynchronously
+            depending on their execution pattern.
+        """
+        ...
 
 
 @runtime_checkable
@@ -29,19 +62,6 @@ class ProtocolSyncEventBus(Protocol):
     def publish(self, event: "ProtocolEventMessage") -> None:
         """
         Publish event synchronously.
-
-        Args:
-            event: Event message to publish
-
-        Raises:
-            ValueError: If event format is invalid
-            RuntimeError: If event bus is unavailable
-        """
-        ...
-
-    def publish_event(self, event: "ProtocolEventMessage") -> None:
-        """
-        Alternative synchronous event publishing method.
 
         Args:
             event: Event message to publish
@@ -80,19 +100,6 @@ class ProtocolAsyncEventBus(Protocol):
         """
         ...
 
-    async def publish_event(self, event: "ProtocolEventMessage") -> None:
-        """
-        Alternative asynchronous event publishing method.
-
-        Args:
-            event: Event message to publish
-
-        Raises:
-            ValueError: If event format is invalid
-            RuntimeError: If event bus is unavailable
-        """
-        ...
-
 
 @runtime_checkable
 class ProtocolRegistryWithBus(Protocol):
@@ -108,7 +115,7 @@ class ProtocolRegistryWithBus(Protocol):
         - Support for both sync and async event buses
     """
 
-    event_bus: ProtocolSyncEventBus | ProtocolAsyncEventBus | None
+    event_bus: Optional[ProtocolEventBusBase]
 
 
 @runtime_checkable

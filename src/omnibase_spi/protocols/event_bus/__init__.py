@@ -17,6 +17,7 @@ from .protocol_event_bus_context_manager import ProtocolEventBusContextManager
 from .protocol_event_bus_in_memory import ProtocolEventBusInMemory
 from .protocol_event_bus_mixin import (
     ProtocolAsyncEventBus,
+    ProtocolEventBusBase,
     ProtocolLogEmitter,
     ProtocolRegistryWithBus,
     ProtocolSyncEventBus,
@@ -38,6 +39,7 @@ __all__ = [
     "ProtocolEventBusContextManager",
     "ProtocolEventBusInMemory",
     # Mixin protocols
+    "ProtocolEventBusBase",
     "ProtocolSyncEventBus",
     "ProtocolAsyncEventBus",
     "ProtocolRegistryWithBus",
