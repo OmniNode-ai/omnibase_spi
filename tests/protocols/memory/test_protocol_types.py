@@ -48,7 +48,7 @@ class MockMemoryRecord:
         self.expires_at = expires_at
 
     @property
-    def embedding(self) -> list[float] | None:
+    def embedding(self) -> Optional[list[float]]:
         return [0.1, 0.2, 0.3] if len(self.content) > 10 else None
 
     @property
@@ -89,7 +89,7 @@ class MockPaginationRequest:
         self.cursor = cursor
 
     @property
-    def sort_by(self) -> str | None:
+    def sort_by(self) -> Optional[str]:
         return "created_at" if self.limit > 10 else None
 
     @property
@@ -163,7 +163,7 @@ class MockSearchFilters:
         self.date_range_end = date_range_end
 
     @property
-    def tags(self) -> list[str] | None:
+    def tags(self) -> Optional[list[str]]:
         return ["test", "mock"] if self.content_types else None
 
 

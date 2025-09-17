@@ -9,11 +9,27 @@ no implementation dependencies - no Pydantic, no BaseModel, just protocols.
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Optional, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Literal, Optional, Protocol, runtime_checkable
 from uuid import UUID
 
 if TYPE_CHECKING:
     pass  # All types are forward references to avoid circular imports
+
+
+# === TYPE LITERALS ===
+
+# Memory access levels for security and authorization
+MemoryAccessLevel = Literal[
+    "public", "private", "internal", "restricted", "confidential"
+]
+
+# Analysis types for memory processing
+AnalysisType = Literal[
+    "standard", "deep", "quick", "semantic", "pattern", "performance"
+]
+
+# Compression algorithms for memory optimization
+CompressionAlgorithm = Literal["gzip", "lz4", "zstd", "brotli", "deflate"]
 
 
 # === CORE MEMORY PROTOCOLS ===
@@ -244,7 +260,7 @@ class ProtocolMemoryRecord(Protocol):
     content_type: str
     created_at: datetime
     updated_at: datetime
-    access_level: str
+    access_level: MemoryAccessLevel
     source_agent: str
     expires_at: Optional[datetime]
 
@@ -325,7 +341,7 @@ class ProtocolMemoryStoreRequest(ProtocolMemoryRequest, Protocol):
 
     content: str
     content_type: str
-    access_level: str
+    access_level: MemoryAccessLevel
     source_agent: str
     expires_at: Optional[datetime]
 
@@ -460,7 +476,7 @@ class ProtocolPatternAnalysisRequest(ProtocolMemoryRequest, Protocol):
     """Protocol for pattern analysis requests."""
 
     data_source: str
-    analysis_type: str
+    analysis_type: AnalysisType
 
     @property
     def analysis_parameters(self) -> ProtocolAnalysisParameters:

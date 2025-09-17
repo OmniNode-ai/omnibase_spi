@@ -17,6 +17,8 @@ from uuid import UUID
 
 if TYPE_CHECKING:
     from .protocol_memory_types import (
+        AnalysisType,
+        CompressionAlgorithm,
         ProtocolAgentCoordinationRequest,
         ProtocolAgentCoordinationResponse,
         ProtocolAggregationCriteria,
@@ -220,12 +222,14 @@ class ProtocolMemoryComputeNode(Protocol):
     async def analyze_patterns(
         self,
         request: "ProtocolPatternAnalysisRequest",
+        timeout_seconds: Optional[float] = None,
     ) -> "ProtocolPatternAnalysisResponse":
         """
         Analyze patterns in memory data using ML algorithms.
 
         Args:
             request: Pattern analysis request with data source and type
+            timeout_seconds: Optional timeout for pattern analysis operation
 
         Returns:
             Analysis response with discovered patterns and confidence
@@ -235,7 +239,7 @@ class ProtocolMemoryComputeNode(Protocol):
     async def extract_insights(
         self,
         memory_ids: list[UUID],
-        analysis_type: str = "standard",
+        analysis_type: "AnalysisType" = "standard",
         correlation_id: Optional[UUID] = None,
     ) -> "ProtocolMemoryResponse":
         """
@@ -286,12 +290,14 @@ class ProtocolMemoryReducerNode(Protocol):
     async def consolidate_memories(
         self,
         request: "ProtocolConsolidationRequest",
+        timeout_seconds: Optional[float] = None,
     ) -> "ProtocolConsolidationResponse":
         """
         Consolidate multiple memories into a single optimized record.
 
         Args:
             request: Consolidation request with memory IDs and strategy
+            timeout_seconds: Optional timeout for consolidation operation
 
         Returns:
             Consolidation response with new memory ID
@@ -341,7 +347,7 @@ class ProtocolMemoryReducerNode(Protocol):
     async def compress_memories(
         self,
         memory_ids: list[UUID],
-        compression_algorithm: str,
+        compression_algorithm: "CompressionAlgorithm",
         quality_threshold: float = 0.9,
         correlation_id: Optional[UUID] = None,
     ) -> "ProtocolMemoryResponse":

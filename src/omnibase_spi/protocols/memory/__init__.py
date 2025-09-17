@@ -23,7 +23,13 @@ from .protocol_memory_operations import (
 )
 
 # Protocol Types (Request/Response and Data Structures)
-from .protocol_memory_types import (  # Core Memory Protocols; Request/Response Base Protocols; Effect Node Types; Compute Node Types; Reducer Node Types; Orchestrator Node Types; Error Handling; Pagination; Metrics; Batch Operations
+# Categories: Core Memory Protocols, Request/Response Base Protocols,
+# Effect Node Types, Compute Node Types, Reducer Node Types,
+# Orchestrator Node Types, Error Handling, Pagination, Metrics, Batch Operations
+from .protocol_memory_types import (
+    AnalysisType,
+    CompressionAlgorithm,
+    MemoryAccessLevel,
     ProtocolAgentCoordinationRequest,
     ProtocolAgentCoordinationResponse,
     ProtocolAggregatedData,
@@ -82,6 +88,10 @@ __all__ = [
     "ProtocolMemoryReducerNode",
     "ProtocolMemoryOrchestratorNode",
     "ProtocolMemoryHealthNode",
+    # Type Literals
+    "MemoryAccessLevel",
+    "AnalysisType",
+    "CompressionAlgorithm",
     # Core Memory Protocols
     "ProtocolMemoryRecord",
     "ProtocolSearchResult",

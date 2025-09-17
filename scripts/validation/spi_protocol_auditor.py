@@ -11,7 +11,15 @@ import hashlib
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
+from typing import Optional, TypedDict, cast
+
+
+class DuplicateProtocolInfo(TypedDict):
+    """Type definition for duplicate protocol information."""
+
+    signature_hash: str
+    protocols: list["ProtocolInfo"]
+    recommendation: str
 
 
 @dataclass
@@ -100,9 +108,9 @@ def extract_protocol_signature(file_path: Path) -> Optional[ProtocolInfo]:
         if not extractor.class_name or not extractor.methods:
             return None
 
-        # Create signature hash from methods
+        # Create signature hash from methods using SHA256 for better security
         methods_str = "|".join(sorted(extractor.methods))
-        signature_hash = hashlib.md5(methods_str.encode()).hexdigest()[:12]
+        signature_hash = hashlib.sha256(methods_str.encode()).hexdigest()[:16]
 
         return ProtocolInfo(
             name=extractor.class_name,
@@ -249,9 +257,11 @@ class SPIProtocolAuditor:
             recommendations=recommendations,
         )
 
-    def _find_local_duplicates(self, protocols: list[ProtocolInfo]) -> list[str]:
+    def _find_local_duplicates(
+        self, protocols: list[ProtocolInfo]
+    ) -> list[DuplicateProtocolInfo]:
         """Find duplicate protocols within SPI."""
-        duplicates = []
+        duplicates: list[DuplicateProtocolInfo] = []
         by_signature = defaultdict(list)
 
         for protocol in protocols:
@@ -259,13 +269,15 @@ class SPIProtocolAuditor:
 
         for signature_hash, protocol_group in by_signature.items():
             if len(protocol_group) > 1:
-                duplicates.append(
+                duplicate_info = cast(
+                    DuplicateProtocolInfo,
                     {
                         "signature_hash": signature_hash,
                         "protocols": protocol_group,
                         "recommendation": f"Merge duplicate {protocol_group[0].name} protocols",
-                    }
+                    },
                 )
+                duplicates.append(duplicate_info)
 
         return duplicates
 
