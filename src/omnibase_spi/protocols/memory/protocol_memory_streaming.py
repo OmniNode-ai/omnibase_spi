@@ -338,6 +338,66 @@ class ProtocolStreamingMemoryNode(Protocol):
         """
         ...
 
+    async def stream_embedding_vectors(
+        self,
+        memory_ids: list[UUID],
+        vector_chunk_size: int = 1000,
+        compression_enabled: bool = True,
+        security_context: Optional["ProtocolSecurityContext"] = None,
+        timeout_seconds: Optional[float] = None,
+    ) -> AsyncGenerator["ProtocolStreamingChunk", None]:
+        """
+        Stream embedding vectors efficiently for large datasets.
+
+        Args:
+            memory_ids: List of memory IDs to stream vectors for
+            vector_chunk_size: Number of vectors per chunk
+            compression_enabled: Whether to compress vector data
+            security_context: Security context for authorization
+            timeout_seconds: Optional timeout for streaming operation
+
+        Yields:
+            Streaming chunks with compressed embedding vectors
+
+        Raises:
+            SecurityError: If user not authorized to stream embeddings
+            NotFoundError: If memory embeddings not found
+            StreamingError: If streaming operation fails
+            TimeoutError: If operation exceeds timeout
+        """
+        ...
+
+    async def batch_upload_embedding_vectors(
+        self,
+        vector_stream: AsyncGenerator["ProtocolStreamingChunk", None],
+        target_memory_ids: list[UUID],
+        vector_dimensions: int,
+        streaming_config: "ProtocolStreamingConfig",
+        security_context: Optional["ProtocolSecurityContext"] = None,
+        timeout_seconds: Optional[float] = None,
+    ) -> "ProtocolMemoryMetadata":
+        """
+        Batch upload embedding vectors from streaming chunks.
+
+        Args:
+            vector_stream: Stream of embedding vector chunks
+            target_memory_ids: Target memory IDs for vectors
+            vector_dimensions: Dimensions of embedding vectors
+            streaming_config: Configuration for streaming operation
+            security_context: Security context for authorization
+            timeout_seconds: Optional timeout for upload operation
+
+        Returns:
+            Upload result with vector statistics
+
+        Raises:
+            SecurityError: If user not authorized to upload vectors
+            ValidationError: If vector chunk validation fails
+            StreamingError: If streaming upload fails
+            TimeoutError: If operation exceeds timeout
+        """
+        ...
+
 
 @runtime_checkable
 class ProtocolMemoryCache(Protocol):
