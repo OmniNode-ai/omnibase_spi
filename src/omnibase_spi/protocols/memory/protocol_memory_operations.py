@@ -281,6 +281,7 @@ class ProtocolMemoryComputeNode(Protocol):
         text: str,
         model: Optional[str] = None,
         correlation_id: Optional[UUID] = None,
+        timeout_seconds: Optional[float] = None,
     ) -> "ProtocolMemoryResponse":
         """
         Generate vector embedding for text content.
@@ -289,9 +290,14 @@ class ProtocolMemoryComputeNode(Protocol):
             text: Text content to embed
             model: Optional specific embedding model
             correlation_id: Request correlation ID
+            timeout_seconds: Optional timeout for embedding generation
 
         Returns:
             Response with generated embedding vector
+
+        Raises:
+            TimeoutError: If embedding generation exceeds timeout
+            EmbeddingError: If embedding generation fails
         """
         ...
 
@@ -317,6 +323,7 @@ class ProtocolMemoryComputeNode(Protocol):
         memory_ids: list[UUID],
         analysis_type: "AnalysisType" = "standard",
         correlation_id: Optional[UUID] = None,
+        timeout_seconds: Optional[float] = None,
     ) -> "ProtocolMemoryResponse":
         """
         Extract insights from a collection of memories.
@@ -325,9 +332,14 @@ class ProtocolMemoryComputeNode(Protocol):
             memory_ids: List of memory IDs to analyze
             analysis_type: Type of insight extraction
             correlation_id: Request correlation ID
+            timeout_seconds: Optional timeout for insight extraction
 
         Returns:
             Response with extracted insights and scores
+
+        Raises:
+            TimeoutError: If insight extraction exceeds timeout
+            AnalysisError: If insight extraction fails
         """
         ...
 
@@ -336,6 +348,7 @@ class ProtocolMemoryComputeNode(Protocol):
         content_a: str,
         content_b: str,
         correlation_id: Optional[UUID] = None,
+        timeout_seconds: Optional[float] = None,
     ) -> "ProtocolMemoryResponse":
         """
         Compare semantic similarity between two pieces of content.
@@ -344,9 +357,14 @@ class ProtocolMemoryComputeNode(Protocol):
             content_a: First content to compare
             content_b: Second content to compare
             correlation_id: Request correlation ID
+            timeout_seconds: Optional timeout for semantic comparison
 
         Returns:
             Response with similarity score and analysis
+
+        Raises:
+            TimeoutError: If semantic comparison exceeds timeout
+            ComparisonError: If semantic comparison fails
         """
         ...
 
@@ -385,6 +403,7 @@ class ProtocolMemoryReducerNode(Protocol):
         memory_scope: "ProtocolMemoryMetadata",
         similarity_threshold: float = 0.95,
         correlation_id: Optional[UUID] = None,
+        timeout_seconds: Optional[float] = None,
     ) -> "ProtocolMemoryResponse":
         """
         Remove duplicate memories based on similarity threshold.
@@ -393,9 +412,14 @@ class ProtocolMemoryReducerNode(Protocol):
             memory_scope: Scope of deduplication operation
             similarity_threshold: Threshold for duplicate detection
             correlation_id: Request correlation ID
+            timeout_seconds: Optional timeout for deduplication operation
 
         Returns:
             Response with deduplication results
+
+        Raises:
+            TimeoutError: If deduplication exceeds timeout
+            DeduplicationError: If deduplication operation fails
         """
         ...
 
@@ -405,6 +429,7 @@ class ProtocolMemoryReducerNode(Protocol):
         time_window_start: Optional[str] = None,
         time_window_end: Optional[str] = None,
         correlation_id: Optional[UUID] = None,
+        timeout_seconds: Optional[float] = None,
     ) -> "ProtocolMemoryResponse":
         """
         Aggregate memory data based on specified criteria.
@@ -414,9 +439,14 @@ class ProtocolMemoryReducerNode(Protocol):
             time_window_start: Start of aggregation time window
             time_window_end: End of aggregation time window
             correlation_id: Request correlation ID
+            timeout_seconds: Optional timeout for aggregation operation
 
         Returns:
             Response with aggregated data
+
+        Raises:
+            TimeoutError: If aggregation exceeds timeout
+            AggregationError: If aggregation operation fails
         """
         ...
 
@@ -426,6 +456,7 @@ class ProtocolMemoryReducerNode(Protocol):
         compression_algorithm: "CompressionAlgorithm",
         quality_threshold: float = 0.9,
         correlation_id: Optional[UUID] = None,
+        timeout_seconds: Optional[float] = None,
     ) -> "ProtocolMemoryResponse":
         """
         Compress memory content using specified algorithm.
@@ -435,9 +466,14 @@ class ProtocolMemoryReducerNode(Protocol):
             compression_algorithm: Algorithm to use for compression
             quality_threshold: Minimum quality threshold
             correlation_id: Request correlation ID
+            timeout_seconds: Optional timeout for compression operation
 
         Returns:
             Response with compression results
+
+        Raises:
+            TimeoutError: If compression exceeds timeout
+            CompressionError: If compression operation fails
         """
         ...
 
@@ -493,15 +529,21 @@ class ProtocolMemoryOrchestratorNode(Protocol):
     async def coordinate_agents(
         self,
         request: "ProtocolAgentCoordinationRequest",
+        timeout_seconds: Optional[float] = None,
     ) -> "ProtocolAgentCoordinationResponse":
         """
         Coordinate multiple agents for distributed memory operations.
 
         Args:
             request: Agent coordination request with IDs and task
+            timeout_seconds: Optional timeout for agent coordination
 
         Returns:
             Coordination response with status and agent responses
+
+        Raises:
+            TimeoutError: If agent coordination exceeds timeout
+            CoordinationError: If agent coordination fails
         """
         ...
 
@@ -511,6 +553,7 @@ class ProtocolMemoryOrchestratorNode(Protocol):
         update_data: "ProtocolMemoryMetadata",
         target_agents: Optional[list[UUID]] = None,
         correlation_id: Optional[UUID] = None,
+        timeout_seconds: Optional[float] = None,
     ) -> "ProtocolMemoryResponse":
         """
         Broadcast memory update to specified agents or all agents.
@@ -520,9 +563,14 @@ class ProtocolMemoryOrchestratorNode(Protocol):
             update_data: Data to broadcast
             target_agents: Specific agents to notify (None = all)
             correlation_id: Request correlation ID
+            timeout_seconds: Optional timeout for broadcast operation
 
         Returns:
             Response with broadcast results
+
+        Raises:
+            TimeoutError: If broadcast exceeds timeout
+            BroadcastError: If broadcast operation fails
         """
         ...
 
@@ -531,6 +579,7 @@ class ProtocolMemoryOrchestratorNode(Protocol):
         agent_ids: list[UUID],
         synchronization_scope: "ProtocolMemoryMetadata",
         correlation_id: Optional[UUID] = None,
+        timeout_seconds: Optional[float] = None,
     ) -> "ProtocolMemoryResponse":
         """
         Synchronize memory state across specified agents.
@@ -539,9 +588,14 @@ class ProtocolMemoryOrchestratorNode(Protocol):
             agent_ids: Agents to synchronize
             synchronization_scope: Scope of synchronization
             correlation_id: Request correlation ID
+            timeout_seconds: Optional timeout for synchronization operation
 
         Returns:
             Response with synchronization results
+
+        Raises:
+            TimeoutError: If synchronization exceeds timeout
+            SynchronizationError: If synchronization operation fails
         """
         ...
 
@@ -549,6 +603,7 @@ class ProtocolMemoryOrchestratorNode(Protocol):
         self,
         lifecycle_policies: "ProtocolMemoryMetadata",
         correlation_id: Optional[UUID] = None,
+        timeout_seconds: Optional[float] = None,
     ) -> "ProtocolMemoryResponse":
         """
         Manage memory lifecycle based on retention policies.
@@ -556,9 +611,14 @@ class ProtocolMemoryOrchestratorNode(Protocol):
         Args:
             lifecycle_policies: Policies for memory lifecycle management
             correlation_id: Request correlation ID
+            timeout_seconds: Optional timeout for lifecycle management
 
         Returns:
             Response with lifecycle management results
+
+        Raises:
+            TimeoutError: If lifecycle management exceeds timeout
+            LifecycleError: If lifecycle management operation fails
         """
         ...
 

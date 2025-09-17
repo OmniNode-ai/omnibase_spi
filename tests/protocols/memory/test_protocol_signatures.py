@@ -261,7 +261,21 @@ class TestProtocolConsistency:
         """Test that all protocols follow naming conventions."""
         from omnibase_spi.protocols.memory import __all__
 
+        # Type literals that are not protocols and shouldn't be required to start with "Protocol"
+        type_literals = {
+            "MemoryAccessLevel",
+            "AnalysisType",
+            "CompressionAlgorithm",
+            "ErrorCategory",
+            "AgentStatus",
+            "WorkflowStatus",
+        }
+
         for protocol_name in __all__:
+            # Skip type literals - they don't need to start with "Protocol"
+            if protocol_name in type_literals:
+                continue
+
             # All exported protocols should start with 'Protocol'
             assert protocol_name.startswith(
                 "Protocol"

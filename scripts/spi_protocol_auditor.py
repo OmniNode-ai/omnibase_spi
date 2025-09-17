@@ -3,8 +3,15 @@
 SPI Protocol Auditor
 
 Comprehensive validation script for omnibase_spi protocol compliance.
-Validates namespace isolation, protocol purity, type safety, and
-architectural compliance across all memory protocols.
+Validates namespace isolation, protocol purity, type safety, timeout parameters,
+security enhancements, and architectural compliance across all memory protocols.
+
+Features:
+- Enhanced error handling with detailed context
+- Path validation and existence checks
+- Comprehensive timeout parameter validation
+- Security protocol compliance verification
+- Performance pattern detection
 """
 
 import argparse
@@ -26,6 +33,10 @@ class SPIProtocolAuditor:
         self.memory_protocols_path = self.protocols_path / "memory"
         self.errors: List[Dict[str, Any]] = []
         self.warnings: List[Dict[str, Any]] = []
+        self.info: List[Dict[str, Any]] = []
+
+        # Validate paths exist
+        self._validate_paths()
 
     def audit_all(self) -> bool:
         """Run all audits and return True if all pass."""
@@ -39,6 +50,8 @@ class SPIProtocolAuditor:
             ("protocol_purity", self.audit_protocol_purity),
             ("type_safety", self.audit_type_safety),
             ("memory_protocols", self.audit_memory_protocols),
+            ("timeout_parameters", self.audit_timeout_parameters),
+            ("security_enhancements", self.audit_security_enhancements),
             ("documentation", self.audit_documentation),
             ("import_structure", self.audit_import_structure),
         ]
@@ -52,7 +65,12 @@ class SPIProtocolAuditor:
                 else:
                     print(f"✅ {check_name} audit passed")
             except Exception as e:
-                self.add_error(check_name, f"Audit check failed: {e}")
+                self.add_error(
+                    "audit_execution",
+                    f"Failed to execute {check_name} audit: {e}",
+                    file_path=None,
+                    context={"audit_name": check_name, "exception": str(e)},
+                )
                 success = False
                 print(f"💥 {check_name} audit crashed: {e}")
 
@@ -422,13 +440,37 @@ class SPIProtocolAuditor:
             self.add_error("import_structure", f"Failed to check import structure: {e}")
             return False
 
-    def add_error(self, category: str, message: str) -> None:
+    def add_error(
+        self,
+        category: str,
+        message: str,
+        file_path: Optional[str] = None,
+        context: Optional[Dict[str, Any]] = None,
+    ) -> None:
         """Add an error to the audit results."""
-        self.errors.append({"category": category, "message": message})
+        error = {
+            "category": category,
+            "message": message,
+            "file_path": file_path,
+            "context": context or {},
+        }
+        self.errors.append(error)
 
-    def add_warning(self, category: str, message: str) -> None:
+    def add_warning(
+        self,
+        category: str,
+        message: str,
+        file_path: Optional[str] = None,
+        context: Optional[Dict[str, Any]] = None,
+    ) -> None:
         """Add a warning to the audit results."""
-        self.warnings.append({"category": category, "message": message})
+        warning = {
+            "category": category,
+            "message": message,
+            "file_path": file_path,
+            "context": context or {},
+        }
+        self.warnings.append(warning)
 
     def print_summary(self) -> None:
         """Print audit summary."""
@@ -451,6 +493,199 @@ class SPIProtocolAuditor:
                 print(f"  {i}. [{warning['category']}] {warning['message']}")
 
         print(f"\n📈 Summary: {len(self.errors)} errors, {len(self.warnings)} warnings")
+
+    def _validate_paths(self) -> None:
+        """Validate that required paths exist."""
+        required_paths = [
+            self.src_path,
+            self.protocols_path,
+            self.memory_protocols_path,
+        ]
+
+        for path in required_paths:
+            if not path.exists():
+                self.add_error(
+                    "path_validation",
+                    f"Required path does not exist: {path}",
+                    file_path=None,
+                    context={"missing_path": str(path)},
+                )
+                raise FileNotFoundError(f"Required path missing: {path}")
+
+    def audit_timeout_parameters(self) -> bool:
+        """Audit timeout parameter coverage in memory protocols."""
+        success = True
+
+        # Critical methods that must have timeout parameters
+        required_timeout_methods = {
+            "ProtocolMemoryEffectNode": [
+                "batch_store_memories",
+                "batch_retrieve_memories",
+            ],
+            "ProtocolMemoryComputeNode": [
+                "generate_embedding",
+                "extract_insights",
+                "compare_semantics",
+            ],
+            "ProtocolMemoryReducerNode": [
+                "deduplicate_memories",
+                "aggregate_data",
+                "compress_memories",
+                "optimize_storage",
+            ],
+            "ProtocolMemoryOrchestratorNode": [
+                "coordinate_agents",
+                "broadcast_update",
+                "synchronize_state",
+                "manage_lifecycle",
+                "execute_workflow",
+            ],
+        }
+
+        # Check memory operations file
+        operations_file = self.memory_protocols_path / "protocol_memory_operations.py"
+        if not operations_file.exists():
+            self.add_error(
+                "timeout_parameters",
+                f"Memory operations file not found: {operations_file}",
+                file_path=str(operations_file),
+            )
+            return False
+
+        try:
+            with open(operations_file, "r", encoding="utf-8") as f:
+                content = f.read()
+
+            tree = ast.parse(content)
+
+            # Find all protocol classes and their methods
+            for node in ast.walk(tree):
+                if (
+                    isinstance(node, ast.ClassDef)
+                    and node.name in required_timeout_methods
+                ):
+                    class_methods = required_timeout_methods[node.name]
+
+                    for method_node in node.body:
+                        if isinstance(method_node, ast.AsyncFunctionDef):
+                            method_name = method_node.name
+
+                            if method_name in class_methods:
+                                # Check if method has timeout_seconds parameter
+                                has_timeout = any(
+                                    arg.arg == "timeout_seconds"
+                                    for arg in method_node.args.args
+                                )
+
+                                if not has_timeout:
+                                    self.add_error(
+                                        "timeout_parameters",
+                                        f"Method {node.name}.{method_name} missing timeout_seconds parameter",
+                                        file_path=str(operations_file),
+                                        context={
+                                            "class": node.name,
+                                            "method": method_name,
+                                            "line": method_node.lineno,
+                                        },
+                                    )
+                                    success = False
+                                else:
+                                    self.info.append(
+                                        {
+                                            "category": "timeout_parameters",
+                                            "message": f"✅ {node.name}.{method_name} has timeout parameter",
+                                            "context": {
+                                                "class": node.name,
+                                                "method": method_name,
+                                            },
+                                        }
+                                    )
+
+            return success
+
+        except Exception as e:
+            self.add_error(
+                "timeout_parameters",
+                f"Failed to analyze timeout parameters: {e}",
+                file_path=str(operations_file),
+                context={"exception": str(e)},
+            )
+            return False
+
+    def audit_security_enhancements(self) -> bool:
+        """Audit security enhancement compliance."""
+        success = True
+
+        # Check security protocol file exists and has required protocols
+        security_file = self.memory_protocols_path / "protocol_memory_security.py"
+        if not security_file.exists():
+            self.add_error(
+                "security_enhancements",
+                f"Security protocol file not found: {security_file}",
+                file_path=str(security_file),
+            )
+            return False
+
+        required_security_protocols = [
+            "ProtocolSecurityContext",
+            "ProtocolAuditTrail",
+            "ProtocolRateLimitConfig",
+            "ProtocolInputValidation",
+            "ProtocolMemorySecurityNode",
+            "ProtocolMemoryComplianceNode",
+        ]
+
+        try:
+            with open(security_file, "r", encoding="utf-8") as f:
+                content = f.read()
+
+            tree = ast.parse(content)
+            found_protocols = set()
+
+            # Find all protocol class definitions
+            for node in ast.walk(tree):
+                if isinstance(node, ast.ClassDef):
+                    found_protocols.add(node.name)
+
+            # Check for missing security protocols
+            missing_protocols = set(required_security_protocols) - found_protocols
+            if missing_protocols:
+                for protocol in missing_protocols:
+                    self.add_error(
+                        "security_enhancements",
+                        f"Missing required security protocol: {protocol}",
+                        file_path=str(security_file),
+                        context={"missing_protocol": protocol},
+                    )
+                    success = False
+
+            # Check that security_context parameters are used in operations
+            operations_file = (
+                self.memory_protocols_path / "protocol_memory_operations.py"
+            )
+            if operations_file.exists():
+                with open(operations_file, "r", encoding="utf-8") as f:
+                    ops_content = f.read()
+
+                security_context_usage = ops_content.count("security_context")
+                if security_context_usage < 10:  # Should be used in many methods
+                    self.add_warning(
+                        "security_enhancements",
+                        f"Low security_context parameter usage: {security_context_usage} occurrences",
+                        file_path=str(operations_file),
+                        context={"usage_count": security_context_usage},
+                    )
+
+            return success
+
+        except Exception as e:
+            self.add_error(
+                "security_enhancements",
+                f"Failed to analyze security enhancements: {e}",
+                file_path=str(security_file),
+                context={"exception": str(e)},
+            )
+            return False
 
     def export_results(self, output_file: Path) -> None:
         """Export audit results to JSON."""
