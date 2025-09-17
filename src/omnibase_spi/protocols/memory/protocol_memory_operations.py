@@ -19,8 +19,16 @@ if TYPE_CHECKING:
     from .protocol_memory_types import (
         ProtocolAgentCoordinationRequest,
         ProtocolAgentCoordinationResponse,
+        ProtocolBatchMemoryRetrieveRequest,
+        ProtocolBatchMemoryRetrieveResponse,
+        ProtocolBatchMemoryStoreRequest,
+        ProtocolBatchMemoryStoreResponse,
         ProtocolConsolidationRequest,
         ProtocolConsolidationResponse,
+        ProtocolMemoryListRequest,
+        ProtocolMemoryListResponse,
+        ProtocolMemoryMetricsRequest,
+        ProtocolMemoryMetricsResponse,
         ProtocolMemoryRecord,
         ProtocolMemoryRequest,
         ProtocolMemoryResponse,
@@ -117,22 +125,46 @@ class ProtocolMemoryEffectNode(Protocol):
 
     async def list_memories(
         self,
-        filters: Optional[dict[str, str]] = None,
-        limit: int = 100,
-        offset: int = 0,
-        correlation_id: Optional[UUID] = None,
-    ) -> "ProtocolMemoryResponse":
+        request: "ProtocolMemoryListRequest",
+    ) -> "ProtocolMemoryListResponse":
         """
-        List memory records with optional filtering and pagination.
+        List memory records with paginated filtering.
 
         Args:
-            filters: Optional filters to apply
-            limit: Maximum number of records to return
-            offset: Number of records to skip
-            correlation_id: Request correlation ID
+            request: Paginated memory list request with filters and pagination
 
         Returns:
-            Response with list of memory records
+            Paginated response with memory records and pagination metadata
+        """
+        ...
+
+    async def batch_store_memories(
+        self,
+        request: "ProtocolBatchMemoryStoreRequest",
+    ) -> "ProtocolBatchMemoryStoreResponse":
+        """
+        Store multiple memory records in a single batch operation.
+
+        Args:
+            request: Batch storage request with multiple memory records
+
+        Returns:
+            Batch response with individual operation results
+        """
+        ...
+
+    async def batch_retrieve_memories(
+        self,
+        request: "ProtocolBatchMemoryRetrieveRequest",
+    ) -> "ProtocolBatchMemoryRetrieveResponse":
+        """
+        Retrieve multiple memory records in a single batch operation.
+
+        Args:
+            request: Batch retrieval request with memory IDs
+
+        Returns:
+            Batch response with retrieved memories and results
         """
         ...
 
@@ -472,22 +504,16 @@ class ProtocolMemoryHealthNode(Protocol):
 
     async def collect_metrics(
         self,
-        metric_types: list[str],
-        time_window_start: Optional[str] = None,
-        time_window_end: Optional[str] = None,
-        correlation_id: Optional[UUID] = None,
-    ) -> "ProtocolMemoryResponse":
+        request: "ProtocolMemoryMetricsRequest",
+    ) -> "ProtocolMemoryMetricsResponse":
         """
         Collect system metrics for specified time window.
 
         Args:
-            metric_types: Types of metrics to collect
-            time_window_start: Start of metrics collection window
-            time_window_end: End of metrics collection window
-            correlation_id: Request correlation ID
+            request: Metrics collection request with time window and options
 
         Returns:
-            Response with collected metrics
+            Response with collected metrics and aggregation summary
         """
         ...
 

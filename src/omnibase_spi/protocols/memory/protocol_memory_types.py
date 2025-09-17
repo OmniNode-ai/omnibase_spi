@@ -316,3 +316,227 @@ class ProtocolAggregationResponse(ProtocolMemoryResponse, Protocol):
 
     aggregated_data: dict[str, str]
     aggregation_metadata: dict[str, str]
+
+
+# === ERROR HANDLING PROTOCOLS ===
+
+
+@runtime_checkable
+class ProtocolMemoryError(Protocol):
+    """Protocol for standardized memory operation errors."""
+
+    error_code: str
+    error_message: str
+    error_timestamp: datetime
+    correlation_id: Optional[UUID]
+
+    @property
+    def error_context(self) -> dict[str, str]:
+        """Additional error context and debugging information."""
+        ...
+
+    @property
+    def recoverable(self) -> bool:
+        """Whether this error condition is recoverable."""
+        ...
+
+
+@runtime_checkable
+class ProtocolMemoryErrorResponse(ProtocolMemoryResponse, Protocol):
+    """Protocol for error responses from memory operations."""
+
+    error: ProtocolMemoryError
+    suggested_action: str
+
+    @property
+    def retry_after_seconds(self) -> Optional[int]:
+        """Suggested retry delay for transient errors."""
+        ...
+
+
+# === PAGINATION PROTOCOLS ===
+
+
+@runtime_checkable
+class ProtocolPaginationRequest(Protocol):
+    """Protocol for paginated request parameters."""
+
+    limit: int
+    offset: int
+    cursor: Optional[str]
+
+    @property
+    def sort_by(self) -> Optional[str]:
+        """Field to sort results by."""
+        ...
+
+    @property
+    def sort_order(self) -> str:
+        """Sort order: 'asc' or 'desc'."""
+        ...
+
+
+@runtime_checkable
+class ProtocolPaginationResponse(Protocol):
+    """Protocol for paginated response metadata."""
+
+    total_count: int
+    has_next_page: bool
+    has_previous_page: bool
+    next_cursor: Optional[str]
+    previous_cursor: Optional[str]
+
+    @property
+    def page_info(self) -> dict[str, str]:
+        """Additional pagination metadata."""
+        ...
+
+
+@runtime_checkable
+class ProtocolMemoryListRequest(ProtocolMemoryRequest, Protocol):
+    """Protocol for paginated memory list requests."""
+
+    pagination: ProtocolPaginationRequest
+    filters: Optional[ProtocolSearchFilters]
+
+    @property
+    def include_content(self) -> bool:
+        """Whether to include full memory content in results."""
+        ...
+
+
+@runtime_checkable
+class ProtocolMemoryListResponse(ProtocolMemoryResponse, Protocol):
+    """Protocol for paginated memory list responses."""
+
+    memories: list[ProtocolMemoryRecord]
+    pagination: ProtocolPaginationResponse
+
+
+# === METRICS PROTOCOLS ===
+
+
+@runtime_checkable
+class ProtocolMemoryMetrics(Protocol):
+    """Protocol for memory system performance metrics."""
+
+    operation_type: str
+    execution_time_ms: int
+    memory_usage_mb: float
+    timestamp: datetime
+
+    @property
+    def throughput_ops_per_second(self) -> float:
+        """Operations per second for this metric period."""
+        ...
+
+    @property
+    def error_rate_percent(self) -> float:
+        """Error rate as percentage for this operation type."""
+        ...
+
+    @property
+    def custom_metrics(self) -> dict[str, float]:
+        """Additional operation-specific metrics."""
+        ...
+
+
+@runtime_checkable
+class ProtocolMemoryMetricsRequest(ProtocolMemoryRequest, Protocol):
+    """Protocol for metrics collection requests."""
+
+    metric_types: list[str]
+    time_window_start: Optional[datetime]
+    time_window_end: Optional[datetime]
+    aggregation_level: str
+
+    @property
+    def include_detailed_breakdown(self) -> bool:
+        """Whether to include detailed metric breakdowns."""
+        ...
+
+
+@runtime_checkable
+class ProtocolMemoryMetricsResponse(ProtocolMemoryResponse, Protocol):
+    """Protocol for metrics collection responses."""
+
+    metrics: list[ProtocolMemoryMetrics]
+    aggregation_summary: dict[str, float]
+    collection_timestamp: datetime
+
+
+# === BATCH OPERATION PROTOCOLS ===
+
+
+@runtime_checkable
+class ProtocolBatchMemoryStoreRequest(ProtocolMemoryRequest, Protocol):
+    """Protocol for batch memory storage requests."""
+
+    memory_records: list[dict[str, str]]
+    batch_size: int
+    fail_on_first_error: bool
+
+    @property
+    def transaction_isolation(self) -> str:
+        """Transaction isolation level for batch operation."""
+        ...
+
+    @property
+    def parallel_execution(self) -> bool:
+        """Whether to execute batch operations in parallel."""
+        ...
+
+
+@runtime_checkable
+class ProtocolBatchOperationResult(Protocol):
+    """Protocol for individual batch operation results."""
+
+    operation_index: int
+    success: bool
+    result_id: Optional[UUID]
+    error: Optional[ProtocolMemoryError]
+
+    @property
+    def execution_time_ms(self) -> int:
+        """Execution time for this individual operation."""
+        ...
+
+
+@runtime_checkable
+class ProtocolBatchMemoryStoreResponse(ProtocolMemoryResponse, Protocol):
+    """Protocol for batch memory storage responses."""
+
+    results: list[ProtocolBatchOperationResult]
+    total_processed: int
+    successful_count: int
+    failed_count: int
+    batch_execution_time_ms: int
+
+    @property
+    def partial_success(self) -> bool:
+        """Whether batch had partial success (some operations failed)."""
+        ...
+
+
+@runtime_checkable
+class ProtocolBatchMemoryRetrieveRequest(ProtocolMemoryRequest, Protocol):
+    """Protocol for batch memory retrieval requests."""
+
+    memory_ids: list[UUID]
+    include_related: bool
+    fail_on_missing: bool
+
+    @property
+    def related_depth(self) -> int:
+        """Depth of related memory traversal for each record."""
+        ...
+
+
+@runtime_checkable
+class ProtocolBatchMemoryRetrieveResponse(ProtocolMemoryResponse, Protocol):
+    """Protocol for batch memory retrieval responses."""
+
+    results: list[ProtocolBatchOperationResult]
+    memories: list[ProtocolMemoryRecord]
+    missing_ids: list[UUID]
+    batch_execution_time_ms: int

@@ -23,15 +23,27 @@ from .protocol_memory_operations import (
 )
 
 # Protocol Types (Request/Response and Data Structures)
-from .protocol_memory_types import (  # Core Memory Protocols; Request/Response Base Protocols; Effect Node Types; Compute Node Types; Reducer Node Types; Orchestrator Node Types
+from .protocol_memory_types import (  # Core Memory Protocols; Request/Response Base Protocols; Effect Node Types; Compute Node Types; Reducer Node Types; Orchestrator Node Types; Error Handling; Pagination; Metrics; Batch Operations
     ProtocolAgentCoordinationRequest,
     ProtocolAgentCoordinationResponse,
     ProtocolAggregationRequest,
     ProtocolAggregationResponse,
+    ProtocolBatchMemoryRetrieveRequest,
+    ProtocolBatchMemoryRetrieveResponse,
+    ProtocolBatchMemoryStoreRequest,
+    ProtocolBatchMemoryStoreResponse,
+    ProtocolBatchOperationResult,
     ProtocolConsolidationRequest,
     ProtocolConsolidationResponse,
     ProtocolEmbeddingRequest,
     ProtocolEmbeddingResponse,
+    ProtocolMemoryError,
+    ProtocolMemoryErrorResponse,
+    ProtocolMemoryListRequest,
+    ProtocolMemoryListResponse,
+    ProtocolMemoryMetrics,
+    ProtocolMemoryMetricsRequest,
+    ProtocolMemoryMetricsResponse,
     ProtocolMemoryRecord,
     ProtocolMemoryRequest,
     ProtocolMemoryResponse,
@@ -39,6 +51,8 @@ from .protocol_memory_types import (  # Core Memory Protocols; Request/Response 
     ProtocolMemoryRetrieveResponse,
     ProtocolMemoryStoreRequest,
     ProtocolMemoryStoreResponse,
+    ProtocolPaginationRequest,
+    ProtocolPaginationResponse,
     ProtocolPatternAnalysisRequest,
     ProtocolPatternAnalysisResponse,
     ProtocolSearchFilters,
@@ -68,6 +82,8 @@ __all__ = [
     "ProtocolMemoryStoreResponse",
     "ProtocolMemoryRetrieveRequest",
     "ProtocolMemoryRetrieveResponse",
+    "ProtocolMemoryListRequest",
+    "ProtocolMemoryListResponse",
     # Compute Node Request/Response Types
     "ProtocolSemanticSearchRequest",
     "ProtocolSemanticSearchResponse",
@@ -85,4 +101,20 @@ __all__ = [
     "ProtocolWorkflowExecutionResponse",
     "ProtocolAgentCoordinationRequest",
     "ProtocolAgentCoordinationResponse",
+    # Error Handling Protocols
+    "ProtocolMemoryError",
+    "ProtocolMemoryErrorResponse",
+    # Pagination Protocols
+    "ProtocolPaginationRequest",
+    "ProtocolPaginationResponse",
+    # Metrics Protocols
+    "ProtocolMemoryMetrics",
+    "ProtocolMemoryMetricsRequest",
+    "ProtocolMemoryMetricsResponse",
+    # Batch Operation Protocols
+    "ProtocolBatchMemoryStoreRequest",
+    "ProtocolBatchMemoryStoreResponse",
+    "ProtocolBatchMemoryRetrieveRequest",
+    "ProtocolBatchMemoryRetrieveResponse",
+    "ProtocolBatchOperationResult",
 ]
