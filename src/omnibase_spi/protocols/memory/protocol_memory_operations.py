@@ -16,35 +16,37 @@ from typing import TYPE_CHECKING, Optional, Protocol, runtime_checkable
 from uuid import UUID
 
 if TYPE_CHECKING:
-    from .protocol_memory_types import (
+    from .protocol_memory_base import (
         AnalysisType,
         CompressionAlgorithm,
-        ProtocolAgentCoordinationRequest,
-        ProtocolAgentCoordinationResponse,
         ProtocolAggregationCriteria,
-        ProtocolBatchMemoryRetrieveRequest,
-        ProtocolBatchMemoryRetrieveResponse,
-        ProtocolBatchMemoryStoreRequest,
-        ProtocolBatchMemoryStoreResponse,
-        ProtocolConsolidationRequest,
-        ProtocolConsolidationResponse,
-        ProtocolMemoryListRequest,
-        ProtocolMemoryListResponse,
         ProtocolMemoryMetadata,
+    )
+    from .protocol_memory_requests import (
+        ProtocolAgentCoordinationRequest,
+        ProtocolBatchMemoryRetrieveRequest,
+        ProtocolBatchMemoryStoreRequest,
+        ProtocolConsolidationRequest,
+        ProtocolMemoryListRequest,
         ProtocolMemoryMetricsRequest,
-        ProtocolMemoryMetricsResponse,
-        ProtocolMemoryRecord,
-        ProtocolMemoryRequest,
-        ProtocolMemoryResponse,
         ProtocolMemoryRetrieveRequest,
-        ProtocolMemoryRetrieveResponse,
         ProtocolMemoryStoreRequest,
-        ProtocolMemoryStoreResponse,
         ProtocolPatternAnalysisRequest,
-        ProtocolPatternAnalysisResponse,
         ProtocolSemanticSearchRequest,
-        ProtocolSemanticSearchResponse,
         ProtocolWorkflowExecutionRequest,
+    )
+    from .protocol_memory_responses import (
+        ProtocolAgentCoordinationResponse,
+        ProtocolBatchMemoryRetrieveResponse,
+        ProtocolBatchMemoryStoreResponse,
+        ProtocolConsolidationResponse,
+        ProtocolMemoryListResponse,
+        ProtocolMemoryMetricsResponse,
+        ProtocolMemoryResponse,
+        ProtocolMemoryRetrieveResponse,
+        ProtocolMemoryStoreResponse,
+        ProtocolPatternAnalysisResponse,
+        ProtocolSemanticSearchResponse,
         ProtocolWorkflowExecutionResponse,
     )
 
@@ -145,12 +147,14 @@ class ProtocolMemoryEffectNode(Protocol):
     async def batch_store_memories(
         self,
         request: "ProtocolBatchMemoryStoreRequest",
+        timeout_seconds: Optional[float] = None,
     ) -> "ProtocolBatchMemoryStoreResponse":
         """
         Store multiple memory records in a single batch operation.
 
         Args:
             request: Batch storage request with multiple memory records
+            timeout_seconds: Optional timeout for batch storage operation
 
         Returns:
             Batch response with individual operation results
@@ -160,12 +164,14 @@ class ProtocolMemoryEffectNode(Protocol):
     async def batch_retrieve_memories(
         self,
         request: "ProtocolBatchMemoryRetrieveRequest",
+        timeout_seconds: Optional[float] = None,
     ) -> "ProtocolBatchMemoryRetrieveResponse":
         """
         Retrieve multiple memory records in a single batch operation.
 
         Args:
             request: Batch retrieval request with memory IDs
+            timeout_seconds: Optional timeout for batch retrieval operation
 
         Returns:
             Batch response with retrieved memories and results
@@ -369,6 +375,7 @@ class ProtocolMemoryReducerNode(Protocol):
         self,
         optimization_strategy: str,
         correlation_id: Optional[UUID] = None,
+        timeout_seconds: Optional[float] = None,
     ) -> "ProtocolMemoryResponse":
         """
         Optimize memory storage layout and access patterns.
@@ -376,6 +383,7 @@ class ProtocolMemoryReducerNode(Protocol):
         Args:
             optimization_strategy: Strategy for storage optimization
             correlation_id: Request correlation ID
+            timeout_seconds: Optional timeout for optimization operation
 
         Returns:
             Response with optimization results
@@ -398,12 +406,14 @@ class ProtocolMemoryOrchestratorNode(Protocol):
     async def execute_workflow(
         self,
         request: "ProtocolWorkflowExecutionRequest",
+        timeout_seconds: Optional[float] = None,
     ) -> "ProtocolWorkflowExecutionResponse":
         """
         Execute a memory workflow across multiple nodes and agents.
 
         Args:
             request: Workflow execution request with type and config
+            timeout_seconds: Optional timeout for workflow execution
 
         Returns:
             Execution response with workflow ID and status
