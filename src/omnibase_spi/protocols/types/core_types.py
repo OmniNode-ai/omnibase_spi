@@ -249,3 +249,246 @@ class ProtocolNodeResult(Protocol):
     metadata: dict[str, ContextValue]
     events: list[ProtocolSystemEvent]
     state_delta: dict[str, ContextValue]
+
+
+# Service Discovery Types
+class ProtocolServiceMetadata(Protocol):
+    """Protocol for service metadata."""
+
+    data: dict[str, ContextValue]
+    version: ProtocolSemVer
+    capabilities: list[str]
+    tags: list[str]
+
+
+class ProtocolServiceInstance(Protocol):
+    """Protocol for service instance information."""
+
+    service_id: str
+    service_name: str
+    host: str
+    port: int
+    metadata: ProtocolServiceMetadata
+    health_status: HealthStatus
+    last_seen: ProtocolDateTime
+
+
+class ProtocolServiceHealthStatus(Protocol):
+    """Protocol for service health status."""
+
+    service_id: str
+    status: HealthStatus
+    last_check: ProtocolDateTime
+    details: dict[str, ContextValue]
+
+
+# Node Configuration Types
+class ProtocolNodeConfiguration(Protocol):
+    """Protocol for node configuration information."""
+
+    name: str
+    version: ProtocolSemVer
+    node_type: NodeType
+    dependencies: list[str]
+    capabilities: list[str]
+    runtime_requirements: dict[str, ContextValue]
+    metadata: dict[str, ContextValue]
+
+
+# Storage Backend Types
+class ProtocolCheckpointData(Protocol):
+    """Protocol for checkpoint data."""
+
+    checkpoint_id: str
+    workflow_id: str
+    data: dict[str, ContextValue]
+    timestamp: ProtocolDateTime
+    metadata: dict[str, ContextValue]
+
+
+class ProtocolStorageCredentials(Protocol):
+    """Protocol for storage credentials."""
+
+    credential_type: str
+    data: dict[str, str]
+
+
+class ProtocolStorageConfiguration(Protocol):
+    """Protocol for storage configuration."""
+
+    backend_type: str
+    connection_string: str
+    options: dict[str, ContextValue]
+    timeout_seconds: int
+
+
+class ProtocolStorageResult(Protocol):
+    """Protocol for storage operation results."""
+
+    success: bool
+    data: dict[str, ContextValue] | None
+    error_message: str | None
+    operation_id: str
+
+
+class ProtocolStorageListResult(Protocol):
+    """Protocol for storage list operation results."""
+
+    success: bool
+    items: list[dict[str, ContextValue]]
+    total_count: int
+    has_more: bool
+    error_message: str | None
+
+
+class ProtocolStorageHealthStatus(Protocol):
+    """Protocol for storage health status."""
+
+    is_healthy: bool
+    status_details: dict[str, ContextValue]
+    capacity_info: dict[str, int] | None
+    last_check: ProtocolDateTime
+
+
+# Standardized Error Handling Types
+ErrorRecoveryStrategy = Literal[
+    "retry", "fallback", "abort", "circuit_breaker", "compensation"
+]
+ErrorSeverity = Literal["low", "medium", "high", "critical"]
+
+
+class ProtocolErrorContext(Protocol):
+    """Protocol for error context information."""
+
+    correlation_id: UUID
+    operation_name: str
+    timestamp: ProtocolDateTime
+    context_data: dict[str, ContextValue]
+    stack_trace: str | None
+
+
+class ProtocolRecoveryAction(Protocol):
+    """Protocol for error recovery action information."""
+
+    action_type: ErrorRecoveryStrategy
+    max_attempts: int
+    backoff_multiplier: float
+    timeout_seconds: int
+    fallback_value: ContextValue | None
+
+
+class ProtocolErrorResult(Protocol):
+    """Protocol for standardized error results."""
+
+    error_id: UUID
+    error_type: str
+    message: str
+    severity: ErrorSeverity
+    retryable: bool
+    recovery_action: ProtocolRecoveryAction | None
+    context: ProtocolErrorContext
+
+
+# Protocol Versioning and Metadata Types
+class ProtocolVersionInfo(Protocol):
+    """Protocol for version metadata."""
+
+    protocol_name: str
+    version: ProtocolSemVer
+    compatibility_version: ProtocolSemVer
+    retirement_date: ProtocolDateTime | None
+    migration_guide_url: str | None
+
+
+class ProtocolCompatibilityCheck(Protocol):
+    """Protocol for compatibility checking results."""
+
+    is_compatible: bool
+    required_version: ProtocolSemVer
+    current_version: ProtocolSemVer
+    breaking_changes: list[str]
+    migration_required: bool
+
+
+# Standardized Health Check Types
+HealthCheckLevel = Literal["quick", "basic", "standard", "thorough", "comprehensive"]
+HealthDimension = Literal[
+    "availability", "performance", "functionality", "data_integrity", "security"
+]
+
+
+class ProtocolHealthMetrics(Protocol):
+    """Protocol for health check metrics."""
+
+    response_time_ms: float
+    cpu_usage_percent: float
+    memory_usage_percent: float
+    disk_usage_percent: float
+    connection_count: int
+    error_rate_percent: float
+    throughput_per_second: float
+
+
+class ProtocolHealthCheck(Protocol):
+    """Protocol for standardized health checks."""
+
+    service_name: str
+    check_level: HealthCheckLevel
+    dimensions_checked: list[HealthDimension]
+    overall_status: HealthStatus
+    individual_checks: dict[str, HealthStatus]
+    metrics: ProtocolHealthMetrics
+    check_duration_ms: float
+    timestamp: ProtocolDateTime
+    recommendations: list[str]
+
+
+class ProtocolHealthMonitoring(Protocol):
+    """Protocol for health monitoring configuration."""
+
+    check_interval_seconds: int
+    timeout_seconds: int
+    failure_threshold: int
+    recovery_threshold: int
+    alert_on_status: list[HealthStatus]
+    escalation_rules: dict[str, ContextValue]
+
+
+# Observability and Monitoring Types
+class ProtocolMetricsPoint(Protocol):
+    """Protocol for individual metrics points."""
+
+    metric_name: str
+    value: float
+    unit: str
+    timestamp: ProtocolDateTime
+    tags: dict[str, str]
+    dimensions: dict[str, ContextValue]
+
+
+class ProtocolTraceSpan(Protocol):
+    """Protocol for distributed tracing spans."""
+
+    span_id: UUID
+    trace_id: UUID
+    parent_span_id: UUID | None
+    operation_name: str
+    start_time: ProtocolDateTime
+    end_time: ProtocolDateTime | None
+    status: OperationStatus
+    tags: dict[str, str]
+    logs: list[dict[str, ContextValue]]
+
+
+class ProtocolAuditEvent(Protocol):
+    """Protocol for audit events."""
+
+    event_id: UUID
+    event_type: str
+    actor: str
+    resource: str
+    action: str
+    timestamp: ProtocolDateTime
+    outcome: OperationStatus
+    metadata: dict[str, ContextValue]
+    sensitivity_level: Literal["public", "internal", "confidential", "restricted"]

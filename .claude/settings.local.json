@@ -67,7 +67,8 @@
       "mcp__serena__get_symbols_overview",
       "mcp__serena__find_file",
       "mcp__archon__apply_performance_optimization",
-      "mcp__archon__create_version"
+      "mcp__archon__create_version",
+      "Bash(./scripts/validate-namespace-isolation.sh:*)"
     ],
     "deny": [],
     "ask": []

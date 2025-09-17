@@ -74,6 +74,9 @@ from omnibase_spi.protocols.mcp.protocol_mcp_validator import (
     ProtocolMCPToolValidator,
     ProtocolMCPValidator,
 )
+from omnibase_spi.protocols.mcp.protocol_tool_discovery_service import (
+    ProtocolToolDiscoveryService,
+)
 
 __all__ = [
     # Core registry protocols
@@ -96,4 +99,6 @@ __all__ = [
     # Monitoring protocols
     "ProtocolMCPMonitor",
     "ProtocolMCPHealthMonitor",
+    # Tool discovery service
+    "ProtocolToolDiscoveryService",
 ]

@@ -13,6 +13,15 @@ from .protocol_event_bus import (
     ProtocolEventBusAdapter,
     ProtocolEventMessage,
 )
+from .protocol_event_bus_context_manager import ProtocolEventBusContextManager
+from .protocol_event_bus_in_memory import ProtocolEventBusInMemory
+from .protocol_event_bus_mixin import (
+    ProtocolAsyncEventBus,
+    ProtocolEventBusBase,
+    ProtocolLogEmitter,
+    ProtocolRegistryWithBus,
+    ProtocolSyncEventBus,
+)
 from .protocol_event_bus_service import (
     EventBusAdapterType,
     EventBusServiceType,
@@ -26,6 +35,15 @@ __all__ = [
     "ProtocolEventMessage",
     "ProtocolEventBusAdapter",
     "ProtocolEventBus",
+    # Context management and in-memory protocols
+    "ProtocolEventBusContextManager",
+    "ProtocolEventBusInMemory",
+    # Mixin protocols
+    "ProtocolEventBusBase",
+    "ProtocolSyncEventBus",
+    "ProtocolAsyncEventBus",
+    "ProtocolRegistryWithBus",
+    "ProtocolLogEmitter",
     # Backend adapter protocols
     "ProtocolKafkaAdapter",
     "ProtocolRedpandaAdapter",

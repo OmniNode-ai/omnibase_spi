@@ -6,9 +6,13 @@ Defines the required interface that all event bus service implementations must f
 This ensures consistency and prevents runtime errors from missing methods.
 """
 
-from typing import Any, Protocol
+from typing import TYPE_CHECKING, Callable, Protocol, runtime_checkable
+
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.types.event_bus_types import ProtocolEventMessage
 
 
+@runtime_checkable
 class ProtocolEventBusService(Protocol):
     """
     Protocol defining the required interface for event bus service implementations.
@@ -22,7 +26,7 @@ class ProtocolEventBusService(Protocol):
     This protocol prevents runtime errors like missing shutdown() methods.
     """
 
-    def get_event_bus(self) -> Any:
+    def get_event_bus(self) -> "ProtocolEventMessage":
         """
         Get the event bus instance for publishing and subscribing to events.
 
@@ -72,6 +76,7 @@ class ProtocolEventBusService(Protocol):
         ...
 
 
+@runtime_checkable
 class ProtocolEventBusAdapter(Protocol):
     """
     Protocol for event bus adapters that wrap HTTP/network event bus services.
@@ -79,7 +84,7 @@ class ProtocolEventBusAdapter(Protocol):
     This is for lightweight adapters that connect to external event bus services.
     """
 
-    def publish(self, event: Any) -> bool:
+    def publish(self, event: "ProtocolEventMessage") -> bool:
         """
         Publish an event to the event bus.
 
@@ -91,7 +96,7 @@ class ProtocolEventBusAdapter(Protocol):
         """
         ...
 
-    def subscribe(self, handler: Any) -> bool:
+    def subscribe(self, handler: Callable[["ProtocolEventMessage"], bool]) -> bool:
         """
         Subscribe to events with a handler function.
 
@@ -103,7 +108,7 @@ class ProtocolEventBusAdapter(Protocol):
         """
         ...
 
-    def unsubscribe(self, handler: Any) -> bool:
+    def unsubscribe(self, handler: Callable[["ProtocolEventMessage"], bool]) -> bool:
         """
         Unsubscribe a handler from events.
 

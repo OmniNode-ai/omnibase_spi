@@ -13,6 +13,7 @@ from .protocol_artifact_container import (
     ProtocolArtifactInfo,
     ProtocolArtifactMetadata,
 )
+from .protocol_container_service import ProtocolContainerService
 from .protocol_service_registry import (
     InjectionScope,
     ProtocolDependencyGraph,
@@ -32,6 +33,8 @@ from .protocol_service_registry import (
 )
 
 __all__ = [
+    # Container service protocols
+    "ProtocolContainerService",
     # Artifact container types
     "ContainerArtifactType",
     "ProtocolArtifactMetadata",

@@ -33,14 +33,15 @@ Usage Examples:
     from omnibase_spi.protocols.types import LogLevel, WorkflowState
 """
 
-# Container protocols (18 protocols)
-from omnibase_spi.protocols.container import (
+# Container protocols (19 protocols)
+from omnibase_spi.protocols.container import (  # Phase 3 additions
     ContainerArtifactType,
     InjectionScope,
     ProtocolArtifactContainer,
     ProtocolArtifactContainerStatus,
     ProtocolArtifactInfo,
     ProtocolArtifactMetadata,
+    ProtocolContainerService,
     ProtocolDependencyGraph,
     ProtocolInjectionContext,
     ProtocolServiceDependency,
@@ -57,8 +58,8 @@ from omnibase_spi.protocols.container import (
     ServiceResolutionStatus,
 )
 
-# Core protocols (41 protocols)
-from omnibase_spi.protocols.core import (
+# Core protocols (42 protocols)
+from omnibase_spi.protocols.core import (  # Phase 1 additions; Phase 3 additions
     ProtocolCacheService,
     ProtocolCacheServiceProvider,
     ProtocolCircuitBreaker,
@@ -70,6 +71,7 @@ from omnibase_spi.protocols.core import (
     ProtocolConfigurationError,
     ProtocolConfigurationManager,
     ProtocolConfigurationManagerFactory,
+    ProtocolContractService,
     ProtocolErrorSanitizer,
     ProtocolErrorSanitizerFactory,
     ProtocolHttpAuthConfig,
@@ -95,6 +97,10 @@ from omnibase_spi.protocols.core import (
     ProtocolNodeConfigurationProvider,
     ProtocolNodeInfo,
     ProtocolNodeRegistry,
+    ProtocolOnexNode,
+    ProtocolServiceDiscovery,
+    ProtocolStorageBackend,
+    ProtocolStorageBackendFactory,
     ProtocolUtilsNodeConfiguration,
     ProtocolWorkflowReducer,
 )
@@ -106,13 +112,20 @@ from omnibase_spi.protocols.discovery import (
     ProtocolNodeDiscoveryRegistry,
 )
 
-# Event bus protocols (5 protocols)
-from omnibase_spi.protocols.event_bus import (
+# Event bus protocols (12 protocols)
+from omnibase_spi.protocols.event_bus import (  # Phase 2 additions
+    ProtocolAsyncEventBus,
     ProtocolEventBus,
     ProtocolEventBusAdapter,
+    ProtocolEventBusContextManager,
+    ProtocolEventBusInMemory,
+    ProtocolEventBusService,
     ProtocolEventMessage,
     ProtocolKafkaAdapter,
+    ProtocolLogEmitter,
     ProtocolRedpandaAdapter,
+    ProtocolRegistryWithBus,
+    ProtocolSyncEventBus,
 )
 
 # File handling protocols (3 protocols)
@@ -122,8 +135,8 @@ from omnibase_spi.protocols.file_handling import (
     ProtocolValidationOptions,
 )
 
-# MCP protocols (12 protocols)
-from omnibase_spi.protocols.mcp import (
+# MCP protocols (15 protocols)
+from omnibase_spi.protocols.mcp import (  # Phase 3 additions
     ProtocolMCPDiscovery,
     ProtocolMCPHealthMonitor,
     ProtocolMCPMonitor,
@@ -138,6 +151,7 @@ from omnibase_spi.protocols.mcp import (
     ProtocolMCPToolRouter,
     ProtocolMCPToolValidator,
     ProtocolMCPValidator,
+    ProtocolToolDiscoveryService,
 )
 
 # Validation protocols (4 protocols)
@@ -209,6 +223,13 @@ __all__ = [
     "ProtocolNodeRegistry",
     "ProtocolUtilsNodeConfiguration",
     "ProtocolWorkflowReducer",
+    # Phase 1 additions
+    "ProtocolServiceDiscovery",
+    "ProtocolOnexNode",
+    "ProtocolStorageBackend",
+    "ProtocolStorageBackendFactory",
+    # Phase 3 additions
+    "ProtocolContractService",
     # Workflow orchestration protocols
     "ProtocolWorkflowEventBus",
     "ProtocolWorkflowEventHandler",
@@ -240,12 +261,22 @@ __all__ = [
     "ProtocolMCPToolValidator",
     "ProtocolMCPMonitor",
     "ProtocolMCPHealthMonitor",
+    # Phase 3 additions
+    "ProtocolToolDiscoveryService",
     # Event bus protocols
     "ProtocolEventMessage",
     "ProtocolEventBusAdapter",
     "ProtocolEventBus",
     "ProtocolKafkaAdapter",
     "ProtocolRedpandaAdapter",
+    # Phase 2 additions
+    "ProtocolEventBusContextManager",
+    "ProtocolEventBusInMemory",
+    "ProtocolSyncEventBus",
+    "ProtocolAsyncEventBus",
+    "ProtocolRegistryWithBus",
+    "ProtocolLogEmitter",
+    "ProtocolEventBusService",
     # Container protocols
     "ContainerArtifactType",
     "ProtocolArtifactMetadata",
@@ -267,6 +298,8 @@ __all__ = [
     "ProtocolServiceValidator",
     "ProtocolServiceFactory",
     "ProtocolServiceRegistry",
+    # Phase 3 additions
+    "ProtocolContainerService",
     # Discovery protocols
     "ProtocolHandlerInfo",
     "ProtocolHandlerDiscovery",
@@ -284,8 +317,6 @@ __all__ = [
     "ProtocolValidationOptions",
 ]
 
-from .event_bus.protocol_event_bus_service import ProtocolEventBusService
-
 # Import moved protocols for easy access
 from .file_handling.protocol_file_reader import ProtocolFileReader
 from .workflow_orchestration.protocol_work_queue import (
@@ -300,5 +331,4 @@ _MOVED_PROTOCOLS = [
     "ProtocolWorkQueue",
     "WorkQueuePriority",
     "AssignmentStrategy",
-    "ProtocolEventBusService",
 ]

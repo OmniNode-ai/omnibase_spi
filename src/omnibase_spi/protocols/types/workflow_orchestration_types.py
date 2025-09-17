@@ -4,7 +4,7 @@ Workflow orchestration protocol types for ONEX SPI interfaces.
 Domain: Event-driven workflow orchestration with FSM states and event sourcing
 """
 
-from typing import Any, Literal, Optional, Protocol, Union
+from typing import Any, Literal, Optional, Protocol, TypeAlias, Union, runtime_checkable
 from uuid import UUID
 
 from omnibase_spi.protocols.types.core_types import (
@@ -14,9 +14,34 @@ from omnibase_spi.protocols.types.core_types import (
     ProtocolSemVer,
 )
 
-# Workflow data types - specific typed values for workflow contexts
-WorkflowData = Union[
-    str, int, float, bool, list[str], dict[str, Union[str, int, float, bool]]
+# === Protocol-Based Value Types ===
+
+
+@runtime_checkable
+class ProtocolWorkflowValue(Protocol):
+    """Protocol for workflow data values supporting serialization and validation."""
+
+    def serialize(self) -> dict[str, object]:
+        """Serialize value to dictionary for persistence."""
+        ...
+
+    def validate(self) -> bool:
+        """Validate the value meets workflow constraints."""
+        ...
+
+    def get_type_info(self) -> str:
+        """Get type information for workflow introspection."""
+        ...
+
+
+# === Clean Type Aliases ===
+
+# Basic primitive types for workflow data
+BasicWorkflowValue: TypeAlias = Union[str, int, float, bool]
+
+# Structured workflow data using cleaner type definitions
+WorkflowData: TypeAlias = Union[
+    BasicWorkflowValue, list[str], dict[str, BasicWorkflowValue]
 ]
 
 # Workflow state types - hierarchical FSM states
