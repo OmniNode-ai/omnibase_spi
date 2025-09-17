@@ -23,6 +23,9 @@ from datetime import datetime
 from typing import TYPE_CHECKING, AsyncIterator, Optional, Protocol, runtime_checkable
 from uuid import UUID
 
+# Import for runtime type annotation
+from .protocol_memory_errors import ProtocolMemoryError
+
 if TYPE_CHECKING:
     from .protocol_memory_base import (
         ProtocolAgentResponseMap,
@@ -36,7 +39,6 @@ if TYPE_CHECKING:
         ProtocolPageInfo,
         ProtocolSearchResult,
     )
-    from .protocol_memory_errors import ProtocolMemoryError
 
 
 # === BASE RESPONSE PROTOCOLS ===
@@ -94,7 +96,7 @@ class ProtocolBatchOperationResult(Protocol):
     operation_index: int
     success: bool
     result_id: Optional[UUID]
-    error: Optional["ProtocolMemoryError"]
+    error: Optional[ProtocolMemoryError]
 
     @property
     def execution_time_ms(self) -> int:

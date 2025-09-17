@@ -70,6 +70,7 @@ class MockMemoryError:
         self.error_message = error_message
         self.error_timestamp = error_timestamp
         self.correlation_id = correlation_id
+        self.error_category = "system"  # Required by ProtocolMemoryError
 
     @property
     def error_context(self) -> dict[str, str]:
@@ -78,6 +79,11 @@ class MockMemoryError:
     @property
     def recoverable(self) -> bool:
         return self.error_code not in ["FATAL", "PERMANENT"]
+
+    @property
+    def retry_strategy(self) -> Optional[str]:
+        """Suggested retry strategy for recoverable errors."""
+        return "exponential_backoff" if self.recoverable else None
 
 
 class MockPaginationRequest:

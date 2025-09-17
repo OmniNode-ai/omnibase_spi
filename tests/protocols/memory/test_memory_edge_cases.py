@@ -270,8 +270,9 @@ class TestMemoryProtocolEdgeCases:
     @pytest.mark.asyncio
     async def test_memory_exhaustion_graceful_degradation(self, mock_effect_node):
         """Test graceful degradation when memory is exhausted."""
-        # Simulate memory exhaustion by setting failure mode
+        # Simulate memory exhaustion by setting failure mode and delay to trigger sleep
         mock_effect_node.failure_mode = "memory_exhaustion"
+        mock_effect_node.delay_seconds = 0.1  # Ensure asyncio.sleep is called
 
         with patch("asyncio.sleep", side_effect=MemoryError("Out of memory")):
             with pytest.raises(MemoryError):
@@ -572,10 +573,13 @@ class TestMemoryProtocolPerformanceBenchmarks:
         """Test memory usage efficiency during operations."""
         import os
 
-        import psutil
+        try:
+            import psutil
 
-        process = psutil.Process(os.getpid())
-        initial_memory = process.memory_info().rss
+            process = psutil.Process(os.getpid())
+            initial_memory = process.memory_info().rss
+        except ImportError:
+            pytest.skip("psutil not available, skipping memory usage test")
 
         # Perform many operations
         tasks = [
