@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from .protocol_memory_types import (
         ProtocolAgentCoordinationRequest,
         ProtocolAgentCoordinationResponse,
+        ProtocolAggregationCriteria,
         ProtocolBatchMemoryRetrieveRequest,
         ProtocolBatchMemoryRetrieveResponse,
         ProtocolBatchMemoryStoreRequest,
@@ -27,6 +28,7 @@ if TYPE_CHECKING:
         ProtocolConsolidationResponse,
         ProtocolMemoryListRequest,
         ProtocolMemoryListResponse,
+        ProtocolMemoryMetadata,
         ProtocolMemoryMetricsRequest,
         ProtocolMemoryMetricsResponse,
         ProtocolMemoryRecord,
@@ -90,7 +92,7 @@ class ProtocolMemoryEffectNode(Protocol):
     async def update_memory(
         self,
         memory_id: UUID,
-        updates: dict[str, str],
+        updates: "ProtocolMemoryMetadata",
         correlation_id: Optional[UUID] = None,
     ) -> "ProtocolMemoryResponse":
         """
@@ -298,7 +300,7 @@ class ProtocolMemoryReducerNode(Protocol):
 
     async def deduplicate_memories(
         self,
-        memory_scope: dict[str, str],
+        memory_scope: "ProtocolMemoryMetadata",
         similarity_threshold: float = 0.95,
         correlation_id: Optional[UUID] = None,
     ) -> "ProtocolMemoryResponse":
@@ -317,7 +319,7 @@ class ProtocolMemoryReducerNode(Protocol):
 
     async def aggregate_data(
         self,
-        aggregation_criteria: dict[str, str],
+        aggregation_criteria: "ProtocolAggregationCriteria",
         time_window_start: Optional[str] = None,
         time_window_end: Optional[str] = None,
         correlation_id: Optional[UUID] = None,
@@ -420,7 +422,7 @@ class ProtocolMemoryOrchestratorNode(Protocol):
     async def broadcast_update(
         self,
         update_type: str,
-        update_data: dict[str, str],
+        update_data: "ProtocolMemoryMetadata",
         target_agents: Optional[list[UUID]] = None,
         correlation_id: Optional[UUID] = None,
     ) -> "ProtocolMemoryResponse":
@@ -441,7 +443,7 @@ class ProtocolMemoryOrchestratorNode(Protocol):
     async def synchronize_state(
         self,
         agent_ids: list[UUID],
-        synchronization_scope: dict[str, str],
+        synchronization_scope: "ProtocolMemoryMetadata",
         correlation_id: Optional[UUID] = None,
     ) -> "ProtocolMemoryResponse":
         """
@@ -459,7 +461,7 @@ class ProtocolMemoryOrchestratorNode(Protocol):
 
     async def manage_lifecycle(
         self,
-        lifecycle_policies: dict[str, str],
+        lifecycle_policies: "ProtocolMemoryMetadata",
         correlation_id: Optional[UUID] = None,
     ) -> "ProtocolMemoryResponse":
         """

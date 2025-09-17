@@ -20,6 +20,222 @@ if TYPE_CHECKING:
 
 
 @runtime_checkable
+class ProtocolMemoryMetadata(Protocol):
+    """Protocol for memory metadata structures."""
+
+    @property
+    def metadata_keys(self) -> list[str]:
+        """Available metadata keys."""
+        ...
+
+    def get_metadata_value(self, key: str) -> Optional[str]:
+        """Get metadata value by key."""
+        ...
+
+    def has_metadata_key(self, key: str) -> bool:
+        """Check if metadata key exists."""
+        ...
+
+
+@runtime_checkable
+class ProtocolWorkflowConfiguration(Protocol):
+    """Protocol for workflow configuration structures."""
+
+    @property
+    def configuration_keys(self) -> list[str]:
+        """Available configuration keys."""
+        ...
+
+    def get_configuration_value(self, key: str) -> Optional[str]:
+        """Get configuration value by key."""
+        ...
+
+    def validate_configuration(self) -> bool:
+        """Validate configuration completeness."""
+        ...
+
+
+@runtime_checkable
+class ProtocolAnalysisParameters(Protocol):
+    """Protocol for analysis parameter structures."""
+
+    @property
+    def parameter_keys(self) -> list[str]:
+        """Available parameter keys."""
+        ...
+
+    def get_parameter_value(self, key: str) -> Optional[str]:
+        """Get parameter value by key."""
+        ...
+
+    def validate_parameters(self) -> bool:
+        """Validate parameter completeness."""
+        ...
+
+
+@runtime_checkable
+class ProtocolAggregationCriteria(Protocol):
+    """Protocol for aggregation criteria structures."""
+
+    @property
+    def criteria_keys(self) -> list[str]:
+        """Available criteria keys."""
+        ...
+
+    def get_criteria_value(self, key: str) -> Optional[str]:
+        """Get criteria value by key."""
+        ...
+
+    def validate_criteria(self) -> bool:
+        """Validate criteria completeness."""
+        ...
+
+
+@runtime_checkable
+class ProtocolCoordinationMetadata(Protocol):
+    """Protocol for coordination metadata structures."""
+
+    @property
+    def metadata_keys(self) -> list[str]:
+        """Available metadata keys."""
+        ...
+
+    def get_metadata_value(self, key: str) -> Optional[str]:
+        """Get metadata value by key."""
+        ...
+
+    def validate_metadata(self) -> bool:
+        """Validate metadata completeness."""
+        ...
+
+
+@runtime_checkable
+class ProtocolAnalysisResults(Protocol):
+    """Protocol for analysis result structures."""
+
+    @property
+    def result_keys(self) -> list[str]:
+        """Available result keys."""
+        ...
+
+    def get_result_value(self, key: str) -> Optional[str]:
+        """Get result value by key."""
+        ...
+
+    def has_result_key(self, key: str) -> bool:
+        """Check if result key exists."""
+        ...
+
+
+@runtime_checkable
+class ProtocolAggregatedData(Protocol):
+    """Protocol for aggregated data structures."""
+
+    @property
+    def data_keys(self) -> list[str]:
+        """Available data keys."""
+        ...
+
+    def get_data_value(self, key: str) -> Optional[str]:
+        """Get data value by key."""
+        ...
+
+    def validate_data(self) -> bool:
+        """Validate data completeness."""
+        ...
+
+
+@runtime_checkable
+class ProtocolErrorContext(Protocol):
+    """Protocol for error context structures."""
+
+    @property
+    def context_keys(self) -> list[str]:
+        """Available context keys."""
+        ...
+
+    def get_context_value(self, key: str) -> Optional[str]:
+        """Get context value by key."""
+        ...
+
+    def add_context(self, key: str, value: str) -> None:
+        """Add context information."""
+        ...
+
+
+@runtime_checkable
+class ProtocolPageInfo(Protocol):
+    """Protocol for pagination information structures."""
+
+    @property
+    def info_keys(self) -> list[str]:
+        """Available info keys."""
+        ...
+
+    def get_info_value(self, key: str) -> Optional[str]:
+        """Get info value by key."""
+        ...
+
+    def has_next_page(self) -> bool:
+        """Check if next page exists."""
+        ...
+
+
+@runtime_checkable
+class ProtocolCustomMetrics(Protocol):
+    """Protocol for custom metrics structures."""
+
+    @property
+    def metric_names(self) -> list[str]:
+        """Available metric names."""
+        ...
+
+    def get_metric_value(self, name: str) -> Optional[float]:
+        """Get metric value by name."""
+        ...
+
+    def has_metric(self, name: str) -> bool:
+        """Check if metric exists."""
+        ...
+
+
+@runtime_checkable
+class ProtocolAggregationSummary(Protocol):
+    """Protocol for aggregation summary structures."""
+
+    @property
+    def summary_keys(self) -> list[str]:
+        """Available summary keys."""
+        ...
+
+    def get_summary_value(self, key: str) -> Optional[float]:
+        """Get summary value by key."""
+        ...
+
+    def calculate_total(self) -> float:
+        """Calculate total aggregated value."""
+        ...
+
+
+@runtime_checkable
+class ProtocolMemoryRecordData(Protocol):
+    """Protocol for memory record data structures."""
+
+    @property
+    def data_keys(self) -> list[str]:
+        """Available data keys."""
+        ...
+
+    def get_data_value(self, key: str) -> Optional[str]:
+        """Get data value by key."""
+        ...
+
+    def validate_record_data(self) -> bool:
+        """Validate record data completeness."""
+        ...
+
+
+@runtime_checkable
 class ProtocolMemoryRecord(Protocol):
     """Protocol for memory record data structure."""
 
@@ -114,7 +330,7 @@ class ProtocolMemoryStoreRequest(ProtocolMemoryRequest, Protocol):
     expires_at: Optional[datetime]
 
     @property
-    def metadata(self) -> Optional[dict[str, str]]:
+    def metadata(self) -> Optional[ProtocolMemoryMetadata]:
         """Additional metadata for the memory."""
         ...
 
@@ -189,7 +405,7 @@ class ProtocolWorkflowExecutionRequest(ProtocolMemoryRequest, Protocol):
     """Protocol for workflow execution requests."""
 
     workflow_type: str
-    workflow_configuration: dict[str, str]
+    workflow_configuration: ProtocolWorkflowConfiguration
 
     @property
     def target_agents(self) -> list[UUID]:
@@ -218,7 +434,7 @@ class ProtocolAgentCoordinationRequest(ProtocolMemoryRequest, Protocol):
     coordination_task: str
 
     @property
-    def coordination_metadata(self) -> dict[str, str]:
+    def coordination_metadata(self) -> ProtocolCoordinationMetadata:
         """Coordination task metadata."""
         ...
 
@@ -247,7 +463,7 @@ class ProtocolPatternAnalysisRequest(ProtocolMemoryRequest, Protocol):
     analysis_type: str
 
     @property
-    def analysis_parameters(self) -> dict[str, str]:
+    def analysis_parameters(self) -> ProtocolAnalysisParameters:
         """Parameters for pattern analysis."""
         ...
 
@@ -257,7 +473,7 @@ class ProtocolPatternAnalysisResponse(ProtocolMemoryResponse, Protocol):
     """Protocol for pattern analysis responses."""
 
     patterns_found: int
-    analysis_results: dict[str, str]
+    analysis_results: ProtocolAnalysisResults
 
     @property
     def confidence_scores(self) -> list[float]:
@@ -305,7 +521,7 @@ class ProtocolConsolidationResponse(ProtocolMemoryResponse, Protocol):
 class ProtocolAggregationRequest(ProtocolMemoryRequest, Protocol):
     """Protocol for memory aggregation requests."""
 
-    aggregation_criteria: dict[str, str]
+    aggregation_criteria: ProtocolAggregationCriteria
     time_window_start: Optional[datetime]
     time_window_end: Optional[datetime]
 
@@ -314,8 +530,8 @@ class ProtocolAggregationRequest(ProtocolMemoryRequest, Protocol):
 class ProtocolAggregationResponse(ProtocolMemoryResponse, Protocol):
     """Protocol for memory aggregation responses."""
 
-    aggregated_data: dict[str, str]
-    aggregation_metadata: dict[str, str]
+    aggregated_data: ProtocolAggregatedData
+    aggregation_metadata: ProtocolMemoryMetadata
 
 
 # === ERROR HANDLING PROTOCOLS ===
@@ -331,7 +547,7 @@ class ProtocolMemoryError(Protocol):
     correlation_id: Optional[UUID]
 
     @property
-    def error_context(self) -> dict[str, str]:
+    def error_context(self) -> ProtocolErrorContext:
         """Additional error context and debugging information."""
         ...
 
@@ -387,7 +603,7 @@ class ProtocolPaginationResponse(Protocol):
     previous_cursor: Optional[str]
 
     @property
-    def page_info(self) -> dict[str, str]:
+    def page_info(self) -> ProtocolPageInfo:
         """Additional pagination metadata."""
         ...
 
@@ -436,7 +652,7 @@ class ProtocolMemoryMetrics(Protocol):
         ...
 
     @property
-    def custom_metrics(self) -> dict[str, float]:
+    def custom_metrics(self) -> ProtocolCustomMetrics:
         """Additional operation-specific metrics."""
         ...
 
@@ -461,7 +677,7 @@ class ProtocolMemoryMetricsResponse(ProtocolMemoryResponse, Protocol):
     """Protocol for metrics collection responses."""
 
     metrics: list[ProtocolMemoryMetrics]
-    aggregation_summary: dict[str, float]
+    aggregation_summary: ProtocolAggregationSummary
     collection_timestamp: datetime
 
 
@@ -472,7 +688,7 @@ class ProtocolMemoryMetricsResponse(ProtocolMemoryResponse, Protocol):
 class ProtocolBatchMemoryStoreRequest(ProtocolMemoryRequest, Protocol):
     """Protocol for batch memory storage requests."""
 
-    memory_records: list[dict[str, str]]
+    memory_records: list[ProtocolMemoryRecordData]
     batch_size: int
     fail_on_first_error: bool
 
