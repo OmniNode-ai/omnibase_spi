@@ -49,6 +49,10 @@ if TYPE_CHECKING:
         ProtocolSemanticSearchResponse,
         ProtocolWorkflowExecutionResponse,
     )
+    from .protocol_memory_security import (
+        ProtocolRateLimitConfig,
+        ProtocolSecurityContext,
+    )
 
 
 # === EFFECT NODE PROTOCOLS ===
@@ -66,30 +70,48 @@ class ProtocolMemoryEffectNode(Protocol):
     async def store_memory(
         self,
         request: "ProtocolMemoryStoreRequest",
+        security_context: Optional["ProtocolSecurityContext"] = None,
+        timeout_seconds: Optional[float] = None,
     ) -> "ProtocolMemoryStoreResponse":
         """
         Store a new memory record with optional expiration and metadata.
 
         Args:
             request: Memory storage request with content and metadata
+            security_context: Security context for authorization and audit
+            timeout_seconds: Optional timeout for storage operation
 
         Returns:
             Storage response with memory ID and location
+
+        Raises:
+            SecurityError: If user not authorized to store memory
+            ValidationError: If input validation fails
+            TimeoutError: If operation exceeds timeout
         """
         ...
 
     async def retrieve_memory(
         self,
         request: "ProtocolMemoryRetrieveRequest",
+        security_context: Optional["ProtocolSecurityContext"] = None,
+        timeout_seconds: Optional[float] = None,
     ) -> "ProtocolMemoryRetrieveResponse":
         """
         Retrieve a memory record by ID with optional related memories.
 
         Args:
             request: Memory retrieval request with ID and options
+            security_context: Security context for authorization and audit
+            timeout_seconds: Optional timeout for retrieval operation
 
         Returns:
             Retrieval response with memory record and relations
+
+        Raises:
+            SecurityError: If user not authorized to retrieve memory
+            NotFoundError: If memory record not found
+            TimeoutError: If operation exceeds timeout
         """
         ...
 
@@ -97,7 +119,9 @@ class ProtocolMemoryEffectNode(Protocol):
         self,
         memory_id: UUID,
         updates: "ProtocolMemoryMetadata",
+        security_context: Optional["ProtocolSecurityContext"] = None,
         correlation_id: Optional[UUID] = None,
+        timeout_seconds: Optional[float] = None,
     ) -> "ProtocolMemoryResponse":
         """
         Update an existing memory record with new content or metadata.
@@ -105,48 +129,76 @@ class ProtocolMemoryEffectNode(Protocol):
         Args:
             memory_id: ID of memory to update
             updates: Dictionary of fields to update
+            security_context: Security context for authorization and audit
             correlation_id: Request correlation ID
+            timeout_seconds: Optional timeout for update operation
 
         Returns:
             Update response with success status
+
+        Raises:
+            SecurityError: If user not authorized to update memory
+            NotFoundError: If memory record not found
+            ValidationError: If update data is invalid
+            TimeoutError: If operation exceeds timeout
         """
         ...
 
     async def delete_memory(
         self,
         memory_id: UUID,
+        security_context: Optional["ProtocolSecurityContext"] = None,
         correlation_id: Optional[UUID] = None,
+        timeout_seconds: Optional[float] = None,
     ) -> "ProtocolMemoryResponse":
         """
         Delete a memory record (soft delete with retention policy).
 
         Args:
             memory_id: ID of memory to delete
+            security_context: Security context for authorization and audit
             correlation_id: Request correlation ID
+            timeout_seconds: Optional timeout for deletion operation
 
         Returns:
             Deletion response with success status
+
+        Raises:
+            SecurityError: If user not authorized to delete memory
+            NotFoundError: If memory record not found
+            TimeoutError: If operation exceeds timeout
         """
         ...
 
     async def list_memories(
         self,
         request: "ProtocolMemoryListRequest",
+        security_context: Optional["ProtocolSecurityContext"] = None,
+        timeout_seconds: Optional[float] = None,
     ) -> "ProtocolMemoryListResponse":
         """
         List memory records with paginated filtering.
 
         Args:
             request: Paginated memory list request with filters and pagination
+            security_context: Security context for authorization and audit
+            timeout_seconds: Optional timeout for list operation
 
         Returns:
             Paginated response with memory records and pagination metadata
+
+        Raises:
+            SecurityError: If user not authorized to list memories
+            ValidationError: If request parameters are invalid
+            TimeoutError: If operation exceeds timeout
         """
         ...
 
     async def batch_store_memories(
         self,
         request: "ProtocolBatchMemoryStoreRequest",
+        security_context: Optional["ProtocolSecurityContext"] = None,
+        rate_limit_config: Optional["ProtocolRateLimitConfig"] = None,
         timeout_seconds: Optional[float] = None,
     ) -> "ProtocolBatchMemoryStoreResponse":
         """
@@ -154,16 +206,26 @@ class ProtocolMemoryEffectNode(Protocol):
 
         Args:
             request: Batch storage request with multiple memory records
+            security_context: Security context for authorization and audit
+            rate_limit_config: Rate limiting configuration for batch operation
             timeout_seconds: Optional timeout for batch storage operation
 
         Returns:
             Batch response with individual operation results
+
+        Raises:
+            SecurityError: If user not authorized for batch operations
+            RateLimitError: If batch size or rate limits exceeded
+            ValidationError: If batch request is invalid
+            TimeoutError: If operation exceeds timeout
         """
         ...
 
     async def batch_retrieve_memories(
         self,
         request: "ProtocolBatchMemoryRetrieveRequest",
+        security_context: Optional["ProtocolSecurityContext"] = None,
+        rate_limit_config: Optional["ProtocolRateLimitConfig"] = None,
         timeout_seconds: Optional[float] = None,
     ) -> "ProtocolBatchMemoryRetrieveResponse":
         """
@@ -171,10 +233,18 @@ class ProtocolMemoryEffectNode(Protocol):
 
         Args:
             request: Batch retrieval request with memory IDs
+            security_context: Security context for authorization and audit
+            rate_limit_config: Rate limiting configuration for batch operation
             timeout_seconds: Optional timeout for batch retrieval operation
 
         Returns:
             Batch response with retrieved memories and results
+
+        Raises:
+            SecurityError: If user not authorized for batch operations
+            RateLimitError: If batch size or rate limits exceeded
+            ValidationError: If batch request is invalid
+            TimeoutError: If operation exceeds timeout
         """
         ...
 

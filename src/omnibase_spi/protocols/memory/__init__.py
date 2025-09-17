@@ -41,6 +41,16 @@ from .protocol_memory_base import (
     WorkflowStatus,
 )
 
+# Enhanced Error Handling Protocols
+from .protocol_memory_error_handling import (
+    ProtocolCompensationAction,
+    ProtocolErrorCategory,
+    ProtocolMemoryErrorHandler,
+    ProtocolMemoryHealthMonitor,
+    ProtocolOperationContext,
+    ProtocolRetryPolicy,
+)
+
 # Error Protocols
 from .protocol_memory_errors import (
     ProtocolBatchErrorResponse,
@@ -108,6 +118,26 @@ from .protocol_memory_responses import (
     ProtocolStreamingMemoryResponse,
     ProtocolStreamingRetrieveResponse,
     ProtocolWorkflowExecutionResponse,
+)
+
+# Security Protocols
+from .protocol_memory_security import (
+    ProtocolAuditTrail,
+    ProtocolInputValidation,
+    ProtocolMemoryComplianceNode,
+    ProtocolMemorySecurityNode,
+    ProtocolRateLimitConfig,
+    ProtocolSecurityContext,
+)
+
+# Streaming and Performance Protocols
+from .protocol_memory_streaming import (
+    ProtocolCursorPagination,
+    ProtocolMemoryCache,
+    ProtocolPerformanceOptimization,
+    ProtocolStreamingChunk,
+    ProtocolStreamingConfig,
+    ProtocolStreamingMemoryNode,
 )
 
 __all__ = [
@@ -194,4 +224,25 @@ __all__ = [
     "ProtocolMemoryErrorRecoveryResponse",
     "ProtocolBatchErrorSummary",
     "ProtocolBatchErrorResponse",
+    # Security Protocols
+    "ProtocolSecurityContext",
+    "ProtocolAuditTrail",
+    "ProtocolRateLimitConfig",
+    "ProtocolInputValidation",
+    "ProtocolMemorySecurityNode",
+    "ProtocolMemoryComplianceNode",
+    # Streaming and Performance Protocols
+    "ProtocolStreamingChunk",
+    "ProtocolStreamingConfig",
+    "ProtocolCursorPagination",
+    "ProtocolStreamingMemoryNode",
+    "ProtocolMemoryCache",
+    "ProtocolPerformanceOptimization",
+    # Enhanced Error Handling Protocols
+    "ProtocolErrorCategory",
+    "ProtocolRetryPolicy",
+    "ProtocolCompensationAction",
+    "ProtocolOperationContext",
+    "ProtocolMemoryErrorHandler",
+    "ProtocolMemoryHealthMonitor",
 ]

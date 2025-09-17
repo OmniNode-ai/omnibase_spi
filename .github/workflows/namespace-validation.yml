@@ -1,4 +1,4 @@
-name: Namespace Isolation Validation
+name: SPI Comprehensive Validation
 
 on:
   pull_request:
@@ -41,6 +41,19 @@ jobs:
       run: |
         chmod +x ./scripts/validate-namespace-isolation.sh
         ./scripts/validate-namespace-isolation.sh
+
+    - name: Run comprehensive SPI protocol audit
+      run: |
+        chmod +x ./scripts/spi_protocol_auditor.py
+        python ./scripts/spi_protocol_auditor.py --repo-root . --output audit-results.json
+
+    - name: Run memory protocol tests
+      run: |
+        poetry run pytest tests/protocols/memory/ -v --tb=short
+
+    - name: Run type checking tests
+      run: |
+        poetry run pytest tests/protocols/memory/test_memory_type_checking.py -v
 
     - name: Validate package can be built
       run: poetry build

@@ -27,11 +27,8 @@ from typing import (
     Awaitable,
     Callable,
     Literal,
-    NotRequired,
     Optional,
     Protocol,
-    Required,
-    TypedDict,
     runtime_checkable,
 )
 from uuid import UUID
@@ -39,9 +36,10 @@ from uuid import UUID
 from omnibase_spi.protocols.types.core_types import ProtocolDateTime, ProtocolSemVer
 
 
-class ProtocolEventHeaders(TypedDict):
+@runtime_checkable
+class ProtocolEventHeaders(Protocol):
     """
-    Standardized headers for ONEX event bus messages.
+    Protocol for standardized headers for ONEX event bus messages.
 
     Enforces strict interoperability across all agents and prevents
     integration failures from header naming inconsistencies.
@@ -54,32 +52,96 @@ class ProtocolEventHeaders(TypedDict):
     """
 
     # REQUIRED - Essential for system operation and observability
-    content_type: Required[
-        str
-    ]  # MIME type: "application/json", "application/avro", etc.
-    correlation_id: Required[UUID]  # UUID format for distributed business tracing
-    message_id: Required[UUID]  # UUID format for unique message identification
-    timestamp: Required[
-        ProtocolDateTime
-    ]  # Message creation timestamp (datetime object)
-    source: Required[str]  # Source agent/service identifier
-    event_type: Required[str]  # Event classification (e.g., "core.node.start")
-    schema_version: Required[ProtocolSemVer]  # Message schema version for compatibility
+    @property
+    def content_type(self) -> str:
+        """MIME type: 'application/json', 'application/avro', etc."""
+        ...
+
+    @property
+    def correlation_id(self) -> UUID:
+        """UUID format for distributed business tracing."""
+        ...
+
+    @property
+    def message_id(self) -> UUID:
+        """UUID format for unique message identification."""
+        ...
+
+    @property
+    def timestamp(self) -> "ProtocolDateTime":
+        """Message creation timestamp (datetime object)."""
+        ...
+
+    @property
+    def source(self) -> str:
+        """Source agent/service identifier."""
+        ...
+
+    @property
+    def event_type(self) -> str:
+        """Event classification (e.g., 'core.node.start')."""
+        ...
+
+    @property
+    def schema_version(self) -> "ProtocolSemVer":
+        """Message schema version for compatibility."""
+        ...
 
     # OPTIONAL - Standardized but not mandatory for all messages
-    destination: NotRequired[str]  # Target agent/service (for direct routing)
-    trace_id: NotRequired[str]  # OpenTelemetry trace ID (32 hex chars, no hyphens)
-    span_id: NotRequired[str]  # OpenTelemetry span ID (16 hex chars, no hyphens)
-    parent_span_id: NotRequired[str]  # Parent span ID (16 hex chars, no hyphens)
-    operation_name: NotRequired[str]  # Operation being performed (for tracing context)
-    priority: NotRequired[
-        Literal["low", "normal", "high", "critical"]
-    ]  # Message priority
-    routing_key: NotRequired[str]  # Kafka/messaging routing key
-    partition_key: NotRequired[str]  # Explicit partition assignment key
-    retry_count: NotRequired[int]  # Number of retry attempts (for error handling)
-    max_retries: NotRequired[int]  # Maximum retry attempts allowed
-    ttl_seconds: NotRequired[int]  # Message time-to-live in seconds
+    @property
+    def destination(self) -> Optional[str]:
+        """Target agent/service (for direct routing)."""
+        ...
+
+    @property
+    def trace_id(self) -> Optional[str]:
+        """OpenTelemetry trace ID (32 hex chars, no hyphens)."""
+        ...
+
+    @property
+    def span_id(self) -> Optional[str]:
+        """OpenTelemetry span ID (16 hex chars, no hyphens)."""
+        ...
+
+    @property
+    def parent_span_id(self) -> Optional[str]:
+        """Parent span ID (16 hex chars, no hyphens)."""
+        ...
+
+    @property
+    def operation_name(self) -> Optional[str]:
+        """Operation being performed (for tracing context)."""
+        ...
+
+    @property
+    def priority(self) -> Optional[Literal["low", "normal", "high", "critical"]]:
+        """Message priority."""
+        ...
+
+    @property
+    def routing_key(self) -> Optional[str]:
+        """Kafka/messaging routing key."""
+        ...
+
+    @property
+    def partition_key(self) -> Optional[str]:
+        """Explicit partition assignment key."""
+        ...
+
+    @property
+    def retry_count(self) -> Optional[int]:
+        """Number of retry attempts (for error handling)."""
+        ...
+
+    @property
+    def max_retries(self) -> Optional[int]:
+        """Maximum retry attempts allowed."""
+        ...
+
+    @property
+    def ttl_seconds(self) -> Optional[int]:
+        """Message time-to-live in seconds."""
+        ...
 
 
 @runtime_checkable

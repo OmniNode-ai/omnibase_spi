@@ -210,14 +210,14 @@ class TestProtocolInheritance:
     def test_all_protocols_are_runtime_checkable(self) -> None:
         """Test that all protocols are marked as runtime_checkable."""
         from omnibase_spi.protocols.memory import (
+            protocol_memory_base,
             protocol_memory_operations,
-            protocol_memory_types,
         )
 
         # Get all classes from both modules
         protocol_classes = []
 
-        for module in [protocol_memory_types, protocol_memory_operations]:
+        for module in [protocol_memory_base, protocol_memory_operations]:
             for name in dir(module):
                 obj = getattr(module, name)
                 if (
@@ -239,12 +239,12 @@ class TestProtocolConsistency:
 
     def test_request_response_pairing(self) -> None:
         """Test that request protocols have corresponding response protocols."""
-        from omnibase_spi.protocols.memory import protocol_memory_types
+        from omnibase_spi.protocols.memory import protocol_memory_base
 
         request_protocols = []
         response_protocols = []
 
-        for name in dir(protocol_memory_types):
+        for name in dir(protocol_memory_base):
             if name.endswith("Request") and name.startswith("Protocol"):
                 request_protocols.append(name)
             elif name.endswith("Response") and name.startswith("Protocol"):
