@@ -37,3 +37,10 @@ repos:
         language: script
         files: ^(src/|tests/).*\.py$
         description: "Prevent use of 'simple' terminology in codebase"
+      - id: spi-protocol-auditor
+        name: SPI Protocol Comprehensive Audit
+        entry: python scripts/spi_protocol_auditor.py
+        language: system
+        files: ^src/omnibase_spi/protocols/.*\.py$
+        description: "Comprehensive SPI protocol validation including namespace isolation, type safety, and memory protocol compliance"
+        pass_filenames: false

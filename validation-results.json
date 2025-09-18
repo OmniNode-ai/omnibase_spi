@@ -1,0 +1,270 @@
+{
+  "success": false,
+  "errors": [
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/file_handling/protocol_file_reader.py: read_text"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/file_handling/protocol_file_type_handler.py: metadata"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/types/file_handling_types.py: validate_metadata"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/types/core_types.py: __str__"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/types/workflow_orchestration_types.py: serialize"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/types/event_bus_types.py: validate_for_transport"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/types/mcp_types.py: __call__"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/types/container_types.py: register"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/core/protocol_http_extended.py: url"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/core/protocol_observability.py: record_counter"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/core/protocol_kafka_client.py: bootstrap_servers"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/core/protocol_node_configuration_utils.py: get_configuration"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/core/protocol_onex_envelope.py: create_envelope"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/core/protocol_reducer.py: initial_state"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/core/protocol_onex_reply.py: create_success_reply"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/core/protocol_http_client.py: create_http_client"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/core/protocol_version_manager.py: get_protocol_version_info"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/core/protocol_kafka_extended.py: create_consumer"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/core/protocol_health_monitor.py: perform_health_check"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/core/protocol_logger.py: emit"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/core/protocol_storage_backend.py: store_checkpoint"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/core/protocol_input_validator.py: validate_input"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/core/protocol_schema_loader.py: load_onex_yaml"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/core/protocol_configuration_manager.py: load_configuration"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/core/protocol_workflow_reducer.py: initial_state"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/core/protocol_node_configuration.py: get_config_value"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/core/protocol_cache_service.py: get_stats"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/core/protocol_node_registry.py: __call__"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/core/protocol_error_handler.py: handle_error"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/core/protocol_onex_node.py: run"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/core/protocol_contract_service.py: load_contract"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/core/protocol_error_sanitizer.py: sanitize_message"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/core/protocol_circuit_breaker.py: failure_threshold"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/core/protocol_client_config.py: get_http_client_config"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/core/protocol_canonical_serializer.py: canonicalize_metadata_block"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/core/protocol_onex_validation.py: validate_envelope"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/memory/protocol_memory_responses.py: error_message"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/memory/protocol_memory_base.py: metadata_keys"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/memory/protocol_memory_requests.py: operation_type"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/memory/protocol_memory_errors.py: error_context"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/memory/protocol_memory_error_handling.py: error_type"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/memory/protocol_memory_streaming.py: chunk_id"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/memory/protocol_memory_security.py: user_id"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/discovery/protocol_handler_discovery.py: discover_nodes"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/mcp/protocol_mcp_tool_proxy.py: router"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/mcp/protocol_mcp_registry.py: config"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/mcp/protocol_mcp_monitor.py: health_monitor"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/mcp/protocol_mcp_subsystem_client.py: config"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/mcp/protocol_mcp_discovery.py: service_discovery"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/mcp/protocol_mcp_validator.py: tool_validator"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/mcp/protocol_tool_discovery_service.py: resolve_tool_from_contract"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/container/protocol_service_registry.py: validate_registration"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/container/protocol_container_service.py: create_container_from_contract"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/container/protocol_artifact_container.py: get_status"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/workflow_orchestration/protocol_workflow_event_bus.py: get_workflow_event"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/workflow_orchestration/protocol_workflow_node_registry.py: base_registry"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/validation/protocol_validation.py: __str__"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/event_bus/protocol_redpanda_adapter.py: redpanda_optimized_defaults"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/event_bus/protocol_event_bus_mixin.py: publish"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/event_bus/protocol_event_bus_in_memory.py: get_event_history"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Non-protocol class found in src/omnibase_spi/protocols/event_bus/protocol_event_bus.py: ProtocolEventHeaders"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/event_bus/protocol_event_bus_service.py: get_event_bus"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/event_bus/protocol_event_bus_types.py: credentials"
+    },
+    {
+      "category": "protocol_purity",
+      "message": "Function definition found outside protocol in src/omnibase_spi/protocols/event_bus/protocol_kafka_adapter.py: bootstrap_servers"
+    },
+    {
+      "category": "type_safety",
+      "message": "MyPy type checking failed:\n\n/opt/homebrew/opt/python@3.13/bin/python3.13: No module named mypy\n"
+    }
+  ],
+  "warnings": [],
+  "summary": {
+    "error_count": 65,
+    "warning_count": 0
+  }
+}
