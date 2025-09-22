@@ -3,7 +3,7 @@ Protocol interface for validation orchestration in ONEX ecosystem.
 
 This protocol defines the interface for coordinating validation workflows
 across multiple validation nodes, providing comprehensive validation
-orchestration for NodeValidationOrchestratorOrchestrator implementations.
+orchestration for NodeValidationOrchestrator implementations.
 """
 
 from typing import List, Optional, Protocol

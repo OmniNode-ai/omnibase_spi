@@ -7,7 +7,7 @@ ensuring backward compatibility and preventing accidental breaking changes.
 
 import inspect
 from datetime import datetime
-from typing import get_type_hints
+from typing import Optional, get_type_hints
 from uuid import UUID
 
 import pytest
@@ -132,7 +132,16 @@ class TestProtocolAttributeTypes:
 
     def test_memory_record_attributes(self) -> None:
         """Test ProtocolMemoryRecord has required attributes with correct types."""
-        type_hints = get_type_hints(ProtocolMemoryRecord)
+        # Use the protocol module's globals for forward reference resolution
+        import datetime as dt_module
+
+        import omnibase_spi.protocols.memory.protocol_memory_base as protocol_module
+
+        # Create comprehensive globalns with all needed types
+        globalns = dict(protocol_module.__dict__)
+        globalns["datetime"] = dt_module.datetime
+
+        type_hints = get_type_hints(ProtocolMemoryRecord, globalns=globalns)
 
         expected_attributes = {
             "memory_id": UUID,
@@ -151,7 +160,16 @@ class TestProtocolAttributeTypes:
 
     def test_memory_error_attributes(self) -> None:
         """Test ProtocolMemoryError has required attributes."""
-        type_hints = get_type_hints(ProtocolMemoryError)
+        # Use the protocol module's globals for forward reference resolution
+        import datetime as dt_module
+
+        import omnibase_spi.protocols.memory.protocol_memory_errors as protocol_module
+
+        # Create comprehensive globalns with all needed types
+        globalns = dict(protocol_module.__dict__)
+        globalns["datetime"] = dt_module.datetime
+
+        type_hints = get_type_hints(ProtocolMemoryError, globalns=globalns)
 
         expected_attributes = {
             "error_code",
@@ -178,7 +196,16 @@ class TestProtocolAttributeTypes:
 
     def test_memory_metrics_attributes(self) -> None:
         """Test ProtocolMemoryMetrics has required attributes."""
-        type_hints = get_type_hints(ProtocolMemoryMetrics)
+        # Use the protocol module's globals for forward reference resolution
+        import datetime as dt_module
+
+        import omnibase_spi.protocols.memory.protocol_memory_operations as protocol_module
+
+        # Create comprehensive globalns with all needed types
+        globalns = dict(protocol_module.__dict__)
+        globalns["datetime"] = dt_module.datetime
+
+        type_hints = get_type_hints(ProtocolMemoryMetrics, globalns=globalns)
 
         expected_attributes = {
             "operation_type",
