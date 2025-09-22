@@ -17,13 +17,14 @@ All types are pure protocols with no implementation dependencies.
 
 from __future__ import annotations
 
-from datetime import datetime
 from typing import TYPE_CHECKING, Optional, Protocol, runtime_checkable
 from uuid import UUID
 
 from .protocol_memory_base import ErrorCategory
 
 if TYPE_CHECKING:
+    from datetime import datetime
+
     from .protocol_memory_base import ProtocolErrorCategoryMap, ProtocolErrorContext
 
 
@@ -36,7 +37,7 @@ class ProtocolMemoryError(Protocol):
 
     error_code: str
     error_message: str
-    error_timestamp: datetime
+    error_timestamp: "datetime"
     correlation_id: Optional[UUID]
     error_category: ErrorCategory
 
@@ -61,7 +62,7 @@ class ProtocolMemoryErrorResponse(Protocol):
     """Protocol for error responses from memory operations."""
 
     correlation_id: Optional[UUID]
-    response_timestamp: datetime
+    response_timestamp: "datetime"
     success: bool
     error: ProtocolMemoryError
     suggested_action: str
@@ -186,7 +187,7 @@ class ProtocolMemoryErrorRecoveryResponse(Protocol):
     """Protocol for error recovery operation responses."""
 
     correlation_id: Optional[UUID]
-    response_timestamp: datetime
+    response_timestamp: "datetime"
     success: bool
     recovery_attempted: bool
     recovery_successful: bool
@@ -230,7 +231,7 @@ class ProtocolBatchErrorResponse(Protocol):
     """Protocol for batch operation error responses."""
 
     correlation_id: Optional[UUID]
-    response_timestamp: datetime
+    response_timestamp: "datetime"
     success: bool
     error: ProtocolMemoryError
     suggested_action: str

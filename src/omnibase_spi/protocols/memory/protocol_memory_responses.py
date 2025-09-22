@@ -19,7 +19,6 @@ All types are pure protocols with no implementation dependencies.
 
 from __future__ import annotations
 
-from datetime import datetime
 from typing import TYPE_CHECKING, AsyncIterator, Optional, Protocol, runtime_checkable
 from uuid import UUID
 
@@ -27,6 +26,8 @@ from uuid import UUID
 from .protocol_memory_errors import ProtocolMemoryError
 
 if TYPE_CHECKING:
+    from datetime import datetime
+
     from .protocol_memory_base import (
         ProtocolAgentResponseMap,
         ProtocolAgentStatusMap,
@@ -49,7 +50,7 @@ class ProtocolMemoryResponse(Protocol):
     """Base protocol for all memory operation responses."""
 
     correlation_id: Optional[UUID]
-    response_timestamp: datetime
+    response_timestamp: "datetime"
     success: bool
 
     @property
@@ -246,7 +247,7 @@ class ProtocolMemoryMetrics(Protocol):
     operation_type: str
     execution_time_ms: int
     memory_usage_mb: float
-    timestamp: datetime
+    timestamp: "datetime"
 
     @property
     def throughput_ops_per_second(self) -> float:
@@ -270,7 +271,7 @@ class ProtocolMemoryMetricsResponse(ProtocolMemoryResponse, Protocol):
 
     metrics: list[ProtocolMemoryMetrics]
     aggregation_summary: "ProtocolAggregationSummary"
-    collection_timestamp: datetime
+    collection_timestamp: "datetime"
 
 
 # === STREAMING RESPONSE PROTOCOLS ===

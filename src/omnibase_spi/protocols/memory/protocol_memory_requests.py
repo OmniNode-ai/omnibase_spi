@@ -18,11 +18,12 @@ All types are pure protocols with no implementation dependencies.
 
 from __future__ import annotations
 
-from datetime import datetime
 from typing import TYPE_CHECKING, Optional, Protocol, runtime_checkable
 from uuid import UUID
 
 if TYPE_CHECKING:
+    from datetime import datetime
+
     from .protocol_memory_base import (
         AnalysisType,
         ProtocolAggregationCriteria,
@@ -43,7 +44,7 @@ class ProtocolMemoryRequest(Protocol):
     """Base protocol for all memory operation requests."""
 
     correlation_id: Optional[UUID]
-    request_timestamp: datetime
+    request_timestamp: "datetime"
 
     @property
     def operation_type(self) -> str:
@@ -62,7 +63,7 @@ class ProtocolMemoryStoreRequest(ProtocolMemoryRequest, Protocol):
     content_type: str
     access_level: str  # MemoryAccessLevel from base
     source_agent: str
-    expires_at: Optional[datetime]
+    expires_at: Optional["datetime"]
 
     @property
     def metadata(self) -> Optional["ProtocolMemoryMetadata"]:
@@ -192,8 +193,8 @@ class ProtocolAggregationRequest(ProtocolMemoryRequest, Protocol):
     """Protocol for memory aggregation requests."""
 
     aggregation_criteria: "ProtocolAggregationCriteria"
-    time_window_start: Optional[datetime]
-    time_window_end: Optional[datetime]
+    time_window_start: Optional["datetime"]
+    time_window_end: Optional["datetime"]
     timeout_seconds: Optional[float]
 
 
@@ -258,8 +259,8 @@ class ProtocolMemoryMetricsRequest(ProtocolMemoryRequest, Protocol):
     """Protocol for metrics collection requests."""
 
     metric_types: list[str]
-    time_window_start: Optional[datetime]
-    time_window_end: Optional[datetime]
+    time_window_start: Optional["datetime"]
+    time_window_end: Optional["datetime"]
     aggregation_level: str
     timeout_seconds: Optional[float]
 

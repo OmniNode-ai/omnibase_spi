@@ -127,6 +127,16 @@ while IFS=: read -r file line content; do
         if [[ $content =~ "from datetime import datetime" && $file == *"core_types.py" ]]; then
             continue
         fi
+
+        # Special handling for datetime imports within TYPE_CHECKING blocks
+        if [[ $content =~ "from datetime import datetime" ]]; then
+            # Check if this import is within a TYPE_CHECKING block
+            type_checking_context=$(grep -B 5 -A 0 "from datetime import datetime" "$file" 2>/dev/null | grep -c "if TYPE_CHECKING:" || echo "0")
+            if [[ $type_checking_context -gt 0 ]]; then
+                continue
+            fi
+        fi
+
         report_violation "$file" "$line" "$content" "SPI should not import implementation libraries"
     fi
 done < "$TEMP_IMPORT_FILE"

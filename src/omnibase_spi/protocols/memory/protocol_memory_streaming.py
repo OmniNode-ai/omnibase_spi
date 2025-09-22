@@ -290,7 +290,7 @@ class ProtocolStreamingMemoryNode(Protocol):
         self,
         memory_id: UUID,
         compression_algorithm: str,
-        compression_level: int = 6,
+        compression_level: int,
         security_context: Optional["ProtocolSecurityContext"] = None,
         timeout_seconds: Optional[float] = None,
     ) -> "ProtocolMemoryMetadata":
@@ -341,8 +341,8 @@ class ProtocolStreamingMemoryNode(Protocol):
     async def stream_embedding_vectors(
         self,
         memory_ids: list[UUID],
-        vector_chunk_size: int = 1000,
-        compression_enabled: bool = True,
+        vector_chunk_size: int,
+        compression_enabled: bool,
         security_context: Optional["ProtocolSecurityContext"] = None,
         timeout_seconds: Optional[float] = None,
     ) -> AsyncGenerator["ProtocolStreamingChunk", None]:
@@ -411,8 +411,8 @@ class ProtocolMemoryCache(Protocol):
     async def cache_memory(
         self,
         memory_id: UUID,
-        cache_ttl_seconds: int = 3600,
-        cache_level: str = "L1",
+        cache_ttl_seconds: int,
+        cache_level: str,
         security_context: Optional["ProtocolSecurityContext"] = None,
     ) -> "ProtocolMemoryMetadata":
         """
@@ -436,7 +436,7 @@ class ProtocolMemoryCache(Protocol):
     async def invalidate_cache(
         self,
         memory_id: UUID,
-        invalidation_scope: str = "single",
+        invalidation_scope: str,
         security_context: Optional["ProtocolSecurityContext"] = None,
     ) -> "ProtocolMemoryMetadata":
         """
@@ -459,7 +459,7 @@ class ProtocolMemoryCache(Protocol):
     async def warm_cache(
         self,
         memory_ids: list[UUID],
-        warming_strategy: str = "predictive",
+        warming_strategy: str,
         security_context: Optional["ProtocolSecurityContext"] = None,
         timeout_seconds: Optional[float] = None,
     ) -> "ProtocolMemoryMetadata":
@@ -484,7 +484,7 @@ class ProtocolMemoryCache(Protocol):
 
     async def get_cache_stats(
         self,
-        cache_scope: str = "user",
+        cache_scope: str,
         security_context: Optional["ProtocolSecurityContext"] = None,
     ) -> "ProtocolMemoryMetadata":
         """
@@ -515,7 +515,7 @@ class ProtocolPerformanceOptimization(Protocol):
     async def analyze_performance_patterns(
         self,
         operation_types: list[str],
-        time_window_hours: int = 24,
+        time_window_hours: int,
         security_context: Optional["ProtocolSecurityContext"] = None,
         timeout_seconds: Optional[float] = None,
     ) -> "ProtocolMemoryMetadata":
@@ -541,7 +541,7 @@ class ProtocolPerformanceOptimization(Protocol):
     async def optimize_memory_access_patterns(
         self,
         memory_ids: list[UUID],
-        optimization_strategy: str = "adaptive",
+        optimization_strategy: str,
         security_context: Optional["ProtocolSecurityContext"] = None,
         timeout_seconds: Optional[float] = None,
     ) -> "ProtocolMemoryMetadata":
@@ -567,7 +567,7 @@ class ProtocolPerformanceOptimization(Protocol):
     async def create_performance_baseline(
         self,
         operation_type: str,
-        baseline_duration_hours: int = 168,  # 1 week
+        baseline_duration_hours: int,  # 1 week
         security_context: Optional["ProtocolSecurityContext"] = None,
         timeout_seconds: Optional[float] = None,
     ) -> "ProtocolMemoryMetadata":

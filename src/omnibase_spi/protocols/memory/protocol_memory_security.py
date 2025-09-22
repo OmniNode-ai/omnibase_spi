@@ -323,7 +323,7 @@ class ProtocolMemorySecurityNode(Protocol):
     async def encrypt_sensitive_data(
         self,
         data: "ProtocolMemoryMetadata",
-        encryption_level: str = "standard",
+        encryption_level: str,
         correlation_id: Optional[UUID] = None,
     ) -> "ProtocolMemoryMetadata":
         """

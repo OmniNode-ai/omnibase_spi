@@ -441,7 +441,7 @@ class ProtocolLifecycleManager(Protocol):
         self,
         memory_ids: list[UUID],
         archive_destination: str,
-        archive_format: str = "compressed",
+        archive_format: str,
         security_context: Optional["ProtocolSecurityContext"] = None,
         correlation_id: Optional[UUID] = None,
         timeout_seconds: Optional[float] = None,
@@ -470,7 +470,7 @@ class ProtocolLifecycleManager(Protocol):
     async def cleanup_expired_memories(
         self,
         cleanup_scope: "ProtocolMemoryMetadata",
-        safety_threshold_hours: int = 24,
+        safety_threshold_hours: int,
         security_context: Optional["ProtocolSecurityContext"] = None,
         correlation_id: Optional[UUID] = None,
         timeout_seconds: Optional[float] = None,
@@ -550,7 +550,7 @@ class ProtocolMemoryOrchestrator(Protocol):
 
     async def health_check(
         self,
-        check_scope: str = "all",
+        check_scope: str,
         security_context: Optional["ProtocolSecurityContext"] = None,
         correlation_id: Optional[UUID] = None,
     ) -> "ProtocolMemoryResponse":
@@ -610,7 +610,7 @@ class ProtocolComputeNodeComposite(Protocol):
     async def analyze_patterns(
         self,
         data_source: "ProtocolMemoryMetadata",
-        analysis_type: str = "comprehensive",
+        analysis_type: str,
         security_context: Optional["ProtocolSecurityContext"] = None,
         timeout_seconds: Optional[float] = None,
     ) -> "ProtocolMemoryResponse":
