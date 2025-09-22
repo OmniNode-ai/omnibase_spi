@@ -419,7 +419,7 @@ class ProtocolMemoryHealthMonitor(Protocol):
     async def monitor_operation_health(
         self,
         operation_types: list[str],
-        monitoring_window_minutes: int = 15,
+        monitoring_window_minutes: int,
         correlation_id: Optional[UUID] = None,
     ) -> "ProtocolMemoryMetadata":
         """
@@ -441,8 +441,8 @@ class ProtocolMemoryHealthMonitor(Protocol):
     async def detect_degradation_patterns(
         self,
         metric_types: list[str],
-        baseline_period_hours: int = 24,
-        detection_sensitivity: float = 0.8,
+        baseline_period_hours: int,
+        detection_sensitivity: float,
         correlation_id: Optional[UUID] = None,
         timeout_seconds: Optional[float] = None,
     ) -> "ProtocolMemoryMetadata":
@@ -493,8 +493,8 @@ class ProtocolMemoryHealthMonitor(Protocol):
 
     async def create_health_dashboard(
         self,
-        dashboard_scope: str = "system",
-        time_window_hours: int = 24,
+        dashboard_scope: str,
+        time_window_hours: int,
         correlation_id: Optional[UUID] = None,
         timeout_seconds: Optional[float] = None,
     ) -> "ProtocolMemoryMetadata":

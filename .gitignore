@@ -247,4 +247,7 @@ sessions/
 .claude/agents/
 .claude/commands/
 .claude/hooks/
-.claude/state/# Repository renamed to omnibase_spi
+.claude/state/
+.claude/settings.local.json
+
+# Repository renamed to omnibase_spi

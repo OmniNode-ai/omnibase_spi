@@ -15,12 +15,11 @@ All types are pure protocols with no implementation dependencies.
 
 from __future__ import annotations
 
-from datetime import datetime
 from typing import TYPE_CHECKING, Literal, Optional, Protocol, runtime_checkable
 from uuid import UUID
 
 if TYPE_CHECKING:
-    pass  # All types are forward references to avoid circular imports
+    from datetime import datetime
 
 
 # === TYPE LITERALS ===
@@ -278,11 +277,11 @@ class ProtocolMemoryRecord(Protocol):
     memory_id: UUID
     content: str
     content_type: str
-    created_at: datetime
-    updated_at: datetime
+    created_at: "datetime"
+    updated_at: "datetime"
     access_level: MemoryAccessLevel
     source_agent: str
-    expires_at: Optional[datetime]
+    expires_at: Optional["datetime"]
 
     @property
     def embedding(self) -> Optional[list[float]]:
@@ -316,8 +315,8 @@ class ProtocolSearchFilters(Protocol):
     content_types: Optional[list[str]]
     access_levels: Optional[list[str]]
     source_agents: Optional[list[str]]
-    date_range_start: Optional[datetime]
-    date_range_end: Optional[datetime]
+    date_range_start: Optional["datetime"]
+    date_range_end: Optional["datetime"]
 
     @property
     def tags(self) -> Optional[list[str]]:

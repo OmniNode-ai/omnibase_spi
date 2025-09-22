@@ -50,6 +50,16 @@ HealthStatus = Literal[
 ContextValue = str | int | float | bool | list[str] | dict[str, str]
 
 
+# Metadata types - for metadata storage protocols
+@runtime_checkable
+class ProtocolSupportedMetadataType(Protocol):
+    """Protocol for types that can be stored in metadata."""
+
+    def __str__(self) -> str:
+        """Must be convertible to string."""
+        ...
+
+
 # Configuration value protocol - for type-safe configuration
 class ProtocolConfigValue(Protocol):
     """Protocol for configuration values - attribute-based for data compatibility."""
@@ -492,3 +502,81 @@ class ProtocolAuditEvent(Protocol):
     outcome: OperationStatus
     metadata: dict[str, ContextValue]
     sensitivity_level: Literal["public", "internal", "confidential", "restricted"]
+
+
+# General Purpose Protocols for Type Constraints
+
+
+@runtime_checkable
+class ProtocolSerializable(Protocol):
+    """Protocol for objects that can be serialized to dict."""
+
+    def model_dump(
+        self,
+    ) -> dict[
+        str,
+        str
+        | int
+        | float
+        | bool
+        | list[str | int | float | bool]
+        | dict[str, str | int | float | bool],
+    ]:
+        """Serialize to dictionary."""
+        ...
+
+
+@runtime_checkable
+class ProtocolIdentifiable(Protocol):
+    """Protocol for objects that have an ID."""
+
+    @property
+    def id(self) -> str:
+        """Get the object ID."""
+        ...
+
+
+@runtime_checkable
+class ProtocolNameable(Protocol):
+    """Protocol for objects that have a name."""
+
+    @property
+    def name(self) -> str:
+        """Get the object name."""
+        ...
+
+
+@runtime_checkable
+class ProtocolValidatable(Protocol):
+    """Protocol for objects that can be validated."""
+
+    def is_valid(self) -> bool:
+        """Check if the object is valid."""
+        ...
+
+
+@runtime_checkable
+class ProtocolConfigurable(Protocol):
+    """Protocol for objects that can be configured."""
+
+    def configure(self, **kwargs: ContextValue) -> None:
+        """Configure the object with parameters."""
+        ...
+
+
+@runtime_checkable
+class ProtocolExecutable(Protocol):
+    """Protocol for objects that can be executed."""
+
+    def execute(self) -> object:
+        """Execute the object."""
+        ...
+
+
+@runtime_checkable
+class ProtocolMetadataProvider(Protocol):
+    """Protocol for objects that provide metadata."""
+
+    def get_metadata(self) -> dict[str, str | int | bool | float]:
+        """Get metadata dictionary."""
+        ...
