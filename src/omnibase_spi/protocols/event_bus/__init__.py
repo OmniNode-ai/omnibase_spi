@@ -31,24 +31,19 @@ from .protocol_kafka_adapter import ProtocolKafkaAdapter
 from .protocol_redpanda_adapter import ProtocolRedpandaAdapter
 
 __all__ = [
-    # Core event bus abstractions
-    "ProtocolEventMessage",
-    "ProtocolEventBusAdapter",
+    "EventBusAdapterType",
+    "EventBusServiceType",
+    "ProtocolAsyncEventBus",
     "ProtocolEventBus",
-    # Context management and in-memory protocols
+    "ProtocolEventBusAdapter",
+    "ProtocolEventBusBase",
     "ProtocolEventBusContextManager",
     "ProtocolEventBusInMemory",
-    # Mixin protocols
-    "ProtocolEventBusBase",
-    "ProtocolSyncEventBus",
-    "ProtocolAsyncEventBus",
-    "ProtocolRegistryWithBus",
-    "ProtocolLogEmitter",
-    # Backend adapter protocols
-    "ProtocolKafkaAdapter",
-    "ProtocolRedpandaAdapter",
-    # Service protocols
     "ProtocolEventBusService",
-    "EventBusServiceType",
-    "EventBusAdapterType",
+    "ProtocolEventMessage",
+    "ProtocolKafkaAdapter",
+    "ProtocolLogEmitter",
+    "ProtocolRedpandaAdapter",
+    "ProtocolRegistryWithBus",
+    "ProtocolSyncEventBus",
 ]

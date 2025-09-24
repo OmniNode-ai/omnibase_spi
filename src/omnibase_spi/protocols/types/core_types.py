@@ -438,10 +438,10 @@ class ProtocolNodeInfoLike(Protocol):
     Objects implementing this protocol can be converted to
     ModelNodeMetadataInfo instances.
 
-    This is a marker interface - no methods required.
+    This is a marker interface with a sentinel attribute for runtime checks.
     """
 
-    pass
+    __omnibase_node_info_marker__: Literal[True]
 
 
 @runtime_checkable
@@ -453,10 +453,10 @@ class ProtocolSupportedPropertyValue(Protocol):
     must implement to be compatible with the ONEX property system.
     Any type implementing this protocol can be used as a property value.
 
-    This is a marker interface - no methods required.
+    This is a marker interface with a sentinel attribute for runtime checks.
     """
 
-    pass
+    __omnibase_property_value_marker__: Literal[True]
 
 
 class ProtocolHealthMetrics(Protocol):

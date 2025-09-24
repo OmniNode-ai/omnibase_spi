@@ -79,26 +79,19 @@ from omnibase_spi.protocols.mcp.protocol_tool_discovery_service import (
 )
 
 __all__ = [
-    # Core registry protocols
+    "ProtocolMCPDiscovery",
+    "ProtocolMCPHealthMonitor",
+    "ProtocolMCPMonitor",
     "ProtocolMCPRegistry",
     "ProtocolMCPRegistryAdmin",
     "ProtocolMCPRegistryMetricsOperations",
-    # Subsystem client protocols
+    "ProtocolMCPServiceDiscovery",
     "ProtocolMCPSubsystemClient",
     "ProtocolMCPSubsystemConfig",
-    # Tool execution protocols
+    "ProtocolMCPToolExecutor",
     "ProtocolMCPToolProxy",
     "ProtocolMCPToolRouter",
-    "ProtocolMCPToolExecutor",
-    # Discovery protocols
-    "ProtocolMCPDiscovery",
-    "ProtocolMCPServiceDiscovery",
-    # Validation protocols
-    "ProtocolMCPValidator",
     "ProtocolMCPToolValidator",
-    # Monitoring protocols
-    "ProtocolMCPMonitor",
-    "ProtocolMCPHealthMonitor",
-    # Tool discovery service
+    "ProtocolMCPValidator",
     "ProtocolToolDiscoveryService",
 ]

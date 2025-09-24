@@ -44,3 +44,10 @@ repos:
         files: ^src/omnibase_spi/protocols/.*\.py$
         description: "Comprehensive SPI protocol validation including namespace isolation, type safety, and memory protocol compliance"
         pass_filenames: false
+      - id: validate-alphabetical-all
+        name: Validate Alphabetical __all__ Lists
+        entry: python scripts/validate_alphabetical_all.py
+        language: system
+        files: ^src/omnibase_spi/protocols/.*/__init__\.py$
+        description: "Ensure __all__ lists are alphabetically ordered for consistency"
+        pass_filenames: true

@@ -51,26 +51,22 @@ from .protocol_work_queue import (
 )
 
 __all__ = [
-    # Event bus protocols
-    "ProtocolWorkflowEventBus",
-    "ProtocolWorkflowEventHandler",
-    "ProtocolWorkflowEventMessage",
-    "ProtocolWorkflowStateProjection",
-    # Node registry protocols
-    "ProtocolNodeSchedulingResult",
-    "ProtocolTaskSchedulingCriteria",
-    "ProtocolWorkflowNodeCapability",
-    "ProtocolWorkflowNodeInfo",
-    "ProtocolWorkflowNodeRegistry",
-    # Persistence protocols
+    "AssignmentStrategy",
     "ProtocolEventQueryOptions",
     "ProtocolEventStore",
     "ProtocolEventStoreResult",
     "ProtocolEventStoreTransaction",
+    "ProtocolNodeSchedulingResult",
     "ProtocolSnapshotStore",
+    "ProtocolTaskSchedulingCriteria",
+    "ProtocolWorkflowEventBus",
+    "ProtocolWorkflowEventHandler",
+    "ProtocolWorkflowEventMessage",
+    "ProtocolWorkflowNodeCapability",
+    "ProtocolWorkflowNodeInfo",
+    "ProtocolWorkflowNodeRegistry",
+    "ProtocolWorkflowStateProjection",
     "ProtocolWorkflowStateStore",
-    # Work queue protocols
     "ProtocolWorkQueue",
     "WorkQueuePriority",
-    "AssignmentStrategy",
 ]

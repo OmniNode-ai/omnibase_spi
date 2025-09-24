@@ -13,8 +13,7 @@ from .protocol_handler_discovery import (
 )
 
 __all__ = [
-    # Node discovery protocols
-    "ProtocolHandlerInfo",
     "ProtocolHandlerDiscovery",
+    "ProtocolHandlerInfo",
     "ProtocolNodeDiscoveryRegistry",
 ]
