@@ -4,6 +4,13 @@ Container Protocols - SPI Interface Exports.
 Dependency injection, service registry, and artifact container protocols:
 - Comprehensive service registry for dependency injection
 - Artifact container for package/tool management
+
+Note: Container service types are prefixed with "DI" to distinguish from
+general service discovery types in core_types:
+- ProtocolDIServiceInstance: DI container service instances
+- ProtocolDIServiceMetadata: DI container service metadata
+- ProtocolServiceInstance (core_types): General service discovery
+- ProtocolServiceMetadata (core_types): General service discovery metadata
 """
 
 from .protocol_artifact_container import (
@@ -15,7 +22,7 @@ from .protocol_artifact_container import (
 )
 from .protocol_container_service import ProtocolContainerService
 
-# Provide aliases to avoid name collision with core types
+# Export DI-specific protocols with clear naming to avoid collision with core types
 from .protocol_service_registry import (
     InjectionScope,
     ProtocolDependencyGraph,
@@ -23,11 +30,9 @@ from .protocol_service_registry import (
     ProtocolServiceDependency,
     ProtocolServiceFactory,
 )
-from .protocol_service_registry import ProtocolServiceInstance
 from .protocol_service_registry import (
     ProtocolServiceInstance as ProtocolDIServiceInstance,
 )
-from .protocol_service_registry import ProtocolServiceMetadata
 from .protocol_service_registry import (
     ProtocolServiceMetadata as ProtocolDIServiceMetadata,
 )
@@ -56,8 +61,6 @@ __all__ = [
     "ProtocolInjectionContext",
     "ProtocolServiceDependency",
     "ProtocolServiceFactory",
-    "ProtocolServiceInstance",
-    "ProtocolServiceMetadata",
     "ProtocolServiceRegistration",
     "ProtocolServiceRegistry",
     "ProtocolServiceRegistryConfig",

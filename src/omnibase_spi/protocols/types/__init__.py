@@ -6,6 +6,13 @@ for data structures used across ONEX service interfaces. All types follow
 the zero-dependency principle and use strong typing without Any.
 """
 
+# Node configuration protocols (authoritative method-based protocols)
+from omnibase_spi.protocols.core import (
+    ProtocolConfigurationError,
+    ProtocolNodeConfiguration,
+    ProtocolNodeConfigurationProvider,
+)
+
 # Core types
 from omnibase_spi.protocols.types.core_types import (
     BaseStatus,
@@ -44,7 +51,6 @@ from omnibase_spi.protocols.types.core_types import (
     ProtocolMetadataProvider,
     ProtocolMetricsPoint,
     ProtocolNameable,
-    ProtocolNodeConfiguration,
     ProtocolNodeInfoLike,
     ProtocolNodeMetadata,
     ProtocolNodeMetadataBlock,
@@ -213,6 +219,7 @@ __all__ = [
     "ProtocolCompatibilityCheck",
     "ProtocolCompensationAction",
     "ProtocolConfigurable",
+    "ProtocolConfigurationError",
     "ProtocolConfigValue",
     "ProtocolDateTime",
     "ProtocolDiscoveryQuery",
@@ -263,6 +270,7 @@ __all__ = [
     "ProtocolNameable",
     "ProtocolNodeCapability",
     "ProtocolNodeConfiguration",
+    "ProtocolNodeConfigurationProvider",
     "ProtocolNodeInfoLike",
     "ProtocolNodeMetadata",
     "ProtocolNodeMetadataBlock",

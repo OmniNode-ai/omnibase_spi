@@ -55,12 +55,15 @@ ContextValue = str | int | float | bool | list[str] | dict[str, str]
 class ProtocolSupportedMetadataType(Protocol):
     """Protocol for types that can be stored in metadata."""
 
+    __omnibase_metadata_type_marker__: Literal[True]
+
     def __str__(self) -> str:
         """Must be convertible to string."""
         ...
 
 
 # Configuration value protocol - for type-safe configuration
+@runtime_checkable
 class ProtocolConfigValue(Protocol):
     """Protocol for configuration values - attribute-based for data compatibility."""
 
@@ -91,6 +94,7 @@ class ProtocolLogEntry(Protocol):
 
 
 # Core serialization protocols
+@runtime_checkable
 class ProtocolSerializationResult(Protocol):
     """Protocol for serialization results."""
 
@@ -100,6 +104,7 @@ class ProtocolSerializationResult(Protocol):
 
 
 # Core node protocols
+@runtime_checkable
 class ProtocolNodeMetadata(Protocol):
     """Protocol for node metadata objects."""
 
@@ -109,6 +114,7 @@ class ProtocolNodeMetadata(Protocol):
 
 
 # Core validation protocols
+@runtime_checkable
 class ProtocolValidationResult(Protocol):
     """Protocol for validation results."""
 
@@ -176,6 +182,7 @@ class ProtocolMetadataOperations(Protocol):
 
 
 # Reducer protocol types with stronger typing
+@runtime_checkable
 class ProtocolActionPayload(Protocol):
     """Protocol for action payload with specific data."""
 
@@ -184,6 +191,7 @@ class ProtocolActionPayload(Protocol):
     parameters: dict[str, ContextValue]
 
 
+@runtime_checkable
 class ProtocolAction(Protocol):
     """Protocol for reducer actions."""
 
@@ -192,6 +200,7 @@ class ProtocolAction(Protocol):
     timestamp: ProtocolDateTime
 
 
+@runtime_checkable
 class ProtocolState(Protocol):
     """Protocol for reducer state."""
 
@@ -201,6 +210,7 @@ class ProtocolState(Protocol):
 
 
 # Schema and node metadata protocols
+@runtime_checkable
 class ProtocolNodeMetadataBlock(Protocol):
     """Protocol for node metadata block objects."""
 
@@ -216,6 +226,7 @@ class ProtocolNodeMetadataBlock(Protocol):
     protocol_version: ProtocolSemVer
 
 
+@runtime_checkable
 class ProtocolSchemaObject(Protocol):
     """Protocol for schema data objects."""
 
@@ -290,19 +301,6 @@ class ProtocolServiceHealthStatus(Protocol):
     status: HealthStatus
     last_check: ProtocolDateTime
     details: dict[str, ContextValue]
-
-
-# Node Configuration Types
-class ProtocolNodeConfiguration(Protocol):
-    """Protocol for node configuration information."""
-
-    name: str
-    version: ProtocolSemVer
-    node_type: NodeType
-    dependencies: list[str]
-    capabilities: list[str]
-    runtime_requirements: dict[str, ContextValue]
-    metadata: dict[str, ContextValue]
 
 
 # Storage Backend Types
@@ -562,6 +560,8 @@ class ProtocolSerializable(Protocol):
 class ProtocolIdentifiable(Protocol):
     """Protocol for objects that have an ID."""
 
+    __omnibase_identifiable_marker__: Literal[True]
+
     @property
     def id(self) -> str:
         """Get the object ID."""
@@ -571,6 +571,8 @@ class ProtocolIdentifiable(Protocol):
 @runtime_checkable
 class ProtocolNameable(Protocol):
     """Protocol for objects that have a name."""
+
+    __omnibase_nameable_marker__: Literal[True]
 
     @property
     def name(self) -> str:
@@ -582,6 +584,8 @@ class ProtocolNameable(Protocol):
 class ProtocolValidatable(Protocol):
     """Protocol for objects that can be validated."""
 
+    __omnibase_validatable_marker__: Literal[True]
+
     def is_valid(self) -> bool:
         """Check if the object is valid."""
         ...
@@ -590,6 +594,8 @@ class ProtocolValidatable(Protocol):
 @runtime_checkable
 class ProtocolConfigurable(Protocol):
     """Protocol for objects that can be configured."""
+
+    __omnibase_configurable_marker__: Literal[True]
 
     def configure(self, **kwargs: ContextValue) -> None:
         """Configure the object with parameters."""
@@ -600,6 +606,8 @@ class ProtocolConfigurable(Protocol):
 class ProtocolExecutable(Protocol):
     """Protocol for objects that can be executed."""
 
+    __omnibase_executable_marker__: Literal[True]
+
     def execute(self) -> object:
         """Execute the object."""
         ...
@@ -608,6 +616,8 @@ class ProtocolExecutable(Protocol):
 @runtime_checkable
 class ProtocolMetadataProvider(Protocol):
     """Protocol for objects that provide metadata."""
+
+    __omnibase_metadata_provider_marker__: Literal[True]
 
     def get_metadata(self) -> dict[str, str | int | bool | float]:
         """Get metadata dictionary."""

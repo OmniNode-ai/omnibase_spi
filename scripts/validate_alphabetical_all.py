@@ -65,7 +65,7 @@ def check_alphabetical_order(file_path: Path, fix: bool = False) -> bool:
     if result is None:
         return True  # No __all__ list found, nothing to check
 
-    list_node, line_no = result
+    list_node, _line_no = result  # Use underscore prefix to indicate unused variable
     items = get_string_items(list_node)
 
     if not items:
@@ -91,7 +91,7 @@ def check_alphabetical_order(file_path: Path, fix: bool = False) -> bool:
 
         # Show first few differences
         differences = []
-        for i, (actual, expected) in enumerate(zip(items, sorted_items)):
+        for i, (actual, expected) in enumerate(zip(items, sorted_items, strict=False)):
             if actual != expected:
                 differences.append(
                     f"  Position {i+1}: got '{actual}', expected '{expected}'"
@@ -101,9 +101,13 @@ def check_alphabetical_order(file_path: Path, fix: bool = False) -> bool:
 
         for diff in differences:
             print(diff)
-        if len(items) - len([a for a, e in zip(items, sorted_items) if a == e]) > 3:
+        if (
+            len(items)
+            - len([a for a, e in zip(items, sorted_items, strict=False) if a == e])
+            > 3
+        ):
             print(
-                f"  ... and {len(items) - len([a for a, e in zip(items, sorted_items) if a == e]) - 3} more differences"
+                f"  ... and {len(items) - len([a for a, e in zip(items, sorted_items, strict=False) if a == e]) - 3} more differences"
             )
 
         return False
@@ -139,7 +143,7 @@ def check_alphabetical_order(file_path: Path, fix: bool = False) -> bool:
                     break
 
         if all_start_line is None or all_end_line is None:
-            print(f"  Error: Could not find __all__ list boundaries")
+            print("  Error: Could not find __all__ list boundaries")
             return False
 
         # Generate new __all__ list with proper formatting
@@ -157,24 +161,32 @@ def check_alphabetical_order(file_path: Path, fix: bool = False) -> bool:
         with open(file_path, "w", encoding="utf-8") as f:
             f.writelines(updated_lines)
 
-        print(f"  ✅ Fixed: reordered {len(items)} items")
-        return True
-
-    except Exception as e:
+    except (OSError, IOError) as e:
         print(f"  Error fixing {file_path}: {e}")
         return False
+    else:
+        print(f"  ✅ Fixed: reordered {len(items)} items")
+        return True
 
 
 def find_python_files(root_dir: Path) -> List[Path]:
     """Find all Python __init__.py files in protocols directory."""
-    python_files = []
+    python_files: List[Path] = []
+
+    if not root_dir.exists():
+        print(f"Warning: Root directory {root_dir} does not exist")
+        return python_files
+
     if root_dir.is_file() and root_dir.suffix == ".py":
         python_files.append(root_dir)
     else:
         # Find all __init__.py files in protocols directory
         protocols_dir = root_dir / "src" / "omnibase_spi" / "protocols"
         if protocols_dir.exists():
-            python_files.extend(protocols_dir.rglob("__init__.py"))
+            try:
+                python_files.extend(protocols_dir.rglob("__init__.py"))
+            except PermissionError as e:
+                print(f"Warning: Permission denied accessing {protocols_dir}: {e}")
 
     return sorted(python_files)
 

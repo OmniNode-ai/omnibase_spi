@@ -44,17 +44,11 @@ from omnibase_spi.protocols.container import (  # Phase 3 additions
     ProtocolArtifactMetadata,
     ProtocolContainerService,
     ProtocolDependencyGraph,
+    ProtocolDIServiceInstance,
+    ProtocolDIServiceMetadata,
     ProtocolInjectionContext,
     ProtocolServiceDependency,
     ProtocolServiceFactory,
-)
-from omnibase_spi.protocols.container import (
-    ProtocolServiceInstance as ProtocolDIServiceInstance,
-)
-from omnibase_spi.protocols.container import (
-    ProtocolServiceMetadata as ProtocolDIServiceMetadata,
-)
-from omnibase_spi.protocols.container import (  # Phase 3 additions
     ProtocolServiceRegistration,
     ProtocolServiceRegistry,
     ProtocolServiceRegistryConfig,
