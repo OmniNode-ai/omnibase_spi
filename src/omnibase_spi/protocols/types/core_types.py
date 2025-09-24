@@ -427,6 +427,38 @@ HealthDimension = Literal[
 ]
 
 
+# Marker Interfaces for Type Compatibility
+@runtime_checkable
+class ProtocolNodeInfoLike(Protocol):
+    """
+    Protocol for objects that can provide node information.
+
+    This protocol defines the minimal interface that objects
+    must implement to be compatible with node metadata processing.
+    Objects implementing this protocol can be converted to
+    ModelNodeMetadataInfo instances.
+
+    This is a marker interface - no methods required.
+    """
+
+    pass
+
+
+@runtime_checkable
+class ProtocolSupportedPropertyValue(Protocol):
+    """
+    Protocol for values that can be stored as property values.
+
+    This protocol defines the minimal interface that property values
+    must implement to be compatible with the ONEX property system.
+    Any type implementing this protocol can be used as a property value.
+
+    This is a marker interface - no methods required.
+    """
+
+    pass
+
+
 class ProtocolHealthMetrics(Protocol):
     """Protocol for health check metrics."""
 
