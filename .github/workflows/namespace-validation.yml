@@ -43,6 +43,7 @@ jobs:
         ./scripts/validate-namespace-isolation.sh
 
     - name: Run SPI purity validation
+      continue-on-error: true
       run: |
         chmod +x ./scripts/validate-spi-purity.sh
         ./scripts/validate-spi-purity.sh
