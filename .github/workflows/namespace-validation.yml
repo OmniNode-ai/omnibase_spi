@@ -42,10 +42,10 @@ jobs:
         chmod +x ./scripts/validate-namespace-isolation.sh
         ./scripts/validate-namespace-isolation.sh
 
-    - name: Run comprehensive SPI protocol audit
+    - name: Run SPI purity validation
       run: |
-        chmod +x ./scripts/spi_protocol_auditor.py
-        python ./scripts/spi_protocol_auditor.py --repo-root . --output audit-results.json
+        chmod +x ./scripts/validate-spi-purity.sh
+        ./scripts/validate-spi-purity.sh
 
     - name: Run memory protocol tests
       run: |
