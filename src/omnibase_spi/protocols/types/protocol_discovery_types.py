@@ -7,7 +7,7 @@ Domain: Service and node discovery protocols
 from typing import Literal, Protocol
 from uuid import UUID
 
-from omnibase_spi.protocols.types.core_types import ProtocolSemVer
+from omnibase_spi.protocols.types.protocol_core_types import ProtocolSemVer
 
 # Discovery result types
 LiteralDiscoveryStatus = Literal["found", "not_found", "error", "timeout"]

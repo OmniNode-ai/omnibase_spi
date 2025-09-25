@@ -11,11 +11,11 @@ Domain: MCP subsystem integration and client-side operations
 from typing import Any, Callable, Optional, Protocol, runtime_checkable
 from uuid import UUID
 
-from omnibase_spi.protocols.types.core_types import (
+from omnibase_spi.protocols.types.protocol_core_types import (
     ContextValue,
     ProtocolValidationResult,
 )
-from omnibase_spi.protocols.types.mcp_types import (
+from omnibase_spi.protocols.types.protocol_mcp_types import (
     LiteralMCPConnectionStatus,
     LiteralMCPLifecycleState,
     ProtocolMCPHealthCheck,

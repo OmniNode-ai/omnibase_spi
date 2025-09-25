@@ -9,7 +9,7 @@ from typing import Optional, Protocol, runtime_checkable
 from omnibase_spi.protocols.core.protocol_node_configuration import (
     ProtocolNodeConfiguration,
 )
-from omnibase_spi.protocols.types.core_types import ContextValue
+from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 
 
 @runtime_checkable

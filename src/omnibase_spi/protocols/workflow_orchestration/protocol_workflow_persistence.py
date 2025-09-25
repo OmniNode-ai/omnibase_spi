@@ -8,8 +8,8 @@ including event stores, snapshot stores, and projection stores with ACID guarant
 from typing import Any, Optional, Protocol, runtime_checkable
 from uuid import UUID
 
-from omnibase_spi.protocols.types.core_types import ProtocolDateTime
-from omnibase_spi.protocols.types.workflow_orchestration_types import (
+from omnibase_spi.protocols.types.protocol_core_types import ProtocolDateTime
+from omnibase_spi.protocols.types.protocol_workflow_orchestration_types import (
     LiteralWorkflowEventType,
     LiteralWorkflowState,
     ProtocolWorkflowEvent,

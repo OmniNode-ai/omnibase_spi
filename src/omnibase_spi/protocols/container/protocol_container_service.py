@@ -8,14 +8,14 @@ service registration, and registry lifecycle operations.
 from typing import TYPE_CHECKING, Protocol, Union, runtime_checkable
 
 if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.container_types import (
+    from omnibase_spi.protocols.types.protocol_container_types import (
         ProtocolContainer,
         ProtocolContainerResult,
         ProtocolDependencySpec,
         ProtocolRegistryWrapper,
         ProtocolServiceInstance,
     )
-    from omnibase_spi.protocols.types.core_types import ProtocolMetadata
+    from omnibase_spi.protocols.types.protocol_core_types import ProtocolMetadata
 
 
 @runtime_checkable

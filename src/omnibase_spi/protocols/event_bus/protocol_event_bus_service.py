@@ -9,7 +9,9 @@ This ensures consistency and prevents runtime errors from missing methods.
 from typing import TYPE_CHECKING, Callable, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.event_bus_types import ProtocolEventMessage
+    from omnibase_spi.protocols.types.protocol_event_bus_types import (
+        ProtocolEventMessage,
+    )
 
 
 @runtime_checkable

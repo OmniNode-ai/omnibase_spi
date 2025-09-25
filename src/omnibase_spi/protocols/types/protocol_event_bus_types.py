@@ -4,10 +4,10 @@ Event bus protocol types for ONEX SPI interfaces.
 Domain: Event-driven architecture protocols
 """
 
-from typing import Literal, Optional, Protocol, TypeAlias, Union, runtime_checkable
+from typing import Generic, Literal, Optional, Protocol, TypeVar, runtime_checkable
 from uuid import UUID
 
-from omnibase_spi.protocols.types.core_types import (
+from omnibase_spi.protocols.types.protocol_core_types import (
     LiteralBaseStatus,
     ProtocolDateTime,
     ProtocolSemVer,
@@ -33,13 +33,46 @@ class ProtocolEventValue(Protocol):
         ...
 
 
-# === Clean Type Aliases ===
+# === Event Data Protocol Hierarchy (Eliminates Union anti-patterns) ===
 
-# Basic event primitive types
-BasicEventValue: TypeAlias = Union[str, int, float, bool]
 
-# Event data using cleaner type definitions
-EventData: TypeAlias = Union[BasicEventValue, list[str], dict[str, BasicEventValue]]
+@runtime_checkable
+class ProtocolEventData(Protocol):
+    """Protocol for event data values supporting validation and serialization."""
+
+    def validate_for_transport(self) -> bool:
+        """Validate value is safe for event transport."""
+        ...
+
+    def serialize_for_event(self) -> dict[str, object]:
+        """Serialize value for event messaging."""
+        ...
+
+    def get_event_type_hint(self) -> str:
+        """Get type hint for event schema validation."""
+        ...
+
+
+@runtime_checkable
+class ProtocolEventStringData(ProtocolEventData, Protocol):
+    """Protocol for string-based event data."""
+
+    value: str
+
+
+@runtime_checkable
+class ProtocolEventStringListData(ProtocolEventData, Protocol):
+    """Protocol for string list event data."""
+
+    value: list[str]
+
+
+@runtime_checkable
+class ProtocolEventStringDictData(ProtocolEventData, Protocol):
+    """Protocol for string dictionary event data."""
+
+    value: dict[str, str]
+
 
 # Event status types - using consolidated LiteralBaseStatus
 EventStatus = LiteralBaseStatus
@@ -51,7 +84,7 @@ LiteralAuthStatus = Literal["authenticated", "unauthenticated", "expired", "inva
 LiteralEventPriority = Literal["low", "normal", "high", "critical"]
 
 # Message key types - for partitioning and routing
-MessageKey = bytes | None
+MessageKey = Optional[bytes]
 
 
 # Event protocols
@@ -59,7 +92,7 @@ class ProtocolEvent(Protocol):
     """Protocol for event objects."""
 
     event_type: str
-    event_data: dict[str, EventData]
+    event_data: dict[str, ProtocolEventData]
     correlation_id: UUID
     timestamp: ProtocolDateTime
     source: str
@@ -105,9 +138,9 @@ class ProtocolOnexEvent(Protocol):
     event_type: str
     timestamp: ProtocolDateTime
     source: str
-    payload: dict[str, EventData]
+    payload: dict[str, ProtocolEventData]
     correlation_id: UUID
-    metadata: dict[str, EventData]
+    metadata: dict[str, ProtocolEventData]
 
 
 class ProtocolEventBusCredentials(Protocol):

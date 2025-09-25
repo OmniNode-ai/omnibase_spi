@@ -9,7 +9,7 @@ from typing import Any, Literal, Optional, Protocol
 from uuid import UUID
 
 from omnibase_spi.protocols.core.protocol_onex_validation import ProtocolOnexMetadata
-from omnibase_spi.protocols.types.core_types import ProtocolDateTime
+from omnibase_spi.protocols.types.protocol_core_types import ProtocolDateTime
 
 # Standard Onex reply status values - using Literal instead of Enum
 LiteralOnexReplyStatus = Literal[

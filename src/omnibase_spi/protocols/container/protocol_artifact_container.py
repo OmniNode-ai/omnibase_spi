@@ -33,7 +33,7 @@ architectural boundaries.
 
 from typing import Literal, Optional, Protocol
 
-from omnibase_spi.protocols.types.core_types import ProtocolSemVer
+from omnibase_spi.protocols.types.protocol_core_types import ProtocolSemVer
 
 # Status type for ONEX systems
 LiteralOnexStatus = Literal["ACTIVE", "INACTIVE", "ERROR", "UNKNOWN"]

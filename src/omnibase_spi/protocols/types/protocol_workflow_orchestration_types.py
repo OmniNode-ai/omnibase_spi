@@ -4,10 +4,10 @@ Workflow orchestration protocol types for ONEX SPI interfaces.
 Domain: Event-driven workflow orchestration with FSM states and event sourcing
 """
 
-from typing import Any, Literal, Optional, Protocol, TypeAlias, Union, runtime_checkable
+from typing import Any, Generic, Literal, Optional, Protocol, TypeVar, runtime_checkable
 from uuid import UUID
 
-from omnibase_spi.protocols.types.core_types import (
+from omnibase_spi.protocols.types.protocol_core_types import (
     ContextValue,
     LiteralNodeType,
     ProtocolDateTime,
@@ -34,15 +34,65 @@ class ProtocolWorkflowValue(Protocol):
         ...
 
 
-# === Clean Type Aliases ===
+# === Workflow Value Protocol Hierarchy (Eliminates Union anti-patterns) ===
 
-# Basic primitive types for workflow data
-BasicWorkflowValue: TypeAlias = Union[str, int, float, bool]
 
-# Structured workflow data using cleaner type definitions
-WorkflowData: TypeAlias = Union[
-    BasicWorkflowValue, list[str], dict[str, BasicWorkflowValue]
-]
+@runtime_checkable
+class ProtocolWorkflowStringValue(ProtocolWorkflowValue, Protocol):
+    """Protocol for string-based workflow values."""
+
+    value: str
+
+
+@runtime_checkable
+class ProtocolWorkflowStringListValue(ProtocolWorkflowValue, Protocol):
+    """Protocol for string list workflow values."""
+
+    value: list[str]
+
+
+@runtime_checkable
+class ProtocolWorkflowStringDictValue(ProtocolWorkflowValue, Protocol):
+    """Protocol for string dictionary workflow values."""
+
+    value: dict[str, str]
+
+
+@runtime_checkable
+class ProtocolWorkflowNumericValue(ProtocolWorkflowValue, Protocol):
+    """Protocol for numeric workflow values (int or float)."""
+
+    value: int | float
+
+
+@runtime_checkable
+class ProtocolWorkflowStructuredValue(ProtocolWorkflowValue, Protocol):
+    """Protocol for structured workflow values with context data."""
+
+    value: dict[str, ContextValue]
+
+
+# === Generic Type Definitions ===
+
+# Constrained TypeVar for workflow primitive values
+T_WorkflowValue = TypeVar("T_WorkflowValue", str, int, float, bool)
+
+
+# Generic protocol for typed workflow data
+@runtime_checkable
+class ProtocolTypedWorkflowData(Generic[T_WorkflowValue], Protocol):
+    """Protocol for strongly typed workflow data values."""
+
+    value: T_WorkflowValue
+
+    def get_type_name(self) -> str:
+        """Get the type name for this workflow data."""
+        ...
+
+    def serialize_typed(self) -> dict[str, Any]:
+        """Serialize with type information."""
+        ...
+
 
 # Workflow state types - hierarchical FSM states
 LiteralWorkflowState = Literal[
@@ -172,7 +222,7 @@ class ProtocolWorkflowContext(Protocol):
     instance_id: UUID
     correlation_id: UUID
     isolation_level: LiteralIsolationLevel
-    data: dict[str, WorkflowData]
+    data: dict[str, ProtocolWorkflowValue]
     secrets: dict[str, str]  # Encrypted/protected values
     capabilities: list[str]
     resource_limits: dict[str, int]
@@ -206,7 +256,7 @@ class ProtocolWorkflowEvent(Protocol):
     timestamp: ProtocolDateTime
     source: str
     idempotency_key: str
-    payload: dict[str, WorkflowData]
+    payload: dict[str, ProtocolWorkflowValue]
     metadata: dict[str, ContextValue]
     causation_id: Optional[UUID]  # Event that caused this event
     correlation_chain: list[UUID]  # Full correlation chain
@@ -231,7 +281,7 @@ class ProtocolTaskResult(Protocol):
     task_id: UUID
     execution_id: UUID
     state: LiteralTaskState
-    result_data: dict[str, WorkflowData]
+    result_data: dict[str, ProtocolWorkflowValue]
     error_message: Optional[str]
     error_code: Optional[str]
     retry_count: int
@@ -247,7 +297,7 @@ class ProtocolCompensationAction(Protocol):
     compensation_id: UUID
     task_id: UUID
     action_type: Literal["rollback", "cleanup", "notify", "custom"]
-    action_data: dict[str, WorkflowData]
+    action_data: dict[str, ProtocolWorkflowValue]
     timeout_seconds: int
     retry_config: ProtocolRetryConfiguration
 
@@ -336,6 +386,6 @@ class ProtocolEventProjection(Protocol):
     projection_name: str
     workflow_type: str
     last_processed_sequence: int
-    projection_data: dict[str, WorkflowData]
+    projection_data: dict[str, ProtocolWorkflowValue]
     created_at: ProtocolDateTime
     updated_at: ProtocolDateTime

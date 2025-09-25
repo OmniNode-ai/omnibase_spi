@@ -24,7 +24,10 @@
 
 from typing import Protocol
 
-from omnibase_spi.protocols.types.core_types import ProtocolAction, ProtocolState
+from omnibase_spi.protocols.types.protocol_core_types import (
+    ProtocolAction,
+    ProtocolState,
+)
 
 
 class ProtocolReducer(Protocol):

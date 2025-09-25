@@ -11,8 +11,8 @@ Domain: MCP tool execution and proxy management
 from typing import Any, Optional, Protocol, runtime_checkable
 from uuid import UUID
 
-from omnibase_spi.protocols.types.core_types import ContextValue
-from omnibase_spi.protocols.types.mcp_types import (
+from omnibase_spi.protocols.types.protocol_core_types import ContextValue
+from omnibase_spi.protocols.types.protocol_mcp_types import (
     LiteralMCPExecutionStatus,
     ProtocolMCPSubsystemRegistration,
     ProtocolMCPToolDefinition,

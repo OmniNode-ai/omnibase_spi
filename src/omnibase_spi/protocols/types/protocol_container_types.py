@@ -6,7 +6,10 @@ Domain: Dependency injection and service container protocols
 
 from typing import Literal, Protocol, runtime_checkable
 
-from omnibase_spi.protocols.types.core_types import ContextValue, ProtocolSemVer
+from omnibase_spi.protocols.types.protocol_core_types import (
+    ContextValue,
+    ProtocolSemVer,
+)
 
 # Container status types
 LiteralContainerStatus = Literal["initializing", "ready", "error", "disposed"]

@@ -13,12 +13,13 @@ Key Design Principles:
     - Runtime checkable protocols for dynamic validation
 
 Domain Organization:
-    - core_types: System-wide types (logging, validation, health, metadata)
-    - discovery_types: Node and service discovery contracts
-    - event_bus_types: Event messaging and subscription types
-    - file_handling_types: File processing and metadata types
-    - mcp_types: Model Context Protocol integration types
-    - workflow_orchestration_types: Event-driven workflow and FSM types
+    - protocol_core_types: System-wide types (logging, validation, health, metadata)
+    - protocol_discovery_types: Node and service discovery contracts
+    - protocol_event_bus_types: Event messaging and subscription types
+    - protocol_file_handling_types: File processing and metadata types
+    - protocol_mcp_types: Model Context Protocol integration types
+    - protocol_workflow_orchestration_types: Event-driven workflow and FSM types
+    - protocol_container_types: Dependency injection and service location types
 
 Usage Examples:
     # Basic type imports
@@ -32,8 +33,8 @@ Usage Examples:
     )
 
     # Domain-specific imports
-    from omnibase_spi.protocols.types.workflow_orchestration_types import LiteralWorkflowState
-    from omnibase_spi.protocols.types.mcp_types import MCPToolType
+    from omnibase_spi.protocols.types.protocol_workflow_orchestration_types import LiteralWorkflowState
+    from omnibase_spi.protocols.types.protocol_mcp_types import MCPToolType
 
     # Usage in service implementations
     def log_event(level: LogLevel, message: str) -> ProtocolLogEntry:
@@ -55,7 +56,7 @@ Type Safety Features:
 # Import these directly from omnibase_spi.protocols.core as needed.
 
 # Core types
-from omnibase_spi.protocols.types.core_types import (
+from omnibase_spi.protocols.types.protocol_core_types import (
     ContextValue,
     LiteralBaseStatus,
     LiteralErrorRecoveryStrategy,
@@ -122,7 +123,7 @@ from omnibase_spi.protocols.types.core_types import (
 )
 
 # Discovery types
-from omnibase_spi.protocols.types.discovery_types import (
+from omnibase_spi.protocols.types.protocol_discovery_types import (
     CapabilityValue,
     LiteralDiscoveryStatus,
     LiteralHandlerStatus,
@@ -134,19 +135,22 @@ from omnibase_spi.protocols.types.discovery_types import (
 )
 
 # Event bus types
-from omnibase_spi.protocols.types.event_bus_types import (
-    EventData,
+from omnibase_spi.protocols.types.protocol_event_bus_types import (
     EventStatus,
     LiteralAuthStatus,
     LiteralEventPriority,
     ProtocolEvent,
+    ProtocolEventData,
     ProtocolEventResult,
+    ProtocolEventStringData,
+    ProtocolEventStringDictData,
+    ProtocolEventStringListData,
     ProtocolEventSubscription,
     ProtocolSecurityContext,
 )
 
 # File handling types
-from omnibase_spi.protocols.types.file_handling_types import (
+from omnibase_spi.protocols.types.protocol_file_handling_types import (
     FileContent,
     LiteralFileOperation,
     LiteralFileStatus,
@@ -169,7 +173,7 @@ from omnibase_spi.protocols.types.file_handling_types import (
 )
 
 # MCP types
-from omnibase_spi.protocols.types.mcp_types import (
+from omnibase_spi.protocols.types.protocol_mcp_types import (
     LiteralMCPConnectionStatus,
     LiteralMCPExecutionStatus,
     LiteralMCPLifecycleState,
@@ -191,7 +195,7 @@ from omnibase_spi.protocols.types.mcp_types import (
 )
 
 # Workflow orchestration types
-from omnibase_spi.protocols.types.workflow_orchestration_types import (
+from omnibase_spi.protocols.types.protocol_workflow_orchestration_types import (
     LiteralExecutionSemantics,
     LiteralIsolationLevel,
     LiteralRetryPolicy,
@@ -217,8 +221,13 @@ from omnibase_spi.protocols.types.workflow_orchestration_types import (
     ProtocolWorkflowDefinition,
     ProtocolWorkflowEvent,
     ProtocolWorkflowMetadata,
+    ProtocolWorkflowNumericValue,
     ProtocolWorkflowSnapshot,
-    WorkflowData,
+    ProtocolWorkflowStringDictValue,
+    ProtocolWorkflowStringListValue,
+    ProtocolWorkflowStringValue,
+    ProtocolWorkflowStructuredValue,
+    ProtocolWorkflowValue,
 )
 
 __all__ = [
@@ -267,6 +276,10 @@ __all__ = [
     "ProtocolErrorInfo",
     "ProtocolErrorResult",
     "ProtocolEvent",
+    "ProtocolEventData",
+    "ProtocolEventStringData",
+    "ProtocolEventStringListData",
+    "ProtocolEventStringDictData",
     "ProtocolEventProjection",
     "ProtocolEventResult",
     "ProtocolEventStream",
@@ -352,6 +365,12 @@ __all__ = [
     "ProtocolWorkflowEvent",
     "ProtocolWorkflowMetadata",
     "ProtocolWorkflowSnapshot",
+    "ProtocolWorkflowValue",
+    "ProtocolWorkflowStringValue",
+    "ProtocolWorkflowStringListValue",
+    "ProtocolWorkflowStringDictValue",
+    "ProtocolWorkflowNumericValue",
+    "ProtocolWorkflowStructuredValue",
     "LiteralRetryPolicy",
     "LiteralTaskPriority",
     "LiteralTaskState",
@@ -361,5 +380,4 @@ __all__ = [
     "LiteralValidationMode",
     "LiteralWorkflowEventType",
     "LiteralWorkflowState",
-    "WorkflowData",
 ]

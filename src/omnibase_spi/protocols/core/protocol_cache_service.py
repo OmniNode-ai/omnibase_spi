@@ -14,10 +14,10 @@ from typing import (
     runtime_checkable,
 )
 
-from omnibase_spi.protocols.types.core_types import ContextValue
+from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 
 if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.core_types import ProtocolCacheStatistics
+    from omnibase_spi.protocols.types.protocol_core_types import ProtocolCacheStatistics
 
 # Type variable for generic cache values
 T = TypeVar("T")

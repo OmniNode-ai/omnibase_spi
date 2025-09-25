@@ -9,7 +9,7 @@ from typing import Any, Awaitable, Callable, Optional, Protocol, runtime_checkab
 from uuid import UUID
 
 from omnibase_spi.protocols.event_bus.protocol_event_bus import ProtocolEventBus
-from omnibase_spi.protocols.types.workflow_orchestration_types import (
+from omnibase_spi.protocols.types.protocol_workflow_orchestration_types import (
     LiteralWorkflowEventType,
     LiteralWorkflowState,
     ProtocolWorkflowEvent,

@@ -8,7 +8,7 @@ and security-focused data validation across ONEX services.
 from typing import TYPE_CHECKING, Optional, Protocol, Union, runtime_checkable
 
 if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.core_types import (
+    from omnibase_spi.protocols.types.protocol_core_types import (
         ContextValue,
         LiteralValidationLevel,
         LiteralValidationMode,

@@ -7,7 +7,10 @@ Defines the contract for validating Onex patterns and contract compliance.
 
 from typing import Literal, Protocol
 
-from omnibase_spi.protocols.types.core_types import ProtocolDateTime, ProtocolSemVer
+from omnibase_spi.protocols.types.protocol_core_types import (
+    ProtocolDateTime,
+    ProtocolSemVer,
+)
 
 
 # Protocol types for ONEX validation data structures

@@ -10,7 +10,7 @@ Focuses purely on dependency injection patterns rather than artifact or service 
 
 from typing import Any, Literal, Optional, Protocol, Type, TypeVar, runtime_checkable
 
-from omnibase_spi.protocols.types.core_types import (
+from omnibase_spi.protocols.types.protocol_core_types import (
     ContextValue,
     LiteralHealthStatus,
     LiteralOperationStatus,

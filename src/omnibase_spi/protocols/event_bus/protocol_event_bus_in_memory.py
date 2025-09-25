@@ -8,7 +8,9 @@ additional introspection and debugging capabilities.
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.event_bus_types import ProtocolEventMessage
+    from omnibase_spi.protocols.types.protocol_event_bus_types import (
+        ProtocolEventMessage,
+    )
 
 
 @runtime_checkable

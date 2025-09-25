@@ -9,7 +9,7 @@ Complements existing health monitoring protocols with service-specific logic.
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.core_types import LiteralHealthStatus
+    from omnibase_spi.protocols.types.protocol_core_types import LiteralHealthStatus
 
 
 @runtime_checkable

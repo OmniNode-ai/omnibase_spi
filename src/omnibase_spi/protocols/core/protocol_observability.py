@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Optional, Protocol, runtime_checkable
 if TYPE_CHECKING:
     from uuid import UUID
 
-    from omnibase_spi.protocols.types.core_types import (
+    from omnibase_spi.protocols.types.protocol_core_types import (
         LiteralOperationStatus,
         ProtocolAuditEvent,
         ProtocolDateTime,
