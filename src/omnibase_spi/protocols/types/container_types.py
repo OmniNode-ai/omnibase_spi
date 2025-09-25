@@ -9,13 +9,13 @@ from typing import Literal, Protocol, runtime_checkable
 from omnibase_spi.protocols.types.core_types import ContextValue, ProtocolSemVer
 
 # Container status types
-ContainerStatus = Literal["initializing", "ready", "error", "disposed"]
+LiteralContainerStatus = Literal["initializing", "ready", "error", "disposed"]
 
 # Service lifecycle types
-ServiceLifecycle = Literal["singleton", "transient", "scoped", "factory"]
+LiteralServiceLifecycle = Literal["singleton", "transient", "scoped", "factory"]
 
 # Dependency scope types
-DependencyScope = Literal["required", "optional", "lazy", "eager"]
+LiteralDependencyScope = Literal["required", "optional", "lazy", "eager"]
 
 
 # Container protocols
@@ -46,8 +46,8 @@ class ProtocolDependencySpec(Protocol):
     service_key: str
     module_path: str
     class_name: str
-    lifecycle: ServiceLifecycle
-    scope: DependencyScope
+    lifecycle: LiteralServiceLifecycle
+    scope: LiteralDependencyScope
     configuration: dict[str, ContextValue]
 
 
@@ -56,7 +56,7 @@ class ProtocolServiceInstance(Protocol):
 
     service_key: str
     instance_type: type
-    lifecycle: ServiceLifecycle
+    lifecycle: LiteralServiceLifecycle
     is_initialized: bool
 
 
@@ -81,7 +81,7 @@ class ProtocolContainerResult(Protocol):
 
     container: ProtocolContainer
     registry: ProtocolRegistryWrapper
-    status: ContainerStatus
+    status: LiteralContainerStatus
     error_message: str | None
     services_registered: int
 

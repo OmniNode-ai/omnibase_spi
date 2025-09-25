@@ -11,12 +11,12 @@ from omnibase_spi.protocols.core.protocol_cache_service import (
     ProtocolCacheServiceProvider,
 )
 from omnibase_spi.protocols.core.protocol_circuit_breaker import (
+    LiteralProtocolCircuitBreakerEvent,
+    LiteralProtocolCircuitBreakerState,
     ProtocolCircuitBreaker,
     ProtocolCircuitBreakerConfig,
-    ProtocolCircuitBreakerEvent,
     ProtocolCircuitBreakerFactory,
     ProtocolCircuitBreakerMetrics,
-    ProtocolCircuitBreakerState,
 )
 from omnibase_spi.protocols.core.protocol_client_config import (
     ProtocolClientConfigProvider,
@@ -98,10 +98,10 @@ __all__ = [
     "ProtocolCacheServiceProvider",
     "ProtocolCircuitBreaker",
     "ProtocolCircuitBreakerConfig",
-    "ProtocolCircuitBreakerEvent",
+    "LiteralProtocolCircuitBreakerEvent",
     "ProtocolCircuitBreakerFactory",
     "ProtocolCircuitBreakerMetrics",
-    "ProtocolCircuitBreakerState",
+    "LiteralProtocolCircuitBreakerState",
     "ProtocolClientConfigProvider",
     "ProtocolConfigurationError",
     "ProtocolConfigurationManager",

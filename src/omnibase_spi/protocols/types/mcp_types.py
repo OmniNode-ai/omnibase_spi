@@ -9,29 +9,30 @@ from uuid import UUID
 
 from omnibase_spi.protocols.types.core_types import (
     ContextValue,
-    HealthStatus,
-    OperationStatus,
+    LiteralHealthStatus,
+    LiteralOperationStatus,
     ProtocolDateTime,
     ProtocolSemVer,
-    ProtocolValidationResult,
 )
 
 # MCP-specific types using Literal for SPI purity
-MCPToolType = Literal["function", "resource", "prompt", "sampling", "completion"]
-MCPParameterType = Literal["string", "number", "integer", "boolean", "array", "object"]
-MCPExecutionStatus = Literal[
+LiteralMCPToolType = Literal["function", "resource", "prompt", "sampling", "completion"]
+LiteralMCPParameterType = Literal[
+    "string", "number", "integer", "boolean", "array", "object"
+]
+LiteralMCPExecutionStatus = Literal[
     "pending", "running", "completed", "failed", "timeout", "cancelled"
 ]
-# Using OperationStatus from core_types for registration status
-MCPSubsystemType = Literal[
+# Using LiteralOperationStatus from core_types for registration status
+LiteralMCPSubsystemType = Literal[
     "compute", "storage", "analytics", "integration", "workflow", "ui", "api"
 ]
 
 # MCP health and lifecycle types
-MCPLifecycleState = Literal[
+LiteralMCPLifecycleState = Literal[
     "initializing", "active", "idle", "busy", "degraded", "shutting_down", "terminated"
 ]
-MCPConnectionStatus = Literal["connected", "disconnected", "connecting", "error"]
+LiteralMCPConnectionStatus = Literal["connected", "disconnected", "connecting", "error"]
 
 
 @runtime_checkable
@@ -39,7 +40,7 @@ class ProtocolMCPToolParameter(Protocol):
     """Protocol for MCP tool parameter definition."""
 
     name: str
-    parameter_type: MCPParameterType
+    parameter_type: LiteralMCPParameterType
     description: str
     required: bool
     default_value: Optional[ContextValue]
@@ -53,7 +54,7 @@ class ProtocolMCPToolDefinition(Protocol):
     """Protocol for MCP tool definition."""
 
     name: str
-    tool_type: MCPToolType
+    tool_type: LiteralMCPToolType
     description: str
     version: ProtocolSemVer
     parameters: list[ProtocolMCPToolParameter]
@@ -72,7 +73,7 @@ class ProtocolMCPSubsystemMetadata(Protocol):
 
     subsystem_id: str
     name: str
-    subsystem_type: MCPSubsystemType
+    subsystem_type: LiteralMCPSubsystemType
     version: ProtocolSemVer
     description: str
     base_url: str
@@ -94,10 +95,10 @@ class ProtocolMCPSubsystemRegistration(Protocol):
     subsystem_metadata: ProtocolMCPSubsystemMetadata
     tools: list[ProtocolMCPToolDefinition]
     api_key: str
-    registration_status: OperationStatus
-    lifecycle_state: MCPLifecycleState
-    connection_status: MCPConnectionStatus
-    health_status: HealthStatus
+    registration_status: LiteralOperationStatus
+    lifecycle_state: LiteralMCPLifecycleState
+    connection_status: LiteralMCPConnectionStatus
+    health_status: LiteralHealthStatus
     registered_at: ProtocolDateTime
     last_heartbeat: Optional[ProtocolDateTime]
     heartbeat_interval_seconds: int
@@ -116,7 +117,7 @@ class ProtocolMCPToolExecution(Protocol):
     tool_name: str
     subsystem_id: str
     parameters: dict[str, ContextValue]
-    execution_status: MCPExecutionStatus
+    execution_status: LiteralMCPExecutionStatus
     started_at: ProtocolDateTime
     completed_at: Optional[ProtocolDateTime]
     duration_ms: Optional[int]
@@ -143,9 +144,9 @@ class ProtocolMCPRegistryMetrics(Protocol):
     peak_concurrent_executions: int
     registry_uptime_seconds: int
     last_cleanup_at: Optional[ProtocolDateTime]
-    subsystem_type_distribution: dict[MCPSubsystemType, int]
-    tool_type_distribution: dict[MCPToolType, int]
-    health_status_distribution: dict[HealthStatus, int]
+    subsystem_type_distribution: dict[LiteralMCPSubsystemType, int]
+    tool_type_distribution: dict[LiteralMCPToolType, int]
+    health_status_distribution: dict[LiteralHealthStatus, int]
     metadata: dict[str, ContextValue]
 
 
@@ -154,7 +155,7 @@ class ProtocolMCPRegistryStatus(Protocol):
     """Protocol for overall MCP registry status."""
 
     registry_id: str
-    status: OperationStatus
+    status: LiteralOperationStatus
     message: str
     version: ProtocolSemVer
     started_at: ProtocolDateTime
@@ -193,7 +194,7 @@ class ProtocolMCPHealthCheck(Protocol):
 
     subsystem_id: str
     check_time: ProtocolDateTime
-    health_status: HealthStatus
+    health_status: LiteralHealthStatus
     response_time_ms: int
     status_code: Optional[int]
     status_message: str
@@ -207,9 +208,9 @@ class ProtocolMCPDiscoveryInfo(Protocol):
 
     service_name: str
     service_url: str
-    service_type: MCPSubsystemType
+    service_type: LiteralMCPSubsystemType
     available_tools: list[str]
-    health_status: HealthStatus
+    health_status: LiteralHealthStatus
     last_seen: ProtocolDateTime
     metadata: dict[str, ContextValue]
 
@@ -256,7 +257,7 @@ class ProtocolToolInstance(Protocol):
 
     tool_name: str
     tool_version: ProtocolSemVer
-    tool_type: MCPToolType
+    tool_type: LiteralMCPToolType
     is_initialized: bool
 
     def execute(self, parameters: dict[str, ContextValue]) -> dict[str, ContextValue]:

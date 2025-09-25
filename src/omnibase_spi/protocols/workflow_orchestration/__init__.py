@@ -18,10 +18,10 @@ Author: ONEX Framework Team
 
 # Event bus protocols
 from omnibase_spi.protocols.workflow_orchestration.protocol_workflow_event_bus import (
+    ProtocolLiteralWorkflowStateProjection,
     ProtocolWorkflowEventBus,
     ProtocolWorkflowEventHandler,
     ProtocolWorkflowEventMessage,
-    ProtocolWorkflowStateProjection,
 )
 
 # Node registry protocols
@@ -39,23 +39,26 @@ from omnibase_spi.protocols.workflow_orchestration.protocol_workflow_persistence
     ProtocolEventStore,
     ProtocolEventStoreResult,
     ProtocolEventStoreTransaction,
+    ProtocolLiteralWorkflowStateStore,
     ProtocolSnapshotStore,
-    ProtocolWorkflowStateStore,
 )
 
 # Work queue protocols
 from .protocol_work_queue import (
-    AssignmentStrategy,
+    LiteralAssignmentStrategy,
+    LiteralWorkQueuePriority,
     ProtocolWorkQueue,
-    WorkQueuePriority,
 )
 
 __all__ = [
-    "AssignmentStrategy",
+    "LiteralAssignmentStrategy",
+    "LiteralWorkQueuePriority",
     "ProtocolEventQueryOptions",
     "ProtocolEventStore",
     "ProtocolEventStoreResult",
     "ProtocolEventStoreTransaction",
+    "ProtocolLiteralWorkflowStateProjection",
+    "ProtocolLiteralWorkflowStateStore",
     "ProtocolNodeSchedulingResult",
     "ProtocolSnapshotStore",
     "ProtocolTaskSchedulingCriteria",
@@ -65,8 +68,5 @@ __all__ = [
     "ProtocolWorkflowNodeCapability",
     "ProtocolWorkflowNodeInfo",
     "ProtocolWorkflowNodeRegistry",
-    "ProtocolWorkflowStateProjection",
-    "ProtocolWorkflowStateStore",
     "ProtocolWorkQueue",
-    "WorkQueuePriority",
 ]

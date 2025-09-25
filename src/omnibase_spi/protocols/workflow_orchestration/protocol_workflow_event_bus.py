@@ -10,10 +10,10 @@ from uuid import UUID
 
 from omnibase_spi.protocols.event_bus.protocol_event_bus import ProtocolEventBus
 from omnibase_spi.protocols.types.workflow_orchestration_types import (
+    LiteralWorkflowEventType,
+    LiteralWorkflowState,
     ProtocolWorkflowEvent,
     ProtocolWorkflowSnapshot,
-    WorkflowEventType,
-    WorkflowState,
 )
 
 
@@ -39,7 +39,7 @@ class ProtocolWorkflowEventMessage(Protocol):
     instance_id: UUID
     correlation_id: UUID
     sequence_number: int
-    event_type: WorkflowEventType
+    event_type: LiteralWorkflowEventType
     idempotency_key: str
 
     async def ack(self) -> None:
@@ -74,7 +74,7 @@ class ProtocolWorkflowEventHandler(Protocol):
 
 
 @runtime_checkable
-class ProtocolWorkflowStateProjection(Protocol):
+class ProtocolLiteralWorkflowStateProjection(Protocol):
     """
     Protocol for workflow state projection handlers.
 
@@ -149,8 +149,8 @@ class ProtocolWorkflowEventBus(Protocol):
     async def publish_workflow_state_change(
         self,
         workflow_instance: ProtocolWorkflowSnapshot,
-        previous_state: WorkflowState,
-        new_state: WorkflowState,
+        previous_state: LiteralWorkflowState,
+        new_state: LiteralWorkflowState,
         metadata: Optional[dict[str, Any]],
     ) -> None:
         """
@@ -168,7 +168,7 @@ class ProtocolWorkflowEventBus(Protocol):
     async def subscribe_to_workflow_events(
         self,
         workflow_type: str,
-        event_types: list[WorkflowEventType],
+        event_types: list[LiteralWorkflowEventType],
         handler: ProtocolWorkflowEventHandler,
         group_id: str,
     ) -> Callable[[], Awaitable[None]]:
@@ -190,7 +190,7 @@ class ProtocolWorkflowEventBus(Protocol):
         self,
         handler: ProtocolWorkflowEventHandler,
         group_id: str,
-        event_type_filter: Optional[list[WorkflowEventType]],
+        event_type_filter: Optional[list[LiteralWorkflowEventType]],
     ) -> Callable[[], Awaitable[None]]:
         """
         Subscribe to all workflow events across types.
@@ -242,7 +242,7 @@ class ProtocolWorkflowEventBus(Protocol):
 
     # State projection management
     async def register_projection(
-        self, projection: ProtocolWorkflowStateProjection
+        self, projection: ProtocolLiteralWorkflowStateProjection
     ) -> None:
         """
         Register state projection handler.

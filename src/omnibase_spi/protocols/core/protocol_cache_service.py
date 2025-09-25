@@ -7,7 +7,6 @@ cache backends (in-memory, Redis, etc.) and injected via ONEXContainer.
 
 from typing import (
     TYPE_CHECKING,
-    Any,
     Generic,
     Optional,
     Protocol,

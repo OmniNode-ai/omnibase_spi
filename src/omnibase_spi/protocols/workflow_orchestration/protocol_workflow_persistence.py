@@ -10,10 +10,10 @@ from uuid import UUID
 
 from omnibase_spi.protocols.types.core_types import ProtocolDateTime
 from omnibase_spi.protocols.types.workflow_orchestration_types import (
+    LiteralWorkflowEventType,
+    LiteralWorkflowState,
     ProtocolWorkflowEvent,
     ProtocolWorkflowSnapshot,
-    WorkflowEventType,
-    WorkflowState,
 )
 
 
@@ -49,7 +49,7 @@ class ProtocolEventQueryOptions(Protocol):
 
     workflow_type: Optional[str]
     instance_id: Optional[UUID]
-    event_types: Optional[list[WorkflowEventType]]
+    event_types: Optional[list[LiteralWorkflowEventType]]
     from_sequence: Optional[int]
     to_sequence: Optional[int]
     from_timestamp: Optional[ProtocolDateTime]
@@ -306,7 +306,7 @@ class ProtocolSnapshotStore(Protocol):
 
 
 @runtime_checkable
-class ProtocolWorkflowStateStore(Protocol):
+class ProtocolLiteralWorkflowStateStore(Protocol):
     """
     Protocol for workflow state store operations.
 
@@ -349,7 +349,7 @@ class ProtocolWorkflowStateStore(Protocol):
     async def query_workflow_instances(
         self,
         workflow_type: Optional[str],
-        state: Optional[WorkflowState],
+        state: Optional[LiteralWorkflowState],
         correlation_id: Optional[UUID],
         limit: int,
         offset: int,

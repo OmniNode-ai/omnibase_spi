@@ -36,11 +36,11 @@ from typing import Literal, Optional, Protocol
 from omnibase_spi.protocols.types.core_types import ProtocolSemVer
 
 # Status type for ONEX systems
-OnexStatus = Literal["ACTIVE", "INACTIVE", "ERROR", "UNKNOWN"]
+LiteralOnexStatus = Literal["ACTIVE", "INACTIVE", "ERROR", "UNKNOWN"]
 
 
 # Container artifact types - using Literal instead of Enum
-ContainerArtifactType = Literal[
+LiteralContainerArtifactType = Literal[
     "nodes", "cli_tools", "runtimes", "adapters", "contracts", "packages"
 ]
 
@@ -59,7 +59,7 @@ class ProtocolArtifactInfo(Protocol):
 
     name: str
     version: ProtocolSemVer
-    artifact_type: ContainerArtifactType
+    artifact_type: LiteralContainerArtifactType
     path: str
     metadata: ProtocolArtifactMetadata
     is_wip: bool
@@ -68,13 +68,13 @@ class ProtocolArtifactInfo(Protocol):
 class ProtocolArtifactContainerStatus(Protocol):
     """Protocol for artifact container status information."""
 
-    status: OnexStatus
+    status: LiteralOnexStatus
     message: str
     artifact_count: int
     valid_artifact_count: int
     invalid_artifact_count: int
     wip_artifact_count: int
-    artifact_types_found: list[ContainerArtifactType]
+    artifact_types_found: list[LiteralContainerArtifactType]
 
 
 class ProtocolArtifactContainer(Protocol):
@@ -95,13 +95,13 @@ class ProtocolArtifactContainer(Protocol):
         ...
 
     def get_artifacts_by_type(
-        self, artifact_type: ContainerArtifactType
+        self, artifact_type: LiteralContainerArtifactType
     ) -> list[ProtocolArtifactInfo]:
         """Get artifacts filtered by type."""
         ...
 
     def get_artifact_by_name(
-        self, name: str, artifact_type: Optional[ContainerArtifactType] = None
+        self, name: str, artifact_type: Optional[LiteralContainerArtifactType] = None
     ) -> ProtocolArtifactInfo:
         """
         Get a specific artifact by name.
@@ -119,7 +119,7 @@ class ProtocolArtifactContainer(Protocol):
         ...
 
     def has_artifact(
-        self, name: str, artifact_type: Optional[ContainerArtifactType] = None
+        self, name: str, artifact_type: Optional[LiteralContainerArtifactType] = None
     ) -> bool:
         """Check if an artifact exists in the container."""
         ...

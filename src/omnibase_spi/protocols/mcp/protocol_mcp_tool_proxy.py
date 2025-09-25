@@ -11,9 +11,9 @@ Domain: MCP tool execution and proxy management
 from typing import Any, Optional, Protocol, runtime_checkable
 from uuid import UUID
 
-from omnibase_spi.protocols.types.core_types import ContextValue, ProtocolDateTime
+from omnibase_spi.protocols.types.core_types import ContextValue
 from omnibase_spi.protocols.types.mcp_types import (
-    MCPExecutionStatus,
+    LiteralMCPExecutionStatus,
     ProtocolMCPSubsystemRegistration,
     ProtocolMCPToolDefinition,
     ProtocolMCPToolExecution,
@@ -164,7 +164,7 @@ class ProtocolMCPToolExecutor(Protocol):
 
     async def get_execution_status(
         self, execution_id: str
-    ) -> Optional[MCPExecutionStatus]:
+    ) -> Optional[LiteralMCPExecutionStatus]:
         """
         Get current execution status.
 

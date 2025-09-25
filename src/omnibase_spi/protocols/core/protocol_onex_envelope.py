@@ -5,12 +5,12 @@ Protocol interface for Onex standard envelope pattern.
 Defines the contract for request envelopes with metadata, correlation IDs, and security context.
 """
 
+from datetime import datetime
 from typing import Optional, Protocol
 from uuid import UUID
 
 from pydantic import BaseModel
 
-from ..types.core_types import ProtocolDateTime
 from .protocol_onex_validation import ProtocolOnexMetadata, ProtocolOnexSecurityContext
 
 
@@ -105,7 +105,7 @@ class ProtocolOnexEnvelope(Protocol):
         """
         ...
 
-    def get_timestamp(self, envelope: BaseModel) -> ProtocolDateTime:
+    def get_timestamp(self, envelope: BaseModel) -> datetime:
         """
         Get the creation timestamp from an Onex envelope.
 

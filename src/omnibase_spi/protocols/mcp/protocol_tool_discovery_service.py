@@ -6,7 +6,7 @@ for MCP (Model Context Protocol) tool coordination in distributed systems.
 """
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Protocol, Union, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types.core_types import ProtocolMetadata

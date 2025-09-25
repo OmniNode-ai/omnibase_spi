@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     from datetime import datetime
 
     from .protocol_memory_base import (
-        AnalysisType,
+        LiteralAnalysisType,
         ProtocolAggregationCriteria,
         ProtocolAnalysisParameters,
         ProtocolCoordinationMetadata,
@@ -61,7 +61,7 @@ class ProtocolMemoryStoreRequest(ProtocolMemoryRequest, Protocol):
 
     content: str
     content_type: str
-    access_level: str  # MemoryAccessLevel from base
+    access_level: str  # LiteralMemoryAccessLevel from base
     source_agent: str
     expires_at: Optional["datetime"]
 
@@ -158,7 +158,7 @@ class ProtocolPatternAnalysisRequest(ProtocolMemoryRequest, Protocol):
     """Protocol for pattern analysis requests."""
 
     data_source: str
-    analysis_type: "AnalysisType"
+    analysis_type: "LiteralAnalysisType"
     timeout_seconds: Optional[float]
 
     @property

@@ -6,7 +6,7 @@ dependencies across ONEX repositories, providing standardized validation
 capabilities for NodeImportValidatorCompute implementations.
 """
 
-from typing import Any, Dict, List, Optional, Protocol, Tuple
+from typing import Any, Dict, List, Optional, Protocol
 
 from .protocol_validation import ProtocolValidationResult
 

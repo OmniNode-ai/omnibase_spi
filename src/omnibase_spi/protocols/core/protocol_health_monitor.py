@@ -9,9 +9,9 @@ from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types.core_types import (
-        HealthCheckLevel,
-        HealthDimension,
-        HealthStatus,
+        LiteralHealthCheckLevel,
+        LiteralHealthDimension,
+        LiteralHealthStatus,
         ProtocolHealthCheck,
         ProtocolHealthMetrics,
         ProtocolHealthMonitoring,
@@ -63,8 +63,8 @@ class ProtocolHealthMonitor(Protocol):
 
     def perform_health_check(
         self,
-        level: "HealthCheckLevel",
-        dimensions: list["HealthDimension"],
+        level: "LiteralHealthCheckLevel",
+        dimensions: list["LiteralHealthDimension"],
     ) -> "ProtocolHealthCheck":
         """
         Perform health check at specified level and dimensions.
@@ -82,7 +82,7 @@ class ProtocolHealthMonitor(Protocol):
         """
         ...
 
-    def get_current_health_status(self) -> "HealthStatus":
+    def get_current_health_status(self) -> "LiteralHealthStatus":
         """
         Get current overall health status.
 
@@ -240,7 +240,7 @@ class ProtocolHealthMonitor(Protocol):
     def get_dependency_health_status(
         self,
         dependency_name: str,
-    ) -> "HealthStatus":
+    ) -> "LiteralHealthStatus":
         """
         Get health status of specific dependency.
 
@@ -278,7 +278,7 @@ class ProtocolHealthMonitor(Protocol):
         """
         ...
 
-    def get_aggregated_health_status(self) -> dict[str, "HealthStatus"]:
+    def get_aggregated_health_status(self) -> dict[str, "LiteralHealthStatus"]:
         """
         Get health status including all dependencies.
 

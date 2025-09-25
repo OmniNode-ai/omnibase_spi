@@ -13,12 +13,11 @@ from uuid import UUID
 
 from omnibase_spi.protocols.types.core_types import (
     ContextValue,
-    ProtocolDateTime,
     ProtocolValidationResult,
 )
 from omnibase_spi.protocols.types.mcp_types import (
-    MCPConnectionStatus,
-    MCPLifecycleState,
+    LiteralMCPConnectionStatus,
+    LiteralMCPLifecycleState,
     ProtocolMCPHealthCheck,
     ProtocolMCPSubsystemMetadata,
     ProtocolMCPSubsystemRegistration,
@@ -72,12 +71,12 @@ class ProtocolMCPSubsystemClient(Protocol):
         ...
 
     @property
-    def lifecycle_state(self) -> MCPLifecycleState:
+    def lifecycle_state(self) -> LiteralMCPLifecycleState:
         """Get current subsystem lifecycle state."""
         ...
 
     @property
-    def connection_status(self) -> MCPConnectionStatus:
+    def connection_status(self) -> LiteralMCPConnectionStatus:
         """Get current connection status to registry."""
         ...
 

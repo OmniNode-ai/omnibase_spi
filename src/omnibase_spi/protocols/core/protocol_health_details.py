@@ -9,7 +9,7 @@ Complements existing health monitoring protocols with service-specific logic.
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.core_types import HealthStatus
+    from omnibase_spi.protocols.types.core_types import LiteralHealthStatus
 
 
 @runtime_checkable
@@ -40,7 +40,7 @@ class ProtocolHealthDetails(Protocol):
             postgres_last_error: str | None
             max_connections: int | None
 
-            def get_health_status(self) -> HealthStatus:
+            def get_health_status(self) -> LiteralHealthStatus:
                 if self.postgres_last_error:
                     return "unhealthy"
                 if self.postgres_connection_count and self.max_connections:
@@ -70,12 +70,12 @@ class ProtocolHealthDetails(Protocol):
         ```
     """
 
-    def get_health_status(self) -> "HealthStatus":
+    def get_health_status(self) -> "LiteralHealthStatus":
         """
         Assess and return the health status based on service-specific metrics.
 
         Returns:
-            HealthStatus: Current health status of the service
+            LiteralHealthStatus: Current health status of the service
 
         The implementation should analyze service-specific fields and return:
         - "healthy": Service is operating normally

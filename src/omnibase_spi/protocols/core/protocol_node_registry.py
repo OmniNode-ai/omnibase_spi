@@ -12,8 +12,8 @@ from typing import Optional, Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.core_types import (
     ContextValue,
-    HealthStatus,
-    NodeType,
+    LiteralHealthStatus,
+    LiteralNodeType,
     ProtocolDateTime,
     ProtocolSemVer,
 )
@@ -52,12 +52,12 @@ class ProtocolNodeInfo(Protocol):
     """Protocol for node information objects."""
 
     node_id: str
-    node_type: NodeType
+    node_type: LiteralNodeType
     node_name: str
     environment: str
     group: str
     version: ProtocolSemVer
-    health_status: HealthStatus
+    health_status: LiteralHealthStatus
     endpoint: str
     metadata: dict[str, ContextValue]
     registered_at: ProtocolDateTime
@@ -103,7 +103,7 @@ class ProtocolNodeRegistry(Protocol):
                     check=consul.Check.ttl(f"{ttl_seconds}s")
                 )
 
-            async def discover_nodes(self, node_type: Optional[NodeType] = None,
+            async def discover_nodes(self, node_type: Optional[LiteralNodeType] = None,
                                    environment: Optional[str] = None,
                                    group: Optional[str] = None) -> list[ProtocolNodeInfo]:
                 # Discover nodes from Consul catalog
@@ -228,7 +228,7 @@ class ProtocolNodeRegistry(Protocol):
     async def update_node_health(
         self,
         node_id: str,
-        health_status: HealthStatus,
+        health_status: LiteralHealthStatus,
         metadata: dict[str, ContextValue],
     ) -> bool:
         """
@@ -258,10 +258,10 @@ class ProtocolNodeRegistry(Protocol):
 
     async def discover_nodes(
         self,
-        node_type: Optional[NodeType] = None,
+        node_type: Optional[LiteralNodeType] = None,
         environment: Optional[str] = None,
         group: Optional[str] = None,
-        health_filter: Optional[HealthStatus] = None,
+        health_filter: Optional[LiteralHealthStatus] = None,
     ) -> list[ProtocolNodeInfo]:
         """
         Discover nodes matching criteria.
@@ -316,7 +316,7 @@ class ProtocolNodeRegistry(Protocol):
     async def watch_node_changes(
         self,
         callback: ProtocolNodeChangeCallback,
-        node_type: Optional[NodeType] = None,
+        node_type: Optional[LiteralNodeType] = None,
         group: Optional[str] = None,
     ) -> ProtocolWatchHandle:
         """

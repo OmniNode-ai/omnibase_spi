@@ -1,32 +1,75 @@
 """
 Protocol types for ONEX SPI interfaces.
 
-This package contains domain-specific protocol types that define the contracts
-for data structures used across ONEX service interfaces. All types follow
-the zero-dependency principle and use strong typing without Any.
+This package contains comprehensive domain-specific protocol types that define
+the contracts for data structures used across ONEX service interfaces. All types
+follow the zero-dependency principle and use strong typing without Any.
+
+Key Design Principles:
+    - Zero-dependency architecture for SPI purity
+    - Strong typing with no Any usage in public interfaces
+    - JSON-serializable types for cross-service communication
+    - Consistent naming conventions with Protocol prefix
+    - Runtime checkable protocols for dynamic validation
+
+Domain Organization:
+    - core_types: System-wide types (logging, validation, health, metadata)
+    - discovery_types: Node and service discovery contracts
+    - event_bus_types: Event messaging and subscription types
+    - file_handling_types: File processing and metadata types
+    - mcp_types: Model Context Protocol integration types
+    - workflow_orchestration_types: Event-driven workflow and FSM types
+
+Usage Examples:
+    # Basic type imports
+    from omnibase_spi.protocols.types import LiteralLogLevel, LiteralHealthStatus, LiteralNodeType
+
+    # Complex protocol imports
+    from omnibase_spi.protocols.types import (
+        ProtocolWorkflowEvent,
+        ProtocolMCPToolDefinition,
+        ProtocolLogEntry
+    )
+
+    # Domain-specific imports
+    from omnibase_spi.protocols.types.workflow_orchestration_types import LiteralWorkflowState
+    from omnibase_spi.protocols.types.mcp_types import MCPToolType
+
+    # Usage in service implementations
+    def log_event(level: LogLevel, message: str) -> ProtocolLogEntry:
+        return create_log_entry(level=level, message=message)
+
+    def check_node_health(node_type: LiteralNodeType) -> HealthStatus:
+        return get_health_for_node_type(node_type)
+
+Type Safety Features:
+    - All protocols use runtime_checkable for isinstance() support
+    - Literal types for enumerated values prevent invalid states
+    - Union types for polymorphic data while maintaining type safety
+    - Optional types for nullable fields with explicit None handling
 """
 
-# Node configuration protocols (authoritative method-based protocols)
-from omnibase_spi.protocols.core import (
-    ProtocolConfigurationError,
-    ProtocolNodeConfiguration,
-    ProtocolNodeConfigurationProvider,
-)
+# NOTE: Method-based protocols like ProtocolConfigurationError,
+# ProtocolNodeConfiguration, and ProtocolNodeConfigurationProvider
+# are not re-exported here to avoid circular imports.
+# Import these directly from omnibase_spi.protocols.core as needed.
 
 # Core types
 from omnibase_spi.protocols.types.core_types import (
-    BaseStatus,
     ContextValue,
-    ErrorRecoveryStrategy,
-    ErrorSeverity,
-    ExecutionMode,
-    HealthCheckLevel,
-    HealthDimension,
-    HealthStatus,
-    LogLevel,
-    NodeStatus,
-    NodeType,
-    OperationStatus,
+    LiteralBaseStatus,
+    LiteralErrorRecoveryStrategy,
+    LiteralErrorSeverity,
+    LiteralExecutionMode,
+    LiteralHealthCheckLevel,
+    LiteralHealthDimension,
+    LiteralHealthStatus,
+    LiteralLogLevel,
+    LiteralNodeStatus,
+    LiteralNodeType,
+    LiteralOperationStatus,
+    LiteralValidationLevel,
+    LiteralValidationMode,
     ProtocolAction,
     ProtocolActionPayload,
     ProtocolAuditEvent,
@@ -76,15 +119,13 @@ from omnibase_spi.protocols.types.core_types import (
     ProtocolValidatable,
     ProtocolValidationResult,
     ProtocolVersionInfo,
-    ValidationLevel,
-    ValidationMode,
 )
 
 # Discovery types
 from omnibase_spi.protocols.types.discovery_types import (
     CapabilityValue,
-    DiscoveryStatus,
-    HandlerStatus,
+    LiteralDiscoveryStatus,
+    LiteralHandlerStatus,
     ProtocolDiscoveryQuery,
     ProtocolDiscoveryResult,
     ProtocolHandlerCapability,
@@ -94,9 +135,10 @@ from omnibase_spi.protocols.types.discovery_types import (
 
 # Event bus types
 from omnibase_spi.protocols.types.event_bus_types import (
-    AuthStatus,
     EventData,
     EventStatus,
+    LiteralAuthStatus,
+    LiteralEventPriority,
     ProtocolEvent,
     ProtocolEventResult,
     ProtocolEventSubscription,
@@ -106,8 +148,8 @@ from omnibase_spi.protocols.types.event_bus_types import (
 # File handling types
 from omnibase_spi.protocols.types.file_handling_types import (
     FileContent,
-    FileOperation,
-    FileStatus,
+    LiteralFileOperation,
+    LiteralFileStatus,
     ProcessingStatus,
     ProtocolCanHandleResult,
     ProtocolExtractedBlock,
@@ -128,12 +170,12 @@ from omnibase_spi.protocols.types.file_handling_types import (
 
 # MCP types
 from omnibase_spi.protocols.types.mcp_types import (
-    MCPConnectionStatus,
-    MCPExecutionStatus,
-    MCPLifecycleState,
-    MCPParameterType,
-    MCPSubsystemType,
-    MCPToolType,
+    LiteralMCPConnectionStatus,
+    LiteralMCPExecutionStatus,
+    LiteralMCPLifecycleState,
+    LiteralMCPParameterType,
+    LiteralMCPSubsystemType,
+    LiteralMCPToolType,
     ProtocolMCPDiscoveryInfo,
     ProtocolMCPHealthCheck,
     ProtocolMCPRegistryConfig,
@@ -150,8 +192,15 @@ from omnibase_spi.protocols.types.mcp_types import (
 
 # Workflow orchestration types
 from omnibase_spi.protocols.types.workflow_orchestration_types import (
-    ExecutionSemantics,
-    IsolationLevel,
+    LiteralExecutionSemantics,
+    LiteralIsolationLevel,
+    LiteralRetryPolicy,
+    LiteralTaskPriority,
+    LiteralTaskState,
+    LiteralTaskType,
+    LiteralTimeoutType,
+    LiteralWorkflowEventType,
+    LiteralWorkflowState,
     ProtocolCompensationAction,
     ProtocolEventProjection,
     ProtocolEventStream,
@@ -169,46 +218,37 @@ from omnibase_spi.protocols.types.workflow_orchestration_types import (
     ProtocolWorkflowEvent,
     ProtocolWorkflowMetadata,
     ProtocolWorkflowSnapshot,
-    RetryPolicy,
-    TaskPriority,
-    TaskState,
-    TaskType,
-    TimeoutType,
     WorkflowData,
-    WorkflowEventType,
-    WorkflowState,
 )
 
 __all__ = [
-    "AuthStatus",
-    "BaseStatus",
     "CapabilityValue",
     "ContextValue",
-    "DiscoveryStatus",
-    "ErrorRecoveryStrategy",
-    "ErrorSeverity",
-    "EventData",
-    "EventStatus",
-    "ExecutionMode",
-    "ExecutionSemantics",
-    "FileContent",
-    "FileOperation",
-    "FileStatus",
-    "HandlerStatus",
-    "HealthCheckLevel",
-    "HealthDimension",
-    "HealthStatus",
-    "IsolationLevel",
-    "LogLevel",
-    "MCPConnectionStatus",
-    "MCPExecutionStatus",
-    "MCPLifecycleState",
-    "MCPParameterType",
-    "MCPSubsystemType",
-    "MCPToolType",
-    "NodeStatus",
-    "NodeType",
-    "OperationStatus",
+    "LiteralDiscoveryStatus",
+    "LiteralAuthStatus",
+    "LiteralBaseStatus",
+    "LiteralErrorRecoveryStrategy",
+    "LiteralErrorSeverity",
+    "LiteralEventPriority",
+    "LiteralExecutionMode",
+    "LiteralExecutionSemantics",
+    "LiteralFileOperation",
+    "LiteralFileStatus",
+    "LiteralHandlerStatus",
+    "LiteralHealthCheckLevel",
+    "LiteralHealthDimension",
+    "LiteralHealthStatus",
+    "LiteralIsolationLevel",
+    "LiteralLogLevel",
+    "LiteralMCPConnectionStatus",
+    "LiteralMCPExecutionStatus",
+    "LiteralMCPLifecycleState",
+    "LiteralMCPParameterType",
+    "LiteralMCPSubsystemType",
+    "LiteralMCPToolType",
+    "LiteralNodeStatus",
+    "LiteralNodeType",
+    "LiteralOperationStatus",
     "ProcessingStatus",
     "ProtocolAction",
     "ProtocolActionPayload",
@@ -219,7 +259,6 @@ __all__ = [
     "ProtocolCompatibilityCheck",
     "ProtocolCompensationAction",
     "ProtocolConfigurable",
-    "ProtocolConfigurationError",
     "ProtocolConfigValue",
     "ProtocolDateTime",
     "ProtocolDiscoveryQuery",
@@ -269,8 +308,6 @@ __all__ = [
     "ProtocolMetricsPoint",
     "ProtocolNameable",
     "ProtocolNodeCapability",
-    "ProtocolNodeConfiguration",
-    "ProtocolNodeConfigurationProvider",
     "ProtocolNodeInfoLike",
     "ProtocolNodeMetadata",
     "ProtocolNodeMetadataBlock",
@@ -315,14 +352,14 @@ __all__ = [
     "ProtocolWorkflowEvent",
     "ProtocolWorkflowMetadata",
     "ProtocolWorkflowSnapshot",
-    "RetryPolicy",
-    "TaskPriority",
-    "TaskState",
-    "TaskType",
-    "TimeoutType",
-    "ValidationLevel",
-    "ValidationMode",
+    "LiteralRetryPolicy",
+    "LiteralTaskPriority",
+    "LiteralTaskState",
+    "LiteralTaskType",
+    "LiteralTimeoutType",
+    "LiteralValidationLevel",
+    "LiteralValidationMode",
+    "LiteralWorkflowEventType",
+    "LiteralWorkflowState",
     "WorkflowData",
-    "WorkflowEventType",
-    "WorkflowState",
 ]

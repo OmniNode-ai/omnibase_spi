@@ -33,7 +33,9 @@ from pathlib import Path
 from typing import Any, Literal, Protocol, runtime_checkable
 
 # Define environment type locally to maintain SPI purity
-ConfigurationEnvironment = Literal["development", "staging", "production", "test"]
+LiteralConfigurationEnvironment = Literal[
+    "development", "staging", "production", "test"
+]
 
 
 @runtime_checkable
@@ -66,7 +68,7 @@ class ProtocolConfigurationManager(Protocol):
         self,
         config_name: str,
         *,
-        environment: ConfigurationEnvironment | None = None,
+        environment: LiteralConfigurationEnvironment | None = None,
         force_reload: bool = False,
     ) -> dict[str, Any]:
         """
@@ -91,7 +93,7 @@ class ProtocolConfigurationManager(Protocol):
         config_data: dict[str, Any],
         *,
         config_name: str | None = None,
-        environment: ConfigurationEnvironment | None = None,
+        environment: LiteralConfigurationEnvironment | None = None,
         strict: bool = True,
     ) -> bool:
         """
@@ -117,7 +119,7 @@ class ProtocolConfigurationManager(Protocol):
         key: str,
         *,
         default: Any = None,
-        environment: ConfigurationEnvironment | None = None,
+        environment: LiteralConfigurationEnvironment | None = None,
     ) -> Any:
         """
         Get a specific configuration value by key.
@@ -308,7 +310,7 @@ class ProtocolConfigurationManager(Protocol):
         self,
         config_name: str,
         *,
-        environment: ConfigurationEnvironment | None = None,
+        environment: LiteralConfigurationEnvironment | None = None,
     ) -> bool:
         """
         Check if current configuration is valid.
@@ -412,7 +414,7 @@ class ProtocolConfigurationManagerFactory(Protocol):
     def create_custom(
         self,
         *,
-        default_environment: ConfigurationEnvironment = "development",
+        default_environment: LiteralConfigurationEnvironment = "development",
         allow_runtime_updates: bool = False,
         strict_validation: bool = True,
         auto_reload_on_change: bool = False,

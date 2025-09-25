@@ -12,26 +12,71 @@ from uuid import UUID
 # Semantic version protocol - for strong version typing
 @runtime_checkable
 class ProtocolSemVer(Protocol):
-    """Protocol for semantic version objects."""
+    """
+    Protocol for semantic version objects following SemVer specification.
+
+    Provides a structured approach to versioning with major, minor, and patch
+    components. Used throughout ONEX for protocol versioning, dependency
+    management, and compatibility checking.
+
+    Key Features:
+        - Major version: Breaking changes
+        - Minor version: Backward-compatible additions
+        - Patch version: Backward-compatible fixes
+        - String representation: "major.minor.patch" format
+
+    Usage:
+        version = some_protocol_object.version
+        if version.major >= 2:
+            # Use new API features
+        compatibility_string = str(version)  # "2.1.3"
+    """
 
     major: int
     minor: int
     patch: int
 
     def __str__(self) -> str:
-        """Return string representation (e.g., '1.2.3')."""
+        """Return string representation in 'major.minor.patch' format (e.g., '1.2.3')."""
         ...
 
 
 # Datetime protocol alias - ensures consistent datetime usage
 ProtocolDateTime = datetime
 
-# Log level types - using string literals instead of enums (includes FATAL for error severity)
-LogLevel = Literal["TRACE", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL", "FATAL"]
+# Log level types - comprehensive logging levels for observability
+# TRACE: Finest-grained debug information
+# DEBUG: Detailed diagnostic information
+# INFO: General informational messages
+# WARNING: Warning conditions that don't prevent operation
+# ERROR: Error conditions that affect specific operations
+# CRITICAL: Critical conditions that may affect system stability
+# FATAL: Fatal errors that cause service termination
+LiteralLogLevel = Literal[
+    "TRACE", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL", "FATAL"
+]
 
-# Node-related types - using string literals for SPI purity
-NodeType = Literal["COMPUTE", "EFFECT", "REDUCER", "ORCHESTRATOR"]
-HealthStatus = Literal[
+# Node-related types - ONEX 4-node architecture types
+# COMPUTE: Data processing and business logic nodes
+# EFFECT: External interaction and I/O operations
+# REDUCER: State management and data consolidation
+# ORCHESTRATOR: Workflow coordination and process management
+LiteralNodeType = Literal["COMPUTE", "EFFECT", "REDUCER", "ORCHESTRATOR"]
+
+# Health status types - comprehensive health states for monitoring
+# healthy: Normal operation, all systems functional
+# degraded: Reduced functionality but still operational
+# unhealthy: Significant issues affecting operation
+# critical: Severe issues requiring immediate attention
+# unknown: Health status cannot be determined
+# warning: Minor issues that should be monitored
+# unreachable: Service cannot be contacted
+# available: Service is reachable and ready
+# unavailable: Service is temporarily not available
+# initializing: Service is starting up
+# disposing: Service is shutting down
+# error: Service is in an error state
+LiteralHealthStatus = Literal[
     "healthy",
     "degraded",
     "unhealthy",
@@ -46,26 +91,70 @@ HealthStatus = Literal[
     "error",
 ]
 
-# Context value types - specific typed values for logging context
+# Context value types - typed values for structured data across ONEX
+# Used in logging, configuration, metadata, and inter-service communication
+# Constrained to JSON-serializable types for reliable persistence and transmission
+# str: Text data, identifiers, messages
+# int: Numeric identifiers, counts, indices
+# float: Measurements, ratios, scores
+# bool: Flags, status indicators
+# list[str]: Lists of identifiers, tags, categories
+# dict[str, str]: Key-value mappings, basic structured data
 ContextValue = str | int | float | bool | list[str] | dict[str, str]
 
 
 # Metadata types - for metadata storage protocols
 @runtime_checkable
 class ProtocolSupportedMetadataType(Protocol):
-    """Protocol for types that can be stored in metadata."""
+    """
+    Protocol for types that can be stored in ONEX metadata systems.
+
+    This marker protocol defines the contract for objects that can be safely
+    stored, serialized, and retrieved from metadata storage systems. Objects
+    implementing this protocol guarantee string convertibility for persistence.
+
+    Key Features:
+        - Marker interface for metadata compatibility
+        - String conversion guarantee
+        - Runtime type checking support
+        - Safe for serialization/deserialization
+
+    Usage:
+        def store_metadata(key: str, value: ProtocolSupportedMetadataType):
+            metadata_store[key] = str(value)
+    """
 
     __omnibase_metadata_type_marker__: Literal[True]
 
     def __str__(self) -> str:
-        """Must be convertible to string."""
+        """Convert to string representation for persistence and display."""
         ...
 
 
 # Configuration value protocol - for type-safe configuration
 @runtime_checkable
 class ProtocolConfigValue(Protocol):
-    """Protocol for configuration values - attribute-based for data compatibility."""
+    """
+    Protocol for type-safe configuration values in ONEX systems.
+
+    Provides structured configuration management with type enforcement,
+    default value handling, and validation support. Used for service
+    configuration, node parameters, and runtime settings.
+
+    Key Features:
+        - Typed configuration values (string, int, float, bool, list)
+        - Default value support for fallback behavior
+        - Key-value structure for configuration management
+        - Type validation and conversion support
+
+    Usage:
+        config = ProtocolConfigValue(
+            key="max_retries",
+            value=3,
+            config_type="int",
+            default_value=1
+        )
+    """
 
     key: str
     value: ContextValue
@@ -75,18 +164,60 @@ class ProtocolConfigValue(Protocol):
 
 # Core logging protocols
 class ProtocolLogContext(Protocol):
-    """Protocol for log context objects."""
+    """
+    Protocol for structured logging context objects.
+
+    Provides standardized context information for distributed logging
+    across ONEX services. Context objects carry metadata, correlation
+    IDs, and structured data for observability and debugging.
+
+    Key Features:
+        - Structured context data with type safety
+        - Dictionary conversion for serialization
+        - Compatible with typed ContextValue constraints
+        - Supports distributed tracing and correlation
+
+    Usage:
+        context = create_log_context()
+        logger.info("Operation completed", context=context.to_dict())
+    """
 
     def to_dict(self) -> dict[str, ContextValue]:
-        """Convert context to dictionary with typed values."""
+        """
+        Convert context to dictionary with typed values.
+
+        Returns:
+            Dictionary containing context data with ContextValue types
+            for safe serialization and structured logging.
+        """
         ...
 
 
 @runtime_checkable
 class ProtocolLogEntry(Protocol):
-    """Protocol for log entry objects."""
+    """
+    Protocol for structured log entry objects in ONEX systems.
 
-    level: LogLevel
+    Standardizes log entries across all ONEX services with consistent
+    structure for level, messaging, correlation tracking, and context.
+    Essential for distributed system observability and debugging.
+
+    Key Features:
+        - Standardized log levels (TRACE through FATAL)
+        - Correlation ID for distributed tracing
+        - Structured context with type safety
+        - Timestamp for chronological ordering
+
+    Usage:
+        entry = create_log_entry(
+            level="INFO",
+            message="User authenticated successfully",
+            correlation_id=request.correlation_id,
+            context={"user_id": user.id, "action": "login"}
+        )
+    """
+
+    level: LiteralLogLevel
     message: str
     correlation_id: UUID
     timestamp: ProtocolDateTime
@@ -96,7 +227,26 @@ class ProtocolLogEntry(Protocol):
 # Core serialization protocols
 @runtime_checkable
 class ProtocolSerializationResult(Protocol):
-    """Protocol for serialization results."""
+    """
+    Protocol for serialization operation results.
+
+    Provides standardized results for serialization operations across
+    ONEX services, including success status, serialized data, and
+    error handling information.
+
+    Key Features:
+        - Success/failure indication
+        - Serialized data as string format
+        - Detailed error messages for debugging
+        - Consistent result structure across services
+
+    Usage:
+        result = serializer.serialize(data)
+        if result.success:
+            send_data(result.data)
+        else:
+            logger.error(f"Serialization failed: {result.error_message}")
+    """
 
     success: bool
     data: str
@@ -106,7 +256,24 @@ class ProtocolSerializationResult(Protocol):
 # Core node protocols
 @runtime_checkable
 class ProtocolNodeMetadata(Protocol):
-    """Protocol for node metadata objects."""
+    """
+    Protocol for ONEX node metadata objects.
+
+    Defines the essential metadata structure for nodes in the ONEX
+    distributed system, including identification, type classification,
+    and extensible metadata storage.
+
+    Key Features:
+        - Unique node identification
+        - Node type classification (COMPUTE, EFFECT, REDUCER, ORCHESTRATOR)
+        - Extensible metadata dictionary with type safety
+        - Runtime node introspection support
+
+    Usage:
+        metadata = node.get_metadata()
+        if metadata.node_type == "COMPUTE":
+            schedule_computation_task(metadata.node_id)
+    """
 
     node_id: str
     node_type: str
@@ -116,7 +283,26 @@ class ProtocolNodeMetadata(Protocol):
 # Core validation protocols
 @runtime_checkable
 class ProtocolValidationResult(Protocol):
-    """Protocol for validation results."""
+    """
+    Protocol for comprehensive validation results.
+
+    Provides structured validation outcomes with success indication,
+    detailed error reporting, and warning notifications. Used across
+    ONEX for input validation, configuration checking, and data integrity.
+
+    Key Features:
+        - Boolean validation status
+        - Detailed error messages for failures
+        - Warning messages for non-critical issues
+        - Consistent validation reporting across services
+
+    Usage:
+        result = validator.validate(input_data)
+        if not result.is_valid:
+            raise ValidationError("\n".join(result.errors))
+        if result.warnings:
+            logger.warning(f"Validation warnings: {result.warnings}")
+    """
 
     is_valid: bool
     errors: list[str]
@@ -126,7 +312,34 @@ class ProtocolValidationResult(Protocol):
 # Cache service protocols
 @runtime_checkable
 class ProtocolCacheStatistics(Protocol):
-    """Protocol for structured cache service statistics."""
+    """
+    Protocol for comprehensive cache service statistics.
+
+    Provides detailed performance and usage metrics for cache services
+    across ONEX systems. Used for monitoring, optimization, and capacity
+    planning of distributed caching infrastructure.
+
+    Key Features:
+        - Performance metrics (hits, misses, ratios)
+        - Resource usage tracking (memory, entry counts)
+        - Operational statistics (evictions, access patterns)
+        - Capacity management information
+
+    Metrics Description:
+        - hit_count: Number of successful cache retrievals
+        - miss_count: Number of cache misses requiring data source access
+        - hit_ratio: Efficiency ratio (hits / total_requests)
+        - memory_usage_bytes: Current memory consumption
+        - entry_count: Number of cached entries
+        - eviction_count: Number of entries removed due to capacity limits
+        - last_accessed: Timestamp of most recent cache access
+        - cache_size_limit: Maximum cache capacity (if configured)
+
+    Usage:
+        stats = cache_service.get_statistics()
+        if stats.hit_ratio < 0.8:
+            logger.warning(f"Low cache hit ratio: {stats.hit_ratio:.2%}")
+    """
 
     hit_count: int
     miss_count: int
@@ -139,22 +352,59 @@ class ProtocolCacheStatistics(Protocol):
     cache_size_limit: Optional[int]
 
 
-# Base status types - consolidated from multiple duplicates
-BaseStatus = Literal[
+# Base status types - consolidated lifecycle states for operations and processes
+# pending: Operation queued but not started
+# processing: Operation currently in progress
+# completed: Operation finished successfully
+# failed: Operation encountered an error and stopped
+# cancelled: Operation was stopped by user or system request
+# skipped: Operation was bypassed due to conditions or filters
+LiteralBaseStatus = Literal[
     "pending", "processing", "completed", "failed", "cancelled", "skipped"
 ]
 
-# Domain-specific status types
-NodeStatus = Literal["active", "inactive", "error", "pending"]
+# Domain-specific status types for node lifecycle management
+# active: Node is operational and accepting work
+# inactive: Node is stopped but can be reactivated
+# error: Node is in error state requiring intervention
+# pending: Node is starting up or waiting for resources
+LiteralNodeStatus = Literal["active", "inactive", "error", "pending"]
 
-# Execution types - using string literals for SPI purity
-ExecutionMode = Literal["direct", "inmemory", "kafka"]
-OperationStatus = Literal["success", "failed", "in_progress", "cancelled", "pending"]
+# Execution types - workflow execution strategies
+# direct: Synchronous execution in current process
+# inmemory: Async execution using in-memory queues
+# kafka: Distributed execution via Kafka messaging
+LiteralExecutionMode = Literal["direct", "inmemory", "kafka"]
 
-# Validation types - using string literals for SPI purity (ErrorSeverity consolidated into LogLevel)
+# Operation status for tracking distributed operation outcomes
+# success: Operation completed without errors
+# failed: Operation failed and cannot be retried
+# in_progress: Operation is currently executing
+# cancelled: Operation was cancelled before completion
+# pending: Operation is queued for execution
+LiteralOperationStatus = Literal[
+    "success", "failed", "in_progress", "cancelled", "pending"
+]
+
+# Validation types - validation thoroughness and execution modes
 # Use LogLevel for error severity instead of separate ErrorSeverity type
-ValidationLevel = Literal["BASIC", "STANDARD", "COMPREHENSIVE", "PARANOID"]
-ValidationMode = Literal["strict", "lenient", "smoke", "regression", "integration"]
+
+# Validation thoroughness levels
+# BASIC: Essential validation only (fast)
+# STANDARD: Normal validation with common checks
+# COMPREHENSIVE: Thorough validation with detailed analysis
+# PARANOID: Maximum validation with all possible checks
+LiteralValidationLevel = Literal["BASIC", "STANDARD", "COMPREHENSIVE", "PARANOID"]
+
+# Validation execution modes
+# strict: Fail on any validation error
+# lenient: Allow warnings but fail on errors
+# smoke: Basic functionality validation
+# regression: Validate against known good states
+# integration: Cross-system validation testing
+LiteralValidationMode = Literal[
+    "strict", "lenient", "smoke", "regression", "integration"
+]
 
 
 # Metadata protocols for type safety
@@ -239,7 +489,32 @@ class ProtocolSchemaObject(Protocol):
 
 # Workflow result protocols for enhanced reducer support
 class ProtocolErrorInfo(Protocol):
-    """Protocol for error information in results."""
+    """
+    Protocol for comprehensive error information in workflow results.
+
+    Provides detailed error context for workflow operations, including
+    recovery strategies and retry configuration. Essential for resilient
+    distributed system operation and automated error recovery.
+
+    Key Features:
+        - Error type classification for automated handling
+        - Human-readable error messages
+        - Stack trace information for debugging
+        - Retry configuration and backoff strategies
+
+    Usage:
+        error_info = ProtocolErrorInfo(
+            error_type="TimeoutError",
+            message="Operation timed out after 30 seconds",
+            trace=traceback.format_exc(),
+            retryable=True,
+            backoff_strategy="exponential",
+            max_attempts=3
+        )
+
+        if error_info.retryable:
+            schedule_retry(operation, error_info.backoff_strategy)
+    """
 
     error_type: str
     message: str
@@ -259,7 +534,38 @@ class ProtocolSystemEvent(Protocol):
 
 
 class ProtocolNodeResult(Protocol):
-    """Protocol for node processing results with monadic composition."""
+    """
+    Protocol for comprehensive node processing results with monadic composition.
+
+    Provides rich result information for ONEX node operations, including
+    success/failure indication, error details, trust scores, provenance
+    tracking, and state changes. Enables sophisticated result composition
+    and error handling in distributed workflows.
+
+    Key Features:
+        - Monadic success/failure patterns
+        - Trust scoring for result confidence
+        - Provenance tracking for data lineage
+        - Event emission for observability
+        - State delta tracking for reducers
+
+    Usage:
+        result = node.process(input_data)
+
+        # Monadic composition patterns
+        if result.is_success:
+            next_result = next_node.process(result.value)
+        else:
+            handle_error(result.error)
+
+        # Trust evaluation
+        if result.trust_score > 0.8:
+            accept_result(result.value)
+
+        # State management
+        for key, value in result.state_delta.items():
+            state_manager.update(key, value)
+    """
 
     value: Optional[ContextValue]
     is_success: bool
@@ -290,7 +596,7 @@ class ProtocolServiceInstance(Protocol):
     host: str
     port: int
     metadata: ProtocolServiceMetadata
-    health_status: HealthStatus
+    health_status: LiteralHealthStatus
     last_seen: ProtocolDateTime
 
 
@@ -298,7 +604,7 @@ class ProtocolServiceHealthStatus(Protocol):
     """Protocol for service health status."""
 
     service_id: str
-    status: HealthStatus
+    status: LiteralHealthStatus
     last_check: ProtocolDateTime
     details: dict[str, ContextValue]
 
@@ -359,10 +665,22 @@ class ProtocolStorageHealthStatus(Protocol):
 
 
 # Standardized Error Handling Types
-ErrorRecoveryStrategy = Literal[
+# Error recovery strategies for fault tolerance
+# retry: Attempt the operation again with backoff
+# fallback: Use alternative implementation or default value
+# abort: Stop operation and propagate error
+# circuit_breaker: Temporarily disable failing service
+# compensation: Execute compensating actions (saga pattern)
+LiteralErrorRecoveryStrategy = Literal[
     "retry", "fallback", "abort", "circuit_breaker", "compensation"
 ]
-ErrorSeverity = Literal["low", "medium", "high", "critical"]
+
+# Error severity levels for prioritization and alerting
+# low: Minor issues that don't affect operation
+# medium: Moderate issues that may affect performance
+# high: Significant issues that affect functionality
+# critical: Severe issues requiring immediate attention
+LiteralErrorSeverity = Literal["low", "medium", "high", "critical"]
 
 
 class ProtocolErrorContext(Protocol):
@@ -378,7 +696,7 @@ class ProtocolErrorContext(Protocol):
 class ProtocolRecoveryAction(Protocol):
     """Protocol for error recovery action information."""
 
-    action_type: ErrorRecoveryStrategy
+    action_type: LiteralErrorRecoveryStrategy
     max_attempts: int
     backoff_multiplier: float
     timeout_seconds: int
@@ -391,7 +709,7 @@ class ProtocolErrorResult(Protocol):
     error_id: UUID
     error_type: str
     message: str
-    severity: ErrorSeverity
+    severity: LiteralErrorSeverity
     retryable: bool
     recovery_action: ProtocolRecoveryAction | None
     context: ProtocolErrorContext
@@ -419,8 +737,23 @@ class ProtocolCompatibilityCheck(Protocol):
 
 
 # Standardized Health Check Types
-HealthCheckLevel = Literal["quick", "basic", "standard", "thorough", "comprehensive"]
-HealthDimension = Literal[
+# Health check thoroughness levels - balancing speed vs completeness
+# quick: Fast ping-style health check (<100ms)
+# basic: Essential service health indicators (<500ms)
+# standard: Normal operational health checks (<2s)
+# thorough: Detailed health analysis including dependencies (<10s)
+# comprehensive: Complete system health audit (variable time)
+LiteralHealthCheckLevel = Literal[
+    "quick", "basic", "standard", "thorough", "comprehensive"
+]
+
+# Health check dimensions - different aspects of system health
+# availability: Service reachability and response
+# performance: Response time and throughput metrics
+# functionality: Core features working correctly
+# data_integrity: Data consistency and validation
+# security: Security posture and compliance
+LiteralHealthDimension = Literal[
     "availability", "performance", "functionality", "data_integrity", "security"
 ]
 
@@ -429,12 +762,24 @@ HealthDimension = Literal[
 @runtime_checkable
 class ProtocolNodeInfoLike(Protocol):
     """
-    Protocol for objects that can provide node information.
+    Protocol for objects that can provide ONEX node information.
 
-    This protocol defines the minimal interface that objects
-    must implement to be compatible with node metadata processing.
-    Objects implementing this protocol can be converted to
-    ModelNodeMetadataInfo instances.
+    This marker protocol defines the minimal interface that objects
+    must implement to be compatible with node metadata processing
+    and discovery systems. Objects implementing this protocol can be
+    safely converted to ModelNodeMetadataInfo instances.
+
+    Key Features:
+        - Marker interface for node information compatibility
+        - Runtime type checking with sentinel attribute
+        - Safe conversion to node metadata structures
+        - Compatibility with node discovery and registry systems
+
+    Usage:
+        def process_node_info(info: ProtocolNodeInfoLike):
+            if isinstance(info, ProtocolNodeInfoLike):
+                metadata = convert_to_node_metadata(info)
+                register_node(metadata)
 
     This is a marker interface with a sentinel attribute for runtime checks.
     """
@@ -445,11 +790,25 @@ class ProtocolNodeInfoLike(Protocol):
 @runtime_checkable
 class ProtocolSupportedPropertyValue(Protocol):
     """
-    Protocol for values that can be stored as property values.
+    Protocol for values that can be stored as ONEX property values.
 
-    This protocol defines the minimal interface that property values
+    This marker protocol defines the minimal interface that property values
     must implement to be compatible with the ONEX property system.
-    Any type implementing this protocol can be used as a property value.
+    Properties are used for node configuration, service parameters,
+    and dynamic system settings.
+
+    Key Features:
+        - Marker interface for property value compatibility
+        - Runtime type checking with sentinel attribute
+        - Safe storage in property management systems
+        - Compatible with configuration and parameter systems
+
+    Usage:
+        def set_property(key: str, value: ProtocolSupportedPropertyValue):
+            if isinstance(value, ProtocolSupportedPropertyValue):
+                property_store[key] = value
+            else:
+                raise TypeError("Value not compatible with property system")
 
     This is a marker interface with a sentinel attribute for runtime checks.
     """
@@ -473,10 +832,10 @@ class ProtocolHealthCheck(Protocol):
     """Protocol for standardized health checks."""
 
     service_name: str
-    check_level: HealthCheckLevel
-    dimensions_checked: list[HealthDimension]
-    overall_status: HealthStatus
-    individual_checks: dict[str, HealthStatus]
+    check_level: LiteralHealthCheckLevel
+    dimensions_checked: list[LiteralHealthDimension]
+    overall_status: LiteralHealthStatus
+    individual_checks: dict[str, LiteralHealthStatus]
     metrics: ProtocolHealthMetrics
     check_duration_ms: float
     timestamp: ProtocolDateTime
@@ -490,7 +849,7 @@ class ProtocolHealthMonitoring(Protocol):
     timeout_seconds: int
     failure_threshold: int
     recovery_threshold: int
-    alert_on_status: list[HealthStatus]
+    alert_on_status: list[LiteralHealthStatus]
     escalation_rules: dict[str, ContextValue]
 
 
@@ -515,7 +874,7 @@ class ProtocolTraceSpan(Protocol):
     operation_name: str
     start_time: ProtocolDateTime
     end_time: ProtocolDateTime | None
-    status: OperationStatus
+    status: LiteralOperationStatus
     tags: dict[str, str]
     logs: list[dict[str, ContextValue]]
 
@@ -529,7 +888,7 @@ class ProtocolAuditEvent(Protocol):
     resource: str
     action: str
     timestamp: ProtocolDateTime
-    outcome: OperationStatus
+    outcome: LiteralOperationStatus
     metadata: dict[str, ContextValue]
     sensitivity_level: Literal["public", "internal", "confidential", "restricted"]
 
@@ -539,7 +898,33 @@ class ProtocolAuditEvent(Protocol):
 
 @runtime_checkable
 class ProtocolSerializable(Protocol):
-    """Protocol for objects that can be serialized to dict."""
+    """
+    Protocol for objects that can be serialized to dictionary format.
+
+    Provides standardized serialization contract for ONEX objects that need
+    to be persisted, transmitted, or cached. The model_dump method ensures
+    consistent serialization across all ONEX services.
+
+    Key Features:
+        - Standardized serialization interface
+        - Type-safe dictionary output
+        - Compatible with JSON serialization
+        - Consistent across all ONEX services
+
+    Usage:
+        class MyDataObject(ProtocolSerializable):
+            def model_dump(self) -> dict[str, Any]:
+                return {
+                    "id": self.id,
+                    "name": self.name,
+                    "active": self.is_active
+                }
+
+        # Serialize for storage
+        obj = MyDataObject()
+        serialized = obj.model_dump()
+        json.dumps(serialized)  # Safe for JSON
+    """
 
     def model_dump(
         self,
@@ -552,7 +937,7 @@ class ProtocolSerializable(Protocol):
         | list[str | int | float | bool]
         | dict[str, str | int | float | bool],
     ]:
-        """Serialize to dictionary."""
+        """Serialize object to dictionary with type-safe values."""
         ...
 
 

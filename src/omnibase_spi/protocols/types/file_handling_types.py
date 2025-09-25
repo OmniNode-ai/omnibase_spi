@@ -9,15 +9,15 @@ from typing import Literal, Optional, Protocol
 from uuid import UUID
 
 from omnibase_spi.protocols.types.core_types import (
-    BaseStatus,
+    LiteralBaseStatus,
     ProtocolDateTime,
     ProtocolSemVer,
 )
 
 # File operation types
-FileOperation = Literal["read", "write", "append", "delete", "move", "copy"]
-FileStatus = Literal["exists", "missing", "locked", "corrupted", "accessible"]
-ProcessingStatus = BaseStatus
+LiteralFileOperation = Literal["read", "write", "append", "delete", "move", "copy"]
+LiteralFileStatus = Literal["exists", "missing", "locked", "corrupted", "accessible"]
+ProcessingStatus = LiteralBaseStatus
 
 # File content types - more specific than Any
 FileContent = str | bytes
@@ -43,7 +43,7 @@ class ProtocolFileInfo(Protocol):
     file_type: str
     mime_type: str
     last_modified: float
-    status: FileStatus
+    status: LiteralFileStatus
 
 
 class ProtocolFileContent(Protocol):
@@ -61,7 +61,7 @@ class ProtocolProcessingResult(Protocol):
     """Protocol for file processing results."""
 
     file_path: Path
-    operation: FileOperation
+    operation: LiteralFileOperation
     status: ProcessingStatus
     processing_time: float
     error_message: str | None

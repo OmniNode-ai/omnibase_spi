@@ -15,11 +15,12 @@ All protocols use pure typing.Protocol for SPI compliance.
 
 # Base Types and Literals
 from .protocol_memory_base import (
-    AgentStatus,
-    AnalysisType,
-    CompressionAlgorithm,
-    ErrorCategory,
-    MemoryAccessLevel,
+    LiteralAgentStatus,
+    LiteralAnalysisType,
+    LiteralCompressionAlgorithm,
+    LiteralErrorCategory,
+    LiteralMemoryAccessLevel,
+    LiteralWorkflowStatus,
     ProtocolAgentResponseMap,
     ProtocolAgentStatusMap,
     ProtocolAggregatedData,
@@ -38,7 +39,6 @@ from .protocol_memory_base import (
     ProtocolSearchFilters,
     ProtocolSearchResult,
     ProtocolWorkflowConfiguration,
-    WorkflowStatus,
 )
 
 # Enhanced Error Handling Protocols
@@ -141,11 +141,11 @@ from .protocol_memory_streaming import (
 )
 
 __all__ = [
-    "AgentStatus",
-    "AnalysisType",
-    "CompressionAlgorithm",
-    "ErrorCategory",
-    "MemoryAccessLevel",
+    "LiteralAgentStatus",
+    "LiteralAnalysisType",
+    "LiteralCompressionAlgorithm",
+    "LiteralErrorCategory",
+    "LiteralMemoryAccessLevel",
     "ProtocolAgentCoordinationRequest",
     "ProtocolAgentCoordinationResponse",
     "ProtocolAgentResponseMap",
@@ -235,5 +235,5 @@ __all__ = [
     "ProtocolWorkflowConfiguration",
     "ProtocolWorkflowExecutionRequest",
     "ProtocolWorkflowExecutionResponse",
-    "WorkflowStatus",
+    "LiteralWorkflowStatus",
 ]

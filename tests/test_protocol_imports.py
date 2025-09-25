@@ -51,22 +51,26 @@ def test_consolidated_types_available() -> None:
     """Test that consolidated types are properly available."""
     from typing import get_args
 
-    from omnibase_spi.protocols.types import BaseStatus, HealthStatus, LogLevel
+    from omnibase_spi.protocols.types import (
+        LiteralBaseStatus,
+        LiteralHealthStatus,
+        LiteralLogLevel,
+    )
 
-    # Test BaseStatus has expected values
-    base_status_values = get_args(BaseStatus)
+    # Test LiteralBaseStatus has expected values
+    base_status_values = get_args(LiteralBaseStatus)
     assert "pending" in base_status_values
     assert "completed" in base_status_values
     assert "failed" in base_status_values
 
-    # Test HealthStatus has expected values
-    health_status_values = get_args(HealthStatus)
+    # Test LiteralHealthStatus has expected values
+    health_status_values = get_args(LiteralHealthStatus)
     assert "healthy" in health_status_values
     assert "unhealthy" in health_status_values
     assert "critical" in health_status_values
 
-    # Test LogLevel includes FATAL
-    log_level_values = get_args(LogLevel)
+    # Test LiteralLogLevel includes FATAL
+    log_level_values = get_args(LiteralLogLevel)
     assert "FATAL" in log_level_values
     assert "CRITICAL" in log_level_values
     assert "ERROR" in log_level_values
@@ -79,9 +83,9 @@ def test_clean_environment_import() -> None:
     test_script = """
 import sys
 try:
-    from omnibase_spi.protocols.types import LogLevel
+    from omnibase_spi.protocols.types import LiteralLogLevel
     print("SUCCESS: omnibase_spi imported successfully")
-    print(f"LogLevel type available: {'FATAL' in LogLevel.__args__}")
+    print(f"LiteralLogLevel type available: {'FATAL' in LiteralLogLevel.__args__}")
     sys.exit(0)
 except ImportError as e:
     print(f"FAILURE: Import error: {e}")
@@ -99,5 +103,5 @@ except Exception as e:
     assert result.returncode == 0, f"Clean import failed: {result.stderr}"
     assert "SUCCESS" in result.stdout, f"Success message not found: {result.stdout}"
     assert (
-        "LogLevel type available: True" in result.stdout
-    ), "LogLevel not properly imported"
+        "LiteralLogLevel type available: True" in result.stdout
+    ), "LiteralLogLevel not properly imported"

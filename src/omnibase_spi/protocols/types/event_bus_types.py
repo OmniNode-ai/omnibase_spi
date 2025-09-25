@@ -8,7 +8,7 @@ from typing import Literal, Optional, Protocol, TypeAlias, Union, runtime_checka
 from uuid import UUID
 
 from omnibase_spi.protocols.types.core_types import (
-    BaseStatus,
+    LiteralBaseStatus,
     ProtocolDateTime,
     ProtocolSemVer,
 )
@@ -41,14 +41,14 @@ BasicEventValue: TypeAlias = Union[str, int, float, bool]
 # Event data using cleaner type definitions
 EventData: TypeAlias = Union[BasicEventValue, list[str], dict[str, BasicEventValue]]
 
-# Event status types - using consolidated BaseStatus
-EventStatus = BaseStatus
+# Event status types - using consolidated LiteralBaseStatus
+EventStatus = LiteralBaseStatus
 
 # Authentication types
-AuthStatus = Literal["authenticated", "unauthenticated", "expired", "invalid"]
+LiteralAuthStatus = Literal["authenticated", "unauthenticated", "expired", "invalid"]
 
 # Event priority types for ONEX messaging
-EventPriority = Literal["low", "normal", "high", "critical"]
+LiteralEventPriority = Literal["low", "normal", "high", "critical"]
 
 # Message key types - for partitioning and routing
 MessageKey = bytes | None
@@ -80,7 +80,7 @@ class ProtocolSecurityContext(Protocol):
 
     user_id: str | None
     permissions: list[str]
-    auth_status: AuthStatus
+    auth_status: LiteralAuthStatus
     token_expires_at: ProtocolDateTime | None
 
 
@@ -146,7 +146,7 @@ class ProtocolEventHeaders(Protocol):
     span_id: Optional[str]  # OpenTelemetry span ID (16 hex chars, no hyphens)
     parent_span_id: Optional[str]  # Parent span ID (16 hex chars, no hyphens)
     operation_name: Optional[str]  # Operation being performed (for tracing context)
-    priority: Optional[EventPriority]  # Message priority
+    priority: Optional[LiteralEventPriority]  # Message priority
     routing_key: Optional[str]  # Kafka/messaging routing key
     partition_key: Optional[str]  # Explicit partition assignment key
     retry_count: Optional[int]  # Number of retry attempts (for error handling)

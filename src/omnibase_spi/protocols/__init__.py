@@ -2,42 +2,123 @@
 ONEX Protocol Interfaces
 
 This package contains all protocol definitions that define the contracts
-for ONEX services. These protocols enable duck typing and dependency 
+for ONEX services. These protocols enable duck typing and dependency
 injection without requiring concrete implementations.
 
+Architectural Overview:
+    The ONEX SPI follows a strict protocol-first design where all service
+    contracts are defined as typing.Protocol interfaces. This ensures:
+    - Zero implementation dependencies in the SPI layer
+    - Duck typing compatibility for flexible implementations
+    - Strong type safety with runtime protocol checking
+    - Clean dependency injection patterns
+
 Key Protocol Domains:
-    - core: System-level contracts (serialization, schema, workflow, logging, registry)
-    - workflow_orchestration: Event-driven FSM orchestration with event sourcing
-    - mcp: Model Context Protocol tool registration and coordination
-    - event_bus: Distributed event patterns with pluggable backends
-    - container: Dependency injection and service registry contracts
-    - discovery: Node discovery and registration protocols
-    - validation: Protocol validation and compliance utilities
-    - file_handling: File type processing and metadata stamping
-    - types: Consolidated type definitions for all protocol domains
+    - core: System-level contracts (42 protocols)
+      * Serialization, logging, node management
+      * HTTP and Kafka client abstractions
+      * Circuit breakers and error handling
+      * Storage backends and configuration
+
+    - workflow_orchestration: Event-driven FSM orchestration (11 protocols)
+      * Event sourcing with sequence numbers and causation tracking
+      * Workflow state management and projections
+      * Task scheduling and node coordination
+
+    - mcp: Model Context Protocol integration (15 protocols)
+      * Multi-subsystem tool registration and discovery
+      * Load balancing and failover for tool execution
+      * Health monitoring and metrics collection
+
+    - event_bus: Distributed event patterns (12 protocols)
+      * Pluggable backend adapters (Kafka, Redis, in-memory)
+      * Async and sync event bus implementations
+      * Event message serialization and routing
+
+    - container: Dependency injection and service registry (19 protocols)
+      * Service registration, discovery, and lifecycle management
+      * Dependency resolution and injection contexts
+      * Artifact management and validation
+
+    - discovery: Node discovery and registration (3 protocols)
+      * Dynamic node registration and capability discovery
+      * Handler discovery for file type processing
+
+    - validation: Protocol validation and compliance (4 protocols)
+      * Input validation and error reporting
+      * Configuration validation and schema checking
+
+    - file_handling: File type processing and metadata (3 protocols)
+      * ONEX metadata stamping and validation
+      * File type detection and processing
+
+    - types: Consolidated type definitions for all domains
+      * Strong typing with Literal types for enums
+      * JSON-serializable data structures
+      * Runtime checkable protocols
 
 Usage Examples:
     # Individual module imports (verbose but explicit)
     from omnibase_spi.protocols.core import ProtocolLogger, ProtocolCacheService
     from omnibase_spi.protocols.workflow_orchestration import ProtocolWorkflowEventBus
     from omnibase_spi.protocols.mcp import ProtocolMCPRegistry
-    
+
     # Convenience imports from root protocols module
     from omnibase_spi.protocols import (
         ProtocolLogger,
-        ProtocolWorkflowEventBus, 
+        ProtocolWorkflowEventBus,
         ProtocolMCPRegistry
     )
-    
+
     # Types always available at types module level
-    from omnibase_spi.protocols.types import LogLevel, WorkflowState
+    from omnibase_spi.protocols.types import LogLevel, LiteralWorkflowState
+
+    # Implementation example with dependency injection
+    class MyService:
+        def __init__(
+            self,
+            logger: ProtocolLogger,
+            event_bus: ProtocolWorkflowEventBus,
+            cache: ProtocolCacheService
+        ):
+            self._logger = logger
+            self._event_bus = event_bus
+            self._cache = cache
+
+    # Protocol validation example
+    def validate_implementation(impl: object, protocol_type: type) -> bool:
+        return isinstance(impl, protocol_type)
+
+Integration Patterns:
+    1. Service Implementation:
+       class ConcreteLogger(ProtocolLogger):
+           def log(self, level: LogLevel, message: str) -> None:
+               # Implementation here
+
+    2. Dependency Injection:
+       container.register(ProtocolLogger, ConcreteLogger())
+       service = container.get(MyService)  # Auto-injects logger
+
+    3. Protocol Validation:
+       assert isinstance(my_logger, ProtocolLogger)
+       logger_methods = [attr for attr in dir(ProtocolLogger)]
+
+Best Practices:
+    - Always use protocol imports rather than concrete implementations
+    - Leverage type hints for better IDE support and validation
+    - Use isinstance() checks for runtime protocol validation
+    - Follow the protocol naming convention: Protocol[Domain][Purpose]
+    - Implement all protocol methods in concrete classes
+    - Use dependency injection containers for protocol-based services
 """
 
-# Import container versions with aliases to avoid name collision with core types
-# Container protocols (19 protocols)
+# Import container protocols for dependency injection and service management
+# Container protocols (19 protocols) - Service lifecycle and dependency resolution
 from omnibase_spi.protocols.container import (  # Phase 3 additions
-    ContainerArtifactType,
     InjectionScope,
+    LiteralContainerArtifactType,
+    LiteralServiceLifecycle,
+    LiteralServiceResolutionStatus,
     ProtocolArtifactContainer,
     ProtocolArtifactContainerStatus,
     ProtocolArtifactInfo,
@@ -55,19 +136,18 @@ from omnibase_spi.protocols.container import (  # Phase 3 additions
     ProtocolServiceRegistryStatus,
     ProtocolServiceValidator,
     ServiceHealthStatus,
-    ServiceLifecycle,
-    ServiceResolutionStatus,
 )
 
-# Core protocols (42 protocols)
+# Core protocols (42 protocols) - Fundamental system contracts
+# Includes logging, HTTP/Kafka clients, circuit breakers, storage, and node management
 from omnibase_spi.protocols.core import (  # Phase 1 additions; Phase 3 additions
+    LiteralProtocolCircuitBreakerEvent,
+    LiteralProtocolCircuitBreakerState,
     ProtocolCacheService,
     ProtocolCacheServiceProvider,
     ProtocolCircuitBreaker,
-    ProtocolCircuitBreakerEvent,
     ProtocolCircuitBreakerFactory,
     ProtocolCircuitBreakerMetrics,
-    ProtocolCircuitBreakerState,
     ProtocolClientConfigProvider,
     ProtocolConfigurationError,
     ProtocolConfigurationManager,
@@ -106,14 +186,16 @@ from omnibase_spi.protocols.core import (  # Phase 1 additions; Phase 3 addition
     ProtocolWorkflowReducer,
 )
 
-# Discovery protocols (3 protocols)
+# Discovery protocols (3 protocols) - Node and handler discovery
+# Enables dynamic service discovery and handler registration
 from omnibase_spi.protocols.discovery import (
     ProtocolHandlerDiscovery,
     ProtocolHandlerInfo,
     ProtocolNodeDiscoveryRegistry,
 )
 
-# Event bus protocols (12 protocols)
+# Event bus protocols (12 protocols) - Distributed messaging infrastructure
+# Supports multiple backends (Kafka, Redis, in-memory) with async/sync patterns
 from omnibase_spi.protocols.event_bus import (  # Phase 2 additions
     ProtocolAsyncEventBus,
     ProtocolEventBus,
@@ -129,14 +211,16 @@ from omnibase_spi.protocols.event_bus import (  # Phase 2 additions
     ProtocolSyncEventBus,
 )
 
-# File handling protocols (3 protocols)
+# File handling protocols (3 protocols) - File processing and ONEX metadata
+# Handles file type detection, processing, and metadata stamping
 from omnibase_spi.protocols.file_handling import (
     ProtocolFileTypeHandler,
     ProtocolStampOptions,
     ProtocolValidationOptions,
 )
 
-# MCP protocols (15 protocols)
+# MCP protocols (15 protocols) - Model Context Protocol integration
+# Multi-subsystem tool registration, execution, and health monitoring
 from omnibase_spi.protocols.mcp import (  # Phase 3 additions
     ProtocolMCPDiscovery,
     ProtocolMCPHealthMonitor,
@@ -155,7 +239,8 @@ from omnibase_spi.protocols.mcp import (  # Phase 3 additions
     ProtocolToolDiscoveryService,
 )
 
-# Validation protocols (4 protocols)
+# Validation protocols (4 protocols) - Input validation and error handling
+# Provides structured validation with error reporting and compliance checking
 from omnibase_spi.protocols.validation import ValidationError  # Backward compatibility
 from omnibase_spi.protocols.validation import ValidationResult  # Backward compatibility
 from omnibase_spi.protocols.validation import (
@@ -165,12 +250,15 @@ from omnibase_spi.protocols.validation import (
     ProtocolValidator,
 )
 
-# Workflow orchestration protocols (11 protocols)
+# Workflow orchestration protocols (11 protocols) - Event-driven FSM coordination
+# Event sourcing, workflow state management, and distributed task scheduling
 from omnibase_spi.protocols.workflow_orchestration import (
     ProtocolEventQueryOptions,
     ProtocolEventStore,
     ProtocolEventStoreResult,
     ProtocolEventStoreTransaction,
+    ProtocolLiteralWorkflowStateProjection,
+    ProtocolLiteralWorkflowStateStore,
     ProtocolNodeSchedulingResult,
     ProtocolSnapshotStore,
     ProtocolTaskSchedulingCriteria,
@@ -180,12 +268,10 @@ from omnibase_spi.protocols.workflow_orchestration import (
     ProtocolWorkflowNodeCapability,
     ProtocolWorkflowNodeInfo,
     ProtocolWorkflowNodeRegistry,
-    ProtocolWorkflowStateProjection,
-    ProtocolWorkflowStateStore,
 )
 
 __all__ = [
-    "ContainerArtifactType",
+    "LiteralContainerArtifactType",
     "InjectionScope",
     "ProtocolArtifactContainer",
     "ProtocolArtifactContainerStatus",
@@ -195,10 +281,12 @@ __all__ = [
     "ProtocolCacheService",
     "ProtocolCacheServiceProvider",
     "ProtocolCircuitBreaker",
-    "ProtocolCircuitBreakerEvent",
+    "LiteralProtocolCircuitBreakerEvent",
     "ProtocolCircuitBreakerFactory",
     "ProtocolCircuitBreakerMetrics",
-    "ProtocolCircuitBreakerState",
+    "LiteralProtocolCircuitBreakerState",
+    "LiteralServiceLifecycle",
+    "LiteralServiceResolutionStatus",
     "ProtocolClientConfigProvider",
     "ProtocolConfigurationError",
     "ProtocolConfigurationManager",
@@ -296,11 +384,9 @@ __all__ = [
     "ProtocolWorkflowNodeInfo",
     "ProtocolWorkflowNodeRegistry",
     "ProtocolWorkflowReducer",
-    "ProtocolWorkflowStateProjection",
-    "ProtocolWorkflowStateStore",
+    "ProtocolLiteralWorkflowStateProjection",
+    "ProtocolLiteralWorkflowStateStore",
     "ServiceHealthStatus",
-    "ServiceLifecycle",
-    "ServiceResolutionStatus",
     "ValidationError",
     "ValidationResult",
 ]
@@ -308,15 +394,15 @@ __all__ = [
 # Import moved protocols for easy access
 from .file_handling.protocol_file_reader import ProtocolFileReader
 from .workflow_orchestration.protocol_work_queue import (
-    AssignmentStrategy,
+    LiteralAssignmentStrategy,
+    LiteralWorkQueuePriority,
     ProtocolWorkQueue,
-    WorkQueuePriority,
 )
 
 # Add to __all__ exports
 _MOVED_PROTOCOLS = [
+    "LiteralAssignmentStrategy",
     "ProtocolFileReader",
     "ProtocolWorkQueue",
-    "WorkQueuePriority",
-    "AssignmentStrategy",
+    "LiteralWorkQueuePriority",
 ]

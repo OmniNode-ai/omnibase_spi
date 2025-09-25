@@ -10,8 +10,8 @@ from uuid import UUID
 from omnibase_spi.protocols.types.core_types import ProtocolSemVer
 
 # Discovery result types
-DiscoveryStatus = Literal["found", "not_found", "error", "timeout"]
-HandlerStatus = Literal["available", "busy", "offline", "error"]
+LiteralDiscoveryStatus = Literal["found", "not_found", "error", "timeout"]
+LiteralHandlerStatus = Literal["available", "busy", "offline", "error"]
 
 # Handler capability types
 CapabilityValue = str | int | float | bool | list[str]
@@ -33,7 +33,7 @@ class ProtocolHandlerInfo(Protocol):
     node_id: UUID
     node_name: str
     node_type: str
-    status: HandlerStatus
+    status: LiteralHandlerStatus
     capabilities: list[str]
     metadata: dict[str, CapabilityValue]
 
@@ -52,7 +52,7 @@ class ProtocolDiscoveryResult(Protocol):
     """Protocol for discovery result objects."""
 
     query_id: UUID
-    status: DiscoveryStatus
+    status: LiteralDiscoveryStatus
     nodes_found: int
     discovery_time: float
     error_message: str | None

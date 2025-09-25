@@ -8,7 +8,7 @@ implementation dependencies or mixin complexity.
 from typing import TYPE_CHECKING, Optional, Protocol, Union, runtime_checkable
 
 if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.core_types import LogLevel
+    from omnibase_spi.protocols.types.core_types import LiteralLogLevel
     from omnibase_spi.protocols.types.event_bus_types import ProtocolEventMessage
 
 
@@ -134,7 +134,7 @@ class ProtocolLogEmitter(Protocol):
 
     def emit_log_event(
         self,
-        level: "LogLevel",
+        level: "LiteralLogLevel",
         message: str,
         data: dict[str, Union[str, int, float, bool]],
     ) -> None:

@@ -17,8 +17,8 @@ from uuid import UUID
 
 if TYPE_CHECKING:
     from .protocol_memory_base import (
-        AnalysisType,
-        CompressionAlgorithm,
+        LiteralAnalysisType,
+        LiteralCompressionAlgorithm,
         ProtocolAggregationCriteria,
         ProtocolMemoryMetadata,
     )
@@ -321,7 +321,7 @@ class ProtocolMemoryComputeNode(Protocol):
     async def extract_insights(
         self,
         memory_ids: list[UUID],
-        analysis_type: "AnalysisType" = "standard",
+        analysis_type: "LiteralAnalysisType" = "standard",
         correlation_id: Optional[UUID] = None,
         timeout_seconds: Optional[float] = None,
     ) -> "ProtocolMemoryResponse":
@@ -453,7 +453,7 @@ class ProtocolMemoryReducerNode(Protocol):
     async def compress_memories(
         self,
         memory_ids: list[UUID],
-        compression_algorithm: "CompressionAlgorithm",
+        compression_algorithm: "LiteralCompressionAlgorithm",
         quality_threshold: float = 0.9,
         correlation_id: Optional[UUID] = None,
         timeout_seconds: Optional[float] = None,

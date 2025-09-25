@@ -9,7 +9,7 @@ from uuid import UUID
 
 from omnibase_spi.protocols.types.core_types import (
     ContextValue,
-    NodeType,
+    LiteralNodeType,
     ProtocolDateTime,
     ProtocolSemVer,
 )
@@ -45,7 +45,7 @@ WorkflowData: TypeAlias = Union[
 ]
 
 # Workflow state types - hierarchical FSM states
-WorkflowState = Literal[
+LiteralWorkflowState = Literal[
     "pending",
     "initializing",
     "running",
@@ -61,7 +61,7 @@ WorkflowState = Literal[
 ]
 
 # Task state types - individual task execution states
-TaskState = Literal[
+LiteralTaskState = Literal[
     "pending",
     "scheduled",
     "running",
@@ -76,16 +76,16 @@ TaskState = Literal[
 ]
 
 # Task types - dispatch annotations for effects[] and computes[]
-TaskType = Literal["compute", "effect", "orchestrator", "reducer"]
+LiteralTaskType = Literal["compute", "effect", "orchestrator", "reducer"]
 
 # Execution semantics - await vs fire-and-forget
-ExecutionSemantics = Literal["await", "fire_and_forget", "async_await"]
+LiteralExecutionSemantics = Literal["await", "fire_and_forget", "async_await"]
 
 # Retry policy types
-RetryPolicy = Literal["none", "fixed", "exponential", "linear", "custom"]
+LiteralRetryPolicy = Literal["none", "fixed", "exponential", "linear", "custom"]
 
 # Event types for workflow orchestration
-WorkflowEventType = Literal[
+LiteralWorkflowEventType = Literal[
     "workflow.created",
     "workflow.started",
     "workflow.paused",
@@ -107,13 +107,13 @@ WorkflowEventType = Literal[
 ]
 
 # Timeout types
-TimeoutType = Literal["execution", "idle", "total", "heartbeat"]
+LiteralTimeoutType = Literal["execution", "idle", "total", "heartbeat"]
 
 # Priority levels for task scheduling
-TaskPriority = Literal["low", "normal", "high", "critical", "urgent"]
+LiteralTaskPriority = Literal["low", "normal", "high", "critical", "urgent"]
 
 # Isolation levels for workflow instances
-IsolationLevel = Literal[
+LiteralIsolationLevel = Literal[
     "read_uncommitted", "read_committed", "repeatable_read", "serializable"
 ]
 
@@ -136,7 +136,7 @@ class ProtocolWorkflowMetadata(Protocol):
 class ProtocolRetryConfiguration(Protocol):
     """Protocol for retry configuration objects."""
 
-    policy: RetryPolicy
+    policy: LiteralRetryPolicy
     max_attempts: int
     initial_delay_seconds: float
     max_delay_seconds: float
@@ -149,7 +149,7 @@ class ProtocolRetryConfiguration(Protocol):
 class ProtocolTimeoutConfiguration(Protocol):
     """Protocol for timeout configuration objects."""
 
-    timeout_type: TimeoutType
+    timeout_type: LiteralTimeoutType
     timeout_seconds: int
     warning_seconds: Optional[int]
     grace_period_seconds: Optional[int]
@@ -171,7 +171,7 @@ class ProtocolWorkflowContext(Protocol):
     workflow_type: str
     instance_id: UUID
     correlation_id: UUID
-    isolation_level: IsolationLevel
+    isolation_level: LiteralIsolationLevel
     data: dict[str, WorkflowData]
     secrets: dict[str, str]  # Encrypted/protected values
     capabilities: list[str]
@@ -183,10 +183,10 @@ class ProtocolTaskConfiguration(Protocol):
 
     task_id: UUID
     task_name: str
-    task_type: TaskType
-    node_type: NodeType
-    execution_semantics: ExecutionSemantics
-    priority: TaskPriority
+    task_type: LiteralTaskType
+    node_type: LiteralNodeType
+    execution_semantics: LiteralExecutionSemantics
+    priority: LiteralTaskPriority
     dependencies: list[ProtocolTaskDependency]
     retry_config: ProtocolRetryConfiguration
     timeout_config: ProtocolTimeoutConfiguration
@@ -198,7 +198,7 @@ class ProtocolWorkflowEvent(Protocol):
     """Protocol for workflow event objects with event sourcing."""
 
     event_id: UUID
-    event_type: WorkflowEventType
+    event_type: LiteralWorkflowEventType
     workflow_type: str
     instance_id: UUID
     correlation_id: UUID
@@ -218,7 +218,7 @@ class ProtocolWorkflowSnapshot(Protocol):
     workflow_type: str
     instance_id: UUID
     sequence_number: int
-    state: WorkflowState
+    state: LiteralWorkflowState
     context: ProtocolWorkflowContext
     tasks: list[ProtocolTaskConfiguration]
     created_at: ProtocolDateTime
@@ -230,7 +230,7 @@ class ProtocolTaskResult(Protocol):
 
     task_id: UUID
     execution_id: UUID
-    state: TaskState
+    state: LiteralTaskState
     result_data: dict[str, WorkflowData]
     error_message: Optional[str]
     error_code: Optional[str]
@@ -273,10 +273,10 @@ class ProtocolNodeCapability(Protocol):
 
     capability_name: str
     version: ProtocolSemVer
-    node_types: list[NodeType]
+    node_types: list[LiteralNodeType]
     resource_requirements: dict[str, Any]
     configuration_schema: dict[str, Any]
-    supported_task_types: list[TaskType]
+    supported_task_types: list[LiteralTaskType]
 
 
 class ProtocolServiceDiscovery(Protocol):
@@ -299,7 +299,7 @@ class ProtocolRecoveryPoint(Protocol):
     workflow_type: str
     instance_id: UUID
     sequence_number: int
-    state: WorkflowState
+    state: LiteralWorkflowState
     recovery_type: Literal["checkpoint", "savepoint", "snapshot"]
     created_at: ProtocolDateTime
     metadata: dict[str, ContextValue]
