@@ -4,7 +4,7 @@ Discovery protocol types for ONEX SPI interfaces.
 Domain: Service and node discovery protocols
 """
 
-from typing import Literal, Protocol
+from typing import Literal, Protocol, runtime_checkable
 from uuid import UUID
 
 from omnibase_spi.protocols.types.protocol_core_types import ProtocolSemVer
@@ -13,8 +13,56 @@ from omnibase_spi.protocols.types.protocol_core_types import ProtocolSemVer
 LiteralDiscoveryStatus = Literal["found", "not_found", "error", "timeout"]
 LiteralHandlerStatus = Literal["available", "busy", "offline", "error"]
 
-# Handler capability types
-CapabilityValue = str | int | float | bool | list[str]
+# === Capability Value Protocol Hierarchy (Eliminates Union anti-patterns) ===
+
+
+@runtime_checkable
+class ProtocolCapabilityValue(Protocol):
+    """Protocol for capability data values supporting validation and serialization."""
+
+    def validate_for_capability(self) -> bool:
+        """Validate value is safe for capability storage."""
+        ...
+
+    def serialize_for_capability(self) -> dict[str, object]:
+        """Serialize value for capability metadata."""
+        ...
+
+    def get_capability_type_hint(self) -> str:
+        """Get type hint for capability schema validation."""
+        ...
+
+
+@runtime_checkable
+class ProtocolCapabilityStringValue(ProtocolCapabilityValue, Protocol):
+    """Protocol for string-based capability values (names, descriptions, IDs)."""
+
+    value: str
+
+
+@runtime_checkable
+class ProtocolCapabilityNumericValue(ProtocolCapabilityValue, Protocol):
+    """Protocol for numeric capability values (counts, measurements, scores)."""
+
+    value: int | float
+
+
+@runtime_checkable
+class ProtocolCapabilityBooleanValue(ProtocolCapabilityValue, Protocol):
+    """Protocol for boolean capability values (flags, enabled/disabled)."""
+
+    value: bool
+
+
+@runtime_checkable
+class ProtocolCapabilityStringListValue(ProtocolCapabilityValue, Protocol):
+    """Protocol for string list capability values (tags, categories, identifiers)."""
+
+    value: list[str]
+
+
+# Backward compatibility alias - use ProtocolCapabilityValue for new code
+CapabilityValue = ProtocolCapabilityValue
 
 
 # Handler discovery protocols

@@ -5,7 +5,7 @@ Domain: File processing and writing protocols
 """
 
 from pathlib import Path
-from typing import Literal, Optional, Protocol
+from typing import Literal, Optional, Protocol, runtime_checkable
 from uuid import UUID
 
 from omnibase_spi.protocols.types.protocol_core_types import (
@@ -19,8 +19,42 @@ LiteralFileOperation = Literal["read", "write", "append", "delete", "move", "cop
 LiteralFileStatus = Literal["exists", "missing", "locked", "corrupted", "accessible"]
 ProcessingStatus = LiteralBaseStatus
 
-# File content types - more specific than Any
-FileContent = str | bytes
+# === File Content Protocol Hierarchy (Eliminates Union anti-patterns) ===
+
+
+@runtime_checkable
+class ProtocolFileContent(Protocol):
+    """Protocol for file content values supporting validation and serialization."""
+
+    def validate_for_file(self) -> bool:
+        """Validate content is safe for file operations."""
+        ...
+
+    def serialize_for_file(self) -> dict[str, object]:
+        """Serialize content for file storage."""
+        ...
+
+    def get_file_content_type_hint(self) -> str:
+        """Get type hint for file content validation."""
+        ...
+
+
+@runtime_checkable
+class ProtocolStringFileContent(ProtocolFileContent, Protocol):
+    """Protocol for string-based file content (text files)."""
+
+    value: str
+
+
+@runtime_checkable
+class ProtocolBinaryFileContent(ProtocolFileContent, Protocol):
+    """Protocol for binary file content (binary files)."""
+
+    value: bytes
+
+
+# Backward compatibility alias - use ProtocolFileContent for new code
+FileContent = ProtocolFileContent
 
 
 # File metadata protocol for type safety
@@ -46,7 +80,7 @@ class ProtocolFileInfo(Protocol):
     status: LiteralFileStatus
 
 
-class ProtocolFileContent(Protocol):
+class ProtocolFileContentObject(Protocol):
     """Protocol for file content objects."""
 
     file_path: Path

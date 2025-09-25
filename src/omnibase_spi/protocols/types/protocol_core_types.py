@@ -91,16 +91,63 @@ LiteralHealthStatus = Literal[
     "error",
 ]
 
-# Context value types - typed values for structured data across ONEX
-# Used in logging, configuration, metadata, and inter-service communication
-# Constrained to JSON-serializable types for reliable persistence and transmission
-# str: Text data, identifiers, messages
-# int: Numeric identifiers, counts, indices
-# float: Measurements, ratios, scores
-# bool: Flags, status indicators
-# list[str]: Lists of identifiers, tags, categories
-# dict[str, str]: Key-value mappings, basic structured data
-ContextValue = str | int | float | bool | list[str] | dict[str, str]
+# === Context Value Protocol Hierarchy (Eliminates Union anti-patterns) ===
+
+
+@runtime_checkable
+class ProtocolContextValue(Protocol):
+    """Protocol for context data values supporting validation and serialization."""
+
+    def validate_for_context(self) -> bool:
+        """Validate value is safe for context storage."""
+        ...
+
+    def serialize_for_context(self) -> dict[str, object]:
+        """Serialize value for context persistence."""
+        ...
+
+    def get_context_type_hint(self) -> str:
+        """Get type hint for context schema validation."""
+        ...
+
+
+@runtime_checkable
+class ProtocolContextStringValue(ProtocolContextValue, Protocol):
+    """Protocol for string-based context values (text data, identifiers, messages)."""
+
+    value: str
+
+
+@runtime_checkable
+class ProtocolContextNumericValue(ProtocolContextValue, Protocol):
+    """Protocol for numeric context values (identifiers, counts, measurements, scores)."""
+
+    value: int | float
+
+
+@runtime_checkable
+class ProtocolContextBooleanValue(ProtocolContextValue, Protocol):
+    """Protocol for boolean context values (flags, status indicators)."""
+
+    value: bool
+
+
+@runtime_checkable
+class ProtocolContextStringListValue(ProtocolContextValue, Protocol):
+    """Protocol for string list context values (identifiers, tags, categories)."""
+
+    value: list[str]
+
+
+@runtime_checkable
+class ProtocolContextStringDictValue(ProtocolContextValue, Protocol):
+    """Protocol for string dictionary context values (key-value mappings, structured data)."""
+
+    value: dict[str, str]
+
+
+# Backward compatibility alias - use ProtocolContextValue for new code
+ContextValue = ProtocolContextValue
 
 
 # Metadata types - for metadata storage protocols
