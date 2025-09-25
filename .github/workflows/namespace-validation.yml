@@ -48,13 +48,13 @@ jobs:
         chmod +x ./scripts/validate-spi-purity.sh
         ./scripts/validate-spi-purity.sh
 
-    - name: Run memory protocol tests
+    - name: Run protocol import tests
       run: |
-        poetry run pytest tests/protocols/memory/ -v --tb=short
+        poetry run pytest tests/test_protocol_imports.py -v --tb=short
 
-    - name: Run type checking tests
+    - name: Run all tests
       run: |
-        poetry run pytest tests/protocols/memory/test_memory_type_checking.py -v
+        poetry run pytest tests/ -v --tb=short
 
     - name: Validate package can be built
       run: poetry build
