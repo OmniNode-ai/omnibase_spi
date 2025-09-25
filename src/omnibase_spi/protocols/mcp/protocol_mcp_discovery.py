@@ -10,14 +10,12 @@ Domain: MCP service discovery and network coordination
 
 from typing import Any, Callable, Optional, Protocol, runtime_checkable
 
-from omnibase_spi.protocols.types.core_types import (
+from omnibase_spi.protocols.types.protocol_core_types import (
     ContextValue,
-    HealthStatus,
-    ProtocolDateTime,
+    LiteralHealthStatus,
 )
-from omnibase_spi.protocols.types.mcp_types import (
-    MCPConnectionStatus,
-    MCPSubsystemType,
+from omnibase_spi.protocols.types.protocol_mcp_types import (
+    LiteralMCPSubsystemType,
     ProtocolMCPDiscoveryInfo,
     ProtocolMCPSubsystemRegistration,
 )
@@ -34,7 +32,7 @@ class ProtocolMCPServiceDiscovery(Protocol):
 
     async def discover_mcp_services(
         self,
-        service_type: Optional[MCPSubsystemType],
+        service_type: Optional[LiteralMCPSubsystemType],
         timeout_seconds: int,
     ) -> list[ProtocolMCPDiscoveryInfo]:
         """
@@ -95,7 +93,7 @@ class ProtocolMCPServiceDiscovery(Protocol):
     async def monitor_service_changes(
         self,
         callback: Callable[[Any], Any],
-        service_type: Optional[MCPSubsystemType],
+        service_type: Optional[LiteralMCPSubsystemType],
     ) -> bool:
         """
         Monitor for service discovery changes.
@@ -135,7 +133,7 @@ class ProtocolMCPDiscovery(Protocol):
 
     async def discover_available_subsystems(
         self,
-        service_type: Optional[MCPSubsystemType],
+        service_type: Optional[LiteralMCPSubsystemType],
         health_check: bool,
         timeout_seconds: int,
     ) -> list[ProtocolMCPSubsystemRegistration]:
@@ -154,7 +152,7 @@ class ProtocolMCPDiscovery(Protocol):
 
     async def discover_available_tools(
         self,
-        service_type: Optional[MCPSubsystemType],
+        service_type: Optional[LiteralMCPSubsystemType],
         tool_tags: Optional[list[str]],
         health_check: bool,
     ) -> dict[str, list[str]]:
@@ -208,7 +206,7 @@ class ProtocolMCPDiscovery(Protocol):
     async def monitor_network_changes(
         self,
         callback: Callable[[Any], Any],
-        service_types: Optional[list[MCPSubsystemType]],
+        service_types: Optional[list[LiteralMCPSubsystemType]],
         change_types: Optional[list[str]],
     ) -> bool:
         """
@@ -255,7 +253,7 @@ class ProtocolMCPDiscovery(Protocol):
 
     async def get_service_health_status(
         self, service_name: str
-    ) -> Optional[HealthStatus]:
+    ) -> Optional[LiteralHealthStatus]:
         """
         Get current health status of a discovered service.
 
@@ -270,7 +268,7 @@ class ProtocolMCPDiscovery(Protocol):
     async def update_service_cache(
         self,
         force_refresh: bool,
-        service_type: Optional[MCPSubsystemType],
+        service_type: Optional[LiteralMCPSubsystemType],
     ) -> int:
         """
         Update the local cache of discovered services.

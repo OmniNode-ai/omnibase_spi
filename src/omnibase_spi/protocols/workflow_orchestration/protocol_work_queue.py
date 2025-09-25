@@ -10,10 +10,10 @@ from collections.abc import AsyncIterator
 from typing import Any, Literal, Protocol, runtime_checkable
 
 # Work queue priority levels
-WorkQueuePriority = Literal["urgent", "high", "normal", "low", "deferred"]
+LiteralWorkQueuePriority = Literal["urgent", "high", "normal", "low", "deferred"]
 
 # Work assignment strategy types
-AssignmentStrategy = Literal[
+LiteralAssignmentStrategy = Literal[
     "round_robin",
     "least_loaded",
     "capability_based",
@@ -194,7 +194,7 @@ class ProtocolWorkQueue(Protocol):
 
     async def get_tickets_by_priority(
         self,
-        priority: WorkQueuePriority,
+        priority: LiteralWorkQueuePriority,
     ) -> list[Any]:
         """
         Retrieve work tickets filtered by priority.
@@ -230,7 +230,7 @@ class ProtocolWorkQueue(Protocol):
     async def get_available_tickets(
         self,
         agent_capabilities: list[str] | None = None,
-        max_priority: WorkQueuePriority | None = None,
+        max_priority: LiteralWorkQueuePriority | None = None,
     ) -> list[Any]:
         """
         Get tickets available for assignment based on criteria.
@@ -386,7 +386,9 @@ class ProtocolWorkQueue(Protocol):
 
         ...
 
-    async def set_assignment_strategy(self, strategy: AssignmentStrategy) -> bool:
+    async def set_assignment_strategy(
+        self, strategy: LiteralAssignmentStrategy
+    ) -> bool:
         """
         Set the work assignment strategy for the queue.
 
@@ -402,7 +404,7 @@ class ProtocolWorkQueue(Protocol):
 
         ...
 
-    async def get_assignment_strategy(self) -> AssignmentStrategy:
+    async def get_assignment_strategy(self) -> LiteralAssignmentStrategy:
         """
         Get the current work assignment strategy.
 

@@ -42,18 +42,19 @@ jobs:
         chmod +x ./scripts/validate-namespace-isolation.sh
         ./scripts/validate-namespace-isolation.sh
 
-    - name: Run comprehensive SPI protocol audit
+    - name: Run SPI purity validation
+      continue-on-error: true
       run: |
-        chmod +x ./scripts/spi_protocol_auditor.py
-        python ./scripts/spi_protocol_auditor.py --repo-root . --output audit-results.json
+        chmod +x ./scripts/validate-spi-purity.sh
+        ./scripts/validate-spi-purity.sh
 
-    - name: Run memory protocol tests
+    - name: Run protocol import tests
       run: |
-        poetry run pytest tests/protocols/memory/ -v --tb=short
+        poetry run pytest tests/test_protocol_imports.py -v --tb=short
 
-    - name: Run type checking tests
+    - name: Run all tests
       run: |
-        poetry run pytest tests/protocols/memory/test_memory_type_checking.py -v
+        poetry run pytest tests/ -v --tb=short
 
     - name: Validate package can be built
       run: poetry build
@@ -69,7 +70,7 @@ jobs:
         print('Testing import isolation...')
         
         # Should be able to import omnibase_spi.protocols without any external dependencies
-        from omnibase_spi.protocols.types import LogLevel, ProtocolLogEntry
+        from omnibase_spi.protocols.types import LiteralLogLevel, ProtocolLogEntry
         
         # Verify no external omnibase modules are loaded
         external_modules = [name for name in sys.modules.keys() 

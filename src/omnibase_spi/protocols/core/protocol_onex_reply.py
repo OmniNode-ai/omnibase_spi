@@ -9,10 +9,10 @@ from typing import Any, Literal, Optional, Protocol
 from uuid import UUID
 
 from omnibase_spi.protocols.core.protocol_onex_validation import ProtocolOnexMetadata
-from omnibase_spi.protocols.types.core_types import ProtocolDateTime
+from omnibase_spi.protocols.types.protocol_core_types import ProtocolDateTime
 
 # Standard Onex reply status values - using Literal instead of Enum
-OnexReplyStatus = Literal[
+LiteralOnexReplyStatus = Literal[
     "success", "partial_success", "failure", "error", "timeout", "validation_error"
 ]
 
@@ -98,7 +98,7 @@ class ProtocolOnexReply(Protocol):
         """
         ...
 
-    def get_status(self, reply: Any) -> OnexReplyStatus:
+    def get_status(self, reply: Any) -> LiteralOnexReplyStatus:
         """
         Get the status from an Onex reply.
 

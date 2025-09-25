@@ -10,10 +10,10 @@ Focuses purely on dependency injection patterns rather than artifact or service 
 
 from typing import Any, Literal, Optional, Protocol, Type, TypeVar, runtime_checkable
 
-from omnibase_spi.protocols.types.core_types import (
+from omnibase_spi.protocols.types.protocol_core_types import (
     ContextValue,
-    HealthStatus,
-    OperationStatus,
+    LiteralHealthStatus,
+    LiteralOperationStatus,
     ProtocolDateTime,
     ProtocolSemVer,
     ProtocolValidationResult,
@@ -25,21 +25,32 @@ TInterface = TypeVar("TInterface")
 TImplementation = TypeVar("TImplementation")
 
 # Service lifecycle types - using Literal for SPI purity
-ServiceLifecycle = Literal[
+LiteralServiceLifecycle = Literal[
     "singleton", "transient", "scoped", "pooled", "lazy", "eager"
 ]
 
+# Alias for backward compatibility and __init__.py imports
+ServiceLifecycle = LiteralServiceLifecycle
+
 
 # Service resolution status types
-ServiceResolutionStatus = Literal[
+LiteralServiceResolutionStatus = Literal[
     "resolved", "failed", "circular_dependency", "missing_dependency", "type_mismatch"
 ]
 
-# Dependency injection scope types
-InjectionScope = Literal["request", "session", "thread", "process", "global", "custom"]
+# Alias for backward compatibility and __init__.py imports
+ServiceResolutionStatus = LiteralServiceResolutionStatus
 
-# Service health status types - using consolidated HealthStatus
-ServiceHealthStatus = HealthStatus
+# Dependency injection scope types
+LiteralInjectionScope = Literal[
+    "request", "session", "thread", "process", "global", "custom"
+]
+
+# Alias for backward compatibility and __init__.py imports
+InjectionScope = LiteralInjectionScope
+
+# Service health status types - using consolidated LiteralHealthStatus
+ServiceHealthStatus = LiteralHealthStatus
 
 
 @runtime_checkable
@@ -78,8 +89,8 @@ class ProtocolServiceRegistration(Protocol):
 
     registration_id: str
     service_metadata: ProtocolServiceMetadata
-    lifecycle: ServiceLifecycle
-    scope: InjectionScope
+    lifecycle: LiteralServiceLifecycle
+    scope: LiteralInjectionScope
     dependencies: list[ProtocolServiceDependency]
     registration_status: Literal[
         "registered", "unregistered", "failed", "pending", "conflict", "invalid"
@@ -99,8 +110,8 @@ class ProtocolServiceInstance(Protocol):
     instance_id: str
     service_registration_id: str
     instance: Any
-    lifecycle: ServiceLifecycle
-    scope: InjectionScope
+    lifecycle: LiteralServiceLifecycle
+    scope: LiteralInjectionScope
     created_at: ProtocolDateTime
     last_accessed: ProtocolDateTime
     access_count: int
@@ -127,10 +138,10 @@ class ProtocolInjectionContext(Protocol):
 
     context_id: str
     target_service_id: str
-    scope: InjectionScope
+    scope: LiteralInjectionScope
     resolved_dependencies: dict[str, Any]
     injection_time: ProtocolDateTime
-    resolution_status: ServiceResolutionStatus
+    resolution_status: LiteralServiceResolutionStatus
     error_details: Optional[str]
     resolution_path: list[str]
     metadata: dict[str, ContextValue]
@@ -141,14 +152,14 @@ class ProtocolServiceRegistryStatus(Protocol):
     """Protocol for service registry status information."""
 
     registry_id: str
-    status: OperationStatus
+    status: LiteralOperationStatus
     message: str
     total_registrations: int
     active_instances: int
     failed_registrations: int
     circular_dependencies: int
-    lifecycle_distribution: dict[ServiceLifecycle, int]
-    scope_distribution: dict[InjectionScope, int]
+    lifecycle_distribution: dict[LiteralServiceLifecycle, int]
+    scope_distribution: dict[LiteralInjectionScope, int]
     health_summary: dict[ServiceHealthStatus, int]
     memory_usage_bytes: Optional[int]
     average_resolution_time_ms: Optional[float]
@@ -237,8 +248,8 @@ class ProtocolServiceRegistry(Protocol):
                 self,
                 interface: Type[TInterface],
                 implementation: Type[TImplementation],
-                lifecycle: ServiceLifecycle,
-                scope: InjectionScope
+                lifecycle: LiteralServiceLifecycle,
+                scope: LiteralInjectionScope
             ) -> str:
                 # Create service metadata
                 metadata = ServiceMetadata(
@@ -295,7 +306,7 @@ class ProtocolServiceRegistry(Protocol):
             async def resolve_service(
                 self,
                 interface: Type[TInterface],
-                scope: Optional[InjectionScope] = None
+                scope: Optional[LiteralInjectionScope] = None
             ) -> TInterface:
                 # Find matching registration
                 registration = await self._find_registration_by_interface(interface)
@@ -506,8 +517,8 @@ class ProtocolServiceRegistry(Protocol):
         self,
         interface: Type[TInterface],
         implementation: Type[TImplementation],
-        lifecycle: ServiceLifecycle,
-        scope: InjectionScope,
+        lifecycle: LiteralServiceLifecycle,
+        scope: LiteralInjectionScope,
         configuration: Optional[dict[str, ContextValue]] = None,
     ) -> str:
         """
@@ -532,7 +543,7 @@ class ProtocolServiceRegistry(Protocol):
         self,
         interface: Type[TInterface],
         instance: TInterface,
-        scope: InjectionScope = "global",
+        scope: LiteralInjectionScope = "global",
         metadata: Optional[dict[str, ContextValue]] = None,
     ) -> str:
         """
@@ -553,8 +564,8 @@ class ProtocolServiceRegistry(Protocol):
         self,
         interface: Type[TInterface],
         factory: ProtocolServiceFactory,
-        lifecycle: ServiceLifecycle = "transient",
-        scope: InjectionScope = "global",
+        lifecycle: LiteralServiceLifecycle = "transient",
+        scope: LiteralInjectionScope = "global",
     ) -> str:
         """
         Register a service factory for creating instances.
@@ -585,7 +596,7 @@ class ProtocolServiceRegistry(Protocol):
     async def resolve_service(
         self,
         interface: Type[TInterface],
-        scope: Optional[InjectionScope] = None,
+        scope: Optional[LiteralInjectionScope] = None,
         context: Optional[dict[str, ContextValue]] = None,
     ) -> TInterface:
         """
@@ -608,7 +619,7 @@ class ProtocolServiceRegistry(Protocol):
         self,
         interface: Type[TInterface],
         name: str,
-        scope: Optional[InjectionScope] = None,
+        scope: Optional[LiteralInjectionScope] = None,
     ) -> TInterface:
         """
         Resolve a named service instance.
@@ -626,7 +637,7 @@ class ProtocolServiceRegistry(Protocol):
     async def resolve_all_services(
         self,
         interface: Type[TInterface],
-        scope: Optional[InjectionScope] = None,
+        scope: Optional[LiteralInjectionScope] = None,
     ) -> list[TInterface]:
         """
         Resolve all registered implementations of an interface.
@@ -643,7 +654,7 @@ class ProtocolServiceRegistry(Protocol):
     async def try_resolve_service(
         self,
         interface: Type[TInterface],
-        scope: Optional[InjectionScope] = None,
+        scope: Optional[LiteralInjectionScope] = None,
     ) -> Optional[TInterface]:
         """
         Try to resolve a service instance, return None if not found.
@@ -709,7 +720,7 @@ class ProtocolServiceRegistry(Protocol):
         ...
 
     async def dispose_instances(
-        self, registration_id: str, scope: Optional[InjectionScope] = None
+        self, registration_id: str, scope: Optional[LiteralInjectionScope] = None
     ) -> int:
         """
         Dispose service instances.

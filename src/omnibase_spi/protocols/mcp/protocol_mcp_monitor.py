@@ -10,16 +10,9 @@ Domain: MCP monitoring, health checks, and observability
 
 from typing import Any, Callable, Optional, Protocol, runtime_checkable
 
-from omnibase_spi.protocols.types.core_types import (
-    ContextValue,
-    HealthStatus,
-    ProtocolDateTime,
-)
-from omnibase_spi.protocols.types.mcp_types import (
+from omnibase_spi.protocols.types.protocol_mcp_types import (
     ProtocolMCPHealthCheck,
-    ProtocolMCPRegistryMetrics,
     ProtocolMCPSubsystemRegistration,
-    ProtocolMCPToolExecution,
 )
 
 

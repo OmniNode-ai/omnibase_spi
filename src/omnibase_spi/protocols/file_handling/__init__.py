@@ -15,8 +15,8 @@ from .protocol_file_type_handler import (
 )
 
 __all__ = [
+    "ProtocolFileReader",
     "ProtocolFileTypeHandler",
     "ProtocolStampOptions",
     "ProtocolValidationOptions",
-    "ProtocolFileReader",
 ]

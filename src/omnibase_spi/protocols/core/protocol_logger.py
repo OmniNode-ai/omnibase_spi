@@ -25,7 +25,11 @@
 from typing import Optional, Protocol
 from uuid import UUID
 
-from omnibase_spi.protocols.types import LogLevel, ProtocolLogContext, ProtocolLogEntry
+from omnibase_spi.protocols.types import (
+    LiteralLogLevel,
+    ProtocolLogContext,
+    ProtocolLogEntry,
+)
 
 
 class ProtocolLogger(Protocol):
@@ -37,7 +41,7 @@ class ProtocolLogger(Protocol):
 
     Example:
         class MyLogger:
-            def emit(self, level: LogLevel, message: str, correlation_id: UUID) -> None:
+            def emit(self, level: LiteralLogLevel, message: str, correlation_id: UUID) -> None:
                 ...
 
             def log(self, entry: ProtocolLogEntry) -> None:
@@ -46,7 +50,7 @@ class ProtocolLogger(Protocol):
 
     def emit(
         self,
-        level: LogLevel,
+        level: LiteralLogLevel,
         message: str,
         correlation_id: UUID,
         context: Optional[ProtocolLogContext] = None,
@@ -71,7 +75,7 @@ class ProtocolLogger(Protocol):
         """
         ...
 
-    def is_level_enabled(self, level: LogLevel) -> bool:
+    def is_level_enabled(self, level: LiteralLogLevel) -> bool:
         """
         Check if the specified log level is enabled.
 

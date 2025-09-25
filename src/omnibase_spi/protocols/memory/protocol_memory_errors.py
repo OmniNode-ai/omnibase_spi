@@ -20,7 +20,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional, Protocol, runtime_checkable
 from uuid import UUID
 
-from .protocol_memory_base import ErrorCategory
+from .protocol_memory_base import LiteralErrorCategory
 
 if TYPE_CHECKING:
     from datetime import datetime
@@ -39,7 +39,7 @@ class ProtocolMemoryError(Protocol):
     error_message: str
     error_timestamp: "datetime"
     correlation_id: Optional[UUID]
-    error_category: ErrorCategory
+    error_category: LiteralErrorCategory
 
     @property
     def error_context(self) -> "ProtocolErrorContext":

@@ -10,8 +10,8 @@ from typing import TYPE_CHECKING, Optional, Protocol, runtime_checkable
 if TYPE_CHECKING:
     from uuid import UUID
 
-    from omnibase_spi.protocols.types.core_types import (
-        OperationStatus,
+    from omnibase_spi.protocols.types.protocol_core_types import (
+        LiteralOperationStatus,
         ProtocolAuditEvent,
         ProtocolDateTime,
         ProtocolMetricsPoint,
@@ -245,7 +245,7 @@ class ProtocolDistributedTracing(Protocol):
     def finish_span(
         self,
         span_id: "UUID",
-        status: "OperationStatus",
+        status: "LiteralOperationStatus",
     ) -> None:
         """
         Finish trace span with final status.
@@ -401,7 +401,7 @@ class ProtocolAuditLogger(Protocol):
         actor: str,
         resource: str,
         action: str,
-        outcome: "OperationStatus",
+        outcome: "LiteralOperationStatus",
         metadata: Optional[dict[str, object]],
         sensitivity_level: str,
     ) -> "ProtocolAuditEvent":

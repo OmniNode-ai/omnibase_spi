@@ -25,7 +25,9 @@
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.core_types import ProtocolNodeConfiguration
+    from omnibase_spi.protocols.core.protocol_node_configuration import (
+        ProtocolNodeConfiguration,
+    )
 
 
 @runtime_checkable

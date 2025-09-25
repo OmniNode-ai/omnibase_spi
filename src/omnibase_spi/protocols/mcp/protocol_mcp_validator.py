@@ -10,11 +10,11 @@ Domain: MCP validation and quality assurance
 
 from typing import Any, Optional, Protocol, runtime_checkable
 
-from omnibase_spi.protocols.types.core_types import (
+from omnibase_spi.protocols.types.protocol_core_types import (
     ContextValue,
     ProtocolValidationResult,
 )
-from omnibase_spi.protocols.types.mcp_types import (
+from omnibase_spi.protocols.types.protocol_mcp_types import (
     ProtocolMCPSubsystemMetadata,
     ProtocolMCPToolDefinition,
     ProtocolMCPValidationError,

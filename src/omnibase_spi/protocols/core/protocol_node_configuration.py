@@ -6,7 +6,7 @@ Domain: Core configuration protocols for ONEX nodes
 
 from typing import Optional, Protocol, runtime_checkable
 
-from omnibase_spi.protocols.types.core_types import ContextValue, ProtocolConfigValue
+from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 
 
 @runtime_checkable

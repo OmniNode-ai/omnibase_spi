@@ -7,7 +7,10 @@ Defines the contract for validating Onex patterns and contract compliance.
 
 from typing import Literal, Protocol
 
-from omnibase_spi.protocols.types.core_types import ProtocolDateTime, ProtocolSemVer
+from omnibase_spi.protocols.types.protocol_core_types import (
+    ProtocolDateTime,
+    ProtocolSemVer,
+)
 
 
 # Protocol types for ONEX validation data structures
@@ -58,12 +61,12 @@ class ProtocolOnexValidationReport(Protocol):
 
 
 # Onex compliance levels - using Literal instead of Enum
-OnexComplianceLevel = Literal[
+LiteralOnexComplianceLevel = Literal[
     "fully_compliant", "partially_compliant", "non_compliant", "validation_error"
 ]
 
 # Types of validation to perform - using Literal instead of Enum
-ValidationType = Literal[
+LiteralValidationType = Literal[
     "envelope_structure",
     "reply_structure",
     "contract_compliance",
@@ -77,8 +80,8 @@ class ProtocolOnexValidationResult(Protocol):
     """Result of Onex validation protocol."""
 
     is_valid: bool
-    compliance_level: OnexComplianceLevel
-    validation_type: ValidationType
+    compliance_level: LiteralOnexComplianceLevel
+    validation_type: LiteralValidationType
     errors: list[str]
     warnings: list[str]
     metadata: ProtocolOnexMetadata
@@ -235,7 +238,7 @@ class ProtocolOnexValidation(Protocol):
         ...
 
     def get_validation_schema(
-        self, validation_type: ValidationType
+        self, validation_type: LiteralValidationType
     ) -> ProtocolOnexSchema:
         """
         Get validation schema for specified validation type.

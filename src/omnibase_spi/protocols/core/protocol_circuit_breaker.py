@@ -28,30 +28,21 @@ This protocol defines the interface for circuit breaker implementations
 following ONEX standards for external dependency resilience.
 """
 
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Awaitable,
-    Callable,
-    Literal,
-    Protocol,
-    TypeVar,
-    runtime_checkable,
-)
+from typing import Awaitable, Callable, Literal, Protocol, TypeVar, runtime_checkable
 
 # Remove datetime import - use float timestamps for SPI purity
 
 T = TypeVar("T")
 
 # Circuit breaker states with clear semantics
-ProtocolCircuitBreakerState = Literal[
+LiteralProtocolCircuitBreakerState = Literal[
     "closed",  # Normal operation, requests pass through
     "open",  # Service is failing, requests fail fast
     "half_open",  # Testing recovery, limited requests allowed
 ]
 
 # Events that can occur in circuit breaker lifecycle
-ProtocolCircuitBreakerEvent = Literal[
+LiteralProtocolCircuitBreakerEvent = Literal[
     "success", "failure", "timeout", "state_change", "fallback_executed"
 ]
 
@@ -118,7 +109,7 @@ class ProtocolCircuitBreakerMetrics(Protocol):
 
     # State tracking
     @property
-    def current_state(self) -> ProtocolCircuitBreakerState:
+    def current_state(self) -> LiteralProtocolCircuitBreakerState:
         """Current circuit breaker state."""
         ...
 
@@ -204,7 +195,7 @@ class ProtocolCircuitBreaker(Protocol):
 
     Example:
         class MyCircuitBreaker:
-            def get_state(self) -> ProtocolCircuitBreakerState:
+            def get_state(self) -> LiteralProtocolCircuitBreakerState:
                 return self._current_state
 
             async def call(self, func, fallback=None, timeout=None):
@@ -227,12 +218,12 @@ class ProtocolCircuitBreaker(Protocol):
         """Get the service name this circuit breaker protects."""
         ...
 
-    def get_state(self) -> ProtocolCircuitBreakerState:
+    def get_state(self) -> LiteralProtocolCircuitBreakerState:
         """
         Get current circuit breaker state.
 
         Returns:
-            ProtocolCircuitBreakerState: Current state (CLOSED, OPEN, HALF_OPEN)
+            LiteralProtocolCircuitBreakerState: Current state (CLOSED, OPEN, HALF_OPEN)
         """
         ...
 

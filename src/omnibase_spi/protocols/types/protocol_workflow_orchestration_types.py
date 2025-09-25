@@ -4,12 +4,12 @@ Workflow orchestration protocol types for ONEX SPI interfaces.
 Domain: Event-driven workflow orchestration with FSM states and event sourcing
 """
 
-from typing import Any, Literal, Optional, Protocol, TypeAlias, Union, runtime_checkable
+from typing import Any, Generic, Literal, Optional, Protocol, TypeVar, runtime_checkable
 from uuid import UUID
 
-from omnibase_spi.protocols.types.core_types import (
+from omnibase_spi.protocols.types.protocol_core_types import (
     ContextValue,
-    NodeType,
+    LiteralNodeType,
     ProtocolDateTime,
     ProtocolSemVer,
 )
@@ -34,18 +34,68 @@ class ProtocolWorkflowValue(Protocol):
         ...
 
 
-# === Clean Type Aliases ===
+# === Workflow Value Protocol Hierarchy (Eliminates Union anti-patterns) ===
 
-# Basic primitive types for workflow data
-BasicWorkflowValue: TypeAlias = Union[str, int, float, bool]
 
-# Structured workflow data using cleaner type definitions
-WorkflowData: TypeAlias = Union[
-    BasicWorkflowValue, list[str], dict[str, BasicWorkflowValue]
-]
+@runtime_checkable
+class ProtocolWorkflowStringValue(ProtocolWorkflowValue, Protocol):
+    """Protocol for string-based workflow values."""
+
+    value: str
+
+
+@runtime_checkable
+class ProtocolWorkflowStringListValue(ProtocolWorkflowValue, Protocol):
+    """Protocol for string list workflow values."""
+
+    value: list[str]
+
+
+@runtime_checkable
+class ProtocolWorkflowStringDictValue(ProtocolWorkflowValue, Protocol):
+    """Protocol for string dictionary workflow values."""
+
+    value: dict[str, str]
+
+
+@runtime_checkable
+class ProtocolWorkflowNumericValue(ProtocolWorkflowValue, Protocol):
+    """Protocol for numeric workflow values (int or float)."""
+
+    value: int | float
+
+
+@runtime_checkable
+class ProtocolWorkflowStructuredValue(ProtocolWorkflowValue, Protocol):
+    """Protocol for structured workflow values with context data."""
+
+    value: dict[str, ContextValue]
+
+
+# === Generic Type Definitions ===
+
+# Constrained TypeVar for workflow primitive values
+T_WorkflowValue = TypeVar("T_WorkflowValue", str, int, float, bool)
+
+
+# Generic protocol for typed workflow data
+@runtime_checkable
+class ProtocolTypedWorkflowData(Generic[T_WorkflowValue], Protocol):
+    """Protocol for strongly typed workflow data values."""
+
+    value: T_WorkflowValue
+
+    def get_type_name(self) -> str:
+        """Get the type name for this workflow data."""
+        ...
+
+    def serialize_typed(self) -> dict[str, Any]:
+        """Serialize with type information."""
+        ...
+
 
 # Workflow state types - hierarchical FSM states
-WorkflowState = Literal[
+LiteralWorkflowState = Literal[
     "pending",
     "initializing",
     "running",
@@ -61,7 +111,7 @@ WorkflowState = Literal[
 ]
 
 # Task state types - individual task execution states
-TaskState = Literal[
+LiteralTaskState = Literal[
     "pending",
     "scheduled",
     "running",
@@ -76,16 +126,16 @@ TaskState = Literal[
 ]
 
 # Task types - dispatch annotations for effects[] and computes[]
-TaskType = Literal["compute", "effect", "orchestrator", "reducer"]
+LiteralTaskType = Literal["compute", "effect", "orchestrator", "reducer"]
 
 # Execution semantics - await vs fire-and-forget
-ExecutionSemantics = Literal["await", "fire_and_forget", "async_await"]
+LiteralExecutionSemantics = Literal["await", "fire_and_forget", "async_await"]
 
 # Retry policy types
-RetryPolicy = Literal["none", "fixed", "exponential", "linear", "custom"]
+LiteralRetryPolicy = Literal["none", "fixed", "exponential", "linear", "custom"]
 
 # Event types for workflow orchestration
-WorkflowEventType = Literal[
+LiteralWorkflowEventType = Literal[
     "workflow.created",
     "workflow.started",
     "workflow.paused",
@@ -107,13 +157,13 @@ WorkflowEventType = Literal[
 ]
 
 # Timeout types
-TimeoutType = Literal["execution", "idle", "total", "heartbeat"]
+LiteralTimeoutType = Literal["execution", "idle", "total", "heartbeat"]
 
 # Priority levels for task scheduling
-TaskPriority = Literal["low", "normal", "high", "critical", "urgent"]
+LiteralTaskPriority = Literal["low", "normal", "high", "critical", "urgent"]
 
 # Isolation levels for workflow instances
-IsolationLevel = Literal[
+LiteralIsolationLevel = Literal[
     "read_uncommitted", "read_committed", "repeatable_read", "serializable"
 ]
 
@@ -136,7 +186,7 @@ class ProtocolWorkflowMetadata(Protocol):
 class ProtocolRetryConfiguration(Protocol):
     """Protocol for retry configuration objects."""
 
-    policy: RetryPolicy
+    policy: LiteralRetryPolicy
     max_attempts: int
     initial_delay_seconds: float
     max_delay_seconds: float
@@ -149,7 +199,7 @@ class ProtocolRetryConfiguration(Protocol):
 class ProtocolTimeoutConfiguration(Protocol):
     """Protocol for timeout configuration objects."""
 
-    timeout_type: TimeoutType
+    timeout_type: LiteralTimeoutType
     timeout_seconds: int
     warning_seconds: Optional[int]
     grace_period_seconds: Optional[int]
@@ -171,8 +221,8 @@ class ProtocolWorkflowContext(Protocol):
     workflow_type: str
     instance_id: UUID
     correlation_id: UUID
-    isolation_level: IsolationLevel
-    data: dict[str, WorkflowData]
+    isolation_level: LiteralIsolationLevel
+    data: dict[str, ProtocolWorkflowValue]
     secrets: dict[str, str]  # Encrypted/protected values
     capabilities: list[str]
     resource_limits: dict[str, int]
@@ -183,10 +233,10 @@ class ProtocolTaskConfiguration(Protocol):
 
     task_id: UUID
     task_name: str
-    task_type: TaskType
-    node_type: NodeType
-    execution_semantics: ExecutionSemantics
-    priority: TaskPriority
+    task_type: LiteralTaskType
+    node_type: LiteralNodeType
+    execution_semantics: LiteralExecutionSemantics
+    priority: LiteralTaskPriority
     dependencies: list[ProtocolTaskDependency]
     retry_config: ProtocolRetryConfiguration
     timeout_config: ProtocolTimeoutConfiguration
@@ -198,7 +248,7 @@ class ProtocolWorkflowEvent(Protocol):
     """Protocol for workflow event objects with event sourcing."""
 
     event_id: UUID
-    event_type: WorkflowEventType
+    event_type: LiteralWorkflowEventType
     workflow_type: str
     instance_id: UUID
     correlation_id: UUID
@@ -206,7 +256,7 @@ class ProtocolWorkflowEvent(Protocol):
     timestamp: ProtocolDateTime
     source: str
     idempotency_key: str
-    payload: dict[str, WorkflowData]
+    payload: dict[str, ProtocolWorkflowValue]
     metadata: dict[str, ContextValue]
     causation_id: Optional[UUID]  # Event that caused this event
     correlation_chain: list[UUID]  # Full correlation chain
@@ -218,7 +268,7 @@ class ProtocolWorkflowSnapshot(Protocol):
     workflow_type: str
     instance_id: UUID
     sequence_number: int
-    state: WorkflowState
+    state: LiteralWorkflowState
     context: ProtocolWorkflowContext
     tasks: list[ProtocolTaskConfiguration]
     created_at: ProtocolDateTime
@@ -230,8 +280,8 @@ class ProtocolTaskResult(Protocol):
 
     task_id: UUID
     execution_id: UUID
-    state: TaskState
-    result_data: dict[str, WorkflowData]
+    state: LiteralTaskState
+    result_data: dict[str, ProtocolWorkflowValue]
     error_message: Optional[str]
     error_code: Optional[str]
     retry_count: int
@@ -247,7 +297,7 @@ class ProtocolCompensationAction(Protocol):
     compensation_id: UUID
     task_id: UUID
     action_type: Literal["rollback", "cleanup", "notify", "custom"]
-    action_data: dict[str, WorkflowData]
+    action_data: dict[str, ProtocolWorkflowValue]
     timeout_seconds: int
     retry_config: ProtocolRetryConfiguration
 
@@ -273,10 +323,10 @@ class ProtocolNodeCapability(Protocol):
 
     capability_name: str
     version: ProtocolSemVer
-    node_types: list[NodeType]
+    node_types: list[LiteralNodeType]
     resource_requirements: dict[str, Any]
     configuration_schema: dict[str, Any]
-    supported_task_types: list[TaskType]
+    supported_task_types: list[LiteralTaskType]
 
 
 class ProtocolServiceDiscovery(Protocol):
@@ -299,7 +349,7 @@ class ProtocolRecoveryPoint(Protocol):
     workflow_type: str
     instance_id: UUID
     sequence_number: int
-    state: WorkflowState
+    state: LiteralWorkflowState
     recovery_type: Literal["checkpoint", "savepoint", "snapshot"]
     created_at: ProtocolDateTime
     metadata: dict[str, ContextValue]
@@ -336,6 +386,6 @@ class ProtocolEventProjection(Protocol):
     projection_name: str
     workflow_type: str
     last_processed_sequence: int
-    projection_data: dict[str, WorkflowData]
+    projection_data: dict[str, ProtocolWorkflowValue]
     created_at: ProtocolDateTime
     updated_at: ProtocolDateTime

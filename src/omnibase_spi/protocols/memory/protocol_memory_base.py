@@ -25,28 +25,28 @@ if TYPE_CHECKING:
 # === TYPE LITERALS ===
 
 # Memory access levels for security and authorization
-MemoryAccessLevel = Literal[
+LiteralMemoryAccessLevel = Literal[
     "public", "private", "internal", "restricted", "confidential"
 ]
 
 # Analysis types for memory processing
-AnalysisType = Literal[
+LiteralAnalysisType = Literal[
     "standard", "deep", "quick", "semantic", "pattern", "performance"
 ]
 
 # Compression algorithms for memory optimization
-CompressionAlgorithm = Literal["gzip", "lz4", "zstd", "brotli", "deflate"]
+LiteralCompressionAlgorithm = Literal["gzip", "lz4", "zstd", "brotli", "deflate"]
 
 # Error categories for better error handling
-ErrorCategory = Literal["transient", "permanent", "validation", "authorization"]
+LiteralErrorCategory = Literal["transient", "permanent", "validation", "authorization"]
 
 # Agent status types for workflow coordination
-AgentStatus = Literal[
+LiteralAgentStatus = Literal[
     "active", "inactive", "processing", "completed", "failed", "timeout"
 ]
 
 # Workflow execution status types
-WorkflowStatus = Literal[
+LiteralWorkflowStatus = Literal[
     "pending", "running", "completed", "failed", "cancelled", "timeout"
 ]
 
@@ -279,7 +279,7 @@ class ProtocolMemoryRecord(Protocol):
     content_type: str
     created_at: "datetime"
     updated_at: "datetime"
-    access_level: MemoryAccessLevel
+    access_level: LiteralMemoryAccessLevel
     source_agent: str
     expires_at: Optional["datetime"]
 

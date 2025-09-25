@@ -31,7 +31,7 @@ Usage Examples:
     # Type definitions (consolidated at types level)
     from omnibase_spi.protocols.types import (
         LogLevel,
-        WorkflowState, 
+        LiteralWorkflowState,
         MCPToolType,
         EventData
     )

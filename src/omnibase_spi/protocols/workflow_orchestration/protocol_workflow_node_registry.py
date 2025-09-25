@@ -9,11 +9,14 @@ from typing import Any, Optional, Protocol, runtime_checkable
 from uuid import UUID
 
 from omnibase_spi.protocols.core.protocol_node_registry import ProtocolNodeRegistry
-from omnibase_spi.protocols.types.core_types import HealthStatus, NodeType
-from omnibase_spi.protocols.types.workflow_orchestration_types import (
+from omnibase_spi.protocols.types.protocol_core_types import (
+    LiteralHealthStatus,
+    LiteralNodeType,
+)
+from omnibase_spi.protocols.types.protocol_workflow_orchestration_types import (
+    LiteralTaskPriority,
+    LiteralTaskType,
     ProtocolTaskConfiguration,
-    TaskPriority,
-    TaskType,
 )
 
 
@@ -29,8 +32,8 @@ class ProtocolWorkflowNodeCapability(Protocol):
     capability_id: str
     capability_name: str
     capability_version: str
-    supported_task_types: list[TaskType]
-    supported_node_types: list[NodeType]
+    supported_task_types: list[LiteralTaskType]
+    supported_node_types: list[LiteralNodeType]
     resource_requirements: dict[str, Any]
     configuration_schema: dict[str, Any]
     performance_characteristics: dict[str, float]
@@ -48,12 +51,12 @@ class ProtocolWorkflowNodeInfo(Protocol):
 
     # Base node information
     node_id: str
-    node_type: NodeType
+    node_type: LiteralNodeType
     node_name: str
     environment: str
     group: str
     version: str
-    health_status: HealthStatus
+    health_status: LiteralHealthStatus
     endpoint: str
     metadata: dict[str, Any]
 
@@ -77,15 +80,15 @@ class ProtocolTaskSchedulingCriteria(Protocol):
     on workflow nodes based on capabilities and constraints.
     """
 
-    task_type: TaskType
-    node_type: NodeType
+    task_type: LiteralTaskType
+    node_type: LiteralNodeType
     required_capabilities: list[str]
     preferred_capabilities: list[str]
     resource_requirements: dict[str, Any]
     affinity_rules: dict[str, Any]
     anti_affinity_rules: dict[str, Any]
     geographic_constraints: Optional[dict[str, Any]]
-    priority: TaskPriority
+    priority: LiteralTaskPriority
     timeout_tolerance: int
 
 
@@ -165,7 +168,7 @@ class ProtocolWorkflowNodeRegistry(Protocol):
         ...
 
     async def discover_nodes_for_workflow_type(
-        self, workflow_type: str, required_node_types: Optional[list[NodeType]]
+        self, workflow_type: str, required_node_types: Optional[list[LiteralNodeType]]
     ) -> list[ProtocolWorkflowNodeInfo]:
         """
         Discover nodes that can execute specific workflow type.
@@ -347,7 +350,7 @@ class ProtocolWorkflowNodeRegistry(Protocol):
     async def get_node_performance_history(
         self,
         node_id: str,
-        task_type: Optional[TaskType],
+        task_type: Optional[LiteralTaskType],
         time_window_seconds: int,
     ) -> dict[str, Any]:
         """

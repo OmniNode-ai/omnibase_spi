@@ -11,16 +11,14 @@ Domain: MCP infrastructure and service coordination
 from typing import Any, Optional, Protocol, runtime_checkable
 from uuid import UUID
 
-from omnibase_spi.protocols.types.core_types import (
+from omnibase_spi.protocols.types.protocol_core_types import (
     ContextValue,
-    OperationStatus,
-    ProtocolDateTime,
+    LiteralOperationStatus,
     ProtocolValidationResult,
 )
-from omnibase_spi.protocols.types.mcp_types import (
-    MCPLifecycleState,
-    MCPSubsystemType,
-    MCPToolType,
+from omnibase_spi.protocols.types.protocol_mcp_types import (
+    LiteralMCPSubsystemType,
+    LiteralMCPToolType,
     ProtocolMCPHealthCheck,
     ProtocolMCPRegistryConfig,
     ProtocolMCPRegistryMetrics,
@@ -126,8 +124,8 @@ class ProtocolMCPRegistry(Protocol):
 
     async def get_all_subsystems(
         self,
-        subsystem_type: Optional[MCPSubsystemType],
-        status_filter: Optional[OperationStatus],
+        subsystem_type: Optional[LiteralMCPSubsystemType],
+        status_filter: Optional[LiteralOperationStatus],
     ) -> list[ProtocolMCPSubsystemRegistration]:
         """
         Get all registered subsystems with optional filtering.
@@ -143,7 +141,7 @@ class ProtocolMCPRegistry(Protocol):
 
     async def discover_tools(
         self,
-        tool_type: Optional[MCPToolType],
+        tool_type: Optional[LiteralMCPToolType],
         tags: Optional[list[str]],
         subsystem_id: Optional[str],
     ) -> list[ProtocolMCPToolDefinition]:

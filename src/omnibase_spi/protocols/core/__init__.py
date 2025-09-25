@@ -11,12 +11,12 @@ from omnibase_spi.protocols.core.protocol_cache_service import (
     ProtocolCacheServiceProvider,
 )
 from omnibase_spi.protocols.core.protocol_circuit_breaker import (
+    LiteralProtocolCircuitBreakerEvent,
+    LiteralProtocolCircuitBreakerState,
     ProtocolCircuitBreaker,
     ProtocolCircuitBreakerConfig,
-    ProtocolCircuitBreakerEvent,
     ProtocolCircuitBreakerFactory,
     ProtocolCircuitBreakerMetrics,
-    ProtocolCircuitBreakerState,
 )
 from omnibase_spi.protocols.core.protocol_client_config import (
     ProtocolClientConfigProvider,
@@ -93,76 +93,55 @@ from omnibase_spi.protocols.core.protocol_workflow_reducer import (
 )
 
 __all__ = [
-    # Advanced workflow protocols
-    "ProtocolWorkflowReducer",
-    # Service discovery protocols
-    "ProtocolServiceDiscovery",
-    # ONEX node protocols
-    "ProtocolOnexNode",
-    # Storage backend protocols
-    "ProtocolStorageBackend",
-    "ProtocolStorageBackendFactory",
-    # Contract service protocols
-    "ProtocolContractService",
-    # Error handling protocols
-    "ProtocolErrorHandler",
-    # Health monitoring protocols
-    "ProtocolHealthMonitor",
-    # Input validation protocols
-    "ProtocolInputValidator",
-    # Version management protocols
-    "ProtocolVersionManager",
-    # Observability protocols
-    "ProtocolMetricsCollector",
-    "ProtocolDistributedTracing",
     "ProtocolAuditLogger",
-    # Circuit breaker fault tolerance protocols
+    "ProtocolCacheService",
+    "ProtocolCacheServiceProvider",
     "ProtocolCircuitBreaker",
     "ProtocolCircuitBreakerConfig",
+    "LiteralProtocolCircuitBreakerEvent",
     "ProtocolCircuitBreakerFactory",
     "ProtocolCircuitBreakerMetrics",
-    "ProtocolCircuitBreakerState",
-    "ProtocolCircuitBreakerEvent",
-    # Node discovery and registry
-    "ProtocolNodeInfo",
-    "ProtocolNodeRegistry",
-    # Configuration protocols
-    "ProtocolNodeConfiguration",
-    "ProtocolNodeConfigurationProvider",
-    "ProtocolUtilsNodeConfiguration",
+    "LiteralProtocolCircuitBreakerState",
+    "ProtocolClientConfigProvider",
     "ProtocolConfigurationError",
     "ProtocolConfigurationManager",
     "ProtocolConfigurationManagerFactory",
-    # Error sanitization protocols
+    "ProtocolContractService",
+    "ProtocolDistributedTracing",
+    "ProtocolErrorHandler",
     "ProtocolErrorSanitizer",
     "ProtocolErrorSanitizerFactory",
-    # Cache service protocols
-    "ProtocolCacheService",
-    "ProtocolCacheServiceProvider",
-    # Client configuration protocols
-    "ProtocolClientConfigProvider",
-    "ProtocolHttpClientConfig",
+    "ProtocolHealthMonitor",
     "ProtocolHttpAuthConfig",
-    "ProtocolKafkaClientConfig",
-    "ProtocolKafkaProducerConfig",
-    "ProtocolKafkaConsumerConfig",
-    # HTTP client protocols
-    "ProtocolHttpResponse",
     "ProtocolHttpClient",
+    "ProtocolHttpClientConfig",
     "ProtocolHttpClientProvider",
-    # Extended HTTP protocols
-    "ProtocolHttpRequestBuilder",
-    "ProtocolHttpStreamingResponse",
     "ProtocolHttpExtendedClient",
-    # Kafka client protocols
-    "ProtocolKafkaClient",
-    "ProtocolKafkaClientProvider",
-    # Extended Kafka protocols
-    "ProtocolKafkaMessage",
-    "ProtocolKafkaConsumer",
+    "ProtocolHttpRequestBuilder",
+    "ProtocolHttpResponse",
+    "ProtocolHttpStreamingResponse",
+    "ProtocolInputValidator",
     "ProtocolKafkaBatchProducer",
-    "ProtocolKafkaTransactionalProducer",
+    "ProtocolKafkaClient",
+    "ProtocolKafkaClientConfig",
+    "ProtocolKafkaClientProvider",
+    "ProtocolKafkaConsumer",
+    "ProtocolKafkaConsumerConfig",
     "ProtocolKafkaExtendedClient",
-    # Logging protocols
+    "ProtocolKafkaMessage",
+    "ProtocolKafkaProducerConfig",
+    "ProtocolKafkaTransactionalProducer",
     "ProtocolLogger",
+    "ProtocolMetricsCollector",
+    "ProtocolNodeConfiguration",
+    "ProtocolNodeConfigurationProvider",
+    "ProtocolNodeInfo",
+    "ProtocolNodeRegistry",
+    "ProtocolOnexNode",
+    "ProtocolServiceDiscovery",
+    "ProtocolStorageBackend",
+    "ProtocolStorageBackendFactory",
+    "ProtocolUtilsNodeConfiguration",
+    "ProtocolVersionManager",
+    "ProtocolWorkflowReducer",
 ]

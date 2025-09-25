@@ -8,11 +8,11 @@ and security-focused data validation across ONEX services.
 from typing import TYPE_CHECKING, Optional, Protocol, Union, runtime_checkable
 
 if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.core_types import (
+    from omnibase_spi.protocols.types.protocol_core_types import (
         ContextValue,
+        LiteralValidationLevel,
+        LiteralValidationMode,
         ProtocolValidationResult,
-        ValidationLevel,
-        ValidationMode,
     )
 
 
@@ -64,7 +64,7 @@ class ProtocolInputValidator(Protocol):
         self,
         value: "ContextValue",
         rules: list[str],
-        validation_level: "ValidationLevel" = "STANDARD",
+        validation_level: "LiteralValidationLevel" = "STANDARD",
     ) -> "ProtocolValidationResult":
         """
         Validate input value against specified rules.
@@ -238,7 +238,7 @@ class ProtocolInputValidator(Protocol):
     def validate_batch(
         self,
         inputs: list[dict[str, object]],
-        validation_mode: "ValidationMode" = "strict",
+        validation_mode: "LiteralValidationMode" = "strict",
     ) -> list["ProtocolValidationResult"]:
         """
         Validate multiple inputs in batch for performance.
