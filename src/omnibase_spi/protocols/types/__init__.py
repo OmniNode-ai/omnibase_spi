@@ -32,6 +32,14 @@ Usage Examples:
         ProtocolLogEntry
     )
 
+    # Service types disambiguation (available as both generic and specific names)
+    from omnibase_spi.protocols.types import (
+        ProtocolServiceMetadata,                # Generic service metadata
+        ProtocolDiscoveryServiceMetadata,      # Service discovery metadata (alias)
+        ProtocolServiceInstance,               # Generic service instance
+        ProtocolDiscoveryServiceInstance       # Service discovery instance (alias)
+    )
+
     # Domain-specific imports
     from omnibase_spi.protocols.types.protocol_workflow_orchestration_types import LiteralWorkflowState
     from omnibase_spi.protocols.types.protocol_mcp_types import MCPToolType
@@ -127,6 +135,11 @@ from omnibase_spi.protocols.types.protocol_core_types import (
     ProtocolValidationResult,
     ProtocolVersionInfo,
 )
+
+# Disambiguation aliases for service types to avoid naming conflicts
+# Core types are for service discovery, container types are for dependency injection
+ProtocolDiscoveryServiceMetadata = ProtocolServiceMetadata
+ProtocolDiscoveryServiceInstance = ProtocolServiceInstance
 
 # Discovery types
 from omnibase_spi.protocols.types.protocol_discovery_types import (
@@ -287,6 +300,8 @@ __all__ = [
     "ProtocolDateTime",
     "ProtocolDiscoveryQuery",
     "ProtocolDiscoveryResult",
+    "ProtocolDiscoveryServiceInstance",
+    "ProtocolDiscoveryServiceMetadata",
     "ProtocolErrorContext",
     "ProtocolErrorInfo",
     "ProtocolErrorResult",
