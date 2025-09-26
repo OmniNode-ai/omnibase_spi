@@ -127,6 +127,9 @@ from omnibase_spi.protocols.core.protocol_validation_provider import (
     ProtocolValidationSession,
 )
 from omnibase_spi.protocols.core.protocol_version_manager import ProtocolVersionManager
+from omnibase_spi.protocols.core.protocol_workflow_manageable import (
+    ProtocolWorkflowManageable,
+)
 from omnibase_spi.protocols.core.protocol_workflow_reducer import (
     ProtocolWorkflowReducer,
 )
@@ -207,5 +210,6 @@ __all__ = [
     "ProtocolValidationRuleSet",
     "ProtocolValidationSession",
     "ProtocolVersionManager",
+    "ProtocolWorkflowManageable",
     "ProtocolWorkflowReducer",
 ]
