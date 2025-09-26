@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from uuid import UUID
 
     from omnibase_spi.protocols.types.protocol_core_types import (
+        ContextValue,
         LiteralOperationStatus,
         ProtocolAuditEvent,
         ProtocolDateTime,
@@ -62,7 +63,7 @@ class ProtocolMetricsCollector(Protocol):
         self,
         name: str,
         value: float,
-        tags: Optional[dict[str, str]],
+        tags: Optional[dict[str, "ContextValue"]],
     ) -> None:
         """
         Record counter metric increment.
@@ -82,7 +83,7 @@ class ProtocolMetricsCollector(Protocol):
         self,
         name: str,
         value: float,
-        tags: Optional[dict[str, str]],
+        tags: Optional[dict[str, "ContextValue"]],
     ) -> None:
         """
         Record gauge metric value.
@@ -102,7 +103,7 @@ class ProtocolMetricsCollector(Protocol):
         self,
         name: str,
         value: float,
-        tags: Optional[dict[str, str]],
+        tags: Optional[dict[str, "ContextValue"]],
     ) -> None:
         """
         Record histogram metric observation.
@@ -122,7 +123,7 @@ class ProtocolMetricsCollector(Protocol):
         self,
         name: str,
         duration_seconds: float,
-        tags: Optional[dict[str, str]],
+        tags: Optional[dict[str, "ContextValue"]],
     ) -> None:
         """
         Record timer metric for operation duration.
@@ -156,7 +157,7 @@ class ProtocolMetricsCollector(Protocol):
 
     def create_metrics_context(
         self,
-        default_tags: dict[str, str],
+        default_tags: dict[str, "ContextValue"],
     ) -> "ProtocolMetricsCollector":
         """
         Create metrics collector with default tags.
@@ -302,7 +303,7 @@ class ProtocolDistributedTracing(Protocol):
 
     def extract_trace_context(
         self,
-        headers: dict[str, str],
+        headers: dict[str, "ContextValue"],
     ) -> tuple["UUID", "UUID"]:
         """
         Extract trace context from headers.
@@ -326,7 +327,7 @@ class ProtocolDistributedTracing(Protocol):
         self,
         trace_id: "UUID",
         span_id: "UUID",
-        headers: dict[str, str],
+        headers: dict[str, "ContextValue"],
     ) -> None:
         """
         Inject trace context into headers.
@@ -430,7 +431,7 @@ class ProtocolAuditLogger(Protocol):
         self,
         start_time: "ProtocolDateTime",
         end_time: "ProtocolDateTime",
-        filters: Optional[dict[str, str]],
+        filters: Optional[dict[str, "ContextValue"]],
     ) -> list["ProtocolAuditEvent"]:
         """
         Query audit events by time range and filters.

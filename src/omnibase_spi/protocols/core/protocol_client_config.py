@@ -7,6 +7,8 @@ dict returns with specific, validated configuration structures.
 
 from typing import Optional, Protocol, runtime_checkable
 
+from omnibase_spi.protocols.types.protocol_core_types import ContextValue
+
 
 @runtime_checkable
 class ProtocolHttpClientConfig(Protocol):
@@ -39,7 +41,7 @@ class ProtocolHttpClientConfig(Protocol):
     ssl_cert_path: Optional[str]
     ssl_key_path: Optional[str]
     user_agent: str
-    default_headers: dict[str, str]
+    default_headers: dict[str, ContextValue]
     proxy_url: Optional[str]
     proxy_auth: Optional[str]
     follow_redirects: bool

@@ -91,7 +91,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
             )
     """
 
-    def collect_performance_metrics(
+    async def collect_performance_metrics(
         self,
         service_name: str,
     ) -> "ProtocolPerformanceMetrics":
@@ -115,7 +115,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         """
         ...
 
-    def collect_category_metrics(
+    async def collect_category_metrics(
         self,
         service_name: str,
         categories: list["LiteralPerformanceCategory"],
@@ -136,7 +136,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         """
         ...
 
-    def record_performance_metric(
+    async def record_performance_metric(
         self,
         metric: "ProtocolPerformanceMetric",
     ) -> bool:
@@ -159,7 +159,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         """
         ...
 
-    def record_performance_metrics_batch(
+    async def record_performance_metrics_batch(
         self,
         metrics: list["ProtocolPerformanceMetric"],
     ) -> int:
@@ -243,7 +243,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         """
         ...
 
-    def analyze_performance_trends(
+    async def analyze_performance_trends(
         self,
         service_name: str,
         hours_back: int,
@@ -266,7 +266,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         """
         ...
 
-    def get_performance_baseline(
+    async def get_performance_baseline(
         self,
         service_name: str,
         metric_name: str,
@@ -287,7 +287,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         """
         ...
 
-    def establish_performance_baseline(
+    async def establish_performance_baseline(
         self,
         service_name: str,
         metric_name: str,
@@ -310,7 +310,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         """
         ...
 
-    def compare_to_baseline(
+    async def compare_to_baseline(
         self,
         current_metrics: "ProtocolPerformanceMetrics",
         baseline_deviation_threshold: float,
@@ -356,7 +356,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         """
         ...
 
-    def export_performance_report(
+    async def export_performance_report(
         self,
         service_name: str,
         start_time: "ProtocolDateTime",
@@ -381,7 +381,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         """
         ...
 
-    def start_real_time_monitoring(
+    async def start_real_time_monitoring(
         self,
         service_name: str,
         collection_interval_seconds: int,
@@ -408,7 +408,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         """
         ...
 
-    def stop_real_time_monitoring(
+    async def stop_real_time_monitoring(
         self,
         monitoring_session_id: str,
     ) -> bool:
@@ -427,7 +427,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         """
         ...
 
-    def get_monitoring_sessions(self) -> list[dict[str, "ProtocolContextValue"]]:
+    async def get_monitoring_sessions(self) -> list[dict[str, "ProtocolContextValue"]]:
         """
         Get active performance monitoring sessions.
 
@@ -440,7 +440,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         """
         ...
 
-    def correlate_cross_service_performance(
+    async def correlate_cross_service_performance(
         self,
         service_names: list[str],
         correlation_window_minutes: int,
@@ -461,7 +461,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         """
         ...
 
-    def identify_performance_bottlenecks(
+    async def identify_performance_bottlenecks(
         self,
         service_name: str,
         analysis_period_hours: int,
@@ -482,7 +482,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         """
         ...
 
-    def predict_performance_issues(
+    async def predict_performance_issues(
         self,
         service_name: str,
         prediction_horizon_hours: int,
@@ -503,7 +503,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         """
         ...
 
-    def get_performance_summary(
+    async def get_performance_summary(
         self,
         service_names: list[str],
         summary_period_hours: int,

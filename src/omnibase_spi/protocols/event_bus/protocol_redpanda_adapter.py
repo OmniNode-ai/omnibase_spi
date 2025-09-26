@@ -8,6 +8,8 @@ Redpanda is Kafka API compatible with optimized defaults.
 
 from typing import Protocol, runtime_checkable
 
+from omnibase_spi.protocols.types.protocol_core_types import ContextValue
+
 from .protocol_kafka_adapter import ProtocolKafkaAdapter
 
 
@@ -21,6 +23,6 @@ class ProtocolRedpandaAdapter(ProtocolKafkaAdapter, Protocol):
     """
 
     @property
-    def redpanda_optimized_defaults(self) -> dict[str, str]:
+    def redpanda_optimized_defaults(self) -> dict[str, ContextValue]:
         """Get Redpanda-optimized configuration defaults."""
         ...

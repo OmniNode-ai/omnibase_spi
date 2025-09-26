@@ -7,7 +7,10 @@ Domain: Service and node discovery protocols
 from typing import Literal, Protocol, runtime_checkable
 from uuid import UUID
 
-from omnibase_spi.protocols.types.protocol_core_types import ProtocolSemVer
+from omnibase_spi.protocols.types.protocol_core_types import (
+    ContextValue,
+    ProtocolSemVer,
+)
 
 # Discovery result types
 LiteralDiscoveryStatus = Literal["found", "not_found", "error", "timeout"]
@@ -92,7 +95,7 @@ class ProtocolDiscoveryQuery(Protocol):
     query_id: UUID
     target_type: str
     required_capabilities: list[str]
-    filters: dict[str, str]
+    filters: dict[str, ContextValue]
     timeout_seconds: float
 
 

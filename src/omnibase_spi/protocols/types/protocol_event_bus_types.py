@@ -8,6 +8,7 @@ from typing import Literal, Optional, Protocol, runtime_checkable
 from uuid import UUID
 
 from omnibase_spi.protocols.types.protocol_core_types import (
+    ContextValue,
     LiteralBaseStatus,
     ProtocolDateTime,
     ProtocolSemVer,
@@ -71,7 +72,7 @@ class ProtocolEventStringListData(ProtocolEventData, Protocol):
 class ProtocolEventStringDictData(ProtocolEventData, Protocol):
     """Protocol for string dictionary event data."""
 
-    value: dict[str, str]
+    value: dict[str, ContextValue]
 
 
 # Event status types - using consolidated LiteralBaseStatus
@@ -126,7 +127,7 @@ class ProtocolEventSubscription(Protocol):
 
     event_type: str
     subscriber_id: str
-    filter_criteria: dict[str, str]
+    filter_criteria: dict[str, ContextValue]
     is_active: bool
 
 

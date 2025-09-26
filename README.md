@@ -73,11 +73,14 @@ poetry install
 # Activate virtual environment (optional - poetry run handles this)
 poetry shell
 
-# Install pre-commit hooks
+# Install pre-commit hooks (includes SPI validation)
 poetry run pre-commit install
 
 # Install pre-push hooks for namespace validation
 poetry run pre-commit install --hook-type pre-push -c .pre-commit-config-push.yaml
+
+# Test pre-commit hooks
+poetry run pre-commit run --all-files
 ```
 
 ### 5. Configure Type Checking
@@ -165,7 +168,7 @@ if TYPE_CHECKING:
 
 class ProtocolExample(Protocol):
     """Protocol description with clear contract definition."""
-    
+
     def method_name(self, param: str) -> "SomeModel":
         """Method documentation with clear expectations."""
         ...
@@ -199,6 +202,38 @@ from omnibase_spi.protocols.event_bus.protocol_event_bus import ProtocolEventBus
 class EventBusImplementation(ProtocolEventBus):
     """Concrete implementation of the protocol."""
     pass
+```
+
+## Pre-commit Validation Hooks
+
+The repository includes comprehensive pre-commit hooks adapted from omnibase_core for SPI-specific validation:
+
+### Core SPI Validation
+- **Protocol Architecture Validation**: Ensures protocols follow SPI patterns
+- **Protocol Duplicate Detection**: Prevents duplicate protocol definitions
+- **Namespace Isolation**: Validates strict SPI namespace boundaries
+- **SPI Purity**: Ensures only protocol definitions (no implementations)
+
+### Enhanced Validation (New)
+- **Typing Pattern Validation**: Modern typing syntax enforcement (T | None vs Optional[T])
+- **Naming Convention Validation**: SPI-specific naming patterns
+- **Async-by-Default Validation**: Ensures I/O operations use async patterns
+- **Callable vs Object Validation**: Prevents object type where Callable is appropriate
+
+### Running Validation
+```bash
+# Run all pre-commit hooks
+poetry run pre-commit run --all-files
+
+# Run specific validation
+poetry run pre-commit run validate-spi-protocols --all-files
+poetry run pre-commit run validate-spi-typing-patterns --all-files
+poetry run pre-commit run validate-spi-naming-conventions --all-files
+
+# Run individual validators directly
+poetry run python scripts/validation/validate_spi_protocols.py src/
+poetry run python scripts/validation/validate_spi_typing_patterns.py src/
+poetry run python scripts/validation/validate_spi_naming.py src/
 ```
 
 ## Development Workflow

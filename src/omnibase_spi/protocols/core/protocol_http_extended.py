@@ -8,6 +8,7 @@ form data, file uploads, streaming responses, and advanced authentication.
 from typing import Optional, Protocol, runtime_checkable
 
 from omnibase_spi.protocols.core.protocol_http_client import ProtocolHttpResponse
+from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 
 
 @runtime_checkable
@@ -41,7 +42,9 @@ class ProtocolHttpRequestBuilder(Protocol):
         """
         ...
 
-    def with_query_params(self, params: dict[str, str]) -> "ProtocolHttpRequestBuilder":
+    def with_query_params(
+        self, params: dict[str, ContextValue]
+    ) -> "ProtocolHttpRequestBuilder":
         """
         Add query parameters to the request URL.
 
@@ -53,7 +56,9 @@ class ProtocolHttpRequestBuilder(Protocol):
         """
         ...
 
-    def with_form_data(self, data: dict[str, str]) -> "ProtocolHttpRequestBuilder":
+    def with_form_data(
+        self, data: dict[str, ContextValue]
+    ) -> "ProtocolHttpRequestBuilder":
         """
         Set form data for the request body (application/x-www-form-urlencoded).
 
@@ -215,7 +220,7 @@ class ProtocolHttpStreamingResponse(Protocol):
     """
 
     status_code: int
-    headers: dict[str, str]
+    headers: dict[str, ContextValue]
     url: str
 
     async def stream_content(self, chunk_size: int) -> bytes:
@@ -313,7 +318,7 @@ class ProtocolHttpExtendedClient(Protocol):
         self,
         method: str,
         url: str,
-        headers: Optional[dict[str, str]] = None,
+        headers: Optional[dict[str, ContextValue]] = None,
     ) -> ProtocolHttpStreamingResponse:
         """
         Perform streaming HTTP request for large responses.

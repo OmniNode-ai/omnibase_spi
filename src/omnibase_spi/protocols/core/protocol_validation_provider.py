@@ -77,7 +77,7 @@ class ProtocolValidationRule(Protocol):
         """
         ...
 
-    def validate(
+    async def validate(
         self, target: ValidationTarget, context: dict[str, "ContextValue"]
     ) -> "ProtocolValidationResult":
         """
@@ -227,7 +227,7 @@ class ProtocolValidationSession(Protocol):
         """
         ...
 
-    def execute_validation_rules(
+    async def execute_validation_rules(
         self,
         rule_set: "ProtocolValidationRuleSet",
         level: "LiteralValidationLevel",
@@ -484,7 +484,7 @@ class ProtocolValidationProvider(Protocol):
 
     # Core Validation Operations
 
-    def validate(
+    async def validate(
         self,
         targets: list[ValidationTarget],
         rule_sets: list["ProtocolValidationRuleSet"],
@@ -510,7 +510,7 @@ class ProtocolValidationProvider(Protocol):
         """
         ...
 
-    def validate_with_session(
+    async def validate_with_session(
         self,
         session: "ProtocolValidationSession",
         targets: list[ValidationTarget],
@@ -535,7 +535,7 @@ class ProtocolValidationProvider(Protocol):
         """
         ...
 
-    def validate_single(
+    async def validate_single(
         self,
         target: ValidationTarget,
         rule_set: "ProtocolValidationRuleSet",
@@ -602,7 +602,7 @@ class ProtocolValidationProvider(Protocol):
         """
         ...
 
-    def generate_quality_report(
+    async def generate_quality_report(
         self,
         session: "ProtocolValidationSession",
         results: list["ProtocolValidationResult"],
@@ -669,7 +669,7 @@ class ProtocolValidationProvider(Protocol):
         """
         ...
 
-    def get_provider_health(self) -> dict[str, "ContextValue"]:
+    async def get_provider_health(self) -> dict[str, "ContextValue"]:
         """
         Get health status and diagnostics for the validation provider.
 

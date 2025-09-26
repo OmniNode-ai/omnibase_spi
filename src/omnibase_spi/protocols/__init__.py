@@ -75,15 +75,27 @@ Usage Examples:
 
     # Implementation example with dependency injection
     class MyService:
-        def __init__(
-            self,
-            logger: ProtocolLogger,
-            event_bus: ProtocolWorkflowEventBus,
-            cache: ProtocolCacheService
-        ):
-            self._logger = logger
-            self._event_bus = event_bus
-            self._cache = cache
+        @property
+        def logger(self) -> ProtocolLogger | None:
+            \"\"\"Get logger service with lazy initialization.\"\"\"
+            if not hasattr(self, '_internal_logger'):
+                # In practice, injected via container or constructor params
+                self._internal_logger: ProtocolLogger | None = None  # Injected dependency
+            return self._internal_logger
+
+        @property
+        def event_bus(self) -> ProtocolWorkflowEventBus | None:
+            \"\"\"Get event bus service with lazy initialization.\"\"\"
+            if not hasattr(self, '_internal_event_bus'):
+                self._internal_event_bus: ProtocolWorkflowEventBus | None = None  # Injected dependency
+            return self._internal_event_bus
+
+        @property
+        def cache(self) -> ProtocolCacheService | None:
+            \"\"\"Get cache service with lazy initialization.\"\"\"
+            if not hasattr(self, '_internal_cache'):
+                self._internal_cache: ProtocolCacheService | None = None  # Injected dependency
+            return self._internal_cache
 
     # Protocol validation example
     def validate_implementation(impl: object, protocol_type: type) -> bool:

@@ -8,6 +8,7 @@ Defines the contract for validating Onex patterns and contract compliance.
 from typing import Literal, Protocol
 
 from omnibase_spi.protocols.types.protocol_core_types import (
+    ContextValue,
     ProtocolDateTime,
     ProtocolSemVer,
 )
@@ -47,7 +48,7 @@ class ProtocolOnexSchema(Protocol):
 
     schema_type: str
     version: ProtocolSemVer
-    properties: dict[str, str]
+    properties: dict[str, ContextValue]
 
 
 class ProtocolOnexValidationReport(Protocol):

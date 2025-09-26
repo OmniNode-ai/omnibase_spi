@@ -36,7 +36,7 @@ class ProtocolRetryable(Protocol):
         - Configurable retry policies with multiple backoff strategies
         - Conditional retry logic based on error types and contexts
         - Retry attempt tracking with success/failure metrics
-        - Backoff strategies: linear, exponential, fixed, jitter
+        - Backoff strategies: linear, exponential, fibonacci, fixed, jitter
         - Circuit breaker integration for fail-fast scenarios
         - Retry budget management to prevent resource exhaustion
 
@@ -61,10 +61,10 @@ class ProtocolRetryable(Protocol):
         retryable: ProtocolRetryable = RetryableServiceImpl()
 
         retry_config = ProtocolRetryConfig(
-            max_attempts=3,
-            backoff_strategy="exponential",
+            max_attempts=5,
+            backoff_strategy="fibonacci",
             base_delay_ms=1000,
-            max_delay_ms=10000
+            max_delay_ms=30000
         )
 
         result = retryable.execute_with_retry(
@@ -162,7 +162,7 @@ class ProtocolRetryable(Protocol):
 
         Args:
             attempt_number: Current attempt number (0-indexed)
-            strategy: Backoff strategy (linear, exponential, fixed, jitter)
+            strategy: Backoff strategy (linear, exponential, fibonacci, fixed, jitter)
             base_delay_ms: Base delay in milliseconds
             max_delay_ms: Maximum allowed delay in milliseconds
 

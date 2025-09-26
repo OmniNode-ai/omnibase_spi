@@ -74,7 +74,7 @@ class ProtocolAnalyticsDataProvider(Protocol):
         ```
     """
 
-    def configure_analytics_provider(
+    async def configure_analytics_provider(
         self,
         provider_config: "ProtocolAnalyticsProvider",
     ) -> bool:
@@ -93,7 +93,7 @@ class ProtocolAnalyticsDataProvider(Protocol):
         """
         ...
 
-    def get_analytics_provider_info(self) -> "ProtocolAnalyticsProvider":
+    async def get_analytics_provider_info(self) -> "ProtocolAnalyticsProvider":
         """
         Get current analytics provider configuration.
 
@@ -218,7 +218,7 @@ class ProtocolAnalyticsDataProvider(Protocol):
         """
         ...
 
-    def add_data_source(
+    async def add_data_source(
         self,
         source_name: str,
         source_config: dict[str, str | int | bool],
@@ -239,7 +239,7 @@ class ProtocolAnalyticsDataProvider(Protocol):
         """
         ...
 
-    def remove_data_source(
+    async def remove_data_source(
         self,
         source_name: str,
     ) -> bool:

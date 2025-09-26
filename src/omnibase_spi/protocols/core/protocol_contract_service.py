@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Protocol, Union, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types.protocol_core_types import (
+        ContextValue,
         ProtocolMetadata,
         ProtocolSemVer,
         ProtocolValidationResult,
@@ -183,7 +184,7 @@ class ProtocolContractService(Protocol):
     def extract_dependencies(
         self,
         contract_data: "ProtocolMetadata",
-    ) -> list[dict[str, str]]:
+    ) -> list[dict[str, "ContextValue"]]:
         """
         Extract dependency list from contract.
 

@@ -61,7 +61,7 @@ class ProtocolWorkflowStringListValue(ProtocolWorkflowValue, Protocol):
 class ProtocolWorkflowStringDictValue(ProtocolWorkflowValue, Protocol):
     """Protocol for string dictionary workflow values."""
 
-    value: dict[str, str]
+    value: dict[str, ContextValue]
 
 
 @runtime_checkable
@@ -185,7 +185,7 @@ class ProtocolWorkflowMetadata(Protocol):
     environment: str
     group: str
     version: ProtocolSemVer
-    tags: dict[str, str]
+    tags: dict[str, ContextValue]
     metadata: dict[str, ContextValue]
 
 
@@ -229,7 +229,7 @@ class ProtocolWorkflowContext(Protocol):
     correlation_id: UUID
     isolation_level: LiteralIsolationLevel
     data: dict[str, ProtocolWorkflowValue]
-    secrets: dict[str, str]  # Encrypted/protected values
+    secrets: dict[str, ContextValue]  # Encrypted/protected values
     capabilities: list[str]
     resource_limits: dict[str, int]
 
@@ -247,7 +247,7 @@ class ProtocolTaskConfiguration(Protocol):
     retry_config: ProtocolRetryConfiguration
     timeout_config: ProtocolTimeoutConfiguration
     resource_requirements: dict[str, Any]
-    annotations: dict[str, str]
+    annotations: dict[str, ContextValue]
 
 
 class ProtocolWorkflowEvent(Protocol):
@@ -335,8 +335,8 @@ class ProtocolNodeCapability(Protocol):
     supported_task_types: list[LiteralTaskType]
 
 
-class ProtocolServiceDiscovery(Protocol):
-    """Protocol for service discovery objects."""
+class ProtocolWorkflowServiceInstance(Protocol):
+    """Protocol for discovered service instance objects in workflow orchestration."""
 
     service_name: str
     service_type: str

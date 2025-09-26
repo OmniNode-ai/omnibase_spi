@@ -167,7 +167,7 @@ class ProtocolNodeConfiguration(Protocol):
         """
         ...
 
-    def get_config_schema(self) -> dict[str, str]:
+    def get_config_schema(self) -> dict[str, ContextValue]:
         """
         Get configuration schema with expected types.
 

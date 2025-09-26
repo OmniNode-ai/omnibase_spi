@@ -1,6 +1,6 @@
 from typing import Callable, Optional, Protocol, runtime_checkable
 
-from omnibase_spi.protocols.types import ProtocolEvent
+from omnibase_spi.protocols.types import ContextValue, ProtocolEvent
 
 
 class ProtocolEventBusCredentials(Protocol):
@@ -15,15 +15,15 @@ class ProtocolEventBusCredentials(Protocol):
     cert: Optional[str]
     key: Optional[str]
     ca: Optional[str]
-    extra: Optional[dict[str, str]]
+    extra: Optional[dict[str, ContextValue]]
 
 
 @runtime_checkable
-class ProtocolEventBus(Protocol):
+class ProtocolEventPubSub(Protocol):
     """
-    Canonical protocol for ONEX event bus (runtime/ placement).
-    Defines publish/subscribe interface for event emission and handling.
-    All event bus implementations must conform to this interface.
+    Canonical protocol for simple event pub/sub operations.
+    Defines basic publish/subscribe interface for event emission and handling.
+    Provides a simpler alternative to the full distributed ProtocolEventBus.
     Supports both synchronous and asynchronous methods for maximum flexibility.
     Implementations may provide either or both, as appropriate.
     Optionally supports clear() for test/lifecycle management.

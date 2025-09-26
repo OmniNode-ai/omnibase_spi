@@ -252,7 +252,7 @@ class ProtocolToolClass(Protocol):
     __name__: str
     __module__: str
 
-    def __call__(self, *args: object, **kwargs: object) -> object:
+    def __call__(self, *args: object, **kwargs: object) -> "ProtocolToolInstance":
         """Create tool instance."""
         ...
 

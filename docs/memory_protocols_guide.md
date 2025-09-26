@@ -53,9 +53,17 @@ from omnibase_spi.protocols.memory import (
 class MemoryEffectNodeImpl(ProtocolMemoryEffectNode):
     """Reference implementation of memory effect node."""
 
-    def __init__(self):
-        self._storage: Dict[UUID, Dict[str, Any]] = {}
-        self._audit_log: list = []
+    @property
+    def _storage(self) -> Dict[UUID, Dict[str, Any]]:
+        if not hasattr(self, '_internal_storage'):
+            self._internal_storage = {}
+        return self._internal_storage
+
+    @property
+    def _audit_log(self) -> list:
+        if not hasattr(self, '_internal_audit_log'):
+            self._internal_audit_log = []
+        return self._internal_audit_log
 
     async def store_memory(
         self,
@@ -328,9 +336,17 @@ from omnibase_spi.protocols.memory import ProtocolMemoryCache
 class MemoryCacheImpl(ProtocolMemoryCache):
     """High-performance memory caching implementation."""
 
-    def __init__(self):
-        self._cache: Dict[str, Any] = {}
-        self._cache_stats = {'hits': 0, 'misses': 0}
+    @property
+    def _cache(self) -> Dict[str, Any]:
+        if not hasattr(self, '_internal_cache'):
+            self._internal_cache = {}
+        return self._internal_cache
+
+    @property
+    def _cache_stats(self) -> Dict[str, int]:
+        if not hasattr(self, '_internal_cache_stats'):
+            self._internal_cache_stats = {'hits': 0, 'misses': 0}
+        return self._internal_cache_stats
 
     async def get_cached_memory(
         self,
@@ -464,12 +480,43 @@ class MemoryErrorHandlerImpl(ProtocolMemoryErrorHandler):
 class CircuitBreakerErrorHandler(ProtocolMemoryErrorHandler):
     """Error handler with circuit breaker pattern."""
 
-    def __init__(self):
-        self._failure_count = 0
-        self._last_failure_time = None
-        self._circuit_state = "closed"  # closed, open, half_open
-        self._failure_threshold = 5
-        self._recovery_timeout = 60  # seconds
+    @property
+    def _failure_count(self) -> int:
+        if not hasattr(self, '_internal_failure_count'):
+            self._internal_failure_count = 0
+        return self._internal_failure_count
+
+    @_failure_count.setter
+    def _failure_count(self, value: int) -> None:
+        self._internal_failure_count = value
+
+    @property
+    def _last_failure_time(self) -> Optional[datetime]:
+        if not hasattr(self, '_internal_last_failure_time'):
+            self._internal_last_failure_time = None
+        return self._internal_last_failure_time
+
+    @_last_failure_time.setter
+    def _last_failure_time(self, value: Optional[datetime]) -> None:
+        self._internal_last_failure_time = value
+
+    @property
+    def _circuit_state(self) -> str:
+        if not hasattr(self, '_internal_circuit_state'):
+            self._internal_circuit_state = "closed"  # closed, open, half_open
+        return self._internal_circuit_state
+
+    @_circuit_state.setter
+    def _circuit_state(self, value: str) -> None:
+        self._internal_circuit_state = value
+
+    @property
+    def _failure_threshold(self) -> int:
+        return 5
+
+    @property
+    def _recovery_timeout(self) -> int:
+        return 60  # seconds
 
     async def handle_error(
         self,
@@ -518,17 +565,29 @@ from omnibase_spi.protocols.memory import (
 class ComposableOrchestratorImpl:
     """Implementation using composable interfaces."""
 
-    def __init__(
-        self,
-        workflow_manager: ProtocolWorkflowManager,
-        agent_coordinator: ProtocolAgentCoordinator,
-        cluster_coordinator: ProtocolClusterCoordinator,
-        lifecycle_manager: ProtocolLifecycleManager
-    ):
-        self.workflow_manager = workflow_manager
-        self.agent_coordinator = agent_coordinator
-        self.cluster_coordinator = cluster_coordinator
-        self.lifecycle_manager = lifecycle_manager
+    @property
+    def workflow_manager(self) -> ProtocolWorkflowManager:
+        if not hasattr(self, '_workflow_manager'):
+            self._workflow_manager = WorkflowManagerImpl()
+        return self._workflow_manager
+
+    @property
+    def agent_coordinator(self) -> ProtocolAgentCoordinator:
+        if not hasattr(self, '_agent_coordinator'):
+            self._agent_coordinator = AgentCoordinatorImpl()
+        return self._agent_coordinator
+
+    @property
+    def cluster_coordinator(self) -> ProtocolClusterCoordinator:
+        if not hasattr(self, '_cluster_coordinator'):
+            self._cluster_coordinator = ClusterCoordinatorImpl()
+        return self._cluster_coordinator
+
+    @property
+    def lifecycle_manager(self) -> ProtocolLifecycleManager:
+        if not hasattr(self, '_lifecycle_manager'):
+            self._lifecycle_manager = LifecycleManagerImpl()
+        return self._lifecycle_manager
 
     async def execute_distributed_workflow(
         self,
@@ -625,23 +684,59 @@ from datetime import datetime, timedelta
 class CompleteMemoryService:
     """Complete memory service implementation using all protocols."""
 
-    def __init__(self):
-        self.effect_node = MemoryEffectNodeImpl()
-        self.compute_node = MemoryComputeNodeImpl()
-        self.reducer_node = MemoryReducerNodeImpl()
-        self.orchestrator = ComposableOrchestratorImpl(
-            workflow_manager=WorkflowManagerImpl(),
-            agent_coordinator=AgentCoordinatorImpl(),
-            cluster_coordinator=ClusterCoordinatorImpl(),
-            lifecycle_manager=LifecycleManagerImpl()
-        )
-        self.health_node = MemoryHealthNodeImpl()
+    @property
+    def effect_node(self) -> MemoryEffectNodeImpl:
+        if not hasattr(self, '_effect_node'):
+            self._effect_node = MemoryEffectNodeImpl()
+        return self._effect_node
 
-        # Enhanced components
-        self.streaming_node = StreamingNodeImpl()
-        self.cache = MemoryCacheImpl()
-        self.error_handler = CircuitBreakerErrorHandler()
-        self.security_node = SecurityNodeImpl()
+    @property
+    def compute_node(self) -> MemoryComputeNodeImpl:
+        if not hasattr(self, '_compute_node'):
+            self._compute_node = MemoryComputeNodeImpl()
+        return self._compute_node
+
+    @property
+    def reducer_node(self) -> MemoryReducerNodeImpl:
+        if not hasattr(self, '_reducer_node'):
+            self._reducer_node = MemoryReducerNodeImpl()
+        return self._reducer_node
+
+    @property
+    def orchestrator(self) -> ComposableOrchestratorImpl:
+        if not hasattr(self, '_orchestrator'):
+            self._orchestrator = ComposableOrchestratorImpl()
+        return self._orchestrator
+
+    @property
+    def health_node(self) -> MemoryHealthNodeImpl:
+        if not hasattr(self, '_health_node'):
+            self._health_node = MemoryHealthNodeImpl()
+        return self._health_node
+
+    @property
+    def streaming_node(self) -> StreamingNodeImpl:
+        if not hasattr(self, '_streaming_node'):
+            self._streaming_node = StreamingNodeImpl()
+        return self._streaming_node
+
+    @property
+    def cache(self) -> MemoryCacheImpl:
+        if not hasattr(self, '_cache'):
+            self._cache = MemoryCacheImpl()
+        return self._cache
+
+    @property
+    def error_handler(self) -> CircuitBreakerErrorHandler:
+        if not hasattr(self, '_error_handler'):
+            self._error_handler = CircuitBreakerErrorHandler()
+        return self._error_handler
+
+    @property
+    def security_node(self) -> SecurityNodeImpl:
+        if not hasattr(self, '_security_node'):
+            self._security_node = SecurityNodeImpl()
+        return self._security_node
 
     async def store_memory_with_full_processing(
         self,

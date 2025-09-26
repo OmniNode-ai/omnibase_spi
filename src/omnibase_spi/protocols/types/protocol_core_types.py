@@ -671,7 +671,7 @@ class ProtocolStorageCredentials(Protocol):
     """Protocol for storage credentials."""
 
     credential_type: str
-    data: dict[str, str]
+    data: dict[str, ContextValue]
 
 
 class ProtocolStorageConfiguration(Protocol):
@@ -908,7 +908,7 @@ class ProtocolMetricsPoint(Protocol):
     value: float
     unit: str
     timestamp: ProtocolDateTime
-    tags: dict[str, str]
+    tags: dict[str, ContextValue]
     dimensions: dict[str, ContextValue]
 
 
@@ -922,7 +922,7 @@ class ProtocolTraceSpan(Protocol):
     start_time: ProtocolDateTime
     end_time: ProtocolDateTime | None
     status: LiteralOperationStatus
-    tags: dict[str, str]
+    tags: dict[str, ContextValue]
     logs: list[dict[str, ContextValue]]
 
 
@@ -1050,8 +1050,11 @@ class ProtocolMetadataProvider(Protocol):
 # fixed: Fixed delay between attempts
 # linear: Linearly increasing delay (base_delay * attempt)
 # exponential: Exponentially increasing delay (base_delay * 2^attempt)
+# fibonacci: Fibonacci sequence backoff (1, 1, 2, 3, 5, 8, 13, ...) - grows slower than exponential
 # jitter: Random jitter added to exponential backoff
-LiteralRetryBackoffStrategy = Literal["fixed", "linear", "exponential", "jitter"]
+LiteralRetryBackoffStrategy = Literal[
+    "fixed", "linear", "exponential", "fibonacci", "jitter"
+]
 
 # Retry condition triggers for fine-grained retry control
 # always: Retry on any error (with attempt limits)
@@ -1175,7 +1178,7 @@ class ProtocolAnalyticsMetric(Protocol):
     value: float
     unit: str
     timestamp: ProtocolDateTime
-    tags: dict[str, str]
+    tags: dict[str, ContextValue]
     metadata: dict[str, ContextValue]
 
 

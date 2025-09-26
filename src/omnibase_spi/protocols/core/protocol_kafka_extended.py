@@ -7,6 +7,8 @@ transactions, partitioning strategies, and advanced configuration.
 
 from typing import Optional, Protocol, runtime_checkable
 
+from omnibase_spi.protocols.types.protocol_core_types import ContextValue
+
 
 @runtime_checkable
 class ProtocolKafkaMessage(Protocol):
@@ -443,7 +445,7 @@ class ProtocolKafkaExtendedClient(Protocol):
         topic_name: str,
         partitions: int,
         replication_factor: int,
-        config: Optional[dict[str, str]] = None,
+        config: Optional[dict[str, ContextValue]] = None,
     ) -> None:
         """
         Create new Kafka topic.

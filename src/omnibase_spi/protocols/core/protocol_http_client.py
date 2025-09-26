@@ -7,6 +7,8 @@ HTTP backends (aiohttp, httpx, etc.) and injected via ONEXContainer.
 
 from typing import Optional, Protocol, runtime_checkable
 
+from omnibase_spi.protocols.types.protocol_core_types import ContextValue
+
 
 class ProtocolHttpResponse(Protocol):
     """
@@ -16,7 +18,7 @@ class ProtocolHttpResponse(Protocol):
     """
 
     status_code: int
-    headers: dict[str, str]
+    headers: dict[str, ContextValue]
     body: str | bytes | dict[str, str | int | float | bool]
     url: str
 
@@ -66,7 +68,7 @@ class ProtocolHttpClient(Protocol):
         method: str,
         url: str,
         json: Optional[dict[str, str | int | float | bool]] = None,
-        headers: Optional[dict[str, str]] = None,
+        headers: Optional[dict[str, ContextValue]] = None,
         timeout: Optional[int] = None,
     ) -> "ProtocolHttpResponse":
         """
@@ -90,7 +92,7 @@ class ProtocolHttpClient(Protocol):
     async def get(
         self,
         url: str,
-        headers: Optional[dict[str, str]] = None,
+        headers: Optional[dict[str, ContextValue]] = None,
         timeout: Optional[int] = None,
     ) -> "ProtocolHttpResponse":
         """
@@ -110,7 +112,7 @@ class ProtocolHttpClient(Protocol):
         self,
         url: str,
         json: Optional[dict[str, str | int | float | bool]] = None,
-        headers: Optional[dict[str, str]] = None,
+        headers: Optional[dict[str, ContextValue]] = None,
         timeout: Optional[int] = None,
     ) -> "ProtocolHttpResponse":
         """
@@ -131,7 +133,7 @@ class ProtocolHttpClient(Protocol):
         self,
         url: str,
         json: Optional[dict[str, str | int | float | bool]] = None,
-        headers: Optional[dict[str, str]] = None,
+        headers: Optional[dict[str, ContextValue]] = None,
         timeout: Optional[int] = None,
     ) -> "ProtocolHttpResponse":
         """
@@ -151,7 +153,7 @@ class ProtocolHttpClient(Protocol):
     async def delete(
         self,
         url: str,
-        headers: Optional[dict[str, str]] = None,
+        headers: Optional[dict[str, ContextValue]] = None,
         timeout: Optional[int] = None,
     ) -> "ProtocolHttpResponse":
         """

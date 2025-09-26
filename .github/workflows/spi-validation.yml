@@ -1,0 +1,297 @@
+name: SPI Protocol Validation
+
+on:
+  push:
+    branches: [ main, develop, 'feat/*', 'fix/*' ]
+    paths:
+      - 'src/**/*.py'
+      - 'scripts/validation/**'
+      - 'validation_config.yaml'
+      - '.github/workflows/spi-validation.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'src/**/*.py'
+      - 'scripts/validation/**'
+      - 'validation_config.yaml'
+
+  # Allow manual triggering
+  workflow_dispatch:
+    inputs:
+      validation_mode:
+        description: 'Validation mode'
+        required: true
+        default: 'comprehensive'
+        type: choice
+        options:
+        - comprehensive
+        - quick
+        - pre-commit
+
+jobs:
+  spi-validation:
+    name: SPI Protocol Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    strategy:
+      matrix:
+        python-version: ['3.12']
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Full history for comprehensive analysis
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: latest
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+
+    - name: Load cached venv
+      id: cached-poetry-dependencies
+      uses: actions/cache@v3
+      with:
+        path: .venv
+        key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}
+
+    - name: Install dependencies
+      if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+      run: poetry install --no-interaction --no-root
+
+    - name: Install project
+      run: poetry install --no-interaction
+
+    - name: Cache validation results
+      uses: actions/cache@v3
+      with:
+        path: |
+          .validation_cache
+          spi_validation_report.json
+        key: spi-validation-${{ runner.os }}-${{ hashFiles('src/**/*.py') }}
+        restore-keys: |
+          spi-validation-${{ runner.os }}-
+
+    - name: Run comprehensive SPI validation
+      id: spi-validation
+      run: |
+        poetry run python scripts/validation/comprehensive_spi_validator.py src/ \
+          --config validation_config.yaml \
+          --json-report \
+          --html-report \
+          --verbose
+      continue-on-error: true
+
+    - name: Upload validation reports
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: spi-validation-reports
+        path: |
+          spi_validation_report.json
+          spi_validation_report.html
+        retention-days: 30
+
+    - name: Parse validation results
+      id: parse-results
+      run: |
+        if [ -f "spi_validation_report.json" ]; then
+          ERROR_COUNT=$(python -c "import json; data=json.load(open('spi_validation_report.json')); print(data['summary']['error_count'])")
+          WARNING_COUNT=$(python -c "import json; data=json.load(open('spi_validation_report.json')); print(data['summary']['warning_count'])")
+          TOTAL_PROTOCOLS=$(python -c "import json; data=json.load(open('spi_validation_report.json')); print(data['summary']['total_protocols'])")
+
+          echo "error_count=$ERROR_COUNT" >> $GITHUB_OUTPUT
+          echo "warning_count=$WARNING_COUNT" >> $GITHUB_OUTPUT
+          echo "total_protocols=$TOTAL_PROTOCOLS" >> $GITHUB_OUTPUT
+
+          # Create summary for PR comment
+          cat > validation_summary.md << EOF
+          ## 🔍 SPI Protocol Validation Results
+
+          | Metric | Count |
+          |--------|-------|
+          | Protocols Analyzed | $TOTAL_PROTOCOLS |
+          | Errors | $ERROR_COUNT |
+          | Warnings | $WARNING_COUNT |
+
+          $(if [ "$ERROR_COUNT" -eq 0 ]; then echo "✅ **Validation Passed** - No critical errors found"; else echo "❌ **Validation Failed** - $ERROR_COUNT critical errors must be fixed"; fi)
+          EOF
+        else
+          echo "error_count=999" >> $GITHUB_OUTPUT
+          echo "warning_count=0" >> $GITHUB_OUTPUT
+          echo "total_protocols=0" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Comment PR with validation results
+      if: github.event_name == 'pull_request' && always()
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          if (fs.existsSync('validation_summary.md')) {
+            const summary = fs.readFileSync('validation_summary.md', 'utf8');
+
+            // Find existing comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' && comment.body.includes('SPI Protocol Validation Results')
+            );
+
+            if (botComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: summary
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: summary
+              });
+            }
+          }
+
+    - name: Fail if critical errors found
+      if: steps.parse-results.outputs.error_count != '0'
+      run: |
+        echo "❌ SPI validation failed with ${{ steps.parse-results.outputs.error_count }} critical errors"
+        echo "Please fix the errors before merging this PR"
+        exit 1
+
+    - name: Success notification
+      if: steps.parse-results.outputs.error_count == '0'
+      run: |
+        echo "✅ SPI validation passed successfully!"
+        echo "Found ${{ steps.parse-results.outputs.total_protocols }} protocols with ${{ steps.parse-results.outputs.warning_count }} warnings"
+
+  # Separate job for auto-fix suggestions
+  auto-fix-suggestions:
+    name: Generate Auto-Fix Suggestions
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    needs: spi-validation
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+
+    - name: Install dependencies
+      run: |
+        poetry install --no-interaction
+
+    - name: Run validation with auto-fix simulation
+      run: |
+        poetry run python scripts/validation/comprehensive_spi_validator.py src/ \
+          --config validation_config.yaml \
+          --fix \
+          --json-report \
+          --verbose > auto_fix_log.txt 2>&1 || true
+
+    - name: Create auto-fix summary
+      run: |
+        if [ -f "spi_validation_report.json" ]; then
+          FIXES_APPLIED=$(python -c "import json; data=json.load(open('spi_validation_report.json')); print(data['summary'].get('auto_fixes_applied', 0))")
+
+          cat > auto_fix_summary.md << EOF
+          ## 🔧 Auto-Fix Analysis
+
+          The SPI validator can automatically fix **$FIXES_APPLIED** violations in this PR.
+
+          To apply these fixes locally, run:
+          \`\`\`bash
+          poetry run python scripts/validation/comprehensive_spi_validator.py src/ --fix
+          \`\`\`
+
+          <details>
+          <summary>View auto-fix log</summary>
+
+          \`\`\`
+          $(cat auto_fix_log.txt)
+          \`\`\`
+          </details>
+          EOF
+        fi
+
+    - name: Comment with auto-fix suggestions
+      if: always()
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          if (fs.existsSync('auto_fix_summary.md')) {
+            const summary = fs.readFileSync('auto_fix_summary.md', 'utf8');
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: summary
+            });
+          }
+
+  # Performance monitoring job
+  performance-monitoring:
+    name: Performance Monitoring
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    needs: spi-validation
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+
+    - name: Install dependencies
+      run: poetry install --no-interaction
+
+    - name: Run performance benchmark
+      run: |
+        # Run validation multiple times to get performance metrics
+        for i in {1..3}; do
+          echo "Run $i:"
+          time poetry run python scripts/validation/comprehensive_spi_validator.py src/ \
+            --config validation_config.yaml \
+            --json-report 2>&1 | tee performance_run_$i.log
+        done
+
+    - name: Archive performance data
+      uses: actions/upload-artifact@v3
+      with:
+        name: performance-data
+        path: |
+          performance_run_*.log
+          spi_validation_report.json
+        retention-days: 7

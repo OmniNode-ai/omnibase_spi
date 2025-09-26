@@ -9,6 +9,8 @@ assignment, processing, and status synchronization.
 from collections.abc import AsyncIterator
 from typing import Any, Literal, Protocol, runtime_checkable
 
+from omnibase_spi.protocols.types.protocol_core_types import ContextValue
+
 # Work queue priority levels
 LiteralWorkQueuePriority = Literal["urgent", "high", "normal", "low", "deferred"]
 
@@ -139,7 +141,7 @@ class ProtocolWorkQueue(Protocol):
     async def complete_ticket(
         self,
         ticket_id: str,
-        result_data: dict[str, str],
+        result_data: dict[str, ContextValue],
     ) -> bool:
         """
         Mark a work ticket as completed with result data.
@@ -468,7 +470,7 @@ class ProtocolWorkQueue(Protocol):
     async def create_ticket_checkpoint(
         self,
         ticket_id: str,
-        checkpoint_data: dict[str, str],
+        checkpoint_data: dict[str, ContextValue],
     ) -> str:
         """
         Create a checkpoint for work in progress.

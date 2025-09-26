@@ -41,37 +41,50 @@ class ProtocolConnectionManageable(Protocol):
         ```python
         # Implementation example (not part of SPI)
         class DatabaseConnectionManager:
-            def __init__(self, config: ProtocolConnectionConfig):
-                self.connection_id = generate_connection_id()
-                self.config = config
-                self.status = create_initial_status()
-                self._connection = None
-                self._retry_count = 0
+            @property
+            def connection_id(self) -> str:
+                return self._connection_id
 
-            async def establish_connection(self):
+            @property
+            def config(self) -> ProtocolConnectionConfig:
+                return self._config
+
+            @property
+            def status(self) -> ProtocolConnectionStatus:
+                return self._status
+
+            @property
+            def can_reconnect(self) -> bool:
+                return self._can_reconnect
+
+            @property
+            def auto_reconnect_enabled(self) -> bool:
+                return self._auto_reconnect_enabled
+
+            async def establish_connection(self) -> bool:
                 try:
-                    self.status.state = "connecting"
-                    self._connection = await create_db_connection(self.config)
-                    self.status.state = "connected"
-                    self.status.connected_at = datetime.utcnow()
+                    self._status.state = "connecting"
+                    self._connection = await create_db_connection(self._config)
+                    self._status.state = "connected"
+                    self._status.connected_at = datetime.utcnow()
                     return True
                 except Exception:
-                    self.status.state = "failed"
-                    self.status.error_count += 1
+                    self._status.state = "failed"
+                    self._status.error_count += 1
                     return False
 
-            async def health_check(self):
+            async def perform_health_check(self) -> bool:
                 if not self._connection:
                     return False
                 try:
                     await self._connection.ping()
                     return True
                 except Exception:
-                    self.status.error_count += 1
+                    self._status.error_count += 1
                     return False
 
         # Usage in application code
-        connection_mgr: ProtocolConnectionManageable = DatabaseConnectionManager(config)
+        connection_mgr: ProtocolConnectionManageable = DatabaseConnectionManager()
 
         # Establish connection with retry
         success = await connection_mgr.establish_connection()

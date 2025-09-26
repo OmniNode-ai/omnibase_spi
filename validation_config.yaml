@@ -1,0 +1,295 @@
+# Comprehensive SPI Validation Configuration
+# This file configures the validation rules and settings for the omnibase-spi
+# architectural compliance checker.
+
+# Global validation settings
+global_settings:
+  # Maximum file size to analyze (bytes)
+  max_file_size: 1048576  # 1MB
+
+  # Validation timeout (seconds)
+  timeout_seconds: 300  # 5 minutes
+
+  # Enable parallel processing for large codebases
+  parallel_processing: true
+
+  # Enable result caching for improved performance
+  enable_caching: true
+  cache_ttl_seconds: 3600  # 1 hour
+
+  # Maximum violations to report per file (prevents spam)
+  max_violations_per_file: 100
+
+  # Enable detailed performance metrics collection
+  enable_performance_metrics: true
+
+# Validation rules configuration
+# Each rule can be customized with:
+# - enabled: Whether the rule is active
+# - severity: error, warning, or info
+# - priority: 1 (highest) to 5 (lowest)
+# - configuration: Rule-specific settings
+
+rules:
+  # SPI001: No Protocol __init__ Methods
+  - rule_id: "SPI001"
+    name: "No Protocol __init__ Methods"
+    description: "Protocols should not have __init__ methods - use properties or class attributes instead"
+    enabled: true
+    severity: "error"
+    auto_fixable: false
+    category: "protocol_structure"
+    priority: 1
+    configuration:
+      check_private_methods: false
+      allow_property_setters: true
+
+  # SPI002: Protocol Naming Convention
+  - rule_id: "SPI002"
+    name: "Protocol Naming Convention"
+    description: "Protocol classes should start with 'Protocol' prefix for consistency"
+    enabled: true
+    severity: "warning"
+    auto_fixable: false
+    category: "naming"
+    priority: 2
+    configuration:
+      enforce_strict_naming: false
+      allowed_prefixes: ["Protocol", "Abstract"]
+      exception_patterns: [".*Base$", ".*Interface$"]
+
+  # SPI003: Runtime Checkable Decorator
+  - rule_id: "SPI003"
+    name: "Runtime Checkable Decorator"
+    description: "All protocols must be @runtime_checkable for isinstance() support"
+    enabled: true
+    severity: "error"
+    auto_fixable: true
+    category: "decorators"
+    priority: 1
+    configuration:
+      require_import_statement: true
+      check_inheritance_chain: true
+
+  # SPI004: Protocol Method Bodies
+  - rule_id: "SPI004"
+    name: "Protocol Method Bodies"
+    description: "Protocol methods should have '...' implementation, not concrete code"
+    enabled: true
+    severity: "error"
+    auto_fixable: true
+    category: "protocol_structure"
+    priority: 1
+    configuration:
+      allow_docstring_only: true
+      allow_pass_statement: false
+      max_implementation_lines: 0
+
+  # SPI005: Async I/O Operations
+  - rule_id: "SPI005"
+    name: "Async I/O Operations"
+    description: "I/O operations should use async def instead of synchronous patterns"
+    enabled: true
+    severity: "error"
+    auto_fixable: true
+    category: "async_patterns"
+    priority: 1
+    configuration:
+      io_method_patterns: ["read", "write", "open", "close", "connect", "send", "receive", "fetch", "query"]
+      io_return_types: ["Response", "Connection", "Stream", "Result"]
+      exclude_utility_methods: true
+
+  # SPI006: Proper Callable Types
+  - rule_id: "SPI006"
+    name: "Proper Callable Types"
+    description: "Use 'Callable' types instead of generic 'object' for function parameters"
+    enabled: true
+    severity: "error"
+    auto_fixable: false
+    category: "typing"
+    priority: 1
+    configuration:
+      callback_parameter_patterns: ["callback", "handler", "func", "callable"]
+      suggest_specific_signatures: true
+
+  # SPI007: No Concrete Classes in SPI
+  - rule_id: "SPI007"
+    name: "No Concrete Classes in SPI"
+    description: "SPI should only contain Protocol definitions, not concrete implementations"
+    enabled: true
+    severity: "error"
+    auto_fixable: false
+    category: "spi_purity"
+    priority: 1
+    configuration:
+      allow_type_aliases: true
+      allow_literal_classes: true
+      allow_enum_classes: false
+
+  # SPI008: No Standalone Functions
+  - rule_id: "SPI008"
+    name: "No Standalone Functions"
+    description: "SPI should not contain standalone functions - use Protocol methods instead"
+    enabled: true
+    severity: "warning"
+    auto_fixable: false
+    category: "spi_purity"
+    priority: 2
+    configuration:
+      allow_utility_functions: true
+      allow_factory_functions: false
+      utility_function_patterns: ["_", "get_", "create_", "build_"]
+
+  # SPI009: ContextValue Usage Patterns
+  - rule_id: "SPI009"
+    name: "ContextValue Usage Patterns"
+    description: "Consistent ContextValue usage for type-safe context data"
+    enabled: true
+    severity: "warning"
+    auto_fixable: false
+    category: "typing"
+    priority: 2
+    configuration:
+      enforce_specific_types: true
+      check_dict_value_types: true
+      suggest_protocol_alternatives: true
+
+  # SPI010: Duplicate Protocol Detection
+  - rule_id: "SPI010"
+    name: "Duplicate Protocol Detection"
+    description: "No duplicate protocol definitions with identical signatures"
+    enabled: true
+    severity: "error"
+    auto_fixable: false
+    category: "duplicates"
+    priority: 1
+    configuration:
+      similarity_threshold: 0.95
+      check_semantic_similarity: true
+      ignore_minor_differences: false
+
+  # SPI011: Protocol Name Conflicts
+  - rule_id: "SPI011"
+    name: "Protocol Name Conflicts"
+    description: "No naming conflicts between protocols with different signatures"
+    enabled: true
+    severity: "error"
+    auto_fixable: false
+    category: "duplicates"
+    priority: 1
+    configuration:
+      suggest_domain_prefixes: true
+      check_cross_module_conflicts: true
+
+  # SPI012: Namespace Isolation
+  - rule_id: "SPI012"
+    name: "Namespace Isolation"
+    description: "Maintain strict namespace isolation with omnibase_spi.protocols.* imports only"
+    enabled: true
+    severity: "error"
+    auto_fixable: false
+    category: "namespace"
+    priority: 1
+    configuration:
+      allowed_import_prefixes:
+        - "typing"
+        - "typing_extensions"
+        - "omnibase_spi.protocols"
+        - "datetime"
+        - "uuid"
+        - "__future__"
+      strict_mode: true
+      check_indirect_imports: true
+
+  # SPI013: Forward Reference Typing
+  - rule_id: "SPI013"
+    name: "Forward Reference Typing"
+    description: "Use proper forward references with TYPE_CHECKING for model types"
+    enabled: true
+    severity: "warning"
+    auto_fixable: false
+    category: "typing"
+    priority: 2
+    configuration:
+      require_type_checking_guard: true
+      suggest_string_annotations: true
+      check_circular_imports: true
+
+  # SPI014: Protocol Documentation
+  - rule_id: "SPI014"
+    name: "Protocol Documentation"
+    description: "All protocols should have comprehensive docstrings with examples"
+    enabled: true
+    severity: "warning"
+    auto_fixable: false
+    category: "documentation"
+    priority: 3
+    configuration:
+      minimum_docstring_length: 50
+      require_examples: true
+      require_usage_section: false
+      check_parameter_documentation: false
+
+  # SPI015: Method Type Annotations
+  - rule_id: "SPI015"
+    name: "Method Type Annotations"
+    description: "All protocol methods must have complete type annotations"
+    enabled: true
+    severity: "error"
+    auto_fixable: false
+    category: "typing"
+    priority: 1
+    configuration:
+      require_return_annotation: true
+      require_parameter_annotations: true
+      allow_any_type: false
+      check_generic_constraints: true
+
+# Environment-specific overrides
+environments:
+  # Pre-commit environment - faster, less comprehensive
+  pre_commit:
+    global_settings:
+      timeout_seconds: 60
+      max_violations_per_file: 20
+    disable_rules:
+      - "SPI014"  # Documentation checks (slow)
+    rule_overrides:
+      "SPI002":
+        severity: "info"  # Naming less critical in pre-commit
+
+  # CI/CD environment - comprehensive but time-bounded
+  ci_cd:
+    global_settings:
+      timeout_seconds: 180
+      enable_caching: false  # Fresh validation in CI
+    rule_overrides:
+      "SPI008":
+        severity: "error"  # Stricter in CI
+
+  # Development environment - all checks enabled
+  development:
+    global_settings:
+      enable_performance_metrics: true
+    enable_all_rules: true
+
+# Output configuration
+output:
+  # Console output settings
+  console:
+    show_context_lines: true
+    max_violations_displayed: 50
+    group_by_category: true
+    show_performance_metrics: true
+
+  # JSON report settings
+  json:
+    include_source_snippets: false
+    include_fix_suggestions: true
+    include_performance_data: true
+
+  # HTML report settings
+  html:
+    include_interactive_features: true
+    include_charts: true
+    theme: "light"  # light, dark, auto

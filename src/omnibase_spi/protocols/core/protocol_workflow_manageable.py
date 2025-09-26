@@ -26,7 +26,7 @@ Example Usage:
             workflow_type: str,
             instance_id: UUID,
             target_state: WorkflowState,
-            event_metadata: dict[str, str] | None = None
+            event_metadata: dict[str, "ContextValue"] | None = None
         ) -> bool:
             # Implementation handles state transition with event sourcing
             pass
@@ -89,9 +89,9 @@ class ProtocolWorkflowManageable(Protocol):
         self,
         workflow_type: str,
         instance_id: UUID,
-        initial_context: dict[str, str],
+        initial_context: dict[str, "ContextValue"],
         correlation_metadata: "ProtocolMetadata",
-        configuration: Optional[dict[str, str]] = None,
+        configuration: Optional[dict[str, "ContextValue"]] = None,
     ) -> "ProtocolWorkflowSnapshot":
         """
         Create a new workflow instance with initial configuration.
@@ -220,7 +220,7 @@ class ProtocolWorkflowManageable(Protocol):
         workflow_type: str,
         instance_id: UUID,
         target_state: "LiteralWorkflowState",
-        event_metadata: Optional[dict[str, str]] = None,
+        event_metadata: Optional[dict[str, "ContextValue"]] = None,
         causation_id: Optional[UUID] = None,
     ) -> bool:
         """
@@ -322,7 +322,7 @@ class ProtocolWorkflowManageable(Protocol):
         instance_id: UUID,
         task_id: UUID,
         new_state: "LiteralTaskState",
-        result_data: Optional[dict[str, str]] = None,
+        result_data: Optional[dict[str, "ContextValue"]] = None,
     ) -> bool:
         """
         Update the state of a workflow task.
@@ -392,7 +392,7 @@ class ProtocolWorkflowManageable(Protocol):
         workflow_type: str,
         instance_id: UUID,
         event_type: "LiteralWorkflowEventType",
-        event_data: dict[str, str],
+        event_data: dict[str, "ContextValue"],
         causation_id: Optional[UUID] = None,
         correlation_chain: Optional[list[UUID]] = None,
     ) -> UUID:
