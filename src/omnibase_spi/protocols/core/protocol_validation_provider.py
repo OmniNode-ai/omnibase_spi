@@ -9,7 +9,7 @@ Domain: Core validation orchestration and quality assurance
 Author: ONEX Framework Team
 """
 
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, Union, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types.protocol_core_types import (
@@ -21,8 +21,13 @@ if TYPE_CHECKING:
         ProtocolDateTime,
         ProtocolMetadata,
         ProtocolSemVer,
+        ProtocolValidatable,
         ProtocolValidationResult,
     )
+
+# Type alias for validation targets - allows ProtocolValidatable or Any for backward compatibility
+# This provides type safety where possible while maintaining flexibility
+ValidationTarget = Union["ProtocolValidatable", Any]
 
 
 @runtime_checkable
@@ -57,7 +62,9 @@ class ProtocolValidationRule(Protocol):
     severity: "LiteralValidationSeverity"
     category: "LiteralValidationCategory"
 
-    def is_applicable(self, target: Any, context: dict[str, "ContextValue"]) -> bool:
+    def is_applicable(
+        self, target: ValidationTarget, context: dict[str, "ContextValue"]
+    ) -> bool:
         """
         Determine if this rule applies to the target object.
 
@@ -71,7 +78,7 @@ class ProtocolValidationRule(Protocol):
         ...
 
     def validate(
-        self, target: Any, context: dict[str, "ContextValue"]
+        self, target: ValidationTarget, context: dict[str, "ContextValue"]
     ) -> "ProtocolValidationResult":
         """
         Execute validation rule against target object.
@@ -128,7 +135,7 @@ class ProtocolValidationRuleSet(Protocol):
     rules: list["ProtocolValidationRule"]
 
     def get_applicable_rules(
-        self, target: Any, context: dict[str, "ContextValue"]
+        self, target: ValidationTarget, context: dict[str, "ContextValue"]
     ) -> list["ProtocolValidationRule"]:
         """
         Get rules applicable to the target object.
@@ -207,7 +214,7 @@ class ProtocolValidationSession(Protocol):
     def start_validation(
         self,
         validation_name: str,
-        targets: list[Any],
+        targets: list[ValidationTarget],
         metadata: "ProtocolMetadata | None" = None,
     ) -> None:
         """
@@ -479,7 +486,7 @@ class ProtocolValidationProvider(Protocol):
 
     def validate(
         self,
-        targets: list[Any],
+        targets: list[ValidationTarget],
         rule_sets: list["ProtocolValidationRuleSet"],
         level: "LiteralValidationLevel" = "STANDARD",
         mode: "LiteralValidationMode" = "strict",
@@ -506,7 +513,7 @@ class ProtocolValidationProvider(Protocol):
     def validate_with_session(
         self,
         session: "ProtocolValidationSession",
-        targets: list[Any],
+        targets: list[ValidationTarget],
         rule_sets: list["ProtocolValidationRuleSet"],
         level: "LiteralValidationLevel" = "STANDARD",
         mode: "LiteralValidationMode" = "strict",
@@ -530,7 +537,7 @@ class ProtocolValidationProvider(Protocol):
 
     def validate_single(
         self,
-        target: Any,
+        target: ValidationTarget,
         rule_set: "ProtocolValidationRuleSet",
         level: "LiteralValidationLevel" = "STANDARD",
         mode: "LiteralValidationMode" = "strict",

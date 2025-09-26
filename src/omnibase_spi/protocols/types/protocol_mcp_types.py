@@ -5,6 +5,12 @@ Domain: MCP tool registration and coordination protocols
 """
 
 from typing import Any, Literal, Optional, Protocol, runtime_checkable
+
+# Note on Any usage in MCP types:
+# dict[str, Any] is used for JSON schemas and tool results because:
+# 1. JSON schemas are inherently flexible and must support any valid JSON value
+# 2. Tool results can contain arbitrary structured data from external systems
+# 3. MCP protocol requires compatibility with diverse data formats
 from uuid import UUID
 
 from omnibase_spi.protocols.types.protocol_core_types import (

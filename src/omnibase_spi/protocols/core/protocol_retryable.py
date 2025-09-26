@@ -7,6 +7,11 @@ management across all ONEX services with consistent patterns.
 
 from typing import TYPE_CHECKING, Any, Callable, Protocol, runtime_checkable
 
+# Note on Any usage in this protocol:
+# Callable[..., Any] is necessary here because retry operations need to support
+# functions with any return type. The actual return value is wrapped in
+# ProtocolRetryResult, providing type safety at the protocol boundary.
+
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types.protocol_core_types import (
         ContextValue,

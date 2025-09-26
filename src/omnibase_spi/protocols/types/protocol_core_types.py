@@ -1013,17 +1013,6 @@ class ProtocolNameable(Protocol):
 
 
 @runtime_checkable
-class ProtocolValidatable(Protocol):
-    """Protocol for objects that can be validated."""
-
-    __omnibase_validatable_marker__: Literal[True]
-
-    def is_valid(self) -> bool:
-        """Check if the object is valid."""
-        ...
-
-
-@runtime_checkable
 class ProtocolConfigurable(Protocol):
     """Protocol for objects that can be configured."""
 
@@ -1301,3 +1290,54 @@ LiteralValidationSeverity = Literal["error", "warning", "info"]
 LiteralValidationCategory = Literal[
     "syntax", "semantic", "style", "security", "performance"
 ]
+
+
+# Base protocol for validatable objects
+@runtime_checkable
+class ProtocolValidatable(Protocol):
+    """
+    Base protocol for objects that can be validated.
+
+    This protocol defines the minimal interface that validation targets
+    should implement to provide context and metadata for validation
+    operations. By implementing this protocol, objects become compatible
+    with the ONEX validation framework while maintaining type safety.
+
+    Key Features:
+        - Validation context extraction for rule applicability
+        - Object identification for validation reporting
+        - Type safety for validation operations
+        - Minimal interface requirements for broad compatibility
+
+    Usage:
+        class ConfigurationData(ProtocolValidatable):
+            def get_validation_context(self) -> dict[str, ContextValue]:
+                return {"type": "config", "version": self.version}
+
+            def get_validation_id(self) -> str:
+                return f"config_{self.name}"
+    """
+
+    def get_validation_context(self) -> dict[str, "ContextValue"]:
+        """
+        Provide validation context for this object.
+
+        Returns context information that validation rules can use to
+        determine applicability and customize validation behavior.
+
+        Returns:
+            dict[str, ContextValue]: Validation context metadata
+        """
+        ...
+
+    def get_validation_id(self) -> str:
+        """
+        Provide unique identifier for validation reporting.
+
+        Returns a string identifier that can be used in validation
+        results to identify which object was validated.
+
+        Returns:
+            str: Unique identifier for this validatable object
+        """
+        ...

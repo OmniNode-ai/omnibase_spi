@@ -5,6 +5,12 @@ Domain: Event-driven workflow orchestration with FSM states and event sourcing
 """
 
 from typing import Any, Generic, Literal, Optional, Protocol, TypeVar, runtime_checkable
+
+# Note on Any usage in workflow types:
+# dict[str, Any] is used for resource requirements and configuration schemas because:
+# 1. Resource specs vary widely (CPU, memory, disk, GPU, custom hardware)
+# 2. Configuration schemas must support arbitrary workflow-specific parameters
+# 3. Workflow data can contain complex nested structures from external systems
 from uuid import UUID
 
 from omnibase_spi.protocols.types.protocol_core_types import (
