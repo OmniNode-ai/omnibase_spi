@@ -5,10 +5,11 @@ Defines interfaces for retry logic, backoff strategies, and retry policy
 management across all ONEX services with consistent patterns.
 """
 
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Callable, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types.protocol_core_types import (
+        ContextValue,
         LiteralRetryBackoffStrategy,
         LiteralRetryCondition,
         ProtocolRetryAttempt,
@@ -70,7 +71,7 @@ class ProtocolRetryable(Protocol):
 
     def execute_with_retry(
         self,
-        operation: object,
+        operation: Callable[..., Any],
         config: "ProtocolRetryConfig",
     ) -> "ProtocolRetryResult":
         """
@@ -185,7 +186,7 @@ class ProtocolRetryable(Protocol):
         """
         ...
 
-    def get_retry_metrics(self) -> dict[str, int | float]:
+    def get_retry_metrics(self) -> dict[str, "ContextValue"]:
         """
         Get retry metrics for monitoring and analysis.
 
@@ -224,7 +225,7 @@ class ProtocolRetryable(Protocol):
     def add_retry_condition(
         self,
         condition: "LiteralRetryCondition",
-        error_types: list[type],
+        error_types: list[type[BaseException]],
     ) -> bool:
         """
         Add retry condition for specific error types.

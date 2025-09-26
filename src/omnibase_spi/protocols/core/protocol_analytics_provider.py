@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types.protocol_core_types import (
+        ContextValue,
         LiteralAnalyticsMetricType,
         LiteralAnalyticsTimeWindow,
         ProtocolAnalyticsMetric,
@@ -105,7 +106,7 @@ class ProtocolAnalyticsDataProvider(Protocol):
         """
         ...
 
-    def collect_metric(
+    async def collect_metric(
         self,
         metric: "ProtocolAnalyticsMetric",
     ) -> bool:
@@ -124,7 +125,7 @@ class ProtocolAnalyticsDataProvider(Protocol):
         """
         ...
 
-    def collect_metrics_batch(
+    async def collect_metrics_batch(
         self,
         metrics: list["ProtocolAnalyticsMetric"],
     ) -> int:
@@ -143,7 +144,7 @@ class ProtocolAnalyticsDataProvider(Protocol):
         """
         ...
 
-    def query_metrics(
+    async def query_metrics(
         self,
         metric_names: list[str],
         time_window: "LiteralAnalyticsTimeWindow",
@@ -168,7 +169,7 @@ class ProtocolAnalyticsDataProvider(Protocol):
         """
         ...
 
-    def generate_analytics_summary(
+    async def generate_analytics_summary(
         self,
         time_window: "LiteralAnalyticsTimeWindow",
         data_sources: list[str] | None = None,
@@ -257,7 +258,7 @@ class ProtocolAnalyticsDataProvider(Protocol):
         """
         ...
 
-    def get_analytics_health(self) -> dict[str, str | int | float]:
+    async def get_analytics_health(self) -> dict[str, "ContextValue"]:
         """
         Get analytics system health status.
 
@@ -393,7 +394,7 @@ class ProtocolAnalyticsDataProvider(Protocol):
         """
         ...
 
-    def export_analytics_data(
+    async def export_analytics_data(
         self,
         format_type: str,
         time_range: tuple["ProtocolDateTime", "ProtocolDateTime"],

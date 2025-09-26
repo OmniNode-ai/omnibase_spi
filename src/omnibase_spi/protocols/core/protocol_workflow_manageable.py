@@ -17,7 +17,7 @@ Key Features:
 Example Usage:
     ```python
     from omnibase_spi.protocols.core import ProtocolWorkflowManageable
-    from omnibase_spi.protocols.types.workflow_orchestration_types import WorkflowState
+    from omnibase_spi.protocols.types.protocol_workflow_orchestration_types import WorkflowState
     from uuid import UUID
 
     class WorkflowEngine(ProtocolWorkflowManageable):
@@ -53,6 +53,7 @@ from uuid import UUID
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types.core_types import (
+        ContextValue,
         CorrelationMetadata,
         ExecutionContext,
     )
@@ -445,7 +446,7 @@ class ProtocolWorkflowManageable(Protocol):
 
     async def get_workflow_performance_summary(
         self, workflow_type: str, instance_id: UUID
-    ) -> dict[str, str]:
+    ) -> dict[str, "ContextValue"]:
         """
         Get performance summary for a workflow instance.
 
@@ -497,7 +498,7 @@ class ProtocolWorkflowManageable(Protocol):
 
     async def check_compensation_status(
         self, workflow_type: str, instance_id: UUID
-    ) -> dict[str, str]:
+    ) -> dict[str, "ContextValue"]:
         """
         Check status of ongoing compensation actions.
 
@@ -520,7 +521,7 @@ class ProtocolWorkflowManageable(Protocol):
 
     async def validate_workflow_consistency(
         self, workflow_type: str, instance_id: UUID
-    ) -> dict[str, str]:
+    ) -> dict[str, "ContextValue"]:
         """
         Validate internal consistency of workflow state.
 
@@ -541,7 +542,7 @@ class ProtocolWorkflowManageable(Protocol):
 
     async def get_workflow_health_status(
         self, workflow_type: str, instance_id: UUID
-    ) -> dict[str, str]:
+    ) -> dict[str, "ContextValue"]:
         """
         Get health status of a workflow instance.
 

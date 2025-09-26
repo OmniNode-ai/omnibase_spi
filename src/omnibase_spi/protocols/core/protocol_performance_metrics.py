@@ -6,11 +6,12 @@ and system health monitoring across ONEX services for comprehensive
 performance observability and optimization.
 """
 
-from typing import TYPE_CHECKING, Optional, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Callable, Optional, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types.protocol_core_types import (
         LiteralPerformanceCategory,
+        ProtocolContextValue,
         ProtocolDateTime,
         ProtocolPerformanceMetric,
         ProtocolPerformanceMetrics,
@@ -35,58 +36,59 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         - Automated performance recommendations
 
     Usage Example:
-        ```python
-        # Implementation example (not part of SPI)
-        class PerformanceMetricsImpl:
-            def collect_performance_metrics(self, service_name):
-                metrics = []
 
-                # Collect latency metrics
-                response_time = self._measure_response_time()
-                metrics.append(PerformanceMetric(
-                    metric_name="response_time",
-                    category="latency",
-                    value=response_time,
-                    unit="ms"
-                ))
+        .. code-block:: python
 
-                # Collect throughput metrics
-                rps = self._calculate_requests_per_second()
-                metrics.append(PerformanceMetric(
-                    metric_name="requests_per_second",
-                    category="throughput",
-                    value=rps,
-                    unit="req/s"
-                ))
+            # Implementation example (not part of SPI)
+            class PerformanceMetricsImpl:
+                def collect_performance_metrics(self, service_name):
+                    metrics = []
 
-                return PerformanceMetrics(
-                    service_name=service_name,
-                    metrics=metrics,
-                    overall_health_score=self._calculate_health_score(metrics)
-                )
+                    # Collect latency metrics
+                    response_time = self._measure_response_time()
+                    metrics.append(PerformanceMetric(
+                        metric_name="response_time",
+                        category="latency",
+                        value=response_time,
+                        unit="ms"
+                    ))
 
-        # Usage in application code
-        perf_collector: ProtocolPerformanceMetricsCollector = PerformanceMetricsImpl()
+                    # Collect throughput metrics
+                    rps = self._calculate_requests_per_second()
+                    metrics.append(PerformanceMetric(
+                        metric_name="requests_per_second",
+                        category="throughput",
+                        value=rps,
+                        unit="req/s"
+                    ))
 
-        # Collect current performance metrics
-        current_metrics = perf_collector.collect_performance_metrics(
-            service_name="user-service"
-        )
+                    return PerformanceMetrics(
+                        service_name=service_name,
+                        metrics=metrics,
+                        overall_health_score=self._calculate_health_score(metrics)
+                    )
 
-        # Set performance thresholds
-        perf_collector.set_performance_threshold(
-            metric_name="response_time",
-            warning_threshold=500.0,
-            critical_threshold=1000.0
-        )
+            # Usage in application code
+            perf_collector: ProtocolPerformanceMetricsCollector = PerformanceMetricsImpl()
 
-        # Analyze performance trends
-        trends = perf_collector.analyze_performance_trends(
-            service_name="user-service",
-            hours_back=24,
-            categories=["latency", "throughput"]
-        )
-        ```
+            # Collect current performance metrics
+            current_metrics = perf_collector.collect_performance_metrics(
+                service_name="user-service"
+            )
+
+            # Set performance thresholds
+            perf_collector.set_performance_threshold(
+                metric_name="response_time",
+                warning_threshold=500.0,
+                critical_threshold=1000.0
+            )
+
+            # Analyze performance trends
+            trends = perf_collector.analyze_performance_trends(
+                service_name="user-service",
+                hours_back=24,
+                categories=["latency", "throughput"]
+            )
     """
 
     def collect_performance_metrics(
@@ -101,6 +103,10 @@ class ProtocolPerformanceMetricsCollector(Protocol):
 
         Returns:
             Complete performance metrics collection with health score
+
+        Raises:
+            ValueError: If service_name is empty or invalid
+            RuntimeError: If service is unreachable or metrics collection fails
 
         Note:
             Collects real-time metrics across all performance categories
@@ -142,6 +148,10 @@ class ProtocolPerformanceMetricsCollector(Protocol):
 
         Returns:
             True if metric was recorded successfully
+
+        Raises:
+            ValueError: If metric validation fails or contains invalid data
+            RuntimeError: If metric recording fails due to system issues
 
         Note:
             Used for custom metric recording and integration with
@@ -185,6 +195,10 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         Returns:
             True if thresholds were configured successfully
 
+        Raises:
+            ValueError: If metric_name is empty, thresholds are negative, or critical_threshold < warning_threshold
+            RuntimeError: If threshold configuration fails
+
         Note:
             Thresholds enable automated alerting when performance
             degrades beyond acceptable levels for proactive response.
@@ -213,7 +227,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
     def check_performance_thresholds(
         self,
         metrics: "ProtocolPerformanceMetrics",
-    ) -> list[dict[str, object]]:
+    ) -> list[dict[str, "ProtocolContextValue"]]:
         """
         Check metrics against configured thresholds.
 
@@ -300,7 +314,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         self,
         current_metrics: "ProtocolPerformanceMetrics",
         baseline_deviation_threshold: float,
-    ) -> dict[str, dict[str, object]]:
+    ) -> dict[str, dict[str, "ProtocolContextValue"]]:
         """
         Compare current metrics to established baselines.
 
@@ -311,6 +325,10 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         Returns:
             Comparison results with deviations and significance
 
+        Raises:
+            ValueError: If baseline_deviation_threshold is not between 0.0 and 1.0
+            RuntimeError: If baseline data is not available or comparison fails
+
         Note:
             Identifies performance deviations from normal baseline behavior
             for anomaly detection and performance regression analysis.
@@ -320,7 +338,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
     def get_performance_recommendations(
         self,
         service_name: str,
-        performance_issues: list[dict[str, object]],
+        performance_issues: list[dict[str, "ProtocolContextValue"]],
     ) -> list[str]:
         """
         Get performance optimization recommendations.
@@ -344,7 +362,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         start_time: "ProtocolDateTime",
         end_time: "ProtocolDateTime",
         categories: Optional[list["LiteralPerformanceCategory"]],
-    ) -> dict[str, object]:
+    ) -> dict[str, "ProtocolContextValue"]:
         """
         Export comprehensive performance report for time period.
 
@@ -367,7 +385,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         self,
         service_name: str,
         collection_interval_seconds: int,
-        alert_callback: Optional[object],
+        alert_callback: Optional[Callable[..., Any]],
     ) -> str:
         """
         Start real-time performance monitoring.
@@ -379,6 +397,10 @@ class ProtocolPerformanceMetricsCollector(Protocol):
 
         Returns:
             Monitoring session ID for management
+
+        Raises:
+            ValueError: If service_name is empty or collection_interval_seconds is <= 0
+            RuntimeError: If monitoring system is unavailable or session creation fails
 
         Note:
             Begins continuous performance monitoring with configurable
@@ -405,7 +427,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         """
         ...
 
-    def get_monitoring_sessions(self) -> list[dict[str, object]]:
+    def get_monitoring_sessions(self) -> list[dict[str, "ProtocolContextValue"]]:
         """
         Get active performance monitoring sessions.
 
@@ -443,7 +465,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         self,
         service_name: str,
         analysis_period_hours: int,
-    ) -> list[dict[str, object]]:
+    ) -> list[dict[str, "ProtocolContextValue"]]:
         """
         Identify performance bottlenecks through analysis.
 
@@ -464,7 +486,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         self,
         service_name: str,
         prediction_horizon_hours: int,
-    ) -> list[dict[str, object]]:
+    ) -> list[dict[str, "ProtocolContextValue"]]:
         """
         Predict potential performance issues based on trends.
 
@@ -485,7 +507,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         self,
         service_names: list[str],
         summary_period_hours: int,
-    ) -> dict[str, object]:
+    ) -> dict[str, "ProtocolContextValue"]:
         """
         Get performance summary across multiple services.
 

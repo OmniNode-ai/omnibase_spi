@@ -38,7 +38,7 @@ class ProtocolTimeBasedOperations(Protocol):
         # Implementation example (not part of SPI)
         class TimeBasedOperationImpl:
             def start_duration_tracking(self, operation_id):
-                duration = ProtocolDuration(
+                duration = DurationRecord(  # implements ProtocolDuration
                     start_time=datetime.now(),
                     end_time=None,
                     is_completed=False
@@ -47,7 +47,7 @@ class ProtocolTimeBasedOperations(Protocol):
                 return duration
 
             def set_timeout(self, operation_id, timeout_ms):
-                timeout = ProtocolTimeout(
+                timeout = TimeoutTracker(  # implements ProtocolTimeout
                     timeout_ms=timeout_ms,
                     start_time=datetime.now(),
                     warning_threshold_ms=timeout_ms * 0.8

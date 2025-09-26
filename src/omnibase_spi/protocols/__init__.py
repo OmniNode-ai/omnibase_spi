@@ -389,6 +389,11 @@ __all__ = [
     "ServiceHealthStatus",
     "ValidationError",
     "ValidationResult",
+    # Moved protocols
+    "LiteralAssignmentStrategy",
+    "LiteralWorkQueuePriority",
+    "ProtocolFileReader",
+    "ProtocolWorkQueue",
 ]
 
 # Import moved protocols for easy access
@@ -398,11 +403,3 @@ from .workflow_orchestration.protocol_work_queue import (
     LiteralWorkQueuePriority,
     ProtocolWorkQueue,
 )
-
-# Add to __all__ exports
-_MOVED_PROTOCOLS = [
-    "LiteralAssignmentStrategy",
-    "ProtocolFileReader",
-    "ProtocolWorkQueue",
-    "LiteralWorkQueuePriority",
-]

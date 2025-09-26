@@ -1285,11 +1285,19 @@ class ProtocolConnectionStatus(Protocol):
     bytes_received: int
 
 
-class ProtocolConnectionManageable(Protocol):
-    """Protocol for connection management capabilities."""
+# Validation types for comprehensive validation systems
+# Validation severity levels for error classification and prioritization
+# error: Validation error that prevents operation (blocks execution)
+# warning: Validation warning that should be addressed (allows execution with caution)
+# info: Informational validation message (purely advisory)
+LiteralValidationSeverity = Literal["error", "warning", "info"]
 
-    connection_id: str
-    config: ProtocolConnectionConfig
-    status: ProtocolConnectionStatus
-    can_reconnect: bool
-    auto_reconnect_enabled: bool
+# Validation categories for organizing validation checks
+# syntax: Syntax and format validation (structure, grammar, format)
+# semantic: Semantic and logical validation (meaning, consistency, logic)
+# style: Style and convention validation (formatting, naming, conventions)
+# security: Security validation (vulnerabilities, access control, data protection)
+# performance: Performance validation (efficiency, resource usage, optimization)
+LiteralValidationCategory = Literal[
+    "syntax", "semantic", "style", "security", "performance"
+]

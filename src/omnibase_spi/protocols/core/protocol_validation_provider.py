@@ -14,8 +14,10 @@ from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types.protocol_core_types import (
         ContextValue,
+        LiteralValidationCategory,
         LiteralValidationLevel,
         LiteralValidationMode,
+        LiteralValidationSeverity,
         ProtocolDateTime,
         ProtocolMetadata,
         ProtocolSemVer,
@@ -52,8 +54,8 @@ class ProtocolValidationRule(Protocol):
     rule_name: str
     rule_description: str
     rule_version: "ProtocolSemVer"
-    severity: str  # "error", "warning", "info"
-    category: str  # "structure", "compliance", "security", "performance"
+    severity: "LiteralValidationSeverity"
+    category: "LiteralValidationCategory"
 
     def is_applicable(self, target: Any, context: dict[str, "ContextValue"]) -> bool:
         """
@@ -395,7 +397,9 @@ class ProtocolValidationProvider(Protocol):
         ...
 
     def list_validation_rules(
-        self, category_filter: str | None = None, severity_filter: str | None = None
+        self,
+        category_filter: "LiteralValidationCategory | None" = None,
+        severity_filter: "LiteralValidationSeverity | None" = None,
     ) -> list["ProtocolValidationRule"]:
         """
         List available validation rules with optional filtering.
