@@ -1054,3 +1054,242 @@ class ProtocolMetadataProvider(Protocol):
     def get_metadata(self) -> dict[str, str | int | bool | float]:
         """Get metadata dictionary."""
         ...
+
+
+# Retry System Types
+# Retry backoff strategies for distributed system resilience
+# fixed: Fixed delay between attempts
+# linear: Linearly increasing delay (base_delay * attempt)
+# exponential: Exponentially increasing delay (base_delay * 2^attempt)
+# jitter: Random jitter added to exponential backoff
+LiteralRetryBackoffStrategy = Literal["fixed", "linear", "exponential", "jitter"]
+
+# Retry condition triggers for fine-grained retry control
+# always: Retry on any error (with attempt limits)
+# never: Never retry, fail immediately
+# on_error: Retry on specific error types only
+# on_timeout: Retry only on timeout errors
+# on_network: Retry only on network-related errors
+# on_transient: Retry only on transient/temporary errors
+LiteralRetryCondition = Literal[
+    "always", "never", "on_error", "on_timeout", "on_network", "on_transient"
+]
+
+
+class ProtocolRetryConfig(Protocol):
+    """Protocol for retry configuration."""
+
+    max_attempts: int
+    backoff_strategy: LiteralRetryBackoffStrategy
+    base_delay_ms: int
+    max_delay_ms: int
+    timeout_ms: int
+    jitter_factor: float  # For jitter strategy (0.0-1.0)
+
+
+class ProtocolRetryPolicy(Protocol):
+    """Protocol for retry policy configuration."""
+
+    default_config: ProtocolRetryConfig
+    error_specific_configs: dict[str, ProtocolRetryConfig]
+    retry_conditions: list[LiteralRetryCondition]
+    retry_budget_limit: int  # Max retries per time window
+    budget_window_seconds: int
+
+
+class ProtocolRetryAttempt(Protocol):
+    """Protocol for retry attempt records."""
+
+    attempt_number: int
+    timestamp: ProtocolDateTime
+    duration_ms: int
+    error_type: str | None
+    success: bool
+    backoff_applied_ms: int
+
+
+class ProtocolRetryResult(Protocol):
+    """Protocol for retry operation results."""
+
+    success: bool
+    final_attempt_number: int
+    total_duration_ms: int
+    result: ContextValue | None
+    final_error: Exception | None
+    attempts: list[ProtocolRetryAttempt]
+
+
+# Time-Based Operation Types
+# Time-based operation types for duration tracking
+# duration: Single time span measurement
+# timeout: Maximum allowed time for operation
+# interval: Recurring time period for scheduling
+# deadline: Absolute time by which operation must complete
+LiteralTimeBasedType = Literal["duration", "timeout", "interval", "deadline"]
+
+
+class ProtocolTimeBased(Protocol):
+    """Protocol for time-based operations and measurements."""
+
+    type: LiteralTimeBasedType
+    start_time: ProtocolDateTime | None
+    end_time: ProtocolDateTime | None
+    duration_ms: int | None
+    is_active: bool
+    has_expired: bool
+
+
+class ProtocolTimeout(Protocol):
+    """Protocol for timeout configuration and tracking."""
+
+    timeout_ms: int
+    start_time: ProtocolDateTime
+    warning_threshold_ms: int | None  # Early warning before timeout
+    is_expired: bool
+    time_remaining_ms: int
+
+
+class ProtocolDuration(Protocol):
+    """Protocol for duration measurement and tracking."""
+
+    start_time: ProtocolDateTime
+    end_time: ProtocolDateTime | None
+    duration_ms: int
+    is_completed: bool
+    can_measure: bool
+
+
+# Analytics and Performance Types
+# Analytics aggregation levels for different time windows
+# real_time: Live metrics (seconds to minutes)
+# hourly: Hour-level aggregations
+# daily: Daily summaries and trends
+# weekly: Weekly patterns and comparisons
+# monthly: Monthly reporting and capacity planning
+LiteralAnalyticsTimeWindow = Literal[
+    "real_time", "hourly", "daily", "weekly", "monthly"
+]
+
+# Analytics metric types for system monitoring
+# counter: Cumulative count (requests, errors, etc.)
+# gauge: Point-in-time value (CPU, memory, connections)
+# histogram: Value distribution (response times, sizes)
+# summary: Statistical summary (percentiles, averages)
+LiteralAnalyticsMetricType = Literal["counter", "gauge", "histogram", "summary"]
+
+
+class ProtocolAnalyticsMetric(Protocol):
+    """Protocol for individual analytics metrics."""
+
+    name: str
+    type: LiteralAnalyticsMetricType
+    value: float
+    unit: str
+    timestamp: ProtocolDateTime
+    tags: dict[str, str]
+    metadata: dict[str, ContextValue]
+
+
+class ProtocolAnalyticsProvider(Protocol):
+    """Protocol for analytics data providers."""
+
+    provider_id: str
+    provider_type: str
+    data_sources: list[str]
+    supported_metrics: list[str]
+    time_windows: list[LiteralAnalyticsTimeWindow]
+    last_updated: ProtocolDateTime
+
+
+class ProtocolAnalyticsSummary(Protocol):
+    """Protocol for analytics summary reports."""
+
+    time_window: LiteralAnalyticsTimeWindow
+    start_time: ProtocolDateTime
+    end_time: ProtocolDateTime
+    metrics: list[ProtocolAnalyticsMetric]
+    insights: list[str]
+    recommendations: list[str]
+    confidence_score: float  # 0.0-1.0
+
+
+# Performance Metrics Types
+# Performance metric categories for system monitoring
+# latency: Response time and processing delays
+# throughput: Operations per unit time
+# resource: CPU, memory, disk, network utilization
+# error: Error rates and failure patterns
+# availability: Uptime and service availability
+LiteralPerformanceCategory = Literal[
+    "latency", "throughput", "resource", "error", "availability"
+]
+
+
+class ProtocolPerformanceMetric(Protocol):
+    """Protocol for performance metric data points."""
+
+    metric_name: str
+    category: LiteralPerformanceCategory
+    value: float
+    unit: str
+    timestamp: ProtocolDateTime
+    source: str
+    threshold_warning: float | None
+    threshold_critical: float | None
+
+
+class ProtocolPerformanceMetrics(Protocol):
+    """Protocol for performance metrics collection."""
+
+    service_name: str
+    collection_timestamp: ProtocolDateTime
+    metrics: list[ProtocolPerformanceMetric]
+    overall_health_score: float  # 0.0-1.0
+    performance_trends: dict[str, float]  # metric_name -> trend_score
+    recommendations: list[str]
+
+
+# Connection Management Types
+# Connection states for lifecycle management
+# disconnected: No active connection
+# connecting: Establishing connection
+# connected: Active and ready
+# reconnecting: Attempting to restore connection
+# failed: Connection failed and requires intervention
+# closing: Gracefully shutting down connection
+LiteralConnectionState = Literal[
+    "disconnected", "connecting", "connected", "reconnecting", "failed", "closing"
+]
+
+
+class ProtocolConnectionConfig(Protocol):
+    """Protocol for connection configuration."""
+
+    host: str
+    port: int
+    timeout_ms: int
+    max_retries: int
+    ssl_enabled: bool
+    connection_pool_size: int
+    keep_alive_interval_ms: int
+
+
+class ProtocolConnectionStatus(Protocol):
+    """Protocol for connection status tracking."""
+
+    state: LiteralConnectionState
+    connected_at: ProtocolDateTime | None
+    last_activity: ProtocolDateTime | None
+    error_count: int
+    bytes_sent: int
+    bytes_received: int
+
+
+class ProtocolConnectionManageable(Protocol):
+    """Protocol for connection management capabilities."""
+
+    connection_id: str
+    config: ProtocolConnectionConfig
+    status: ProtocolConnectionStatus
+    can_reconnect: bool
+    auto_reconnect_enabled: bool
