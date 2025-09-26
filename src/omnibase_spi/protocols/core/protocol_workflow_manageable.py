@@ -52,19 +52,16 @@ from typing import TYPE_CHECKING, Optional, Protocol, runtime_checkable
 from uuid import UUID
 
 if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.core_types import (
+    from omnibase_spi.protocols.types.protocol_core_types import (
         ContextValue,
-        CorrelationMetadata,
-        ExecutionContext,
+        ProtocolMetadata,
     )
-    from omnibase_spi.protocols.types.workflow_orchestration_types import (
+    from omnibase_spi.protocols.types.protocol_workflow_orchestration_types import (
+        LiteralTaskState,
+        LiteralWorkflowEventType,
+        LiteralWorkflowState,
         ProtocolWorkflowEvent,
         ProtocolWorkflowSnapshot,
-        ProtocolWorkflowTask,
-        TaskState,
-        WorkflowEventType,
-        WorkflowExecutionMetrics,
-        WorkflowState,
     )
 
 
@@ -93,7 +90,7 @@ class ProtocolWorkflowManageable(Protocol):
         workflow_type: str,
         instance_id: UUID,
         initial_context: dict[str, str],
-        correlation_metadata: "CorrelationMetadata",
+        correlation_metadata: "ProtocolMetadata",
         configuration: Optional[dict[str, str]] = None,
     ) -> "ProtocolWorkflowSnapshot":
         """
@@ -123,7 +120,7 @@ class ProtocolWorkflowManageable(Protocol):
         self,
         workflow_type: str,
         instance_id: UUID,
-        execution_context: "ExecutionContext",
+        execution_context: dict[str, "ContextValue"],
     ) -> bool:
         """
         Start execution of a pending workflow instance.
@@ -222,7 +219,7 @@ class ProtocolWorkflowManageable(Protocol):
         self,
         workflow_type: str,
         instance_id: UUID,
-        target_state: "WorkflowState",
+        target_state: "LiteralWorkflowState",
         event_metadata: Optional[dict[str, str]] = None,
         causation_id: Optional[UUID] = None,
     ) -> bool:
@@ -251,7 +248,7 @@ class ProtocolWorkflowManageable(Protocol):
 
     async def get_workflow_state(
         self, workflow_type: str, instance_id: UUID
-    ) -> "WorkflowState":
+    ) -> "LiteralWorkflowState":
         """
         Get current state of a workflow instance.
 
@@ -295,7 +292,7 @@ class ProtocolWorkflowManageable(Protocol):
         self,
         workflow_type: str,
         instance_id: UUID,
-        task_definition: "ProtocolWorkflowTask",
+        task_definition: dict[str, "ContextValue"],
         dependencies: Optional[list[UUID]] = None,
     ) -> UUID:
         """
@@ -324,7 +321,7 @@ class ProtocolWorkflowManageable(Protocol):
         workflow_type: str,
         instance_id: UUID,
         task_id: UUID,
-        new_state: "TaskState",
+        new_state: "LiteralTaskState",
         result_data: Optional[dict[str, str]] = None,
     ) -> bool:
         """
@@ -350,7 +347,7 @@ class ProtocolWorkflowManageable(Protocol):
 
     async def get_task_dependencies_status(
         self, workflow_type: str, instance_id: UUID, task_id: UUID
-    ) -> dict[UUID, "TaskState"]:
+    ) -> dict[UUID, "LiteralTaskState"]:
         """
         Get status of all dependencies for a specific task.
 
@@ -394,7 +391,7 @@ class ProtocolWorkflowManageable(Protocol):
         self,
         workflow_type: str,
         instance_id: UUID,
-        event_type: "WorkflowEventType",
+        event_type: "LiteralWorkflowEventType",
         event_data: dict[str, str],
         causation_id: Optional[UUID] = None,
         correlation_chain: Optional[list[UUID]] = None,
@@ -425,7 +422,7 @@ class ProtocolWorkflowManageable(Protocol):
 
     async def get_workflow_execution_metrics(
         self, workflow_type: str, instance_id: UUID
-    ) -> "WorkflowExecutionMetrics":
+    ) -> dict[str, "ContextValue"]:
         """
         Get execution metrics for a workflow instance.
 
