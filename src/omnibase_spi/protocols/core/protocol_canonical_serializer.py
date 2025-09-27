@@ -22,11 +22,12 @@
 # === /OmniNode:Metadata ===
 
 
-from typing import Protocol
+from typing import Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types import ProtocolNodeMetadata
 
 
+@runtime_checkable
 class ProtocolCanonicalSerializer(Protocol):
     """
     Protocol for canonical serialization and normalization of metadata blocks.
@@ -40,7 +41,7 @@ class ProtocolCanonicalSerializer(Protocol):
 
     def canonicalize_metadata_block(
         self,
-        block: ProtocolNodeMetadata,
+        block: "ProtocolNodeMetadata",
         volatile_fields: tuple[str, ...],
         placeholder: str,
     ) -> str:
@@ -64,7 +65,7 @@ class ProtocolCanonicalSerializer(Protocol):
 
     def canonicalize_for_hash(
         self,
-        block: ProtocolNodeMetadata,
+        block: "ProtocolNodeMetadata",
         body: str,
         volatile_fields: tuple[str, ...],
         placeholder: str,

@@ -5,17 +5,16 @@ Defines the interface for dependency injection container management,
 service registration, and registry lifecycle operations.
 """
 
-from typing import TYPE_CHECKING, Protocol, Union, runtime_checkable
+from typing import Protocol, runtime_checkable
 
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.protocol_container_types import (
-        ProtocolContainer,
-        ProtocolContainerResult,
-        ProtocolDependencySpec,
-        ProtocolRegistryWrapper,
-        ProtocolServiceInstance,
-    )
-    from omnibase_spi.protocols.types.protocol_core_types import ProtocolMetadata
+from omnibase_spi.protocols.types.protocol_container_types import (
+    ProtocolContainer,
+    ProtocolContainerResult,
+    ProtocolContainerServiceInstance,
+    ProtocolDependencySpec,
+    ProtocolRegistryWrapper,
+)
+from omnibase_spi.protocols.types.protocol_core_types import ProtocolMetadata
 
 
 @runtime_checkable
@@ -38,7 +37,7 @@ class ProtocolContainerService(Protocol):
         ```python
         # Implementation example (not part of SPI)
         class ContainerServiceImpl:
-            def create_container_from_contract(self, metadata, node_id, node_ref=None):
+            async def create_container_from_contract(self, metadata, node_id, node_ref=None):
                 container = self._create_empty_container()
 
                 # Register dependencies from contract
@@ -50,7 +49,7 @@ class ProtocolContainerService(Protocol):
                 return ContainerResult(container, registry_wrapper)
 
         # Usage in application code
-        container_service: ProtocolContainerService = ContainerServiceImpl()
+        container_service: "ProtocolContainerService" = ContainerServiceImpl()
 
         result = container_service.create_container_from_contract(
             metadata=contract_metadata,
@@ -60,12 +59,12 @@ class ProtocolContainerService(Protocol):
         ```
     """
 
-    def create_container_from_contract(
+    async def create_container_from_contract(
         self,
-        contract_metadata: "ProtocolMetadata",
+        contract_metadata: ProtocolMetadata,
         node_id: str,
-        node_ref: Union[object, None] = None,
-    ) -> "ProtocolContainerResult":
+        node_ref: object | None = None,
+    ) -> ProtocolContainerResult:
         """
         Create and configure container from contract dependencies.
 
@@ -84,10 +83,9 @@ class ProtocolContainerService(Protocol):
         """
         ...
 
-    def create_service_from_dependency(
-        self,
-        dependency_spec: "ProtocolDependencySpec",
-    ) -> "ProtocolServiceInstance | None":
+    async def create_service_from_dependency(
+        self, dependency_spec: ProtocolDependencySpec
+    ) -> ProtocolContainerServiceInstance | None:
         """
         Create service instance from contract dependency specification.
 
@@ -108,7 +106,9 @@ class ProtocolContainerService(Protocol):
         """
         ...
 
-    def validate_container_dependencies(self, container: "ProtocolContainer") -> bool:
+    async def validate_container_dependencies(
+        self, container: ProtocolContainer
+    ) -> bool:
         """
         Validate container has all required dependencies registered.
 
@@ -124,11 +124,9 @@ class ProtocolContainerService(Protocol):
         """
         ...
 
-    def get_registry_wrapper(
-        self,
-        container: "ProtocolContainer",
-        node_ref: Union[object, None] = None,
-    ) -> "ProtocolRegistryWrapper":
+    async def get_registry_wrapper(
+        self, container: ProtocolContainer, node_ref: object | None = None
+    ) -> ProtocolRegistryWrapper:
         """
         Create registry wrapper around container for standardized access.
 
@@ -145,10 +143,8 @@ class ProtocolContainerService(Protocol):
         """
         ...
 
-    def update_container_lifecycle(
-        self,
-        registry: "ProtocolRegistryWrapper",
-        node_ref: object,
+    async def update_container_lifecycle(
+        self, registry: ProtocolRegistryWrapper, node_ref: object
     ) -> None:
         """
         Update container lifecycle with node reference and version information.

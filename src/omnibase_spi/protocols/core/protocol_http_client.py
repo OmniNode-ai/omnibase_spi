@@ -10,6 +10,7 @@ from typing import Optional, Protocol, runtime_checkable
 from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 
 
+@runtime_checkable
 class ProtocolHttpResponse(Protocol):
     """
     Protocol representing an HTTP response.
@@ -18,7 +19,7 @@ class ProtocolHttpResponse(Protocol):
     """
 
     status_code: int
-    headers: dict[str, ContextValue]
+    headers: dict[str, "ContextValue"]
     body: str | bytes | dict[str, str | int | float | bool]
     url: str
 
@@ -35,7 +36,7 @@ class ProtocolHttpClient(Protocol):
     Example:
         ```python
         # GET request
-        client: ProtocolHttpClient = get_http_client()
+        client: "ProtocolHttpClient" = get_http_client()
         response = await client.request("GET", "https://api.example.com/users")
         print(f"Status: {response.status_code}")
         print(f"Data: {response.body}")
@@ -67,9 +68,9 @@ class ProtocolHttpClient(Protocol):
         self,
         method: str,
         url: str,
-        json: Optional[dict[str, str | int | float | bool]] = None,
-        headers: Optional[dict[str, ContextValue]] = None,
-        timeout: Optional[int] = None,
+        json: dict[str, str | int | float | bool] | None = None,
+        headers: dict[str, "ContextValue"] | None = None,
+        timeout: int | None = None,
     ) -> "ProtocolHttpResponse":
         """
         Perform HTTP request with specified method and parameters.
@@ -92,8 +93,8 @@ class ProtocolHttpClient(Protocol):
     async def get(
         self,
         url: str,
-        headers: Optional[dict[str, ContextValue]] = None,
-        timeout: Optional[int] = None,
+        headers: dict[str, "ContextValue"] | None = None,
+        timeout: int | None = None,
     ) -> "ProtocolHttpResponse":
         """
         Perform HTTP GET request.
@@ -111,9 +112,9 @@ class ProtocolHttpClient(Protocol):
     async def post(
         self,
         url: str,
-        json: Optional[dict[str, str | int | float | bool]] = None,
-        headers: Optional[dict[str, ContextValue]] = None,
-        timeout: Optional[int] = None,
+        json: dict[str, str | int | float | bool] | None = None,
+        headers: dict[str, "ContextValue"] | None = None,
+        timeout: int | None = None,
     ) -> "ProtocolHttpResponse":
         """
         Perform HTTP POST request.
@@ -132,9 +133,9 @@ class ProtocolHttpClient(Protocol):
     async def put(
         self,
         url: str,
-        json: Optional[dict[str, str | int | float | bool]] = None,
-        headers: Optional[dict[str, ContextValue]] = None,
-        timeout: Optional[int] = None,
+        json: dict[str, str | int | float | bool] | None = None,
+        headers: dict[str, "ContextValue"] | None = None,
+        timeout: int | None = None,
     ) -> "ProtocolHttpResponse":
         """
         Perform HTTP PUT request.
@@ -153,8 +154,8 @@ class ProtocolHttpClient(Protocol):
     async def delete(
         self,
         url: str,
-        headers: Optional[dict[str, ContextValue]] = None,
-        timeout: Optional[int] = None,
+        headers: dict[str, "ContextValue"] | None = None,
+        timeout: int | None = None,
     ) -> "ProtocolHttpResponse":
         """
         Perform HTTP DELETE request.
@@ -174,7 +175,7 @@ class ProtocolHttpClient(Protocol):
 class ProtocolHttpClientProvider(Protocol):
     """Protocol for HTTP client provider."""
 
-    def create_http_client(self) -> ProtocolHttpClient:
+    async def create_http_client(self) -> ProtocolHttpClient:
         """
         Create HTTP client instance.
 

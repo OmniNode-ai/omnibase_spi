@@ -14,7 +14,7 @@ All protocols use pure typing.Protocol for SPI compliance.
 """
 
 # Base Types and Literals
-from .protocol_memory_base import (
+from .protocol_memory_base import (  # ProtocolMemoryRecordData, # CONSOLIDATED: Use ProtocolAggregatedData instead
     LiteralAgentStatus,
     LiteralAnalysisType,
     LiteralCompressionAlgorithm,
@@ -31,10 +31,9 @@ from .protocol_memory_base import (
     ProtocolCoordinationMetadata,
     ProtocolCustomMetrics,
     ProtocolErrorCategoryMap,
-    ProtocolErrorContext,
+    ProtocolMemoryErrorContext,
     ProtocolMemoryMetadata,
     ProtocolMemoryRecord,
-    ProtocolMemoryRecordData,
     ProtocolPageInfo,
     ProtocolSearchFilters,
     ProtocolSearchResult,
@@ -43,12 +42,12 @@ from .protocol_memory_base import (
 
 # Enhanced Error Handling Protocols
 from .protocol_memory_error_handling import (
-    ProtocolCompensationAction,
     ProtocolErrorCategory,
+    ProtocolMemoryCompensationAction,
     ProtocolMemoryErrorHandler,
     ProtocolMemoryHealthMonitor,
+    ProtocolMemoryRetryPolicy,
     ProtocolOperationContext,
-    ProtocolRetryPolicy,
 )
 
 # Error Protocols
@@ -125,9 +124,9 @@ from .protocol_memory_security import (
     ProtocolAuditTrail,
     ProtocolInputValidation,
     ProtocolMemoryComplianceNode,
+    ProtocolMemorySecurityContext,
     ProtocolMemorySecurityNode,
     ProtocolRateLimitConfig,
-    ProtocolSecurityContext,
 )
 
 # Streaming and Performance Protocols
@@ -165,7 +164,7 @@ __all__ = [
     "ProtocolBatchMemoryStoreRequest",
     "ProtocolBatchMemoryStoreResponse",
     "ProtocolBatchOperationResult",
-    "ProtocolCompensationAction",
+    "ProtocolMemoryCompensationAction",
     "ProtocolConsolidationRequest",
     "ProtocolConsolidationResponse",
     "ProtocolCoordinationMetadata",
@@ -175,7 +174,7 @@ __all__ = [
     "ProtocolEmbeddingResponse",
     "ProtocolErrorCategory",
     "ProtocolErrorCategoryMap",
-    "ProtocolErrorContext",
+    "ProtocolMemoryErrorContext",
     "ProtocolErrorRecoveryStrategy",
     "ProtocolInputValidation",
     "ProtocolMemoryAuthorizationError",
@@ -200,7 +199,7 @@ __all__ = [
     "ProtocolMemoryNotFoundError",
     "ProtocolMemoryOrchestratorNode",
     "ProtocolMemoryRecord",
-    "ProtocolMemoryRecordData",
+    # "ProtocolMemoryRecordData", # CONSOLIDATED: Use "ProtocolAggregatedData" instead
     "ProtocolMemoryReducerNode",
     "ProtocolMemoryRequest",
     "ProtocolMemoryResponse",
@@ -219,10 +218,10 @@ __all__ = [
     "ProtocolPatternAnalysisResponse",
     "ProtocolPerformanceOptimization",
     "ProtocolRateLimitConfig",
-    "ProtocolRetryPolicy",
+    "ProtocolMemoryRetryPolicy",
     "ProtocolSearchFilters",
     "ProtocolSearchResult",
-    "ProtocolSecurityContext",
+    "ProtocolMemorySecurityContext",
     "ProtocolSemanticSearchRequest",
     "ProtocolSemanticSearchResponse",
     "ProtocolStreamingChunk",

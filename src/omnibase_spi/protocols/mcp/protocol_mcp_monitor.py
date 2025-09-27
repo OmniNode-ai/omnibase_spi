@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 MCP Monitor Protocol - ONEX SPI Interface.
 
@@ -8,7 +7,7 @@ Provides comprehensive monitoring, alerting, and health management for MCP syste
 Domain: MCP monitoring, health checks, and observability
 """
 
-from typing import Any, Callable, Optional, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Callable, Optional, Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_mcp_types import (
     ProtocolMCPHealthCheck,
@@ -26,9 +25,7 @@ class ProtocolMCPHealthMonitor(Protocol):
     """
 
     async def perform_health_check(
-        self,
-        subsystem: ProtocolMCPSubsystemRegistration,
-        check_tools: bool,
+        self, subsystem: ProtocolMCPSubsystemRegistration, check_tools: bool
     ) -> ProtocolMCPHealthCheck:
         """
         Perform comprehensive health check on a subsystem.
@@ -46,7 +43,7 @@ class ProtocolMCPHealthMonitor(Protocol):
         self,
         subsystem_id: str,
         interval_seconds: int,
-        callback: Optional[Callable[[Any], Any]],
+        callback: Callable[[Any], Any] | None,
     ) -> bool:
         """
         Start continuous health monitoring for a subsystem.
@@ -75,7 +72,7 @@ class ProtocolMCPHealthMonitor(Protocol):
 
     async def get_health_status(
         self, subsystem_id: str
-    ) -> Optional[ProtocolMCPHealthCheck]:
+    ) -> ProtocolMCPHealthCheck | None:
         """
         Get latest health status for a subsystem.
 
@@ -88,10 +85,7 @@ class ProtocolMCPHealthMonitor(Protocol):
         ...
 
     async def get_health_history(
-        self,
-        subsystem_id: str,
-        hours: int,
-        limit: int,
+        self, subsystem_id: str, hours: int, limit: int
     ) -> list[ProtocolMCPHealthCheck]:
         """
         Get health check history for a subsystem.
@@ -107,9 +101,7 @@ class ProtocolMCPHealthMonitor(Protocol):
         ...
 
     async def detect_health_anomalies(
-        self,
-        subsystem_id: Optional[str],
-        time_window_hours: int,
+        self, subsystem_id: str | None, time_window_hours: int
     ) -> list[dict[str, Any]]:
         """
         Detect health anomalies and patterns.
@@ -143,14 +135,10 @@ class ProtocolMCPMonitor(Protocol):
     """
 
     @property
-    def health_monitor(self) -> ProtocolMCPHealthMonitor:
-        """Get the health monitor implementation."""
-        ...
+    def health_monitor(self) -> ProtocolMCPHealthMonitor: ...
 
     async def start_comprehensive_monitoring(
-        self,
-        registry_config: dict[str, Any],
-        monitoring_config: Optional[dict[str, Any]],
+        self, registry_config: dict[str, Any], monitoring_config: dict[str, Any] | None
     ) -> bool:
         """
         Start comprehensive monitoring of the MCP system.
@@ -186,7 +174,7 @@ class ProtocolMCPMonitor(Protocol):
         ...
 
     async def generate_alerts(
-        self, alert_config: Optional[dict[str, Any]] = None
+        self, alert_config: dict[str, Any] | None = None
     ) -> list[dict[str, Any]]:
         """
         Generate alerts based on current system status.
@@ -203,7 +191,7 @@ class ProtocolMCPMonitor(Protocol):
         self,
         subsystem_id: str,
         interval_seconds: int,
-        callback: Optional[Callable[[Any], Any]],
+        callback: Callable[[Any], Any] | None,
     ) -> bool:
         """
         Monitor performance metrics for a specific subsystem.
@@ -219,10 +207,7 @@ class ProtocolMCPMonitor(Protocol):
         ...
 
     async def analyze_performance_trends(
-        self,
-        subsystem_id: Optional[str],
-        time_range_hours: int,
-        metrics: Optional[list[str]],
+        self, subsystem_id: str | None, time_range_hours: int, metrics: list[str] | None
     ) -> dict[str, Any]:
         """
         Analyze performance trends and patterns.
@@ -238,9 +223,7 @@ class ProtocolMCPMonitor(Protocol):
         ...
 
     async def generate_health_report(
-        self,
-        time_range_hours: int,
-        include_recommendations: bool,
+        self, time_range_hours: int, include_recommendations: bool
     ) -> dict[str, Any]:
         """
         Generate comprehensive health report.
@@ -258,7 +241,7 @@ class ProtocolMCPMonitor(Protocol):
         self,
         alert_handlers: list[Callable[[Any], Any]],
         thresholds: dict[str, Any],
-        escalation_rules: Optional[dict[str, Any]],
+        escalation_rules: dict[str, Any] | None,
     ) -> bool:
         """
         Configure alerting system.
@@ -283,7 +266,7 @@ class ProtocolMCPMonitor(Protocol):
         ...
 
     async def generate_dashboard_data(
-        self, dashboard_config: Optional[dict[str, Any]] = None
+        self, dashboard_config: dict[str, Any] | None = None
     ) -> dict[str, Any]:
         """
         Generate data for operational dashboard.
@@ -297,10 +280,7 @@ class ProtocolMCPMonitor(Protocol):
         ...
 
     async def export_monitoring_data(
-        self,
-        format_type: str,
-        time_range_hours: int,
-        include_raw_data: bool,
+        self, format_type: str, time_range_hours: int, include_raw_data: bool
     ) -> dict[str, Any]:
         """
         Export monitoring data for external analysis.

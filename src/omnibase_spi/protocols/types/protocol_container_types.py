@@ -43,6 +43,7 @@ class ProtocolContainer(Protocol):
         ...
 
 
+@runtime_checkable
 class ProtocolDependencySpec(Protocol):
     """Protocol for dependency specification objects."""
 
@@ -51,18 +52,28 @@ class ProtocolDependencySpec(Protocol):
     class_name: str
     lifecycle: LiteralServiceLifecycle
     scope: LiteralDependencyScope
-    configuration: dict[str, ContextValue]
+    configuration: dict[str, "ContextValue"]
 
 
-class ProtocolServiceInstance(Protocol):
-    """Protocol for service instance objects."""
+@runtime_checkable
+class ProtocolContainerServiceInstance(Protocol):
+    """Protocol for dependency injection container service instance objects."""
 
     service_key: str
     instance_type: type
     lifecycle: LiteralServiceLifecycle
     is_initialized: bool
 
+    def validate_service_instance(self) -> bool:
+        """Validate containerserviceinstance data integrity and consistency."""
+        ...
 
+    async def is_ready_for_use(self) -> bool:
+        """Check if containerserviceinstance ready for use."""
+        ...
+
+
+@runtime_checkable
 class ProtocolRegistryWrapper(Protocol):
     """Protocol for registry wrapper objects."""
 
@@ -79,41 +90,36 @@ class ProtocolRegistryWrapper(Protocol):
         ...
 
 
+@runtime_checkable
 class ProtocolContainerResult(Protocol):
     """Protocol for container creation results."""
 
-    container: ProtocolContainer
-    registry: ProtocolRegistryWrapper
+    container: "ProtocolContainer"
+    registry: "ProtocolRegistryWrapper"
     status: LiteralContainerStatus
     error_message: str | None
     services_registered: int
 
 
-# Tool-related container protocols
-class ProtocolToolClass(Protocol):
-    """Protocol for tool class objects."""
-
-    __name__: str
-    __module__: str
-
-    def __call__(self, *args: object, **kwargs: object) -> "ProtocolToolInstance":
-        """Create tool instance."""
-        ...
-
-
-class ProtocolToolInstance(Protocol):
-    """Protocol for tool instance objects."""
+# Note: "ProtocolToolClass" is defined in protocol_mcp_types.py
+# Tool instances in container context
+@runtime_checkable
+class ProtocolContainerToolInstance(Protocol):
+    """Protocol for tool instance objects in dependency injection container context."""
 
     tool_name: str
-    tool_version: ProtocolSemVer
+    tool_version: "ProtocolSemVer"
     is_initialized: bool
 
-    def process(self, input_data: dict[str, ContextValue]) -> dict[str, ContextValue]:
+    async def process(
+        self, input_data: dict[str, "ContextValue"]
+    ) -> dict[str, "ContextValue"]:
         """Process input data and return results."""
         ...
 
 
 # Container factory protocols
+@runtime_checkable
 class ProtocolContainerFactory(Protocol):
     """Protocol for container factory objects."""
 
@@ -122,28 +128,30 @@ class ProtocolContainerFactory(Protocol):
         ...
 
     def create_registry_wrapper(
-        self, container: ProtocolContainer
+        self, container: "ProtocolContainer"
     ) -> ProtocolRegistryWrapper:
         """Create registry wrapper around container."""
         ...
 
 
-class ProtocolServiceFactory(Protocol):
-    """Protocol for service factory objects."""
+@runtime_checkable
+class ProtocolContainerServiceFactory(Protocol):
+    """Protocol for dependency injection container service factory objects."""
 
     def create_service(
         self,
-        dependency_spec: ProtocolDependencySpec,
-    ) -> ProtocolServiceInstance:
+        dependency_spec: "ProtocolDependencySpec",
+    ) -> ProtocolContainerServiceInstance:
         """Create service instance from dependency specification."""
         ...
 
-    def validate_dependency(self, dependency_spec: ProtocolDependencySpec) -> bool:
+    def validate_dependency(self, dependency_spec: "ProtocolDependencySpec") -> bool:
         """Validate dependency specification."""
         ...
 
 
 # Container configuration protocols
+@runtime_checkable
 class ProtocolContainerConfiguration(Protocol):
     """Protocol for container configuration objects."""
 
@@ -151,4 +159,4 @@ class ProtocolContainerConfiguration(Protocol):
     lazy_loading: bool
     validation_enabled: bool
     cache_services: bool
-    configuration_overrides: dict[str, ContextValue]
+    configuration_overrides: dict[str, "ContextValue"]

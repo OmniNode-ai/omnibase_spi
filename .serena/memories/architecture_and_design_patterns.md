@@ -34,11 +34,11 @@ if TYPE_CHECKING:
 @runtime_checkable
 class ProtocolCanonicalSerializer(Protocol):
     """Contract for canonical serialization services."""
-    
+
     def serialize(self, data: object) -> "ProtocolSerializationResult":
         """Serialize object to canonical format."""
         ...
-    
+
     def deserialize(self, serialized: str) -> object:
         """Deserialize from canonical format."""
         ...
@@ -70,7 +70,7 @@ R = TypeVar('R')
 
 class ProtocolGenericProcessor(Protocol, Generic[T, R]):
     """Generic processing contract."""
-    
+
     def process(self, input_data: T) -> R:
         """Process input of type T and return result of type R."""
         ...
@@ -187,8 +187,8 @@ class ProtocolValidationDecorator(Protocol):
     def validate_input(self, func: F) -> F:
         """Decorator for input validation."""
         ...
-    
-    def validate_output(self, func: F) -> F: 
+
+    def validate_output(self, func: F) -> F:
         """Decorator for output validation."""
         ...
 ```
@@ -199,7 +199,7 @@ class ProtocolValidationDecorator(Protocol):
 ```python
 class ProtocolEventPublisher(Protocol):
     def publish(self, event: "EventData") -> bool: ...
-    
+
 class ProtocolEventSubscriber(Protocol):
     def subscribe(self, event_type: str, handler: "ProtocolEventHandler") -> bool: ...
     def unsubscribe(self, event_type: str, handler: "ProtocolEventHandler") -> bool: ...
@@ -209,7 +209,7 @@ class ProtocolEventSubscriber(Protocol):
 ```python
 class ProtocolEventBus(Protocol):
     """Central event coordination contract."""
-    
+
     def register_handler(self, event_type: str, handler: "ProtocolEventHandler") -> None: ...
     def emit_event(self, event: "EventData") -> None: ...
     def remove_handler(self, event_type: str, handler: "ProtocolEventHandler") -> None: ...
@@ -221,7 +221,7 @@ class ProtocolEventBus(Protocol):
 ```python
 class ProtocolServiceRegistry(Protocol):
     """Service location and management contract."""
-    
+
     def register_service(self, service_id: str, service: object) -> bool: ...
     def get_service(self, service_id: str) -> object: ...
     def list_services(self) -> list[str]: ...
@@ -231,7 +231,7 @@ class ProtocolServiceRegistry(Protocol):
 ```python
 class ProtocolHandlerDiscovery(Protocol):
     """Dynamic handler discovery contract."""
-    
+
     def discover_handlers(self, handler_type: str) -> list[object]: ...
     def register_handler_factory(self, factory: "ProtocolHandlerFactory") -> None: ...
 ```
@@ -247,7 +247,7 @@ class ProtocolSuccessResult(TypedDict):
     data: object
 
 class ProtocolErrorResult(TypedDict):
-    success: Literal[False] 
+    success: Literal[False]
     error: str
     error_code: str
 

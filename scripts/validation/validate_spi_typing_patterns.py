@@ -320,6 +320,10 @@ class SPITypingValidator(ast.NodeVisitor):
 
     def _should_be_async_method(self, node: ast.FunctionDef, return_type: str) -> bool:
         """Check if method should be async based on patterns."""
+        # Skip @property methods - they should never be async
+        if self._has_property_decorator(node):
+            return False
+
         # Check method name patterns
         async_patterns = [
             "connect",
@@ -345,6 +349,15 @@ class SPITypingValidator(ast.NodeVisitor):
         if any(io_type in return_type.lower() for io_type in io_return_types):
             return True
 
+        return False
+
+    def _has_property_decorator(self, node: ast.FunctionDef) -> bool:
+        """Check if function has @property decorator."""
+        for decorator in node.decorator_list:
+            if isinstance(decorator, ast.Name) and decorator.id == "property":
+                return True
+            if isinstance(decorator, ast.Attribute) and decorator.attr == "property":
+                return True
         return False
 
     def _is_awaitable_return_type(self, return_type: str) -> bool:

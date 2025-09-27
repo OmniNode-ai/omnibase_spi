@@ -38,7 +38,7 @@ class MyArtifactContainer:
     def get_status(self):
         # Implementation...
         pass
-    
+
     def get_artifacts(self):
         # Implementation...
         pass
@@ -64,7 +64,7 @@ class MyArtifactContainer:
     def get_status(self):
         # Implementation automatically validated on instantiation
         pass
-    
+
     # ... other methods
 
 # Validation occurs when creating instance
@@ -192,16 +192,16 @@ class TestMyContainer(unittest.TestCase):
     def setUp(self):
         self.container = MyArtifactContainer()
         self.validator = ArtifactContainerValidator()
-    
+
     def test_protocol_compliance(self):
         result = self.validator.validate_implementation(
-            self.container, 
+            self.container,
             ProtocolArtifactContainer
         )
-        
-        self.assertTrue(result.is_valid, 
+
+        self.assertTrue(result.is_valid,
                        f"Protocol validation failed:\\n{result.get_summary()}")
-        
+
         # Allow warnings but no errors
         self.assertEqual(len(result.errors), 0)
 ```
@@ -235,7 +235,7 @@ validator = ProtocolValidator(strict_mode=True)
 validator = ProtocolValidator(strict_mode=False)
 
 # Custom validation
-@validation_decorator(MyProtocol, 
+@validation_decorator(MyProtocol,
                      strict_mode=True,
                      raise_on_error=False,  # Warn instead of raising
                      development_only=True)  # Only in development
@@ -345,7 +345,7 @@ class MyProtocolValidator(ProtocolValidator):
         result = super().validate_implementation(implementation, protocol)
         self._validate_my_protocol_rules(implementation, result)
         return result
-    
+
     def _validate_my_protocol_rules(self, implementation, result):
         # Domain-specific validation logic
         pass

@@ -6,14 +6,16 @@ Defines the contract for request envelopes with metadata, correlation IDs, and s
 """
 
 from datetime import datetime
-from typing import Optional, Protocol
+from typing import TYPE_CHECKING, Any, Optional, Protocol, runtime_checkable
 from uuid import UUID
 
-from pydantic import BaseModel
+from omnibase_spi.protocols.core.protocol_onex_validation import (
+    ProtocolOnexMetadata,
+    ProtocolOnexSecurityContext,
+)
 
-from .protocol_onex_validation import ProtocolOnexMetadata, ProtocolOnexSecurityContext
 
-
+@runtime_checkable
 class ProtocolOnexEnvelope(Protocol):
     """
     Protocol interface for Onex envelope pattern.
@@ -22,13 +24,13 @@ class ProtocolOnexEnvelope(Protocol):
     Provides standardized request wrapping with metadata and security context.
     """
 
-    def create_envelope(
+    async def create_envelope(
         self,
-        payload: BaseModel,
-        correlation_id: Optional[UUID] = None,
-        security_context: Optional[ProtocolOnexSecurityContext] = None,
-        metadata: Optional[ProtocolOnexMetadata] = None,
-    ) -> BaseModel:
+        payload: "Any",
+        correlation_id: UUID | None = None,
+        security_context: "ProtocolOnexSecurityContext | None" = None,
+        metadata: "ProtocolOnexMetadata | None" = None,
+    ) -> "Any":
         """
         Create an Onex envelope wrapping the provided payload.
 
@@ -43,7 +45,7 @@ class ProtocolOnexEnvelope(Protocol):
         """
         ...
 
-    def extract_payload(self, envelope: BaseModel) -> BaseModel:
+    async def extract_payload(self, envelope: "Any") -> "Any":
         """
         Extract the payload from an Onex envelope.
 
@@ -55,7 +57,7 @@ class ProtocolOnexEnvelope(Protocol):
         """
         ...
 
-    def get_correlation_id(self, envelope: BaseModel) -> Optional[UUID]:
+    def get_correlation_id(self, envelope: "Any") -> UUID | None:
         """
         Get the correlation ID from an Onex envelope.
 
@@ -68,8 +70,8 @@ class ProtocolOnexEnvelope(Protocol):
         ...
 
     def get_security_context(
-        self, envelope: BaseModel
-    ) -> Optional[ProtocolOnexSecurityContext]:
+        self, envelope: "Any"
+    ) -> "ProtocolOnexSecurityContext | None":
         """
         Get the security context from an Onex envelope.
 
@@ -81,7 +83,7 @@ class ProtocolOnexEnvelope(Protocol):
         """
         ...
 
-    def get_metadata(self, envelope: BaseModel) -> Optional[ProtocolOnexMetadata]:
+    def get_metadata(self, envelope: "Any") -> "ProtocolOnexMetadata | None":
         """
         Get all metadata from an Onex envelope.
 
@@ -93,7 +95,7 @@ class ProtocolOnexEnvelope(Protocol):
         """
         ...
 
-    def validate_envelope(self, envelope: BaseModel) -> bool:
+    async def validate_envelope(self, envelope: "Any") -> bool:
         """
         Validate an Onex envelope for completeness and compliance.
 
@@ -105,7 +107,7 @@ class ProtocolOnexEnvelope(Protocol):
         """
         ...
 
-    def get_timestamp(self, envelope: BaseModel) -> datetime:
+    def get_timestamp(self, envelope: "Any") -> datetime:
         """
         Get the creation timestamp from an Onex envelope.
 
@@ -117,7 +119,7 @@ class ProtocolOnexEnvelope(Protocol):
         """
         ...
 
-    def get_source_tool(self, envelope: BaseModel) -> Optional[str]:
+    def get_source_tool(self, envelope: "Any") -> str | None:
         """
         Get the source tool identifier from an Onex envelope.
 
@@ -129,7 +131,7 @@ class ProtocolOnexEnvelope(Protocol):
         """
         ...
 
-    def get_target_tool(self, envelope: BaseModel) -> Optional[str]:
+    def get_target_tool(self, envelope: "Any") -> str | None:
         """
         Get the target tool identifier from an Onex envelope.
 
@@ -141,9 +143,7 @@ class ProtocolOnexEnvelope(Protocol):
         """
         ...
 
-    def with_metadata(
-        self, envelope: BaseModel, metadata: ProtocolOnexMetadata
-    ) -> BaseModel:
+    def with_metadata(self, envelope: "Any", metadata: "ProtocolOnexMetadata") -> "Any":
         """
         Add metadata to an Onex envelope.
 
@@ -157,7 +157,7 @@ class ProtocolOnexEnvelope(Protocol):
         """
         ...
 
-    def is_onex_compliant(self, envelope: BaseModel) -> bool:
+    def is_onex_compliant(self, envelope: "Any") -> bool:
         """
         Check if envelope follows Onex standard compliance.
 

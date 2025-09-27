@@ -74,7 +74,7 @@
   },
   "repository_settings": {
     "project_type": "auto_detect",
-    "primary_language": "auto_detect", 
+    "primary_language": "auto_detect",
     "architecture_type": "onex",
     "quality_standards": ["onex", "clean_architecture"],
     "performance_targets": {

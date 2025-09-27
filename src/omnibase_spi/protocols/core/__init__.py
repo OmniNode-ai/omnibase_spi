@@ -2,7 +2,7 @@
 Core Protocol Interfaces
 
 System-level contracts for serialization, schema loading, workflow processing,
-logging, node registry, and other core functionality supporting the ONEX 
+logging, node registry, and other core functionality supporting the ONEX
 Messaging Design v0.3.
 """
 
@@ -109,7 +109,6 @@ from omnibase_spi.protocols.core.protocol_onex_validation import (
 from omnibase_spi.protocols.core.protocol_performance_metrics import (
     ProtocolPerformanceMetricsCollector,
 )
-from omnibase_spi.protocols.core.protocol_reducer import ProtocolReducer
 from omnibase_spi.protocols.core.protocol_retryable import ProtocolRetryable
 from omnibase_spi.protocols.core.protocol_schema_loader import ProtocolSchemaLoader
 from omnibase_spi.protocols.core.protocol_service_discovery import (
@@ -132,6 +131,9 @@ from omnibase_spi.protocols.core.protocol_workflow_manageable import (
 )
 from omnibase_spi.protocols.core.protocol_workflow_reducer import (
     ProtocolWorkflowReducer,
+)
+from omnibase_spi.protocols.core.protocol_workflow_reducer import (
+    ProtocolWorkflowReducer as ProtocolReducer,
 )
 
 __all__ = [

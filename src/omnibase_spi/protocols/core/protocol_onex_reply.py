@@ -5,18 +5,18 @@ Protocol interface for Onex standard reply pattern.
 Defines the contract for response replies with status, data, and error information.
 """
 
-from typing import Any, Literal, Optional, Protocol
+from typing import Any, Literal, Optional, Protocol, runtime_checkable
 from uuid import UUID
 
 from omnibase_spi.protocols.core.protocol_onex_validation import ProtocolOnexMetadata
 from omnibase_spi.protocols.types.protocol_core_types import ProtocolDateTime
 
-# Standard Onex reply status values - using Literal instead of Enum
 LiteralOnexReplyStatus = Literal[
     "success", "partial_success", "failure", "error", "timeout", "validation_error"
 ]
 
 
+@runtime_checkable
 class ProtocolOnexReply(Protocol):
     """
     Protocol interface for Onex reply pattern.
@@ -25,11 +25,11 @@ class ProtocolOnexReply(Protocol):
     Provides standardized response wrapping with status and error information.
     """
 
-    def create_success_reply(
+    async def create_success_reply(
         self,
         data: Any,
-        correlation_id: Optional[UUID] = None,
-        metadata: Optional[ProtocolOnexMetadata] = None,
+        correlation_id: UUID | None = None,
+        metadata: "ProtocolOnexMetadata | None" = None,
     ) -> Any:
         """
         Create a successful Onex reply with data.
@@ -44,13 +44,13 @@ class ProtocolOnexReply(Protocol):
         """
         ...
 
-    def create_error_reply(
+    async def create_error_reply(
         self,
         error_message: str,
-        error_code: Optional[str] = None,
-        error_details: Optional[str] = None,
-        correlation_id: Optional[UUID] = None,
-        metadata: Optional[ProtocolOnexMetadata] = None,
+        error_code: str | None = None,
+        error_details: str | None = None,
+        correlation_id: UUID | None = None,
+        metadata: "ProtocolOnexMetadata | None" = None,
     ) -> Any:
         """
         Create an error Onex reply with error information.
@@ -67,11 +67,11 @@ class ProtocolOnexReply(Protocol):
         """
         ...
 
-    def create_validation_error_reply(
+    async def create_validation_error_reply(
         self,
         validation_errors: list[str],
-        correlation_id: Optional[UUID] = None,
-        metadata: Optional[ProtocolOnexMetadata] = None,
+        correlation_id: UUID | None = None,
+        metadata: "ProtocolOnexMetadata | None" = None,
     ) -> Any:
         """
         Create a validation error Onex reply with validation issues.
@@ -86,7 +86,7 @@ class ProtocolOnexReply(Protocol):
         """
         ...
 
-    def extract_data(self, reply: Any) -> Optional[Any]:
+    def extract_data(self, reply: Any) -> Any | None:
         """
         Extract the data from an Onex reply.
 
@@ -98,7 +98,7 @@ class ProtocolOnexReply(Protocol):
         """
         ...
 
-    def get_status(self, reply: Any) -> LiteralOnexReplyStatus:
+    def get_status(self, reply: Any) -> "LiteralOnexReplyStatus":
         """
         Get the status from an Onex reply.
 
@@ -110,7 +110,7 @@ class ProtocolOnexReply(Protocol):
         """
         ...
 
-    def get_error_message(self, reply: Any) -> Optional[str]:
+    def get_error_message(self, reply: Any) -> str | None:
         """
         Get the error message from an Onex reply.
 
@@ -122,7 +122,7 @@ class ProtocolOnexReply(Protocol):
         """
         ...
 
-    def get_error_code(self, reply: Any) -> Optional[str]:
+    def get_error_code(self, reply: Any) -> str | None:
         """
         Get the error code from an Onex reply.
 
@@ -134,7 +134,7 @@ class ProtocolOnexReply(Protocol):
         """
         ...
 
-    def get_error_details(self, reply: Any) -> Optional[str]:
+    def get_error_details(self, reply: Any) -> str | None:
         """
         Get the error details from an Onex reply.
 
@@ -146,7 +146,7 @@ class ProtocolOnexReply(Protocol):
         """
         ...
 
-    def get_correlation_id(self, reply: Any) -> Optional[UUID]:
+    def get_correlation_id(self, reply: Any) -> UUID | None:
         """
         Get the correlation ID from an Onex reply.
 
@@ -158,7 +158,7 @@ class ProtocolOnexReply(Protocol):
         """
         ...
 
-    def get_metadata(self, reply: Any) -> Optional[ProtocolOnexMetadata]:
+    def get_metadata(self, reply: Any) -> ProtocolOnexMetadata | None:
         """
         Get all metadata from an Onex reply.
 
@@ -206,7 +206,7 @@ class ProtocolOnexReply(Protocol):
         """
         ...
 
-    def get_processing_time(self, reply: Any) -> Optional[float]:
+    async def get_processing_time(self, reply: Any) -> float | None:
         """
         Get the processing time from an Onex reply.
 
@@ -218,7 +218,7 @@ class ProtocolOnexReply(Protocol):
         """
         ...
 
-    def with_metadata(self, reply: Any, metadata: ProtocolOnexMetadata) -> Any:
+    def with_metadata(self, reply: Any, metadata: "ProtocolOnexMetadata") -> Any:
         """
         Add metadata to an Onex reply.
 
@@ -244,7 +244,7 @@ class ProtocolOnexReply(Protocol):
         """
         ...
 
-    def validate_reply(self, reply: Any) -> bool:
+    async def validate_reply(self, reply: Any) -> bool:
         """
         Validate an Onex reply for completeness and compliance.
 

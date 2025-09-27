@@ -62,7 +62,7 @@ src/omnibase_spi/protocols/
 ```python
 from omnibase_spi.protocols.workflow_orchestration import (
     ProtocolWorkflowEventBus,
-    ProtocolWorkflowNodeRegistry, 
+    ProtocolWorkflowNodeRegistry,
     ProtocolWorkflowPersistence
 )
 from omnibase_spi.protocols.types.workflow_orchestration_types import (
@@ -124,7 +124,7 @@ async def register_mcp_subsystem(registry: ProtocolMCPRegistry):
             # Tool metadata
         )
     ]
-    
+
     registration_id = await registry.register_subsystem(
         subsystem_metadata=subsystem_info,
         tools=tools,
@@ -193,8 +193,8 @@ async def register_workflow_node(registry: ProtocolNodeRegistry):
 ```python
 # Workflow data types with union constraints
 WorkflowData = Union[
-    str, int, float, bool, 
-    list[str], 
+    str, int, float, bool,
+    list[str],
     dict[str, Union[str, int, float, bool]]
 ]
 
@@ -225,30 +225,30 @@ from uuid import UUID
 class ProtocolWorkflowExample(Protocol):
     """
     Protocol description with clear contract definition.
-    
+
     Key Features:
         - Feature 1 description
         - Feature 2 description
     """
-    
+
     # Properties with clear types
     property_name: str
-    
+
     async def method_name(
-        self, 
-        param: str, 
+        self,
+        param: str,
         optional_param: Optional[int] = None
     ) -> "ForwardReference":
         """
         Method documentation with clear expectations.
-        
+
         Args:
             param: Parameter description
             optional_param: Optional parameter description
-            
+
         Returns:
             Return value description
-            
+
         Raises:
             ValueError: When parameter validation fails
         """
@@ -270,7 +270,7 @@ from omnibase_spi.protocols.core.protocol_workflow_reducer import ProtocolWorkfl
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types.core_types import NodeMetadata
-    
+
 def process_node(self, node: "NodeMetadata") -> str: ...
 
 # ❌ FORBIDDEN - Implementation imports
@@ -328,7 +328,7 @@ if TYPE_CHECKING:
 @runtime_checkable  
 class ProtocolNewService(Protocol):
     """Protocol for new service functionality."""
-    
+
     async def service_method(self, param: str) -> "DomainType":
         """Service method description."""
         ...
@@ -367,7 +367,7 @@ from omnibase_spi.protocols.domain import ProtocolNewService
 
 class MockServiceImplementation:
     """Test implementation of protocol."""
-    
+
     async def service_method(self, param: str) -> dict:
         return {"status": "active", "name": param}
 
@@ -388,10 +388,10 @@ from omnibase_spi.protocols.types.workflow_orchestration_types import ProtocolWo
 
 class WorkflowEventBusImplementation(ProtocolWorkflowEventBus):
     """Concrete implementation of workflow event bus protocol."""
-    
+
     async def publish_workflow_event(
-        self, 
-        event: ProtocolWorkflowEvent, 
+        self,
+        event: ProtocolWorkflowEvent,
         target_topic: Optional[str] = None
     ) -> None:
         # Actual implementation using Kafka, Redis, etc.
@@ -405,12 +405,12 @@ class WorkflowEventBusImplementation(ProtocolWorkflowEventBus):
 class ServiceContainer:
     def __init__(self):
         self._services: dict[type, Any] = {}
-    
+
     def register(self, protocol: type, implementation: Any) -> None:
         if not isinstance(implementation, protocol):
             raise ValueError(f"Implementation must satisfy {protocol}")
         self._services[protocol] = implementation
-    
+
     def get(self, protocol: type) -> Any:
         return self._services[protocol]
 
@@ -431,7 +431,7 @@ event_bus = container.get(ProtocolWorkflowEventBus)
 event = ProtocolWorkflowEvent(
     event_id=UUID(...),
     event_type="task.completed",
-    workflow_type="data_pipeline", 
+    workflow_type="data_pipeline",
     instance_id=UUID(...),
     sequence_number=42,
     causation_id=UUID(...),  # Event that caused this event
@@ -483,7 +483,7 @@ subsystem_b_tools = [
 
 # Registry handles load balancing and failover
 result = await mcp_registry.execute_tool(
-    tool_name="search", 
+    tool_name="search",
     parameters={"query": "find documents"},
     correlation_id=UUID(...),
     preferred_subsystem="subsystem_a"  # Optional preference
@@ -536,17 +536,17 @@ repos:
 @runtime_checkable
 class ProtocolServiceExample(Protocol):
     """Example service protocol with proper error handling."""
-    
+
     async def process_request(self, request: str) -> str:
         """
         Process service request.
-        
+
         Args:
             request: Request data to process
-            
+
         Returns:
             Processed response
-            
+
         Raises:
             ValueError: If request format is invalid
             TimeoutError: If processing exceeds timeout

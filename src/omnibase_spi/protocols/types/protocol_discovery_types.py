@@ -69,17 +69,19 @@ CapabilityValue = ProtocolCapabilityValue
 
 
 # Handler discovery protocols
+@runtime_checkable
 class ProtocolHandlerCapability(Protocol):
     """Protocol for node capability objects."""
 
     capability_name: str
     capability_value: CapabilityValue
     is_required: bool
-    version: ProtocolSemVer
+    version: "ProtocolSemVer"
 
 
-class ProtocolHandlerInfo(Protocol):
-    """Protocol for node information objects."""
+@runtime_checkable
+class ProtocolDiscoveryNodeInfo(Protocol):
+    """Protocol for discovery node information objects with handler status."""
 
     node_id: UUID
     node_name: str
@@ -89,16 +91,18 @@ class ProtocolHandlerInfo(Protocol):
     metadata: dict[str, CapabilityValue]
 
 
+@runtime_checkable
 class ProtocolDiscoveryQuery(Protocol):
     """Protocol for discovery query objects."""
 
     query_id: UUID
     target_type: str
     required_capabilities: list[str]
-    filters: dict[str, ContextValue]
+    filters: dict[str, "ContextValue"]
     timeout_seconds: float
 
 
+@runtime_checkable
 class ProtocolDiscoveryResult(Protocol):
     """Protocol for discovery result objects."""
 
@@ -110,6 +114,7 @@ class ProtocolDiscoveryResult(Protocol):
 
 
 # Handler registration protocols
+@runtime_checkable
 class ProtocolHandlerRegistration(Protocol):
     """Protocol for node registration objects."""
 

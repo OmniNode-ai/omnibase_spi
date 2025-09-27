@@ -22,10 +22,7 @@ if TYPE_CHECKING:
         ProtocolMemoryResponse,
         ProtocolWorkflowExecutionResponse,
     )
-    from .protocol_memory_security import ProtocolSecurityContext
-
-
-# === WORKFLOW MANAGEMENT INTERFACES ===
+    from .protocol_memory_security import ProtocolMemorySecurityContext
 
 
 @runtime_checkable
@@ -40,8 +37,8 @@ class ProtocolWorkflowManager(Protocol):
     async def execute_workflow(
         self,
         request: "ProtocolWorkflowExecutionRequest",
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        timeout_seconds: Optional[float] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolWorkflowExecutionResponse":
         """
         Execute a memory workflow with specified configuration.
@@ -64,8 +61,8 @@ class ProtocolWorkflowManager(Protocol):
     async def pause_workflow(
         self,
         workflow_id: UUID,
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        correlation_id: Optional[UUID] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        correlation_id: UUID | None = None,
     ) -> "ProtocolMemoryResponse":
         """
         Pause a running workflow.
@@ -87,8 +84,8 @@ class ProtocolWorkflowManager(Protocol):
     async def resume_workflow(
         self,
         workflow_id: UUID,
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        correlation_id: Optional[UUID] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        correlation_id: UUID | None = None,
     ) -> "ProtocolMemoryResponse":
         """
         Resume a paused workflow.
@@ -110,8 +107,8 @@ class ProtocolWorkflowManager(Protocol):
     async def cancel_workflow(
         self,
         workflow_id: UUID,
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        correlation_id: Optional[UUID] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        correlation_id: UUID | None = None,
     ) -> "ProtocolMemoryResponse":
         """
         Cancel a running or paused workflow.
@@ -133,8 +130,8 @@ class ProtocolWorkflowManager(Protocol):
     async def get_workflow_status(
         self,
         workflow_id: UUID,
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        correlation_id: Optional[UUID] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        correlation_id: UUID | None = None,
     ) -> "ProtocolMemoryResponse":
         """
         Get current status of a workflow.
@@ -166,8 +163,8 @@ class ProtocolAgentCoordinator(Protocol):
     async def coordinate_agents(
         self,
         request: "ProtocolAgentCoordinationRequest",
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        timeout_seconds: Optional[float] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolAgentCoordinationResponse":
         """
         Coordinate multiple agents for distributed operations.
@@ -192,8 +189,8 @@ class ProtocolAgentCoordinator(Protocol):
         agent_id: UUID,
         agent_capabilities: list[str],
         agent_metadata: "ProtocolMemoryMetadata",
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        correlation_id: Optional[UUID] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        correlation_id: UUID | None = None,
     ) -> "ProtocolMemoryResponse":
         """
         Register a new agent with the coordinator.
@@ -217,8 +214,8 @@ class ProtocolAgentCoordinator(Protocol):
     async def unregister_agent(
         self,
         agent_id: UUID,
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        correlation_id: Optional[UUID] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        correlation_id: UUID | None = None,
     ) -> "ProtocolMemoryResponse":
         """
         Unregister an agent from the coordinator.
@@ -240,8 +237,8 @@ class ProtocolAgentCoordinator(Protocol):
     async def get_agent_status(
         self,
         agent_id: UUID,
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        correlation_id: Optional[UUID] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        correlation_id: UUID | None = None,
     ) -> "ProtocolMemoryResponse":
         """
         Get current status of a registered agent.
@@ -262,9 +259,9 @@ class ProtocolAgentCoordinator(Protocol):
 
     async def list_available_agents(
         self,
-        capability_filter: Optional[list[str]] = None,
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        correlation_id: Optional[UUID] = None,
+        capability_filter: list[str] | None = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        correlation_id: UUID | None = None,
     ) -> "ProtocolMemoryResponse":
         """
         List all available agents with optional capability filtering.
@@ -297,9 +294,9 @@ class ProtocolClusterCoordinator(Protocol):
         self,
         update_type: str,
         update_data: "ProtocolMemoryMetadata",
-        target_nodes: Optional[list[UUID]] = None,
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        correlation_id: Optional[UUID] = None,
+        target_nodes: list[UUID] | None = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        correlation_id: UUID | None = None,
     ) -> "ProtocolMemoryResponse":
         """
         Broadcast update across cluster nodes.
@@ -324,9 +321,9 @@ class ProtocolClusterCoordinator(Protocol):
         self,
         node_ids: list[UUID],
         synchronization_scope: "ProtocolMemoryMetadata",
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        correlation_id: Optional[UUID] = None,
-        timeout_seconds: Optional[float] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        correlation_id: UUID | None = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryResponse":
         """
         Synchronize state across specified cluster nodes.
@@ -351,8 +348,8 @@ class ProtocolClusterCoordinator(Protocol):
     async def get_cluster_status(
         self,
         include_node_details: bool = False,
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        correlation_id: Optional[UUID] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        correlation_id: UUID | None = None,
     ) -> "ProtocolMemoryResponse":
         """
         Get current cluster status and health.
@@ -375,9 +372,9 @@ class ProtocolClusterCoordinator(Protocol):
         self,
         maintenance_type: str,
         maintenance_parameters: "ProtocolMemoryMetadata",
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        correlation_id: Optional[UUID] = None,
-        timeout_seconds: Optional[float] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        correlation_id: UUID | None = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryResponse":
         """
         Perform cluster maintenance operations.
@@ -413,9 +410,9 @@ class ProtocolLifecycleManager(Protocol):
         self,
         policy_scope: "ProtocolMemoryMetadata",
         dry_run: bool = False,
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        correlation_id: Optional[UUID] = None,
-        timeout_seconds: Optional[float] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        correlation_id: UUID | None = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryResponse":
         """
         Apply memory retention policies to specified scope.
@@ -442,9 +439,9 @@ class ProtocolLifecycleManager(Protocol):
         memory_ids: list[UUID],
         archive_destination: str,
         archive_format: str,
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        correlation_id: Optional[UUID] = None,
-        timeout_seconds: Optional[float] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        correlation_id: UUID | None = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryResponse":
         """
         Archive specified memories to long-term storage.
@@ -471,9 +468,9 @@ class ProtocolLifecycleManager(Protocol):
         self,
         cleanup_scope: "ProtocolMemoryMetadata",
         safety_threshold_hours: int,
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        correlation_id: Optional[UUID] = None,
-        timeout_seconds: Optional[float] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        correlation_id: UUID | None = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryResponse":
         """
         Clean up expired memories based on retention policies.
@@ -498,10 +495,10 @@ class ProtocolLifecycleManager(Protocol):
     async def restore_archived_memories(
         self,
         archive_reference: str,
-        restore_destination: Optional[str] = None,
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        correlation_id: Optional[UUID] = None,
-        timeout_seconds: Optional[float] = None,
+        restore_destination: str | None = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        correlation_id: UUID | None = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryResponse":
         """
         Restore memories from archive storage.
@@ -524,9 +521,6 @@ class ProtocolLifecycleManager(Protocol):
         ...
 
 
-# === COMPOSITE INTERFACES ===
-
-
 @runtime_checkable
 class ProtocolMemoryOrchestrator(Protocol):
     """
@@ -536,23 +530,16 @@ class ProtocolMemoryOrchestrator(Protocol):
     interfaces above, or implemented directly for comprehensive orchestration.
     """
 
-    # Workflow management capabilities
     workflow_manager: "ProtocolWorkflowManager"
-
-    # Agent coordination capabilities
     agent_coordinator: "ProtocolAgentCoordinator"
-
-    # Cluster coordination capabilities
     cluster_coordinator: "ProtocolClusterCoordinator"
-
-    # Lifecycle management capabilities
     lifecycle_manager: "ProtocolLifecycleManager"
 
     async def health_check(
         self,
         check_scope: str,
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        correlation_id: Optional[UUID] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        correlation_id: UUID | None = None,
     ) -> "ProtocolMemoryResponse":
         """
         Perform comprehensive health check across all orchestration components.
@@ -585,8 +572,8 @@ class ProtocolComputeNodeComposite(Protocol):
         self,
         content: str,
         processing_options: "ProtocolMemoryMetadata",
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        timeout_seconds: Optional[float] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryResponse":
         """
         Process semantic information from content.
@@ -611,8 +598,8 @@ class ProtocolComputeNodeComposite(Protocol):
         self,
         data_source: "ProtocolMemoryMetadata",
         analysis_type: str,
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        timeout_seconds: Optional[float] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryResponse":
         """
         Analyze patterns in memory data.
@@ -636,9 +623,9 @@ class ProtocolComputeNodeComposite(Protocol):
     async def generate_embeddings(
         self,
         content_items: list[str],
-        embedding_model: Optional[str] = None,
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        timeout_seconds: Optional[float] = None,
+        embedding_model: str | None = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryResponse":
         """
         Generate embeddings for multiple content items.

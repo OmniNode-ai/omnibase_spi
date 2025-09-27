@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 MCP Tool Proxy Protocol - ONEX SPI Interface.
 
@@ -8,7 +7,7 @@ Handles tool execution routing, load balancing, and result aggregation.
 Domain: MCP tool execution and proxy management
 """
 
-from typing import Any, Optional, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Optional, Protocol, runtime_checkable
 from uuid import UUID
 
 from omnibase_spi.protocols.types.protocol_core_types import ContextValue
@@ -34,8 +33,8 @@ class ProtocolMCPToolRouter(Protocol):
         self,
         tool_name: str,
         parameters: dict[str, ContextValue],
-        routing_policy: Optional[str],
-    ) -> Optional[ProtocolMCPToolDefinition]:
+        routing_policy: str | None,
+    ) -> ProtocolMCPToolDefinition | None:
         """
         Select the best tool implementation for execution.
 
@@ -64,7 +63,7 @@ class ProtocolMCPToolRouter(Protocol):
         ...
 
     async def check_implementation_health(
-        self, tool_def: ProtocolMCPToolDefinition
+        self, tool_def: "ProtocolMCPToolDefinition"
     ) -> bool:
         """
         Check if a tool implementation is healthy and available.
@@ -103,7 +102,7 @@ class ProtocolMCPToolExecutor(Protocol):
         parameters: dict[str, ContextValue],
         execution_id: str,
         correlation_id: UUID,
-        timeout_seconds: Optional[int],
+        timeout_seconds: int | None,
     ) -> dict[str, Any]:
         """
         Execute a tool on a specific subsystem.
@@ -132,7 +131,7 @@ class ProtocolMCPToolExecutor(Protocol):
         parameters: dict[str, ContextValue],
         execution_id: str,
         correlation_id: UUID,
-        max_retries: Optional[int],
+        max_retries: int | None,
     ) -> dict[str, Any]:
         """
         Execute tool with retry logic on failure.
@@ -164,7 +163,7 @@ class ProtocolMCPToolExecutor(Protocol):
 
     async def get_execution_status(
         self, execution_id: str
-    ) -> Optional[LiteralMCPExecutionStatus]:
+    ) -> LiteralMCPExecutionStatus | None:
         """
         Get current execution status.
 
@@ -196,9 +195,7 @@ class ProtocolMCPToolProxy(Protocol):
     """
 
     @property
-    def router(self) -> ProtocolMCPToolRouter:
-        """Get the tool router implementation."""
-        ...
+    def router(self) -> ProtocolMCPToolRouter: ...
 
     @property
     def executor(self) -> ProtocolMCPToolExecutor:
@@ -210,9 +207,9 @@ class ProtocolMCPToolProxy(Protocol):
         tool_name: str,
         parameters: dict[str, ContextValue],
         correlation_id: UUID,
-        timeout_seconds: Optional[int],
-        routing_policy: Optional[str],
-        preferred_subsystem: Optional[str],
+        timeout_seconds: int | None,
+        routing_policy: str | None,
+        preferred_subsystem: str | None,
     ) -> dict[str, Any]:
         """
         Proxy tool execution with intelligent routing and error handling.
@@ -236,10 +233,7 @@ class ProtocolMCPToolProxy(Protocol):
         ...
 
     async def proxy_batch_execution(
-        self,
-        requests: list[dict[str, Any]],
-        correlation_id: UUID,
-        max_parallel: int,
+        self, requests: list[dict[str, Any]], correlation_id: UUID, max_parallel: int
     ) -> list[dict[str, Any]]:
         """
         Execute multiple tools in parallel with batching.
@@ -255,7 +249,7 @@ class ProtocolMCPToolProxy(Protocol):
         ...
 
     async def get_active_executions(
-        self, tool_name: Optional[str] = None
+        self, tool_name: str | None = None
     ) -> list[ProtocolMCPToolExecution]:
         """
         Get currently active tool executions.
@@ -270,9 +264,9 @@ class ProtocolMCPToolProxy(Protocol):
 
     async def get_execution_history(
         self,
-        tool_name: Optional[str],
-        subsystem_id: Optional[str],
-        correlation_id: Optional[UUID],
+        tool_name: str | None,
+        subsystem_id: str | None,
+        correlation_id: UUID | None,
         limit: int,
     ) -> list[ProtocolMCPToolExecution]:
         """
@@ -302,9 +296,7 @@ class ProtocolMCPToolProxy(Protocol):
         ...
 
     async def cancel_all_executions(
-        self,
-        tool_name: Optional[str],
-        subsystem_id: Optional[str],
+        self, tool_name: str | None, subsystem_id: str | None
     ) -> int:
         """
         Cancel multiple running executions.
@@ -319,9 +311,7 @@ class ProtocolMCPToolProxy(Protocol):
         ...
 
     async def get_execution_metrics(
-        self,
-        time_range_hours: int,
-        tool_name: Optional[str],
+        self, time_range_hours: int, tool_name: str | None
     ) -> dict[str, Any]:
         """
         Get execution metrics and statistics.
@@ -345,10 +335,7 @@ class ProtocolMCPToolProxy(Protocol):
         ...
 
     async def configure_caching(
-        self,
-        tool_name: str,
-        cache_ttl_seconds: int,
-        cache_key_fields: list[str],
+        self, tool_name: str, cache_ttl_seconds: int, cache_key_fields: list[str]
     ) -> bool:
         """
         Configure result caching for a tool.
@@ -363,7 +350,7 @@ class ProtocolMCPToolProxy(Protocol):
         """
         ...
 
-    async def clear_cache(self, tool_name: Optional[str] = None) -> int:
+    async def clear_cache(self, tool_name: str | None = None) -> int:
         """
         Clear cached results.
 

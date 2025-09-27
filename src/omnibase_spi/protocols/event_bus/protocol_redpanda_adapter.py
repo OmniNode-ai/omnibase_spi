@@ -23,6 +23,4 @@ class ProtocolRedpandaAdapter(ProtocolKafkaAdapter, Protocol):
     """
 
     @property
-    def redpanda_optimized_defaults(self) -> dict[str, ContextValue]:
-        """Get Redpanda-optimized configuration defaults."""
-        ...
+    def redpanda_optimized_defaults(self) -> dict[str, "ContextValue"]: ...

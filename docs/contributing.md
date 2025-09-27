@@ -236,40 +236,40 @@ async def process_workflow(self, data: Any) -> Any: ...
 class ProtocolPaymentService(Protocol):
     """
     Payment processing service protocol.
-    
+
     Handles secure payment transactions with support for multiple
     payment methods, comprehensive error handling, and audit trails.
-    
+
     Key Features:
         - **Multiple Payment Methods**: Credit cards, digital wallets, bank transfers
         - **Security Compliance**: PCI DSS compliant transaction processing  
         - **Comprehensive Audit**: Full transaction audit trails
         - **Error Recovery**: Robust error handling with retry mechanisms
         - **Async Operations**: Non-blocking payment processing
-    
+
     Security Considerations:
         - Never log sensitive payment information
         - Use tokenization for card data storage
         - Implement proper error messages to prevent information leakage
-    
+
     Example:
         ```python
         async def process_payment(service: ProtocolPaymentService):
             result = await service.charge_card(
                 amount=Decimal("99.99"),
-                currency="USD", 
+                currency="USD",
                 card_token="tok_secure123",
                 description="Order #12345",
                 idempotency_key="order-12345-payment"
             )
-            
+
             if result.status == "completed":
                 print(f"Payment successful: {result.transaction_id}")
             else:
                 print(f"Payment failed: {result.error_message}")
         ```
     """
-    
+
     async def charge_card(
         self,
         amount: Decimal,
@@ -281,7 +281,7 @@ class ProtocolPaymentService(Protocol):
     ) -> "PaymentResult":
         """
         Process credit card payment.
-        
+
         Args:
             amount: Payment amount (must be positive)
             currency: ISO 4217 currency code (e.g., 'USD', 'EUR')
@@ -289,10 +289,10 @@ class ProtocolPaymentService(Protocol):
             description: Human-readable payment description
             idempotency_key: Unique key to prevent duplicate charges
             metadata: Optional metadata for tracking and reporting
-            
+
         Returns:
             Payment result with transaction details
-            
+
         Raises:
             ValueError: If amount is negative or currency invalid
             AuthenticationError: If card token is invalid
@@ -367,7 +367,7 @@ class ProtocolUserService(Protocol):
     async def create_user(self, email: str, name: str) -> "User":
         """
         Create a new user.
-        
+
         Raises:
             ValueError: If email format is invalid or already exists
             ValidationError: If name is empty or contains invalid characters  
@@ -425,11 +425,11 @@ DEFAULT_TIMEOUT = 30         # Configuration belongs in implementation
 @runtime_checkable
 class ProtocolCacheService(Protocol):
     """Cache service protocol with abstract methods only."""
-    
+
     async def get(self, key: str) -> Optional[Any]:
         """Get cached value."""
         ...  # Only '...' allowed in protocol methods
-    
+
     async def set(self, key: str, value: Any, ttl_seconds: int) -> bool:
         """Set cached value with TTL."""
         ...
@@ -438,10 +438,10 @@ class ProtocolCacheService(Protocol):
 @runtime_checkable
 class ProtocolCacheService(Protocol):
     """Don't include implementation in protocols."""
-    
+
     def __init__(self):        # ❌ No __init__ in protocols
         self.cache = {}
-    
+
     async def get(self, key: str) -> Optional[Any]:
         # ❌ No implementation code in protocols
         return self.cache.get(key)
@@ -458,30 +458,30 @@ import pytest
 
 class UserServiceComplianceTests(ABC):
     """Abstract test suite for user service protocol compliance."""
-    
+
     @pytest.fixture
     def user_service(self) -> ProtocolUserService:
         """Override in subclasses to provide implementation."""
         raise NotImplementedError
-    
+
     @pytest.mark.asyncio
     async def test_create_user_success(self, user_service: ProtocolUserService):
         """Test successful user creation."""
         user = await user_service.create_user("test@example.com", "Test User")
-        
+
         assert user.email == "test@example.com"
         assert user.name == "Test User"
         assert user.id is not None
         assert isinstance(user.id, UUID)
-    
+
     @pytest.mark.asyncio
     async def test_create_user_duplicate_email(self, user_service: ProtocolUserService):
         """Test duplicate email handling."""
         await user_service.create_user("test@example.com", "First User")
-        
+
         with pytest.raises(ValueError, match="already exists"):
             await user_service.create_user("test@example.com", "Second User")
-    
+
     @pytest.mark.asyncio
     async def test_get_user_nonexistent(self, user_service: ProtocolUserService):
         """Test retrieving non-existent user."""
@@ -510,7 +510,7 @@ def test_protocol_imports_no_implementation_dependencies():
     from omnibase_spi.protocols.core import ProtocolLogger
     from omnibase_spi.protocols.workflow_orchestration import ProtocolWorkflowEventBus
     from omnibase_spi.protocols.mcp import ProtocolMCPRegistry
-    
+
     # Verify protocols are runtime checkable
     assert hasattr(ProtocolLogger, '__runtime_checkable__')
     assert hasattr(ProtocolWorkflowEventBus, '__runtime_checkable__')
@@ -521,7 +521,7 @@ def test_type_definitions_are_importable():
     from omnibase_spi.protocols.types.core_types import LogLevel, ContextValue
     from omnibase_spi.protocols.types.workflow_orchestration_types import WorkflowState
     from omnibase_spi.protocols.types.mcp_types import MCPToolType
-    
+
     # Verify type constraints work
     assert "INFO" in LogLevel.__args__
     assert str in ContextValue.__args__
@@ -543,13 +543,13 @@ repos:
         entry: poetry run python scripts/ast_spi_validator.py
         language: system
         pass_filenames: false
-        
+
       - id: namespace-isolation
         name: Check namespace isolation
         entry: ./scripts/validate-namespace-isolation.sh
         language: system
         pass_filenames: false
-        
+
       - id: mypy-type-checking
         name: mypy type checking
         entry: poetry run mypy src/ --strict
@@ -574,21 +574,21 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-          
+
       - name: Install Poetry
         uses: snok/install-poetry@v1
-        
+
       - name: Install dependencies
         run: poetry install --with dev
-        
+
       - name: Validate SPI purity
         run: |
           poetry run python scripts/ast_spi_validator.py
           ./scripts/validate-namespace-isolation.sh
-          
+
       - name: Type checking
         run: poetry run mypy src/ --strict
-        
+
       - name: Run tests
         run: poetry run pytest
 ```
@@ -609,21 +609,21 @@ Every protocol must include:
 class ProtocolExampleService(Protocol):
     """
     Clear one-line description of the protocol's purpose.
-    
+
     More detailed description explaining when and how to use this protocol.
     Include context about the problem it solves and integration patterns.
-    
+
     Key Features:
         - **Feature 1**: Brief description of capability
         - **Feature 2**: Brief description of capability
         - **Feature 3**: Brief description of capability
-    
+
     Example:
         ```python
         async def use_example_service(service: ProtocolExampleService):
             # Show typical usage pattern
             result = await service.primary_method("example_input")
-            
+
             # Show error handling  
             try:
                 await service.method_that_might_fail("input")
@@ -631,22 +631,22 @@ class ProtocolExampleService(Protocol):
                 print(f"Expected error: {e}")
         ```
     """
-    
+
     async def primary_method(self, input_param: str) -> "ResultType":
         """
         Brief description of what this method does.
-        
+
         More detailed description if needed, including any important
         behavioral notes, side effects, or performance considerations.
-        
+
         Args:
             input_param: Description of the parameter, including
                 constraints, expected format, or validation rules
-                
+
         Returns:
             Description of the return value, including its structure
             and any important properties
-            
+
         Raises:
             ValueError: When input_param is invalid or empty
             RuntimeError: When external service is unavailable
@@ -734,28 +734,28 @@ class ProtocolNewService(Protocol):
 class ProtocolNewService(Protocol):
     """
     Service for handling new functionality.
-    
+
     Provides capabilities for X, Y, and Z with proper error handling
     and comprehensive validation.
-    
+
     Key Features:
         - **Feature X**: Description
         - **Feature Y**: Description
-    
+
     Example:
         ```python
         async def use_service(service: ProtocolNewService):
             result = await service.do_something()
         ```
     """
-    
+
     async def do_something(self) -> bool:
         """
         Perform the primary operation.
-        
+
         Returns:
             True if operation succeeded
-            
+
         Raises:
             ValueError: If preconditions not met
         """

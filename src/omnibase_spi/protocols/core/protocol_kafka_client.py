@@ -19,7 +19,7 @@ class ProtocolKafkaClient(Protocol):
     Example:
         ```python
         # Basic usage
-        kafka_client: ProtocolKafkaClient = get_kafka_client()
+        kafka_client: "ProtocolKafkaClient" = get_kafka_client()
         await kafka_client.start()
 
         # Send messages
@@ -60,7 +60,7 @@ class ProtocolKafkaClient(Protocol):
         ...
 
     async def send_and_wait(
-        self, topic: str, value: bytes, key: Optional[bytes] = None
+        self, topic: str, value: bytes, key: bytes | None = None
     ) -> None:
         """
         Send message to Kafka topic and wait for acknowledgment.
@@ -95,7 +95,7 @@ class ProtocolKafkaClient(Protocol):
 class ProtocolKafkaClientProvider(Protocol):
     """Protocol for Kafka client provider."""
 
-    def create_kafka_client(self) -> ProtocolKafkaClient:
+    async def create_kafka_client(self) -> ProtocolKafkaClient:
         """
         Create Kafka client instance.
 
@@ -104,7 +104,7 @@ class ProtocolKafkaClientProvider(Protocol):
         """
         ...
 
-    def get_kafka_configuration(self) -> dict[str, str | int | float | bool]:
+    async def get_kafka_configuration(self) -> dict[str, str | int | float | bool]:
         """
         Get Kafka client configuration parameters.
 

@@ -60,12 +60,21 @@ class ProtocolInfo:
     is_runtime_checkable: bool = False
     async_methods: list[str] = None
     sync_io_methods: list[str] = None
+    properties: list[str] = None
+    base_protocols: list[str] = None
+    domain: str = "unknown"
+    protocol_type: str = "functional"  # functional, marker, property_only, mixin
+    docstring: str = ""
 
     def __post_init__(self):
         if self.async_methods is None:
             self.async_methods = []
         if self.sync_io_methods is None:
             self.sync_io_methods = []
+        if self.properties is None:
+            self.properties = []
+        if self.base_protocols is None:
+            self.base_protocols = []
 
 
 class SPIProtocolValidator(ast.NodeVisitor):
@@ -313,10 +322,32 @@ class SPIProtocolValidator(ast.NodeVisitor):
     def _extract_protocol_info(self, node: ast.ClassDef) -> ProtocolInfo:
         """Extract protocol information for duplicate analysis."""
         methods = []
+        properties = []
         has_init = False
         async_methods = []
         sync_io_methods = []
+        base_protocols = []
+        docstring = ""
 
+        # Extract docstring
+        if (
+            node.body
+            and isinstance(node.body[0], ast.Expr)
+            and isinstance(node.body[0].value, ast.Constant)
+            and isinstance(node.body[0].value.value, str)
+        ):
+            docstring = node.body[0].value.value
+
+        # Extract base protocols
+        for base in node.bases:
+            if isinstance(base, ast.Name):
+                if base.id != "Protocol":
+                    base_protocols.append(base.id)
+            elif isinstance(base, ast.Attribute):
+                if base.attr != "Protocol":
+                    base_protocols.append(ast.unparse(base))
+
+        # Extract methods and properties
         for item in node.body:
             if isinstance(item, ast.FunctionDef):
                 method_sig = self._get_method_signature(item)
@@ -329,10 +360,27 @@ class SPIProtocolValidator(ast.NodeVisitor):
                 method_sig = self._get_async_method_signature(item)
                 methods.append(method_sig)
                 async_methods.append(item.name)
+            elif isinstance(item, ast.AnnAssign) and isinstance(item.target, ast.Name):
+                # This is a property annotation
+                prop_type = ast.unparse(item.annotation) if item.annotation else "Any"
+                properties.append(f"{item.target.id}: {prop_type}")
 
-        # Create signature hash
-        methods_str = "|".join(sorted(methods))
-        signature_hash = hashlib.md5(methods_str.encode()).hexdigest()[:12]
+        # Determine protocol type and domain
+        protocol_type = self._determine_protocol_type(
+            methods, properties, base_protocols, docstring
+        )
+        domain = self._determine_protocol_domain(self.file_path, node.name, docstring)
+
+        # Create enhanced signature hash that considers more than just methods
+        signature_components = []
+        signature_components.extend(sorted(methods))
+        signature_components.extend(sorted(properties))
+        signature_components.extend(sorted(base_protocols))
+        signature_components.append(domain)
+        signature_components.append(protocol_type)
+
+        signature_str = "|".join(signature_components)
+        signature_hash = hashlib.md5(signature_str.encode()).hexdigest()[:12]
 
         is_runtime_checkable = any(
             (isinstance(d, ast.Name) and d.id == "runtime_checkable")
@@ -350,6 +398,11 @@ class SPIProtocolValidator(ast.NodeVisitor):
             is_runtime_checkable=is_runtime_checkable,
             async_methods=async_methods,
             sync_io_methods=sync_io_methods,
+            properties=properties,
+            base_protocols=base_protocols,
+            domain=domain,
+            protocol_type=protocol_type,
+            docstring=docstring,
         )
 
     def _has_ellipsis_body(self, node: ast.FunctionDef | ast.AsyncFunctionDef) -> bool:
@@ -442,6 +495,76 @@ class SPIProtocolValidator(ast.NodeVisitor):
         returns = ast.unparse(node.returns) if node.returns else "None"
         return f"async {node.name}({', '.join(args)}) -> {returns}"
 
+    def _determine_protocol_type(
+        self,
+        methods: list[str],
+        properties: list[str],
+        base_protocols: list[str],
+        docstring: str,
+    ) -> str:
+        """Determine the type of protocol based on its contents."""
+        if not methods and not properties:
+            return "marker"
+        elif not methods and properties:
+            return "property_only"
+        elif methods and not properties and base_protocols:
+            return "mixin"
+        elif methods:
+            return "functional"
+        else:
+            return "unknown"
+
+    def _determine_protocol_domain(
+        self, file_path: str, protocol_name: str, docstring: str
+    ) -> str:
+        """Determine protocol domain from file path, name, and docstring."""
+        from pathlib import Path
+
+        path_parts = Path(file_path).parts
+
+        # Extract domain from file path
+        if "workflow_orchestration" in path_parts:
+            return "workflow"
+        elif "mcp" in path_parts:
+            return "mcp"
+        elif "event_bus" in path_parts:
+            return "events"
+        elif "container" in path_parts:
+            return "container"
+        elif "core" in path_parts:
+            return "core"
+        elif "types" in path_parts:
+            return "types"
+        elif "file_handling" in path_parts:
+            return "file_handling"
+
+        # Extract domain from protocol name
+        protocol_lower = protocol_name.lower()
+        if "workflow" in protocol_lower:
+            return "workflow"
+        elif "mcp" in protocol_lower:
+            return "mcp"
+        elif "event" in protocol_lower:
+            return "events"
+        elif "file" in protocol_lower:
+            return "file_handling"
+        elif "node" in protocol_lower:
+            return "core"
+
+        # Extract domain from docstring
+        if docstring:
+            doc_lower = docstring.lower()
+            if "workflow" in doc_lower:
+                return "workflow"
+            elif "mcp" in doc_lower:
+                return "mcp"
+            elif "event" in doc_lower:
+                return "events"
+            elif "file" in doc_lower:
+                return "file_handling"
+
+        return "unknown"
+
 
 class ContextValueValidator:
     """Validates consistent ContextValue usage patterns."""
@@ -520,9 +643,9 @@ def discover_python_files(base_path: Path) -> list[Path]:
 
 
 def validate_protocol_duplicates(
-    protocols: list[ProtocolInfo],
+    protocols: list[ProtocolInfo], strict_mode: bool = False
 ) -> list[ProtocolViolation]:
-    """Check for duplicate protocol definitions."""
+    """Check for duplicate protocol definitions with smart duplicate detection."""
     violations = []
 
     # Group by signature hash for exact duplicates
@@ -535,45 +658,135 @@ def validate_protocol_duplicates(
     for protocol in protocols:
         by_name[protocol.name].append(protocol)
 
-    # Check exact duplicates
+    # Check exact duplicates - but be smarter about what constitutes a duplicate
     for signature_hash, duplicate_protocols in by_signature.items():
         if len(duplicate_protocols) > 1:
-            for protocol in duplicate_protocols[1:]:  # Skip first as reference
-                violations.append(
-                    ProtocolViolation(
-                        file_path=protocol.file_path,
-                        line_number=protocol.line_number,
-                        column_offset=0,
-                        violation_type="duplicate_protocol",
-                        violation_code="SPI010",
-                        message=f"Protocol '{protocol.name}' is duplicated (signature hash: {signature_hash})",
-                        severity="error",
-                        suggestion=f"Remove duplicate protocol or merge with {duplicate_protocols[0].file_path}",
-                        auto_fixable=False,
-                    )
-                )
+            # Check if these are truly problematic duplicates
+            real_duplicates = _filter_real_duplicates(duplicate_protocols, strict_mode)
 
-    # Check name conflicts (different signatures, same name)
-    for name, conflicting_protocols in by_name.items():
-        if len(conflicting_protocols) > 1:
-            unique_signatures = set(p.signature_hash for p in conflicting_protocols)
-            if len(unique_signatures) > 1:  # Different signatures
-                for protocol in conflicting_protocols[1:]:  # Skip first as reference
+            if len(real_duplicates) > 1:
+                for protocol in real_duplicates[1:]:  # Skip first as reference
                     violations.append(
                         ProtocolViolation(
                             file_path=protocol.file_path,
                             line_number=protocol.line_number,
                             column_offset=0,
-                            violation_type="protocol_name_conflict",
-                            violation_code="SPI011",
-                            message=f"Protocol '{protocol.name}' has naming conflict with different signature",
+                            violation_type="duplicate_protocol",
+                            violation_code="SPI010",
+                            message=f"Protocol '{protocol.name}' appears to be a true duplicate (domain: {protocol.domain}, type: {protocol.protocol_type})",
                             severity="error",
-                            suggestion=f"Rename protocol or merge interfaces with {conflicting_protocols[0].file_path}",
+                            suggestion=f"Remove duplicate protocol or merge with {real_duplicates[0].file_path}",
                             auto_fixable=False,
                         )
                     )
 
+    # Check name conflicts (different signatures, same name) - also with smarter detection
+    for name, conflicting_protocols in by_name.items():
+        if len(conflicting_protocols) > 1:
+            unique_signatures = set(p.signature_hash for p in conflicting_protocols)
+            if len(unique_signatures) > 1:  # Different signatures
+                # Check if these are legitimate variations or real conflicts
+                real_conflicts = _filter_real_conflicts(
+                    conflicting_protocols, strict_mode
+                )
+
+                if len(real_conflicts) > 1:
+                    for protocol in real_conflicts[1:]:  # Skip first as reference
+                        violations.append(
+                            ProtocolViolation(
+                                file_path=protocol.file_path,
+                                line_number=protocol.line_number,
+                                column_offset=0,
+                                violation_type="protocol_name_conflict",
+                                violation_code="SPI011",
+                                message=f"Protocol '{protocol.name}' has naming conflict with different signature (domains: {[p.domain for p in real_conflicts]})",
+                                severity="error",
+                                suggestion=f"Rename protocol to be more domain-specific or merge interfaces",
+                                auto_fixable=False,
+                            )
+                        )
+
     return violations
+
+
+def _filter_real_duplicates(
+    protocols: list[ProtocolInfo], strict_mode: bool
+) -> list[ProtocolInfo]:
+    """Filter out false positive duplicates based on protocol analysis."""
+    if not protocols or len(protocols) < 2:
+        return protocols
+
+    # Group by domain and type
+    by_domain_type = defaultdict(list)
+    for protocol in protocols:
+        key = (protocol.domain, protocol.protocol_type)
+        by_domain_type[key].append(protocol)
+
+    real_duplicates = []
+
+    for (domain, protocol_type), domain_protocols in by_domain_type.items():
+        if len(domain_protocols) > 1:
+            # These are protocols in the same domain with the same type and signature
+            # This is likely a real duplicate
+
+            # Additional checks for property-only protocols
+            if protocol_type == "property_only":
+                # Check if they have identical properties
+                property_groups = defaultdict(list)
+                for protocol in domain_protocols:
+                    prop_key = "|".join(sorted(protocol.properties))
+                    property_groups[prop_key].append(protocol)
+
+                for prop_protocols in property_groups.values():
+                    if len(prop_protocols) > 1:
+                        real_duplicates.extend(prop_protocols)
+            else:
+                # For other types, same domain + type + signature = duplicate
+                real_duplicates.extend(domain_protocols)
+
+    # In strict mode, any signature match is a duplicate
+    if strict_mode and not real_duplicates:
+        real_duplicates = protocols
+
+    return real_duplicates
+
+
+def _filter_real_conflicts(
+    protocols: list[ProtocolInfo], strict_mode: bool
+) -> list[ProtocolInfo]:
+    """Filter out legitimate protocol variations from real naming conflicts."""
+    if not protocols or len(protocols) < 2:
+        return protocols
+
+    # If protocols are in different domains, they might be legitimate variations
+    domains = set(p.domain for p in protocols)
+    protocol_types = set(p.protocol_type for p in protocols)
+
+    # If all protocols are in different domains, this might be acceptable
+    if len(domains) == len(protocols) and not strict_mode:
+        return []  # No conflicts - they're domain-specific variations
+
+    # If protocols have different purposes (types), might be acceptable
+    if len(protocol_types) > 1 and not strict_mode:
+        # Check if they're related (e.g., base protocol and specific implementations)
+        base_protocols_overlap = False
+        for p1 in protocols:
+            for p2 in protocols:
+                if p1 != p2 and (
+                    p1.name in p2.base_protocols
+                    or p2.name in p1.base_protocols
+                    or any(base in p2.base_protocols for base in p1.base_protocols)
+                ):
+                    base_protocols_overlap = True
+                    break
+            if base_protocols_overlap:
+                break
+
+        if base_protocols_overlap:
+            return []  # No conflicts - they're related protocols
+
+    # In strict mode or when protocols are too similar, report as conflicts
+    return protocols
 
 
 def validate_file(
@@ -627,7 +840,9 @@ def validate_file(
 
 
 def print_validation_report(
-    violations: list[ProtocolViolation], protocols: list[ProtocolInfo]
+    violations: list[ProtocolViolation],
+    protocols: list[ProtocolInfo],
+    show_protocol_info: bool = False,
 ) -> None:
     """Print comprehensive validation report."""
     print("\n" + "=" * 80)
@@ -681,6 +896,38 @@ def print_validation_report(
         print(f"   With __init__ methods: {with_init}")
         print(f"   With async methods: {with_async}")
 
+        # Enhanced statistics
+        by_domain = defaultdict(int)
+        by_type = defaultdict(int)
+        for protocol in protocols:
+            by_domain[protocol.domain] += 1
+            by_type[protocol.protocol_type] += 1
+
+        print(f"\n📊 PROTOCOL DISTRIBUTION:")
+        print("   By Domain:")
+        for domain, count in sorted(
+            by_domain.items(), key=lambda x: x[1], reverse=True
+        ):
+            print(f"      {domain}: {count}")
+
+        print("   By Type:")
+        for ptype, count in sorted(by_type.items(), key=lambda x: x[1], reverse=True):
+            print(f"      {ptype}: {count}")
+
+        if show_protocol_info:
+            print(f"\n📋 DETAILED PROTOCOL INFORMATION:")
+            for protocol in protocols[:10]:  # Show first 10 for brevity
+                print(f"   • {protocol.name}")
+                print(f"     Domain: {protocol.domain}, Type: {protocol.protocol_type}")
+                print(
+                    f"     Methods: {len(protocol.methods)}, Properties: {len(protocol.properties)}"
+                )
+                print(f"     Base protocols: {protocol.base_protocols}")
+                if protocol.docstring:
+                    print(f"     Description: {protocol.docstring[:100]}...")
+            if len(protocols) > 10:
+                print(f"   ... and {len(protocols) - 10} more protocols")
+
         if with_init > 0:
             print(f"   🚨 Protocols with __init__ should be refactored!")
 
@@ -700,6 +947,22 @@ def main():
         "--fix-issues", action="store_true", help="Attempt to auto-fix violations"
     )
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose output")
+    parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="Strict mode - report all potential duplicates and conflicts",
+    )
+    parser.add_argument(
+        "--sensitivity",
+        choices=["low", "medium", "high"],
+        default="medium",
+        help="Validation sensitivity level (default: medium)",
+    )
+    parser.add_argument(
+        "--show-protocol-info",
+        action="store_true",
+        help="Show detailed protocol information in output",
+    )
 
     args = parser.parse_args()
 
@@ -735,12 +998,15 @@ def main():
                 all_violations.extend(violations)
                 all_protocols.extend(protocols)
 
-        # Check for protocol duplicates
-        duplicate_violations = validate_protocol_duplicates(all_protocols)
+        # Determine strict mode based on arguments
+        strict_mode = args.strict or args.sensitivity == "high"
+
+        # Check for protocol duplicates with improved logic
+        duplicate_violations = validate_protocol_duplicates(all_protocols, strict_mode)
         all_violations.extend(duplicate_violations)
 
         # Print report
-        print_validation_report(all_violations, all_protocols)
+        print_validation_report(all_violations, all_protocols, args.show_protocol_info)
 
         # Exit with error code if critical violations found
         error_count = sum(1 for v in all_violations if v.severity == "error")

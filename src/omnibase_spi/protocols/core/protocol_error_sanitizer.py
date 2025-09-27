@@ -2,7 +2,7 @@
 # author: OmniNode Team
 # copyright: OmniNode.ai
 # created_at: '2025-01-15T18:45:00.000000'
-# description: Protocol definition for error sanitization and sensitive data masking
+# description: "Protocol" definition for error sanitization and sensitive data masking
 # entrypoint: python://protocol_error_sanitizer
 # hash: auto-generated
 # last_modified_at: '2025-01-15T18:45:00.000000+00:00'
@@ -29,7 +29,6 @@ removing sensitive information from logs and error reports following
 ONEX security standards.
 """
 
-from pathlib import Path
 from typing import Any, Protocol, runtime_checkable
 
 
@@ -101,7 +100,7 @@ class ProtocolErrorSanitizer(Protocol):
         """
         ...
 
-    def sanitize_file_path(self, path: str | Path) -> str:
+    def sanitize_file_path(self, path: str) -> str:
         """
         Sanitize a file path by masking sensitive directory names.
 
@@ -132,7 +131,7 @@ class ProtocolErrorSanitizerFactory(Protocol):
     security levels and pattern sets.
     """
 
-    def create_default(self) -> ProtocolErrorSanitizer:
+    async def create_default(self) -> ProtocolErrorSanitizer:
         """
         Create a default error sanitizer with standard patterns.
 
@@ -141,7 +140,7 @@ class ProtocolErrorSanitizerFactory(Protocol):
         """
         ...
 
-    def create_strict(self) -> ProtocolErrorSanitizer:
+    async def create_strict(self) -> ProtocolErrorSanitizer:
         """
         Create a strict error sanitizer with comprehensive patterns.
 
@@ -150,7 +149,7 @@ class ProtocolErrorSanitizerFactory(Protocol):
         """
         ...
 
-    def create_lenient(self) -> ProtocolErrorSanitizer:
+    async def create_lenient(self) -> ProtocolErrorSanitizer:
         """
         Create a lenient error sanitizer with minimal patterns.
 
@@ -159,7 +158,7 @@ class ProtocolErrorSanitizerFactory(Protocol):
         """
         ...
 
-    def create_custom(
+    async def create_custom(
         self,
         *,
         mask_character: str,

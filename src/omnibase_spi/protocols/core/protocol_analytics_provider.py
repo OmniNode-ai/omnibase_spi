@@ -7,16 +7,15 @@ across all ONEX services with consistent patterns and metrics.
 
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.protocol_core_types import (
-        ContextValue,
-        LiteralAnalyticsMetricType,
-        LiteralAnalyticsTimeWindow,
-        ProtocolAnalyticsMetric,
-        ProtocolAnalyticsProvider,
-        ProtocolAnalyticsSummary,
-        ProtocolDateTime,
-    )
+from omnibase_spi.protocols.types.protocol_core_types import (
+    ContextValue,
+    LiteralAnalyticsMetricType,
+    LiteralAnalyticsTimeWindow,
+    ProtocolAnalyticsMetric,
+    ProtocolAnalyticsProvider,
+    ProtocolAnalyticsSummary,
+    ProtocolDateTime,
+)
 
 
 @runtime_checkable
@@ -57,7 +56,7 @@ class ProtocolAnalyticsDataProvider(Protocol):
                 return insights
 
         # Usage in application code
-        analytics: ProtocolAnalyticsDataProvider = AnalyticsProviderImpl()
+        analytics: "ProtocolAnalyticsDataProvider" = AnalyticsProviderImpl()
 
         # Configure analytics collection
         provider_config = analytics.configure_analytics_provider(
@@ -75,8 +74,7 @@ class ProtocolAnalyticsDataProvider(Protocol):
     """
 
     async def configure_analytics_provider(
-        self,
-        provider_config: "ProtocolAnalyticsProvider",
+        self, provider_config: "ProtocolAnalyticsProvider"
     ) -> bool:
         """
         Configure analytics provider with data sources and capabilities.
@@ -106,10 +104,7 @@ class ProtocolAnalyticsDataProvider(Protocol):
         """
         ...
 
-    async def collect_metric(
-        self,
-        metric: "ProtocolAnalyticsMetric",
-    ) -> bool:
+    async def collect_metric(self, metric: "ProtocolAnalyticsMetric") -> bool:
         """
         Collect individual analytics metric.
 
@@ -126,8 +121,7 @@ class ProtocolAnalyticsDataProvider(Protocol):
         ...
 
     async def collect_metrics_batch(
-        self,
-        metrics: list["ProtocolAnalyticsMetric"],
+        self, metrics: list["ProtocolAnalyticsMetric"]
     ) -> int:
         """
         Collect batch of analytics metrics.
@@ -219,9 +213,7 @@ class ProtocolAnalyticsDataProvider(Protocol):
         ...
 
     async def add_data_source(
-        self,
-        source_name: str,
-        source_config: dict[str, str | int | bool],
+        self, source_name: str, source_config: dict[str, str | int | bool]
     ) -> bool:
         """
         Add new data source for analytics collection.
@@ -239,10 +231,7 @@ class ProtocolAnalyticsDataProvider(Protocol):
         """
         ...
 
-    async def remove_data_source(
-        self,
-        source_name: str,
-    ) -> bool:
+    async def remove_data_source(self, source_name: str) -> bool:
         """
         Remove data source from analytics collection.
 
@@ -271,7 +260,7 @@ class ProtocolAnalyticsDataProvider(Protocol):
         """
         ...
 
-    def create_custom_metric(
+    async def create_custom_metric(
         self,
         metric_name: str,
         metric_type: "LiteralAnalyticsMetricType",
@@ -296,10 +285,7 @@ class ProtocolAnalyticsDataProvider(Protocol):
         """
         ...
 
-    def delete_custom_metric(
-        self,
-        metric_name: str,
-    ) -> bool:
+    async def delete_custom_metric(self, metric_name: str) -> bool:
         """
         Delete custom metric definition.
 
@@ -316,10 +302,7 @@ class ProtocolAnalyticsDataProvider(Protocol):
         ...
 
     def set_metric_threshold(
-        self,
-        metric_name: str,
-        warning_threshold: float,
-        critical_threshold: float,
+        self, metric_name: str, warning_threshold: float, critical_threshold: float
     ) -> bool:
         """
         Set alerting thresholds for metric.
@@ -338,10 +321,7 @@ class ProtocolAnalyticsDataProvider(Protocol):
         """
         ...
 
-    def get_metric_thresholds(
-        self,
-        metric_name: str,
-    ) -> dict[str, float] | None:
+    def get_metric_thresholds(self, metric_name: str) -> dict[str, float] | None:
         """
         Get alerting thresholds for metric.
 
@@ -356,10 +336,7 @@ class ProtocolAnalyticsDataProvider(Protocol):
         """
         ...
 
-    def generate_insights(
-        self,
-        summary: "ProtocolAnalyticsSummary",
-    ) -> list[str]:
+    def generate_insights(self, summary: "ProtocolAnalyticsSummary") -> list[str]:
         """
         Generate insights from analytics summary.
 
@@ -376,8 +353,7 @@ class ProtocolAnalyticsDataProvider(Protocol):
         ...
 
     def generate_recommendations(
-        self,
-        summary: "ProtocolAnalyticsSummary",
+        self, summary: "ProtocolAnalyticsSummary"
     ) -> list[str]:
         """
         Generate actionable recommendations from analytics.

@@ -5,17 +5,17 @@
 # Global validation settings
 global_settings:
   # Maximum file size to analyze (bytes)
-  max_file_size: 1048576  # 1MB
+  max_file_size: 1048576 # 1MB
 
   # Validation timeout (seconds)
-  timeout_seconds: 300  # 5 minutes
+  timeout_seconds: 300 # 5 minutes
 
   # Enable parallel processing for large codebases
   parallel_processing: true
 
   # Enable result caching for improved performance
   enable_caching: true
-  cache_ttl_seconds: 3600  # 1 hour
+  cache_ttl_seconds: 3600 # 1 hour
 
   # Maximum violations to report per file (prevents spam)
   max_violations_per_file: 100
@@ -253,19 +253,19 @@ environments:
       timeout_seconds: 60
       max_violations_per_file: 20
     disable_rules:
-      - "SPI014"  # Documentation checks (slow)
+      - "SPI014" # Documentation checks (slow)
     rule_overrides:
       "SPI002":
-        severity: "info"  # Naming less critical in pre-commit
+        severity: "info" # Naming less critical in pre-commit
 
   # CI/CD environment - comprehensive but time-bounded
   ci_cd:
     global_settings:
       timeout_seconds: 180
-      enable_caching: false  # Fresh validation in CI
+      enable_caching: false # Fresh validation in CI
     rule_overrides:
       "SPI008":
-        severity: "error"  # Stricter in CI
+        severity: "error" # Stricter in CI
 
   # Development environment - all checks enabled
   development:
@@ -292,4 +292,4 @@ output:
   html:
     include_interactive_features: true
     include_charts: true
-    theme: "light"  # light, dark, auto
+    theme: "light" # light, dark, auto

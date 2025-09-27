@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 MCP Validator Protocol - ONEX SPI Interface.
 
@@ -8,17 +7,17 @@ Provides comprehensive validation for registrations, tool definitions, and execu
 Domain: MCP validation and quality assurance
 """
 
-from typing import Any, Optional, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Optional, Protocol, runtime_checkable
 
-from omnibase_spi.protocols.types.protocol_core_types import (
-    ContextValue,
-    ProtocolValidationResult,
-)
+from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 from omnibase_spi.protocols.types.protocol_mcp_types import (
     ProtocolMCPSubsystemMetadata,
     ProtocolMCPToolDefinition,
     ProtocolMCPValidationError,
     ProtocolMCPValidationResult,
+)
+from omnibase_spi.protocols.validation.protocol_validation import (
+    ProtocolValidationResult,
 )
 
 
@@ -113,9 +112,7 @@ class ProtocolMCPValidator(Protocol):
     """
 
     @property
-    def tool_validator(self) -> ProtocolMCPToolValidator:
-        """Get the tool validator implementation."""
-        ...
+    def tool_validator(self) -> ProtocolMCPToolValidator: ...
 
     async def validate_subsystem_registration(
         self,
@@ -140,7 +137,7 @@ class ProtocolMCPValidator(Protocol):
         self,
         tool_name: str,
         parameters: dict[str, ContextValue],
-        subsystem_id: Optional[str],
+        subsystem_id: str | None,
     ) -> ProtocolValidationResult:
         """
         Validate tool execution request.
@@ -156,7 +153,7 @@ class ProtocolMCPValidator(Protocol):
         ...
 
     async def validate_api_key(
-        self, api_key: str, subsystem_id: Optional[str] = None
+        self, api_key: str, subsystem_id: str | None = None
     ) -> bool:
         """
         Validate API key format and authenticity.
@@ -216,7 +213,7 @@ class ProtocolMCPValidator(Protocol):
     async def detect_security_issues(
         self,
         parameters: dict[str, ContextValue],
-        tool_definition: Optional[ProtocolMCPToolDefinition],
+        tool_definition: ProtocolMCPToolDefinition | None,
     ) -> list[ProtocolMCPValidationError]:
         """
         Detect potential security issues in parameters.
@@ -252,7 +249,7 @@ class ProtocolMCPValidator(Protocol):
     async def validate_performance_constraints(
         self,
         tools: list[ProtocolMCPToolDefinition],
-        expected_load: Optional[dict[str, Any]],
+        expected_load: dict[str, Any] | None,
     ) -> ProtocolMCPValidationResult:
         """
         Validate performance constraints and limits.

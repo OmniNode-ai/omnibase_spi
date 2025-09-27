@@ -5,15 +5,14 @@ Defines the interface for pluggable storage backends at the root level.
 
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.protocol_core_types import (
-        ProtocolCheckpointData,
-        ProtocolStorageConfiguration,
-        ProtocolStorageCredentials,
-        ProtocolStorageHealthStatus,
-        ProtocolStorageListResult,
-        ProtocolStorageResult,
-    )
+from omnibase_spi.protocols.types.protocol_core_types import (
+    ProtocolCheckpointData,
+    ProtocolStorageConfiguration,
+    ProtocolStorageCredentials,
+    ProtocolStorageHealthStatus,
+    ProtocolStorageListResult,
+    ProtocolStorageResult,
+)
 
 
 @runtime_checkable
@@ -33,9 +32,8 @@ class ProtocolStorageBackend(Protocol):
         - Retention policy management
     """
 
-    def store_checkpoint(
-        self,
-        checkpoint_data: "ProtocolCheckpointData",
+    async def store_checkpoint(
+        self, checkpoint_data: "ProtocolCheckpointData"
     ) -> "ProtocolStorageResult":
         """
         Store a checkpoint to the backend.
@@ -53,7 +51,7 @@ class ProtocolStorageBackend(Protocol):
         """
         ...
 
-    def retrieve_checkpoint(self, checkpoint_id: str) -> "ProtocolStorageResult":
+    async def retrieve_checkpoint(self, checkpoint_id: str) -> "ProtocolStorageResult":
         """
         Retrieve a checkpoint by ID.
 
@@ -70,7 +68,7 @@ class ProtocolStorageBackend(Protocol):
         """
         ...
 
-    def list_checkpoints(
+    async def list_checkpoints(
         self,
         workflow_id: str | None = None,
         limit: int | None = None,
@@ -93,7 +91,7 @@ class ProtocolStorageBackend(Protocol):
         """
         ...
 
-    def delete_checkpoint(self, checkpoint_id: str) -> "ProtocolStorageResult":
+    async def delete_checkpoint(self, checkpoint_id: str) -> "ProtocolStorageResult":
         """
         Delete a checkpoint by ID.
 
@@ -110,9 +108,8 @@ class ProtocolStorageBackend(Protocol):
         """
         ...
 
-    def cleanup_expired_checkpoints(
-        self,
-        retention_hours: int,
+    async def cleanup_expired_checkpoints(
+        self, retention_hours: int
     ) -> "ProtocolStorageResult":
         """
         Clean up expired checkpoints based on retention policies.
@@ -129,7 +126,7 @@ class ProtocolStorageBackend(Protocol):
         """
         ...
 
-    def get_storage_status(self) -> "ProtocolStorageHealthStatus":
+    async def get_storage_status(self) -> "ProtocolStorageHealthStatus":
         """
         Get storage backend status and health information.
 
@@ -141,7 +138,7 @@ class ProtocolStorageBackend(Protocol):
         """
         ...
 
-    def test_connection(self) -> "ProtocolStorageResult":
+    async def test_connection(self) -> "ProtocolStorageResult":
         """
         Test connectivity to the storage backend.
 
@@ -153,7 +150,7 @@ class ProtocolStorageBackend(Protocol):
         """
         ...
 
-    def initialize_storage(self) -> "ProtocolStorageResult":
+    async def initialize_storage(self) -> "ProtocolStorageResult":
         """
         Initialize storage backend (create tables, directories, etc.).
 
@@ -205,7 +202,7 @@ class ProtocolStorageBackendFactory(Protocol):
     Provides pluggable factory interface for different backend types.
     """
 
-    def get_storage_backend(
+    async def get_storage_backend(
         self,
         backend_type: str,
         storage_config: "ProtocolStorageConfiguration",
@@ -230,7 +227,7 @@ class ProtocolStorageBackendFactory(Protocol):
         """
         ...
 
-    def list_available_backends(self) -> list[str]:
+    async def list_available_backends(self) -> list[str]:
         """
         List available storage backend types.
 
@@ -239,10 +236,8 @@ class ProtocolStorageBackendFactory(Protocol):
         """
         ...
 
-    def validate_backend_config(
-        self,
-        backend_type: str,
-        storage_config: "ProtocolStorageConfiguration",
+    async def validate_backend_config(
+        self, backend_type: str, storage_config: "ProtocolStorageConfiguration"
     ) -> "ProtocolStorageResult":
         """
         Validate configuration for a specific backend type.
@@ -259,7 +254,9 @@ class ProtocolStorageBackendFactory(Protocol):
         """
         ...
 
-    def get_default_config(self, backend_type: str) -> "ProtocolStorageConfiguration":
+    async def get_default_config(
+        self, backend_type: str
+    ) -> "ProtocolStorageConfiguration":
         """
         Get default configuration for a backend type.
 

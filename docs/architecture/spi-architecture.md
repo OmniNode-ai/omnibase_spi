@@ -15,7 +15,7 @@ from typing import Protocol
 
 class ProtocolExample(Protocol):
     """Pure interface definition without implementation."""
-    
+
     def method_name(self, param: str) -> int:
         """Contract specification - no implementation."""
         ...
@@ -36,7 +36,7 @@ Dependencies:
   Runtime:
     - typing-extensions: "^4.5.0"  # Modern typing features
     - pydantic: "^2.11.7"         # Model validation only
-  
+
   Forbidden:
     - omnibase-core: ❌           # Would create circular dependency
     - omnibase-model: ❌          # Violates namespace isolation
@@ -92,7 +92,7 @@ class ProtocolSemVer(Protocol):
     major: int
     minor: int  
     patch: int
-    
+
     def __str__(self) -> str: ...
 ```
 
@@ -113,9 +113,9 @@ from omnibase_spi.protocols.types.core_types import LogLevel, ContextValue
 
 class ProtocolLogger(Protocol):
     """Core logging protocol using strong types."""
-    
+
     def log(
-        self, 
+        self,
         level: LogLevel,                    # Strong literal type
         message: str,
         correlation_id: Optional[UUID],
@@ -123,7 +123,7 @@ class ProtocolLogger(Protocol):
     ) -> None:
         """Log with structured context and correlation tracking."""
         ...
-    
+
     def is_enabled(self, level: LogLevel) -> bool:
         """Check if logging level is active."""
         ...
@@ -150,16 +150,16 @@ if TYPE_CHECKING:
 
 class ProtocolEventBus(Protocol):
     """Event bus protocol with external model references."""
-    
+
     def publish(
-        self, 
+        self,
         event_type: EventType,
         event: "Event",                     # Forward reference to external model
         correlation_id: UUID
     ) -> None:
         """Publish event to bus."""
         ...
-    
+
     def subscribe(
         self,
         event_type: EventType,
@@ -186,7 +186,7 @@ from omnibase_spi.protocols.event_bus.protocol_event_bus import ProtocolEventBus
 
 class MyApplication:
     """Application using protocol-based dependencies."""
-    
+
     def __init__(
         self,
         logger: ProtocolLogger,      # Protocol dependency
@@ -194,20 +194,20 @@ class MyApplication:
     ):
         self._logger = logger
         self._event_bus = event_bus
-    
+
     def process_request(self, request_data: Dict[str, Any]) -> None:
         """Process request using protocol contracts."""
         correlation_id = uuid.uuid4()
-        
+
         self._logger.log(
-            "INFO", 
+            "INFO",
             "Processing request",
             correlation_id=correlation_id,
             context={"request_id": str(correlation_id)}
         )
-        
+
         # Business logic here...
-        
+
         self._event_bus.publish(
             "request.processed",
             ProcessedEvent(data=request_data),
@@ -228,11 +228,11 @@ from omnibase_spi.protocols.core.protocol_canonical_serializer import ProtocolCa
 
 class ProtocolAuditableService(Protocol):
     """Service that requires both logging and serialization."""
-    
+
     # Compose existing protocols
     logger: ProtocolLogger
     serializer: ProtocolCanonicalSerializer
-    
+
     def audit_operation(
         self,
         operation: str,
@@ -244,7 +244,7 @@ class ProtocolAuditableService(Protocol):
 
 class AuditableUserService(ProtocolAuditableService):
     """Implementation using protocol composition."""
-    
+
     def __init__(
         self,
         logger: ProtocolLogger,
@@ -252,10 +252,10 @@ class AuditableUserService(ProtocolAuditableService):
     ):
         self.logger = logger
         self.serializer = serializer
-    
+
     def audit_operation(
         self,
-        operation: str, 
+        operation: str,
         data: Dict[str, Any],
         user_id: str
     ) -> None:
@@ -286,19 +286,19 @@ K = TypeVar('K')
 
 class ProtocolRepository(Protocol, Generic[T, K]):
     """Generic repository protocol for any entity type."""
-    
+
     def get(self, key: K) -> Optional[T]:
         """Get entity by key."""
         ...
-    
+
     def save(self, entity: T) -> K:
         """Save entity and return key."""
         ...
-    
+
     def find_all(self) -> List[T]:
         """Find all entities."""
         ...
-    
+
     def delete(self, key: K) -> bool:
         """Delete entity by key."""
         ...
@@ -317,11 +317,11 @@ UserRepository = ProtocolRepository[User, str]
 
 class DatabaseUserRepository(UserRepository):
     """Database implementation of user repository."""
-    
+
     def get(self, key: str) -> Optional[User]:
         # Database implementation
         pass
-    
+
     def save(self, entity: User) -> str:
         # Database implementation
         return entity.id
@@ -337,46 +337,46 @@ from omnibase_spi.protocols.types.core_types import ContextValue
 
 class ProtocolTransactional(Protocol):
     """Protocol for transactional behavior."""
-    
+
     def begin_transaction(self) -> str:
         """Begin transaction and return transaction ID."""
         ...
-    
+
     def commit_transaction(self, transaction_id: str) -> None:
         """Commit transaction."""
         ...
-    
+
     def rollback_transaction(self, transaction_id: str) -> None:
         """Rollback transaction."""
         ...
-    
+
     def transaction_context(self) -> ContextManager[str]:
         """Get transaction context manager."""
         ...
 
 class ProtocolCacheable(Protocol):
     """Protocol for cacheable behavior."""
-    
+
     def get_cache_key(self) -> str:
         """Get cache key for this object."""
         ...
-    
+
     def get_cache_ttl(self) -> int:
         """Get cache TTL in seconds."""
         ...
-    
+
     def is_cacheable(self) -> bool:
         """Check if object should be cached."""
         ...
 
 # Combined behavioral protocol
 class ProtocolTransactionalCacheableService(
-    ProtocolTransactional, 
+    ProtocolTransactional,
     ProtocolCacheable,
     Protocol
 ):
     """Service with both transactional and cacheable behavior."""
-    
+
     def process_with_cache(self, data: Dict[str, ContextValue]) -> Any:
         """Process data with transaction and cache support."""
         ...
@@ -398,7 +398,7 @@ if TYPE_CHECKING:
 
 class ProtocolModelProcessor(Protocol):
     """Protocol with forward references to external types."""
-    
+
     def process(self, model: "ExternalModel") -> "CustomType":
         """Process external model - forward reference prevents import at runtime."""
         ...
@@ -418,15 +418,15 @@ R = TypeVar('R', bound='ProcessingResult')
 
 class ProtocolAdvancedProcessor(Protocol, Generic[T, R]):
     """Advanced processor with generic forward references."""
-    
+
     def process_batch(
-        self, 
-        models: List[T], 
+        self,
+        models: List[T],
         rules: List["ValidationRule"]
     ) -> List[R]:
         """Process batch with validation rules."""
         ...
-    
+
     def validate_model(self, model: T) -> List["ValidationRule"]:
         """Get applicable validation rules for model."""
         ...

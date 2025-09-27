@@ -2,7 +2,7 @@
 # author: OmniNode Team
 # copyright: OmniNode.ai
 # created_at: '2025-01-15T19:30:00.000000'
-# description: Protocol definition for configuration management and runtime reconfiguration
+# description: "Protocol" definition for configuration management and runtime reconfiguration
 # entrypoint: python://protocol_configuration_manager
 # hash: auto-generated
 # last_modified_at: '2025-01-15T19:30:00.000000+00:00'
@@ -29,7 +29,6 @@ loading, validation, merging, and runtime updates of configuration data
 across multiple sources following ONEX infrastructure standards.
 """
 
-from pathlib import Path
 from typing import Any, Literal, Protocol, runtime_checkable
 
 # Define environment type locally to maintain SPI purity
@@ -49,11 +48,11 @@ class ProtocolConfigurationManager(Protocol):
 
     Example:
         class MyConfigurationManager:
-            def load_configuration(self, config_name: str) -> dict[str, Any]:
+            async def load_configuration(self, config_name: str) -> dict[str, Any]:
                 # Load from multiple sources and merge
                 return self._merge_configuration_sources(config_name)
 
-            def validate_configuration(self, config_data: dict[str, Any]) -> bool:
+            async def validate_configuration(self, config_data: dict[str, Any]) -> bool:
                 # Validate against schema and constraints
                 return self._apply_validation_rules(config_data)
 
@@ -64,11 +63,11 @@ class ProtocolConfigurationManager(Protocol):
                 return await self._apply_runtime_updates(config_name, updates)
     """
 
-    def load_configuration(
+    async def load_configuration(
         self,
         config_name: str,
         *,
-        environment: LiteralConfigurationEnvironment | None = None,
+        environment: "LiteralConfigurationEnvironment | None" = None,
         force_reload: bool = False,
     ) -> dict[str, Any]:
         """
@@ -88,12 +87,12 @@ class ProtocolConfigurationManager(Protocol):
         """
         ...
 
-    def validate_configuration(
+    async def validate_configuration(
         self,
         config_data: dict[str, Any],
         *,
         config_name: str | None = None,
-        environment: LiteralConfigurationEnvironment | None = None,
+        environment: "LiteralConfigurationEnvironment | None" = None,
         strict: bool = True,
     ) -> bool:
         """
@@ -119,7 +118,7 @@ class ProtocolConfigurationManager(Protocol):
         key: str,
         *,
         default: Any = None,
-        environment: LiteralConfigurationEnvironment | None = None,
+        environment: "LiteralConfigurationEnvironment | None" = None,
     ) -> Any:
         """
         Get a specific configuration value by key.
@@ -187,7 +186,7 @@ class ProtocolConfigurationManager(Protocol):
         """
         ...
 
-    def reload_configuration(
+    async def reload_configuration(
         self,
         config_name: str,
         *,
@@ -205,12 +204,12 @@ class ProtocolConfigurationManager(Protocol):
         """
         ...
 
-    def backup_configuration(
+    async def backup_configuration(
         self,
         config_name: str,
         *,
         version_label: str | None = None,
-    ) -> Path | None:
+    ) -> str | None:
         """
         Create a backup of current configuration.
 
@@ -223,10 +222,10 @@ class ProtocolConfigurationManager(Protocol):
         """
         ...
 
-    def restore_configuration(
+    async def restore_configuration(
         self,
         config_name: str,
-        backup_path: Path | str,
+        backup_path: str,
         *,
         validate: bool = True,
     ) -> bool:
@@ -310,7 +309,7 @@ class ProtocolConfigurationManager(Protocol):
         self,
         config_name: str,
         *,
-        environment: LiteralConfigurationEnvironment | None = None,
+        environment: "LiteralConfigurationEnvironment | None" = None,
     ) -> bool:
         """
         Check if current configuration is valid.
@@ -384,7 +383,7 @@ class ProtocolConfigurationManagerFactory(Protocol):
     validation levels, source types, and runtime capabilities.
     """
 
-    def create_default(self) -> ProtocolConfigurationManager:
+    async def create_default(self) -> ProtocolConfigurationManager:
         """
         Create a default configuration manager with standard settings.
 
@@ -393,7 +392,7 @@ class ProtocolConfigurationManagerFactory(Protocol):
         """
         ...
 
-    def create_strict(self) -> ProtocolConfigurationManager:
+    async def create_strict(self) -> ProtocolConfigurationManager:
         """
         Create a strict configuration manager with comprehensive validation.
 
@@ -402,7 +401,7 @@ class ProtocolConfigurationManagerFactory(Protocol):
         """
         ...
 
-    def create_runtime_enabled(self) -> ProtocolConfigurationManager:
+    async def create_runtime_enabled(self) -> ProtocolConfigurationManager:
         """
         Create a configuration manager with runtime update capabilities.
 
@@ -411,10 +410,10 @@ class ProtocolConfigurationManagerFactory(Protocol):
         """
         ...
 
-    def create_custom(
+    async def create_custom(
         self,
         *,
-        default_environment: LiteralConfigurationEnvironment = "development",
+        default_environment: "LiteralConfigurationEnvironment" = "development",
         allow_runtime_updates: bool = False,
         strict_validation: bool = True,
         auto_reload_on_change: bool = False,

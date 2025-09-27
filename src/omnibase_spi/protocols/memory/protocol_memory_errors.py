@@ -25,10 +25,10 @@ from .protocol_memory_base import LiteralErrorCategory
 if TYPE_CHECKING:
     from datetime import datetime
 
-    from .protocol_memory_base import ProtocolErrorCategoryMap, ProtocolErrorContext
-
-
-# === ERROR HANDLING PROTOCOLS ===
+    from .protocol_memory_base import (
+        ProtocolErrorCategoryMap,
+        ProtocolMemoryErrorContext,
+    )
 
 
 @runtime_checkable
@@ -38,11 +38,11 @@ class ProtocolMemoryError(Protocol):
     error_code: str
     error_message: str
     error_timestamp: "datetime"
-    correlation_id: Optional[UUID]
+    correlation_id: UUID | None
     error_category: LiteralErrorCategory
 
     @property
-    def error_context(self) -> "ProtocolErrorContext":
+    def error_context(self) -> "ProtocolMemoryErrorContext":
         """Additional error context and debugging information."""
         ...
 
@@ -52,7 +52,7 @@ class ProtocolMemoryError(Protocol):
         ...
 
     @property
-    def retry_strategy(self) -> Optional[str]:
+    def retry_strategy(self) -> str | None:
         """Suggested retry strategy for recoverable errors."""
         ...
 
@@ -61,24 +61,21 @@ class ProtocolMemoryError(Protocol):
 class ProtocolMemoryErrorResponse(Protocol):
     """Protocol for error responses from memory operations."""
 
-    correlation_id: Optional[UUID]
+    correlation_id: UUID | None
     response_timestamp: "datetime"
     success: bool
-    error: ProtocolMemoryError
+    error: "ProtocolMemoryError"
     suggested_action: str
 
     @property
-    def error_message(self) -> Optional[str]:
+    def error_message(self) -> str | None:
         """Error message if operation failed."""
         ...
 
     @property
-    def retry_after_seconds(self) -> Optional[int]:
+    def retry_after_seconds(self) -> int | None:
         """Suggested retry delay for transient errors."""
         ...
-
-
-# === SPECIFIC ERROR PROTOCOLS ===
 
 
 @runtime_checkable
@@ -113,8 +110,7 @@ class ProtocolMemoryNotFoundError(ProtocolMemoryError, Protocol):
     requested_memory_id: UUID
     suggested_alternatives: list[UUID]
 
-    @property
-    def search_suggestions(self) -> list[str]:
+    async def get_search_suggestions(self) -> list[str]:
         """Suggested search terms to find similar memories."""
         ...
 
@@ -125,10 +121,10 @@ class ProtocolMemoryTimeoutError(ProtocolMemoryError, Protocol):
 
     timeout_seconds: float
     operation_type: str
-    partial_results: Optional[str]
+    partial_results: str | None
 
     @property
-    def progress_percentage(self) -> Optional[float]:
+    def progress_percentage(self) -> float | None:
         """Progress made before timeout occurred."""
         ...
 
@@ -155,13 +151,9 @@ class ProtocolMemoryCorruptionError(ProtocolMemoryError, Protocol):
     affected_memory_ids: list[UUID]
     recovery_possible: bool
 
-    @property
-    def backup_available(self) -> bool:
+    async def is_backup_available(self) -> bool:
         """Whether backup copies are available for recovery."""
         ...
-
-
-# === ERROR RECOVERY PROTOCOLS ===
 
 
 @runtime_checkable
@@ -186,25 +178,22 @@ class ProtocolErrorRecoveryStrategy(Protocol):
 class ProtocolMemoryErrorRecoveryResponse(Protocol):
     """Protocol for error recovery operation responses."""
 
-    correlation_id: Optional[UUID]
+    correlation_id: UUID | None
     response_timestamp: "datetime"
     success: bool
     recovery_attempted: bool
     recovery_successful: bool
-    recovery_strategy: Optional[ProtocolErrorRecoveryStrategy]
+    recovery_strategy: "ProtocolErrorRecoveryStrategy | None"
 
     @property
-    def error_message(self) -> Optional[str]:
+    def error_message(self) -> str | None:
         """Error message if operation failed."""
         ...
 
     @property
-    def recovery_details(self) -> Optional[str]:
+    def recovery_details(self) -> str | None:
         """Details about the recovery attempt."""
         ...
-
-
-# === BATCH ERROR PROTOCOLS ===
 
 
 @runtime_checkable
@@ -221,7 +210,7 @@ class ProtocolBatchErrorSummary(Protocol):
         ...
 
     @property
-    def most_common_error(self) -> Optional[str]:
+    def most_common_error(self) -> str | None:
         """Most frequently occurring error type."""
         ...
 
@@ -230,25 +219,25 @@ class ProtocolBatchErrorSummary(Protocol):
 class ProtocolBatchErrorResponse(Protocol):
     """Protocol for batch operation error responses."""
 
-    correlation_id: Optional[UUID]
+    correlation_id: UUID | None
     response_timestamp: "datetime"
     success: bool
-    error: ProtocolMemoryError
+    error: "ProtocolMemoryError"
     suggested_action: str
-    batch_summary: ProtocolBatchErrorSummary
-    individual_errors: list[ProtocolMemoryError]
+    batch_summary: "ProtocolBatchErrorSummary"
+    individual_errors: list["ProtocolMemoryError"]
 
     @property
-    def error_message(self) -> Optional[str]:
+    def error_message(self) -> str | None:
         """Error message if operation failed."""
         ...
 
     @property
-    def retry_after_seconds(self) -> Optional[int]:
+    def retry_after_seconds(self) -> int | None:
         """Suggested retry delay for transient errors."""
         ...
 
     @property
-    def partial_success_recovery(self) -> Optional[ProtocolErrorRecoveryStrategy]:
+    def partial_success_recovery(self) -> "ProtocolErrorRecoveryStrategy | None":
         """Recovery strategy for partial batch failures."""
         ...

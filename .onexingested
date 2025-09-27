@@ -25,7 +25,7 @@
     "pre_commit_hooks_active": true,
     "quality_gates": {
       "black_formatting": "passed",
-      "isort_imports": "passed", 
+      "isort_imports": "passed",
       "mypy_typing": "passed",
       "spi_purity_validation": "passed",
       "forbidden_patterns_check": "passed",
@@ -55,7 +55,7 @@
         "effort": "medium"
       },
       {
-        "type": "async_optimization", 
+        "type": "async_optimization",
         "description": "Convert synchronous calls to async",
         "impact": "medium",
         "effort": "low"
@@ -86,7 +86,7 @@
     },
     "prevention_strategies": [
       "Pre-commit hooks for SPI purity validation",
-      "Automated AST-based checking", 
+      "Automated AST-based checking",
       "Comprehensive test suite validation",
       "Pre-push namespace isolation checks"
     ],
@@ -102,7 +102,7 @@
       "black_formatting": "active",
       "isort_sorting": "active",
       "mypy_checking": "active",
-      "spi_purity_validation": "active", 
+      "spi_purity_validation": "active",
       "forbidden_patterns_check": "active",
       "deprecated_code_check": "active",
       "simple_terminology_check": "active"
@@ -126,7 +126,7 @@
       "design_pattern": "Protocol-first design with zero dependencies",
       "namespace": "omnibase.protocols",
       "key_domains": [
-        "core", "event_bus", "container", "discovery", 
+        "core", "event_bus", "container", "discovery",
         "file_handling", "mcp", "types", "validation"
       ],
       "quality_focus": "SPI purity and namespace isolation"
@@ -147,7 +147,7 @@
     "intelligence_updates": 1,
     "monitoring_areas": [
       "SPI purity violations",
-      "Namespace isolation breaches", 
+      "Namespace isolation breaches",
       "Type safety degradation",
       "Performance regression",
       "Code quality metrics"

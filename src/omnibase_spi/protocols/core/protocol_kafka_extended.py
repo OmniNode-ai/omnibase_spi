@@ -19,12 +19,12 @@ class ProtocolKafkaMessage(Protocol):
     for comprehensive message handling across producers and consumers.
     """
 
-    key: Optional[bytes]
+    key: bytes | None
     value: bytes
     topic: str
-    partition: Optional[int]
-    offset: Optional[int]
-    timestamp: Optional[int]
+    partition: int | None
+    offset: int | None
+    timestamp: int | None
     headers: dict[str, bytes]
 
 
@@ -38,7 +38,7 @@ class ProtocolKafkaConsumer(Protocol):
 
     Example:
         ```python
-        consumer: ProtocolKafkaConsumer = get_kafka_consumer()
+        consumer: "ProtocolKafkaConsumer" = get_kafka_consumer()
 
         # Subscribe to topics
         await consumer.subscribe_to_topics(
@@ -81,7 +81,7 @@ class ProtocolKafkaConsumer(Protocol):
 
     async def consume_messages(
         self, timeout_ms: int, max_messages: int
-    ) -> list[ProtocolKafkaMessage]:
+    ) -> list["ProtocolKafkaMessage"]:
         """
         Consume messages from subscribed topics.
 
@@ -99,7 +99,7 @@ class ProtocolKafkaConsumer(Protocol):
 
     async def consume_messages_stream(
         self, batch_timeout_ms: int
-    ) -> list[ProtocolKafkaMessage]:
+    ) -> list["ProtocolKafkaMessage"]:
         """
         Stream consume messages continuously from subscribed topics.
 
@@ -200,7 +200,7 @@ class ProtocolKafkaBatchProducer(Protocol):
 
     Example:
         ```python
-        producer: ProtocolKafkaBatchProducer = get_batch_producer()
+        producer: "ProtocolKafkaBatchProducer" = get_batch_producer()
 
         # Prepare batch of messages
         messages = [
@@ -214,7 +214,7 @@ class ProtocolKafkaBatchProducer(Protocol):
         ```
     """
 
-    async def send_batch(self, messages: list[ProtocolKafkaMessage]) -> None:
+    async def send_batch(self, messages: list["ProtocolKafkaMessage"]) -> None:
         """
         Send batch of messages to Kafka.
 
@@ -230,9 +230,9 @@ class ProtocolKafkaBatchProducer(Protocol):
         self,
         topic: str,
         partition: int,
-        key: Optional[bytes],
+        key: bytes | None,
         value: bytes,
-        headers: Optional[dict[str, bytes]] = None,
+        headers: dict[str, bytes] | None = None,
     ) -> None:
         """
         Send message to specific partition.
@@ -252,10 +252,10 @@ class ProtocolKafkaBatchProducer(Protocol):
     async def send_with_custom_partitioner(
         self,
         topic: str,
-        key: Optional[bytes],
+        key: bytes | None,
         value: bytes,
         partition_strategy: str,
-        headers: Optional[dict[str, bytes]] = None,
+        headers: dict[str, bytes] | None = None,
     ) -> None:
         """
         Send message using custom partitioning strategy.
@@ -308,7 +308,7 @@ class ProtocolKafkaTransactionalProducer(Protocol):
 
     Example:
         ```python
-        producer: ProtocolKafkaTransactionalProducer = get_transactional_producer()
+        producer: "ProtocolKafkaTransactionalProducer" = get_transactional_producer()
 
         # Start transaction
         await producer.begin_transaction()
@@ -351,8 +351,8 @@ class ProtocolKafkaTransactionalProducer(Protocol):
         self,
         topic: str,
         value: bytes,
-        key: Optional[bytes] = None,
-        headers: Optional[dict[str, bytes]] = None,
+        key: bytes | None = None,
+        headers: dict[str, bytes] | None = None,
     ) -> None:
         """
         Send message as part of current transaction.
@@ -401,7 +401,7 @@ class ProtocolKafkaExtendedClient(Protocol):
 
     Example:
         ```python
-        client: ProtocolKafkaExtendedClient = get_extended_kafka_client()
+        client: "ProtocolKafkaExtendedClient" = get_extended_kafka_client()
 
         # Create consumer and producer
         consumer = client.create_consumer()
@@ -413,7 +413,7 @@ class ProtocolKafkaExtendedClient(Protocol):
         ```
     """
 
-    def create_consumer(self) -> ProtocolKafkaConsumer:
+    async def create_consumer(self) -> ProtocolKafkaConsumer:
         """
         Create Kafka consumer instance.
 
@@ -422,7 +422,7 @@ class ProtocolKafkaExtendedClient(Protocol):
         """
         ...
 
-    def create_batch_producer(self) -> ProtocolKafkaBatchProducer:
+    async def create_batch_producer(self) -> ProtocolKafkaBatchProducer:
         """
         Create batch Kafka producer instance.
 
@@ -431,7 +431,7 @@ class ProtocolKafkaExtendedClient(Protocol):
         """
         ...
 
-    def create_transactional_producer(self) -> ProtocolKafkaTransactionalProducer:
+    async def create_transactional_producer(self) -> ProtocolKafkaTransactionalProducer:
         """
         Create transactional Kafka producer instance.
 
@@ -445,7 +445,7 @@ class ProtocolKafkaExtendedClient(Protocol):
         topic_name: str,
         partitions: int,
         replication_factor: int,
-        config: Optional[dict[str, ContextValue]] = None,
+        config: dict[str, "ContextValue"] | None = None,
     ) -> None:
         """
         Create new Kafka topic.

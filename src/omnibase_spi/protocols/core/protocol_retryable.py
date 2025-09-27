@@ -7,21 +7,15 @@ management across all ONEX services with consistent patterns.
 
 from typing import TYPE_CHECKING, Any, Callable, Protocol, runtime_checkable
 
-# Note on Any usage in this protocol:
-# Callable[..., Any] is necessary here because retry operations need to support
-# functions with any return type. The actual return value is wrapped in
-# ProtocolRetryResult, providing type safety at the protocol boundary.
-
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.protocol_core_types import (
-        ContextValue,
-        LiteralRetryBackoffStrategy,
-        LiteralRetryCondition,
-        ProtocolRetryAttempt,
-        ProtocolRetryConfig,
-        ProtocolRetryPolicy,
-        ProtocolRetryResult,
-    )
+from omnibase_spi.protocols.types.protocol_core_types import (
+    ContextValue,
+    LiteralRetryBackoffStrategy,
+    LiteralRetryCondition,
+    ProtocolRetryAttempt,
+    ProtocolRetryConfig,
+    ProtocolRetryPolicy,
+    ProtocolRetryResult,
+)
 
 
 @runtime_checkable
@@ -44,7 +38,7 @@ class ProtocolRetryable(Protocol):
         ```python
         # Implementation example (not part of SPI)
         class RetryableServiceImpl:
-            def execute_with_retry(self, operation, config):
+            async def execute_with_retry(self, operation, config):
                 for attempt in range(config.max_attempts):
                     try:
                         result = operation()
@@ -58,9 +52,9 @@ class ProtocolRetryable(Protocol):
                 return ProtocolRetryResult(success=False, final_error=e)
 
         # Usage in application code
-        retryable: ProtocolRetryable = RetryableServiceImpl()
+        retryable: "ProtocolRetryable" = RetryableServiceImpl()
 
-        retry_config = ProtocolRetryConfig(
+        retry_config = "ProtocolRetryConfig"(
             max_attempts=5,
             backoff_strategy="fibonacci",
             base_delay_ms=1000,
@@ -74,10 +68,8 @@ class ProtocolRetryable(Protocol):
         ```
     """
 
-    def execute_with_retry(
-        self,
-        operation: Callable[..., Any],
-        config: "ProtocolRetryConfig",
+    async def execute_with_retry(
+        self, operation: Callable[..., Any], config: "ProtocolRetryConfig"
     ) -> "ProtocolRetryResult":
         """
         Execute operation with retry logic according to configuration.
@@ -95,10 +87,7 @@ class ProtocolRetryable(Protocol):
         """
         ...
 
-    def configure_retry_policy(
-        self,
-        policy: "ProtocolRetryPolicy",
-    ) -> bool:
+    def configure_retry_policy(self, policy: "ProtocolRetryPolicy") -> bool:
         """
         Configure retry policy for this retryable instance.
 
@@ -128,10 +117,7 @@ class ProtocolRetryable(Protocol):
         ...
 
     def should_retry(
-        self,
-        error: Exception,
-        attempt_number: int,
-        config: "ProtocolRetryConfig",
+        self, error: Exception, attempt_number: int, config: "ProtocolRetryConfig"
     ) -> bool:
         """
         Determine if operation should be retried based on error and config.
@@ -175,10 +161,7 @@ class ProtocolRetryable(Protocol):
         """
         ...
 
-    def record_retry_attempt(
-        self,
-        attempt: "ProtocolRetryAttempt",
-    ) -> None:
+    def record_retry_attempt(self, attempt: "ProtocolRetryAttempt") -> None:
         """
         Record retry attempt for metrics and monitoring.
 
@@ -228,9 +211,7 @@ class ProtocolRetryable(Protocol):
         ...
 
     def add_retry_condition(
-        self,
-        condition: "LiteralRetryCondition",
-        error_types: list[type[BaseException]],
+        self, condition: "LiteralRetryCondition", error_types: list[type[BaseException]]
     ) -> bool:
         """
         Add retry condition for specific error types.
@@ -248,10 +229,7 @@ class ProtocolRetryable(Protocol):
         """
         ...
 
-    def remove_retry_condition(
-        self,
-        condition: "LiteralRetryCondition",
-    ) -> bool:
+    def remove_retry_condition(self, condition: "LiteralRetryCondition") -> bool:
         """
         Remove retry condition from policy.
 

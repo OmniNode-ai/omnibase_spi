@@ -6,18 +6,16 @@ and audit logging across ONEX services for comprehensive observability.
 """
 
 from typing import TYPE_CHECKING, Optional, Protocol, runtime_checkable
+from uuid import UUID
 
-if TYPE_CHECKING:
-    from uuid import UUID
-
-    from omnibase_spi.protocols.types.protocol_core_types import (
-        ContextValue,
-        LiteralOperationStatus,
-        ProtocolAuditEvent,
-        ProtocolDateTime,
-        ProtocolMetricsPoint,
-        ProtocolTraceSpan,
-    )
+from omnibase_spi.protocols.types.protocol_core_types import (
+    ContextValue,
+    LiteralOperationStatus,
+    ProtocolAuditEvent,
+    ProtocolDateTime,
+    ProtocolMetricsPoint,
+    ProtocolTraceSpan,
+)
 
 
 @runtime_checkable
@@ -49,7 +47,7 @@ class ProtocolMetricsCollector(Protocol):
                 self._send_to_backend(point)
 
         # Usage in application code
-        metrics: ProtocolMetricsCollector = MetricsCollectorImpl()
+        metrics: "ProtocolMetricsCollector" = MetricsCollectorImpl()
 
         metrics.record_counter(
             name="requests_total",
@@ -60,10 +58,7 @@ class ProtocolMetricsCollector(Protocol):
     """
 
     def record_counter(
-        self,
-        name: str,
-        value: float,
-        tags: Optional[dict[str, "ContextValue"]],
+        self, name: str, value: float, tags: dict[str, "ContextValue"] | None
     ) -> None:
         """
         Record counter metric increment.
@@ -80,10 +75,7 @@ class ProtocolMetricsCollector(Protocol):
         ...
 
     def record_gauge(
-        self,
-        name: str,
-        value: float,
-        tags: Optional[dict[str, "ContextValue"]],
+        self, name: str, value: float, tags: dict[str, "ContextValue"] | None
     ) -> None:
         """
         Record gauge metric value.
@@ -100,10 +92,7 @@ class ProtocolMetricsCollector(Protocol):
         ...
 
     def record_histogram(
-        self,
-        name: str,
-        value: float,
-        tags: Optional[dict[str, "ContextValue"]],
+        self, name: str, value: float, tags: dict[str, "ContextValue"] | None
     ) -> None:
         """
         Record histogram metric observation.
@@ -120,10 +109,7 @@ class ProtocolMetricsCollector(Protocol):
         ...
 
     def record_timer(
-        self,
-        name: str,
-        duration_seconds: float,
-        tags: Optional[dict[str, "ContextValue"]],
+        self, name: str, duration_seconds: float, tags: dict[str, "ContextValue"] | None
     ) -> None:
         """
         Record timer metric for operation duration.
@@ -139,10 +125,7 @@ class ProtocolMetricsCollector(Protocol):
         """
         ...
 
-    def record_metrics_batch(
-        self,
-        metrics: list["ProtocolMetricsPoint"],
-    ) -> None:
+    def record_metrics_batch(self, metrics: list["ProtocolMetricsPoint"]) -> None:
         """
         Record multiple metrics in batch for efficiency.
 
@@ -155,9 +138,8 @@ class ProtocolMetricsCollector(Protocol):
         """
         ...
 
-    def create_metrics_context(
-        self,
-        default_tags: dict[str, "ContextValue"],
+    async def create_metrics_context(
+        self, default_tags: dict[str, "ContextValue"]
     ) -> "ProtocolMetricsCollector":
         """
         Create metrics collector with default tags.
@@ -194,7 +176,7 @@ class ProtocolDistributedTracing(Protocol):
         ```python
         # Implementation example (not part of SPI)
         class TracingImpl:
-            def start_span(self, operation_name, parent_span_id=None):
+            async def start_span(self, operation_name, parent_span_id=None):
                 span = TraceSpan(
                     span_id=uuid.uuid4(),
                     operation_name=operation_name,
@@ -204,7 +186,7 @@ class ProtocolDistributedTracing(Protocol):
                 return span
 
         # Usage in application code
-        tracing: ProtocolDistributedTracing = TracingImpl()
+        tracing: "ProtocolDistributedTracing" = TracingImpl()
 
         span = tracing.start_span(
             operation_name="process_user_request",
@@ -220,11 +202,11 @@ class ProtocolDistributedTracing(Protocol):
         ```
     """
 
-    def start_span(
+    async def start_span(
         self,
         operation_name: str,
-        parent_span_id: Optional["UUID"],
-        trace_id: Optional["UUID"],
+        parent_span_id: "UUID | None",
+        trace_id: "UUID | None",
     ) -> "ProtocolTraceSpan":
         """
         Start new trace span.
@@ -243,11 +225,7 @@ class ProtocolDistributedTracing(Protocol):
         """
         ...
 
-    def finish_span(
-        self,
-        span_id: "UUID",
-        status: "LiteralOperationStatus",
-    ) -> None:
+    def finish_span(self, span_id: "UUID", status: "LiteralOperationStatus") -> None:
         """
         Finish trace span with final status.
 
@@ -261,12 +239,7 @@ class ProtocolDistributedTracing(Protocol):
         """
         ...
 
-    def add_span_tag(
-        self,
-        span_id: "UUID",
-        key: str,
-        value: str,
-    ) -> None:
+    def add_span_tag(self, span_id: "UUID", key: str, value: str) -> None:
         """
         Add tag to trace span.
 
@@ -282,10 +255,7 @@ class ProtocolDistributedTracing(Protocol):
         ...
 
     def add_span_log(
-        self,
-        span_id: "UUID",
-        message: str,
-        fields: Optional[dict[str, object]],
+        self, span_id: "UUID", message: str, fields: dict[str, object] | None
     ) -> None:
         """
         Add log entry to trace span.
@@ -302,8 +272,7 @@ class ProtocolDistributedTracing(Protocol):
         ...
 
     def extract_trace_context(
-        self,
-        headers: dict[str, "ContextValue"],
+        self, headers: dict[str, "ContextValue"]
     ) -> tuple["UUID", "UUID"]:
         """
         Extract trace context from headers.
@@ -324,10 +293,7 @@ class ProtocolDistributedTracing(Protocol):
         ...
 
     def inject_trace_context(
-        self,
-        trace_id: "UUID",
-        span_id: "UUID",
-        headers: dict[str, "ContextValue"],
+        self, trace_id: "UUID", span_id: "UUID", headers: dict[str, "ContextValue"]
     ) -> None:
         """
         Inject trace context into headers.
@@ -343,7 +309,7 @@ class ProtocolDistributedTracing(Protocol):
         """
         ...
 
-    def get_current_span(self) -> Optional["ProtocolTraceSpan"]:
+    def get_current_span(self) -> "ProtocolTraceSpan | None":
         """
         Get currently active trace span.
 
@@ -382,7 +348,7 @@ class ProtocolAuditLogger(Protocol):
                 self._store_audit_event(event)
 
         # Usage in application code
-        audit_logger: ProtocolAuditLogger = AuditLoggerImpl()
+        audit_logger: "ProtocolAuditLogger" = AuditLoggerImpl()
 
         audit_logger.log_audit_event(
             event_type="user_access",
@@ -403,7 +369,7 @@ class ProtocolAuditLogger(Protocol):
         resource: str,
         action: str,
         outcome: "LiteralOperationStatus",
-        metadata: Optional[dict[str, object]],
+        metadata: dict[str, object] | None,
         sensitivity_level: str,
     ) -> "ProtocolAuditEvent":
         """
@@ -427,11 +393,11 @@ class ProtocolAuditLogger(Protocol):
         """
         ...
 
-    def query_audit_events(
+    async def query_audit_events(
         self,
         start_time: "ProtocolDateTime",
         end_time: "ProtocolDateTime",
-        filters: Optional[dict[str, "ContextValue"]],
+        filters: dict[str, "ContextValue"] | None,
     ) -> list["ProtocolAuditEvent"]:
         """
         Query audit events by time range and filters.
@@ -450,10 +416,7 @@ class ProtocolAuditLogger(Protocol):
         """
         ...
 
-    def get_audit_statistics(
-        self,
-        time_window_hours: int,
-    ) -> dict[str, object]:
+    def get_audit_statistics(self, time_window_hours: int) -> dict[str, object]:
         """
         Get audit event statistics.
 
@@ -470,9 +433,7 @@ class ProtocolAuditLogger(Protocol):
         ...
 
     def archive_audit_events(
-        self,
-        before_date: "ProtocolDateTime",
-        archive_location: str,
+        self, before_date: "ProtocolDateTime", archive_location: str
     ) -> int:
         """
         Archive audit events older than specified date.

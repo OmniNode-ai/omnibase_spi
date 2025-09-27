@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Kafka Event Bus Adapter Protocol - ONEX SPI Interface.
 
@@ -8,7 +7,7 @@ Defines the contract for Kafka-specific event bus adapters.
 
 from typing import Optional, Protocol, runtime_checkable
 
-from .protocol_event_bus import ProtocolEventBusAdapter
+from .protocol_event_bus import ProtocolKafkaEventBusAdapter
 
 
 @runtime_checkable
@@ -17,9 +16,9 @@ class ProtocolKafkaConfig(Protocol):
 
     security_protocol: str
     sasl_mechanism: str
-    sasl_username: Optional[str]
-    sasl_password: Optional[str]
-    ssl_cafile: Optional[str]
+    sasl_username: str | None
+    sasl_password: str | None
+    ssl_cafile: str | None
     auto_offset_reset: str
     enable_auto_commit: bool
     session_timeout_ms: int
@@ -27,18 +26,16 @@ class ProtocolKafkaConfig(Protocol):
 
 
 @runtime_checkable
-class ProtocolKafkaAdapter(ProtocolEventBusAdapter, Protocol):
+class ProtocolKafkaAdapter(ProtocolKafkaEventBusAdapter, Protocol):
     """
     Protocol for Kafka event bus adapter implementations.
 
-    Extends ProtocolEventBusAdapter with Kafka-specific configuration
+    Extends ProtocolKafkaEventBusAdapter with Kafka-specific configuration
     and connection management protocols.
     """
 
     @property
-    def bootstrap_servers(self) -> str:
-        """Get Kafka bootstrap servers configuration."""
-        ...
+    def bootstrap_servers(self) -> str: ...
 
     @property
     def environment(self) -> str:
@@ -51,7 +48,7 @@ class ProtocolKafkaAdapter(ProtocolEventBusAdapter, Protocol):
         ...
 
     @property
-    def config(self) -> Optional[ProtocolKafkaConfig]:
+    def config(self) -> ProtocolKafkaConfig | None:
         """Get Kafka configuration protocol."""
         ...
 

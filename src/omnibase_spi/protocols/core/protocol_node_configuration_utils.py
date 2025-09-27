@@ -33,9 +33,7 @@ class ProtocolUtilsNodeConfiguration(Protocol):
         """
         ...
 
-    def get_timeout_ms(
-        self, timeout_type: str, default_ms: Optional[int] = None
-    ) -> int:
+    def get_timeout_ms(self, timeout_type: str, default_ms: int | None = None) -> int:
         """
         Get timeout configuration in milliseconds.
 
@@ -49,7 +47,7 @@ class ProtocolUtilsNodeConfiguration(Protocol):
         ...
 
     def get_security_config(
-        self, key: str, default: Optional[ContextValue] = None
+        self, key: str, default: ContextValue | None = None
     ) -> ContextValue:
         """
         Get security configuration value.
@@ -64,7 +62,7 @@ class ProtocolUtilsNodeConfiguration(Protocol):
         ...
 
     def get_performance_config(
-        self, key: str, default: Optional[ContextValue] = None
+        self, key: str, default: ContextValue | None = None
     ) -> ContextValue:
         """
         Get performance configuration value.
@@ -79,7 +77,7 @@ class ProtocolUtilsNodeConfiguration(Protocol):
         ...
 
     def get_business_logic_config(
-        self, key: str, default: Optional[ContextValue] = None
+        self, key: str, default: ContextValue | None = None
     ) -> ContextValue:
         """
         Get business logic configuration value.
@@ -93,7 +91,7 @@ class ProtocolUtilsNodeConfiguration(Protocol):
         """
         ...
 
-    def validate_correlation_id(self, correlation_id: str) -> bool:
+    async def validate_correlation_id(self, correlation_id: str) -> bool:
         """
         Validate correlation ID format using configuration.
 

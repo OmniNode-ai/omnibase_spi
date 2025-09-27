@@ -50,14 +50,14 @@ def has_artifact(self, name: str) -> bool
 class NodeArtifactLoader:
     def __init__(self, container: ProtocolArtifactContainer):
         self.container = container
-    
+
     def load_compute_nodes(self):
         # Get all node artifacts
         nodes = self.container.get_artifacts_by_type("nodes")
-        
+
         # Filter for compute nodes
         compute_nodes = [
-            node for node in nodes 
+            node for node in nodes
             if node.metadata.get("node_type") == "compute"
         ]
         return compute_nodes
@@ -85,7 +85,7 @@ async def unregister_node(self, node_id: str) -> bool
 async def heartbeat(self, node_id: str) -> bool
 
 # Node discovery and querying
-async def discover_nodes(self, node_type: Optional[NodeType] = None, 
+async def discover_nodes(self, node_type: Optional[NodeType] = None,
                         environment: Optional[str] = None,
                         group: Optional[str] = None) -> List[ProtocolNodeInfo]
 async def get_gateway_for_group(self, group: str) -> Optional[ProtocolNodeInfo]
@@ -107,7 +107,7 @@ class DistributedOrchestrator:
     def __init__(self, registry: ProtocolNodeRegistry, environment: str = "prod"):
         self.registry = registry
         self.environment = environment
-    
+
     async def scale_compute_group(self, target_count: int):
         # Discover current compute nodes
         compute_nodes = await self.registry.discover_nodes(
@@ -115,9 +115,9 @@ class DistributedOrchestrator:
             environment=self.environment,
             group="processing"
         )
-        
+
         current_count = len([n for n in compute_nodes if n.health_status == "healthy"])
-        
+
         if current_count < target_count:
             await self._spawn_additional_nodes(target_count - current_count)
 ```
@@ -155,12 +155,12 @@ def register_node_info(self, node_info: ProtocolHandlerInfo) -> None
 class ExtensibleFileProcessor:
     def __init__(self):
         self.registry: ProtocolNodeDiscoveryRegistry = NodeDiscoveryRegistryImpl()
-        
+
         # Register multiple discovery sources
         self.registry.register_discovery_source(EntryPointDiscovery("onex.handlers"))
         self.registry.register_discovery_source(ConfigFileDiscovery("config/handlers.yaml"))
         self.registry.register_discovery_source(EnvironmentDiscovery("ONEX_HANDLER_"))
-        
+
         # Discover all available handlers
         self.registry.discover_and_register_nodes()
 ```
@@ -193,7 +193,7 @@ class ProtocolServiceRegistry(Protocol):
 class ServiceRegistryMonitor:
     def __init__(self, registry: ProtocolServiceRegistry):
         self.registry = registry
-    
+
     def get_health_metrics(self):
         return {
             "registry_id": self.registry.registry_id,
@@ -256,22 +256,22 @@ class ComprehensiveNodeManager:
     def __init__(self):
         # Artifact management
         self.container: ProtocolArtifactContainer = NodeArtifactContainer()
-        
+
         # Distributed coordination
         self.node_registry: ProtocolNodeRegistry = ConsulNodeRegistry()
-        
+
         # Handler discovery
         self.handler_registry: ProtocolNodeDiscoveryRegistry = HandlerRegistry()
-    
+
     async def initialize_system(self):
         # 1. Load artifacts from container
         available_nodes = self.container.get_artifacts_by_type("nodes")
-        
+
         # 2. Register nodes for distributed discovery
         for node_artifact in available_nodes:
             node_info = self._create_node_info(node_artifact)
             await self.node_registry.register_node(node_info)
-        
+
         # 3. Discover and register file handlers
         self.handler_registry.discover_and_register_nodes()
 ```
@@ -286,7 +286,7 @@ if environment == "dev":
 # Production environment - use distributed registry  
 elif environment == "prod":
     registry: ProtocolNodeRegistry = ConsulNodeRegistry("prod", "consul.company.com:8500")
-    
+
     # Register with high availability settings
     await registry.register_node(node_info, ttl_seconds=60)
 ```
@@ -346,7 +346,7 @@ Each protocol type benefits from different testing approaches:
 class MockArtifactContainer:
     def __init__(self, test_artifacts: List[ProtocolArtifactInfo]):
         self.artifacts = test_artifacts
-    
+
     def get_artifacts(self) -> List[ProtocolArtifactInfo]:
         return self.artifacts
 
@@ -354,7 +354,7 @@ class MockArtifactContainer:
 class MockNodeRegistry:
     def __init__(self):
         self.nodes = {}
-    
+
     async def register_node(self, node_info: ProtocolNodeInfo) -> bool:
         self.nodes[node_info.node_id] = node_info
         return True
@@ -365,7 +365,7 @@ class MockNodeRegistry:
 Choose protocols based on your specific architectural needs:
 
 - **Local artifact management** → `ProtocolArtifactContainer`
-- **Distributed node coordination** → `ProtocolNodeRegistry` 
+- **Distributed node coordination** → `ProtocolNodeRegistry`
 - **Plugin-based handler discovery** → `ProtocolNodeDiscoveryRegistry`
 - **Service registry monitoring** → `ProtocolServiceRegistry`
 

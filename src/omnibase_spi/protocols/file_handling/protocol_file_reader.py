@@ -5,14 +5,12 @@ This protocol enables dependency injection for file I/O operations,
 allowing for easy mocking in tests and alternative implementations.
 """
 
-from pathlib import Path
-from typing import Protocol, TypeVar
+from typing import Protocol, TypeVar, runtime_checkable
 
-from pydantic import BaseModel
-
-T = TypeVar("T", bound=BaseModel)
+T = TypeVar("T")
 
 
+@runtime_checkable
 class ProtocolFileReader(Protocol):
     """
     Protocol for reading file contents.
@@ -23,7 +21,7 @@ class ProtocolFileReader(Protocol):
     - RemoteFileReader: Could read from S3, HTTP, etc.
     """
 
-    def read_text(self, path: str | Path) -> str:
+    async def read_text(self, path: str) -> str:
         """
         Read text content from a file.
 
@@ -39,7 +37,7 @@ class ProtocolFileReader(Protocol):
         """
         ...
 
-    def read_yaml(self, path: str | Path, data_class: type[T]) -> T:
+    async def read_yaml(self, path: str, data_class: type[T]) -> T:
         """
         Read and parse YAML content from a file into a Pydantic data.
 
@@ -58,7 +56,7 @@ class ProtocolFileReader(Protocol):
         """
         ...
 
-    def exists(self, path: str | Path) -> bool:
+    async def exists(self, path: str) -> bool:
         """
         Check if a file exists.
 

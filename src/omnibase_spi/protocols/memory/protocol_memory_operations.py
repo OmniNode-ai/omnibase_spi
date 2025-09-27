@@ -16,13 +16,13 @@ from typing import TYPE_CHECKING, Optional, Protocol, runtime_checkable
 from uuid import UUID
 
 if TYPE_CHECKING:
-    from .protocol_memory_base import (
+    from omnibase_spi.protocols.memory.protocol_memory_base import (
         LiteralAnalysisType,
         LiteralCompressionAlgorithm,
         ProtocolAggregationCriteria,
         ProtocolMemoryMetadata,
     )
-    from .protocol_memory_requests import (
+    from omnibase_spi.protocols.memory.protocol_memory_requests import (
         ProtocolAgentCoordinationRequest,
         ProtocolBatchMemoryRetrieveRequest,
         ProtocolBatchMemoryStoreRequest,
@@ -35,7 +35,7 @@ if TYPE_CHECKING:
         ProtocolSemanticSearchRequest,
         ProtocolWorkflowExecutionRequest,
     )
-    from .protocol_memory_responses import (
+    from omnibase_spi.protocols.memory.protocol_memory_responses import (
         ProtocolAgentCoordinationResponse,
         ProtocolBatchMemoryRetrieveResponse,
         ProtocolBatchMemoryStoreResponse,
@@ -49,13 +49,10 @@ if TYPE_CHECKING:
         ProtocolSemanticSearchResponse,
         ProtocolWorkflowExecutionResponse,
     )
-    from .protocol_memory_security import (
+    from omnibase_spi.protocols.memory.protocol_memory_security import (
+        ProtocolMemorySecurityContext,
         ProtocolRateLimitConfig,
-        ProtocolSecurityContext,
     )
-
-
-# === EFFECT NODE PROTOCOLS ===
 
 
 @runtime_checkable
@@ -70,8 +67,8 @@ class ProtocolMemoryEffectNode(Protocol):
     async def store_memory(
         self,
         request: "ProtocolMemoryStoreRequest",
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        timeout_seconds: Optional[float] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryStoreResponse":
         """
         Store a new memory record with optional expiration and metadata.
@@ -94,8 +91,8 @@ class ProtocolMemoryEffectNode(Protocol):
     async def retrieve_memory(
         self,
         request: "ProtocolMemoryRetrieveRequest",
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        timeout_seconds: Optional[float] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryRetrieveResponse":
         """
         Retrieve a memory record by ID with optional related memories.
@@ -119,9 +116,9 @@ class ProtocolMemoryEffectNode(Protocol):
         self,
         memory_id: UUID,
         updates: "ProtocolMemoryMetadata",
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        correlation_id: Optional[UUID] = None,
-        timeout_seconds: Optional[float] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        correlation_id: UUID | None = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryResponse":
         """
         Update an existing memory record with new content or metadata.
@@ -147,9 +144,9 @@ class ProtocolMemoryEffectNode(Protocol):
     async def delete_memory(
         self,
         memory_id: UUID,
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        correlation_id: Optional[UUID] = None,
-        timeout_seconds: Optional[float] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        correlation_id: UUID | None = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryResponse":
         """
         Delete a memory record (soft delete with retention policy).
@@ -173,8 +170,8 @@ class ProtocolMemoryEffectNode(Protocol):
     async def list_memories(
         self,
         request: "ProtocolMemoryListRequest",
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        timeout_seconds: Optional[float] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryListResponse":
         """
         List memory records with paginated filtering.
@@ -197,9 +194,9 @@ class ProtocolMemoryEffectNode(Protocol):
     async def batch_store_memories(
         self,
         request: "ProtocolBatchMemoryStoreRequest",
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        rate_limit_config: Optional["ProtocolRateLimitConfig"] = None,
-        timeout_seconds: Optional[float] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        rate_limit_config: "ProtocolRateLimitConfig | None" = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolBatchMemoryStoreResponse":
         """
         Store multiple memory records in a single batch operation.
@@ -224,9 +221,9 @@ class ProtocolMemoryEffectNode(Protocol):
     async def batch_retrieve_memories(
         self,
         request: "ProtocolBatchMemoryRetrieveRequest",
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        rate_limit_config: Optional["ProtocolRateLimitConfig"] = None,
-        timeout_seconds: Optional[float] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        rate_limit_config: "ProtocolRateLimitConfig | None" = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolBatchMemoryRetrieveResponse":
         """
         Retrieve multiple memory records in a single batch operation.
@@ -249,9 +246,6 @@ class ProtocolMemoryEffectNode(Protocol):
         ...
 
 
-# === COMPUTE NODE PROTOCOLS ===
-
-
 @runtime_checkable
 class ProtocolMemoryComputeNode(Protocol):
     """
@@ -262,8 +256,7 @@ class ProtocolMemoryComputeNode(Protocol):
     """
 
     async def semantic_search(
-        self,
-        request: "ProtocolSemanticSearchRequest",
+        self, request: "ProtocolSemanticSearchRequest"
     ) -> "ProtocolSemanticSearchResponse":
         """
         Perform semantic search using vector embeddings and similarity.
@@ -279,9 +272,9 @@ class ProtocolMemoryComputeNode(Protocol):
     async def generate_embedding(
         self,
         text: str,
-        model: Optional[str] = None,
-        correlation_id: Optional[UUID] = None,
-        timeout_seconds: Optional[float] = None,
+        model: str | None = None,
+        correlation_id: UUID | None = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryResponse":
         """
         Generate vector embedding for text content.
@@ -304,7 +297,7 @@ class ProtocolMemoryComputeNode(Protocol):
     async def analyze_patterns(
         self,
         request: "ProtocolPatternAnalysisRequest",
-        timeout_seconds: Optional[float] = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolPatternAnalysisResponse":
         """
         Analyze patterns in memory data using ML algorithms.
@@ -322,8 +315,8 @@ class ProtocolMemoryComputeNode(Protocol):
         self,
         memory_ids: list[UUID],
         analysis_type: "LiteralAnalysisType" = "standard",
-        correlation_id: Optional[UUID] = None,
-        timeout_seconds: Optional[float] = None,
+        correlation_id: UUID | None = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryResponse":
         """
         Extract insights from a collection of memories.
@@ -347,8 +340,8 @@ class ProtocolMemoryComputeNode(Protocol):
         self,
         content_a: str,
         content_b: str,
-        correlation_id: Optional[UUID] = None,
-        timeout_seconds: Optional[float] = None,
+        correlation_id: UUID | None = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryResponse":
         """
         Compare semantic similarity between two pieces of content.
@@ -369,9 +362,6 @@ class ProtocolMemoryComputeNode(Protocol):
         ...
 
 
-# === REDUCER NODE PROTOCOLS ===
-
-
 @runtime_checkable
 class ProtocolMemoryReducerNode(Protocol):
     """
@@ -384,7 +374,7 @@ class ProtocolMemoryReducerNode(Protocol):
     async def consolidate_memories(
         self,
         request: "ProtocolConsolidationRequest",
-        timeout_seconds: Optional[float] = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolConsolidationResponse":
         """
         Consolidate multiple memories into a single optimized record.
@@ -402,8 +392,8 @@ class ProtocolMemoryReducerNode(Protocol):
         self,
         memory_scope: "ProtocolMemoryMetadata",
         similarity_threshold: float = 0.95,
-        correlation_id: Optional[UUID] = None,
-        timeout_seconds: Optional[float] = None,
+        correlation_id: UUID | None = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryResponse":
         """
         Remove duplicate memories based on similarity threshold.
@@ -426,10 +416,10 @@ class ProtocolMemoryReducerNode(Protocol):
     async def aggregate_data(
         self,
         aggregation_criteria: "ProtocolAggregationCriteria",
-        time_window_start: Optional[str] = None,
-        time_window_end: Optional[str] = None,
-        correlation_id: Optional[UUID] = None,
-        timeout_seconds: Optional[float] = None,
+        time_window_start: str | None = None,
+        time_window_end: str | None = None,
+        correlation_id: UUID | None = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryResponse":
         """
         Aggregate memory data based on specified criteria.
@@ -455,8 +445,8 @@ class ProtocolMemoryReducerNode(Protocol):
         memory_ids: list[UUID],
         compression_algorithm: "LiteralCompressionAlgorithm",
         quality_threshold: float = 0.9,
-        correlation_id: Optional[UUID] = None,
-        timeout_seconds: Optional[float] = None,
+        correlation_id: UUID | None = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryResponse":
         """
         Compress memory content using specified algorithm.
@@ -480,8 +470,8 @@ class ProtocolMemoryReducerNode(Protocol):
     async def optimize_storage(
         self,
         optimization_strategy: str,
-        correlation_id: Optional[UUID] = None,
-        timeout_seconds: Optional[float] = None,
+        correlation_id: UUID | None = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryResponse":
         """
         Optimize memory storage layout and access patterns.
@@ -497,9 +487,6 @@ class ProtocolMemoryReducerNode(Protocol):
         ...
 
 
-# === ORCHESTRATOR NODE PROTOCOLS ===
-
-
 @runtime_checkable
 class ProtocolMemoryOrchestratorNode(Protocol):
     """
@@ -512,7 +499,7 @@ class ProtocolMemoryOrchestratorNode(Protocol):
     async def execute_workflow(
         self,
         request: "ProtocolWorkflowExecutionRequest",
-        timeout_seconds: Optional[float] = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolWorkflowExecutionResponse":
         """
         Execute a memory workflow across multiple nodes and agents.
@@ -529,7 +516,7 @@ class ProtocolMemoryOrchestratorNode(Protocol):
     async def coordinate_agents(
         self,
         request: "ProtocolAgentCoordinationRequest",
-        timeout_seconds: Optional[float] = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolAgentCoordinationResponse":
         """
         Coordinate multiple agents for distributed memory operations.
@@ -551,9 +538,9 @@ class ProtocolMemoryOrchestratorNode(Protocol):
         self,
         update_type: str,
         update_data: "ProtocolMemoryMetadata",
-        target_agents: Optional[list[UUID]] = None,
-        correlation_id: Optional[UUID] = None,
-        timeout_seconds: Optional[float] = None,
+        target_agents: list[UUID] | None = None,
+        correlation_id: UUID | None = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryResponse":
         """
         Broadcast memory update to specified agents or all agents.
@@ -578,8 +565,8 @@ class ProtocolMemoryOrchestratorNode(Protocol):
         self,
         agent_ids: list[UUID],
         synchronization_scope: "ProtocolMemoryMetadata",
-        correlation_id: Optional[UUID] = None,
-        timeout_seconds: Optional[float] = None,
+        correlation_id: UUID | None = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryResponse":
         """
         Synchronize memory state across specified agents.
@@ -602,8 +589,8 @@ class ProtocolMemoryOrchestratorNode(Protocol):
     async def manage_lifecycle(
         self,
         lifecycle_policies: "ProtocolMemoryMetadata",
-        correlation_id: Optional[UUID] = None,
-        timeout_seconds: Optional[float] = None,
+        correlation_id: UUID | None = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryResponse":
         """
         Manage memory lifecycle based on retention policies.
@@ -623,9 +610,6 @@ class ProtocolMemoryOrchestratorNode(Protocol):
         ...
 
 
-# === HEALTH AND MONITORING PROTOCOLS ===
-
-
 @runtime_checkable
 class ProtocolMemoryHealthNode(Protocol):
     """
@@ -636,8 +620,7 @@ class ProtocolMemoryHealthNode(Protocol):
     """
 
     async def check_health(
-        self,
-        correlation_id: Optional[UUID] = None,
+        self, correlation_id: UUID | None = None
     ) -> "ProtocolMemoryResponse":
         """
         Perform comprehensive health check of memory system.
@@ -651,8 +634,7 @@ class ProtocolMemoryHealthNode(Protocol):
         ...
 
     async def collect_metrics(
-        self,
-        request: "ProtocolMemoryMetricsRequest",
+        self, request: "ProtocolMemoryMetricsRequest"
     ) -> "ProtocolMemoryMetricsResponse":
         """
         Collect system metrics for specified time window.
@@ -666,9 +648,7 @@ class ProtocolMemoryHealthNode(Protocol):
         ...
 
     async def get_status(
-        self,
-        include_detailed: bool = False,
-        correlation_id: Optional[UUID] = None,
+        self, include_detailed: bool = False, correlation_id: UUID | None = None
     ) -> "ProtocolMemoryResponse":
         """
         Get current system status and operational state.

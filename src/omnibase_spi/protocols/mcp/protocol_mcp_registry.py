@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 MCP Registry Protocol - ONEX SPI Interface.
 
@@ -8,13 +7,12 @@ Supports distributed tool registration, execution routing, and subsystem coordin
 Domain: MCP infrastructure and service coordination
 """
 
-from typing import Any, Optional, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Optional, Protocol, runtime_checkable
 from uuid import UUID
 
 from omnibase_spi.protocols.types.protocol_core_types import (
     ContextValue,
     LiteralOperationStatus,
-    ProtocolValidationResult,
 )
 from omnibase_spi.protocols.types.protocol_mcp_types import (
     LiteralMCPSubsystemType,
@@ -23,10 +21,14 @@ from omnibase_spi.protocols.types.protocol_mcp_types import (
     ProtocolMCPRegistryConfig,
     ProtocolMCPRegistryMetrics,
     ProtocolMCPRegistryStatus,
+    ProtocolMCPSubsystemMetadata,
     ProtocolMCPSubsystemRegistration,
     ProtocolMCPToolDefinition,
     ProtocolMCPToolExecution,
     ProtocolMCPValidationResult,
+)
+from omnibase_spi.protocols.validation.protocol_validation import (
+    ProtocolValidationResult,
 )
 
 
@@ -49,16 +51,14 @@ class ProtocolMCPRegistry(Protocol):
     """
 
     @property
-    def config(self) -> ProtocolMCPRegistryConfig:
-        """Get registry configuration."""
-        ...
+    def config(self) -> ProtocolMCPRegistryConfig: ...
 
     async def register_subsystem(
         self,
-        subsystem_metadata: Any,  # ProtocolMCPSubsystemMetadata from types
+        subsystem_metadata: ProtocolMCPSubsystemMetadata,
         tools: list[ProtocolMCPToolDefinition],
         api_key: str,
-        configuration: Optional[dict[str, ContextValue]],
+        configuration: dict[str, ContextValue] | None,
     ) -> str:
         """
         Register a new subsystem and its tools with the registry.
@@ -92,8 +92,8 @@ class ProtocolMCPRegistry(Protocol):
     async def update_subsystem_heartbeat(
         self,
         registration_id: str,
-        health_status: Optional[str],
-        metadata: Optional[dict[str, ContextValue]],
+        health_status: str | None,
+        metadata: dict[str, ContextValue] | None,
     ) -> bool:
         """
         Update subsystem heartbeat and health status.
@@ -110,7 +110,7 @@ class ProtocolMCPRegistry(Protocol):
 
     async def get_subsystem_registration(
         self, registration_id: str
-    ) -> Optional[ProtocolMCPSubsystemRegistration]:
+    ) -> ProtocolMCPSubsystemRegistration | None:
         """
         Get subsystem registration information.
 
@@ -124,8 +124,8 @@ class ProtocolMCPRegistry(Protocol):
 
     async def get_all_subsystems(
         self,
-        subsystem_type: Optional[LiteralMCPSubsystemType],
-        status_filter: Optional[LiteralOperationStatus],
+        subsystem_type: LiteralMCPSubsystemType | None,
+        status_filter: LiteralOperationStatus | None,
     ) -> list[ProtocolMCPSubsystemRegistration]:
         """
         Get all registered subsystems with optional filtering.
@@ -141,9 +141,9 @@ class ProtocolMCPRegistry(Protocol):
 
     async def discover_tools(
         self,
-        tool_type: Optional[LiteralMCPToolType],
-        tags: Optional[list[str]],
-        subsystem_id: Optional[str],
+        tool_type: LiteralMCPToolType | None,
+        tags: list[str] | None,
+        subsystem_id: str | None,
     ) -> list[ProtocolMCPToolDefinition]:
         """
         Discover available tools with optional filtering.
@@ -160,7 +160,7 @@ class ProtocolMCPRegistry(Protocol):
 
     async def get_tool_definition(
         self, tool_name: str
-    ) -> Optional[ProtocolMCPToolDefinition]:
+    ) -> ProtocolMCPToolDefinition | None:
         """
         Get tool definition by name (returns first available implementation).
 
@@ -191,8 +191,8 @@ class ProtocolMCPRegistry(Protocol):
         tool_name: str,
         parameters: dict[str, ContextValue],
         correlation_id: UUID,
-        timeout_seconds: Optional[int],
-        preferred_subsystem: Optional[str],
+        timeout_seconds: int | None,
+        preferred_subsystem: str | None,
     ) -> dict[str, Any]:
         """
         Execute a tool with load balancing and error handling.
@@ -216,7 +216,7 @@ class ProtocolMCPRegistry(Protocol):
 
     async def get_tool_execution(
         self, execution_id: str
-    ) -> Optional[ProtocolMCPToolExecution]:
+    ) -> ProtocolMCPToolExecution | None:
         """
         Get tool execution status and results.
 
@@ -230,9 +230,9 @@ class ProtocolMCPRegistry(Protocol):
 
     async def get_tool_executions(
         self,
-        tool_name: Optional[str],
-        subsystem_id: Optional[str],
-        correlation_id: Optional[UUID],
+        tool_name: str | None,
+        subsystem_id: str | None,
+        correlation_id: UUID | None,
         limit: int,
     ) -> list[ProtocolMCPToolExecution]:
         """
@@ -263,7 +263,7 @@ class ProtocolMCPRegistry(Protocol):
 
     async def validate_subsystem_registration(
         self,
-        subsystem_metadata: Any,  # ProtocolMCPSubsystemMetadata
+        subsystem_metadata: ProtocolMCPSubsystemMetadata,
         tools: list[ProtocolMCPToolDefinition],
     ) -> ProtocolMCPValidationResult:
         """
@@ -279,9 +279,7 @@ class ProtocolMCPRegistry(Protocol):
         ...
 
     async def validate_tool_parameters(
-        self,
-        tool_name: str,
-        parameters: dict[str, ContextValue],
+        self, tool_name: str, parameters: dict[str, "ContextValue"]
     ) -> ProtocolValidationResult:
         """
         Validate tool execution parameters.
@@ -311,7 +309,7 @@ class ProtocolMCPRegistry(Protocol):
 
     async def get_subsystem_health(
         self, registration_id: str
-    ) -> Optional[ProtocolMCPHealthCheck]:
+    ) -> ProtocolMCPHealthCheck | None:
         """
         Get latest health check result for a subsystem.
 
@@ -333,9 +331,7 @@ class ProtocolMCPRegistry(Protocol):
         ...
 
     async def update_subsystem_configuration(
-        self,
-        registration_id: str,
-        configuration: dict[str, ContextValue],
+        self, registration_id: str, configuration: dict[str, ContextValue]
     ) -> bool:
         """
         Update subsystem configuration.
@@ -414,10 +410,7 @@ class ProtocolMCPRegistryMetricsOperations(Protocol):
     """
 
     async def get_execution_metrics(
-        self,
-        time_range_hours: int,
-        tool_name: Optional[str],
-        subsystem_id: Optional[str],
+        self, time_range_hours: int, tool_name: str | None, subsystem_id: str | None
     ) -> dict[str, Any]:
         """Get tool execution metrics for specified time range."""
         ...

@@ -8,14 +8,13 @@ performance observability and optimization.
 
 from typing import TYPE_CHECKING, Any, Callable, Optional, Protocol, runtime_checkable
 
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.protocol_core_types import (
-        LiteralPerformanceCategory,
-        ProtocolContextValue,
-        ProtocolDateTime,
-        ProtocolPerformanceMetric,
-        ProtocolPerformanceMetrics,
-    )
+from omnibase_spi.protocols.types.protocol_core_types import (
+    LiteralPerformanceCategory,
+    ProtocolContextValue,
+    ProtocolDateTime,
+    ProtocolPerformanceMetric,
+    ProtocolPerformanceMetrics,
+)
 
 
 @runtime_checkable
@@ -69,7 +68,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
                     )
 
             # Usage in application code
-            perf_collector: ProtocolPerformanceMetricsCollector = PerformanceMetricsImpl()
+            perf_collector: "ProtocolPerformanceMetricsCollector" = PerformanceMetricsImpl()
 
             # Collect current performance metrics
             current_metrics = perf_collector.collect_performance_metrics(
@@ -92,8 +91,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
     """
 
     async def collect_performance_metrics(
-        self,
-        service_name: str,
+        self, service_name: str
     ) -> "ProtocolPerformanceMetrics":
         """
         Collect comprehensive performance metrics for a service.
@@ -116,9 +114,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         ...
 
     async def collect_category_metrics(
-        self,
-        service_name: str,
-        categories: list["LiteralPerformanceCategory"],
+        self, service_name: str, categories: list["LiteralPerformanceCategory"]
     ) -> list["ProtocolPerformanceMetric"]:
         """
         Collect performance metrics for specific categories.
@@ -137,8 +133,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         ...
 
     async def record_performance_metric(
-        self,
-        metric: "ProtocolPerformanceMetric",
+        self, metric: "ProtocolPerformanceMetric"
     ) -> bool:
         """
         Record a single performance metric.
@@ -160,8 +155,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         ...
 
     async def record_performance_metrics_batch(
-        self,
-        metrics: list["ProtocolPerformanceMetric"],
+        self, metrics: list["ProtocolPerformanceMetric"]
     ) -> int:
         """
         Record multiple performance metrics efficiently.
@@ -181,8 +175,8 @@ class ProtocolPerformanceMetricsCollector(Protocol):
     def set_performance_threshold(
         self,
         metric_name: str,
-        warning_threshold: Optional[float],
-        critical_threshold: Optional[float],
+        warning_threshold: float | None,
+        critical_threshold: float | None,
     ) -> bool:
         """
         Set performance thresholds for metric alerting.
@@ -205,10 +199,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         """
         ...
 
-    def get_performance_thresholds(
-        self,
-        metric_name: str,
-    ) -> dict[str, Optional[float]]:
+    def get_performance_thresholds(self, metric_name: str) -> dict[str, float | None]:
         """
         Get configured performance thresholds for a metric.
 
@@ -224,9 +215,8 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         """
         ...
 
-    def check_performance_thresholds(
-        self,
-        metrics: "ProtocolPerformanceMetrics",
+    async def check_performance_thresholds(
+        self, metrics: "ProtocolPerformanceMetrics"
     ) -> list[dict[str, "ProtocolContextValue"]]:
         """
         Check metrics against configured thresholds.
@@ -247,7 +237,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         self,
         service_name: str,
         hours_back: int,
-        categories: Optional[list["LiteralPerformanceCategory"]],
+        categories: list["LiteralPerformanceCategory"] | None,
     ) -> dict[str, dict[str, float]]:
         """
         Analyze performance trends over time.
@@ -267,9 +257,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         ...
 
     async def get_performance_baseline(
-        self,
-        service_name: str,
-        metric_name: str,
+        self, service_name: str, metric_name: str
     ) -> dict[str, float]:
         """
         Get performance baseline for a service metric.
@@ -288,10 +276,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         ...
 
     async def establish_performance_baseline(
-        self,
-        service_name: str,
-        metric_name: str,
-        baseline_period_hours: int,
+        self, service_name: str, metric_name: str, baseline_period_hours: int
     ) -> bool:
         """
         Establish new performance baseline from historical data.
@@ -361,7 +346,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         service_name: str,
         start_time: "ProtocolDateTime",
         end_time: "ProtocolDateTime",
-        categories: Optional[list["LiteralPerformanceCategory"]],
+        categories: list["LiteralPerformanceCategory"] | None,
     ) -> dict[str, "ProtocolContextValue"]:
         """
         Export comprehensive performance report for time period.
@@ -385,7 +370,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         self,
         service_name: str,
         collection_interval_seconds: int,
-        alert_callback: Optional[Callable[..., Any]],
+        alert_callback: Callable[..., Any] | None,
     ) -> str:
         """
         Start real-time performance monitoring.
@@ -408,10 +393,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         """
         ...
 
-    async def stop_real_time_monitoring(
-        self,
-        monitoring_session_id: str,
-    ) -> bool:
+    async def stop_real_time_monitoring(self, monitoring_session_id: str) -> bool:
         """
         Stop real-time performance monitoring.
 
@@ -441,9 +423,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         ...
 
     async def correlate_cross_service_performance(
-        self,
-        service_names: list[str],
-        correlation_window_minutes: int,
+        self, service_names: list[str], correlation_window_minutes: int
     ) -> dict[str, dict[str, float]]:
         """
         Correlate performance metrics across multiple services.
@@ -462,9 +442,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         ...
 
     async def identify_performance_bottlenecks(
-        self,
-        service_name: str,
-        analysis_period_hours: int,
+        self, service_name: str, analysis_period_hours: int
     ) -> list[dict[str, "ProtocolContextValue"]]:
         """
         Identify performance bottlenecks through analysis.
@@ -483,9 +461,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         ...
 
     async def predict_performance_issues(
-        self,
-        service_name: str,
-        prediction_horizon_hours: int,
+        self, service_name: str, prediction_horizon_hours: int
     ) -> list[dict[str, "ProtocolContextValue"]]:
         """
         Predict potential performance issues based on trends.
@@ -504,9 +480,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         ...
 
     async def get_performance_summary(
-        self,
-        service_names: list[str],
-        summary_period_hours: int,
+        self, service_names: list[str], summary_period_hours: int
     ) -> dict[str, "ProtocolContextValue"]:
         """
         Get performance summary across multiple services.

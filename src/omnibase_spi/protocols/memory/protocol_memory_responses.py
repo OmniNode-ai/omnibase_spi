@@ -22,7 +22,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, AsyncIterator, Optional, Protocol, runtime_checkable
 from uuid import UUID
 
-# Import for runtime type annotation
 from .protocol_memory_errors import ProtocolMemoryError
 
 if TYPE_CHECKING:
@@ -42,39 +41,33 @@ if TYPE_CHECKING:
     )
 
 
-# === BASE RESPONSE PROTOCOLS ===
-
-
 @runtime_checkable
 class ProtocolMemoryResponse(Protocol):
     """Base protocol for all memory operation responses."""
 
-    correlation_id: Optional[UUID]
+    correlation_id: UUID | None
     response_timestamp: "datetime"
     success: bool
 
     @property
-    def error_message(self) -> Optional[str]:
+    def error_message(self) -> str | None:
         """Error message if operation failed."""
         ...
-
-
-# === EFFECT NODE RESPONSE PROTOCOLS ===
 
 
 @runtime_checkable
 class ProtocolMemoryStoreResponse(ProtocolMemoryResponse, Protocol):
     """Protocol for memory storage responses."""
 
-    memory_id: Optional[UUID]
-    storage_location: Optional[str]
+    memory_id: UUID | None
+    storage_location: str | None
 
 
 @runtime_checkable
 class ProtocolMemoryRetrieveResponse(ProtocolMemoryResponse, Protocol):
     """Protocol for memory retrieval responses."""
 
-    memory: Optional["ProtocolMemoryRecord"]
+    memory: "ProtocolMemoryRecord | None"
 
     @property
     def related_memories(self) -> list["ProtocolMemoryRecord"]:
@@ -96,8 +89,8 @@ class ProtocolBatchOperationResult(Protocol):
 
     operation_index: int
     success: bool
-    result_id: Optional[UUID]
-    error: Optional[ProtocolMemoryError]
+    result_id: UUID | None
+    error: "ProtocolMemoryError | None"
 
     @property
     def execution_time_ms(self) -> int:
@@ -109,7 +102,7 @@ class ProtocolBatchOperationResult(Protocol):
 class ProtocolBatchMemoryStoreResponse(ProtocolMemoryResponse, Protocol):
     """Protocol for batch memory storage responses."""
 
-    results: list[ProtocolBatchOperationResult]
+    results: list["ProtocolBatchOperationResult"]
     total_processed: int
     successful_count: int
     failed_count: int
@@ -125,13 +118,10 @@ class ProtocolBatchMemoryStoreResponse(ProtocolMemoryResponse, Protocol):
 class ProtocolBatchMemoryRetrieveResponse(ProtocolMemoryResponse, Protocol):
     """Protocol for batch memory retrieval responses."""
 
-    results: list[ProtocolBatchOperationResult]
+    results: list["ProtocolBatchOperationResult"]
     memories: list["ProtocolMemoryRecord"]
     missing_ids: list[UUID]
     batch_execution_time_ms: int
-
-
-# === COMPUTE NODE RESPONSE PROTOCOLS ===
 
 
 @runtime_checkable
@@ -142,8 +132,7 @@ class ProtocolSemanticSearchResponse(ProtocolMemoryResponse, Protocol):
     total_matches: int
     search_time_ms: int
 
-    @property
-    def query_embedding(self) -> Optional[list[float]]:
+    async def get_query_embedding(self) -> list[float] | None:
         """Query embedding used for search."""
         ...
 
@@ -170,9 +159,6 @@ class ProtocolEmbeddingResponse(ProtocolMemoryResponse, Protocol):
     dimensions: int
 
 
-# === REDUCER NODE RESPONSE PROTOCOLS ===
-
-
 @runtime_checkable
 class ProtocolConsolidationResponse(ProtocolMemoryResponse, Protocol):
     """Protocol for memory consolidation responses."""
@@ -187,9 +173,6 @@ class ProtocolAggregationResponse(ProtocolMemoryResponse, Protocol):
 
     aggregated_data: "ProtocolAggregatedData"
     aggregation_metadata: "ProtocolMemoryMetadata"
-
-
-# === ORCHESTRATOR NODE RESPONSE PROTOCOLS ===
 
 
 @runtime_checkable
@@ -218,9 +201,6 @@ class ProtocolAgentCoordinationResponse(ProtocolMemoryResponse, Protocol):
         ...
 
 
-# === PAGINATION RESPONSE PROTOCOLS ===
-
-
 @runtime_checkable
 class ProtocolPaginationResponse(Protocol):
     """Protocol for paginated response metadata."""
@@ -228,16 +208,13 @@ class ProtocolPaginationResponse(Protocol):
     total_count: int
     has_next_page: bool
     has_previous_page: bool
-    next_cursor: Optional[str]
-    previous_cursor: Optional[str]
+    next_cursor: str | None
+    previous_cursor: str | None
 
     @property
     def page_info(self) -> "ProtocolPageInfo":
         """Additional pagination metadata."""
         ...
-
-
-# === METRICS RESPONSE PROTOCOLS ===
 
 
 @runtime_checkable
@@ -269,12 +246,9 @@ class ProtocolMemoryMetrics(Protocol):
 class ProtocolMemoryMetricsResponse(ProtocolMemoryResponse, Protocol):
     """Protocol for metrics collection responses."""
 
-    metrics: list[ProtocolMemoryMetrics]
+    metrics: list["ProtocolMemoryMetrics"]
     aggregation_summary: "ProtocolAggregationSummary"
     collection_timestamp: "datetime"
-
-
-# === STREAMING RESPONSE PROTOCOLS ===
 
 
 @runtime_checkable
@@ -290,7 +264,7 @@ class ProtocolStreamingMemoryResponse(ProtocolMemoryResponse, Protocol):
         ...
 
     @property
-    def compression_ratio(self) -> Optional[float]:
+    def compression_ratio(self) -> float | None:
         """Compression ratio if compression was used."""
         ...
 

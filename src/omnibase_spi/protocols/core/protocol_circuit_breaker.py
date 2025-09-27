@@ -2,7 +2,7 @@
 # author: OmniNode Team
 # copyright: OmniNode.ai
 # created_at: '2025-01-15T18:30:00.000000'
-# description: Protocol definition for circuit breaker fault tolerance patterns
+# description: "Protocol" definition for circuit breaker fault tolerance patterns
 # entrypoint: python://protocol_circuit_breaker
 # hash: auto-generated
 # last_modified_at: '2025-01-15T18:30:00.000000+00:00'
@@ -109,7 +109,7 @@ class ProtocolCircuitBreakerMetrics(Protocol):
 
     # State tracking
     @property
-    def current_state(self) -> LiteralProtocolCircuitBreakerState:
+    def current_state(self) -> "LiteralProtocolCircuitBreakerState":
         """Current circuit breaker state."""
         ...
 
@@ -195,7 +195,7 @@ class ProtocolCircuitBreaker(Protocol):
 
     Example:
         class MyCircuitBreaker:
-            def get_state(self) -> LiteralProtocolCircuitBreakerState:
+            def get_state(self) -> "LiteralProtocolCircuitBreakerState":
                 return self._current_state
 
             async def call(self, func, fallback=None, timeout=None):
@@ -218,7 +218,7 @@ class ProtocolCircuitBreaker(Protocol):
         """Get the service name this circuit breaker protects."""
         ...
 
-    def get_state(self) -> LiteralProtocolCircuitBreakerState:
+    def get_state(self) -> "LiteralProtocolCircuitBreakerState":
         """
         Get current circuit breaker state.
 
@@ -295,7 +295,7 @@ class ProtocolCircuitBreakerFactory(Protocol):
     def get_circuit_breaker(
         self,
         service_name: str,
-        config: ProtocolCircuitBreakerConfig | None = None,
+        config: "ProtocolCircuitBreakerConfig | None" = None,
         *,
         create_if_missing: bool = True,
     ) -> ProtocolCircuitBreaker | None:
@@ -312,10 +312,10 @@ class ProtocolCircuitBreakerFactory(Protocol):
         """
         ...
 
-    def register_circuit_breaker(
+    async def register_circuit_breaker(
         self,
         service_name: str,
-        circuit_breaker: ProtocolCircuitBreaker,
+        circuit_breaker: "ProtocolCircuitBreaker",
     ) -> None:
         """
         Register an existing circuit breaker instance.
@@ -338,7 +338,7 @@ class ProtocolCircuitBreakerFactory(Protocol):
         """
         ...
 
-    def get_all_circuit_breakers(self) -> dict[str, ProtocolCircuitBreaker]:
+    def get_all_circuit_breakers(self) -> dict[str, "ProtocolCircuitBreaker"]:
         """
         Get all registered circuit breakers.
 

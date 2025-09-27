@@ -1,27 +1,3 @@
-# === OmniNode:Metadata ===
-# author: OmniNode Team
-# copyright: OmniNode.ai
-# created_at: '2025-05-28T12:36:27.128231'
-# description: Stamped by NodePython
-# entrypoint: python://protocol_event_bus
-# hash: d08b73065d9e8de6ac3b18881f8669d08f07ca6678ec78d1f0cdb96e3b9016eb
-# last_modified_at: '2025-05-29T14:14:00.220362+00:00'
-# lifecycle: active
-# meta_type: node
-# metadata_version: 0.1.0
-# name: protocol_event_bus.py
-# namespace: python://omnibase_spi.protocol.protocol_event_bus
-# owner: OmniNode Team
-# protocol_version: 0.1.0
-# runtime_language_hint: python>=3.11
-# schema_version: 0.1.0
-# state_contract: state_contract://default
-# tools: null
-# uuid: 2d9c79c5-6422-462b-b10c-e080a10c1d42
-# version: 1.0.0
-# === /OmniNode:Metadata ===
-
-
 from typing import (
     Any,
     Awaitable,
@@ -37,10 +13,11 @@ from omnibase_spi.protocols.types.protocol_core_types import (
     ProtocolDateTime,
     ProtocolSemVer,
 )
+from omnibase_spi.protocols.types.protocol_event_bus_types import ProtocolEventMessage
 
 
 @runtime_checkable
-class ProtocolEventHeaders(Protocol):
+class ProtocolEventBusHeaders(Protocol):
     """
     Protocol for standardized headers for ONEX event bus messages.
 
@@ -54,7 +31,6 @@ class ProtocolEventHeaders(Protocol):
     - OpenTelemetry Span ID: "00f067aa0ba902b7" (16 hex digits, no hyphens)
     """
 
-    # REQUIRED - Essential for system operation and observability
     @property
     def content_type(self) -> str:
         """MIME type: 'application/json', 'application/avro', etc."""
@@ -71,7 +47,7 @@ class ProtocolEventHeaders(Protocol):
         ...
 
     @property
-    def timestamp(self) -> "ProtocolDateTime":
+    def timestamp(self) -> ProtocolDateTime:
         """Message creation timestamp (datetime object)."""
         ...
 
@@ -86,93 +62,68 @@ class ProtocolEventHeaders(Protocol):
         ...
 
     @property
-    def schema_version(self) -> "ProtocolSemVer":
+    def schema_version(self) -> ProtocolSemVer:
         """Message schema version for compatibility."""
         ...
 
-    # OPTIONAL - Standardized but not mandatory for all messages
     @property
-    def destination(self) -> Optional[str]:
+    def destination(self) -> str | None:
         """Target agent/service (for direct routing)."""
         ...
 
     @property
-    def trace_id(self) -> Optional[str]:
+    def trace_id(self) -> str | None:
         """OpenTelemetry trace ID (32 hex chars, no hyphens)."""
         ...
 
     @property
-    def span_id(self) -> Optional[str]:
+    def span_id(self) -> str | None:
         """OpenTelemetry span ID (16 hex chars, no hyphens)."""
         ...
 
     @property
-    def parent_span_id(self) -> Optional[str]:
+    def parent_span_id(self) -> str | None:
         """Parent span ID (16 hex chars, no hyphens)."""
         ...
 
     @property
-    def operation_name(self) -> Optional[str]:
+    def operation_name(self) -> str | None:
         """Operation being performed (for tracing context)."""
         ...
 
     @property
-    def priority(self) -> Optional[Literal["low", "normal", "high", "critical"]]:
+    def priority(self) -> Literal["low", "normal", "high", "critical"] | None:
         """Message priority."""
         ...
 
     @property
-    def routing_key(self) -> Optional[str]:
+    def routing_key(self) -> str | None:
         """Kafka/messaging routing key."""
         ...
 
     @property
-    def partition_key(self) -> Optional[str]:
+    def partition_key(self) -> str | None:
         """Explicit partition assignment key."""
         ...
 
     @property
-    def retry_count(self) -> Optional[int]:
+    def retry_count(self) -> int | None:
         """Number of retry attempts (for error handling)."""
         ...
 
     @property
-    def max_retries(self) -> Optional[int]:
+    def max_retries(self) -> int | None:
         """Maximum retry attempts allowed."""
         ...
 
     @property
-    def ttl_seconds(self) -> Optional[int]:
+    def ttl_seconds(self) -> int | None:
         """Message time-to-live in seconds."""
         ...
 
 
 @runtime_checkable
-class ProtocolEventMessage(Protocol):
-    """
-    Protocol for ONEX event bus message objects.
-
-    Defines the contract that all event message implementations must satisfy
-    for Kafka/Redpanda compatibility following the ONEX Messaging Design v0.3.
-
-    Implementations can use dataclass, NamedTuple, or custom classes as long
-    as they provide the required attributes and methods.
-    """
-
-    topic: str
-    key: Optional[bytes]
-    value: bytes
-    headers: ProtocolEventHeaders
-    offset: Optional[str]
-    partition: Optional[int]
-
-    async def ack(self) -> None:
-        """Acknowledge message processing (adapter-specific implementation)."""
-        ...
-
-
-@runtime_checkable
-class ProtocolEventBusAdapter(Protocol):
+class ProtocolKafkaEventBusAdapter(Protocol):
     """
     Protocol for Event Bus Adapters supporting pluggable Kafka/Redpanda backends.
 
@@ -187,7 +138,7 @@ class ProtocolEventBusAdapter(Protocol):
         # Implementation example (not part of SPI)
         class KafkaAdapter:
             async def publish(self, topic: str, key: Optional[bytes],
-                            value: bytes, headers: ProtocolEventHeaders) -> None:
+                            value: bytes, headers: "ProtocolEventBusHeaders") -> None:
                 # Kafka-specific publishing logic
                 producer = self._get_producer()
                 await producer.send(topic, key=key, value=value, headers=headers)
@@ -201,7 +152,7 @@ class ProtocolEventBusAdapter(Protocol):
                 return lambda: consumer.unsubscribe()
 
         # Usage in application code
-        adapter: ProtocolEventBusAdapter = KafkaAdapter()
+        adapter: "ProtocolKafkaEventBusAdapter" = KafkaAdapter()
 
         # Publishing events
         await adapter.publish(
@@ -220,7 +171,7 @@ class ProtocolEventBusAdapter(Protocol):
         )
 
         # Subscribing to events
-        async def handle_message(msg: ProtocolEventMessage) -> None:
+        async def handle_message(msg: "ProtocolEventMessage") -> None:
             data = json.loads(msg.value.decode())
             print(f"Received: {data}")
             await msg.ack()
@@ -245,9 +196,9 @@ class ProtocolEventBusAdapter(Protocol):
     async def publish(
         self,
         topic: str,
-        key: Optional[bytes],
+        key: bytes | None,
         value: bytes,
-        headers: ProtocolEventHeaders,
+        headers: "ProtocolEventBusHeaders",
     ) -> None:
         """
         Publish message to topic.
@@ -297,7 +248,7 @@ class ProtocolEventBus(Protocol):
     """
 
     @property
-    def adapter(self) -> ProtocolEventBusAdapter:
+    def adapter(self) -> ProtocolKafkaEventBusAdapter:
         """Get the event bus adapter implementation."""
         ...
 
@@ -311,14 +262,12 @@ class ProtocolEventBus(Protocol):
         """Get node group name for mini-mesh isolation."""
         ...
 
-    # === Distributed Messaging Interface ===
-
     async def publish(
         self,
         topic: str,
-        key: Optional[bytes],
+        key: bytes | None,
         value: bytes,
-        headers: Optional[ProtocolEventHeaders] = None,
+        headers: "ProtocolEventBusHeaders | None" = None,
     ) -> None:
         """
         Publish message to topic.
@@ -354,7 +303,7 @@ class ProtocolEventBus(Protocol):
         self,
         command: str,
         payload: dict[str, Any],
-        target_environment: Optional[str] = None,
+        target_environment: str | None = None,
     ) -> None:
         """
         Broadcast command to entire environment.

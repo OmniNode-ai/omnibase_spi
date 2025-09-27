@@ -59,7 +59,7 @@ dependencies = [
 
 # NEW dependency
 dependencies = [
-    "omnibase_spi>=0.1.0", 
+    "omnibase_spi>=0.1.0",
 ]
 ```
 
@@ -132,7 +132,7 @@ def test_migration():
         from omnibase_spi.protocols.core import ProtocolWorkflowReducer
         from omnibase_spi.protocols.types import LogLevel
         from omnibase_spi.protocols.mcp import ProtocolMCPRegistry
-        
+
         print("✅ Migration successful: All imports working")
         return True
     except ImportError as e:

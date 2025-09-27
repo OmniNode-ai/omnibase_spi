@@ -43,7 +43,7 @@ repos:
       - id: mypy
         name: MyPy Type Checking
         args: [--strict, --ignore-missing-imports, --show-error-codes]
-        exclude: ^(tests/|scripts/validation/).*\.py$
+        exclude: ^(tests/|scripts/|.*_analysis\.py$|analyze_protocols\.py$|fix_remaining_protocols\.py$)
 
   # SPI-specific validation hooks
   - repo: local

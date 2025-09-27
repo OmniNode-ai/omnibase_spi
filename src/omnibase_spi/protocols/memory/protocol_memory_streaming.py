@@ -12,7 +12,7 @@ from uuid import UUID
 
 if TYPE_CHECKING:
     from .protocol_memory_base import ProtocolMemoryMetadata
-    from .protocol_memory_security import ProtocolSecurityContext
+    from .protocol_memory_security import ProtocolMemorySecurityContext
 
 
 @runtime_checkable
@@ -40,7 +40,7 @@ class ProtocolStreamingChunk(Protocol):
         ...
 
     @property
-    def total_chunks(self) -> Optional[int]:
+    def total_chunks(self) -> int | None:
         """Total number of chunks (if known)."""
         ...
 
@@ -65,7 +65,7 @@ class ProtocolStreamingChunk(Protocol):
         ...
 
     @property
-    def compression_type(self) -> Optional[str]:
+    def compression_type(self) -> str | None:
         """Compression type used for this chunk."""
         ...
 
@@ -140,7 +140,7 @@ class ProtocolCursorPagination(Protocol):
     """
 
     @property
-    def cursor(self) -> Optional[str]:
+    def cursor(self) -> str | None:
         """Opaque cursor for pagination position."""
         ...
 
@@ -183,8 +183,8 @@ class ProtocolStreamingMemoryNode(Protocol):
         self,
         memory_id: UUID,
         streaming_config: "ProtocolStreamingConfig",
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        timeout_seconds: Optional[float] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        timeout_seconds: float | None = None,
     ) -> AsyncGenerator["ProtocolStreamingChunk", None]:
         """
         Stream memory content in chunks for large data.
@@ -211,8 +211,8 @@ class ProtocolStreamingMemoryNode(Protocol):
         content_stream: AsyncGenerator["ProtocolStreamingChunk", None],
         target_memory_id: UUID,
         streaming_config: "ProtocolStreamingConfig",
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        timeout_seconds: Optional[float] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryMetadata":
         """
         Upload memory content from streaming chunks.
@@ -238,8 +238,8 @@ class ProtocolStreamingMemoryNode(Protocol):
     async def paginate_memories_cursor(
         self,
         pagination_config: "ProtocolCursorPagination",
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        timeout_seconds: Optional[float] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryMetadata":
         """
         Paginate memory records using cursor-based pagination.
@@ -263,8 +263,8 @@ class ProtocolStreamingMemoryNode(Protocol):
         self,
         search_query: str,
         streaming_config: "ProtocolStreamingConfig",
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        timeout_seconds: Optional[float] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        timeout_seconds: float | None = None,
     ) -> AsyncGenerator["ProtocolMemoryMetadata", None]:
         """
         Stream search results for large result sets.
@@ -291,8 +291,8 @@ class ProtocolStreamingMemoryNode(Protocol):
         memory_id: UUID,
         compression_algorithm: str,
         compression_level: int,
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        timeout_seconds: Optional[float] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryMetadata":
         """
         Compress memory content for storage optimization.
@@ -317,8 +317,8 @@ class ProtocolStreamingMemoryNode(Protocol):
     async def decompress_memory_content(
         self,
         memory_id: UUID,
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        timeout_seconds: Optional[float] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryMetadata":
         """
         Decompress memory content for access.
@@ -343,8 +343,8 @@ class ProtocolStreamingMemoryNode(Protocol):
         memory_ids: list[UUID],
         vector_chunk_size: int,
         compression_enabled: bool,
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        timeout_seconds: Optional[float] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        timeout_seconds: float | None = None,
     ) -> AsyncGenerator["ProtocolStreamingChunk", None]:
         """
         Stream embedding vectors efficiently for large datasets.
@@ -373,8 +373,8 @@ class ProtocolStreamingMemoryNode(Protocol):
         target_memory_ids: list[UUID],
         vector_dimensions: int,
         streaming_config: "ProtocolStreamingConfig",
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        timeout_seconds: Optional[float] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryMetadata":
         """
         Batch upload embedding vectors from streaming chunks.
@@ -413,7 +413,7 @@ class ProtocolMemoryCache(Protocol):
         memory_id: UUID,
         cache_ttl_seconds: int,
         cache_level: str,
-        security_context: Optional["ProtocolSecurityContext"] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
     ) -> "ProtocolMemoryMetadata":
         """
         Cache memory content for faster access.
@@ -437,7 +437,7 @@ class ProtocolMemoryCache(Protocol):
         self,
         memory_id: UUID,
         invalidation_scope: str,
-        security_context: Optional["ProtocolSecurityContext"] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
     ) -> "ProtocolMemoryMetadata":
         """
         Invalidate cached memory content.
@@ -460,8 +460,8 @@ class ProtocolMemoryCache(Protocol):
         self,
         memory_ids: list[UUID],
         warming_strategy: str,
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        timeout_seconds: Optional[float] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryMetadata":
         """
         Warm cache with frequently accessed memories.
@@ -485,7 +485,7 @@ class ProtocolMemoryCache(Protocol):
     async def get_cache_stats(
         self,
         cache_scope: str,
-        security_context: Optional["ProtocolSecurityContext"] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
     ) -> "ProtocolMemoryMetadata":
         """
         Get cache performance statistics.
@@ -516,8 +516,8 @@ class ProtocolPerformanceOptimization(Protocol):
         self,
         operation_types: list[str],
         time_window_hours: int,
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        timeout_seconds: Optional[float] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryMetadata":
         """
         Analyze performance patterns for optimization.
@@ -542,8 +542,8 @@ class ProtocolPerformanceOptimization(Protocol):
         self,
         memory_ids: list[UUID],
         optimization_strategy: str,
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        timeout_seconds: Optional[float] = None,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryMetadata":
         """
         Optimize access patterns for specified memories.
@@ -567,9 +567,9 @@ class ProtocolPerformanceOptimization(Protocol):
     async def create_performance_baseline(
         self,
         operation_type: str,
-        baseline_duration_hours: int,  # 1 week
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        timeout_seconds: Optional[float] = None,
+        baseline_duration_hours: int,
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryMetadata":
         """
         Create performance baseline for operation type.

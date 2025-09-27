@@ -5,11 +5,13 @@ Domain: Core system protocols (logging, serialization, validation)
 """
 
 from datetime import datetime
-from typing import Literal, Optional, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Literal, Optional, Protocol, runtime_checkable
 from uuid import UUID
 
+if TYPE_CHECKING:
+    pass
 
-# Semantic version protocol - for strong version typing
+
 @runtime_checkable
 class ProtocolSemVer(Protocol):
     """
@@ -41,41 +43,11 @@ class ProtocolSemVer(Protocol):
         ...
 
 
-# Datetime protocol alias - ensures consistent datetime usage
 ProtocolDateTime = datetime
-
-# Log level types - comprehensive logging levels for observability
-# TRACE: Finest-grained debug information
-# DEBUG: Detailed diagnostic information
-# INFO: General informational messages
-# WARNING: Warning conditions that don't prevent operation
-# ERROR: Error conditions that affect specific operations
-# CRITICAL: Critical conditions that may affect system stability
-# FATAL: Fatal errors that cause service termination
 LiteralLogLevel = Literal[
     "TRACE", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL", "FATAL"
 ]
-
-# Node-related types - ONEX 4-node architecture types
-# COMPUTE: Data processing and business logic nodes
-# EFFECT: External interaction and I/O operations
-# REDUCER: State management and data consolidation
-# ORCHESTRATOR: Workflow coordination and process management
 LiteralNodeType = Literal["COMPUTE", "EFFECT", "REDUCER", "ORCHESTRATOR"]
-
-# Health status types - comprehensive health states for monitoring
-# healthy: Normal operation, all systems functional
-# degraded: Reduced functionality but still operational
-# unhealthy: Significant issues affecting operation
-# critical: Severe issues requiring immediate attention
-# unknown: Health status cannot be determined
-# warning: Minor issues that should be monitored
-# unreachable: Service cannot be contacted
-# available: Service is reachable and ready
-# unavailable: Service is temporarily not available
-# initializing: Service is starting up
-# disposing: Service is shutting down
-# error: Service is in an error state
 LiteralHealthStatus = Literal[
     "healthy",
     "degraded",
@@ -90,8 +62,6 @@ LiteralHealthStatus = Literal[
     "disposing",
     "error",
 ]
-
-# === Context Value Protocol Hierarchy (Eliminates Union anti-patterns) ===
 
 
 @runtime_checkable
@@ -146,11 +116,9 @@ class ProtocolContextStringDictValue(ProtocolContextValue, Protocol):
     value: dict[str, str]
 
 
-# Backward compatibility alias - use ProtocolContextValue for new code
 ContextValue = ProtocolContextValue
 
 
-# Metadata types - for metadata storage protocols
 @runtime_checkable
 class ProtocolSupportedMetadataType(Protocol):
     """
@@ -167,7 +135,7 @@ class ProtocolSupportedMetadataType(Protocol):
         - Safe for serialization/deserialization
 
     Usage:
-        def store_metadata(key: str, value: ProtocolSupportedMetadataType):
+        def store_metadata(key: str, value: "ProtocolSupportedMetadataType"):
             metadata_store[key] = str(value)
     """
 
@@ -177,8 +145,11 @@ class ProtocolSupportedMetadataType(Protocol):
         """Convert to string representation for persistence and display."""
         ...
 
+    def validate_for_metadata(self) -> bool:
+        """Validate that this type can be safely stored as metadata."""
+        ...
 
-# Configuration value protocol - for type-safe configuration
+
 @runtime_checkable
 class ProtocolConfigValue(Protocol):
     """
@@ -206,10 +177,18 @@ class ProtocolConfigValue(Protocol):
     key: str
     value: ContextValue
     config_type: Literal["string", "int", "float", "bool", "list"]
-    default_value: Optional[ContextValue]
+    default_value: ContextValue | None
+
+    def validate_config_value(self) -> bool:
+        """Validate that the configuration value matches its declared type."""
+        ...
+
+    def has_valid_default(self) -> bool:
+        """Check if the default value is compatible with the configuration type."""
+        ...
 
 
-# Core logging protocols
+@runtime_checkable
 class ProtocolLogContext(Protocol):
     """
     Protocol for structured logging context objects.
@@ -229,7 +208,7 @@ class ProtocolLogContext(Protocol):
         logger.info("Operation completed", context=context.to_dict())
     """
 
-    def to_dict(self) -> dict[str, ContextValue]:
+    def to_dict(self) -> dict[str, "ContextValue"]:
         """
         Convert context to dictionary with typed values.
 
@@ -267,11 +246,18 @@ class ProtocolLogEntry(Protocol):
     level: LiteralLogLevel
     message: str
     correlation_id: UUID
-    timestamp: ProtocolDateTime
-    context: dict[str, ContextValue]
+    timestamp: "ProtocolDateTime"
+    context: dict[str, "ContextValue"]
+
+    def validate_log_entry(self) -> bool:
+        """Validate logentry data integrity and consistency."""
+        ...
+
+    def is_complete(self) -> bool:
+        """Check if logentry complete."""
+        ...
 
 
-# Core serialization protocols
 @runtime_checkable
 class ProtocolSerializationResult(Protocol):
     """
@@ -299,8 +285,15 @@ class ProtocolSerializationResult(Protocol):
     data: str
     error_message: str | None
 
+    def validate_serialization(self) -> bool:
+        """Validate serializationresult data integrity and consistency."""
+        ...
 
-# Core node protocols
+    def has_data(self) -> bool:
+        """Check if serializationresult data."""
+        ...
+
+
 @runtime_checkable
 class ProtocolNodeMetadata(Protocol):
     """
@@ -324,39 +317,17 @@ class ProtocolNodeMetadata(Protocol):
 
     node_id: str
     node_type: str
-    metadata: dict[str, ContextValue]
+    metadata: dict[str, "ContextValue"]
+
+    def validate_node_metadata(self) -> bool:
+        """Validate nodemetadata data integrity and consistency."""
+        ...
+
+    def is_complete(self) -> bool:
+        """Check if nodemetadata complete."""
+        ...
 
 
-# Core validation protocols
-@runtime_checkable
-class ProtocolValidationResult(Protocol):
-    """
-    Protocol for comprehensive validation results.
-
-    Provides structured validation outcomes with success indication,
-    detailed error reporting, and warning notifications. Used across
-    ONEX for input validation, configuration checking, and data integrity.
-
-    Key Features:
-        - Boolean validation status
-        - Detailed error messages for failures
-        - Warning messages for non-critical issues
-        - Consistent validation reporting across services
-
-    Usage:
-        result = validator.validate(input_data)
-        if not result.is_valid:
-            raise ValidationError("\n".join(result.errors))
-        if result.warnings:
-            logger.warning(f"Validation warnings: {result.warnings}")
-    """
-
-    is_valid: bool
-    errors: list[str]
-    warnings: list[str]
-
-
-# Cache service protocols
 @runtime_checkable
 class ProtocolCacheStatistics(Protocol):
     """
@@ -395,77 +366,51 @@ class ProtocolCacheStatistics(Protocol):
     memory_usage_bytes: int
     entry_count: int
     eviction_count: int
-    last_accessed: Optional[datetime]
-    cache_size_limit: Optional[int]
+    last_accessed: datetime | None
+    cache_size_limit: int | None
+
+    def validate_statistics(self) -> bool:
+        """Validate cachestatistics data integrity and consistency."""
+        ...
+
+    def is_current(self) -> bool:
+        """Check if cachestatistics current."""
+        ...
 
 
-# Base status types - consolidated lifecycle states for operations and processes
-# pending: Operation queued but not started
-# processing: Operation currently in progress
-# completed: Operation finished successfully
-# failed: Operation encountered an error and stopped
-# cancelled: Operation was stopped by user or system request
-# skipped: Operation was bypassed due to conditions or filters
 LiteralBaseStatus = Literal[
     "pending", "processing", "completed", "failed", "cancelled", "skipped"
 ]
-
-# Domain-specific status types for node lifecycle management
-# active: Node is operational and accepting work
-# inactive: Node is stopped but can be reactivated
-# error: Node is in error state requiring intervention
-# pending: Node is starting up or waiting for resources
 LiteralNodeStatus = Literal["active", "inactive", "error", "pending"]
-
-# Execution types - workflow execution strategies
-# direct: Synchronous execution in current process
-# inmemory: Async execution using in-memory queues
-# kafka: Distributed execution via Kafka messaging
 LiteralExecutionMode = Literal["direct", "inmemory", "kafka"]
-
-# Operation status for tracking distributed operation outcomes
-# success: Operation completed without errors
-# failed: Operation failed and cannot be retried
-# in_progress: Operation is currently executing
-# cancelled: Operation was cancelled before completion
-# pending: Operation is queued for execution
 LiteralOperationStatus = Literal[
     "success", "failed", "in_progress", "cancelled", "pending"
 ]
-
-# Validation types - validation thoroughness and execution modes
-# Use LogLevel for error severity instead of separate ErrorSeverity type
-
-# Validation thoroughness levels
-# BASIC: Essential validation only (fast)
-# STANDARD: Normal validation with common checks
-# COMPREHENSIVE: Thorough validation with detailed analysis
-# PARANOID: Maximum validation with all possible checks
 LiteralValidationLevel = Literal["BASIC", "STANDARD", "COMPREHENSIVE", "PARANOID"]
-
-# Validation execution modes
-# strict: Fail on any validation error
-# lenient: Allow warnings but fail on errors
-# smoke: Basic functionality validation
-# regression: Validate against known good states
-# integration: Cross-system validation testing
 LiteralValidationMode = Literal[
     "strict", "lenient", "smoke", "regression", "integration"
 ]
 
 
-# Metadata protocols for type safety
 @runtime_checkable
 class ProtocolMetadata(Protocol):
     """Protocol for structured metadata - attribute-based for data compatibility."""
 
-    data: dict[str, ContextValue]
-    version: ProtocolSemVer
-    created_at: ProtocolDateTime
-    updated_at: Optional[ProtocolDateTime]
+    data: dict[str, "ContextValue"]
+    version: "ProtocolSemVer"
+    created_at: "ProtocolDateTime"
+    updated_at: "ProtocolDateTime | None"
+
+    def validate_metadata(self) -> bool:
+        """Validate metadata data integrity and consistency."""
+        ...
+
+    def is_up_to_date(self) -> bool:
+        """Check if metadata up to date."""
+        ...
 
 
-# Behavior protocols for operations (method-based)
+@runtime_checkable
 class ProtocolMetadataOperations(Protocol):
     """Protocol for metadata operations - method-based for services."""
 
@@ -478,14 +423,21 @@ class ProtocolMetadataOperations(Protocol):
     def update_value(self, key: str, value: ContextValue) -> None: ...
 
 
-# Reducer protocol types with stronger typing
 @runtime_checkable
 class ProtocolActionPayload(Protocol):
     """Protocol for action payload with specific data."""
 
     target_id: str
     operation: str
-    parameters: dict[str, ContextValue]
+    parameters: dict[str, "ContextValue"]
+
+    async def validate_payload(self) -> bool:
+        """Validate actionpayload data integrity and consistency."""
+        ...
+
+    def has_valid_parameters(self) -> bool:
+        """Check if actionpayload valid parameters."""
+        ...
 
 
 @runtime_checkable
@@ -493,20 +445,35 @@ class ProtocolAction(Protocol):
     """Protocol for reducer actions."""
 
     type: str
-    payload: ProtocolActionPayload
-    timestamp: ProtocolDateTime
+    payload: "ProtocolActionPayload"
+    timestamp: "ProtocolDateTime"
+
+    def validate_action(self) -> bool:
+        """Validate action data integrity and consistency."""
+        ...
+
+    def is_executable(self) -> bool:
+        """Check if action executable."""
+        ...
 
 
 @runtime_checkable
 class ProtocolState(Protocol):
     """Protocol for reducer state."""
 
-    metadata: ProtocolMetadata
-    version: int  # This is a sequence number, not semver
-    last_updated: ProtocolDateTime
+    metadata: "ProtocolMetadata"
+    version: int
+    last_updated: "ProtocolDateTime"
+
+    def validate_state(self) -> bool:
+        """Validate state data integrity and consistency."""
+        ...
+
+    def is_consistent(self) -> bool:
+        """Check if state consistent."""
+        ...
 
 
-# Schema and node metadata protocols
 @runtime_checkable
 class ProtocolNodeMetadataBlock(Protocol):
     """Protocol for node metadata block objects."""
@@ -514,13 +481,21 @@ class ProtocolNodeMetadataBlock(Protocol):
     uuid: str
     name: str
     description: str
-    version: ProtocolSemVer
-    metadata_version: ProtocolSemVer
+    version: "ProtocolSemVer"
+    metadata_version: "ProtocolSemVer"
     namespace: str
-    created_at: ProtocolDateTime
-    last_modified_at: ProtocolDateTime
+    created_at: "ProtocolDateTime"
+    last_modified_at: "ProtocolDateTime"
     lifecycle: str
-    protocol_version: ProtocolSemVer
+    protocol_version: "ProtocolSemVer"
+
+    def validate_metadata_block(self) -> bool:
+        """Validate nodemetadatablock data integrity and consistency."""
+        ...
+
+    def is_complete(self) -> bool:
+        """Check if nodemetadatablock complete."""
+        ...
 
 
 @runtime_checkable
@@ -529,12 +504,20 @@ class ProtocolSchemaObject(Protocol):
 
     schema_id: str
     schema_type: str
-    schema_data: dict[str, ContextValue]
-    version: ProtocolSemVer
+    schema_data: dict[str, "ContextValue"]
+    version: "ProtocolSemVer"
     is_valid: bool
 
+    def validate_schema(self) -> bool:
+        """Validate schemaobject data integrity and consistency."""
+        ...
 
-# Workflow result protocols for enhanced reducer support
+    def is_valid_schema(self) -> bool:
+        """Check if schemaobject valid schema."""
+        ...
+
+
+@runtime_checkable
 class ProtocolErrorInfo(Protocol):
     """
     Protocol for comprehensive error information in workflow results.
@@ -565,21 +548,39 @@ class ProtocolErrorInfo(Protocol):
 
     error_type: str
     message: str
-    trace: Optional[str]
+    trace: str | None
     retryable: bool
-    backoff_strategy: Optional[str]
-    max_attempts: Optional[int]
+    backoff_strategy: str | None
+    max_attempts: int | None
+
+    def validate_error_info(self) -> bool:
+        """Validate errorinfo data integrity and consistency."""
+        ...
+
+    def is_retryable(self) -> bool:
+        """Check if errorinfo retryable."""
+        ...
 
 
+@runtime_checkable
 class ProtocolSystemEvent(Protocol):
     """Protocol for system events."""
 
     type: str
-    payload: dict[str, ContextValue]
+    payload: dict[str, "ContextValue"]
     timestamp: float
     source: str
 
+    def validate_system_event(self) -> bool:
+        """Validate systemevent data integrity and consistency."""
+        ...
 
+    def is_well_formed(self) -> bool:
+        """Check if systemevent well formed."""
+        ...
+
+
+@runtime_checkable
 class ProtocolNodeResult(Protocol):
     """
     Protocol for comprehensive node processing results with monadic composition.
@@ -614,27 +615,44 @@ class ProtocolNodeResult(Protocol):
             state_manager.update(key, value)
     """
 
-    value: Optional[ContextValue]
+    value: ContextValue | None
     is_success: bool
     is_failure: bool
-    error: Optional[ProtocolErrorInfo]
+    error: "ProtocolErrorInfo | None"
     trust_score: float
     provenance: list[str]
-    metadata: dict[str, ContextValue]
-    events: list[ProtocolSystemEvent]
-    state_delta: dict[str, ContextValue]
+    metadata: dict[str, "ContextValue"]
+    events: list["ProtocolSystemEvent"]
+    state_delta: dict[str, "ContextValue"]
+
+    def validate_result(self) -> bool:
+        """Validate noderesult data integrity and consistency."""
+        ...
+
+    def is_successful(self) -> bool:
+        """Check if noderesult successful."""
+        ...
 
 
-# Service Discovery Types
+@runtime_checkable
 class ProtocolServiceMetadata(Protocol):
     """Protocol for service metadata."""
 
-    data: dict[str, ContextValue]
-    version: ProtocolSemVer
+    data: dict[str, "ContextValue"]
+    version: "ProtocolSemVer"
     capabilities: list[str]
     tags: list[str]
 
+    def validate_service_metadata(self) -> bool:
+        """Validate servicemetadata data integrity and consistency."""
+        ...
 
+    def has_capabilities(self) -> bool:
+        """Check if servicemetadata capabilities."""
+        ...
+
+
+@runtime_checkable
 class ProtocolServiceInstance(Protocol):
     """Protocol for service instance information."""
 
@@ -642,104 +660,171 @@ class ProtocolServiceInstance(Protocol):
     service_name: str
     host: str
     port: int
-    metadata: ProtocolServiceMetadata
-    health_status: LiteralHealthStatus
-    last_seen: ProtocolDateTime
+    metadata: "ProtocolServiceMetadata"
+    health_status: "LiteralHealthStatus"
+    last_seen: "ProtocolDateTime"
+
+    def validate_service_instance(self) -> bool:
+        """Validate serviceinstance data integrity and consistency."""
+        ...
+
+    def is_available(self) -> bool:
+        """Check if serviceinstance available."""
+        ...
 
 
+@runtime_checkable
 class ProtocolServiceHealthStatus(Protocol):
     """Protocol for service health status."""
 
     service_id: str
-    status: LiteralHealthStatus
-    last_check: ProtocolDateTime
-    details: dict[str, ContextValue]
+    status: "LiteralHealthStatus"
+    last_check: "ProtocolDateTime"
+    details: dict[str, "ContextValue"]
+
+    def validate_health_status(self) -> bool:
+        """Validate servicehealthstatus data integrity and consistency."""
+        ...
+
+    def is_healthy(self) -> bool:
+        """Check if servicehealthstatus healthy."""
+        ...
 
 
-# Storage Backend Types
+@runtime_checkable
 class ProtocolCheckpointData(Protocol):
     """Protocol for checkpoint data."""
 
     checkpoint_id: str
     workflow_id: str
-    data: dict[str, ContextValue]
-    timestamp: ProtocolDateTime
-    metadata: dict[str, ContextValue]
+    data: dict[str, "ContextValue"]
+    timestamp: "ProtocolDateTime"
+    metadata: dict[str, "ContextValue"]
+
+    def validate_checkpoint(self) -> bool:
+        """Validate checkpointdata data integrity and consistency."""
+        ...
+
+    def is_restorable(self) -> bool:
+        """Check if checkpointdata restorable."""
+        ...
 
 
+@runtime_checkable
 class ProtocolStorageCredentials(Protocol):
     """Protocol for storage credentials."""
 
     credential_type: str
-    data: dict[str, ContextValue]
+    data: dict[str, "ContextValue"]
+
+    def validate_credentials(self) -> bool:
+        """Validate storagecredentials data integrity and consistency."""
+        ...
+
+    def is_secure(self) -> bool:
+        """Check if storagecredentials secure."""
+        ...
 
 
+@runtime_checkable
 class ProtocolStorageConfiguration(Protocol):
     """Protocol for storage configuration."""
 
     backend_type: str
     connection_string: str
-    options: dict[str, ContextValue]
+    options: dict[str, "ContextValue"]
     timeout_seconds: int
 
+    def validate_configuration(self) -> bool:
+        """Validate storageconfiguration data integrity and consistency."""
+        ...
 
+    async def is_connectable(self) -> bool:
+        """Check if storageconfiguration connectable."""
+        ...
+
+
+@runtime_checkable
 class ProtocolStorageResult(Protocol):
     """Protocol for storage operation results."""
 
     success: bool
-    data: dict[str, ContextValue] | None
+    data: dict[str, "ContextValue"] | None
     error_message: str | None
     operation_id: str
 
+    def validate_storage_result(self) -> bool:
+        """Validate storageresult data integrity and consistency."""
+        ...
 
+    def is_successful(self) -> bool:
+        """Check if storageresult successful."""
+        ...
+
+
+@runtime_checkable
 class ProtocolStorageListResult(Protocol):
     """Protocol for storage list operation results."""
 
     success: bool
-    items: list[dict[str, ContextValue]]
+    items: list[dict[str, "ContextValue"]]
     total_count: int
     has_more: bool
     error_message: str | None
 
+    def validate_list_result(self) -> bool:
+        """Validate storagelistresult data integrity and consistency."""
+        ...
 
+    def has_items(self) -> bool:
+        """Check if storagelistresult items."""
+        ...
+
+
+@runtime_checkable
 class ProtocolStorageHealthStatus(Protocol):
     """Protocol for storage health status."""
 
     is_healthy: bool
-    status_details: dict[str, ContextValue]
+    status_details: dict[str, "ContextValue"]
     capacity_info: dict[str, int] | None
-    last_check: ProtocolDateTime
+    last_check: "ProtocolDateTime"
+
+    def validate_health_status(self) -> bool:
+        """Validate storagehealthstatus data integrity and consistency."""
+        ...
+
+    def is_available(self) -> bool:
+        """Check if storagehealthstatus available."""
+        ...
 
 
-# Standardized Error Handling Types
-# Error recovery strategies for fault tolerance
-# retry: Attempt the operation again with backoff
-# fallback: Use alternative implementation or default value
-# abort: Stop operation and propagate error
-# circuit_breaker: Temporarily disable failing service
-# compensation: Execute compensating actions (saga pattern)
 LiteralErrorRecoveryStrategy = Literal[
     "retry", "fallback", "abort", "circuit_breaker", "compensation"
 ]
-
-# Error severity levels for prioritization and alerting
-# low: Minor issues that don't affect operation
-# medium: Moderate issues that may affect performance
-# high: Significant issues that affect functionality
-# critical: Severe issues requiring immediate attention
 LiteralErrorSeverity = Literal["low", "medium", "high", "critical"]
 
 
+@runtime_checkable
 class ProtocolErrorContext(Protocol):
     """Protocol for error context information."""
 
     correlation_id: UUID
     operation_name: str
-    timestamp: ProtocolDateTime
-    context_data: dict[str, ContextValue]
+    timestamp: "ProtocolDateTime"
+    context_data: dict[str, "ContextValue"]
     stack_trace: str | None
 
+    def validate_error_context(self) -> bool:
+        """Validate errorcontext data integrity and consistency."""
+        ...
 
+    def has_trace(self) -> bool:
+        """Check if errorcontext trace."""
+        ...
+
+
+@runtime_checkable
 class ProtocolRecoveryAction(Protocol):
     """Protocol for error recovery action information."""
 
@@ -749,7 +834,16 @@ class ProtocolRecoveryAction(Protocol):
     timeout_seconds: int
     fallback_value: ContextValue | None
 
+    def validate_recovery_action(self) -> bool:
+        """Validate recoveryaction data integrity and consistency."""
+        ...
 
+    def is_applicable(self) -> bool:
+        """Check if recoveryaction applicable."""
+        ...
+
+
+@runtime_checkable
 class ProtocolErrorResult(Protocol):
     """Protocol for standardized error results."""
 
@@ -758,54 +852,60 @@ class ProtocolErrorResult(Protocol):
     message: str
     severity: LiteralErrorSeverity
     retryable: bool
-    recovery_action: ProtocolRecoveryAction | None
-    context: ProtocolErrorContext
+    recovery_action: "ProtocolRecoveryAction | None"
+    context: "ProtocolErrorContext"
+
+    def validate_error(self) -> bool:
+        """Validate errorresult data integrity and consistency."""
+        ...
+
+    def is_retryable(self) -> bool:
+        """Check if errorresult retryable."""
+        ...
 
 
-# Protocol Versioning and Metadata Types
+@runtime_checkable
 class ProtocolVersionInfo(Protocol):
     """Protocol for version metadata."""
 
     protocol_name: str
-    version: ProtocolSemVer
-    compatibility_version: ProtocolSemVer
-    retirement_date: ProtocolDateTime | None
+    version: "ProtocolSemVer"
+    compatibility_version: "ProtocolSemVer"
+    retirement_date: "ProtocolDateTime | None"
     migration_guide_url: str | None
 
+    def validate_version_info(self) -> bool:
+        """Validate versioninfo data integrity and consistency."""
+        ...
 
+    def is_compatible(self) -> bool:
+        """Check if versioninfo compatible."""
+        ...
+
+
+@runtime_checkable
 class ProtocolCompatibilityCheck(Protocol):
     """Protocol for compatibility checking results."""
 
     is_compatible: bool
-    required_version: ProtocolSemVer
-    current_version: ProtocolSemVer
+    required_version: "ProtocolSemVer"
+    current_version: "ProtocolSemVer"
     breaking_changes: list[str]
     migration_required: bool
 
+    def validate_compatibility(self) -> bool:
+        """Validate compatibilitycheck data integrity and consistency."""
+        ...
 
-# Standardized Health Check Types
-# Health check thoroughness levels - balancing speed vs completeness
-# quick: Fast ping-style health check (<100ms)
-# basic: Essential service health indicators (<500ms)
-# standard: Normal operational health checks (<2s)
-# thorough: Detailed health analysis including dependencies (<10s)
-# comprehensive: Complete system health audit (variable time)
+
 LiteralHealthCheckLevel = Literal[
     "quick", "basic", "standard", "thorough", "comprehensive"
 ]
-
-# Health check dimensions - different aspects of system health
-# availability: Service reachability and response
-# performance: Response time and throughput metrics
-# functionality: Core features working correctly
-# data_integrity: Data consistency and validation
-# security: Security posture and compliance
 LiteralHealthDimension = Literal[
     "availability", "performance", "functionality", "data_integrity", "security"
 ]
 
 
-# Marker Interfaces for Type Compatibility
 @runtime_checkable
 class ProtocolNodeInfoLike(Protocol):
     """
@@ -823,7 +923,7 @@ class ProtocolNodeInfoLike(Protocol):
         - Compatibility with node discovery and registry systems
 
     Usage:
-        def process_node_info(info: ProtocolNodeInfoLike):
+        def process_node_info(info: "ProtocolNodeInfoLike"):
             if isinstance(info, ProtocolNodeInfoLike):
                 metadata = convert_to_node_metadata(info)
                 register_node(metadata)
@@ -851,7 +951,7 @@ class ProtocolSupportedPropertyValue(Protocol):
         - Compatible with configuration and parameter systems
 
     Usage:
-        def set_property(key: str, value: ProtocolSupportedPropertyValue):
+        def set_property(key: str, value: "ProtocolSupportedPropertyValue"):
             if isinstance(value, ProtocolSupportedPropertyValue):
                 property_store[key] = value
             else:
@@ -862,7 +962,12 @@ class ProtocolSupportedPropertyValue(Protocol):
 
     __omnibase_property_value_marker__: Literal[True]
 
+    def validate_for_property(self) -> bool:
+        """Validate that this value can be used as a property."""
+        ...
 
+
+@runtime_checkable
 class ProtocolHealthMetrics(Protocol):
     """Protocol for health check metrics."""
 
@@ -874,21 +979,39 @@ class ProtocolHealthMetrics(Protocol):
     error_rate_percent: float
     throughput_per_second: float
 
+    def validate_metrics(self) -> bool:
+        """Validate healthmetrics data integrity and consistency."""
+        ...
 
+    def is_within_thresholds(self) -> bool:
+        """Check if healthmetrics within thresholds."""
+        ...
+
+
+@runtime_checkable
 class ProtocolHealthCheck(Protocol):
     """Protocol for standardized health checks."""
 
     service_name: str
     check_level: LiteralHealthCheckLevel
     dimensions_checked: list[LiteralHealthDimension]
-    overall_status: LiteralHealthStatus
-    individual_checks: dict[str, LiteralHealthStatus]
-    metrics: ProtocolHealthMetrics
+    overall_status: "LiteralHealthStatus"
+    individual_checks: dict[str, "LiteralHealthStatus"]
+    metrics: "ProtocolHealthMetrics"
     check_duration_ms: float
-    timestamp: ProtocolDateTime
+    timestamp: "ProtocolDateTime"
     recommendations: list[str]
 
+    def validate_health_check(self) -> bool:
+        """Validate healthcheck data integrity and consistency."""
+        ...
 
+    def is_passing(self) -> bool:
+        """Check if healthcheck passing."""
+        ...
+
+
+@runtime_checkable
 class ProtocolHealthMonitoring(Protocol):
     """Protocol for health monitoring configuration."""
 
@@ -896,22 +1019,39 @@ class ProtocolHealthMonitoring(Protocol):
     timeout_seconds: int
     failure_threshold: int
     recovery_threshold: int
-    alert_on_status: list[LiteralHealthStatus]
-    escalation_rules: dict[str, ContextValue]
+    alert_on_status: list["LiteralHealthStatus"]
+    escalation_rules: dict[str, "ContextValue"]
+
+    def validate_monitoring_config(self) -> bool:
+        """Validate healthmonitoring data integrity and consistency."""
+        ...
+
+    def is_reasonable(self) -> bool:
+        """Check if healthmonitoring reasonable."""
+        ...
 
 
-# Observability and Monitoring Types
+@runtime_checkable
 class ProtocolMetricsPoint(Protocol):
     """Protocol for individual metrics points."""
 
     metric_name: str
     value: float
     unit: str
-    timestamp: ProtocolDateTime
-    tags: dict[str, ContextValue]
-    dimensions: dict[str, ContextValue]
+    timestamp: "ProtocolDateTime"
+    tags: dict[str, "ContextValue"]
+    dimensions: dict[str, "ContextValue"]
+
+    def validate_metrics_point(self) -> bool:
+        """Validate metricspoint data integrity and consistency."""
+        ...
+
+    def is_valid_measurement(self) -> bool:
+        """Check if metricspoint valid measurement."""
+        ...
 
 
+@runtime_checkable
 class ProtocolTraceSpan(Protocol):
     """Protocol for distributed tracing spans."""
 
@@ -919,13 +1059,22 @@ class ProtocolTraceSpan(Protocol):
     trace_id: UUID
     parent_span_id: UUID | None
     operation_name: str
-    start_time: ProtocolDateTime
-    end_time: ProtocolDateTime | None
+    start_time: "ProtocolDateTime"
+    end_time: "ProtocolDateTime | None"
     status: LiteralOperationStatus
-    tags: dict[str, ContextValue]
-    logs: list[dict[str, ContextValue]]
+    tags: dict[str, "ContextValue"]
+    logs: list[dict[str, "ContextValue"]]
+
+    def validate_trace_span(self) -> bool:
+        """Validate tracespan data integrity and consistency."""
+        ...
+
+    def is_complete(self) -> bool:
+        """Check if tracespan complete."""
+        ...
 
 
+@runtime_checkable
 class ProtocolAuditEvent(Protocol):
     """Protocol for audit events."""
 
@@ -934,13 +1083,18 @@ class ProtocolAuditEvent(Protocol):
     actor: str
     resource: str
     action: str
-    timestamp: ProtocolDateTime
+    timestamp: "ProtocolDateTime"
     outcome: LiteralOperationStatus
-    metadata: dict[str, ContextValue]
+    metadata: dict[str, "ContextValue"]
     sensitivity_level: Literal["public", "internal", "confidential", "restricted"]
 
+    def validate_audit_event(self) -> bool:
+        """Validate auditevent data integrity and consistency."""
+        ...
 
-# General Purpose Protocols for Type Constraints
+    def is_complete(self) -> bool:
+        """Check if auditevent complete."""
+        ...
 
 
 @runtime_checkable
@@ -1029,7 +1183,7 @@ class ProtocolExecutable(Protocol):
 
     __omnibase_executable_marker__: Literal[True]
 
-    def execute(self) -> object:
+    async def execute(self) -> object:
         """Execute the object."""
         ...
 
@@ -1045,29 +1199,15 @@ class ProtocolMetadataProvider(Protocol):
         ...
 
 
-# Retry System Types
-# Retry backoff strategies for distributed system resilience
-# fixed: Fixed delay between attempts
-# linear: Linearly increasing delay (base_delay * attempt)
-# exponential: Exponentially increasing delay (base_delay * 2^attempt)
-# fibonacci: Fibonacci sequence backoff (1, 1, 2, 3, 5, 8, 13, ...) - grows slower than exponential
-# jitter: Random jitter added to exponential backoff
 LiteralRetryBackoffStrategy = Literal[
     "fixed", "linear", "exponential", "fibonacci", "jitter"
 ]
-
-# Retry condition triggers for fine-grained retry control
-# always: Retry on any error (with attempt limits)
-# never: Never retry, fail immediately
-# on_error: Retry on specific error types only
-# on_timeout: Retry only on timeout errors
-# on_network: Retry only on network-related errors
-# on_transient: Retry only on transient/temporary errors
 LiteralRetryCondition = Literal[
     "always", "never", "on_error", "on_timeout", "on_network", "on_transient"
 ]
 
 
+@runtime_checkable
 class ProtocolRetryConfig(Protocol):
     """Protocol for retry configuration."""
 
@@ -1076,30 +1216,57 @@ class ProtocolRetryConfig(Protocol):
     base_delay_ms: int
     max_delay_ms: int
     timeout_ms: int
-    jitter_factor: float  # For jitter strategy (0.0-1.0)
+    jitter_factor: float
+
+    def validate_retry_config(self) -> bool:
+        """Validate retryconfig data integrity and consistency."""
+        ...
+
+    def is_reasonable(self) -> bool:
+        """Check if retryconfig reasonable."""
+        ...
 
 
+@runtime_checkable
 class ProtocolRetryPolicy(Protocol):
     """Protocol for retry policy configuration."""
 
-    default_config: ProtocolRetryConfig
-    error_specific_configs: dict[str, ProtocolRetryConfig]
+    default_config: "ProtocolRetryConfig"
+    error_specific_configs: dict[str, "ProtocolRetryConfig"]
     retry_conditions: list[LiteralRetryCondition]
-    retry_budget_limit: int  # Max retries per time window
+    retry_budget_limit: int
     budget_window_seconds: int
 
+    def validate_retry_policy(self) -> bool:
+        """Validate retrypolicy data integrity and consistency."""
+        ...
 
+    def is_applicable(self) -> bool:
+        """Check if retrypolicy applicable."""
+        ...
+
+
+@runtime_checkable
 class ProtocolRetryAttempt(Protocol):
     """Protocol for retry attempt records."""
 
     attempt_number: int
-    timestamp: ProtocolDateTime
+    timestamp: "ProtocolDateTime"
     duration_ms: int
     error_type: str | None
     success: bool
     backoff_applied_ms: int
 
+    def validate_retry_attempt(self) -> bool:
+        """Validate retryattempt data integrity and consistency."""
+        ...
 
+    def is_valid_attempt(self) -> bool:
+        """Check if retryattempt valid attempt."""
+        ...
+
+
+@runtime_checkable
 class ProtocolRetryResult(Protocol):
     """Protocol for retry operation results."""
 
@@ -1108,68 +1275,85 @@ class ProtocolRetryResult(Protocol):
     total_duration_ms: int
     result: ContextValue | None
     final_error: Exception | None
-    attempts: list[ProtocolRetryAttempt]
+    attempts: list["ProtocolRetryAttempt"]
+
+    def validate_retry_result(self) -> bool:
+        """Validate retryresult data integrity and consistency."""
+        ...
+
+    def is_final(self) -> bool:
+        """Check if retryresult final."""
+        ...
 
 
-# Time-Based Operation Types
-# Time-based operation types for duration tracking
-# duration: Single time span measurement
-# timeout: Maximum allowed time for operation
-# interval: Recurring time period for scheduling
-# deadline: Absolute time by which operation must complete
 LiteralTimeBasedType = Literal["duration", "timeout", "interval", "deadline"]
 
 
+@runtime_checkable
 class ProtocolTimeBased(Protocol):
     """Protocol for time-based operations and measurements."""
 
     type: LiteralTimeBasedType
-    start_time: ProtocolDateTime | None
-    end_time: ProtocolDateTime | None
+    start_time: "ProtocolDateTime | None"
+    end_time: "ProtocolDateTime | None"
     duration_ms: int | None
     is_active: bool
     has_expired: bool
 
+    def validate_time_based(self) -> bool:
+        """Validate timebased data integrity and consistency."""
+        ...
 
+    def is_valid_timing(self) -> bool:
+        """Check if timebased valid timing."""
+        ...
+
+
+@runtime_checkable
 class ProtocolTimeout(Protocol):
     """Protocol for timeout configuration and tracking."""
 
     timeout_ms: int
-    start_time: ProtocolDateTime
-    warning_threshold_ms: int | None  # Early warning before timeout
+    start_time: "ProtocolDateTime"
+    warning_threshold_ms: int | None
     is_expired: bool
     time_remaining_ms: int
 
+    def validate_timeout(self) -> bool:
+        """Validate timeout data integrity and consistency."""
+        ...
 
+    def is_reasonable(self) -> bool:
+        """Check if timeout reasonable."""
+        ...
+
+
+@runtime_checkable
 class ProtocolDuration(Protocol):
     """Protocol for duration measurement and tracking."""
 
-    start_time: ProtocolDateTime
-    end_time: ProtocolDateTime | None
+    start_time: "ProtocolDateTime"
+    end_time: "ProtocolDateTime | None"
     duration_ms: int
     is_completed: bool
     can_measure: bool
 
+    def validate_duration(self) -> bool:
+        """Validate duration data integrity and consistency."""
+        ...
 
-# Analytics and Performance Types
-# Analytics aggregation levels for different time windows
-# real_time: Live metrics (seconds to minutes)
-# hourly: Hour-level aggregations
-# daily: Daily summaries and trends
-# weekly: Weekly patterns and comparisons
-# monthly: Monthly reporting and capacity planning
+    def is_measurable(self) -> bool:
+        """Check if duration measurable."""
+        ...
+
+
 LiteralAnalyticsTimeWindow = Literal[
     "real_time", "hourly", "daily", "weekly", "monthly"
 ]
-
-# Analytics metric types for system monitoring
-# counter: Cumulative count (requests, errors, etc.)
-# gauge: Point-in-time value (CPU, memory, connections)
-# histogram: Value distribution (response times, sizes)
-# summary: Statistical summary (percentiles, averages)
 LiteralAnalyticsMetricType = Literal["counter", "gauge", "histogram", "summary"]
 
 
+@runtime_checkable
 class ProtocolAnalyticsMetric(Protocol):
     """Protocol for individual analytics metrics."""
 
@@ -1177,11 +1361,20 @@ class ProtocolAnalyticsMetric(Protocol):
     type: LiteralAnalyticsMetricType
     value: float
     unit: str
-    timestamp: ProtocolDateTime
-    tags: dict[str, ContextValue]
-    metadata: dict[str, ContextValue]
+    timestamp: "ProtocolDateTime"
+    tags: dict[str, "ContextValue"]
+    metadata: dict[str, "ContextValue"]
+
+    def validate_metric(self) -> bool:
+        """Validate analyticsmetric data integrity and consistency."""
+        ...
+
+    def is_valid_measurement(self) -> bool:
+        """Check if analyticsmetric valid measurement."""
+        ...
 
 
+@runtime_checkable
 class ProtocolAnalyticsProvider(Protocol):
     """Protocol for analytics data providers."""
 
@@ -1190,33 +1383,44 @@ class ProtocolAnalyticsProvider(Protocol):
     data_sources: list[str]
     supported_metrics: list[str]
     time_windows: list[LiteralAnalyticsTimeWindow]
-    last_updated: ProtocolDateTime
+    last_updated: "ProtocolDateTime"
+
+    def validate_provider(self) -> bool:
+        """Validate analyticsprovider data integrity and consistency."""
+        ...
+
+    def is_available(self) -> bool:
+        """Check if analyticsprovider available."""
+        ...
 
 
+@runtime_checkable
 class ProtocolAnalyticsSummary(Protocol):
     """Protocol for analytics summary reports."""
 
     time_window: LiteralAnalyticsTimeWindow
-    start_time: ProtocolDateTime
-    end_time: ProtocolDateTime
-    metrics: list[ProtocolAnalyticsMetric]
+    start_time: "ProtocolDateTime"
+    end_time: "ProtocolDateTime"
+    metrics: list["ProtocolAnalyticsMetric"]
     insights: list[str]
     recommendations: list[str]
-    confidence_score: float  # 0.0-1.0
+    confidence_score: float
+
+    def validate_summary(self) -> bool:
+        """Validate analyticssummary data integrity and consistency."""
+        ...
+
+    def is_complete(self) -> bool:
+        """Check if analyticssummary complete."""
+        ...
 
 
-# Performance Metrics Types
-# Performance metric categories for system monitoring
-# latency: Response time and processing delays
-# throughput: Operations per unit time
-# resource: CPU, memory, disk, network utilization
-# error: Error rates and failure patterns
-# availability: Uptime and service availability
 LiteralPerformanceCategory = Literal[
     "latency", "throughput", "resource", "error", "availability"
 ]
 
 
+@runtime_checkable
 class ProtocolPerformanceMetric(Protocol):
     """Protocol for performance metric data points."""
 
@@ -1224,36 +1428,46 @@ class ProtocolPerformanceMetric(Protocol):
     category: LiteralPerformanceCategory
     value: float
     unit: str
-    timestamp: ProtocolDateTime
+    timestamp: "ProtocolDateTime"
     source: str
     threshold_warning: float | None
     threshold_critical: float | None
 
+    def validate_performance_metric(self) -> bool:
+        """Validate performancemetric data integrity and consistency."""
+        ...
 
+    def is_valid(self) -> bool:
+        """Check if performancemetric valid."""
+        ...
+
+
+@runtime_checkable
 class ProtocolPerformanceMetrics(Protocol):
     """Protocol for performance metrics collection."""
 
     service_name: str
-    collection_timestamp: ProtocolDateTime
-    metrics: list[ProtocolPerformanceMetric]
-    overall_health_score: float  # 0.0-1.0
-    performance_trends: dict[str, float]  # metric_name -> trend_score
+    collection_timestamp: "ProtocolDateTime"
+    metrics: list["ProtocolPerformanceMetric"]
+    overall_health_score: float
+    performance_trends: dict[str, float]
     recommendations: list[str]
 
+    def validate_performance_metrics(self) -> bool:
+        """Validate performancemetrics data integrity and consistency."""
+        ...
 
-# Connection Management Types
-# Connection states for lifecycle management
-# disconnected: No active connection
-# connecting: Establishing connection
-# connected: Active and ready
-# reconnecting: Attempting to restore connection
-# failed: Connection failed and requires intervention
-# closing: Gracefully shutting down connection
+    def is_healthy(self) -> bool:
+        """Check if performancemetrics healthy."""
+        ...
+
+
 LiteralConnectionState = Literal[
     "disconnected", "connecting", "connected", "reconnecting", "failed", "closing"
 ]
 
 
+@runtime_checkable
 class ProtocolConnectionConfig(Protocol):
     """Protocol for connection configuration."""
 
@@ -1265,37 +1479,41 @@ class ProtocolConnectionConfig(Protocol):
     connection_pool_size: int
     keep_alive_interval_ms: int
 
+    async def validate_connection_config(self) -> bool:
+        """Validate connectionconfig data integrity and consistency."""
+        ...
 
+    async def is_connectable(self) -> bool:
+        """Check if connectionconfig connectable."""
+        ...
+
+
+@runtime_checkable
 class ProtocolConnectionStatus(Protocol):
     """Protocol for connection status tracking."""
 
     state: LiteralConnectionState
-    connected_at: ProtocolDateTime | None
-    last_activity: ProtocolDateTime | None
+    connected_at: "ProtocolDateTime | None"
+    last_activity: "ProtocolDateTime | None"
     error_count: int
     bytes_sent: int
     bytes_received: int
 
+    async def validate_connection_status(self) -> bool:
+        """Validate connectionstatus data integrity and consistency."""
+        ...
 
-# Validation types for comprehensive validation systems
-# Validation severity levels for error classification and prioritization
-# error: Validation error that prevents operation (blocks execution)
-# warning: Validation warning that should be addressed (allows execution with caution)
-# info: Informational validation message (purely advisory)
+    async def is_connected(self) -> bool:
+        """Check if connectionstatus connected."""
+        ...
+
+
 LiteralValidationSeverity = Literal["error", "warning", "info"]
-
-# Validation categories for organizing validation checks
-# syntax: Syntax and format validation (structure, grammar, format)
-# semantic: Semantic and logical validation (meaning, consistency, logic)
-# style: Style and convention validation (formatting, naming, conventions)
-# security: Security validation (vulnerabilities, access control, data protection)
-# performance: Performance validation (efficiency, resource usage, optimization)
 LiteralValidationCategory = Literal[
     "syntax", "semantic", "style", "security", "performance"
 ]
 
 
-# Base protocol for validatable objects
 @runtime_checkable
 class ProtocolValidatable(Protocol):
     """
@@ -1314,7 +1532,7 @@ class ProtocolValidatable(Protocol):
 
     Usage:
         class ConfigurationData(ProtocolValidatable):
-            def get_validation_context(self) -> dict[str, ContextValue]:
+            def get_validation_context(self) -> dict[str, "ContextValue"]:
                 return {"type": "config", "version": self.version}
 
             def get_validation_id(self) -> str:
@@ -1329,7 +1547,7 @@ class ProtocolValidatable(Protocol):
         determine applicability and customize validation behavior.
 
         Returns:
-            dict[str, ContextValue]: Validation context metadata
+            dict[str, "ContextValue"]: Validation context metadata
         """
         ...
 

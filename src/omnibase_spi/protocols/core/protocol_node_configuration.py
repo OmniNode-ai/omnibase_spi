@@ -20,7 +20,7 @@ class ProtocolNodeConfiguration(Protocol):
     Example:
         ```python
         # Basic usage
-        config: ProtocolNodeConfiguration = get_node_config()
+        config: "ProtocolNodeConfiguration" = get_node_config()
 
         # Get configuration values
         api_url = config.get_config_value("api.base_url", "http://localhost:8080")
@@ -45,7 +45,7 @@ class ProtocolNodeConfiguration(Protocol):
     """
 
     def get_config_value(
-        self, key: str, default: Optional[ContextValue] = None
+        self, key: str, default: ContextValue | None = None
     ) -> ContextValue:
         """
         Get configuration value by key.
@@ -62,9 +62,7 @@ class ProtocolNodeConfiguration(Protocol):
         """
         ...
 
-    def get_timeout_ms(
-        self, timeout_type: str, default_ms: Optional[int] = None
-    ) -> int:
+    def get_timeout_ms(self, timeout_type: str, default_ms: int | None = None) -> int:
         """
         Get timeout configuration in milliseconds.
 
@@ -78,7 +76,7 @@ class ProtocolNodeConfiguration(Protocol):
         ...
 
     def get_security_config(
-        self, key: str, default: Optional[ContextValue] = None
+        self, key: str, default: ContextValue | None = None
     ) -> ContextValue:
         """
         Get security-related configuration value.
@@ -93,7 +91,7 @@ class ProtocolNodeConfiguration(Protocol):
         ...
 
     def get_business_logic_config(
-        self, key: str, default: Optional[ContextValue] = None
+        self, key: str, default: ContextValue | None = None
     ) -> ContextValue:
         """
         Get business logic configuration value.
@@ -108,7 +106,7 @@ class ProtocolNodeConfiguration(Protocol):
         ...
 
     def get_performance_config(
-        self, key: str, default: Optional[ContextValue] = None
+        self, key: str, default: ContextValue | None = None
     ) -> ContextValue:
         """
         Get performance-related configuration value.
@@ -134,7 +132,7 @@ class ProtocolNodeConfiguration(Protocol):
         """
         ...
 
-    def get_all_config(self) -> dict[str, ContextValue]:
+    def get_all_config(self) -> dict[str, "ContextValue"]:
         """
         Get all configuration as dictionary.
 
@@ -143,7 +141,7 @@ class ProtocolNodeConfiguration(Protocol):
         """
         ...
 
-    def validate_config(self, config_key: str) -> bool:
+    async def validate_config(self, config_key: str) -> bool:
         """
         Validate configuration key exists and has valid value.
 
@@ -155,7 +153,9 @@ class ProtocolNodeConfiguration(Protocol):
         """
         ...
 
-    def validate_required_configs(self, required_keys: list[str]) -> dict[str, bool]:
+    async def validate_required_configs(
+        self, required_keys: list[str]
+    ) -> dict[str, bool]:
         """
         Validate multiple required configuration keys.
 
@@ -167,7 +167,7 @@ class ProtocolNodeConfiguration(Protocol):
         """
         ...
 
-    def get_config_schema(self) -> dict[str, ContextValue]:
+    def get_config_schema(self) -> dict[str, "ContextValue"]:
         """
         Get configuration schema with expected types.
 
@@ -186,7 +186,7 @@ class ProtocolNodeConfigurationProvider(Protocol):
     to be used interchangeably through dependency injection.
     """
 
-    def load_configuration(
+    async def load_configuration(
         self, node_type: str, node_id: str
     ) -> ProtocolNodeConfiguration:
         """
@@ -204,7 +204,7 @@ class ProtocolNodeConfigurationProvider(Protocol):
         """
         ...
 
-    def reload_configuration(self) -> None:
+    async def reload_configuration(self) -> None:
         """
         Reload configuration from source.
 
@@ -212,7 +212,7 @@ class ProtocolNodeConfigurationProvider(Protocol):
         """
         ...
 
-    def validate_configuration(self) -> bool:
+    async def validate_configuration(self) -> bool:
         """
         Validate current configuration.
 
@@ -232,7 +232,7 @@ class ProtocolConfigurationError(Protocol):
 
     Example:
         ```python
-        error: ProtocolConfigurationError = ConfigError(
+        error: "ProtocolConfigurationError" = ConfigError(
             message="Missing required configuration",
             key="database.host",
             source="environment"
@@ -244,12 +244,12 @@ class ProtocolConfigurationError(Protocol):
         # Check if error is for specific key
         if error.is_key_error("database.host"):
             # Handle specific key error
-            pass
+            ...
         ```
     """
 
     message: str
-    key: Optional[str]
+    key: str | None
     source: str
 
     def __str__(self) -> str:
@@ -273,7 +273,7 @@ class ProtocolConfigurationError(Protocol):
         """
         ...
 
-    def get_error_context(self) -> dict[str, Optional[str]]:
+    def get_error_context(self) -> dict[str, str | None]:
         """
         Get error context information.
 

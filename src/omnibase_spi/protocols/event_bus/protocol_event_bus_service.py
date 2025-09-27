@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Protocol for Event Bus Service
 
@@ -6,12 +5,15 @@ Defines the required interface that all event bus service implementations must f
 This ensures consistency and prevents runtime errors from missing methods.
 """
 
-from typing import TYPE_CHECKING, Callable, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Awaitable, Callable, Protocol, runtime_checkable
+
+# Runtime imports needed for forward references in method signatures
+from omnibase_spi.protocols.event_bus.protocol_event_bus import ProtocolEventBus
+from omnibase_spi.protocols.types.protocol_event_bus_types import ProtocolEventMessage
 
 if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.protocol_event_bus_types import (
-        ProtocolEventMessage,
-    )
+    # No types needed here currently
+    pass
 
 
 @runtime_checkable
@@ -28,12 +30,15 @@ class ProtocolEventBusService(Protocol):
     This protocol prevents runtime errors like missing shutdown() methods.
     """
 
-    def get_event_bus(self) -> "ProtocolEventMessage":
+    async def get_event_bus(self) -> "ProtocolEventBus":
         """
-        Get the event bus instance for publishing and subscribing to events.
+        Get the event bus instance managed by this service.
 
         Returns:
-            The event bus instance (e.g., ToolEventBusInMemory, EventBusAdapter)
+            Event bus instance for publishing/subscribing to events
+
+        Raises:
+            RuntimeError: If service is not running or event bus unavailable
         """
         ...
 
@@ -45,6 +50,7 @@ class ProtocolEventBusService(Protocol):
         - Clean up all connections
         - Stop any running threads
         - Release resources
+            ...
         - Handle shutdown errors gracefully
         """
         ...
@@ -59,64 +65,68 @@ class ProtocolEventBusService(Protocol):
         """
         ...
 
-    def get_node_count(self) -> int:
+    async def get_node_count(self) -> int:
         """
         Get the number of nodes connected to this event bus service.
 
         Returns:
             Count of connected nodes
+                ...
         """
         ...
 
-    def list_nodes(self) -> list[str]:
+    async def list_nodes(self) -> list[str]:
         """
         List the names of all nodes connected to this event bus service.
 
         Returns:
-            List of node names
+            ...
         """
         ...
 
 
 @runtime_checkable
-class ProtocolEventBusAdapter(Protocol):
+class ProtocolHttpEventBusAdapter(Protocol):
     """
     Protocol for event bus adapters that wrap HTTP/network event bus services.
 
     This is for lightweight adapters that connect to external event bus services.
     """
 
-    def publish(self, event: "ProtocolEventMessage") -> bool:
+    async def publish(self, event: "ProtocolEventMessage") -> bool:
         """
         Publish an event to the event bus.
 
         Args:
-            event: The event to publish
-
+            ...
         Returns:
             True if successful, False otherwise
         """
         ...
 
-    def subscribe(self, handler: Callable[["ProtocolEventMessage"], bool]) -> bool:
+    async def subscribe(
+        self, handler: Callable[["ProtocolEventMessage"], Awaitable[bool]]
+    ) -> bool:
         """
         Subscribe to events with a handler function.
 
         Args:
-            handler: Function to handle received events
-
+            handler: Async function to handle received events
+                ...
         Returns:
             True if subscription successful, False otherwise
         """
         ...
 
-    def unsubscribe(self, handler: Callable[["ProtocolEventMessage"], bool]) -> bool:
+    async def unsubscribe(
+        self, handler: Callable[["ProtocolEventMessage"], Awaitable[bool]]
+    ) -> bool:
         """
         Unsubscribe a handler from events.
 
         Args:
-            handler: Handler function to remove
-
+            handler: Async handler function to remove
+                ...
         Returns:
             True if unsubscription successful, False otherwise
         """
@@ -129,16 +139,18 @@ class ProtocolEventBusAdapter(Protocol):
 
         Returns:
             True if connection is working, False otherwise
+                ...
         """
         ...
 
-    def close(self) -> None:
+    async def close(self) -> None:
         """
         Close the adapter connection and clean up resources.
+
+        Performs async cleanup of network connections and other I/O resources.
         """
         ...
 
 
-# Type aliases for common event bus service types
 EventBusServiceType = ProtocolEventBusService
-EventBusAdapterType = ProtocolEventBusAdapter
+EventBusAdapterType = ProtocolHttpEventBusAdapter

@@ -5,15 +5,16 @@ Defines interfaces for standardized input validation, sanitization,
 and security-focused data validation across ONEX services.
 """
 
-from typing import TYPE_CHECKING, Optional, Protocol, Union, runtime_checkable
+from typing import TYPE_CHECKING, Callable, Optional, Protocol, Union, runtime_checkable
 
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.protocol_core_types import (
-        ContextValue,
-        LiteralValidationLevel,
-        LiteralValidationMode,
-        ProtocolValidationResult,
-    )
+from omnibase_spi.protocols.types.protocol_core_types import (
+    ContextValue,
+    LiteralValidationLevel,
+    LiteralValidationMode,
+)
+from omnibase_spi.protocols.validation.protocol_validation import (
+    ProtocolValidationResult,
+)
 
 
 @runtime_checkable
@@ -36,7 +37,7 @@ class ProtocolInputValidator(Protocol):
         ```python
         # Implementation example (not part of SPI)
         class InputValidatorImpl:
-            def validate_input(self, value, rules, level):
+            async def validate_input(self, value, rules, level):
                 result = ValidationResult(is_valid=True, errors=[], warnings=[])
 
                 for rule in rules:
@@ -47,7 +48,7 @@ class ProtocolInputValidator(Protocol):
                 return result
 
         # Usage in application code
-        validator: ProtocolInputValidator = InputValidatorImpl()
+        validator: "ProtocolInputValidator" = InputValidatorImpl()
 
         result = validator.validate_input(
             value=user_input,
@@ -60,7 +61,7 @@ class ProtocolInputValidator(Protocol):
         ```
     """
 
-    def validate_input(
+    async def validate_input(
         self,
         value: "ContextValue",
         rules: list[str],
@@ -83,12 +84,12 @@ class ProtocolInputValidator(Protocol):
         """
         ...
 
-    def validate_string(
+    async def validate_string(
         self,
         value: str,
-        min_length: Optional[int],
-        max_length: Optional[int],
-        pattern: Optional[str],
+        min_length: int | None,
+        max_length: int | None,
+        pattern: str | None,
         allow_empty: bool,
     ) -> "ProtocolValidationResult":
         """
@@ -110,13 +111,13 @@ class ProtocolInputValidator(Protocol):
         """
         ...
 
-    def validate_numeric(
+    async def validate_numeric(
         self,
-        value: Union[float, int],
-        min_value: Optional[float],
-        max_value: Optional[float],
+        value: float | int,
+        min_value: float | None,
+        max_value: float | None,
         allow_negative: bool,
-        precision: Optional[int],
+        precision: int | None,
     ) -> "ProtocolValidationResult":
         """
         Validate numeric value with range and precision checks.
@@ -137,11 +138,11 @@ class ProtocolInputValidator(Protocol):
         """
         ...
 
-    def validate_collection(
+    async def validate_collection(
         self,
-        value: Union[list[object], dict[str, object]],
-        max_size: Optional[int],
-        item_rules: Optional[list[str]],
+        value: list[object] | dict[str, object],
+        max_size: int | None,
+        item_rules: list[str] | None,
         unique_items: bool,
     ) -> "ProtocolValidationResult":
         """
@@ -162,11 +163,8 @@ class ProtocolInputValidator(Protocol):
         """
         ...
 
-    def validate_email(
-        self,
-        email: str,
-        check_mx: bool,
-        allow_international: bool,
+    async def validate_email(
+        self, email: str, check_mx: bool, allow_international: bool
     ) -> "ProtocolValidationResult":
         """
         Validate email address format and optionally domain.
@@ -185,10 +183,10 @@ class ProtocolInputValidator(Protocol):
         """
         ...
 
-    def validate_url(
+    async def validate_url(
         self,
         url: str,
-        allowed_schemes: Optional[list[str]],
+        allowed_schemes: list[str] | None,
         allow_private_ips: bool,
         max_length: int,
     ) -> "ProtocolValidationResult":
@@ -235,7 +233,7 @@ class ProtocolInputValidator(Protocol):
         """
         ...
 
-    def validate_batch(
+    async def validate_batch(
         self,
         inputs: list[dict[str, object]],
         validation_mode: "LiteralValidationMode" = "strict",
@@ -259,7 +257,7 @@ class ProtocolInputValidator(Protocol):
     def add_custom_rule(
         self,
         rule_name: str,
-        validator_function: object,
+        validator_function: Callable[..., bool],
         error_message: str,
     ) -> bool:
         """
@@ -279,7 +277,7 @@ class ProtocolInputValidator(Protocol):
         """
         ...
 
-    def check_security_patterns(
+    async def check_security_patterns(
         self,
         value: str,
         check_sql_injection: bool,
@@ -306,9 +304,8 @@ class ProtocolInputValidator(Protocol):
         """
         ...
 
-    def get_validation_statistics(
-        self,
-        time_window_hours: int,
+    async def get_validation_statistics(
+        self, time_window_hours: int
     ) -> dict[str, object]:
         """
         Get validation statistics for monitoring.
@@ -325,7 +322,7 @@ class ProtocolInputValidator(Protocol):
         """
         ...
 
-    def validate_with_rate_limit(
+    async def validate_with_rate_limit(
         self,
         value: str,
         caller_id: str,
@@ -353,10 +350,8 @@ class ProtocolInputValidator(Protocol):
         """
         ...
 
-    def get_rate_limit_status(
-        self,
-        caller_id: str,
-        validation_type: str,
+    async def get_rate_limit_status(
+        self, caller_id: str, validation_type: str
     ) -> dict[str, object]:
         """
         Get current rate limit status for a caller.

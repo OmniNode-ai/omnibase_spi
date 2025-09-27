@@ -6,9 +6,10 @@ following SPI purity principles. Concrete implementations have been moved
 to the utils/omnibase_spi_validation package.
 """
 
-from typing import Any, Dict, List, Optional, Protocol
+from typing import Any, Dict, List, Optional, Protocol, runtime_checkable
 
 
+@runtime_checkable
 class ProtocolValidationError(Protocol):
     """Protocol for validation error objects."""
 
@@ -22,6 +23,7 @@ class ProtocolValidationError(Protocol):
         ...
 
 
+@runtime_checkable
 class ProtocolValidationResult(Protocol):
     """Protocol for validation result objects."""
 
@@ -35,14 +37,14 @@ class ProtocolValidationResult(Protocol):
         self,
         error_type: str,
         message: str,
-        context: Optional[Dict[str, Any]] = None,
+        context: Dict[str, Any] | None = None,
         severity: str = "error",
     ) -> None:
         """Add a validation error."""
         ...
 
     def add_warning(
-        self, error_type: str, message: str, context: Optional[Dict[str, Any]] = None
+        self, error_type: str, message: str, context: Dict[str, Any] | None = None
     ) -> None:
         """Add a validation warning."""
         ...
@@ -52,12 +54,13 @@ class ProtocolValidationResult(Protocol):
         ...
 
 
+@runtime_checkable
 class ProtocolValidator(Protocol):
     """Protocol for protocol validation functionality."""
 
     strict_mode: bool
 
-    def validate_implementation(
+    async def validate_implementation(
         self, implementation: Any, protocol: Any
     ) -> ProtocolValidationResult:
         """
@@ -73,10 +76,11 @@ class ProtocolValidator(Protocol):
         ...
 
 
+@runtime_checkable
 class ProtocolValidationDecorator(Protocol):
     """Protocol for validation decorator functionality."""
 
-    def validate_protocol_implementation(
+    async def validate_protocol_implementation(
         self, implementation: Any, protocol: Any, strict: bool = True
     ) -> ProtocolValidationResult:
         """Validate protocol implementation."""
@@ -85,8 +89,3 @@ class ProtocolValidationDecorator(Protocol):
     def validation_decorator(self, protocol: Any) -> Any:
         """Decorator for automatic protocol validation."""
         ...
-
-
-# Type aliases for backward compatibility
-ValidationError = ProtocolValidationError
-ValidationResult = ProtocolValidationResult

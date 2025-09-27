@@ -7,14 +7,13 @@ scheduling across all ONEX services with consistent patterns.
 
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.protocol_core_types import (
-        LiteralTimeBasedType,
-        ProtocolDateTime,
-        ProtocolDuration,
-        ProtocolTimeBased,
-        ProtocolTimeout,
-    )
+from omnibase_spi.protocols.types.protocol_core_types import (
+    LiteralTimeBasedType,
+    ProtocolDateTime,
+    ProtocolDuration,
+    ProtocolTimeBased,
+    ProtocolTimeout,
+)
 
 
 @runtime_checkable
@@ -37,7 +36,7 @@ class ProtocolTimeBasedOperations(Protocol):
         ```python
         # Implementation example (not part of SPI)
         class TimeBasedOperationImpl:
-            def start_duration_tracking(self, operation_id):
+            async def start_duration_tracking(self, operation_id):
                 duration = DurationRecord(  # implements ProtocolDuration
                     start_time=datetime.now(),
                     end_time=None,
@@ -56,7 +55,7 @@ class ProtocolTimeBasedOperations(Protocol):
                 return timeout
 
         # Usage in application code
-        time_ops: ProtocolTimeBasedOperations = TimeBasedOperationImpl()
+        time_ops: "ProtocolTimeBasedOperations" = TimeBasedOperationImpl()
 
         # Start tracking an operation
         duration = time_ops.start_duration_tracking("data_processing")
@@ -71,10 +70,7 @@ class ProtocolTimeBasedOperations(Protocol):
         ```
     """
 
-    def start_duration_tracking(
-        self,
-        operation_id: str,
-    ) -> "ProtocolDuration":
+    async def start_duration_tracking(self, operation_id: str) -> "ProtocolDuration":
         """
         Start duration tracking for an operation.
 
@@ -90,10 +86,7 @@ class ProtocolTimeBasedOperations(Protocol):
         """
         ...
 
-    def complete_duration_tracking(
-        self,
-        operation_id: str,
-    ) -> "ProtocolDuration":
+    def complete_duration_tracking(self, operation_id: str) -> "ProtocolDuration":
         """
         Complete duration tracking for an operation.
 
@@ -109,10 +102,7 @@ class ProtocolTimeBasedOperations(Protocol):
         """
         ...
 
-    def get_operation_duration(
-        self,
-        operation_id: str,
-    ) -> "ProtocolDuration":
+    def get_operation_duration(self, operation_id: str) -> "ProtocolDuration":
         """
         Get current duration for an active operation.
 
@@ -151,10 +141,7 @@ class ProtocolTimeBasedOperations(Protocol):
         """
         ...
 
-    def is_timeout_expired(
-        self,
-        operation_id: str,
-    ) -> bool:
+    def is_timeout_expired(self, operation_id: str) -> bool:
         """
         Check if operation has timed out.
 
@@ -169,10 +156,7 @@ class ProtocolTimeBasedOperations(Protocol):
         """
         ...
 
-    def is_timeout_warning(
-        self,
-        operation_id: str,
-    ) -> bool:
+    def is_timeout_warning(self, operation_id: str) -> bool:
         """
         Check if operation is approaching timeout.
 
@@ -188,10 +172,7 @@ class ProtocolTimeBasedOperations(Protocol):
         """
         ...
 
-    def get_timeout_remaining(
-        self,
-        operation_id: str,
-    ) -> int:
+    def get_timeout_remaining(self, operation_id: str) -> int:
         """
         Get remaining time before timeout.
 
@@ -207,10 +188,7 @@ class ProtocolTimeBasedOperations(Protocol):
         """
         ...
 
-    def clear_timeout(
-        self,
-        operation_id: str,
-    ) -> bool:
+    def clear_timeout(self, operation_id: str) -> bool:
         """
         Clear timeout for an operation.
 
@@ -226,10 +204,8 @@ class ProtocolTimeBasedOperations(Protocol):
         """
         ...
 
-    def create_time_based_operation(
-        self,
-        operation_type: "LiteralTimeBasedType",
-        duration_ms: int,
+    async def create_time_based_operation(
+        self, operation_type: "LiteralTimeBasedType", duration_ms: int
     ) -> "ProtocolTimeBased":
         """
         Create a time-based operation tracker.
@@ -247,10 +223,7 @@ class ProtocolTimeBasedOperations(Protocol):
         """
         ...
 
-    def is_operation_active(
-        self,
-        operation_id: str,
-    ) -> bool:
+    def is_operation_active(self, operation_id: str) -> bool:
         """
         Check if time-based operation is currently active.
 
@@ -265,10 +238,7 @@ class ProtocolTimeBasedOperations(Protocol):
         """
         ...
 
-    def has_operation_expired(
-        self,
-        operation_id: str,
-    ) -> bool:
+    def has_operation_expired(self, operation_id: str) -> bool:
         """
         Check if time-based operation has expired.
 
@@ -333,9 +303,7 @@ class ProtocolTimeBasedOperations(Protocol):
         ...
 
     def schedule_interval_operation(
-        self,
-        operation_id: str,
-        interval_ms: int,
+        self, operation_id: str, interval_ms: int
     ) -> "ProtocolTimeBased":
         """
         Schedule recurring interval-based operation.
@@ -354,9 +322,7 @@ class ProtocolTimeBasedOperations(Protocol):
         ...
 
     def set_deadline(
-        self,
-        operation_id: str,
-        deadline: "ProtocolDateTime",
+        self, operation_id: str, deadline: "ProtocolDateTime"
     ) -> "ProtocolTimeBased":
         """
         Set absolute deadline for an operation.
@@ -374,10 +340,7 @@ class ProtocolTimeBasedOperations(Protocol):
         """
         ...
 
-    def get_deadline_remaining(
-        self,
-        operation_id: str,
-    ) -> int:
+    def get_deadline_remaining(self, operation_id: str) -> int:
         """
         Get time remaining until deadline.
 

@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 MCP Subsystem Client Protocol - ONEX SPI Interface.
 
@@ -8,13 +7,10 @@ Enables subsystems to register with and interact with the central MCP registry.
 Domain: MCP subsystem integration and client-side operations
 """
 
-from typing import Any, Callable, Optional, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Callable, Optional, Protocol, runtime_checkable
 from uuid import UUID
 
-from omnibase_spi.protocols.types.protocol_core_types import (
-    ContextValue,
-    ProtocolValidationResult,
-)
+from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 from omnibase_spi.protocols.types.protocol_mcp_types import (
     LiteralMCPConnectionStatus,
     LiteralMCPLifecycleState,
@@ -23,6 +19,9 @@ from omnibase_spi.protocols.types.protocol_mcp_types import (
     ProtocolMCPSubsystemRegistration,
     ProtocolMCPToolDefinition,
     ProtocolMCPToolExecution,
+)
+from omnibase_spi.protocols.validation.protocol_validation import (
+    ProtocolValidationResult,
 )
 
 
@@ -61,12 +60,10 @@ class ProtocolMCPSubsystemClient(Protocol):
     """
 
     @property
-    def config(self) -> ProtocolMCPSubsystemConfig:
-        """Get subsystem configuration."""
-        ...
+    def config(self) -> ProtocolMCPSubsystemConfig: ...
 
     @property
-    def registration_id(self) -> Optional[str]:
+    def registration_id(self) -> str | None:
         """Get current registration ID with the registry."""
         ...
 
@@ -76,7 +73,7 @@ class ProtocolMCPSubsystemClient(Protocol):
         ...
 
     @property
-    def connection_status(self) -> LiteralMCPConnectionStatus:
+    async def connection_status(self) -> LiteralMCPConnectionStatus:
         """Get current connection status to registry."""
         ...
 
@@ -102,7 +99,7 @@ class ProtocolMCPSubsystemClient(Protocol):
         """
         ...
 
-    async def start_heartbeat(self, interval: Optional[int]) -> bool:
+    async def start_heartbeat(self, interval: int | None) -> bool:
         """
         Start periodic heartbeat to maintain registration.
 
@@ -124,9 +121,7 @@ class ProtocolMCPSubsystemClient(Protocol):
         ...
 
     async def send_heartbeat(
-        self,
-        health_status: Optional[str],
-        metadata: Optional[dict[str, ContextValue]],
+        self, health_status: str | None, metadata: dict[str, ContextValue] | None
     ) -> bool:
         """
         Send immediate heartbeat to registry.
@@ -216,9 +211,7 @@ class ProtocolMCPSubsystemClient(Protocol):
         ...
 
     async def validate_tool_parameters(
-        self,
-        tool_name: str,
-        parameters: dict[str, ContextValue],
+        self, tool_name: str, parameters: dict[str, ContextValue]
     ) -> ProtocolValidationResult:
         """
         Validate tool execution parameters.
@@ -251,7 +244,7 @@ class ProtocolMCPSubsystemClient(Protocol):
         ...
 
     async def update_configuration(
-        self, configuration: dict[str, ContextValue]
+        self, configuration: dict[str, "ContextValue"]
     ) -> bool:
         """
         Update subsystem configuration dynamically.
@@ -264,7 +257,7 @@ class ProtocolMCPSubsystemClient(Protocol):
         """
         ...
 
-    async def get_registration_info(self) -> Optional[ProtocolMCPSubsystemRegistration]:
+    async def get_registration_info(self) -> ProtocolMCPSubsystemRegistration | None:
         """
         Get current registration information from registry.
 
@@ -283,7 +276,7 @@ class ProtocolMCPSubsystemClient(Protocol):
         ...
 
     async def get_tool_execution_history(
-        self, tool_name: Optional[str], limit: int
+        self, tool_name: str | None, limit: int
     ) -> list[ProtocolMCPToolExecution]:
         """
         Get local tool execution history.

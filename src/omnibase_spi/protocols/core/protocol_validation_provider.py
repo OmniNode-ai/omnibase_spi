@@ -9,25 +9,24 @@ Domain: Core validation orchestration and quality assurance
 Author: ONEX Framework Team
 """
 
-from typing import TYPE_CHECKING, Any, Protocol, Union, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, TypeAlias, Union, runtime_checkable
 
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.protocol_core_types import (
-        ContextValue,
-        LiteralValidationCategory,
-        LiteralValidationLevel,
-        LiteralValidationMode,
-        LiteralValidationSeverity,
-        ProtocolDateTime,
-        ProtocolMetadata,
-        ProtocolSemVer,
-        ProtocolValidatable,
-        ProtocolValidationResult,
-    )
+from omnibase_spi.protocols.types.protocol_core_types import (
+    ContextValue,
+    LiteralValidationCategory,
+    LiteralValidationLevel,
+    LiteralValidationMode,
+    LiteralValidationSeverity,
+    ProtocolDateTime,
+    ProtocolMetadata,
+    ProtocolSemVer,
+    ProtocolValidatable,
+)
+from omnibase_spi.protocols.validation.protocol_validation import (
+    ProtocolValidationResult,
+)
 
-# Type alias for validation targets - allows ProtocolValidatable or Any for backward compatibility
-# This provides type safety where possible while maintaining flexibility
-ValidationTarget = Union["ProtocolValidatable", Any]
+ValidationTarget: TypeAlias = "ProtocolValidatable | Any"
 
 
 @runtime_checkable
@@ -47,7 +46,7 @@ class ProtocolValidationRule(Protocol):
 
     Usage Example:
         ```python
-        rule: ProtocolValidationRule = SomeValidationRule()
+        rule: "ProtocolValidationRule" = SomeValidationRule()
         if rule.is_applicable(target_object):
             result = rule.validate(target_object, context)
             if not result.is_valid:
@@ -92,7 +91,7 @@ class ProtocolValidationRule(Protocol):
         """
         ...
 
-    def get_dependencies(self) -> list[str]:
+    async def get_dependencies(self) -> list[str]:
         """
         Get list of rule IDs that must be executed before this rule.
 
@@ -118,7 +117,7 @@ class ProtocolValidationRuleSet(Protocol):
 
     Usage Example:
         ```python
-        rule_set: ProtocolValidationRuleSet = ComplianceRuleSet()
+        rule_set: "ProtocolValidationRuleSet" = ComplianceRuleSet()
         applicable_rules = rule_set.get_applicable_rules(target, context)
         execution_order = rule_set.resolve_dependencies(applicable_rules)
 
@@ -134,7 +133,7 @@ class ProtocolValidationRuleSet(Protocol):
     rule_set_version: "ProtocolSemVer"
     rules: list["ProtocolValidationRule"]
 
-    def get_applicable_rules(
+    async def get_applicable_rules(
         self, target: ValidationTarget, context: dict[str, "ContextValue"]
     ) -> list["ProtocolValidationRule"]:
         """
@@ -145,7 +144,7 @@ class ProtocolValidationRuleSet(Protocol):
             context: Validation context
 
         Returns:
-            list[ProtocolValidationRule]: Applicable rules for target
+            list["ProtocolValidationRule"]: Applicable rules for target
         """
         ...
 
@@ -159,11 +158,11 @@ class ProtocolValidationRuleSet(Protocol):
             rules: Rules to order by dependencies
 
         Returns:
-            list[ProtocolValidationRule]: Rules in dependency-resolved order
+            list["ProtocolValidationRule"]: Rules in dependency-resolved order
         """
         ...
 
-    def validate_rule_set(self, context: dict[str, "ContextValue"]) -> bool:
+    async def validate_rule_set(self, context: dict[str, "ContextValue"]) -> bool:
         """
         Validate the rule set configuration and dependencies.
 
@@ -192,7 +191,7 @@ class ProtocolValidationSession(Protocol):
 
     Usage Example:
         ```python
-        session: ProtocolValidationSession = ValidationSession()
+        session: "ProtocolValidationSession" = ValidationSession()
         session.start_validation("component_validation", targets)
 
         try:
@@ -211,7 +210,7 @@ class ProtocolValidationSession(Protocol):
     end_time: "ProtocolDateTime | None"
     is_active: bool
 
-    def start_validation(
+    async def start_validation(
         self,
         validation_name: str,
         targets: list[ValidationTarget],
@@ -244,25 +243,25 @@ class ProtocolValidationSession(Protocol):
             context: Optional validation context
 
         Returns:
-            list[ProtocolValidationResult]: Validation results
+            list["ProtocolValidationResult"]: Validation results
         """
         ...
 
-    def get_session_progress(self) -> dict[str, "ContextValue"]:
+    async def get_session_progress(self) -> dict[str, "ContextValue"]:
         """
         Get current session progress information.
 
         Returns:
-            dict[str, ContextValue]: Progress metrics and status
+            dict[str, "ContextValue"]: Progress metrics and status
         """
         ...
 
-    def get_session_summary(self) -> dict[str, "ContextValue"]:
+    async def get_session_summary(self) -> dict[str, "ContextValue"]:
         """
         Get comprehensive session summary.
 
         Returns:
-            dict[str, ContextValue]: Session results, metrics, and outcomes
+            dict[str, "ContextValue"]: Session results, metrics, and outcomes
         """
         ...
 
@@ -320,7 +319,7 @@ class ProtocolValidationProvider(Protocol):
     Usage Example:
         ```python
         # Initialize validation provider
-        provider: ProtocolValidationProvider = SomeValidationProvider()
+        provider: "ProtocolValidationProvider" = SomeValidationProvider()
 
         # Register validation rules
         compliance_rules = provider.create_rule_set(
@@ -362,9 +361,7 @@ class ProtocolValidationProvider(Protocol):
     supported_levels: list["LiteralValidationLevel"]
     supported_modes: list["LiteralValidationMode"]
 
-    # Rule Management Operations
-
-    def register_validation_rule(self, rule: "ProtocolValidationRule") -> bool:
+    async def register_validation_rule(self, rule: "ProtocolValidationRule") -> bool:
         """
         Register a new validation rule with the provider.
 
@@ -379,7 +376,7 @@ class ProtocolValidationProvider(Protocol):
         """
         ...
 
-    def unregister_validation_rule(self, rule_id: str) -> bool:
+    async def unregister_validation_rule(self, rule_id: str) -> bool:
         """
         Remove a validation rule from the provider.
 
@@ -391,7 +388,9 @@ class ProtocolValidationProvider(Protocol):
         """
         ...
 
-    def get_validation_rule(self, rule_id: str) -> "ProtocolValidationRule | None":
+    async def get_validation_rule(
+        self, rule_id: str
+    ) -> "ProtocolValidationRule | None":
         """
         Retrieve a specific validation rule by ID.
 
@@ -403,7 +402,7 @@ class ProtocolValidationProvider(Protocol):
         """
         ...
 
-    def list_validation_rules(
+    async def list_validation_rules(
         self,
         category_filter: "LiteralValidationCategory | None" = None,
         severity_filter: "LiteralValidationSeverity | None" = None,
@@ -416,11 +415,11 @@ class ProtocolValidationProvider(Protocol):
             severity_filter: Filter by rule severity
 
         Returns:
-            list[ProtocolValidationRule]: Available rules matching filters
+            list["ProtocolValidationRule"]: Available rules matching filters
         """
         ...
 
-    def create_rule_set(
+    async def create_rule_set(
         self,
         rule_set_name: str,
         rule_ids: list[str],
@@ -442,9 +441,7 @@ class ProtocolValidationProvider(Protocol):
         """
         ...
 
-    # Session Management Operations
-
-    def create_validation_session(
+    async def create_validation_session(
         self,
         session_name: str,
         session_metadata: dict[str, "ContextValue"] | None = None,
@@ -461,12 +458,12 @@ class ProtocolValidationProvider(Protocol):
         """
         ...
 
-    def get_active_sessions(self) -> list["ProtocolValidationSession"]:
+    async def get_active_sessions(self) -> list["ProtocolValidationSession"]:
         """
         Get list of currently active validation sessions.
 
         Returns:
-            list[ProtocolValidationSession]: Active sessions
+            list["ProtocolValidationSession"]: Active sessions
         """
         ...
 
@@ -481,8 +478,6 @@ class ProtocolValidationProvider(Protocol):
             int: Number of sessions cleaned up
         """
         ...
-
-    # Core Validation Operations
 
     async def validate(
         self,
@@ -506,7 +501,7 @@ class ProtocolValidationProvider(Protocol):
             context: Optional validation context
 
         Returns:
-            list[ProtocolValidationResult]: Validation results for all targets
+            list["ProtocolValidationResult"]: Validation results for all targets
         """
         ...
 
@@ -531,7 +526,7 @@ class ProtocolValidationProvider(Protocol):
             context: Optional validation context
 
         Returns:
-            list[ProtocolValidationResult]: Validation results for all targets
+            list["ProtocolValidationResult"]: Validation results for all targets
         """
         ...
 
@@ -558,8 +553,6 @@ class ProtocolValidationProvider(Protocol):
         """
         ...
 
-    # Result Analysis and Reporting
-
     def is_validation_successful(
         self, results: list["ProtocolValidationResult"]
     ) -> bool:
@@ -574,7 +567,7 @@ class ProtocolValidationProvider(Protocol):
         """
         ...
 
-    def get_critical_issues(
+    async def get_critical_issues(
         self, results: list["ProtocolValidationResult"]
     ) -> list["ProtocolValidationResult"]:
         """
@@ -584,11 +577,11 @@ class ProtocolValidationProvider(Protocol):
             results: Validation results to filter
 
         Returns:
-            list[ProtocolValidationResult]: Results with critical errors
+            list["ProtocolValidationResult"]: Results with critical errors
         """
         ...
 
-    def get_validation_summary(
+    async def get_validation_summary(
         self, results: list["ProtocolValidationResult"]
     ) -> dict[str, "ContextValue"]:
         """
@@ -598,7 +591,7 @@ class ProtocolValidationProvider(Protocol):
             results: Validation results to summarize
 
         Returns:
-            dict[str, ContextValue]: Summary metrics and statistics
+            dict[str, "ContextValue"]: Summary metrics and statistics
         """
         ...
 
@@ -621,14 +614,12 @@ class ProtocolValidationProvider(Protocol):
         """
         ...
 
-    # Performance and Optimization
-
-    def get_provider_metrics(self) -> dict[str, "ContextValue"]:
+    async def get_provider_metrics(self) -> dict[str, "ContextValue"]:
         """
         Get performance and usage metrics for the validation provider.
 
         Returns:
-            dict[str, ContextValue]: Provider performance metrics
+            dict[str, "ContextValue"]: Provider performance metrics
         """
         ...
 
@@ -642,7 +633,7 @@ class ProtocolValidationProvider(Protocol):
             rule_sets: Rule sets to optimize
 
         Returns:
-            list[ProtocolValidationRuleSet]: Optimized rule sets
+            list["ProtocolValidationRuleSet"]: Optimized rule sets
         """
         ...
 
@@ -654,8 +645,6 @@ class ProtocolValidationProvider(Protocol):
             bool: True if cache was successfully cleared
         """
         ...
-
-    # Configuration and Health
 
     def configure_provider(self, configuration: dict[str, "ContextValue"]) -> bool:
         """
@@ -674,11 +663,11 @@ class ProtocolValidationProvider(Protocol):
         Get health status and diagnostics for the validation provider.
 
         Returns:
-            dict[str, ContextValue]: Provider health information
+            dict[str, "ContextValue"]: Provider health information
         """
         ...
 
-    def reset_provider_state(self) -> bool:
+    async def reset_provider_state(self) -> bool:
         """
         Reset provider to initial state, clearing all sessions and caches.
 

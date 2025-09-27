@@ -29,15 +29,15 @@ Example Usage:
             event_metadata: dict[str, "ContextValue"] | None = None
         ) -> bool:
             # Implementation handles state transition with event sourcing
-            pass
+            ...
 
         async def get_workflow_status(
             self,
             workflow_type: str,
             instance_id: UUID
-        ) -> ProtocolWorkflowSnapshot:
+        ) -> "ProtocolWorkflowSnapshot":
             # Implementation returns current workflow snapshot
-            pass
+            ...
     ```
 
 Architecture Integration:
@@ -51,18 +51,17 @@ Architecture Integration:
 from typing import TYPE_CHECKING, Optional, Protocol, runtime_checkable
 from uuid import UUID
 
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.protocol_core_types import (
-        ContextValue,
-        ProtocolMetadata,
-    )
-    from omnibase_spi.protocols.types.protocol_workflow_orchestration_types import (
-        LiteralTaskState,
-        LiteralWorkflowEventType,
-        LiteralWorkflowState,
-        ProtocolWorkflowEvent,
-        ProtocolWorkflowSnapshot,
-    )
+from omnibase_spi.protocols.types.protocol_core_types import (
+    ContextValue,
+    ProtocolMetadata,
+)
+from omnibase_spi.protocols.types.protocol_workflow_orchestration_types import (
+    LiteralTaskState,
+    LiteralWorkflowEventType,
+    LiteralWorkflowState,
+    ProtocolWorkflowEvent,
+    ProtocolWorkflowSnapshot,
+)
 
 
 @runtime_checkable
@@ -83,15 +82,13 @@ class ProtocolWorkflowManageable(Protocol):
         - Distributed task coordination and dependency resolution
     """
 
-    # Workflow Lifecycle Management
-
     async def create_workflow_instance(
         self,
         workflow_type: str,
         instance_id: UUID,
         initial_context: dict[str, "ContextValue"],
         correlation_metadata: "ProtocolMetadata",
-        configuration: Optional[dict[str, "ContextValue"]] = None,
+        configuration: dict[str, "ContextValue"] | None = None,
     ) -> "ProtocolWorkflowSnapshot":
         """
         Create a new workflow instance with initial configuration.
@@ -144,7 +141,7 @@ class ProtocolWorkflowManageable(Protocol):
         ...
 
     async def pause_workflow_execution(
-        self, workflow_type: str, instance_id: UUID, reason: Optional[str] = None
+        self, workflow_type: str, instance_id: UUID, reason: str | None = None
     ) -> bool:
         """
         Pause a running workflow instance.
@@ -213,15 +210,13 @@ class ProtocolWorkflowManageable(Protocol):
         """
         ...
 
-    # State Management and Transitions
-
     async def transition_workflow_state(
         self,
         workflow_type: str,
         instance_id: UUID,
         target_state: "LiteralWorkflowState",
-        event_metadata: Optional[dict[str, "ContextValue"]] = None,
-        causation_id: Optional[UUID] = None,
+        event_metadata: dict[str, "ContextValue"] | None = None,
+        causation_id: UUID | None = None,
     ) -> bool:
         """
         Transition workflow to a new state with event sourcing.
@@ -286,14 +281,12 @@ class ProtocolWorkflowManageable(Protocol):
         """
         ...
 
-    # Task Coordination and Management
-
     async def schedule_workflow_task(
         self,
         workflow_type: str,
         instance_id: UUID,
         task_definition: dict[str, "ContextValue"],
-        dependencies: Optional[list[UUID]] = None,
+        dependencies: list[UUID] | None = None,
     ) -> UUID:
         """
         Schedule a new task within the workflow instance.
@@ -322,7 +315,7 @@ class ProtocolWorkflowManageable(Protocol):
         instance_id: UUID,
         task_id: UUID,
         new_state: "LiteralTaskState",
-        result_data: Optional[dict[str, "ContextValue"]] = None,
+        result_data: dict[str, "ContextValue"] | None = None,
     ) -> bool:
         """
         Update the state of a workflow task.
@@ -364,8 +357,6 @@ class ProtocolWorkflowManageable(Protocol):
         """
         ...
 
-    # Event Handling and Coordination
-
     async def handle_workflow_event(
         self, workflow_event: "ProtocolWorkflowEvent"
     ) -> bool:
@@ -393,8 +384,8 @@ class ProtocolWorkflowManageable(Protocol):
         instance_id: UUID,
         event_type: "LiteralWorkflowEventType",
         event_data: dict[str, "ContextValue"],
-        causation_id: Optional[UUID] = None,
-        correlation_chain: Optional[list[UUID]] = None,
+        causation_id: UUID | None = None,
+        correlation_chain: list[UUID] | None = None,
     ) -> UUID:
         """
         Publish a workflow event to the event bus.
@@ -417,8 +408,6 @@ class ProtocolWorkflowManageable(Protocol):
             RuntimeError: If event publication fails
         """
         ...
-
-    # Execution Monitoring and Metrics
 
     async def get_workflow_execution_metrics(
         self, workflow_type: str, instance_id: UUID
@@ -462,14 +451,12 @@ class ProtocolWorkflowManageable(Protocol):
         """
         ...
 
-    # Compensation and Recovery
-
     async def initiate_compensation(
         self,
         workflow_type: str,
         instance_id: UUID,
         compensation_reason: str,
-        failed_task_id: Optional[UUID] = None,
+        failed_task_id: UUID | None = None,
     ) -> bool:
         """
         Initiate compensation actions for workflow failure recovery.
@@ -513,8 +500,6 @@ class ProtocolWorkflowManageable(Protocol):
             ValueError: If workflow instance doesn't exist or not compensating
         """
         ...
-
-    # Health and Diagnostics
 
     async def validate_workflow_consistency(
         self, workflow_type: str, instance_id: UUID

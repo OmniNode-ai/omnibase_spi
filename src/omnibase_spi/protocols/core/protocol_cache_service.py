@@ -14,12 +14,11 @@ from typing import (
     runtime_checkable,
 )
 
-from omnibase_spi.protocols.types.protocol_core_types import ContextValue
+from omnibase_spi.protocols.types.protocol_core_types import (
+    ContextValue,
+    ProtocolCacheStatistics,
+)
 
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.protocol_core_types import ProtocolCacheStatistics
-
-# Type variable for generic cache values
 T = TypeVar("T")
 
 
@@ -34,12 +33,12 @@ class ProtocolCacheService(Protocol, Generic[T]):
     Example:
         ```python
         # String cache
-        cache: ProtocolCacheService[str] = get_string_cache()
+        cache: "ProtocolCacheService"[str] = get_string_cache()
         await cache.set("user:123", "john_doe", ttl_seconds=3600)
         username = await cache.get("user:123")  # Returns Optional[str]
 
         # Dict cache for complex data
-        cache: ProtocolCacheService[dict[str, Any]] = get_dict_cache()
+        cache: "ProtocolCacheService"[dict[str, Any]] = get_dict_cache()
         user_data = {"id": 123, "name": "John", "active": True}
         await cache.set("user:123:profile", user_data, ttl_seconds=1800)
 
@@ -50,7 +49,7 @@ class ProtocolCacheService(Protocol, Generic[T]):
         ```
     """
 
-    async def get(self, key: str) -> Optional[T]:
+    async def get(self, key: str) -> T | None:
         """
         Retrieve cached data by key.
 
@@ -62,7 +61,7 @@ class ProtocolCacheService(Protocol, Generic[T]):
         """
         ...
 
-    async def set(self, key: str, value: T, ttl_seconds: Optional[int] = None) -> bool:
+    async def set(self, key: str, value: T, ttl_seconds: int | None = None) -> bool:
         """
         Store data in cache with optional TTL.
 
@@ -88,7 +87,7 @@ class ProtocolCacheService(Protocol, Generic[T]):
         """
         ...
 
-    async def clear(self, pattern: Optional[str] = None) -> int:
+    async def clear(self, pattern: str | None = None) -> int:
         """
         Clear cache entries, optionally by pattern.
 
@@ -112,7 +111,7 @@ class ProtocolCacheService(Protocol, Generic[T]):
         """
         ...
 
-    def get_stats(self) -> "ProtocolCacheStatistics":
+    async def get_stats(self) -> "ProtocolCacheStatistics":
         """
         Get cache statistics.
 
@@ -126,7 +125,7 @@ class ProtocolCacheService(Protocol, Generic[T]):
 class ProtocolCacheServiceProvider(Protocol, Generic[T]):
     """Protocol for cache service provider."""
 
-    def create_cache_service(self) -> ProtocolCacheService[T]:
+    async def create_cache_service(self) -> ProtocolCacheService[T]:
         """
         Create cache service instance.
 
@@ -135,7 +134,7 @@ class ProtocolCacheServiceProvider(Protocol, Generic[T]):
         """
         ...
 
-    def get_cache_configuration(self) -> dict[str, ContextValue]:
+    def get_cache_configuration(self) -> dict[str, "ContextValue"]:
         """
         Get cache configuration parameters.
 

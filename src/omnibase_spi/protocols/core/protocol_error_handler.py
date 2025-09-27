@@ -7,13 +7,12 @@ across all ONEX services following consistent patterns.
 
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.protocol_core_types import (
-        LiteralErrorSeverity,
-        ProtocolErrorContext,
-        ProtocolErrorResult,
-        ProtocolRecoveryAction,
-    )
+from omnibase_spi.protocols.types.protocol_core_types import (
+    LiteralErrorSeverity,
+    ProtocolErrorContext,
+    ProtocolErrorResult,
+    ProtocolRecoveryAction,
+)
 
 
 @runtime_checkable
@@ -46,7 +45,7 @@ class ProtocolErrorHandler(Protocol):
                     return self._handle_terminal_error(error_result)
 
         # Usage in application code
-        error_handler: ProtocolErrorHandler = ErrorHandlerImpl()
+        error_handler: "ProtocolErrorHandler" = ErrorHandlerImpl()
 
         try:
             result = risky_operation()
@@ -56,10 +55,8 @@ class ProtocolErrorHandler(Protocol):
         ```
     """
 
-    def handle_error(
-        self,
-        error: Exception,
-        context: "ProtocolErrorContext",
+    async def handle_error(
+        self, error: Exception, context: "ProtocolErrorContext"
     ) -> "ProtocolErrorResult":
         """
         Handle error with appropriate recovery strategy.
@@ -79,8 +76,7 @@ class ProtocolErrorHandler(Protocol):
         ...
 
     def get_error_recovery_strategy(
-        self,
-        error_result: "ProtocolErrorResult",
+        self, error_result: "ProtocolErrorResult"
     ) -> "ProtocolRecoveryAction":
         """
         Determine appropriate recovery strategy for error.
@@ -99,9 +95,7 @@ class ProtocolErrorHandler(Protocol):
         ...
 
     def classify_error_severity(
-        self,
-        error: Exception,
-        context: "ProtocolErrorContext",
+        self, error: Exception, context: "ProtocolErrorContext"
     ) -> "LiteralErrorSeverity":
         """
         Classify error severity for appropriate handling.
@@ -120,9 +114,7 @@ class ProtocolErrorHandler(Protocol):
         ...
 
     def should_retry_error(
-        self,
-        error_result: "ProtocolErrorResult",
-        attempt_count: int,
+        self, error_result: "ProtocolErrorResult", attempt_count: int
     ) -> bool:
         """
         Determine if error should be retried.
@@ -141,9 +133,7 @@ class ProtocolErrorHandler(Protocol):
         ...
 
     def get_backoff_delay_seconds(
-        self,
-        error_result: "ProtocolErrorResult",
-        attempt_count: int,
+        self, error_result: "ProtocolErrorResult", attempt_count: int
     ) -> float:
         """
         Calculate backoff delay for retry attempts.
@@ -162,9 +152,7 @@ class ProtocolErrorHandler(Protocol):
         ...
 
     def record_error_metrics(
-        self,
-        error_result: "ProtocolErrorResult",
-        recovery_outcome: str,
+        self, error_result: "ProtocolErrorResult", recovery_outcome: str
     ) -> None:
         """
         Record error metrics for observability.
@@ -179,11 +167,7 @@ class ProtocolErrorHandler(Protocol):
         """
         ...
 
-    def activate_circuit_breaker(
-        self,
-        service_name: str,
-        error_threshold: int,
-    ) -> bool:
+    def activate_circuit_breaker(self, service_name: str, error_threshold: int) -> bool:
         """
         Activate circuit breaker for failing service.
 
@@ -200,10 +184,7 @@ class ProtocolErrorHandler(Protocol):
         """
         ...
 
-    def get_circuit_breaker_status(
-        self,
-        service_name: str,
-    ) -> str:
+    def get_circuit_breaker_status(self, service_name: str) -> str:
         """
         Get current circuit breaker status.
 
@@ -219,10 +200,7 @@ class ProtocolErrorHandler(Protocol):
         """
         ...
 
-    def reset_circuit_breaker(
-        self,
-        service_name: str,
-    ) -> bool:
+    def reset_circuit_breaker(self, service_name: str) -> bool:
         """
         Reset circuit breaker to closed state.
 
@@ -238,10 +216,7 @@ class ProtocolErrorHandler(Protocol):
         """
         ...
 
-    def get_error_statistics(
-        self,
-        time_window_minutes: int,
-    ) -> dict[str, object]:
+    def get_error_statistics(self, time_window_minutes: int) -> dict[str, object]:
         """
         Get error statistics for monitoring.
 

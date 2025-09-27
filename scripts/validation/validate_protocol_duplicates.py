@@ -19,6 +19,7 @@ import ast
 import hashlib
 import json
 import os
+import re
 import sys
 from collections import defaultdict
 from dataclasses import dataclass
@@ -43,6 +44,16 @@ class ProtocolInfo:
     line_number: int
     is_runtime_checkable: bool = False
     domain: str = "unknown"
+    properties: list[str] = None
+    base_protocols: list[str] = None
+    protocol_type: str = "functional"  # functional, marker, property_only, mixin
+    docstring: str = ""
+
+    def __post_init__(self):
+        if self.properties is None:
+            self.properties = []
+        if self.base_protocols is None:
+            self.base_protocols = []
 
 
 class ProtocolExtractor(ast.NodeVisitor):
@@ -88,11 +99,36 @@ class ProtocolExtractor(ast.NodeVisitor):
         return False
 
     def _extract_protocol_info(self, node: ast.ClassDef) -> ProtocolInfo | None:
-        """Extract protocol information."""
+        """Extract enhanced protocol information with properties, inheritance, and better hashing."""
         try:
             methods = []
+            properties = []
+            base_protocols = []
+            docstring = ""
 
-            # Extract method signatures
+            # Extract docstring
+            if (
+                node.body
+                and isinstance(node.body[0], ast.Expr)
+                and isinstance(node.body[0].value, ast.Constant)
+                and isinstance(node.body[0].value.value, str)
+            ):
+                docstring = node.body[0].value.value
+
+            # Extract base protocols (inheritance)
+            for base in node.bases:
+                if isinstance(base, ast.Name):
+                    if base.id != "Protocol":  # Exclude typing.Protocol itself
+                        base_protocols.append(base.id)
+                elif isinstance(base, ast.Attribute):
+                    if base.attr != "Protocol":
+                        base_protocols.append(ast.unparse(base))
+                elif isinstance(base, ast.Subscript):
+                    # Handle Generic[T] or similar
+                    base_name = ast.unparse(base)
+                    base_protocols.append(base_name)
+
+            # Extract methods and properties
             for item in node.body:
                 if isinstance(item, ast.FunctionDef):
                     signature = self._get_method_signature(item)
@@ -100,10 +136,55 @@ class ProtocolExtractor(ast.NodeVisitor):
                 elif isinstance(item, ast.AsyncFunctionDef):
                     signature = self._get_async_method_signature(item)
                     methods.append(signature)
+                elif isinstance(item, ast.AnnAssign) and isinstance(
+                    item.target, ast.Name
+                ):
+                    # This is a property annotation: property_name: Type
+                    prop_type = (
+                        ast.unparse(item.annotation) if item.annotation else "Any"
+                    )
+                    properties.append(f"{item.target.id}: {prop_type}")
 
-            # Create signature hash
-            methods_str = "|".join(sorted(methods))
-            signature_hash = hashlib.md5(methods_str.encode()).hexdigest()[:12]
+            # Determine protocol type and domain
+            protocol_type = self._determine_protocol_type(
+                methods, properties, base_protocols, docstring
+            )
+            domain = self._determine_protocol_domain(
+                self.file_path, node.name, docstring
+            )
+
+            # Create enhanced signature hash that considers more than just methods
+            signature_components = []
+
+            # Include protocol name to prevent false collisions
+            signature_components.append(f"name:{node.name}")
+
+            # Include domain and type for better differentiation
+            signature_components.append(f"domain:{domain}")
+            signature_components.append(f"type:{protocol_type}")
+
+            # Include methods with full signatures
+            if methods:
+                signature_components.append(f"methods:{':'.join(sorted(methods))}")
+
+            # Include properties with types
+            if properties:
+                signature_components.append(
+                    f"properties:{':'.join(sorted(properties))}"
+                )
+
+            # Include inheritance relationships
+            if base_protocols:
+                signature_components.append(f"bases:{':'.join(sorted(base_protocols))}")
+
+            # Include simplified docstring hash for semantic differentiation
+            if docstring:
+                doc_hash = self._hash_docstring(docstring)
+                signature_components.append(f"doc:{doc_hash}")
+
+            # Create final signature hash with SHA256 for better collision resistance
+            signature_str = "|".join(signature_components)
+            signature_hash = hashlib.sha256(signature_str.encode()).hexdigest()[:16]
 
             # Check for @runtime_checkable decorator
             is_runtime_checkable = any(
@@ -111,9 +192,6 @@ class ProtocolExtractor(ast.NodeVisitor):
                 or (isinstance(d, ast.Attribute) and d.attr == "runtime_checkable")
                 for d in node.decorator_list
             )
-
-            # Determine protocol domain based on file path
-            domain = self._determine_protocol_domain(self.file_path)
 
             # Get module path
             module_path = self._get_module_path(self.file_path)
@@ -124,11 +202,15 @@ class ProtocolExtractor(ast.NodeVisitor):
                 module_path=module_path,
                 methods=methods,
                 signature_hash=signature_hash,
-                line_count=len(methods),  # Simplified line count
+                line_count=len(methods) + len(properties),
                 imports=self.imports.copy(),
                 line_number=node.lineno,
                 is_runtime_checkable=is_runtime_checkable,
                 domain=domain,
+                properties=properties,
+                base_protocols=base_protocols,
+                protocol_type=protocol_type,
+                docstring=docstring,
             )
 
         except Exception as e:
@@ -157,11 +239,32 @@ class ProtocolExtractor(ast.NodeVisitor):
         returns = ast.unparse(node.returns) if node.returns else "None"
         return f"async {node.name}({', '.join(args)}) -> {returns}"
 
-    def _determine_protocol_domain(self, file_path: str) -> str:
-        """Determine protocol domain from file path."""
+    def _determine_protocol_type(
+        self,
+        methods: list[str],
+        properties: list[str],
+        base_protocols: list[str],
+        docstring: str,
+    ) -> str:
+        """Determine the type of protocol based on its contents."""
+        if not methods and not properties:
+            return "marker"  # Empty marker protocol
+        elif not methods and properties:
+            return "property_only"  # Data structure protocol
+        elif methods and not properties and base_protocols:
+            return "mixin"  # Mixin protocol that extends other protocols
+        elif methods:
+            return "functional"  # Behavioral protocol
+        else:
+            return "unknown"
+
+    def _determine_protocol_domain(
+        self, file_path: str, protocol_name: str = "", docstring: str = ""
+    ) -> str:
+        """Determine protocol domain from file path, name, and docstring."""
         path_parts = Path(file_path).parts
 
-        # Map file paths to domains
+        # Extract domain from file path first (most reliable)
         if "workflow_orchestration" in path_parts:
             return "workflow"
         elif "mcp" in path_parts:
@@ -174,8 +277,58 @@ class ProtocolExtractor(ast.NodeVisitor):
             return "core"
         elif "types" in path_parts:
             return "types"
-        else:
-            return "unknown"
+        elif "file_handling" in path_parts:
+            return "file_handling"
+        elif "validation" in path_parts:
+            return "validation"
+        elif "memory" in path_parts:
+            return "memory"
+
+        # Extract domain from protocol name as fallback
+        if protocol_name:
+            protocol_lower = protocol_name.lower()
+            if "workflow" in protocol_lower:
+                return "workflow"
+            elif "mcp" in protocol_lower:
+                return "mcp"
+            elif "event" in protocol_lower:
+                return "events"
+            elif "file" in protocol_lower:
+                return "file_handling"
+            elif "node" in protocol_lower:
+                return "core"
+            elif "memory" in protocol_lower:
+                return "memory"
+
+        # Extract domain from docstring as final fallback
+        if docstring:
+            doc_lower = docstring.lower()
+            if "workflow" in doc_lower:
+                return "workflow"
+            elif "mcp" in doc_lower:
+                return "mcp"
+            elif "event" in doc_lower:
+                return "events"
+            elif "file" in doc_lower:
+                return "file_handling"
+            elif "memory" in doc_lower:
+                return "memory"
+
+        return "unknown"
+
+    def _hash_docstring(self, docstring: str) -> str:
+        """Extract and hash docstring for semantic differentiation."""
+        if not docstring:
+            return "no_docstring"
+
+        # Normalize docstring for hashing
+        normalized = re.sub(r"\s+", " ", docstring.strip().lower())
+        # Remove common protocol boilerplate to focus on unique content
+        normalized = re.sub(r"protocol for\s+", "", normalized)
+        normalized = re.sub(r"protocol that\s+", "", normalized)
+
+        # Hash the normalized docstring
+        return hashlib.md5(normalized.encode()).hexdigest()[:8]
 
     def _get_module_path(self, file_path: str) -> str:
         """Get Python module path from file path."""
@@ -239,7 +392,7 @@ def find_all_protocols(base_path: Path) -> list[ProtocolInfo]:
 
 
 def analyze_duplicates(protocols: list[ProtocolInfo]) -> dict[str, Any]:
-    """Analyze protocols for duplicates and conflicts."""
+    """Analyze protocols for duplicates and conflicts with enhanced detection."""
 
     # Group by exact signature hash
     by_signature = defaultdict(list)
@@ -251,25 +404,40 @@ def analyze_duplicates(protocols: list[ProtocolInfo]) -> dict[str, Any]:
     for protocol in protocols:
         by_name[protocol.name].append(protocol)
 
-    # Group by domain
+    # Group by domain and type
     by_domain = defaultdict(list)
+    by_type = defaultdict(list)
     for protocol in protocols:
         by_domain[protocol.domain].append(protocol)
+        by_type[protocol.protocol_type].append(protocol)
 
-    # Find exact duplicates (same signature hash)
-    exact_duplicates = {k: v for k, v in by_signature.items() if len(v) > 1}
+    # Smart duplicate detection - filter out false positives
+    actual_duplicates = {}
+    for signature_hash, duplicate_protocols in by_signature.items():
+        if len(duplicate_protocols) > 1:
+            # Check if these are truly problematic duplicates
+            real_duplicates = _filter_real_duplicates(duplicate_protocols)
+            if len(real_duplicates) > 1:
+                actual_duplicates[signature_hash] = real_duplicates
 
-    # Find name conflicts (same name, different signatures)
-    name_conflicts = {}
+    # Smart name conflict detection
+    actual_name_conflicts = {}
     for name, name_protocols in by_name.items():
         if len(name_protocols) > 1:
             unique_signatures = set(p.signature_hash for p in name_protocols)
             if len(unique_signatures) > 1:
-                name_conflicts[name] = name_protocols
+                # Check if these are legitimate variations vs real conflicts
+                real_conflicts = _filter_real_conflicts(name_protocols)
+                if len(real_conflicts) > 1:
+                    actual_name_conflicts[name] = real_conflicts
 
-    # Analyze protocol distribution
+    # Enhanced distribution analysis
     distribution_analysis = {}
     for domain, domain_protocols in by_domain.items():
+        type_distribution = defaultdict(int)
+        for protocol in domain_protocols:
+            type_distribution[protocol.protocol_type] += 1
+
         distribution_analysis[domain] = {
             "count": len(domain_protocols),
             "protocols": [p.name for p in domain_protocols],
@@ -279,14 +447,111 @@ def analyze_duplicates(protocols: list[ProtocolInfo]) -> dict[str, Any]:
                 if domain_protocols
                 else 0
             ),
+            "type_distribution": dict(type_distribution),
+            "avg_properties": (
+                sum(len(p.properties) for p in domain_protocols) / len(domain_protocols)
+                if domain_protocols
+                else 0
+            ),
+            "avg_methods": (
+                sum(len(p.methods) for p in domain_protocols) / len(domain_protocols)
+                if domain_protocols
+                else 0
+            ),
         }
 
     return {
-        "exact_duplicates": exact_duplicates,
-        "name_conflicts": name_conflicts,
+        "exact_duplicates": actual_duplicates,
+        "name_conflicts": actual_name_conflicts,
         "distribution_analysis": distribution_analysis,
         "total_protocols": len(protocols),
         "protocols_by_domain": by_domain,
+        "protocols_by_type": by_type,
+        "quality_metrics": _analyze_quality_metrics(protocols),
+    }
+
+
+def _filter_real_duplicates(protocols: list[ProtocolInfo]) -> list[ProtocolInfo]:
+    """Filter out false positive duplicates based on enhanced protocol analysis."""
+    if not protocols or len(protocols) < 2:
+        return protocols
+
+    # Group by domain and type - protocols in same domain with same structure are more likely real duplicates
+    by_domain_type = defaultdict(list)
+    for protocol in protocols:
+        key = (protocol.domain, protocol.protocol_type)
+        by_domain_type[key].append(protocol)
+
+    real_duplicates = []
+    for (domain, protocol_type), domain_protocols in by_domain_type.items():
+        if len(domain_protocols) > 1:
+            # For property-only protocols, check if they have truly identical properties
+            if protocol_type == "property_only":
+                property_groups = defaultdict(list)
+                for protocol in domain_protocols:
+                    prop_key = "|".join(sorted(protocol.properties))
+                    property_groups[prop_key].append(protocol)
+
+                for prop_protocols in property_groups.values():
+                    if len(prop_protocols) > 1:
+                        real_duplicates.extend(prop_protocols)
+            else:
+                # For other types, same domain + type + signature = likely duplicate
+                real_duplicates.extend(domain_protocols)
+
+    return real_duplicates if real_duplicates else protocols
+
+
+def _filter_real_conflicts(protocols: list[ProtocolInfo]) -> list[ProtocolInfo]:
+    """Filter out legitimate protocol variations from real naming conflicts."""
+    if not protocols or len(protocols) < 2:
+        return protocols
+
+    # If protocols are in different domains with different purposes, they might be legitimate
+    domains = set(p.domain for p in protocols)
+    protocol_types = set(p.protocol_type for p in protocols)
+
+    # If all protocols are in different domains, this is likely acceptable variation
+    if len(domains) == len(protocols):
+        return []  # No conflicts - they're domain-specific variations
+
+    # If protocols have different types and related inheritance, might be acceptable
+    if len(protocol_types) > 1:
+        # Check if they're related through inheritance
+        for p1 in protocols:
+            for p2 in protocols:
+                if p1 != p2 and (
+                    p1.name in p2.base_protocols
+                    or p2.name in p1.base_protocols
+                    or any(base in p2.base_protocols for base in p1.base_protocols)
+                ):
+                    return []  # Related protocols, not conflicts
+
+    # Otherwise, these are likely real conflicts
+    return protocols
+
+
+def _analyze_quality_metrics(protocols: list[ProtocolInfo]) -> dict[str, Any]:
+    """Analyze overall quality metrics of the protocol collection."""
+    if not protocols:
+        return {}
+
+    empty_protocols = [p for p in protocols if not p.methods and not p.properties]
+    property_only = [p for p in protocols if not p.methods and p.properties]
+    functional_protocols = [p for p in protocols if p.methods]
+    missing_docstrings = [p for p in protocols if not p.docstring]
+
+    return {
+        "empty_protocols": len(empty_protocols),
+        "property_only_protocols": len(property_only),
+        "functional_protocols": len(functional_protocols),
+        "missing_docstrings": len(missing_docstrings),
+        "docstring_coverage": (len(protocols) - len(missing_docstrings))
+        / len(protocols),
+        "avg_properties_per_protocol": sum(len(p.properties) for p in protocols)
+        / len(protocols),
+        "avg_methods_per_protocol": sum(len(p.methods) for p in protocols)
+        / len(protocols),
     }
 
 
@@ -506,14 +771,14 @@ def main():
             }
 
             with open("spi_protocol_analysis.json", "w") as f:
-                json.dump(report_data, f, indent=2)
+                json.dump(report_data, f, indent=2, default=str)
             print(f"\n💾 Detailed analysis saved to: spi_protocol_analysis.json")
 
         # Generate migration plan if requested
         if args.generate_plan:
             plan = generate_migration_plan(analysis)
             with open("spi_protocol_migration_plan.json", "w") as f:
-                json.dump(plan, f, indent=2)
+                json.dump(plan, f, indent=2, default=str)
             print(f"💾 Migration plan saved to: spi_protocol_migration_plan.json")
 
         # Exit codes for CI

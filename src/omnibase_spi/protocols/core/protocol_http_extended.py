@@ -21,12 +21,8 @@ class ProtocolHttpRequestBuilder(Protocol):
 
     Example:
         ```python
-        builder: ProtocolHttpRequestBuilder = get_request_builder()
-        response = await builder.url("https://api.example.com/upload") \
-            .with_query_params({"version": "2.0", "format": "json"}) \
-            .with_bearer_token("token123") \
-            .with_file_upload({"document": file_bytes}) \
-            .post()
+        builder: "ProtocolHttpRequestBuilder" = get_request_builder()
+        response = await builder.url("https://api.example.com/upload")             .with_query_params({"version": "2.0", "format": "json"})             .with_bearer_token("token123")             .with_file_upload({"document": file_bytes})             .post()
         ```
     """
 
@@ -42,8 +38,8 @@ class ProtocolHttpRequestBuilder(Protocol):
         """
         ...
 
-    def with_query_params(
-        self, params: dict[str, ContextValue]
+    async def with_query_params(
+        self, params: dict[str, "ContextValue"]
     ) -> "ProtocolHttpRequestBuilder":
         """
         Add query parameters to the request URL.
@@ -57,7 +53,7 @@ class ProtocolHttpRequestBuilder(Protocol):
         ...
 
     def with_form_data(
-        self, data: dict[str, ContextValue]
+        self, data: dict[str, "ContextValue"]
     ) -> "ProtocolHttpRequestBuilder":
         """
         Set form data for the request body (application/x-www-form-urlencoded).
@@ -70,7 +66,9 @@ class ProtocolHttpRequestBuilder(Protocol):
         """
         ...
 
-    def with_file_upload(self, files: dict[str, bytes]) -> "ProtocolHttpRequestBuilder":
+    async def with_file_upload(
+        self, files: dict[str, bytes]
+    ) -> "ProtocolHttpRequestBuilder":
         """
         Add file uploads for multipart/form-data requests.
 
@@ -207,7 +205,7 @@ class ProtocolHttpStreamingResponse(Protocol):
 
     Example:
         ```python
-        response: ProtocolHttpStreamingResponse = await client.stream_get(url)
+        response: "ProtocolHttpStreamingResponse" = await client.stream_get(url)
 
         # Stream raw content
         async for chunk in response.stream_content():
@@ -220,7 +218,7 @@ class ProtocolHttpStreamingResponse(Protocol):
     """
 
     status_code: int
-    headers: dict[str, ContextValue]
+    headers: dict[str, "ContextValue"]
     url: str
 
     async def stream_content(self, chunk_size: int) -> bytes:
@@ -290,13 +288,11 @@ class ProtocolHttpExtendedClient(Protocol):
 
     Example:
         ```python
-        client: ProtocolHttpExtendedClient = get_extended_http_client()
+        client: "ProtocolHttpExtendedClient" = get_extended_http_client()
 
         # Use request builder
         builder = client.create_request_builder()
-        response = await builder.url("https://api.example.com") \
-            .with_bearer_token("token") \
-            .get()
+        response = await builder.url("https://api.example.com")             .with_bearer_token("token")             .get()
 
         # Stream large responses
         stream_response = await client.stream_request("GET", "https://api.example.com/large-data")
@@ -305,7 +301,7 @@ class ProtocolHttpExtendedClient(Protocol):
         ```
     """
 
-    def create_request_builder(self) -> ProtocolHttpRequestBuilder:
+    async def create_request_builder(self) -> ProtocolHttpRequestBuilder:
         """
         Create a new request builder for complex requests.
 
@@ -315,10 +311,7 @@ class ProtocolHttpExtendedClient(Protocol):
         ...
 
     async def stream_request(
-        self,
-        method: str,
-        url: str,
-        headers: Optional[dict[str, ContextValue]] = None,
+        self, method: str, url: str, headers: dict[str, "ContextValue"] | None = None
     ) -> ProtocolHttpStreamingResponse:
         """
         Perform streaming HTTP request for large responses.

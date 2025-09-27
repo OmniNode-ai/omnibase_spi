@@ -6,35 +6,37 @@ standards, architectural patterns, and ecosystem requirements for
 NodeComplianceValidatorReducer implementations.
 """
 
-from typing import List, Optional, Protocol
+from typing import List, Optional, Protocol, runtime_checkable
 
 from .protocol_validation import ProtocolValidationResult
 
 
+@runtime_checkable
 class ProtocolComplianceRule(Protocol):
     """Protocol for compliance rule definition."""
 
     rule_id: str
     rule_name: str
-    category: str  # "onex_naming", "architecture", "security", "performance"
-    severity: str  # "critical", "high", "medium", "low"
+    category: str
+    severity: str
     description: str
     required_pattern: str
     violation_message: str
 
-    def check_compliance(self, content: str, context: str) -> bool:
+    async def check_compliance(self, content: str, context: str) -> bool:
         """Check if content complies with this rule."""
         ...
 
-    def get_fix_suggestion(self) -> str:
+    async def get_fix_suggestion(self) -> str:
         """Get suggestion for fixing compliance violation."""
         ...
 
 
+@runtime_checkable
 class ProtocolComplianceViolation(Protocol):
     """Protocol for compliance violation representation."""
 
-    rule: ProtocolComplianceRule
+    rule: "ProtocolComplianceRule"
     file_path: str
     line_number: int
     violation_text: str
@@ -42,42 +44,44 @@ class ProtocolComplianceViolation(Protocol):
     fix_suggestion: str
     auto_fixable: bool
 
-    def get_violation_summary(self) -> str:
+    async def get_violation_summary(self) -> str:
         """Get concise violation summary."""
         ...
 
-    def get_compliance_impact(self) -> str:
+    async def get_compliance_impact(self) -> str:
         """Get description of compliance impact."""
         ...
 
 
+@runtime_checkable
 class ProtocolONEXStandards(Protocol):
     """Protocol for ONEX ecosystem standards."""
 
-    enum_naming_pattern: str  # "Enum*"
-    model_naming_pattern: str  # "Model*"
-    protocol_naming_pattern: str  # "Protocol*"
-    node_naming_pattern: str  # "Node*"
+    enum_naming_pattern: str
+    model_naming_pattern: str
+    protocol_naming_pattern: str
+    node_naming_pattern: str
     required_directories: List[str]
     forbidden_patterns: List[str]
 
-    def validate_enum_naming(self, name: str) -> bool:
+    async def validate_enum_naming(self, name: str) -> bool:
         """Validate enum follows ONEX naming convention."""
         ...
 
-    def validate_model_naming(self, name: str) -> bool:
+    async def validate_model_naming(self, name: str) -> bool:
         """Validate model follows ONEX naming convention."""
         ...
 
-    def validate_protocol_naming(self, name: str) -> bool:
+    async def validate_protocol_naming(self, name: str) -> bool:
         """Validate protocol follows ONEX naming convention."""
         ...
 
-    def validate_node_naming(self, name: str) -> bool:
+    async def validate_node_naming(self, name: str) -> bool:
         """Validate node follows ONEX naming convention."""
         ...
 
 
+@runtime_checkable
 class ProtocolArchitectureCompliance(Protocol):
     """Protocol for architectural compliance checking."""
 
@@ -86,17 +90,18 @@ class ProtocolArchitectureCompliance(Protocol):
     required_patterns: List[str]
     layer_violations: List[str]
 
-    def check_dependency_compliance(self, imports: List[str]) -> List[str]:
+    async def check_dependency_compliance(self, imports: List[str]) -> List[str]:
         """Check dependency compliance, return violations."""
         ...
 
-    def validate_layer_separation(
+    async def validate_layer_separation(
         self, file_path: str, imports: List[str]
     ) -> List[str]:
         """Validate architectural layer separation."""
         ...
 
 
+@runtime_checkable
 class ProtocolComplianceReport(Protocol):
     """Protocol for comprehensive compliance report."""
 
@@ -108,15 +113,16 @@ class ProtocolComplianceReport(Protocol):
     critical_violations: int
     recommendations: List[str]
 
-    def get_compliance_summary(self) -> str:
+    async def get_compliance_summary(self) -> str:
         """Get overall compliance summary."""
         ...
 
-    def get_priority_fixes(self) -> List[ProtocolComplianceViolation]:
+    async def get_priority_fixes(self) -> List[ProtocolComplianceViolation]:
         """Get violations that should be fixed first."""
         ...
 
 
+@runtime_checkable
 class ProtocolComplianceValidator(Protocol):
     """
     Protocol interface for compliance validation in ONEX systems.
@@ -126,13 +132,13 @@ class ProtocolComplianceValidator(Protocol):
     and ecosystem requirements.
     """
 
-    onex_standards: ProtocolONEXStandards
-    architecture_rules: ProtocolArchitectureCompliance
+    onex_standards: "ProtocolONEXStandards"
+    architecture_rules: "ProtocolArchitectureCompliance"
     custom_rules: List[ProtocolComplianceRule]
     strict_mode: bool
 
-    def validate_file_compliance(
-        self, file_path: str, content: Optional[str] = None
+    async def validate_file_compliance(
+        self, file_path: str, content: str | None = None
     ) -> ProtocolComplianceReport:
         """
         Validate compliance of a single file.
@@ -146,8 +152,8 @@ class ProtocolComplianceValidator(Protocol):
         """
         ...
 
-    def validate_repository_compliance(
-        self, repository_path: str, file_patterns: Optional[List[str]] = None
+    async def validate_repository_compliance(
+        self, repository_path: str, file_patterns: List[str] | None = None
     ) -> List[ProtocolComplianceReport]:
         """
         Validate compliance of entire repository.
@@ -161,8 +167,8 @@ class ProtocolComplianceValidator(Protocol):
         """
         ...
 
-    def validate_onex_naming(
-        self, file_path: str, content: Optional[str] = None
+    async def validate_onex_naming(
+        self, file_path: str, content: str | None = None
     ) -> List[ProtocolComplianceViolation]:
         """
         Validate ONEX naming conventions.
@@ -176,8 +182,8 @@ class ProtocolComplianceValidator(Protocol):
         """
         ...
 
-    def validate_architecture_compliance(
-        self, file_path: str, content: Optional[str] = None
+    async def validate_architecture_compliance(
+        self, file_path: str, content: str | None = None
     ) -> List[ProtocolComplianceViolation]:
         """
         Validate architectural compliance.
@@ -191,7 +197,7 @@ class ProtocolComplianceValidator(Protocol):
         """
         ...
 
-    def validate_directory_structure(
+    async def validate_directory_structure(
         self, repository_path: str
     ) -> List[ProtocolComplianceViolation]:
         """
@@ -205,7 +211,7 @@ class ProtocolComplianceValidator(Protocol):
         """
         ...
 
-    def validate_dependency_compliance(
+    async def validate_dependency_compliance(
         self, file_path: str, imports: List[str]
     ) -> List[ProtocolComplianceViolation]:
         """
@@ -234,7 +240,7 @@ class ProtocolComplianceValidator(Protocol):
         """
         ...
 
-    def add_custom_rule(self, rule: ProtocolComplianceRule) -> None:
+    def add_custom_rule(self, rule: "ProtocolComplianceRule") -> None:
         """
         Add custom compliance rule.
 
@@ -243,7 +249,7 @@ class ProtocolComplianceValidator(Protocol):
         """
         ...
 
-    def configure_onex_standards(self, standards: ProtocolONEXStandards) -> None:
+    def configure_onex_standards(self, standards: "ProtocolONEXStandards") -> None:
         """
         Configure ONEX standards.
 
@@ -252,7 +258,9 @@ class ProtocolComplianceValidator(Protocol):
         """
         ...
 
-    def get_compliance_summary(self, reports: List[ProtocolComplianceReport]) -> str:
+    async def get_compliance_summary(
+        self, reports: List[ProtocolComplianceReport]
+    ) -> str:
         """
         Generate compliance summary from reports.
 

@@ -56,12 +56,6 @@ from .protocol_quality_validator import (
 
 # Core validation protocols (existing)
 from .protocol_validation import (
-    ValidationError,  # Type alias for backward compatibility
-)
-from .protocol_validation import (
-    ValidationResult,  # Type alias for backward compatibility
-)
-from .protocol_validation import (
     ProtocolValidationDecorator,
     ProtocolValidationError,
     ProtocolValidationResult,
@@ -101,6 +95,4 @@ __all__ = [
     "ProtocolValidationSummary",
     "ProtocolValidationWorkflow",
     "ProtocolValidator",
-    "ValidationError",
-    "ValidationResult",
 ]

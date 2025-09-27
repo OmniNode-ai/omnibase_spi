@@ -26,24 +26,21 @@ if TYPE_CHECKING:
 
     from .protocol_memory_base import (
         LiteralAnalysisType,
+        ProtocolAggregatedData,
         ProtocolAggregationCriteria,
         ProtocolAnalysisParameters,
         ProtocolCoordinationMetadata,
         ProtocolMemoryMetadata,
-        ProtocolMemoryRecordData,
         ProtocolSearchFilters,
         ProtocolWorkflowConfiguration,
     )
-
-
-# === BASE REQUEST PROTOCOLS ===
 
 
 @runtime_checkable
 class ProtocolMemoryRequest(Protocol):
     """Base protocol for all memory operation requests."""
 
-    correlation_id: Optional[UUID]
+    correlation_id: UUID | None
     request_timestamp: "datetime"
 
     @property
@@ -52,21 +49,18 @@ class ProtocolMemoryRequest(Protocol):
         ...
 
 
-# === EFFECT NODE REQUEST PROTOCOLS ===
-
-
 @runtime_checkable
 class ProtocolMemoryStoreRequest(ProtocolMemoryRequest, Protocol):
     """Protocol for memory storage requests."""
 
     content: str
     content_type: str
-    access_level: str  # LiteralMemoryAccessLevel from base
+    access_level: str
     source_agent: str
-    expires_at: Optional["datetime"]
+    expires_at: "datetime | None"
 
     @property
-    def metadata(self) -> Optional["ProtocolMemoryMetadata"]:
+    def metadata(self) -> "ProtocolMemoryMetadata | None":
         """Additional metadata for the memory."""
         ...
 
@@ -77,7 +71,7 @@ class ProtocolMemoryRetrieveRequest(ProtocolMemoryRequest, Protocol):
 
     memory_id: UUID
     include_related: bool
-    timeout_seconds: Optional[float]
+    timeout_seconds: float | None
 
     @property
     def related_depth(self) -> int:
@@ -90,8 +84,8 @@ class ProtocolMemoryListRequest(ProtocolMemoryRequest, Protocol):
     """Protocol for paginated memory list requests."""
 
     pagination: "ProtocolPaginationRequest"
-    filters: Optional["ProtocolSearchFilters"]
-    timeout_seconds: Optional[float]
+    filters: "ProtocolSearchFilters | None"
+    timeout_seconds: float | None
 
     @property
     def include_content(self) -> bool:
@@ -103,10 +97,10 @@ class ProtocolMemoryListRequest(ProtocolMemoryRequest, Protocol):
 class ProtocolBatchMemoryStoreRequest(ProtocolMemoryRequest, Protocol):
     """Protocol for batch memory storage requests."""
 
-    memory_records: list["ProtocolMemoryRecordData"]
+    memory_records: list["ProtocolAggregatedData"]
     batch_size: int
     fail_on_first_error: bool
-    timeout_seconds: Optional[float]
+    timeout_seconds: float | None
 
     @property
     def transaction_isolation(self) -> str:
@@ -126,15 +120,12 @@ class ProtocolBatchMemoryRetrieveRequest(ProtocolMemoryRequest, Protocol):
     memory_ids: list[UUID]
     include_related: bool
     fail_on_missing: bool
-    timeout_seconds: Optional[float]
+    timeout_seconds: float | None
 
     @property
     def related_depth(self) -> int:
         """Depth of related memory traversal for each record."""
         ...
-
-
-# === COMPUTE NODE REQUEST PROTOCOLS ===
 
 
 @runtime_checkable
@@ -144,11 +135,11 @@ class ProtocolSemanticSearchRequest(ProtocolMemoryRequest, Protocol):
     query: str
     limit: int
     similarity_threshold: float
-    filters: Optional["ProtocolSearchFilters"]
-    timeout_seconds: Optional[float]
+    filters: "ProtocolSearchFilters | None"
+    timeout_seconds: float | None
 
     @property
-    def embedding_model(self) -> Optional[str]:
+    def embedding_model(self) -> str | None:
         """Specific embedding model for query."""
         ...
 
@@ -159,7 +150,7 @@ class ProtocolPatternAnalysisRequest(ProtocolMemoryRequest, Protocol):
 
     data_source: str
     analysis_type: "LiteralAnalysisType"
-    timeout_seconds: Optional[float]
+    timeout_seconds: float | None
 
     @property
     def analysis_parameters(self) -> "ProtocolAnalysisParameters":
@@ -172,11 +163,8 @@ class ProtocolEmbeddingRequest(ProtocolMemoryRequest, Protocol):
     """Protocol for embedding generation requests."""
 
     text: str
-    algorithm: Optional[str]
-    timeout_seconds: Optional[float]
-
-
-# === REDUCER NODE REQUEST PROTOCOLS ===
+    algorithm: str | None
+    timeout_seconds: float | None
 
 
 @runtime_checkable
@@ -185,7 +173,7 @@ class ProtocolConsolidationRequest(ProtocolMemoryRequest, Protocol):
 
     memory_ids: list[UUID]
     consolidation_strategy: str
-    timeout_seconds: Optional[float]
+    timeout_seconds: float | None
 
 
 @runtime_checkable
@@ -193,12 +181,9 @@ class ProtocolAggregationRequest(ProtocolMemoryRequest, Protocol):
     """Protocol for memory aggregation requests."""
 
     aggregation_criteria: "ProtocolAggregationCriteria"
-    time_window_start: Optional["datetime"]
-    time_window_end: Optional["datetime"]
-    timeout_seconds: Optional[float]
-
-
-# === ORCHESTRATOR NODE REQUEST PROTOCOLS ===
+    time_window_start: "datetime | None"
+    time_window_end: "datetime | None"
+    timeout_seconds: float | None
 
 
 @runtime_checkable
@@ -207,10 +192,9 @@ class ProtocolWorkflowExecutionRequest(ProtocolMemoryRequest, Protocol):
 
     workflow_type: str
     workflow_configuration: "ProtocolWorkflowConfiguration"
-    timeout_seconds: Optional[float]
+    timeout_seconds: float | None
 
-    @property
-    def target_agents(self) -> list[UUID]:
+    async def get_target_agents(self) -> list[UUID]:
         """Agents to coordinate in workflow."""
         ...
 
@@ -221,15 +205,12 @@ class ProtocolAgentCoordinationRequest(ProtocolMemoryRequest, Protocol):
 
     agent_ids: list[UUID]
     coordination_task: str
-    timeout_seconds: Optional[float]
+    timeout_seconds: float | None
 
     @property
     def coordination_metadata(self) -> "ProtocolCoordinationMetadata":
         """Coordination task metadata."""
         ...
-
-
-# === PAGINATION REQUEST PROTOCOLS ===
 
 
 @runtime_checkable
@@ -238,10 +219,10 @@ class ProtocolPaginationRequest(Protocol):
 
     limit: int
     offset: int
-    cursor: Optional[str]
+    cursor: str | None
 
     @property
-    def sort_by(self) -> Optional[str]:
+    def sort_by(self) -> str | None:
         """Field to sort results by."""
         ...
 
@@ -251,26 +232,20 @@ class ProtocolPaginationRequest(Protocol):
         ...
 
 
-# === METRICS REQUEST PROTOCOLS ===
-
-
 @runtime_checkable
 class ProtocolMemoryMetricsRequest(ProtocolMemoryRequest, Protocol):
     """Protocol for metrics collection requests."""
 
     metric_types: list[str]
-    time_window_start: Optional["datetime"]
-    time_window_end: Optional["datetime"]
+    time_window_start: "datetime | None"
+    time_window_end: "datetime | None"
     aggregation_level: str
-    timeout_seconds: Optional[float]
+    timeout_seconds: float | None
 
     @property
     def include_detailed_breakdown(self) -> bool:
         """Whether to include detailed metric breakdowns."""
         ...
-
-
-# === STREAMING REQUEST PROTOCOLS ===
 
 
 @runtime_checkable
@@ -279,7 +254,7 @@ class ProtocolStreamingMemoryRequest(ProtocolMemoryRequest, Protocol):
 
     stream_type: str
     chunk_size: int
-    timeout_seconds: Optional[float]
+    timeout_seconds: float | None
 
     @property
     def compression_enabled(self) -> bool:
@@ -295,6 +270,6 @@ class ProtocolStreamingRetrieveRequest(ProtocolStreamingMemoryRequest, Protocol)
     include_metadata: bool
 
     @property
-    def max_content_size(self) -> Optional[int]:
+    def max_content_size(self) -> int | None:
         """Maximum content size per memory record."""
         ...

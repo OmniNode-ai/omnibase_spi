@@ -13,21 +13,21 @@ Key Features:
     - Workflow isolation using {workflowType, instanceId} pattern
     - Multi-subsystem MCP tool coordination and discovery
     - Distributed event bus with pluggable backend adapters
-    - LAZY LOADING: Protocols loaded only when accessed for optimal performance
+    - LAZY LOADING: "Protocols" loaded only when accessed for optimal performance
 
 Usage Examples:
     # Import specific protocols from their domains (RECOMMENDED - fastest)
     from omnibase_spi.protocols.core import ProtocolLogger, ProtocolCacheService
     from omnibase_spi.protocols.workflow_orchestration import ProtocolWorkflowEventBus
     from omnibase_spi.protocols.mcp import ProtocolMCPRegistry
-    
+
     # Convenience imports from protocols module (all protocols)
     from omnibase_spi.protocols import (
         ProtocolLogger,
         ProtocolWorkflowEventBus,
         ProtocolMCPRegistry
     )
-    
+
     # Type definitions (consolidated at types level)
     from omnibase_spi.protocols.types import (
         LogLevel,
@@ -35,7 +35,7 @@ Usage Examples:
         MCPToolType,
         EventData
     )
-    
+
     # Root-level convenience (LAZY LOADED - optimal performance)
     from omnibase_spi import (
         ProtocolLogger,              # Core logging
@@ -221,10 +221,7 @@ if TYPE_CHECKING:
         ProtocolNodeRegistry,
         ProtocolWorkflowReducer,
     )
-    from omnibase_spi.protocols.event_bus import (
-        ProtocolEventBus,
-        ProtocolEventBusAdapter,
-    )
+    from omnibase_spi.protocols.event_bus import ProtocolEventBus
     from omnibase_spi.protocols.mcp import (
         ProtocolMCPRegistry,
         ProtocolMCPSubsystemClient,

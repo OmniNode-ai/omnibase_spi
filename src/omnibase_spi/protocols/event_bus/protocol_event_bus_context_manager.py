@@ -7,14 +7,18 @@ Abstracts lifecycle management for event bus resources (e.g., Kafka, RedPanda).
 
 from typing import TYPE_CHECKING, Protocol, TypeVar, Union, runtime_checkable
 
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.event_bus.protocol_event_bus import ProtocolEventBus
+# Runtime import needed for forward reference in method signature
+from omnibase_spi.protocols.event_bus.protocol_event_bus import ProtocolEventBus
 
-TEventBus = TypeVar("TEventBus", bound="ProtocolEventBus", covariant=True)
+if TYPE_CHECKING:
+    # No types needed here currently
+    pass
+
+TEventBus = TypeVar("TEventBus", bound=ProtocolEventBus, covariant=True)
 
 
 @runtime_checkable
-class ProtocolEventBusContextManager(Protocol[TEventBus]):
+class ProtocolEventBusContextManager(Protocol):
     """
     Protocol for async context managers that yield a ProtocolEventBus-compatible object.
 
@@ -48,7 +52,7 @@ class ProtocolEventBusContextManager(Protocol[TEventBus]):
         ```
     """
 
-    async def __aenter__(self) -> TEventBus:
+    async def __aenter__(self) -> ProtocolEventBus:
         """
         Enter async context and return configured event bus instance.
 
@@ -64,8 +68,8 @@ class ProtocolEventBusContextManager(Protocol[TEventBus]):
 
     async def __aexit__(
         self,
-        exc_type: Union[type[BaseException], None],
-        exc_val: Union[BaseException, None],
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
         exc_tb: object,
     ) -> None:
         """

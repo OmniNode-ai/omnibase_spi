@@ -5,7 +5,7 @@ These protocols extend the base node registry with workflow-specific
 node discovery, capability management, and task scheduling support.
 """
 
-from typing import Any, Optional, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Optional, Protocol, runtime_checkable
 from uuid import UUID
 
 from omnibase_spi.protocols.core.protocol_node_registry import ProtocolNodeRegistry
@@ -18,6 +18,9 @@ from omnibase_spi.protocols.types.protocol_workflow_orchestration_types import (
     LiteralTaskType,
     ProtocolTaskConfiguration,
 )
+
+if TYPE_CHECKING:
+    pass
 
 
 @runtime_checkable
@@ -49,19 +52,16 @@ class ProtocolWorkflowNodeInfo(Protocol):
     current workload, and task execution metrics.
     """
 
-    # Base node information
     node_id: str
     node_type: LiteralNodeType
     node_name: str
     environment: str
     group: str
     version: str
-    health_status: LiteralHealthStatus
+    health_status: "LiteralHealthStatus"
     endpoint: str
     metadata: dict[str, Any]
-
-    # Workflow-specific information
-    workflow_capabilities: list[ProtocolWorkflowNodeCapability]
+    workflow_capabilities: list["ProtocolWorkflowNodeCapability"]
     current_workload: dict[str, Any]
     max_concurrent_tasks: int
     current_task_count: int
@@ -87,7 +87,7 @@ class ProtocolTaskSchedulingCriteria(Protocol):
     resource_requirements: dict[str, Any]
     affinity_rules: dict[str, Any]
     anti_affinity_rules: dict[str, Any]
-    geographic_constraints: Optional[dict[str, Any]]
+    geographic_constraints: dict[str, Any] | None
     priority: LiteralTaskPriority
     timeout_tolerance: int
 
@@ -101,12 +101,12 @@ class ProtocolNodeSchedulingResult(Protocol):
     selected nodes, scheduling rationale, and fallback options.
     """
 
-    selected_nodes: list[ProtocolWorkflowNodeInfo]
+    selected_nodes: list["ProtocolWorkflowNodeInfo"]
     scheduling_score: float
     scheduling_rationale: str
-    fallback_nodes: list[ProtocolWorkflowNodeInfo]
+    fallback_nodes: list["ProtocolWorkflowNodeInfo"]
     resource_allocation: dict[str, Any]
-    estimated_completion_time: Optional[float]
+    estimated_completion_time: float | None
     constraints_satisfied: dict[str, bool]
 
 
@@ -124,17 +124,13 @@ class ProtocolWorkflowNodeRegistry(Protocol):
 
     """
 
-    # Base registry access
     @property
-    def base_registry(self) -> ProtocolNodeRegistry:
-        """Get underlying node registry."""
-        ...
+    def base_registry(self) -> "ProtocolNodeRegistry": ...
 
-    # Workflow node discovery
     async def discover_nodes_for_task(
         self,
-        task_config: ProtocolTaskConfiguration,
-        scheduling_criteria: ProtocolTaskSchedulingCriteria,
+        task_config: "ProtocolTaskConfiguration",
+        scheduling_criteria: "ProtocolTaskSchedulingCriteria",
     ) -> ProtocolNodeSchedulingResult:
         """
         Discover and rank nodes suitable for task execution.
@@ -151,9 +147,9 @@ class ProtocolWorkflowNodeRegistry(Protocol):
     async def discover_nodes_by_capability(
         self,
         capability_name: str,
-        capability_version: Optional[str],
-        min_availability: Optional[float],
-    ) -> list[ProtocolWorkflowNodeInfo]:
+        capability_version: str | None,
+        min_availability: float | None,
+    ) -> list["ProtocolWorkflowNodeInfo"]:
         """
         Discover nodes by workflow capability.
 
@@ -168,8 +164,8 @@ class ProtocolWorkflowNodeRegistry(Protocol):
         ...
 
     async def discover_nodes_for_workflow_type(
-        self, workflow_type: str, required_node_types: Optional[list[LiteralNodeType]]
-    ) -> list[ProtocolWorkflowNodeInfo]:
+        self, workflow_type: str, required_node_types: list[LiteralNodeType] | None
+    ) -> list["ProtocolWorkflowNodeInfo"]:
         """
         Discover nodes that can execute specific workflow type.
 
@@ -182,10 +178,9 @@ class ProtocolWorkflowNodeRegistry(Protocol):
         """
         ...
 
-    # Node information and capabilities
     async def get_workflow_node_info(
         self, node_id: str
-    ) -> Optional[ProtocolWorkflowNodeInfo]:
+    ) -> ProtocolWorkflowNodeInfo | None:
         """
         Get workflow-specific node information.
 
@@ -198,7 +193,7 @@ class ProtocolWorkflowNodeRegistry(Protocol):
         ...
 
     async def register_workflow_capability(
-        self, node_id: str, capability: ProtocolWorkflowNodeCapability
+        self, node_id: str, capability: "ProtocolWorkflowNodeCapability"
     ) -> bool:
         """
         Register workflow capability for node.
@@ -229,7 +224,7 @@ class ProtocolWorkflowNodeRegistry(Protocol):
 
     async def get_node_capabilities(
         self, node_id: str
-    ) -> list[ProtocolWorkflowNodeCapability]:
+    ) -> list["ProtocolWorkflowNodeCapability"]:
         """
         Get all workflow capabilities for node.
 
@@ -241,7 +236,6 @@ class ProtocolWorkflowNodeRegistry(Protocol):
         """
         ...
 
-    # Workload and resource management
     async def update_node_workload(
         self, node_id: str, task_id: UUID, workload_change: str
     ) -> None:
@@ -279,12 +273,11 @@ class ProtocolWorkflowNodeRegistry(Protocol):
         """
         ...
 
-    # Scheduling and load balancing
     async def calculate_scheduling_score(
         self,
-        node_info: ProtocolWorkflowNodeInfo,
-        task_config: ProtocolTaskConfiguration,
-        criteria: ProtocolTaskSchedulingCriteria,
+        node_info: "ProtocolWorkflowNodeInfo",
+        task_config: "ProtocolTaskConfiguration",
+        criteria: "ProtocolTaskSchedulingCriteria",
     ) -> float:
         """
         Calculate scheduling score for node and task.
@@ -333,7 +326,6 @@ class ProtocolWorkflowNodeRegistry(Protocol):
         """
         ...
 
-    # Performance and metrics
     async def record_task_execution_metrics(
         self, node_id: str, task_id: UUID, execution_metrics: dict[str, Any]
     ) -> None:
@@ -350,7 +342,7 @@ class ProtocolWorkflowNodeRegistry(Protocol):
     async def get_node_performance_history(
         self,
         node_id: str,
-        task_type: Optional[LiteralTaskType],
+        task_type: "LiteralTaskType | None",
         time_window_seconds: int,
     ) -> dict[str, Any]:
         """
@@ -366,12 +358,8 @@ class ProtocolWorkflowNodeRegistry(Protocol):
         """
         ...
 
-    # Health and availability
     async def update_node_availability(
-        self,
-        node_id: str,
-        availability_status: str,
-        metadata: Optional[dict[str, Any]],
+        self, node_id: str, availability_status: str, metadata: dict[str, Any] | None
     ) -> bool:
         """
         Update node availability status.
@@ -387,7 +375,7 @@ class ProtocolWorkflowNodeRegistry(Protocol):
         ...
 
     async def get_cluster_health_summary(
-        self, workflow_type: Optional[str], node_group: Optional[str]
+        self, workflow_type: str | None, node_group: str | None
     ) -> dict[str, Any]:
         """
         Get cluster health summary for workflow execution.

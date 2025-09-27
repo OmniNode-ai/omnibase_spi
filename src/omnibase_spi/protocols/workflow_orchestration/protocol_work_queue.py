@@ -7,9 +7,12 @@ assignment, processing, and status synchronization.
 """
 
 from collections.abc import AsyncIterator
-from typing import Any, Literal, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Literal, Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import ContextValue
+
+if TYPE_CHECKING:
+    pass
 
 # Work queue priority levels
 LiteralWorkQueuePriority = Literal["urgent", "high", "normal", "low", "deferred"]
@@ -141,7 +144,7 @@ class ProtocolWorkQueue(Protocol):
     async def complete_ticket(
         self,
         ticket_id: str,
-        result_data: dict[str, ContextValue],
+        result_data: dict[str, "ContextValue"],
     ) -> bool:
         """
         Mark a work ticket as completed with result data.
@@ -232,7 +235,7 @@ class ProtocolWorkQueue(Protocol):
     async def get_available_tickets(
         self,
         agent_capabilities: list[str] | None = None,
-        max_priority: LiteralWorkQueuePriority | None = None,
+        max_priority: "LiteralWorkQueuePriority | None" = None,
     ) -> list[Any]:
         """
         Get tickets available for assignment based on criteria.
@@ -406,7 +409,7 @@ class ProtocolWorkQueue(Protocol):
 
         ...
 
-    async def get_assignment_strategy(self) -> LiteralAssignmentStrategy:
+    async def get_assignment_strategy(self) -> "LiteralAssignmentStrategy":
         """
         Get the current work assignment strategy.
 
@@ -470,7 +473,7 @@ class ProtocolWorkQueue(Protocol):
     async def create_ticket_checkpoint(
         self,
         ticket_id: str,
-        checkpoint_data: dict[str, ContextValue],
+        checkpoint_data: dict[str, "ContextValue"],
     ) -> str:
         """
         Create a checkpoint for work in progress.

@@ -1,33 +1,8 @@
-# === OmniNode:Metadata ===
-# author: OmniNode Team
-# copyright: OmniNode.ai
-# created_at: '2025-08-01T12:00:00.000000'
-# description: Protocol for ONEX node implementations
-# entrypoint: python://protocol_onex_node
-# hash: auto-generated
-# last_modified_at: '2025-08-01T12:00:00.000000'
-# lifecycle: active
-# meta_type: protocol
-# metadata_version: 0.1.0
-# name: protocol_onex_node.py
-# namespace: python://omnibase_spi.protocol.protocol_onex_node
-# owner: OmniNode Team
-# protocol_version: 0.1.0
-# runtime_language_hint: python>=3.11
-# schema_version: 0.1.0
-# state_contract: state_contract://default
-# tools: null
-# uuid: auto-generated
-# version: 1.0.0
-# === /OmniNode:Metadata ===
-
-
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.core.protocol_node_configuration import (
-        ProtocolNodeConfiguration,
-    )
+from omnibase_spi.protocols.core.protocol_node_configuration import (
+    ProtocolNodeConfiguration,
+)
 
 
 @runtime_checkable

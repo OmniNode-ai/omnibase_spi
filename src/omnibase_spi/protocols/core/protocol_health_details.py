@@ -8,8 +8,7 @@ Complements existing health monitoring protocols with service-specific logic.
 
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.protocol_core_types import LiteralHealthStatus
+from omnibase_spi.protocols.types.protocol_core_types import LiteralHealthStatus
 
 
 @runtime_checkable
@@ -40,7 +39,7 @@ class ProtocolHealthDetails(Protocol):
             postgres_last_error: str | None
             max_connections: int | None
 
-            def get_health_status(self) -> LiteralHealthStatus:
+            def get_health_status(self) -> "LiteralHealthStatus":
                 if self.postgres_last_error:
                     return "unhealthy"
                 if self.postgres_connection_count and self.max_connections:
@@ -60,7 +59,7 @@ class ProtocolHealthDetails(Protocol):
 
     Integration with Health Monitoring:
         ```python
-        def create_health_check(details: ProtocolHealthDetails) -> ProtocolHealthCheck:
+        async def create_health_check(details: "ProtocolHealthDetails") -> ProtocolHealthCheck:
             return HealthCheckImpl(
                 service_name=details.__class__.__name__,
                 overall_status=details.get_health_status(),

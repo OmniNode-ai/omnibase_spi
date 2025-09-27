@@ -132,8 +132,12 @@ from omnibase_spi.protocols.types.protocol_core_types import (
     ProtocolSystemEvent,
     ProtocolTraceSpan,
     ProtocolValidatable,
-    ProtocolValidationResult,
     ProtocolVersionInfo,
+)
+
+# Validation types
+from omnibase_spi.protocols.validation.protocol_validation import (
+    ProtocolValidationResult,
 )
 
 # Disambiguation aliases for service types to avoid naming conflicts
@@ -146,10 +150,10 @@ from omnibase_spi.protocols.types.protocol_discovery_types import (
     CapabilityValue,
     LiteralDiscoveryStatus,
     LiteralHandlerStatus,
+    ProtocolDiscoveryNodeInfo,
     ProtocolDiscoveryQuery,
     ProtocolDiscoveryResult,
     ProtocolHandlerCapability,
-    ProtocolHandlerInfo,
     ProtocolHandlerRegistration,
 )
 
@@ -158,13 +162,19 @@ from omnibase_spi.protocols.types.protocol_event_bus_types import (
     EventStatus,
     LiteralAuthStatus,
     LiteralEventPriority,
+    MessageKey,
+    ProtocolCompletionData,
     ProtocolEvent,
+    ProtocolEventBusConnectionCredentials,
     ProtocolEventData,
+    ProtocolEventHeaders,
+    ProtocolEventMessage,
     ProtocolEventResult,
     ProtocolEventStringData,
     ProtocolEventStringDictData,
     ProtocolEventStringListData,
     ProtocolEventSubscription,
+    ProtocolOnexEvent,
     ProtocolSecurityContext,
 )
 
@@ -305,8 +315,13 @@ __all__ = [
     "ProtocolErrorContext",
     "ProtocolErrorInfo",
     "ProtocolErrorResult",
+    "MessageKey",
+    "ProtocolCompletionData",
     "ProtocolEvent",
+    "ProtocolEventBusConnectionCredentials",
     "ProtocolEventData",
+    "ProtocolEventHeaders",
+    "ProtocolEventMessage",
     "ProtocolEventStringData",
     "ProtocolEventStringListData",
     "ProtocolEventStringDictData",
@@ -314,6 +329,7 @@ __all__ = [
     "ProtocolEventResult",
     "ProtocolEventStream",
     "ProtocolEventSubscription",
+    "ProtocolOnexEvent",
     "ProtocolExecutable",
     "ProtocolExtractedBlock",
     "ProtocolBinaryFileContent",
@@ -326,7 +342,7 @@ __all__ = [
     "ProtocolFileMetadataOperations",
     "ProtocolFileTypeResult",
     "ProtocolHandlerCapability",
-    "ProtocolHandlerInfo",
+    "ProtocolDiscoveryNodeInfo",
     "ProtocolHandlerMatch",
     "ProtocolHandlerMetadata",
     "ProtocolHandlerRegistration",

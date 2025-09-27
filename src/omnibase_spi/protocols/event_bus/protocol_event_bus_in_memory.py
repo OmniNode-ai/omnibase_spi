@@ -7,10 +7,12 @@ additional introspection and debugging capabilities.
 
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
+# Runtime import needed for forward reference in method signature
+from omnibase_spi.protocols.types.protocol_event_bus_types import ProtocolEventMessage
+
 if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.protocol_event_bus_types import (
-        ProtocolEventMessage,
-    )
+    # No types needed here currently
+    pass
 
 
 @runtime_checkable
@@ -32,7 +34,7 @@ class ProtocolEventBusInMemory(Protocol):
         ```python
         # Implementation example (not part of SPI)
         class InMemoryEventBusImpl:
-            def get_event_history(self) -> list:
+            async def get_event_history(self) -> list:
                 # Implementation returns copy of stored history
                 return self._event_history.copy()
 
@@ -40,12 +42,12 @@ class ProtocolEventBusInMemory(Protocol):
                 # Implementation clears stored events
                 self._event_history.clear()
 
-            def get_subscriber_count(self) -> int:
+            async def get_subscriber_count(self) -> int:
                 # Implementation returns active subscriber count
                 return len(self._subscribers)
 
         # Usage in application code
-        in_memory_bus: ProtocolEventBusInMemory = InMemoryEventBusImpl()
+        in_memory_bus: "ProtocolEventBusInMemory" = InMemoryEventBusImpl()
 
         # Check event processing history
         history = in_memory_bus.get_event_history()
@@ -60,7 +62,7 @@ class ProtocolEventBusInMemory(Protocol):
         ```
     """
 
-    def get_event_history(self) -> list["ProtocolEventMessage"]:
+    async def get_event_history(self) -> list[ProtocolEventMessage]:
         """
         Get the history of events processed by this in-memory event bus.
 
@@ -82,7 +84,7 @@ class ProtocolEventBusInMemory(Protocol):
         """
         ...
 
-    def get_subscriber_count(self) -> int:
+    async def get_subscriber_count(self) -> int:
         """
         Get the number of active subscribers.
 

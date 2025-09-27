@@ -44,7 +44,7 @@ Key Protocol Domains:
       * Dynamic node registration and capability discovery
       * Handler discovery for file type processing
 
-    - validation: Protocol validation and compliance (4 protocols)
+    - validation: "Protocol" validation and compliance (4 protocols)
       * Input validation and error reporting
       * Configuration validation and schema checking
 
@@ -80,21 +80,21 @@ Usage Examples:
             \"\"\"Get logger service with lazy initialization.\"\"\"
             if not hasattr(self, '_internal_logger'):
                 # In practice, injected via container or constructor params
-                self._internal_logger: ProtocolLogger | None = None  # Injected dependency
+                self._internal_logger: "ProtocolLogger | None" = None  # Injected dependency
             return self._internal_logger
 
         @property
         def event_bus(self) -> ProtocolWorkflowEventBus | None:
             \"\"\"Get event bus service with lazy initialization.\"\"\"
             if not hasattr(self, '_internal_event_bus'):
-                self._internal_event_bus: ProtocolWorkflowEventBus | None = None  # Injected dependency
+                self._internal_event_bus: "ProtocolWorkflowEventBus | None" = None  # Injected dependency
             return self._internal_event_bus
 
         @property
         def cache(self) -> ProtocolCacheService | None:
             \"\"\"Get cache service with lazy initialization.\"\"\"
             if not hasattr(self, '_internal_cache'):
-                self._internal_cache: ProtocolCacheService | None = None  # Injected dependency
+                self._internal_cache: "ProtocolCacheService | None" = None  # Injected dependency
             return self._internal_cache
 
     # Protocol validation example
@@ -119,7 +119,7 @@ Best Practices:
     - Always use protocol imports rather than concrete implementations
     - Leverage type hints for better IDE support and validation
     - Use isinstance() checks for runtime protocol validation
-    - Follow the protocol naming convention: Protocol[Domain][Purpose]
+    - Follow the protocol naming convention: "Protocol"[Domain][Purpose]
     - Implement all protocol methods in concrete classes
     - Use dependency injection containers for protocol-based services
 """
@@ -188,7 +188,6 @@ from omnibase_spi.protocols.core import (  # Phase 1 additions; Phase 3 addition
     ProtocolLogger,
     ProtocolNodeConfiguration,
     ProtocolNodeConfigurationProvider,
-    ProtocolNodeInfo,
     ProtocolNodeRegistry,
     ProtocolOnexNode,
     ProtocolServiceDiscovery,
@@ -211,7 +210,6 @@ from omnibase_spi.protocols.discovery import (
 from omnibase_spi.protocols.event_bus import (  # Phase 2 additions
     ProtocolAsyncEventBus,
     ProtocolEventBus,
-    ProtocolEventBusAdapter,
     ProtocolEventBusContextManager,
     ProtocolEventBusInMemory,
     ProtocolEventBusService,
@@ -253,8 +251,6 @@ from omnibase_spi.protocols.mcp import (  # Phase 3 additions
 
 # Validation protocols (4 protocols) - Input validation and error handling
 # Provides structured validation with error reporting and compliance checking
-from omnibase_spi.protocols.validation import ValidationError  # Backward compatibility
-from omnibase_spi.protocols.validation import ValidationResult  # Backward compatibility
 from omnibase_spi.protocols.validation import (
     ProtocolValidationDecorator,
     ProtocolValidationError,
@@ -362,7 +358,6 @@ __all__ = [
     "ProtocolNodeConfiguration",
     "ProtocolNodeConfigurationProvider",
     "ProtocolNodeDiscoveryRegistry",
-    "ProtocolNodeInfo",
     "ProtocolNodeRegistry",
     "ProtocolNodeSchedulingResult",
     "ProtocolOnexNode",
@@ -399,8 +394,6 @@ __all__ = [
     "ProtocolLiteralWorkflowStateProjection",
     "ProtocolLiteralWorkflowStateStore",
     "ServiceHealthStatus",
-    "ValidationError",
-    "ValidationResult",
     # Moved protocols
     "LiteralAssignmentStrategy",
     "LiteralWorkQueuePriority",

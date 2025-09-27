@@ -5,17 +5,16 @@ Defines interfaces for health checks, monitoring, and service availability
 across all ONEX services with consistent patterns and observability.
 """
 
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Callable, Protocol, runtime_checkable
 
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.protocol_core_types import (
-        LiteralHealthCheckLevel,
-        LiteralHealthDimension,
-        LiteralHealthStatus,
-        ProtocolHealthCheck,
-        ProtocolHealthMetrics,
-        ProtocolHealthMonitoring,
-    )
+from omnibase_spi.protocols.types.protocol_core_types import (
+    LiteralHealthCheckLevel,
+    LiteralHealthDimension,
+    LiteralHealthStatus,
+    ProtocolHealthCheck,
+    ProtocolHealthMetrics,
+    ProtocolHealthMonitoring,
+)
 
 
 @runtime_checkable
@@ -38,7 +37,7 @@ class ProtocolHealthMonitor(Protocol):
         ```python
         # Implementation example (not part of SPI)
         class HealthMonitorImpl:
-            def perform_health_check(self, level, dimensions):
+            async def perform_health_check(self, level, dimensions):
                 checks = {}
                 metrics = self._collect_metrics()
 
@@ -52,7 +51,7 @@ class ProtocolHealthMonitor(Protocol):
                 return HealthCheck(overall_status=overall, individual_checks=checks)
 
         # Usage in application code
-        health_monitor: ProtocolHealthMonitor = HealthMonitorImpl()
+        health_monitor: "ProtocolHealthMonitor" = HealthMonitorImpl()
 
         health_status = health_monitor.perform_health_check(
             level="standard",
@@ -61,7 +60,7 @@ class ProtocolHealthMonitor(Protocol):
         ```
     """
 
-    def perform_health_check(
+    async def perform_health_check(
         self,
         level: "LiteralHealthCheckLevel",
         dimensions: list["LiteralHealthDimension"],
@@ -108,10 +107,7 @@ class ProtocolHealthMonitor(Protocol):
         """
         ...
 
-    def configure_monitoring(
-        self,
-        config: "ProtocolHealthMonitoring",
-    ) -> bool:
+    def configure_monitoring(self, config: "ProtocolHealthMonitoring") -> bool:
         """
         Configure health monitoring parameters.
 
@@ -140,7 +136,7 @@ class ProtocolHealthMonitor(Protocol):
         """
         ...
 
-    def start_monitoring(self) -> bool:
+    async def start_monitoring(self) -> bool:
         """
         Start automated health monitoring.
 
@@ -153,7 +149,7 @@ class ProtocolHealthMonitor(Protocol):
         """
         ...
 
-    def stop_monitoring(self) -> bool:
+    async def stop_monitoring(self) -> bool:
         """
         Stop automated health monitoring.
 
@@ -179,10 +175,7 @@ class ProtocolHealthMonitor(Protocol):
         """
         ...
 
-    def get_health_history(
-        self,
-        hours_back: int,
-    ) -> list["ProtocolHealthCheck"]:
+    def get_health_history(self, hours_back: int) -> list["ProtocolHealthCheck"]:
         """
         Get historical health check results.
 
@@ -198,10 +191,8 @@ class ProtocolHealthMonitor(Protocol):
         """
         ...
 
-    def register_health_dependency(
-        self,
-        dependency_name: str,
-        dependency_monitor: "ProtocolHealthMonitor",
+    async def register_health_dependency(
+        self, dependency_name: str, dependency_monitor: "ProtocolHealthMonitor"
     ) -> bool:
         """
         Register dependency health monitor.
@@ -219,10 +210,7 @@ class ProtocolHealthMonitor(Protocol):
         """
         ...
 
-    def unregister_health_dependency(
-        self,
-        dependency_name: str,
-    ) -> bool:
+    async def unregister_health_dependency(self, dependency_name: str) -> bool:
         """
         Unregister dependency health monitor.
 
@@ -238,8 +226,7 @@ class ProtocolHealthMonitor(Protocol):
         ...
 
     def get_dependency_health_status(
-        self,
-        dependency_name: str,
+        self, dependency_name: str
     ) -> "LiteralHealthStatus":
         """
         Get health status of specific dependency.
@@ -261,13 +248,14 @@ class ProtocolHealthMonitor(Protocol):
 
     def set_health_alert_callback(
         self,
-        callback: object,
+        callback: Callable[[str, "LiteralHealthStatus", "LiteralHealthStatus"], None],
     ) -> bool:
         """
         Set callback for health status changes.
 
         Args:
-            callback: Function to call on health status changes
+            callback: Function to call on health status changes, receives
+                     (service_name, old_status, new_status) parameters
 
         Returns:
             True if callback was registered successfully

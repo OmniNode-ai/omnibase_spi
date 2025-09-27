@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 MCP Discovery Protocol - ONEX SPI Interface.
 
@@ -8,7 +7,7 @@ Enables dynamic discovery of MCP services and subsystems across the network.
 Domain: MCP service discovery and network coordination
 """
 
-from typing import Any, Callable, Optional, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Callable, Optional, Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import (
     ContextValue,
@@ -31,9 +30,7 @@ class ProtocolMCPServiceDiscovery(Protocol):
     """
 
     async def discover_mcp_services(
-        self,
-        service_type: Optional[LiteralMCPSubsystemType],
-        timeout_seconds: int,
+        self, service_type: LiteralMCPSubsystemType | None, timeout_seconds: int
     ) -> list[ProtocolMCPDiscoveryInfo]:
         """
         Discover available MCP services on the network.
@@ -62,9 +59,7 @@ class ProtocolMCPServiceDiscovery(Protocol):
         ...
 
     async def register_service_for_discovery(
-        self,
-        service_info: ProtocolMCPDiscoveryInfo,
-        ttl_seconds: int,
+        self, service_info: ProtocolMCPDiscoveryInfo, ttl_seconds: int
     ) -> bool:
         """
         Register a service for network discovery.
@@ -92,8 +87,8 @@ class ProtocolMCPServiceDiscovery(Protocol):
 
     async def monitor_service_changes(
         self,
-        callback: Callable[[Any], Any],
-        service_type: Optional[LiteralMCPSubsystemType],
+        callback: Callable[[ProtocolMCPDiscoveryInfo], None],
+        service_type: LiteralMCPSubsystemType | None,
     ) -> bool:
         """
         Monitor for service discovery changes.
@@ -127,13 +122,11 @@ class ProtocolMCPDiscovery(Protocol):
     """
 
     @property
-    def service_discovery(self) -> ProtocolMCPServiceDiscovery:
-        """Get the service discovery backend implementation."""
-        ...
+    def service_discovery(self) -> ProtocolMCPServiceDiscovery: ...
 
     async def discover_available_subsystems(
         self,
-        service_type: Optional[LiteralMCPSubsystemType],
+        service_type: LiteralMCPSubsystemType | None,
         health_check: bool,
         timeout_seconds: int,
     ) -> list[ProtocolMCPSubsystemRegistration]:
@@ -152,8 +145,8 @@ class ProtocolMCPDiscovery(Protocol):
 
     async def discover_available_tools(
         self,
-        service_type: Optional[LiteralMCPSubsystemType],
-        tool_tags: Optional[list[str]],
+        service_type: LiteralMCPSubsystemType | None,
+        tool_tags: list[str] | None,
         health_check: bool,
     ) -> dict[str, list[str]]:
         """
@@ -170,10 +163,8 @@ class ProtocolMCPDiscovery(Protocol):
         ...
 
     async def find_optimal_registry(
-        self,
-        criteria: Optional[dict[str, Any]],
-        timeout_seconds: int,
-    ) -> Optional[ProtocolMCPDiscoveryInfo]:
+        self, criteria: dict[str, str | int | float | bool] | None, timeout_seconds: int
+    ) -> ProtocolMCPDiscoveryInfo | None:
         """
         Find the optimal MCP registry based on selection criteria.
 
@@ -187,10 +178,8 @@ class ProtocolMCPDiscovery(Protocol):
         ...
 
     async def coordinate_multi_registry(
-        self,
-        registries: list[ProtocolMCPDiscoveryInfo],
-        coordination_strategy: str,
-    ) -> dict[str, Any]:
+        self, registries: list[ProtocolMCPDiscoveryInfo], coordination_strategy: str
+    ) -> dict[str, str | int | float | bool]:
         """
         Coordinate multiple MCP registries with specified strategy.
 
@@ -205,9 +194,9 @@ class ProtocolMCPDiscovery(Protocol):
 
     async def monitor_network_changes(
         self,
-        callback: Callable[[Any], Any],
-        service_types: Optional[list[LiteralMCPSubsystemType]],
-        change_types: Optional[list[str]],
+        callback: Callable[[ProtocolMCPDiscoveryInfo], None],
+        service_types: list[LiteralMCPSubsystemType] | None,
+        change_types: list[str] | None,
     ) -> bool:
         """
         Monitor network for service changes and notify via callback.
@@ -222,7 +211,9 @@ class ProtocolMCPDiscovery(Protocol):
         """
         ...
 
-    async def get_network_topology(self, include_health: bool = True) -> dict[str, Any]:
+    async def get_network_topology(
+        self, include_health: bool = True
+    ) -> dict[str, str | int | float | bool | list[str]]:
         """
         Get current network topology of MCP services.
 
@@ -235,10 +226,8 @@ class ProtocolMCPDiscovery(Protocol):
         ...
 
     async def test_service_connectivity(
-        self,
-        service_info: ProtocolMCPDiscoveryInfo,
-        test_tools: bool,
-    ) -> dict[str, Any]:
+        self, service_info: ProtocolMCPDiscoveryInfo, test_tools: bool
+    ) -> dict[str, str | int | float | bool]:
         """
         Test connectivity and functionality of a discovered service.
 
@@ -253,7 +242,7 @@ class ProtocolMCPDiscovery(Protocol):
 
     async def get_service_health_status(
         self, service_name: str
-    ) -> Optional[LiteralHealthStatus]:
+    ) -> LiteralHealthStatus | None:
         """
         Get current health status of a discovered service.
 
@@ -266,9 +255,7 @@ class ProtocolMCPDiscovery(Protocol):
         ...
 
     async def update_service_cache(
-        self,
-        force_refresh: bool,
-        service_type: Optional[LiteralMCPSubsystemType],
+        self, force_refresh: bool, service_type: LiteralMCPSubsystemType | None
     ) -> int:
         """
         Update the local cache of discovered services.
@@ -297,7 +284,7 @@ class ProtocolMCPDiscovery(Protocol):
         """
         ...
 
-    async def get_discovery_statistics(self) -> dict[str, Any]:
+    async def get_discovery_statistics(self) -> dict[str, str | int | float | bool]:
         """
         Get discovery system statistics and metrics.
 

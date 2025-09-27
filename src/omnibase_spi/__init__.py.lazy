@@ -20,22 +20,22 @@ Usage Examples:
     from omnibase_spi.protocols.core import ProtocolLogger, ProtocolCacheService
     from omnibase_spi.protocols.workflow_orchestration import ProtocolWorkflowEventBus
     from omnibase_spi.protocols.mcp import ProtocolMCPRegistry
-    
+
     # Convenience imports from protocols module (all protocols)
     from omnibase_spi.protocols import (
         ProtocolLogger,
         ProtocolWorkflowEventBus,
         ProtocolMCPRegistry
     )
-    
+
     # Type definitions (consolidated at types level)
     from omnibase_spi.protocols.types import (
         LogLevel,
-        WorkflowState, 
+        WorkflowState,
         MCPToolType,
         EventData
     )
-    
+
     # Root-level convenience (LAZY LOADED - optimal performance)
     from omnibase_spi import (
         ProtocolLogger,              # Core logging
@@ -74,28 +74,28 @@ __email__ = "team@omninode.ai"
 _LAZY_PROTOCOL_MAP = {
     # Core protocols - most frequently used
     "ProtocolLogger": "omnibase_spi.protocols.core.protocol_logger",
-    "ProtocolCacheService": "omnibase_spi.protocols.core.protocol_cache_service", 
+    "ProtocolCacheService": "omnibase_spi.protocols.core.protocol_cache_service",
     "ProtocolNodeRegistry": "omnibase_spi.protocols.core.protocol_node_registry",
     "ProtocolWorkflowReducer": "omnibase_spi.protocols.core.protocol_workflow_reducer",
-    
+
     # Event bus protocols
     "ProtocolEventBus": "omnibase_spi.protocols.event_bus.protocol_event_bus",
     "ProtocolEventBusAdapter": "omnibase_spi.protocols.event_bus.protocol_event_bus",
-    
+
     # Workflow orchestration protocols
     "ProtocolWorkflowEventBus": "omnibase_spi.protocols.workflow_orchestration.protocol_workflow_event_bus",
-    "ProtocolWorkflowNodeRegistry": "omnibase_spi.protocols.workflow_orchestration.protocol_workflow_node_registry", 
+    "ProtocolWorkflowNodeRegistry": "omnibase_spi.protocols.workflow_orchestration.protocol_workflow_node_registry",
     "ProtocolEventStore": "omnibase_spi.protocols.workflow_orchestration.protocol_workflow_persistence",
-    
+
     # MCP protocols
     "ProtocolMCPRegistry": "omnibase_spi.protocols.mcp.protocol_mcp_registry",
     "ProtocolMCPSubsystemClient": "omnibase_spi.protocols.mcp.protocol_mcp_subsystem_client",
     "ProtocolMCPToolProxy": "omnibase_spi.protocols.mcp.protocol_mcp_tool_proxy",
-    
+
     # Container protocols
     "ProtocolServiceRegistry": "omnibase_spi.protocols.container.protocol_service_registry",
     "ProtocolArtifactContainer": "omnibase_spi.protocols.container.protocol_artifact_container",
-    
+
     # Validation protocols
     "ProtocolValidator": "omnibase_spi.protocols.validation.protocol_validation",
     "ProtocolValidationResult": "omnibase_spi.protocols.validation.protocol_validation",
@@ -113,37 +113,37 @@ def _get_protocol_count() -> int:
 def _load_protocol(protocol_name: str) -> Any:
     """
     Lazy load a protocol on first access.
-    
+
     Args:
         protocol_name: Name of the protocol to load (e.g., 'ProtocolLogger')
-        
+
     Returns:
         The loaded protocol class
-        
+
     Raises:
         ImportError: If protocol cannot be loaded
         AttributeError: If protocol doesn't exist in the module
     """
     if protocol_name in _protocol_cache:
         return _protocol_cache[protocol_name]
-    
+
     if protocol_name not in _LAZY_PROTOCOL_MAP:
         raise AttributeError(f"Protocol '{protocol_name}' not available at root level")
-    
+
     module_path = _LAZY_PROTOCOL_MAP[protocol_name]
-    
+
     try:
         # Import the module containing the protocol
         module = __import__(module_path, fromlist=[protocol_name])
-        
+
         # Get the protocol class from the module
         protocol_class = getattr(module, protocol_name)
-        
+
         # Cache for future access
         _protocol_cache[protocol_name] = protocol_class
-        
+
         return protocol_class
-        
+
     except ImportError as e:
         raise ImportError(f"Failed to import protocol {protocol_name} from {module_path}: {e}")
     except AttributeError as e:
@@ -153,27 +153,27 @@ def _load_protocol(protocol_name: str) -> Any:
 def __getattr__(name: str) -> Any:
     """
     Module-level __getattr__ for lazy loading protocols.
-    
+
     This function is called when an attribute is not found in the module's namespace.
     It enables lazy loading of protocols, loading them only when first accessed.
-    
+
     Args:
         name: Name of the attribute being accessed
-        
+
     Returns:
         The lazy-loaded protocol or raises AttributeError
-        
+
     Raises:
         AttributeError: If the requested attribute is not a valid protocol
     """
     # Check if this is a protocol that should be lazy loaded
     if name in _LAZY_PROTOCOL_MAP:
         return _load_protocol(name)
-    
+
     # Handle special attributes that should be dynamic
     if name == "__protocol_count__":
         return _get_protocol_count()
-    
+
     # Not a lazy-loadable protocol
     raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
 
@@ -181,18 +181,18 @@ def __getattr__(name: str) -> Any:
 def __dir__():
     """
     Module-level __dir__ to support introspection and IDE completion.
-    
+
     Returns all available attributes including lazy-loaded protocols.
     """
     # Get standard module attributes
     standard_attrs = ["__version__", "__author__", "__email__"]
-    
+
     # Add lazy-loaded protocols
     protocol_attrs = list(_LAZY_PROTOCOL_MAP.keys())
-    
+
     # Add special dynamic attributes
     special_attrs = ["__protocol_count__"]
-    
+
     return sorted(standard_attrs + protocol_attrs + special_attrs)
 
 
@@ -200,12 +200,12 @@ def __dir__():
 __all__ = [
     # Package metadata
     "__version__",
-    "__author__", 
+    "__author__",
     "__email__",
-    
+
     # Dynamic protocol count for documentation
     "__protocol_count__",
-    
+
     # All lazy-loaded protocols (dynamically generated)
     *sorted(_LAZY_PROTOCOL_MAP.keys())
 ]
@@ -214,36 +214,36 @@ __all__ = [
 if TYPE_CHECKING or "pytest" in sys.modules:
     # During type checking or testing, provide the actual imports
     # This ensures type checkers and tests work correctly while maintaining lazy loading at runtime
-    
+
     from omnibase_spi.protocols.core import (
         ProtocolLogger,
-        ProtocolCacheService, 
+        ProtocolCacheService,
         ProtocolNodeRegistry,
         ProtocolWorkflowReducer,
     )
-    
+
     from omnibase_spi.protocols.event_bus import (
         ProtocolEventBus,
         ProtocolEventBusAdapter,
     )
-    
+
     from omnibase_spi.protocols.workflow_orchestration import (
         ProtocolWorkflowEventBus,
         ProtocolWorkflowNodeRegistry,
         ProtocolEventStore,
     )
-    
+
     from omnibase_spi.protocols.mcp import (
         ProtocolMCPRegistry,
         ProtocolMCPSubsystemClient,
         ProtocolMCPToolProxy,
     )
-    
+
     from omnibase_spi.protocols.container import (
         ProtocolServiceRegistry,
         ProtocolArtifactContainer,
     )
-    
+
     from omnibase_spi.protocols.validation import (
         ProtocolValidator,
         ProtocolValidationResult,

@@ -20,42 +20,46 @@ from uuid import UUID
 
 if TYPE_CHECKING:
     from datetime import datetime
-
-
-# === TYPE LITERALS ===
-
-# Memory access levels for security and authorization
 LiteralMemoryAccessLevel = Literal[
     "public", "private", "internal", "restricted", "confidential"
 ]
-
-# Analysis types for memory processing
 LiteralAnalysisType = Literal[
     "standard", "deep", "quick", "semantic", "pattern", "performance"
 ]
-
-# Compression algorithms for memory optimization
 LiteralCompressionAlgorithm = Literal["gzip", "lz4", "zstd", "brotli", "deflate"]
-
-# Error categories for better error handling
 LiteralErrorCategory = Literal["transient", "permanent", "validation", "authorization"]
-
-# Agent status types for workflow coordination
 LiteralAgentStatus = Literal[
     "active", "inactive", "processing", "completed", "failed", "timeout"
 ]
-
-# Workflow execution status types
 LiteralWorkflowStatus = Literal[
     "pending", "running", "completed", "failed", "cancelled", "timeout"
 ]
 
 
-# === CORE MEMORY PROTOCOLS ===
+@runtime_checkable
+class ProtocolKeyValueStore(Protocol):
+    """Base protocol for key-value storage structures with validation."""
+
+    @property
+    def keys(self) -> list[str]:
+        """Available keys in the store."""
+        ...
+
+    async def get_value(self, key: str) -> str | None:
+        """Get value by key."""
+        ...
+
+    def has_key(self, key: str) -> bool:
+        """Check if key exists."""
+        ...
+
+    async def validate_store(self) -> bool:
+        """Validate store completeness and integrity."""
+        ...
 
 
 @runtime_checkable
-class ProtocolMemoryMetadata(Protocol):
+class ProtocolMemoryMetadata(ProtocolKeyValueStore, Protocol):
     """Protocol for memory metadata structures."""
 
     @property
@@ -63,7 +67,7 @@ class ProtocolMemoryMetadata(Protocol):
         """Available metadata keys."""
         ...
 
-    def get_metadata_value(self, key: str) -> Optional[str]:
+    async def get_metadata_value(self, key: str) -> str | None:
         """Get metadata value by key."""
         ...
 
@@ -73,7 +77,7 @@ class ProtocolMemoryMetadata(Protocol):
 
 
 @runtime_checkable
-class ProtocolWorkflowConfiguration(Protocol):
+class ProtocolWorkflowConfiguration(ProtocolKeyValueStore, Protocol):
     """Protocol for workflow configuration structures."""
 
     @property
@@ -81,17 +85,17 @@ class ProtocolWorkflowConfiguration(Protocol):
         """Available configuration keys."""
         ...
 
-    def get_configuration_value(self, key: str) -> Optional[str]:
+    async def get_configuration_value(self, key: str) -> str | None:
         """Get configuration value by key."""
         ...
 
-    def validate_configuration(self) -> bool:
+    async def validate_configuration(self) -> bool:
         """Validate configuration completeness."""
         ...
 
 
 @runtime_checkable
-class ProtocolAnalysisParameters(Protocol):
+class ProtocolAnalysisParameters(ProtocolKeyValueStore, Protocol):
     """Protocol for analysis parameter structures."""
 
     @property
@@ -99,17 +103,17 @@ class ProtocolAnalysisParameters(Protocol):
         """Available parameter keys."""
         ...
 
-    def get_parameter_value(self, key: str) -> Optional[str]:
+    async def get_parameter_value(self, key: str) -> str | None:
         """Get parameter value by key."""
         ...
 
-    def validate_parameters(self) -> bool:
+    async def validate_parameters(self) -> bool:
         """Validate parameter completeness."""
         ...
 
 
 @runtime_checkable
-class ProtocolAggregationCriteria(Protocol):
+class ProtocolAggregationCriteria(ProtocolKeyValueStore, Protocol):
     """Protocol for aggregation criteria structures."""
 
     @property
@@ -117,11 +121,11 @@ class ProtocolAggregationCriteria(Protocol):
         """Available criteria keys."""
         ...
 
-    def get_criteria_value(self, key: str) -> Optional[str]:
+    async def get_criteria_value(self, key: str) -> str | None:
         """Get criteria value by key."""
         ...
 
-    def validate_criteria(self) -> bool:
+    async def validate_criteria(self) -> bool:
         """Validate criteria completeness."""
         ...
 
@@ -135,11 +139,11 @@ class ProtocolCoordinationMetadata(Protocol):
         """Available metadata keys."""
         ...
 
-    def get_metadata_value(self, key: str) -> Optional[str]:
+    async def get_metadata_value(self, key: str) -> str | None:
         """Get metadata value by key."""
         ...
 
-    def validate_metadata(self) -> bool:
+    async def validate_metadata(self) -> bool:
         """Validate metadata completeness."""
         ...
 
@@ -153,7 +157,7 @@ class ProtocolAnalysisResults(Protocol):
         """Available result keys."""
         ...
 
-    def get_result_value(self, key: str) -> Optional[str]:
+    async def get_result_value(self, key: str) -> str | None:
         """Get result value by key."""
         ...
 
@@ -171,17 +175,17 @@ class ProtocolAggregatedData(Protocol):
         """Available data keys."""
         ...
 
-    def get_data_value(self, key: str) -> Optional[str]:
+    async def get_data_value(self, key: str) -> str | None:
         """Get data value by key."""
         ...
 
-    def validate_data(self) -> bool:
+    async def validate_data(self) -> bool:
         """Validate data completeness."""
         ...
 
 
 @runtime_checkable
-class ProtocolErrorContext(Protocol):
+class ProtocolMemoryErrorContext(Protocol):
     """Protocol for error context structures."""
 
     @property
@@ -189,7 +193,7 @@ class ProtocolErrorContext(Protocol):
         """Available context keys."""
         ...
 
-    def get_context_value(self, key: str) -> Optional[str]:
+    async def get_context_value(self, key: str) -> str | None:
         """Get context value by key."""
         ...
 
@@ -207,7 +211,7 @@ class ProtocolPageInfo(Protocol):
         """Available info keys."""
         ...
 
-    def get_info_value(self, key: str) -> Optional[str]:
+    async def get_info_value(self, key: str) -> str | None:
         """Get info value by key."""
         ...
 
@@ -225,7 +229,7 @@ class ProtocolCustomMetrics(Protocol):
         """Available metric names."""
         ...
 
-    def get_metric_value(self, name: str) -> Optional[float]:
+    async def get_metric_value(self, name: str) -> float | None:
         """Get metric value by name."""
         ...
 
@@ -243,7 +247,7 @@ class ProtocolAggregationSummary(Protocol):
         """Available summary keys."""
         ...
 
-    def get_summary_value(self, key: str) -> Optional[float]:
+    async def get_summary_value(self, key: str) -> float | None:
         """Get summary value by key."""
         ...
 
@@ -251,21 +255,10 @@ class ProtocolAggregationSummary(Protocol):
         """Calculate total aggregated value."""
         ...
 
+    # CONSOLIDATED: ProtocolMemoryRecordData functionality moved to ProtocolAggregatedData
+    # Use: ProtocolAggregatedData for all memory record data needs
 
-@runtime_checkable
-class ProtocolMemoryRecordData(Protocol):
-    """Protocol for memory record data structures."""
-
-    @property
-    def data_keys(self) -> list[str]:
-        """Available data keys."""
-        ...
-
-    def get_data_value(self, key: str) -> Optional[str]:
-        """Get data value by key."""
-        ...
-
-    def validate_record_data(self) -> bool:
+    async def validate_record_data(self) -> bool:
         """Validate record data completeness."""
         ...
 
@@ -281,10 +274,10 @@ class ProtocolMemoryRecord(Protocol):
     updated_at: "datetime"
     access_level: LiteralMemoryAccessLevel
     source_agent: str
-    expires_at: Optional["datetime"]
+    expires_at: "datetime | None"
 
     @property
-    def embedding(self) -> Optional[list[float]]:
+    def embedding(self) -> list[float] | None:
         """Vector embedding for semantic search."""
         ...
 
@@ -298,12 +291,12 @@ class ProtocolMemoryRecord(Protocol):
 class ProtocolSearchResult(Protocol):
     """Protocol for search result data structure."""
 
-    memory_record: ProtocolMemoryRecord
+    memory_record: "ProtocolMemoryRecord"
     relevance_score: float
     match_type: str
 
     @property
-    def highlighted_content(self) -> Optional[str]:
+    def highlighted_content(self) -> str | None:
         """Content with search term highlights."""
         ...
 
@@ -312,14 +305,14 @@ class ProtocolSearchResult(Protocol):
 class ProtocolSearchFilters(Protocol):
     """Protocol for search filter specifications."""
 
-    content_types: Optional[list[str]]
-    access_levels: Optional[list[str]]
-    source_agents: Optional[list[str]]
-    date_range_start: Optional["datetime"]
-    date_range_end: Optional["datetime"]
+    content_types: list[str] | None
+    access_levels: list[str] | None
+    source_agents: list[str] | None
+    date_range_start: "datetime | None"
+    date_range_end: "datetime | None"
 
     @property
-    def tags(self) -> Optional[list[str]]:
+    def tags(self) -> list[str] | None:
         """Filter tags for search."""
         ...
 
@@ -333,15 +326,15 @@ class ProtocolAgentStatusMap(Protocol):
         """List of agent IDs in the status map."""
         ...
 
-    def get_agent_status(self, agent_id: UUID) -> Optional[str]:
+    async def get_agent_status(self, agent_id: UUID) -> str | None:
         """Get status for a specific agent."""
         ...
 
-    def set_agent_status(self, agent_id: UUID, status: str) -> None:
+    async def set_agent_status(self, agent_id: UUID, status: str) -> None:
         """Set status for a specific agent."""
         ...
 
-    def get_all_statuses(self) -> dict[UUID, str]:
+    async def get_all_statuses(self) -> dict[UUID, str]:
         """Get all agent statuses as a dict."""
         ...
 
@@ -355,7 +348,7 @@ class ProtocolAgentResponseMap(Protocol):
         """List of agents that have responded."""
         ...
 
-    def get_agent_response(self, agent_id: UUID) -> Optional[str]:
+    async def get_agent_response(self, agent_id: UUID) -> str | None:
         """Get response from a specific agent."""
         ...
 
@@ -363,7 +356,7 @@ class ProtocolAgentResponseMap(Protocol):
         """Add response from an agent."""
         ...
 
-    def get_all_responses(self) -> dict[UUID, str]:
+    async def get_all_responses(self) -> dict[UUID, str]:
         """Get all agent responses as a dict."""
         ...
 
@@ -377,7 +370,7 @@ class ProtocolErrorCategoryMap(Protocol):
         """List of error category names."""
         ...
 
-    def get_category_count(self, category: str) -> int:
+    async def get_category_count(self, category: str) -> int:
         """Get count for a specific error category."""
         ...
 
@@ -385,6 +378,6 @@ class ProtocolErrorCategoryMap(Protocol):
         """Increment count for an error category."""
         ...
 
-    def get_all_counts(self) -> dict[str, int]:
+    async def get_all_counts(self) -> dict[str, int]:
         """Get all category counts as a dict."""
         ...

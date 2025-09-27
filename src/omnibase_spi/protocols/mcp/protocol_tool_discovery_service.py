@@ -5,15 +5,13 @@ Defines the interface for tool discovery, instantiation, and registry operations
 for MCP (Model Context Protocol) tool coordination in distributed systems.
 """
 
-from pathlib import Path
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.protocol_core_types import ProtocolMetadata
-    from omnibase_spi.protocols.types.protocol_mcp_types import (
-        ProtocolToolClass,
-        ProtocolToolInstance,
-    )
+from omnibase_spi.protocols.types.protocol_core_types import ProtocolMetadata
+from omnibase_spi.protocols.types.protocol_mcp_types import (
+    ProtocolToolClass,
+    ProtocolToolInstance,
+)
 
 
 @runtime_checkable
@@ -43,22 +41,19 @@ class ProtocolToolDiscoveryService(Protocol):
                 return self.instantiate_tool_with_container(tool_class, registry)
 
         # Usage in application code
-        discovery_service: ProtocolToolDiscoveryService = ToolDiscoveryServiceImpl()
+        discovery_service: "ProtocolToolDiscoveryService" = ToolDiscoveryServiceImpl()
 
         tool = discovery_service.resolve_tool_from_contract(
             metadata={'tool_class': 'MyTool'},
             registry=container,
-            contract_path=Path('/path/to/contract.yaml')
+            contract_path='/path/to/contract.yaml'
         )
         ```
     """
 
     def resolve_tool_from_contract(
-        self,
-        metadata: "ProtocolMetadata",
-        registry: object,
-        contract_path: Path,
-    ) -> "ProtocolToolInstance":
+        self, metadata: ProtocolMetadata, registry: object, contract_path: str
+    ) -> ProtocolToolInstance:
         """
         Resolve and instantiate tool from contract specification.
 
@@ -77,11 +72,9 @@ class ProtocolToolDiscoveryService(Protocol):
         """
         ...
 
-    def discover_tool_class_from_module(
-        self,
-        module_path: str,
-        tool_class_name: str,
-    ) -> "ProtocolToolClass":
+    async def discover_tool_class_from_module(
+        self, module_path: str, tool_class_name: str
+    ) -> ProtocolToolClass:
         """
         Discover tool class from module path.
 
@@ -100,10 +93,8 @@ class ProtocolToolDiscoveryService(Protocol):
         ...
 
     def instantiate_tool_with_container(
-        self,
-        tool_class: "ProtocolToolClass",
-        container: object,
-    ) -> "ProtocolToolInstance":
+        self, tool_class: ProtocolToolClass, container: object
+    ) -> ProtocolToolInstance:
         """
         Instantiate tool with dependency injection container.
 
@@ -122,10 +113,8 @@ class ProtocolToolDiscoveryService(Protocol):
         ...
 
     def resolve_tool_from_registry(
-        self,
-        registry: object,
-        tool_class_name: str,
-    ) -> "ProtocolToolInstance | None":
+        self, registry: object, tool_class_name: str
+    ) -> ProtocolToolInstance | None:
         """
         Resolve tool from registry pattern.
 
@@ -142,10 +131,7 @@ class ProtocolToolDiscoveryService(Protocol):
         """
         ...
 
-    def build_module_path_from_contract(
-        self,
-        contract_path: Path,
-    ) -> str:
+    def build_module_path_from_contract(self, contract_path: str) -> str:
         """
         Build module path from contract file path.
 
@@ -161,10 +147,7 @@ class ProtocolToolDiscoveryService(Protocol):
         """
         ...
 
-    def validate_module_path(
-        self,
-        module_path: str,
-    ) -> bool:
+    async def validate_module_path(self, module_path: str) -> bool:
         """
         Validate module path for security and correctness.
 
@@ -180,10 +163,7 @@ class ProtocolToolDiscoveryService(Protocol):
         """
         ...
 
-    def convert_class_name_to_registry_key(
-        self,
-        class_name: str,
-    ) -> str:
+    def convert_class_name_to_registry_key(self, class_name: str) -> str:
         """
         Convert tool class name to registry key format.
 

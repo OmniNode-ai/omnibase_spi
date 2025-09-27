@@ -40,7 +40,7 @@ from omnibase_core.protocols import ProtocolEventBus
 
 ### 2. NodeBase Consolidation
 - **Removed:** `node_base.py` (legacy implementation)
-- **Removed:** `enhanced_node_base.py` 
+- **Removed:** `enhanced_node_base.py`
 - **Added:** New `node_base.py` with enhanced functionality
 - **Renamed:** `NodeBase` → `EnhancedNodeBase` → `ModelNodeBase`
 

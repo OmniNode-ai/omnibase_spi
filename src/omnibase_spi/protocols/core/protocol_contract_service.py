@@ -5,16 +5,16 @@ Defines the interface for contract loading, parsing, validation, caching,
 and metadata extraction operations following ONEX standards.
 """
 
-from pathlib import Path
 from typing import TYPE_CHECKING, Protocol, Union, runtime_checkable
 
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.protocol_core_types import (
-        ContextValue,
-        ProtocolMetadata,
-        ProtocolSemVer,
-        ProtocolValidationResult,
-    )
+from omnibase_spi.protocols.types.protocol_core_types import (
+    ContextValue,
+    ProtocolMetadata,
+    ProtocolSemVer,
+)
+from omnibase_spi.protocols.validation.protocol_validation import (
+    ProtocolValidationResult,
+)
 
 
 @runtime_checkable
@@ -38,12 +38,12 @@ class ProtocolContractService(Protocol):
         ```python
         # Implementation example (not part of SPI)
         class ContractServiceImpl:
-            def load_contract(self, contract_path: Path) -> dict:
+            async def load_contract(self, contract_path: str) -> dict:
                 with open(contract_path) as f:
                     import yaml
                     return yaml.safe_load(f)
 
-            def validate_contract(self, contract_data: dict) -> dict:
+            async def validate_contract(self, contract_data: dict) -> dict:
                 # Validate contract structure and content
                 is_valid = self._validate_structure(contract_data)
                 return {
@@ -53,14 +53,14 @@ class ProtocolContractService(Protocol):
                 }
 
         # Usage in application code
-        contract_service: ProtocolContractService = ContractServiceImpl()
+        contract_service: "ProtocolContractService" = ContractServiceImpl()
 
-        contract = contract_service.load_contract(Path('/path/to/contract.yaml'))
+        contract = contract_service.load_contract('/path/to/contract.yaml')
         validation_result = contract_service.validate_contract(contract)
         ```
     """
 
-    def load_contract(self, contract_path: Path) -> "ProtocolMetadata":
+    async def load_contract(self, contract_path: str) -> "ProtocolMetadata":
         """
         Load and parse a contract from file system.
 
@@ -77,7 +77,7 @@ class ProtocolContractService(Protocol):
         """
         ...
 
-    def validate_contract(
+    async def validate_contract(
         self, contract_data: "ProtocolMetadata"
     ) -> "ProtocolValidationResult":
         """
@@ -95,9 +95,8 @@ class ProtocolContractService(Protocol):
         """
         ...
 
-    def get_cached_contract(
-        self,
-        contract_path: Path,
+    async def get_cached_contract(
+        self, contract_path: str
     ) -> "ProtocolMetadata | None":
         """
         Retrieve contract from cache if available.
@@ -115,9 +114,7 @@ class ProtocolContractService(Protocol):
         ...
 
     def cache_contract(
-        self,
-        contract_path: Path,
-        contract_data: "ProtocolMetadata",
+        self, contract_path: str, contract_data: "ProtocolMetadata"
     ) -> bool:
         """
         Cache a contract for future retrieval.
@@ -135,7 +132,7 @@ class ProtocolContractService(Protocol):
         """
         ...
 
-    def clear_cache(self, contract_path: Union[Path, None] = None) -> int:
+    def clear_cache(self, contract_path: str | None = None) -> int:
         """
         Clear contract cache.
 
@@ -182,8 +179,7 @@ class ProtocolContractService(Protocol):
         ...
 
     def extract_dependencies(
-        self,
-        contract_data: "ProtocolMetadata",
+        self, contract_data: "ProtocolMetadata"
     ) -> list[dict[str, "ContextValue"]]:
         """
         Extract dependency list from contract.
@@ -231,7 +227,7 @@ class ProtocolContractService(Protocol):
         """
         ...
 
-    def get_cache_statistics(self) -> dict[str, object]:
+    async def get_cache_statistics(self) -> dict[str, object]:
         """
         Get contract cache statistics for monitoring.
 
@@ -244,7 +240,7 @@ class ProtocolContractService(Protocol):
         """
         ...
 
-    def health_check(self) -> dict[str, object]:
+    async def health_check(self) -> dict[str, object]:
         """
         Perform health check on contract service.
 

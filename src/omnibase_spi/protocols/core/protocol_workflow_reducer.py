@@ -26,6 +26,7 @@ class ProtocolWorkflow(Protocol):
         ...
 
 
+@runtime_checkable
 class ProtocolWorkflowReducer(Protocol):
     """
     Enhanced reducer protocol with workflow support.
@@ -48,14 +49,14 @@ class ProtocolWorkflowReducer(Protocol):
                     "last_activity": None
                 }
 
-            def dispatch(self, state: ProtocolState, action: ProtocolAction) -> ProtocolState:
+            def dispatch(self, state: "ProtocolState", action: "ProtocolAction") -> ProtocolState:
                 # Synchronous state transitions
                 if action["type"] == "INCREMENT_SESSION":
                     return {**state, "session_count": state["session_count"] + 1}
                 return state
 
-            async def dispatch_async(self, state: ProtocolState,
-                                   action: ProtocolAction) -> ProtocolNodeResult:
+            async def dispatch_async(self, state: "ProtocolState",
+                                   action: "ProtocolAction") -> ProtocolNodeResult:
                 # Asynchronous workflow-based transitions
                 if action["type"] == "CREATE_USER":
                     try:
@@ -81,7 +82,7 @@ class ProtocolWorkflowReducer(Protocol):
                         )
 
         # Usage in application
-        reducer: ProtocolWorkflowReducer = UserWorkflowReducer()
+        reducer: "ProtocolWorkflowReducer" = UserWorkflowReducer()
 
         # Get initial state
         state = reducer.initial_state()
@@ -120,7 +121,9 @@ class ProtocolWorkflowReducer(Protocol):
         """
         ...
 
-    def dispatch(self, state: ProtocolState, action: ProtocolAction) -> ProtocolState:
+    def dispatch(
+        self, state: "ProtocolState", action: "ProtocolAction"
+    ) -> ProtocolState:
         """
         Synchronous state transition for basic operations.
 
@@ -134,7 +137,7 @@ class ProtocolWorkflowReducer(Protocol):
         ...
 
     async def dispatch_async(
-        self, state: ProtocolState, action: ProtocolAction
+        self, state: "ProtocolState", action: "ProtocolAction"
     ) -> ProtocolNodeResult:
         """
         Asynchronous workflow-based state transition.
@@ -156,7 +159,7 @@ class ProtocolWorkflowReducer(Protocol):
         """
         ...
 
-    def create_workflow(self) -> Optional[ProtocolWorkflow]:
+    async def create_workflow(self) -> ProtocolWorkflow | None:
         """
         Factory method for creating LlamaIndex workflow instances.
 
@@ -166,8 +169,11 @@ class ProtocolWorkflowReducer(Protocol):
         """
         ...
 
-    def validate_state_transition(
-        self, from_state: ProtocolState, action: ProtocolAction, to_state: ProtocolState
+    async def validate_state_transition(
+        self,
+        from_state: "ProtocolState",
+        action: "ProtocolAction",
+        to_state: "ProtocolState",
     ) -> bool:
         """
         Validate that a state transition is legal.
@@ -180,10 +186,9 @@ class ProtocolWorkflowReducer(Protocol):
         Returns:
             bool: True if transition is valid, False otherwise
         """
-        # Default implementation allows all transitions
-        return True
+        ...
 
-    def get_state_schema(self) -> Optional[dict[str, Any]]:
+    async def get_state_schema(self) -> dict[str, Any] | None:
         """
         Get the schema definition for this reducer's state.
 
@@ -191,9 +196,9 @@ class ProtocolWorkflowReducer(Protocol):
             Optional[dict[str, Any]]: JSON schema for state validation,
                                     or None if not available
         """
-        return None
+        ...
 
-    def get_action_schema(self) -> Optional[dict[str, Any]]:
+    async def get_action_schema(self) -> dict[str, Any] | None:
         """
         Get the schema definition for actions this reducer handles.
 
@@ -201,4 +206,4 @@ class ProtocolWorkflowReducer(Protocol):
             Optional[dict[str, Any]]: JSON schema for action validation,
                                     or None if not available
         """
-        return None
+        ...

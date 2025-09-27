@@ -1,21 +1,35 @@
-from typing import Callable, Optional, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Callable, Optional, Protocol, runtime_checkable
 
-from omnibase_spi.protocols.types import ContextValue, ProtocolEvent
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.types import ContextValue, ProtocolEvent
+else:
+    # Use forward references in runtime to avoid circular imports
+    ContextValue = "ContextValue"
+    ProtocolEvent = "ProtocolEvent"
 
 
+@runtime_checkable
 class ProtocolEventBusCredentials(Protocol):
     """
     Canonical credentials protocol for event bus authentication/authorization.
     Supports token, username/password, and TLS certs for future event bus support.
     """
 
-    token: Optional[str]
-    username: Optional[str]
-    password: Optional[str]
-    cert: Optional[str]
-    key: Optional[str]
-    ca: Optional[str]
-    extra: Optional[dict[str, ContextValue]]
+    token: str | None
+    username: str | None
+    password: str | None
+    cert: str | None
+    key: str | None
+    ca: str | None
+    extra: dict[str, "ContextValue"] | None
+
+    def validate_credentials(self) -> bool:
+        """Validate eventbuscredentials data integrity and consistency."""
+        ...
+
+    def is_secure(self) -> bool:
+        """Check if eventbuscredentials secure."""
+        ...
 
 
 @runtime_checkable
@@ -31,15 +45,13 @@ class ProtocolEventPubSub(Protocol):
     """
 
     @property
-    def credentials(self) -> Optional[ProtocolEventBusCredentials]:
-        """Get event bus credentials."""
-        ...
+    def credentials(self) -> ProtocolEventBusCredentials | None: ...
 
-    def publish(self, event: ProtocolEvent) -> None: ...
+    async def publish(self, event: "ProtocolEvent") -> None: ...
 
-    async def publish_async(self, event: ProtocolEvent) -> None: ...
+    async def publish_async(self, event: "ProtocolEvent") -> None: ...
 
-    def subscribe(self, callback: Callable[[ProtocolEvent], None]) -> None: ...
+    async def subscribe(self, callback: Callable[[ProtocolEvent], None]) -> None: ...
 
     async def subscribe_async(
         self, callback: Callable[[ProtocolEvent], None]
@@ -57,5 +69,6 @@ class ProtocolEventPubSub(Protocol):
     def bus_id(self) -> str:
         """
         Unique, stable identifier for this event bus instance (MUST be unique per bus, stable for its lifetime).
+            ...
         """
         ...

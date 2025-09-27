@@ -56,18 +56,18 @@ class ProtocolErrorCategory(Protocol):
         ...
 
     @property
-    def compliance_impact(self) -> Optional[str]:
+    def compliance_impact(self) -> str | None:
         """Compliance frameworks impacted by this error."""
         ...
 
 
 @runtime_checkable
-class ProtocolRetryPolicy(Protocol):
+class ProtocolMemoryRetryPolicy(Protocol):
     """
-    Retry policy configuration for error recovery.
+    Retry policy configuration for memory operation error recovery.
 
     Defines retry behavior, backoff strategies, and retry limits
-    for different types of operations and error conditions.
+    for different types of memory operations and error conditions.
     """
 
     @property
@@ -117,7 +117,7 @@ class ProtocolRetryPolicy(Protocol):
 
 
 @runtime_checkable
-class ProtocolCompensationAction(Protocol):
+class ProtocolMemoryCompensationAction(Protocol):
     """
     Compensation action for failed operations.
 
@@ -181,7 +181,7 @@ class ProtocolOperationContext(Protocol):
         ...
 
     @property
-    def parent_operation_id(self) -> Optional[UUID]:
+    def parent_operation_id(self) -> UUID | None:
         """Parent operation ID for nested operations."""
         ...
 
@@ -196,7 +196,7 @@ class ProtocolOperationContext(Protocol):
         ...
 
     @property
-    def timeout_at(self) -> Optional["datetime"]:
+    def timeout_at(self) -> "datetime | None":
         """Timestamp when operation times out."""
         ...
 
@@ -206,7 +206,7 @@ class ProtocolOperationContext(Protocol):
         ...
 
     @property
-    def compensation_actions(self) -> list["ProtocolCompensationAction"]:
+    def compensation_actions(self) -> list["ProtocolMemoryCompensationAction"]:
         """List of compensation actions for rollback."""
         ...
 
@@ -229,7 +229,7 @@ class ProtocolMemoryErrorHandler(Protocol):
         self,
         error: Exception,
         operation_context: "ProtocolOperationContext",
-        correlation_id: Optional[UUID] = None,
+        correlation_id: UUID | None = None,
     ) -> "ProtocolErrorCategory":
         """
         Categorize error for appropriate handling strategy.
@@ -250,10 +250,10 @@ class ProtocolMemoryErrorHandler(Protocol):
     async def should_retry_operation(
         self,
         error_category: "ProtocolErrorCategory",
-        retry_policy: "ProtocolRetryPolicy",
+        retry_policy: "ProtocolMemoryRetryPolicy",
         current_attempt: int,
         operation_context: "ProtocolOperationContext",
-        correlation_id: Optional[UUID] = None,
+        correlation_id: UUID | None = None,
     ) -> "ProtocolMemoryMetadata":
         """
         Determine if operation should be retried.
@@ -276,10 +276,10 @@ class ProtocolMemoryErrorHandler(Protocol):
     async def execute_retry(
         self,
         operation_context: "ProtocolOperationContext",
-        retry_policy: "ProtocolRetryPolicy",
+        retry_policy: "ProtocolMemoryRetryPolicy",
         retry_attempt: int,
-        correlation_id: Optional[UUID] = None,
-        timeout_seconds: Optional[float] = None,
+        correlation_id: UUID | None = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryMetadata":
         """
         Execute retry of failed operation.
@@ -303,9 +303,9 @@ class ProtocolMemoryErrorHandler(Protocol):
     async def execute_compensation_actions(
         self,
         operation_context: "ProtocolOperationContext",
-        compensation_actions: list["ProtocolCompensationAction"],
-        correlation_id: Optional[UUID] = None,
-        timeout_seconds: Optional[float] = None,
+        compensation_actions: list["ProtocolMemoryCompensationAction"],
+        correlation_id: UUID | None = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryMetadata":
         """
         Execute compensation actions for failed operation.
@@ -331,7 +331,7 @@ class ProtocolMemoryErrorHandler(Protocol):
         error_category: "ProtocolErrorCategory",
         operation_context: "ProtocolOperationContext",
         recovery_actions: list[str],
-        correlation_id: Optional[UUID] = None,
+        correlation_id: UUID | None = None,
     ) -> "ProtocolMemoryMetadata":
         """
         Create comprehensive error report for analysis.
@@ -357,7 +357,7 @@ class ProtocolMemoryErrorHandler(Protocol):
         error_rate: float,
         failure_threshold: int,
         time_window_seconds: int,
-        correlation_id: Optional[UUID] = None,
+        correlation_id: UUID | None = None,
     ) -> "ProtocolMemoryMetadata":
         """
         Handle circuit breaker logic for operation protection.
@@ -383,8 +383,8 @@ class ProtocolMemoryErrorHandler(Protocol):
         successful_operations: list[UUID],
         failed_operations: list[UUID],
         recovery_strategy: str,
-        correlation_id: Optional[UUID] = None,
-        timeout_seconds: Optional[float] = None,
+        correlation_id: UUID | None = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryMetadata":
         """
         Recover from partial failure in batch or complex operations.
@@ -420,7 +420,7 @@ class ProtocolMemoryHealthMonitor(Protocol):
         self,
         operation_types: list[str],
         monitoring_window_minutes: int,
-        correlation_id: Optional[UUID] = None,
+        correlation_id: UUID | None = None,
     ) -> "ProtocolMemoryMetadata":
         """
         Monitor health of memory operations.
@@ -443,8 +443,8 @@ class ProtocolMemoryHealthMonitor(Protocol):
         metric_types: list[str],
         baseline_period_hours: int,
         detection_sensitivity: float,
-        correlation_id: Optional[UUID] = None,
-        timeout_seconds: Optional[float] = None,
+        correlation_id: UUID | None = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryMetadata":
         """
         Detect performance degradation patterns.
@@ -471,7 +471,7 @@ class ProtocolMemoryHealthMonitor(Protocol):
         severity_level: str,
         affected_operations: list[str],
         warning_metadata: "ProtocolMemoryMetadata",
-        correlation_id: Optional[UUID] = None,
+        correlation_id: UUID | None = None,
     ) -> "ProtocolMemoryMetadata":
         """
         Generate early warning for potential issues.
@@ -495,8 +495,8 @@ class ProtocolMemoryHealthMonitor(Protocol):
         self,
         dashboard_scope: str,
         time_window_hours: int,
-        correlation_id: Optional[UUID] = None,
-        timeout_seconds: Optional[float] = None,
+        correlation_id: UUID | None = None,
+        timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryMetadata":
         """
         Create health dashboard with key metrics.

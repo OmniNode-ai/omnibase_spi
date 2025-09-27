@@ -22,7 +22,7 @@ report_violation() {
     local line=$2
     local violation=$3
     local message=$4
-    
+
     echo -e "${RED}❌ SPI VIOLATION${NC} in ${file}:${line}"
     echo -e "   ${YELLOW}Found:${NC} ${violation}"
     echo -e "   ${YELLOW}Issue:${NC} ${message}"
@@ -46,7 +46,7 @@ while IFS=: read -r file line content; do
     fi
 done < <(grep -rn "class.*Enum" src/ --include="*.py" || true)
 
-# Check for ABC classes (should use Protocol instead)  
+# Check for ABC classes (should use Protocol instead)
 echo "Checking for ABC usage..."
 while IFS=: read -r file line content; do
     if [[ $content =~ class.*\(ABC\): ]]; then

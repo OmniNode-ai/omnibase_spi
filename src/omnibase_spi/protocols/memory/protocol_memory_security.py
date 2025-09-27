@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 
 @runtime_checkable
-class ProtocolSecurityContext(Protocol):
+class ProtocolMemorySecurityContext(Protocol):
     """
     Security context for memory operations.
 
@@ -26,12 +26,12 @@ class ProtocolSecurityContext(Protocol):
     """
 
     @property
-    def user_id(self) -> Optional[UUID]:
+    def user_id(self) -> UUID | None:
         """User ID performing the operation."""
         ...
 
     @property
-    def session_id(self) -> Optional[UUID]:
+    def session_id(self) -> UUID | None:
         """Session ID for request tracking."""
         ...
 
@@ -51,7 +51,7 @@ class ProtocolSecurityContext(Protocol):
         ...
 
     @property
-    def rate_limit_key(self) -> Optional[str]:
+    def rate_limit_key(self) -> str | None:
         """Rate limiting key for this operation."""
         ...
 
@@ -81,12 +81,12 @@ class ProtocolAuditTrail(Protocol):
         ...
 
     @property
-    def resource_id(self) -> Optional[UUID]:
+    def resource_id(self) -> UUID | None:
         """ID of resource being operated on."""
         ...
 
     @property
-    def user_id(self) -> Optional[UUID]:
+    def user_id(self) -> UUID | None:
         """User performing the operation."""
         ...
 
@@ -96,12 +96,12 @@ class ProtocolAuditTrail(Protocol):
         ...
 
     @property
-    def source_ip(self) -> Optional[str]:
+    def source_ip(self) -> str | None:
         """Source IP address of request."""
         ...
 
     @property
-    def user_agent(self) -> Optional[str]:
+    def user_agent(self) -> str | None:
         """User agent string."""
         ...
 
@@ -207,10 +207,10 @@ class ProtocolMemorySecurityNode(Protocol):
 
     async def validate_access(
         self,
-        security_context: "ProtocolSecurityContext",
+        security_context: "ProtocolMemorySecurityContext",
         operation_type: str,
-        resource_id: Optional[UUID] = None,
-        correlation_id: Optional[UUID] = None,
+        resource_id: UUID | None = None,
+        correlation_id: UUID | None = None,
     ) -> "ProtocolMemoryMetadata":
         """
         Validate user access for memory operation.
@@ -234,7 +234,7 @@ class ProtocolMemorySecurityNode(Protocol):
         self,
         content: str,
         detection_threshold: float = 0.8,
-        correlation_id: Optional[UUID] = None,
+        correlation_id: UUID | None = None,
     ) -> "ProtocolMemoryMetadata":
         """
         Detect personally identifiable information in content.
@@ -256,7 +256,7 @@ class ProtocolMemorySecurityNode(Protocol):
         self,
         input_data: "ProtocolMemoryMetadata",
         validation_config: "ProtocolInputValidation",
-        correlation_id: Optional[UUID] = None,
+        correlation_id: UUID | None = None,
     ) -> "ProtocolMemoryMetadata":
         """
         Validate and sanitize input data.
@@ -276,10 +276,10 @@ class ProtocolMemorySecurityNode(Protocol):
 
     async def check_rate_limits(
         self,
-        security_context: "ProtocolSecurityContext",
+        security_context: "ProtocolMemorySecurityContext",
         operation_type: str,
         rate_limit_config: "ProtocolRateLimitConfig",
-        correlation_id: Optional[UUID] = None,
+        correlation_id: UUID | None = None,
     ) -> "ProtocolMemoryMetadata":
         """
         Check rate limits for user and operation.
@@ -301,8 +301,8 @@ class ProtocolMemorySecurityNode(Protocol):
     async def create_audit_trail(
         self,
         audit_info: "ProtocolAuditTrail",
-        security_context: "ProtocolSecurityContext",
-        correlation_id: Optional[UUID] = None,
+        security_context: "ProtocolMemorySecurityContext",
+        correlation_id: UUID | None = None,
     ) -> "ProtocolMemoryMetadata":
         """
         Create audit trail entry for operation.
@@ -324,7 +324,7 @@ class ProtocolMemorySecurityNode(Protocol):
         self,
         data: "ProtocolMemoryMetadata",
         encryption_level: str,
-        correlation_id: Optional[UUID] = None,
+        correlation_id: UUID | None = None,
     ) -> "ProtocolMemoryMetadata":
         """
         Encrypt sensitive data before storage.
@@ -345,8 +345,8 @@ class ProtocolMemorySecurityNode(Protocol):
     async def decrypt_sensitive_data(
         self,
         encrypted_data: "ProtocolMemoryMetadata",
-        security_context: "ProtocolSecurityContext",
-        correlation_id: Optional[UUID] = None,
+        security_context: "ProtocolMemorySecurityContext",
+        correlation_id: UUID | None = None,
     ) -> "ProtocolMemoryMetadata":
         """
         Decrypt sensitive data for authorized access.
@@ -378,9 +378,9 @@ class ProtocolMemoryComplianceNode(Protocol):
     async def validate_gdpr_compliance(
         self,
         operation_type: str,
-        data_subject_id: Optional[UUID],
+        data_subject_id: UUID | None,
         legal_basis: str,
-        correlation_id: Optional[UUID] = None,
+        correlation_id: UUID | None = None,
     ) -> "ProtocolMemoryMetadata":
         """
         Validate GDPR compliance for memory operation.
@@ -404,7 +404,7 @@ class ProtocolMemoryComplianceNode(Protocol):
         operation_type: str,
         phi_categories: list[str],
         covered_entity_id: UUID,
-        correlation_id: Optional[UUID] = None,
+        correlation_id: UUID | None = None,
     ) -> "ProtocolMemoryMetadata":
         """
         Validate HIPAA compliance for health information.
@@ -429,7 +429,7 @@ class ProtocolMemoryComplianceNode(Protocol):
         time_period_start: "datetime",
         time_period_end: "datetime",
         compliance_frameworks: list[str],
-        correlation_id: Optional[UUID] = None,
+        correlation_id: UUID | None = None,
     ) -> "ProtocolMemoryMetadata":
         """
         Generate compliance report for specified period.
@@ -451,10 +451,10 @@ class ProtocolMemoryComplianceNode(Protocol):
 
     async def handle_data_subject_request(
         self,
-        request_type: str,  # access, rectification, erasure, portability
+        request_type: str,
         data_subject_id: UUID,
         request_details: "ProtocolMemoryMetadata",
-        correlation_id: Optional[UUID] = None,
+        correlation_id: UUID | None = None,
     ) -> "ProtocolMemoryMetadata":
         """
         Handle data subject rights request (GDPR Article 15-20).

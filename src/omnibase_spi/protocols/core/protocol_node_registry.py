@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Node Registry Protocol - ONEX SPI Interface.
 
@@ -7,6 +6,8 @@ Supports the ONEX Messaging Design v0.3 with environment isolation and node grou
 
 Integrates with Consul-based discovery while maintaining clean protocol boundaries.
 """
+
+from __future__ import annotations
 
 from typing import Optional, Protocol, runtime_checkable
 
@@ -42,7 +43,7 @@ class ProtocolNodeRegistryConfig(Protocol):
 
     consul_host: str
     consul_port: int
-    consul_token: Optional[str]
+    consul_token: str | None
     health_check_interval: int
     retry_attempts: int
 
@@ -56,12 +57,12 @@ class ProtocolNodeInfo(Protocol):
     node_name: str
     environment: str
     group: str
-    version: ProtocolSemVer
-    health_status: LiteralHealthStatus
+    version: "ProtocolSemVer"
+    health_status: "LiteralHealthStatus"
     endpoint: str
-    metadata: dict[str, ContextValue]
-    registered_at: ProtocolDateTime
-    last_heartbeat: ProtocolDateTime
+    metadata: dict[str, "ContextValue"]
+    registered_at: "ProtocolDateTime"
+    last_heartbeat: "ProtocolDateTime"
 
 
 @runtime_checkable
@@ -90,7 +91,7 @@ class ProtocolNodeRegistry(Protocol):
             @property
             def watches(self) -> dict[str, object]: ...
 
-            async def register_node(self, node_info: ProtocolNodeInfo, ttl_seconds: int) -> bool:
+            async def register_node(self, node_info: "ProtocolNodeInfo", ttl_seconds: int) -> bool:
                 # Register node in Consul with TTL health check
                 service_id = f"{node_info.node_id}-{self.environment}"
                 return await self.consul.agent.service.register(
@@ -105,7 +106,7 @@ class ProtocolNodeRegistry(Protocol):
 
             async def discover_nodes(self, node_type: Optional[LiteralNodeType] = None,
                                    environment: Optional[str] = None,
-                                   group: Optional[str] = None) -> list[ProtocolNodeInfo]:
+                                   group: Optional[str] = None) -> list["ProtocolNodeInfo"]:
                 # Discover nodes from Consul catalog
                 env = environment or self.environment
                 service_filter = f"{env}-"
@@ -126,7 +127,7 @@ class ProtocolNodeRegistry(Protocol):
                 return matching_nodes
 
         # Usage in application
-        registry: ProtocolNodeRegistry = RegistryConsulNode("prod", "consul.company.com:8500")
+        registry: "ProtocolNodeRegistry" = RegistryConsulNode("prod", "consul.company.com:8500")
 
         # Register current node
         node_info = NodeInfo(
@@ -157,7 +158,7 @@ class ProtocolNodeRegistry(Protocol):
         print(f"Found {len(compute_nodes)} compute nodes in analytics group")
 
         # Set up node change monitoring
-        async def on_node_change(node: ProtocolNodeInfo, change_type: str):
+        async def on_node_change(node: "ProtocolNodeInfo", change_type: str):
             print(f"Node {node.node_name} changed: {change_type}")
             if change_type == "unhealthy":
                 # Implement failover logic
@@ -189,17 +190,17 @@ class ProtocolNodeRegistry(Protocol):
         ...
 
     @property
-    def consul_endpoint(self) -> Optional[str]:
+    def consul_endpoint(self) -> str | None:
         """Get Consul endpoint configuration."""
         ...
 
     @property
-    def config(self) -> Optional[ProtocolNodeRegistryConfig]:
+    def config(self) -> ProtocolNodeRegistryConfig | None:
         """Get registry configuration protocol."""
         ...
 
     async def register_node(
-        self, node_info: ProtocolNodeInfo, ttl_seconds: int
+        self, node_info: "ProtocolNodeInfo", ttl_seconds: int
     ) -> bool:
         """
         Register a node in the registry.
@@ -228,8 +229,8 @@ class ProtocolNodeRegistry(Protocol):
     async def update_node_health(
         self,
         node_id: str,
-        health_status: LiteralHealthStatus,
-        metadata: dict[str, ContextValue],
+        health_status: "LiteralHealthStatus",
+        metadata: dict[str, "ContextValue"],
     ) -> bool:
         """
         Update node health status.
@@ -258,11 +259,11 @@ class ProtocolNodeRegistry(Protocol):
 
     async def discover_nodes(
         self,
-        node_type: Optional[LiteralNodeType] = None,
-        environment: Optional[str] = None,
-        group: Optional[str] = None,
-        health_filter: Optional[LiteralHealthStatus] = None,
-    ) -> list[ProtocolNodeInfo]:
+        node_type: "LiteralNodeType | None" = None,
+        environment: str | None = None,
+        group: str | None = None,
+        health_filter: "LiteralHealthStatus | None" = None,
+    ) -> list["ProtocolNodeInfo"]:
         """
         Discover nodes matching criteria.
 
@@ -277,7 +278,7 @@ class ProtocolNodeRegistry(Protocol):
         """
         ...
 
-    async def get_node(self, node_id: str) -> Optional[ProtocolNodeInfo]:
+    async def get_node(self, node_id: str) -> ProtocolNodeInfo | None:
         """
         Get specific node information.
 
@@ -289,7 +290,7 @@ class ProtocolNodeRegistry(Protocol):
         """
         ...
 
-    async def get_nodes_by_group(self, group: str) -> list[ProtocolNodeInfo]:
+    async def get_nodes_by_group(self, group: str) -> list["ProtocolNodeInfo"]:
         """
         Get all nodes in a node group.
 
@@ -301,7 +302,7 @@ class ProtocolNodeRegistry(Protocol):
         """
         ...
 
-    async def get_gateway_for_group(self, group: str) -> Optional[ProtocolNodeInfo]:
+    async def get_gateway_for_group(self, group: str) -> ProtocolNodeInfo | None:
         """
         Get the Group Gateway node for a node group.
 
@@ -315,9 +316,9 @@ class ProtocolNodeRegistry(Protocol):
 
     async def watch_node_changes(
         self,
-        callback: ProtocolNodeChangeCallback,
-        node_type: Optional[LiteralNodeType] = None,
-        group: Optional[str] = None,
+        callback: "ProtocolNodeChangeCallback",
+        node_type: "LiteralNodeType | None" = None,
+        group: str | None = None,
     ) -> ProtocolWatchHandle:
         """
         Watch for node registry changes.
@@ -332,7 +333,7 @@ class ProtocolNodeRegistry(Protocol):
         """
         ...
 
-    async def stop_watch(self, watch_handle: ProtocolWatchHandle) -> None:
+    async def stop_watch(self, watch_handle: "ProtocolWatchHandle") -> None:
         """
         Stop watching node changes.
 

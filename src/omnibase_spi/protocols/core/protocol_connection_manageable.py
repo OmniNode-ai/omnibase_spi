@@ -8,14 +8,13 @@ and resilient connection handling.
 
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.protocol_core_types import (
-        ContextValue,
-        LiteralConnectionState,
-        ProtocolConnectionConfig,
-        ProtocolConnectionStatus,
-        ProtocolRetryConfig,
-    )
+from omnibase_spi.protocols.types.protocol_core_types import (
+    ContextValue,
+    LiteralConnectionState,
+    ProtocolConnectionConfig,
+    ProtocolConnectionStatus,
+    ProtocolRetryConfig,
+)
 
 
 @runtime_checkable
@@ -42,23 +41,23 @@ class ProtocolConnectionManageable(Protocol):
         # Implementation example (not part of SPI)
         class DatabaseConnectionManager:
             @property
-            def connection_id(self) -> str:
+            async def connection_id(self) -> str:
                 return self._connection_id
 
             @property
-            def config(self) -> ProtocolConnectionConfig:
+            def config(self) -> "ProtocolConnectionConfig":
                 return self._config
 
             @property
-            def status(self) -> ProtocolConnectionStatus:
+            def status(self) -> "ProtocolConnectionStatus":
                 return self._status
 
             @property
-            def can_reconnect(self) -> bool:
+            async def can_reconnect(self) -> bool:
                 return self._can_reconnect
 
             @property
-            def auto_reconnect_enabled(self) -> bool:
+            async def auto_reconnect_enabled(self) -> bool:
                 return self._auto_reconnect_enabled
 
             async def establish_connection(self) -> bool:
@@ -84,7 +83,7 @@ class ProtocolConnectionManageable(Protocol):
                     return False
 
         # Usage in application code
-        connection_mgr: ProtocolConnectionManageable = DatabaseConnectionManager()
+        connection_mgr: "ProtocolConnectionManageable" = DatabaseConnectionManager()
 
         # Establish connection with retry
         success = await connection_mgr.establish_connection()
@@ -245,7 +244,7 @@ class ProtocolConnectionManageable(Protocol):
         """
         ...
 
-    def get_connection_state(self) -> "LiteralConnectionState":
+    async def get_connection_state(self) -> "LiteralConnectionState":
         """
         Get current connection state.
 
@@ -258,7 +257,7 @@ class ProtocolConnectionManageable(Protocol):
         """
         ...
 
-    def get_connection_status(self) -> "ProtocolConnectionStatus":
+    async def get_connection_status(self) -> "ProtocolConnectionStatus":
         """
         Get comprehensive connection status information.
 
@@ -271,7 +270,7 @@ class ProtocolConnectionManageable(Protocol):
         """
         ...
 
-    def get_connection_metrics(self) -> dict[str, "ContextValue"]:
+    async def get_connection_metrics(self) -> dict[str, "ContextValue"]:
         """
         Get connection performance metrics.
 
@@ -284,7 +283,9 @@ class ProtocolConnectionManageable(Protocol):
         """
         ...
 
-    def update_connection_config(self, new_config: "ProtocolConnectionConfig") -> bool:
+    async def update_connection_config(
+        self, new_config: "ProtocolConnectionConfig"
+    ) -> bool:
         """
         Update connection configuration.
 
@@ -301,7 +302,7 @@ class ProtocolConnectionManageable(Protocol):
         """
         ...
 
-    def enable_auto_reconnect(self) -> bool:
+    async def enable_auto_reconnect(self) -> bool:
         """
         Enable automatic reconnection on connection failure.
 
@@ -315,7 +316,7 @@ class ProtocolConnectionManageable(Protocol):
         """
         ...
 
-    def disable_auto_reconnect(self) -> bool:
+    async def disable_auto_reconnect(self) -> bool:
         """
         Disable automatic reconnection.
 
@@ -329,7 +330,7 @@ class ProtocolConnectionManageable(Protocol):
         """
         ...
 
-    def is_connected(self) -> bool:
+    async def is_connected(self) -> bool:
         """
         Check if connection is currently active and ready.
 
@@ -342,7 +343,7 @@ class ProtocolConnectionManageable(Protocol):
         """
         ...
 
-    def is_connecting(self) -> bool:
+    async def is_connecting(self) -> bool:
         """
         Check if connection establishment is in progress.
 
@@ -381,7 +382,7 @@ class ProtocolConnectionManageable(Protocol):
         """
         ...
 
-    def get_connection_uptime(self) -> int:
+    async def get_connection_uptime(self) -> int:
         """
         Get connection uptime in milliseconds.
 
@@ -420,7 +421,7 @@ class ProtocolConnectionManageable(Protocol):
         """
         ...
 
-    def set_connection_timeout(self, timeout_ms: int) -> bool:
+    async def set_connection_timeout(self, timeout_ms: int) -> bool:
         """
         Set connection operation timeout.
 
@@ -436,7 +437,7 @@ class ProtocolConnectionManageable(Protocol):
         """
         ...
 
-    def get_connection_pool_stats(self) -> dict[str, "ContextValue"] | None:
+    async def get_connection_pool_stats(self) -> dict[str, "ContextValue"] | None:
         """
         Get connection pool statistics if applicable.
 
@@ -449,7 +450,9 @@ class ProtocolConnectionManageable(Protocol):
         """
         ...
 
-    def validate_connection_config(self, config: "ProtocolConnectionConfig") -> bool:
+    async def validate_connection_config(
+        self, config: "ProtocolConnectionConfig"
+    ) -> bool:
         """
         Validate connection configuration settings.
 

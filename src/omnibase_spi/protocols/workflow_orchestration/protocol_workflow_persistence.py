@@ -5,16 +5,18 @@ These protocols define the data persistence contracts for workflow orchestration
 including event stores, snapshot stores, and projection stores with ACID guarantees.
 """
 
-from typing import Any, Optional, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Optional, Protocol, runtime_checkable
 from uuid import UUID
 
-from omnibase_spi.protocols.types.protocol_core_types import ProtocolDateTime
 from omnibase_spi.protocols.types.protocol_workflow_orchestration_types import (
     LiteralWorkflowEventType,
     LiteralWorkflowState,
     ProtocolWorkflowEvent,
     ProtocolWorkflowSnapshot,
 )
+
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.types.protocol_core_types import ProtocolDateTime
 
 
 @runtime_checkable
@@ -47,18 +49,16 @@ class ProtocolEventQueryOptions(Protocol):
     for event store queries.
     """
 
-    workflow_type: Optional[str]
-    instance_id: Optional[UUID]
-    event_types: Optional[list[LiteralWorkflowEventType]]
-    from_sequence: Optional[int]
-    to_sequence: Optional[int]
-    from_timestamp: Optional[ProtocolDateTime]
-    to_timestamp: Optional[ProtocolDateTime]
-    limit: Optional[int]
-    offset: Optional[int]
-    order_by: Optional[
-        str
-    ]  # "sequence_asc", "sequence_desc", "timestamp_asc", "timestamp_desc"
+    workflow_type: str | None
+    instance_id: UUID | None
+    event_types: list[LiteralWorkflowEventType] | None
+    from_sequence: int | None
+    to_sequence: int | None
+    from_timestamp: "ProtocolDateTime | None"
+    to_timestamp: "ProtocolDateTime | None"
+    limit: int | None
+    offset: int | None
+    order_by: str | None
 
 
 @runtime_checkable
@@ -73,9 +73,9 @@ class ProtocolEventStoreResult(Protocol):
     success: bool
     events_processed: int
     sequence_numbers: list[int]
-    error_message: Optional[str]
+    error_message: str | None
     operation_time_ms: float
-    storage_size_bytes: Optional[int]
+    storage_size_bytes: int | None
 
 
 @runtime_checkable
@@ -92,12 +92,11 @@ class ProtocolEventStore(Protocol):
 
     """
 
-    # Event storage operations
     async def append_events(
         self,
-        events: list[ProtocolWorkflowEvent],
-        expected_sequence: Optional[int],
-        transaction: Optional[ProtocolEventStoreTransaction],
+        events: list["ProtocolWorkflowEvent"],
+        expected_sequence: int | None,
+        transaction: "ProtocolEventStoreTransaction | None",
     ) -> ProtocolEventStoreResult:
         """
         Append events to event stream.
@@ -114,9 +113,9 @@ class ProtocolEventStore(Protocol):
 
     async def read_events(
         self,
-        query_options: ProtocolEventQueryOptions,
-        transaction: Optional[ProtocolEventStoreTransaction],
-    ) -> list[ProtocolWorkflowEvent]:
+        query_options: "ProtocolEventQueryOptions",
+        transaction: "ProtocolEventStoreTransaction | None",
+    ) -> list["ProtocolWorkflowEvent"]:
         """
         Read events from event store.
 
@@ -134,8 +133,8 @@ class ProtocolEventStore(Protocol):
         workflow_type: str,
         instance_id: UUID,
         from_sequence: int,
-        to_sequence: Optional[int],
-    ) -> list[ProtocolWorkflowEvent]:
+        to_sequence: int | None,
+    ) -> list["ProtocolWorkflowEvent"]:
         """
         Get complete event stream for workflow instance.
 
@@ -165,7 +164,6 @@ class ProtocolEventStore(Protocol):
         """
         ...
 
-    # Transaction management
     async def begin_transaction(self) -> ProtocolEventStoreTransaction:
         """
         Begin new event store transaction.
@@ -175,7 +173,6 @@ class ProtocolEventStore(Protocol):
         """
         ...
 
-    # Maintenance operations
     async def delete_event_stream(
         self, workflow_type: str, instance_id: UUID
     ) -> ProtocolEventStoreResult:
@@ -192,7 +189,7 @@ class ProtocolEventStore(Protocol):
         ...
 
     async def archive_old_events(
-        self, before_timestamp: ProtocolDateTime, batch_size: int
+        self, before_timestamp: "ProtocolDateTime", batch_size: int
     ) -> ProtocolEventStoreResult:
         """
         Archive old events to cold storage.
@@ -222,8 +219,8 @@ class ProtocolSnapshotStore(Protocol):
 
     async def save_snapshot(
         self,
-        snapshot: ProtocolWorkflowSnapshot,
-        transaction: Optional[ProtocolEventStoreTransaction],
+        snapshot: "ProtocolWorkflowSnapshot",
+        transaction: "ProtocolEventStoreTransaction | None",
     ) -> bool:
         """
         Save workflow state snapshot.
@@ -238,11 +235,8 @@ class ProtocolSnapshotStore(Protocol):
         ...
 
     async def load_snapshot(
-        self,
-        workflow_type: str,
-        instance_id: UUID,
-        sequence_number: Optional[int],
-    ) -> Optional[ProtocolWorkflowSnapshot]:
+        self, workflow_type: str, instance_id: UUID, sequence_number: int | None
+    ) -> ProtocolWorkflowSnapshot | None:
         """
         Load workflow state snapshot.
 
@@ -318,7 +312,7 @@ class ProtocolLiteralWorkflowStateStore(Protocol):
     """
 
     async def save_workflow_instance(
-        self, workflow_instance: ProtocolWorkflowSnapshot
+        self, workflow_instance: "ProtocolWorkflowSnapshot"
     ) -> bool:
         """
         Save or update workflow instance state.
@@ -333,7 +327,7 @@ class ProtocolLiteralWorkflowStateStore(Protocol):
 
     async def load_workflow_instance(
         self, workflow_type: str, instance_id: UUID
-    ) -> Optional[ProtocolWorkflowSnapshot]:
+    ) -> ProtocolWorkflowSnapshot | None:
         """
         Load workflow instance by ID.
 
@@ -348,12 +342,12 @@ class ProtocolLiteralWorkflowStateStore(Protocol):
 
     async def query_workflow_instances(
         self,
-        workflow_type: Optional[str],
-        state: Optional[LiteralWorkflowState],
-        correlation_id: Optional[UUID],
+        workflow_type: str | None,
+        state: "LiteralWorkflowState | None",
+        correlation_id: UUID | None,
         limit: int,
         offset: int,
-    ) -> list[ProtocolWorkflowSnapshot]:
+    ) -> list["ProtocolWorkflowSnapshot"]:
         """
         Query workflow instances by criteria.
 

@@ -68,14 +68,14 @@ jobs:
         python -c "
         import sys
         print('Testing import isolation...')
-        
+
         # Should be able to import omnibase_spi.protocols without any external dependencies
         from omnibase_spi.protocols.types import LiteralLogLevel, ProtocolLogEntry
-        
+
         # Verify no external omnibase modules are loaded
-        external_modules = [name for name in sys.modules.keys() 
+        external_modules = [name for name in sys.modules.keys()
                           if name.startswith('omnibase_spi.') and not name.startswith('omnibase_spi.protocols')]
-        
+
         if external_modules:
             print(f'FAILURE: External omnibase modules loaded: {external_modules}')
             sys.exit(1)
@@ -86,7 +86,7 @@ jobs:
   validate-documentation:
     runs-on: ubuntu-latest
     needs: validate-namespace-isolation
-    
+
     steps:
     - uses: actions/checkout@v4
 
@@ -96,7 +96,7 @@ jobs:
         if ! grep -q "namespace.*isolat" README.md; then
           echo "WARNING: README should mention namespace isolation"
         fi
-        
+
         # Check that version is consistent across files
         VERSION=$(grep '^version = ' pyproject.toml | cut -d'"' -f2)
         if ! grep -q "__version__ = \"$VERSION\"" src/omnibase_spi/__init__.py; then
