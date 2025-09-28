@@ -9,8 +9,14 @@ import importlib
 import pkgutil
 import subprocess
 import sys
+from pathlib import Path
 
 import pytest
+
+# Add src directory to Python path for testing
+src_dir = Path(__file__).parent.parent / "src"
+if str(src_dir) not in sys.path:
+    sys.path.insert(0, str(src_dir))
 
 import omnibase_spi.protocols
 
