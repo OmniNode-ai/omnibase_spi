@@ -13,11 +13,9 @@ This script systematically fixes the 673 SPI validation errors by category:
 """
 
 import ast
-import re
-import subprocess
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Tuple
 
 
 class SPIFixerVisitor(ast.NodeVisitor):
@@ -330,7 +328,7 @@ def main() -> int:
         for key, value in file_fixes.items():
             total_fixes[key] += value
 
-    print(f"\n✅ Fix Summary:")
+    print("\n✅ Fix Summary:")
     print(f"   Async fixes: {total_fixes['async_fixes']}")
     print(f"   Decorator fixes: {total_fixes['decorator_fixes']}")
     print(f"   Structure fixes: {total_fixes['structure_fixes']}")

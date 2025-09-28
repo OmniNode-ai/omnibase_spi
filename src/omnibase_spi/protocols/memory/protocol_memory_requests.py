@@ -6,19 +6,19 @@ Separated from the main types module to prevent circular imports and
 improve maintainability.
 
 Contains:
-- Base request protocols
-- Effect node request protocols
-- Compute node request protocols
-- Reducer node request protocols
-- Orchestrator node request protocols
-- Batch operation request protocols
+    - Base request protocols
+    - Effect node request protocols
+    - Compute node request protocols
+    - Reducer node request protocols
+    - Orchestrator node request protocols
+    - Batch operation request protocols
 
-All types are pure protocols with no implementation dependencies.
+    All types are pure protocols with no implementation dependencies.
 """
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 from uuid import UUID
 
 if TYPE_CHECKING:
@@ -44,9 +44,7 @@ class ProtocolMemoryRequest(Protocol):
     request_timestamp: "datetime"
 
     @property
-    def operation_type(self) -> str:
-        """Type of memory operation being requested."""
-        ...
+    def operation_type(self) -> str: ...
 
 
 @runtime_checkable
@@ -60,9 +58,7 @@ class ProtocolMemoryStoreRequest(ProtocolMemoryRequest, Protocol):
     expires_at: "datetime | None"
 
     @property
-    def metadata(self) -> "ProtocolMemoryMetadata | None":
-        """Additional metadata for the memory."""
-        ...
+    def metadata(self) -> "ProtocolMemoryMetadata | None": ...
 
 
 @runtime_checkable
@@ -74,9 +70,7 @@ class ProtocolMemoryRetrieveRequest(ProtocolMemoryRequest, Protocol):
     timeout_seconds: float | None
 
     @property
-    def related_depth(self) -> int:
-        """Depth of related memory traversal."""
-        ...
+    def related_depth(self) -> int: ...
 
 
 @runtime_checkable
@@ -88,9 +82,7 @@ class ProtocolMemoryListRequest(ProtocolMemoryRequest, Protocol):
     timeout_seconds: float | None
 
     @property
-    def include_content(self) -> bool:
-        """Whether to include full memory content in results."""
-        ...
+    def include_content(self) -> bool: ...
 
 
 @runtime_checkable
@@ -103,14 +95,10 @@ class ProtocolBatchMemoryStoreRequest(ProtocolMemoryRequest, Protocol):
     timeout_seconds: float | None
 
     @property
-    def transaction_isolation(self) -> str:
-        """Transaction isolation level for batch operation."""
-        ...
+    def transaction_isolation(self) -> str: ...
 
     @property
-    def parallel_execution(self) -> bool:
-        """Whether to execute batch operations in parallel."""
-        ...
+    def parallel_execution(self) -> bool: ...
 
 
 @runtime_checkable
@@ -123,9 +111,7 @@ class ProtocolBatchMemoryRetrieveRequest(ProtocolMemoryRequest, Protocol):
     timeout_seconds: float | None
 
     @property
-    def related_depth(self) -> int:
-        """Depth of related memory traversal for each record."""
-        ...
+    def related_depth(self) -> int: ...
 
 
 @runtime_checkable
@@ -139,9 +125,7 @@ class ProtocolSemanticSearchRequest(ProtocolMemoryRequest, Protocol):
     timeout_seconds: float | None
 
     @property
-    def embedding_model(self) -> str | None:
-        """Specific embedding model for query."""
-        ...
+    def embedding_model(self) -> str | None: ...
 
 
 @runtime_checkable
@@ -153,9 +137,7 @@ class ProtocolPatternAnalysisRequest(ProtocolMemoryRequest, Protocol):
     timeout_seconds: float | None
 
     @property
-    def analysis_parameters(self) -> "ProtocolAnalysisParameters":
-        """Parameters for pattern analysis."""
-        ...
+    def analysis_parameters(self) -> "ProtocolAnalysisParameters": ...
 
 
 @runtime_checkable
@@ -194,9 +176,7 @@ class ProtocolWorkflowExecutionRequest(ProtocolMemoryRequest, Protocol):
     workflow_configuration: "ProtocolWorkflowConfiguration"
     timeout_seconds: float | None
 
-    async def get_target_agents(self) -> list[UUID]:
-        """Agents to coordinate in workflow."""
-        ...
+    async def get_target_agents(self) -> list[UUID]: ...
 
 
 @runtime_checkable
@@ -208,9 +188,7 @@ class ProtocolAgentCoordinationRequest(ProtocolMemoryRequest, Protocol):
     timeout_seconds: float | None
 
     @property
-    def coordination_metadata(self) -> "ProtocolCoordinationMetadata":
-        """Coordination task metadata."""
-        ...
+    def coordination_metadata(self) -> "ProtocolCoordinationMetadata": ...
 
 
 @runtime_checkable
@@ -222,14 +200,10 @@ class ProtocolPaginationRequest(Protocol):
     cursor: str | None
 
     @property
-    def sort_by(self) -> str | None:
-        """Field to sort results by."""
-        ...
+    def sort_by(self) -> str | None: ...
 
     @property
-    def sort_order(self) -> str:
-        """Sort order: 'asc' or 'desc'."""
-        ...
+    def sort_order(self) -> str: ...
 
 
 @runtime_checkable
@@ -243,9 +217,7 @@ class ProtocolMemoryMetricsRequest(ProtocolMemoryRequest, Protocol):
     timeout_seconds: float | None
 
     @property
-    def include_detailed_breakdown(self) -> bool:
-        """Whether to include detailed metric breakdowns."""
-        ...
+    def include_detailed_breakdown(self) -> bool: ...
 
 
 @runtime_checkable
@@ -257,9 +229,7 @@ class ProtocolStreamingMemoryRequest(ProtocolMemoryRequest, Protocol):
     timeout_seconds: float | None
 
     @property
-    def compression_enabled(self) -> bool:
-        """Whether to enable streaming compression."""
-        ...
+    async def compression_enabled(self) -> bool: ...
 
 
 @runtime_checkable
@@ -270,6 +240,4 @@ class ProtocolStreamingRetrieveRequest(ProtocolStreamingMemoryRequest, Protocol)
     include_metadata: bool
 
     @property
-    def max_content_size(self) -> int | None:
-        """Maximum content size per memory record."""
-        ...
+    def max_content_size(self) -> int | None: ...

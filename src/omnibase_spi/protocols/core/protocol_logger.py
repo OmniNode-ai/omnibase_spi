@@ -19,10 +19,8 @@ class ProtocolLogger(Protocol):
     Example:
         class MyLogger:
             def emit(self, level: LiteralLogLevel, message: str, correlation_id: UUID) -> None:
-                ...
 
             def log(self, entry: "ProtocolLogEntry") -> None:
-                ...
     """
 
     def emit(
@@ -30,36 +28,9 @@ class ProtocolLogger(Protocol):
         level: LiteralLogLevel,
         message: str,
         correlation_id: UUID,
-        context: "ProtocolLogContext | None" = None,
-    ) -> None:
-        """
-        Emit a log event with the specified level and message.
+        context: Optional[ProtocolLogContext] = None,
+    ) -> None: ...
 
-        Args:
-            level: Log level for the message
-            message: Log message to emit
-            correlation_id: Correlation ID for request tracking
-            context: Optional log context for additional metadata
-        """
-        ...
+    def log(self, entry: "ProtocolLogEntry") -> None: ...
 
-    def log(self, entry: "ProtocolLogEntry") -> None:
-        """
-        Log a structured log entry.
-
-        Args:
-            entry: Structured log entry to emit
-        """
-        ...
-
-    def is_level_enabled(self, level: LiteralLogLevel) -> bool:
-        """
-        Check if the specified log level is enabled.
-
-        Args:
-            level: Log level to check
-
-        Returns:
-            True if the level should be logged, False otherwise
-        """
-        ...
+    def is_level_enabled(self, level: LiteralLogLevel) -> bool: ...

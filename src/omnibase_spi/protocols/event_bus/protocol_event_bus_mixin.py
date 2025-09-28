@@ -7,12 +7,10 @@ implementation dependencies or mixin complexity.
 
 from typing import TYPE_CHECKING, Optional, Protocol, Union, runtime_checkable
 
-# Runtime imports needed for forward references in method signatures
 from omnibase_spi.protocols.types.protocol_core_types import LiteralLogLevel
 from omnibase_spi.protocols.types.protocol_event_bus_types import ProtocolEventMessage
 
 if TYPE_CHECKING:
-    # No types needed here currently
     pass
 
 
@@ -49,18 +47,7 @@ class ProtocolSyncEventBus(ProtocolEventBusBase, Protocol):
         - Compatible with sync event processing
     """
 
-    def publish_sync(self, event: ProtocolEventMessage) -> None:
-        """
-        Publish event synchronously.
-
-        Args:
-            event: Event message to publish
-
-        Raises:
-            ValueError: If event format is invalid
-            RuntimeError: If event bus is unavailable
-        """
-        ...
+    async def publish_sync(self, event: ProtocolEventMessage) -> None: ...
 
 
 @runtime_checkable
@@ -78,18 +65,7 @@ class ProtocolAsyncEventBus(ProtocolEventBusBase, Protocol):
         - Non-blocking event processing
     """
 
-    async def publish_async(self, event: ProtocolEventMessage) -> None:
-        """
-        Publish event asynchronously with dedicated async method.
-
-        Args:
-            event: Event message to publish
-
-        Raises:
-            ValueError: If event format is invalid
-            RuntimeError: If event bus is unavailable
-        """
-        ...
+    async def publish_async(self, event: ProtocolEventMessage) -> None: ...
 
 
 @runtime_checkable
@@ -108,13 +84,9 @@ class ProtocolRegistryWithBus(Protocol):
 
     event_bus: ProtocolEventBusBase | None
 
-    def validate_registry_bus(self) -> bool:
-        """Validate registrywithbus data integrity and consistency."""
-        ...
+    async def validate_registry_bus(self) -> bool: ...
 
-    def has_bus_access(self) -> bool:
-        """Check if registrywithbus bus access."""
-        ...
+    def has_bus_access(self) -> bool: ...
 
 
 @runtime_checkable
@@ -136,18 +108,4 @@ class ProtocolLogEmitter(Protocol):
         level: LiteralLogLevel,
         message: str,
         data: dict[str, str | int | float | bool],
-    ) -> None:
-        """
-        Emit structured log event.
-
-        Args:
-            level: Log level (DEBUG, INFO, WARNING, ERROR, etc.)
-            message: Log message
-            data: Structured log data with typed values
-
-        Note:
-            Implementations should support structured logging
-                ...
-            with proper serialization of typed data.
-        """
-        ...
+    ) -> None: ...

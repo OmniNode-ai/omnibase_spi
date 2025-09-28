@@ -5,7 +5,6 @@ Script to fix missing runtime_checkable imports in protocol files.
 Scans protocol files for @runtime_checkable decorators and ensures the import is present.
 """
 
-import os
 import re
 from pathlib import Path
 from typing import List, Tuple
@@ -121,7 +120,7 @@ class RuntimeCheckableImportFixer:
 
                 total_changes.extend(changes)
 
-        print(f"\n📊 Summary:")
+        print("\n📊 Summary:")
         print(f"   • Files modified: {self.files_modified}")
         print(f"   • Import fixes applied: {self.fixes_applied}")
 

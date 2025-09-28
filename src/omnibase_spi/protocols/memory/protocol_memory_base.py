@@ -1,21 +1,21 @@
 """
-Pure Base Type Definitions for OmniMemory ONEX Architecture
+    Pure Base Type Definitions for OmniMemory ONEX Architecture
 
-This module defines foundational type literals and core memory protocols that
-serve as the base layer for the memory domain. These types have no dependencies
-on other memory protocol modules, preventing circular imports.
+    This module defines foundational type literals and core memory protocols that
+    serve as the base layer for the memory domain. These types have no dependencies
+    on other memory protocol modules, preventing circular imports.
 
 Contains:
-- Type literals for constrained values (access levels, analysis types, etc.)
-- Core memory protocols (metadata, records, search filters)
-- Base data structure protocols
+    - Type literals for constrained values (access levels, analysis types, etc.)
+    - Core memory protocols (metadata, records, search filters)
+    - Base data structure protocols
 
-All types are pure protocols with no implementation dependencies.
+    All types are pure protocols with no implementation dependencies.
 """
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal, Optional, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Literal, Protocol, runtime_checkable
 from uuid import UUID
 
 if TYPE_CHECKING:
@@ -41,21 +41,13 @@ class ProtocolKeyValueStore(Protocol):
     """Base protocol for key-value storage structures with validation."""
 
     @property
-    def keys(self) -> list[str]:
-        """Available keys in the store."""
-        ...
+    def keys(self) -> list[str]: ...
 
-    async def get_value(self, key: str) -> str | None:
-        """Get value by key."""
-        ...
+    async def get_value(self, key: str) -> str | None: ...
 
-    def has_key(self, key: str) -> bool:
-        """Check if key exists."""
-        ...
+    def has_key(self, key: str) -> bool: ...
 
-    async def validate_store(self) -> bool:
-        """Validate store completeness and integrity."""
-        ...
+    async def validate_store(self) -> bool: ...
 
 
 @runtime_checkable
@@ -63,17 +55,11 @@ class ProtocolMemoryMetadata(ProtocolKeyValueStore, Protocol):
     """Protocol for memory metadata structures."""
 
     @property
-    def metadata_keys(self) -> list[str]:
-        """Available metadata keys."""
-        ...
+    def metadata_keys(self) -> list[str]: ...
 
-    async def get_metadata_value(self, key: str) -> str | None:
-        """Get metadata value by key."""
-        ...
+    async def get_metadata_value(self, key: str) -> str | None: ...
 
-    def has_metadata_key(self, key: str) -> bool:
-        """Check if metadata key exists."""
-        ...
+    def has_metadata_key(self, key: str) -> bool: ...
 
 
 @runtime_checkable
@@ -81,17 +67,11 @@ class ProtocolWorkflowConfiguration(ProtocolKeyValueStore, Protocol):
     """Protocol for workflow configuration structures."""
 
     @property
-    def configuration_keys(self) -> list[str]:
-        """Available configuration keys."""
-        ...
+    def configuration_keys(self) -> list[str]: ...
 
-    async def get_configuration_value(self, key: str) -> str | None:
-        """Get configuration value by key."""
-        ...
+    async def get_configuration_value(self, key: str) -> str | None: ...
 
-    async def validate_configuration(self) -> bool:
-        """Validate configuration completeness."""
-        ...
+    async def validate_configuration(self) -> bool: ...
 
 
 @runtime_checkable
@@ -99,17 +79,11 @@ class ProtocolAnalysisParameters(ProtocolKeyValueStore, Protocol):
     """Protocol for analysis parameter structures."""
 
     @property
-    def parameter_keys(self) -> list[str]:
-        """Available parameter keys."""
-        ...
+    def parameter_keys(self) -> list[str]: ...
 
-    async def get_parameter_value(self, key: str) -> str | None:
-        """Get parameter value by key."""
-        ...
+    async def get_parameter_value(self, key: str) -> str | None: ...
 
-    async def validate_parameters(self) -> bool:
-        """Validate parameter completeness."""
-        ...
+    async def validate_parameters(self) -> bool: ...
 
 
 @runtime_checkable
@@ -117,17 +91,11 @@ class ProtocolAggregationCriteria(ProtocolKeyValueStore, Protocol):
     """Protocol for aggregation criteria structures."""
 
     @property
-    def criteria_keys(self) -> list[str]:
-        """Available criteria keys."""
-        ...
+    def criteria_keys(self) -> list[str]: ...
 
-    async def get_criteria_value(self, key: str) -> str | None:
-        """Get criteria value by key."""
-        ...
+    async def get_criteria_value(self, key: str) -> str | None: ...
 
-    async def validate_criteria(self) -> bool:
-        """Validate criteria completeness."""
-        ...
+    async def validate_criteria(self) -> bool: ...
 
 
 @runtime_checkable
@@ -135,17 +103,11 @@ class ProtocolCoordinationMetadata(Protocol):
     """Protocol for coordination metadata structures."""
 
     @property
-    def metadata_keys(self) -> list[str]:
-        """Available metadata keys."""
-        ...
+    def metadata_keys(self) -> list[str]: ...
 
-    async def get_metadata_value(self, key: str) -> str | None:
-        """Get metadata value by key."""
-        ...
+    async def get_metadata_value(self, key: str) -> str | None: ...
 
-    async def validate_metadata(self) -> bool:
-        """Validate metadata completeness."""
-        ...
+    async def validate_metadata(self) -> bool: ...
 
 
 @runtime_checkable
@@ -153,17 +115,11 @@ class ProtocolAnalysisResults(Protocol):
     """Protocol for analysis result structures."""
 
     @property
-    def result_keys(self) -> list[str]:
-        """Available result keys."""
-        ...
+    def result_keys(self) -> list[str]: ...
 
-    async def get_result_value(self, key: str) -> str | None:
-        """Get result value by key."""
-        ...
+    async def get_result_value(self, key: str) -> str | None: ...
 
-    def has_result_key(self, key: str) -> bool:
-        """Check if result key exists."""
-        ...
+    def has_result_key(self, key: str) -> bool: ...
 
 
 @runtime_checkable
@@ -171,17 +127,11 @@ class ProtocolAggregatedData(Protocol):
     """Protocol for aggregated data structures."""
 
     @property
-    def data_keys(self) -> list[str]:
-        """Available data keys."""
-        ...
+    def data_keys(self) -> list[str]: ...
 
-    async def get_data_value(self, key: str) -> str | None:
-        """Get data value by key."""
-        ...
+    async def get_data_value(self, key: str) -> str | None: ...
 
-    async def validate_data(self) -> bool:
-        """Validate data completeness."""
-        ...
+    async def validate_data(self) -> bool: ...
 
 
 @runtime_checkable
@@ -189,17 +139,11 @@ class ProtocolMemoryErrorContext(Protocol):
     """Protocol for error context structures."""
 
     @property
-    def context_keys(self) -> list[str]:
-        """Available context keys."""
-        ...
+    def context_keys(self) -> list[str]: ...
 
-    async def get_context_value(self, key: str) -> str | None:
-        """Get context value by key."""
-        ...
+    async def get_context_value(self, key: str) -> str | None: ...
 
-    def add_context(self, key: str, value: str) -> None:
-        """Add context information."""
-        ...
+    def add_context(self, key: str, value: str) -> None: ...
 
 
 @runtime_checkable
@@ -207,17 +151,11 @@ class ProtocolPageInfo(Protocol):
     """Protocol for pagination information structures."""
 
     @property
-    def info_keys(self) -> list[str]:
-        """Available info keys."""
-        ...
+    def info_keys(self) -> list[str]: ...
 
-    async def get_info_value(self, key: str) -> str | None:
-        """Get info value by key."""
-        ...
+    async def get_info_value(self, key: str) -> str | None: ...
 
-    def has_next_page(self) -> bool:
-        """Check if next page exists."""
-        ...
+    def has_next_page(self) -> bool: ...
 
 
 @runtime_checkable
@@ -225,17 +163,11 @@ class ProtocolCustomMetrics(Protocol):
     """Protocol for custom metrics structures."""
 
     @property
-    def metric_names(self) -> list[str]:
-        """Available metric names."""
-        ...
+    def metric_names(self) -> list[str]: ...
 
-    async def get_metric_value(self, name: str) -> float | None:
-        """Get metric value by name."""
-        ...
+    async def get_metric_value(self, name: str) -> float | None: ...
 
-    def has_metric(self, name: str) -> bool:
-        """Check if metric exists."""
-        ...
+    def has_metric(self, name: str) -> bool: ...
 
 
 @runtime_checkable
@@ -243,24 +175,13 @@ class ProtocolAggregationSummary(Protocol):
     """Protocol for aggregation summary structures."""
 
     @property
-    def summary_keys(self) -> list[str]:
-        """Available summary keys."""
-        ...
+    def summary_keys(self) -> list[str]: ...
 
-    async def get_summary_value(self, key: str) -> float | None:
-        """Get summary value by key."""
-        ...
+    async def get_summary_value(self, key: str) -> float | None: ...
 
-    def calculate_total(self) -> float:
-        """Calculate total aggregated value."""
-        ...
+    def calculate_total(self) -> float: ...
 
-    # CONSOLIDATED: ProtocolMemoryRecordData functionality moved to ProtocolAggregatedData
-    # Use: ProtocolAggregatedData for all memory record data needs
-
-    async def validate_record_data(self) -> bool:
-        """Validate record data completeness."""
-        ...
+    async def validate_record_data(self) -> bool: ...
 
 
 @runtime_checkable
@@ -277,14 +198,10 @@ class ProtocolMemoryRecord(Protocol):
     expires_at: "datetime | None"
 
     @property
-    def embedding(self) -> list[float] | None:
-        """Vector embedding for semantic search."""
-        ...
+    def embedding(self) -> list[float] | None: ...
 
     @property
-    def related_memories(self) -> list[UUID]:
-        """Related memory identifiers."""
-        ...
+    def related_memories(self) -> list[UUID]: ...
 
 
 @runtime_checkable
@@ -296,9 +213,7 @@ class ProtocolSearchResult(Protocol):
     match_type: str
 
     @property
-    def highlighted_content(self) -> str | None:
-        """Content with search term highlights."""
-        ...
+    def highlighted_content(self) -> str | None: ...
 
 
 @runtime_checkable
@@ -312,9 +227,7 @@ class ProtocolSearchFilters(Protocol):
     date_range_end: "datetime | None"
 
     @property
-    def tags(self) -> list[str] | None:
-        """Filter tags for search."""
-        ...
+    def tags(self) -> list[str] | None: ...
 
 
 @runtime_checkable
@@ -322,21 +235,18 @@ class ProtocolAgentStatusMap(Protocol):
     """Protocol for agent status mapping structures."""
 
     @property
-    def agent_ids(self) -> list[UUID]:
-        """List of agent IDs in the status map."""
-        ...
+    def agent_ids(self) -> list[UUID]: ...
 
-    async def get_agent_status(self, agent_id: UUID) -> str | None:
-        """Get status for a specific agent."""
-        ...
+    async def get_agent_status(self, agent_id: UUID) -> str | None: ...
 
-    async def set_agent_status(self, agent_id: UUID, status: str) -> None:
-        """Set status for a specific agent."""
-        ...
+    async def set_agent_status(self, agent_id: UUID, status: str) -> None: ...
 
-    async def get_all_statuses(self) -> dict[UUID, str]:
-        """Get all agent statuses as a dict."""
-        ...
+    @property
+    def responding_agents(self) -> list[UUID]: ...
+
+    def add_agent_response(self, agent_id: UUID, response: str) -> None: ...
+
+    async def get_all_statuses(self) -> dict[UUID, str]: ...
 
 
 @runtime_checkable
@@ -344,21 +254,13 @@ class ProtocolAgentResponseMap(Protocol):
     """Protocol for agent response mapping structures."""
 
     @property
-    def responding_agents(self) -> list[UUID]:
-        """List of agents that have responded."""
-        ...
+    def responding_agents(self) -> list[UUID]: ...
 
-    async def get_agent_response(self, agent_id: UUID) -> str | None:
-        """Get response from a specific agent."""
-        ...
+    async def get_agent_response(self, agent_id: UUID) -> str | None: ...
 
-    def add_agent_response(self, agent_id: UUID, response: str) -> None:
-        """Add response from an agent."""
-        ...
+    def add_agent_response(self, agent_id: UUID, response: str) -> None: ...
 
-    async def get_all_responses(self) -> dict[UUID, str]:
-        """Get all agent responses as a dict."""
-        ...
+    async def get_all_responses(self) -> dict[UUID, str]: ...
 
 
 @runtime_checkable
@@ -366,18 +268,10 @@ class ProtocolErrorCategoryMap(Protocol):
     """Protocol for error category counting structures."""
 
     @property
-    def category_names(self) -> list[str]:
-        """List of error category names."""
-        ...
+    def category_names(self) -> list[str]: ...
 
-    async def get_category_count(self, category: str) -> int:
-        """Get count for a specific error category."""
-        ...
+    async def get_category_count(self, category: str) -> int: ...
 
-    def increment_category(self, category: str) -> None:
-        """Increment count for an error category."""
-        ...
+    def increment_category(self, category: str) -> None: ...
 
-    async def get_all_counts(self) -> dict[str, int]:
-        """Get all category counts as a dict."""
-        ...
+    async def get_all_counts(self) -> dict[str, int]: ...

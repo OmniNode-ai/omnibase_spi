@@ -16,7 +16,7 @@ import sys
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
 
 class ViolationLevel(Enum):
@@ -233,7 +233,7 @@ class OmniStructureValidator:
                 StructureViolation(
                     level=ViolationLevel.ERROR,
                     category="Protocol Location",
-                    message=f"Only omnibase_spi should contain protocols directory",
+                    message="Only omnibase_spi should contain protocols directory",
                     path="src/{repo_name}/protocols/",
                     suggestion="Remove local protocols, import from omnibase_spi instead",
                 )
@@ -306,7 +306,7 @@ class OmniStructureValidator:
                     StructureViolation(
                         level=ViolationLevel.ERROR,
                         category="Node Version",
-                        message=f"Missing version directory: v1_0_0",
+                        message="Missing version directory: v1_0_0",
                         path=str(node_dir.relative_to(self.repo_path)),
                         suggestion="Create v1_0_0 directory with node.py and contracts/",
                     )

@@ -16,12 +16,10 @@ from __future__ import annotations
 
 import argparse
 import ast
-import re
 import sys
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
 
 import timeout_utils
 from timeout_utils import timeout_context
@@ -471,14 +469,14 @@ def print_typing_report(violations: list[TypingViolation]) -> None:
     warning_count = sum(1 for v in violations if v.severity == "warning")
     info_count = sum(1 for v in violations if v.severity == "info")
 
-    print(f"\n📊 VALIDATION SUMMARY:")
+    print("\n📊 VALIDATION SUMMARY:")
     print(f"   Total violations: {len(violations)}")
     print(f"   Errors: {error_count}")
     print(f"   Warnings: {warning_count}")
     print(f"   Info: {info_count}")
 
     if violations:
-        print(f"\n🔍 TYPING VIOLATIONS FOUND:")
+        print("\n🔍 TYPING VIOLATIONS FOUND:")
 
         # Group violations by type
         by_type = defaultdict(list)
@@ -516,7 +514,7 @@ def print_typing_report(violations: list[TypingViolation]) -> None:
         print("   Consider implementing auto-fix functionality for these violations")
 
     if error_count == 0:
-        print(f"\n✅ TYPING VALIDATION PASSED: No critical errors found")
+        print("\n✅ TYPING VALIDATION PASSED: No critical errors found")
         if warning_count > 0:
             print(
                 f"   ⚠️  {warning_count} warnings should be addressed for better typing"

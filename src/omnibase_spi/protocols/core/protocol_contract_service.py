@@ -5,7 +5,7 @@ Defines the interface for contract loading, parsing, validation, caching,
 and metadata extraction operations following ONEX standards.
 """
 
-from typing import TYPE_CHECKING, Protocol, Union, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import (
     ContextValue,
@@ -36,23 +36,13 @@ class ProtocolContractService(Protocol):
 
     Usage Example:
         ```python
-        # Implementation example (not part of SPI)
-        class ContractServiceImpl:
-            async def load_contract(self, contract_path: str) -> dict:
-                with open(contract_path) as f:
-                    import yaml
-                    return yaml.safe_load(f)
+        # Protocol usage example (SPI-compliant)
+        service: "ContractService" = get_contract_service()
 
-            async def validate_contract(self, contract_data: dict) -> dict:
-                # Validate contract structure and content
-                is_valid = self._validate_structure(contract_data)
-                return {
-                    'is_valid': is_valid,
-                    'errors': [],
-                    'warnings': []
-                }
+        # Usage demonstrates protocol interface without implementation details
+        # All operations work through the protocol contract
+        # Implementation details are abstracted away from the interface
 
-        # Usage in application code
         contract_service: "ProtocolContractService" = ContractServiceImpl()
 
         contract = contract_service.load_contract('/path/to/contract.yaml')
@@ -60,195 +50,36 @@ class ProtocolContractService(Protocol):
         ```
     """
 
-    async def load_contract(self, contract_path: str) -> "ProtocolMetadata":
-        """
-        Load and parse a contract from file system.
-
-        Args:
-            contract_path: Path to the contract YAML file
-
-        Returns:
-            Fully parsed contract with all references resolved
-
-        Raises:
-            FileNotFoundError: If contract file does not exist
-            ValueError: If contract format is invalid
-            RuntimeError: If contract loading or parsing fails
-        """
-        ...
+    async def load_contract(self, contract_path: str) -> "ProtocolMetadata": ...
 
     async def validate_contract(
         self, contract_data: "ProtocolMetadata"
-    ) -> "ProtocolValidationResult":
-        """
-        Validate contract structure and content.
-
-        Args:
-            contract_data: Contract to validate
-
-        Returns:
-            Validation result with status, errors, and warnings
-
-        Note:
-            Returns structured validation result rather than boolean
-            to provide detailed error information for debugging.
-        """
-        ...
+    ) -> "ProtocolValidationResult": ...
 
     async def get_cached_contract(
         self, contract_path: str
-    ) -> "ProtocolMetadata | None":
-        """
-        Retrieve contract from cache if available.
-
-        Args:
-            contract_path: Path to the contract file
-
-        Returns:
-            Cached contract or None if not cached
-
-        Note:
-            Cache should consider file modification time for
-            automatic invalidation of stale contracts.
-        """
-        ...
+    ) -> "ProtocolMetadata | None": ...
 
     def cache_contract(
         self, contract_path: str, contract_data: "ProtocolMetadata"
-    ) -> bool:
-        """
-        Cache a contract for future retrieval.
+    ) -> bool: ...
 
-        Args:
-            contract_path: Path to the contract file
-            contract_data: Contract to cache
+    def clear_cache(self, contract_path: str | None = None) -> int: ...
 
-        Returns:
-            True if caching succeeded
+    def extract_node_id(self, contract_data: "ProtocolMetadata") -> str: ...
 
-        Note:
-            Should include cache expiration and size management
-            to prevent unbounded memory usage.
-        """
-        ...
-
-    def clear_cache(self, contract_path: str | None = None) -> int:
-        """
-        Clear contract cache.
-
-        Args:
-            contract_path: Specific contract to remove, or None to clear all
-
-        Returns:
-            Number of contracts removed from cache
-
-        Note:
-            Provides granular cache management for memory optimization
-            and cache consistency operations.
-        """
-        ...
-
-    def extract_node_id(self, contract_data: "ProtocolMetadata") -> str:
-        """
-        Extract node ID from contract.
-
-        Args:
-            contract_data: Contract to extract ID from
-
-        Returns:
-            Node identifier
-
-        Raises:
-            ValueError: If node ID is missing or invalid
-        """
-        ...
-
-    def extract_version(self, contract_data: "ProtocolMetadata") -> "ProtocolSemVer":
-        """
-        Extract semantic version from contract.
-
-        Args:
-            contract_data: Contract to extract version from
-
-        Returns:
-            Semantic version object
-
-        Raises:
-            ValueError: If version is missing or invalid format
-        """
-        ...
+    def extract_version(
+        self, contract_data: "ProtocolMetadata"
+    ) -> "ProtocolSemVer": ...
 
     def extract_dependencies(
         self, contract_data: "ProtocolMetadata"
-    ) -> list[dict[str, "ContextValue"]]:
-        """
-        Extract dependency list from contract.
+    ) -> list[dict[str, "ContextValue"]]: ...
 
-        Args:
-            contract_data: Contract to extract dependencies from
+    def extract_tool_class_name(self, contract_data: "ProtocolMetadata") -> str: ...
 
-        Returns:
-            List of dependency specifications
+    def extract_event_patterns(
+        self, contract_data: "ProtocolMetadata"
+    ) -> list[str]: ...
 
-        Note:
-            Each dependency specification includes module, class,
-            and configuration information for service registration.
-        """
-        ...
-
-    def extract_tool_class_name(self, contract_data: "ProtocolMetadata") -> str:
-        """
-        Extract main tool class name from contract.
-
-        Args:
-            contract_data: Contract to extract tool class from
-
-        Returns:
-            Main tool class name
-
-        Raises:
-            ValueError: If tool class name is missing or invalid
-        """
-        ...
-
-    def extract_event_patterns(self, contract_data: "ProtocolMetadata") -> list[str]:
-        """
-        Extract event subscription patterns from contract.
-
-        Args:
-            contract_data: Contract to extract patterns from
-
-        Returns:
-            List of event patterns for subscription
-
-        Note:
-            Event patterns support glob-style matching and
-            hierarchical event type organization.
-        """
-        ...
-
-    async def get_cache_statistics(self) -> dict[str, object]:
-        """
-        Get contract cache statistics for monitoring.
-
-        Returns:
-            Cache statistics including hit rates, size, and performance metrics
-
-        Note:
-            Provides cache metrics for performance monitoring and
-            optimization of contract loading and parsing operations.
-        """
-        ...
-
-    async def health_check(self) -> dict[str, object]:
-        """
-        Perform health check on contract service.
-
-        Returns:
-            Health check results with status and metrics
-
-        Note:
-            Should include cache statistics, file system access,
-            and service availability information.
-        """
-        ...
+    async def get_cache_statistics(self) -> dict[str, object]: ...

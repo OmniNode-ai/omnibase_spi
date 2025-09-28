@@ -5,7 +5,7 @@ These protocols extend the base node registry with workflow-specific
 node discovery, capability management, and task scheduling support.
 """
 
-from typing import TYPE_CHECKING, Any, Optional, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, Union, runtime_checkable
 from uuid import UUID
 
 from omnibase_spi.protocols.core.protocol_node_registry import ProtocolNodeRegistry
@@ -87,7 +87,7 @@ class ProtocolTaskSchedulingCriteria(Protocol):
     resource_requirements: dict[str, Any]
     affinity_rules: dict[str, Any]
     anti_affinity_rules: dict[str, Any]
-    geographic_constraints: dict[str, Any] | None
+    geographic_constraints: Union[dict[str, Any], None]
     priority: LiteralTaskPriority
     timeout_tolerance: int
 
@@ -106,7 +106,7 @@ class ProtocolNodeSchedulingResult(Protocol):
     scheduling_rationale: str
     fallback_nodes: list["ProtocolWorkflowNodeInfo"]
     resource_allocation: dict[str, Any]
-    estimated_completion_time: float | None
+    estimated_completion_time: Union[float, None]
     constraints_satisfied: dict[str, bool]
 
 
@@ -121,7 +121,6 @@ class ProtocolWorkflowNodeRegistry(Protocol):
     - Workflow-aware node selection
     - Resource utilization tracking
     - Performance-based routing
-
     """
 
     @property
@@ -131,166 +130,51 @@ class ProtocolWorkflowNodeRegistry(Protocol):
         self,
         task_config: "ProtocolTaskConfiguration",
         scheduling_criteria: "ProtocolTaskSchedulingCriteria",
-    ) -> ProtocolNodeSchedulingResult:
-        """
-        Discover and rank nodes suitable for task execution.
-
-        Args:
-            task_config: Task configuration requirements
-            scheduling_criteria: Scheduling preferences and constraints
-
-        Returns:
-            Scheduling result with ranked node options
-        """
-        ...
+    ) -> ProtocolNodeSchedulingResult: ...
 
     async def discover_nodes_by_capability(
         self,
         capability_name: str,
-        capability_version: str | None,
-        min_availability: float | None,
-    ) -> list["ProtocolWorkflowNodeInfo"]:
-        """
-        Discover nodes by workflow capability.
-
-        Args:
-            capability_name: Required capability name
-            capability_version: Optional capability version filter
-            min_availability: Minimum availability threshold (0.0-1.0)
-
-        Returns:
-            List of nodes with the capability
-        """
-        ...
+        capability_version: Union[str, None],
+        min_availability: Union[float, None],
+    ) -> list["ProtocolWorkflowNodeInfo"]: ...
 
     async def discover_nodes_for_workflow_type(
-        self, workflow_type: str, required_node_types: list[LiteralNodeType] | None
-    ) -> list["ProtocolWorkflowNodeInfo"]:
-        """
-        Discover nodes that can execute specific workflow type.
-
-        Args:
-            workflow_type: Workflow type identifier
-            required_node_types: Optional node type filter
-
-        Returns:
-            List of compatible nodes
-        """
-        ...
+        self,
+        workflow_type: str,
+        required_node_types: Union[list[LiteralNodeType], None],
+    ) -> list["ProtocolWorkflowNodeInfo"]: ...
 
     async def get_workflow_node_info(
         self, node_id: str
-    ) -> ProtocolWorkflowNodeInfo | None:
-        """
-        Get workflow-specific node information.
-
-        Args:
-            node_id: Node identifier
-
-        Returns:
-            Workflow node info or None if not found
-        """
-        ...
+    ) -> Union[ProtocolWorkflowNodeInfo, None]: ...
 
     async def register_workflow_capability(
         self, node_id: str, capability: "ProtocolWorkflowNodeCapability"
-    ) -> bool:
-        """
-        Register workflow capability for node.
-
-        Args:
-            node_id: Node identifier
-            capability: Workflow capability to register
-
-        Returns:
-            True if registration successful
-        """
-        ...
+    ) -> bool: ...
 
     async def unregister_workflow_capability(
         self, node_id: str, capability_id: str
-    ) -> bool:
-        """
-        Unregister workflow capability from node.
-
-        Args:
-            node_id: Node identifier
-            capability_id: Capability identifier to remove
-
-        Returns:
-            True if unregistration successful
-        """
-        ...
+    ) -> bool: ...
 
     async def get_node_capabilities(
         self, node_id: str
-    ) -> list["ProtocolWorkflowNodeCapability"]:
-        """
-        Get all workflow capabilities for node.
-
-        Args:
-            node_id: Node identifier
-
-        Returns:
-            List of node capabilities
-        """
-        ...
+    ) -> list["ProtocolWorkflowNodeCapability"]: ...
 
     async def update_node_workload(
         self, node_id: str, task_id: UUID, workload_change: str
-    ) -> None:
-        """
-        Update node workload tracking.
+    ) -> None: ...
 
-        Args:
-            node_id: Node identifier
-            task_id: Task identifier
-            workload_change: Change type (add, remove, update)
-        """
-        ...
+    async def get_node_workload(self, node_id: str) -> dict[str, Any]: ...
 
-    async def get_node_workload(self, node_id: str) -> dict[str, Any]:
-        """
-        Get current node workload information.
-
-        Args:
-            node_id: Node identifier
-
-        Returns:
-            Current workload metrics and task list
-        """
-        ...
-
-    async def get_resource_utilization(self, node_id: str) -> dict[str, float]:
-        """
-        Get current resource utilization for node.
-
-        Args:
-            node_id: Node identifier
-
-        Returns:
-            Resource utilization metrics (CPU, memory, etc.)
-        """
-        ...
+    async def get_resource_utilization(self, node_id: str) -> dict[str, float]: ...
 
     async def calculate_scheduling_score(
         self,
         node_info: "ProtocolWorkflowNodeInfo",
         task_config: "ProtocolTaskConfiguration",
         criteria: "ProtocolTaskSchedulingCriteria",
-    ) -> float:
-        """
-        Calculate scheduling score for node and task.
-
-        Args:
-            node_info: Node information
-            task_config: Task configuration
-            criteria: Scheduling criteria
-
-        Returns:
-            Scheduling score (0.0-1.0, higher is better)
-        """
-        ...
+    ) -> float: ...
 
     async def reserve_resources(
         self,
@@ -298,93 +182,28 @@ class ProtocolWorkflowNodeRegistry(Protocol):
         task_id: UUID,
         resource_requirements: dict[str, Any],
         timeout_seconds: int,
-    ) -> bool:
-        """
-        Reserve resources on node for task execution.
+    ) -> bool: ...
 
-        Args:
-            node_id: Node identifier
-            task_id: Task identifier
-            resource_requirements: Required resources
-            timeout_seconds: Reservation timeout
-
-        Returns:
-            True if reservation successful
-        """
-        ...
-
-    async def release_resources(self, node_id: str, task_id: UUID) -> bool:
-        """
-        Release reserved resources for completed task.
-
-        Args:
-            node_id: Node identifier
-            task_id: Task identifier
-
-        Returns:
-            True if release successful
-        """
-        ...
+    async def release_resources(self, node_id: str, task_id: UUID) -> bool: ...
 
     async def record_task_execution_metrics(
         self, node_id: str, task_id: UUID, execution_metrics: dict[str, Any]
-    ) -> None:
-        """
-        Record task execution performance metrics.
-
-        Args:
-            node_id: Node identifier
-            task_id: Task identifier
-            execution_metrics: Performance metrics
-        """
-        ...
+    ) -> None: ...
 
     async def get_node_performance_history(
         self,
         node_id: str,
-        task_type: "LiteralTaskType | None",
+        task_type: Union["LiteralTaskType", None],
         time_window_seconds: int,
-    ) -> dict[str, Any]:
-        """
-        Get historical performance data for node.
-
-        Args:
-            node_id: Node identifier
-            task_type: Optional task type filter
-            time_window_seconds: Time window for metrics
-
-        Returns:
-            Performance history and statistics
-        """
-        ...
+    ) -> dict[str, Any]: ...
 
     async def update_node_availability(
-        self, node_id: str, availability_status: str, metadata: dict[str, Any] | None
-    ) -> bool:
-        """
-        Update node availability status.
-
-        Args:
-            node_id: Node identifier
-            availability_status: Availability status
-            metadata: Additional metadata
-
-        Returns:
-            True if update successful
-        """
-        ...
+        self,
+        node_id: str,
+        availability_status: str,
+        metadata: Union[dict[str, Any], None],
+    ) -> bool: ...
 
     async def get_cluster_health_summary(
-        self, workflow_type: str | None, node_group: str | None
-    ) -> dict[str, Any]:
-        """
-        Get cluster health summary for workflow execution.
-
-        Args:
-            workflow_type: Optional workflow type filter
-            node_group: Optional node group filter
-
-        Returns:
-            Cluster health and capacity metrics
-        """
-        ...
+        self, workflow_type: Union[str, None], node_group: Union[str, None]
+    ) -> dict[str, Any]: ...

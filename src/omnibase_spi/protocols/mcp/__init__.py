@@ -26,7 +26,7 @@ Example Integration Pattern:
     # Register subsystem and tools
     registration_id = await client.register_subsystem(
         subsystem_config, tool_definitions
-    )
+)
 
     # Start health monitoring
     await client.start_heartbeat(interval=30)
@@ -36,7 +36,7 @@ Example Integration Pattern:
         tool_name="process_data",
         parameters={"input": "data"},
         correlation_id=uuid4()
-    )
+)
     ```
 
 Architecture:

@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Redpanda Event Bus Adapter Protocol - ONEX SPI Interface.
 

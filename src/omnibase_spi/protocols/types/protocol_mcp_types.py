@@ -16,9 +16,7 @@ from omnibase_spi.protocols.types.protocol_core_types import (
 )
 
 if TYPE_CHECKING:
-    # Forward references for MCP types to avoid circular imports
     pass
-
 LiteralMCPToolType = Literal["function", "resource", "prompt", "sampling", "completion"]
 LiteralMCPParameterType = Literal[
     "string", "number", "integer", "boolean", "array", "object"
@@ -48,13 +46,9 @@ class ProtocolMCPToolParameter(Protocol):
     constraints: dict[str, ContextValue]
     examples: list[ContextValue]
 
-    def validate_parameter(self) -> bool:
-        """Validate that the tool parameter definition is complete and consistent."""
-        ...
+    async def validate_parameter(self) -> bool: ...
 
-    def is_required_parameter(self) -> bool:
-        """Check if this parameter is required and has no valid default."""
-        ...
+    def is_required_parameter(self) -> bool: ...
 
 
 @runtime_checkable
@@ -74,13 +68,7 @@ class ProtocolMCPToolDefinition(Protocol):
     tags: list[str]
     metadata: dict[str, ContextValue]
 
-    def validate_tool_definition(self) -> bool:
-        """Validate that the MCP tool definition is complete and executable."""
-        ...
-
-    def is_complete(self) -> bool:
-        """Check if all required fields are present and the tool can be registered."""
-        ...
+    async def validate_tool_definition(self) -> bool: ...
 
 
 @runtime_checkable
@@ -102,13 +90,7 @@ class ProtocolMCPSubsystemMetadata(Protocol):
     dependencies: list[str]
     metadata: dict[str, ContextValue]
 
-    def validate_metadata(self) -> bool:
-        """Validate mcpsubsystemmetadata data integrity and consistency."""
-        ...
-
-    def has_required_fields(self) -> bool:
-        """Check if mcpsubsystemmetadata required fields."""
-        ...
+    async def validate_metadata(self) -> bool: ...
 
 
 @runtime_checkable
@@ -132,13 +114,7 @@ class ProtocolMCPSubsystemRegistration(Protocol):
     last_error: str | None
     configuration: dict[str, "ContextValue"]
 
-    def validate_registration(self) -> bool:
-        """Validate mcpsubsystemregistration data integrity and consistency."""
-        ...
-
-    def is_active(self) -> bool:
-        """Check if mcpsubsystemregistration active."""
-        ...
+    async def validate_registration(self) -> bool: ...
 
 
 @runtime_checkable
@@ -159,13 +135,7 @@ class ProtocolMCPToolExecution(Protocol):
     correlation_id: UUID
     metadata: dict[str, ContextValue]
 
-    def validate_execution(self) -> bool:
-        """Validate mcptoolexecution data integrity and consistency."""
-        ...
-
-    def is_completed(self) -> bool:
-        """Check if mcptoolexecution completed."""
-        ...
+    async def validate_execution(self) -> bool: ...
 
 
 @runtime_checkable
@@ -189,13 +159,7 @@ class ProtocolMCPRegistryMetrics(Protocol):
     health_status_distribution: dict[LiteralHealthStatus, int]
     metadata: dict[str, ContextValue]
 
-    def validate_metrics(self) -> bool:
-        """Validate mcpregistrymetrics data integrity and consistency."""
-        ...
-
-    def is_healthy(self) -> bool:
-        """Check if mcpregistrymetrics healthy."""
-        ...
+    async def validate_metrics(self) -> bool: ...
 
 
 @runtime_checkable
@@ -214,13 +178,7 @@ class ProtocolMCPRegistryStatus(Protocol):
     features_enabled: list[str]
     maintenance_mode: bool
 
-    def validate_status(self) -> bool:
-        """Validate mcpregistrystatus data integrity and consistency."""
-        ...
-
-    def is_operational(self) -> bool:
-        """Check if mcpregistrystatus operational."""
-        ...
+    async def validate_status(self) -> bool: ...
 
 
 @runtime_checkable
@@ -243,13 +201,7 @@ class ProtocolMCPRegistryConfig(Protocol):
     maintenance_mode: bool
     configuration: dict[str, "ContextValue"]
 
-    def validate_config(self) -> bool:
-        """Validate mcpregistryconfig data integrity and consistency."""
-        ...
-
-    def is_valid_configuration(self) -> bool:
-        """Check if mcpregistryconfig valid configuration."""
-        ...
+    async def validate_config(self) -> bool: ...
 
 
 @runtime_checkable
@@ -265,13 +217,7 @@ class ProtocolMCPHealthCheck(Protocol):
     checks: dict[str, bool]
     metadata: dict[str, ContextValue]
 
-    def validate_health_check(self) -> bool:
-        """Validate mcphealthcheck data integrity and consistency."""
-        ...
-
-    def is_passing(self) -> bool:
-        """Check if mcphealthcheck passing."""
-        ...
+    async def validate_health_check(self) -> bool: ...
 
 
 @runtime_checkable
@@ -286,13 +232,7 @@ class ProtocolMCPDiscoveryInfo(Protocol):
     last_seen: ProtocolDateTime
     metadata: dict[str, ContextValue]
 
-    def validate_discovery_info(self) -> bool:
-        """Validate mcpdiscoveryinfo data integrity and consistency."""
-        ...
-
-    def is_available(self) -> bool:
-        """Check if mcpdiscoveryinfo available."""
-        ...
+    async def validate_discovery_info(self) -> bool: ...
 
 
 @runtime_checkable
@@ -306,13 +246,7 @@ class ProtocolMCPValidationError(Protocol):
     suggested_fix: str | None
     severity: str
 
-    def validate_error(self) -> bool:
-        """Validate mcpvalidationerror data integrity and consistency."""
-        ...
-
-    def is_critical(self) -> bool:
-        """Check if mcpvalidationerror critical."""
-        ...
+    async def validate_error(self) -> bool: ...
 
 
 @runtime_checkable
@@ -325,13 +259,7 @@ class ProtocolMCPValidationResult(Protocol):
     validation_time: ProtocolDateTime
     validation_version: ProtocolSemVer
 
-    def validate_validation_result(self) -> bool:
-        """Validate mcpvalidationresult data integrity and consistency."""
-        ...
-
-    def has_errors(self) -> bool:
-        """Check if mcpvalidationresult errors."""
-        ...
+    async def validate_validation_result(self) -> bool: ...
 
 
 @runtime_checkable
@@ -341,9 +269,7 @@ class ProtocolToolClass(Protocol):
     __name__: str
     __module__: str
 
-    def __call__(self, *args: object, **kwargs: object) -> "ProtocolToolInstance":
-        """Create tool instance."""
-        ...
+    def __call__(self, *args: object, **kwargs: object) -> "ProtocolToolInstance": ...
 
 
 @runtime_checkable
@@ -357,16 +283,10 @@ class ProtocolToolInstance(Protocol):
 
     async def execute(
         self, parameters: dict[str, ContextValue]
-    ) -> dict[str, ContextValue]:
-        """Execute tool with given parameters."""
-        ...
+    ) -> dict[str, ContextValue]: ...
 
     async def validate_parameters(
         self, parameters: dict[str, ContextValue]
-    ) -> ProtocolMCPValidationResult:
-        """Validate tool parameters."""
-        ...
+    ) -> ProtocolMCPValidationResult: ...
 
-    async def health_check(self) -> dict[str, ContextValue]:
-        """Check tool health status."""
-        ...
+    async def health_check(self) -> dict[str, ContextValue]: ...

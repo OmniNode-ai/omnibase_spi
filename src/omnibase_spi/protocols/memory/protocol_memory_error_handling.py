@@ -1,13 +1,13 @@
 """
-Enhanced error handling protocol definitions for OmniMemory operations.
+    Enhanced error handling protocol definitions for OmniMemory operations.
 
-Defines error categorization, retry policies, compensation/rollback patterns,
-and comprehensive error recovery for memory operations.
+    Defines error categorization, retry policies, compensation/rollback patterns,
+    and comprehensive error recovery for memory operations.
 """
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Callable, Protocol, runtime_checkable
 from uuid import UUID
 
 if TYPE_CHECKING:
@@ -26,492 +26,206 @@ class ProtocolErrorCategory(Protocol):
     """
 
     @property
-    def error_type(self) -> str:
-        """Primary error type (transient, permanent, security, validation, infrastructure)."""
-        ...
+    def error_type(self) -> str: ...
 
     @property
-    def error_code(self) -> str:
-        """Specific error code for programmatic handling."""
-        ...
+    def error_severity(self) -> str: ...
 
     @property
-    def error_severity(self) -> str:
-        """Error severity (low, medium, high, critical)."""
-        ...
+    def is_retryable(self) -> bool: ...
 
     @property
-    def is_recoverable(self) -> bool:
-        """Whether this error can be recovered from."""
-        ...
+    def default_retry_count(self) -> int: ...
 
-    @property
-    def recovery_strategy(self) -> str:
-        """Recommended recovery strategy."""
-        ...
+    async def classify_error(self, error: Exception) -> str: ...
 
-    @property
-    def requires_user_intervention(self) -> bool:
-        """Whether this error requires user intervention."""
-        ...
-
-    @property
-    def compliance_impact(self) -> str | None:
-        """Compliance frameworks impacted by this error."""
-        ...
+    async def get_recovery_strategy(self) -> str: ...
 
 
 @runtime_checkable
 class ProtocolMemoryRetryPolicy(Protocol):
     """
-    Retry policy configuration for memory operation error recovery.
+    Retry policy configuration for memory operations.
 
-    Defines retry behavior, backoff strategies, and retry limits
-    for different types of memory operations and error conditions.
+    Defines retry behavior including attempt limits, backoff strategies,
+    and condition-based retry logic for memory operations.
     """
 
     @property
-    def max_retries(self) -> int:
-        """Maximum number of retry attempts."""
-        ...
+    def max_attempts(self) -> int: ...
 
     @property
-    def initial_delay_seconds(self) -> float:
-        """Initial delay before first retry."""
-        ...
+    def base_delay_ms(self) -> int: ...
 
     @property
-    def backoff_strategy(self) -> str:
-        """Backoff strategy (linear, exponential, fibonacci)."""
-        ...
+    def max_delay_ms(self) -> int: ...
 
     @property
-    def backoff_multiplier(self) -> float:
-        """Multiplier for backoff calculation."""
-        ...
+    def backoff_multiplier(self) -> float: ...
 
     @property
-    def max_delay_seconds(self) -> float:
-        """Maximum delay between retries."""
-        ...
+    def jitter_enabled(self) -> bool: ...
 
-    @property
-    def jitter_enabled(self) -> bool:
-        """Whether to add random jitter to delays."""
-        ...
+    async def should_retry(self, error: Exception, attempt: int) -> bool: ...
 
-    @property
-    def retry_on_error_types(self) -> list[str]:
-        """Error types that should trigger retries."""
-        ...
+    async def calculate_delay(self, attempt: int) -> int: ...
 
-    @property
-    def circuit_breaker_enabled(self) -> bool:
-        """Whether circuit breaker is enabled."""
-        ...
-
-    @property
-    def circuit_breaker_threshold(self) -> int:
-        """Failure threshold for circuit breaker."""
-        ...
+    async def reset_policy(self) -> None: ...
 
 
 @runtime_checkable
 class ProtocolMemoryCompensationAction(Protocol):
     """
-    Compensation action for failed operations.
+    Compensation action for failed memory operations.
 
-    Defines rollback, cleanup, and compensation actions to maintain
-    data consistency when operations fail partially or completely.
+    Defines compensating actions to undo or mitigate the effects
+    of failed operations in distributed memory systems.
     """
 
     @property
-    def action_id(self) -> UUID:
-        """Unique identifier for this compensation action."""
-        ...
+    def action_id(self) -> UUID: ...
 
     @property
-    def action_type(self) -> str:
-        """Type of compensation action (rollback, cleanup, notify)."""
-        ...
+    def operation_id(self) -> UUID: ...
 
     @property
-    def target_operation_id(self) -> UUID:
-        """ID of the failed operation being compensated."""
-        ...
+    def compensation_type(self) -> str: ...
 
     @property
-    def compensation_order(self) -> int:
-        """Order in which compensation should be executed."""
-        ...
+    def is_idempotent(self) -> bool: ...
 
-    @property
-    def is_idempotent(self) -> bool:
-        """Whether this action can be safely repeated."""
-        ...
+    async def execute_compensation(self) -> bool: ...
 
-    @property
-    def timeout_seconds(self) -> float:
-        """Timeout for compensation action execution."""
-        ...
+    async def validate_compensation(self) -> bool: ...
 
-    @property
-    def action_metadata(self) -> "ProtocolMemoryMetadata":
-        """Additional metadata for compensation action."""
-        ...
+    async def get_compensation_metadata(self) -> "ProtocolMemoryMetadata": ...
 
 
 @runtime_checkable
 class ProtocolOperationContext(Protocol):
     """
-    Context information for operation tracking and error recovery.
+    Context information for memory operations.
 
-    Maintains operation state, dependencies, and recovery information
-    for comprehensive error handling and rollback capabilities.
+    Provides operation metadata, timing information, and environment
+    details necessary for error handling and recovery decisions.
     """
 
     @property
-    def operation_id(self) -> UUID:
-        """Unique identifier for this operation."""
-        ...
+    def operation_id(self) -> UUID: ...
 
     @property
-    def operation_type(self) -> str:
-        """Type of operation being performed."""
-        ...
+    def operation_type(self) -> str: ...
 
     @property
-    def parent_operation_id(self) -> UUID | None:
-        """Parent operation ID for nested operations."""
-        ...
+    def start_time(self) -> "datetime": ...
 
     @property
-    def correlation_id(self) -> UUID:
-        """Correlation ID for request tracking."""
-        ...
+    def timeout_ms(self) -> int: ...
 
     @property
-    def started_at(self) -> "datetime":
-        """Timestamp when operation started."""
-        ...
+    def correlation_id(self) -> UUID | None: ...
 
     @property
-    def timeout_at(self) -> "datetime | None":
-        """Timestamp when operation times out."""
-        ...
+    def user_context(self) -> dict[str, str] | None: ...
 
     @property
-    def dependencies(self) -> list[UUID]:
-        """List of operation IDs this operation depends on."""
-        ...
+    def retry_count(self) -> int: ...
 
-    @property
-    def compensation_actions(self) -> list["ProtocolMemoryCompensationAction"]:
-        """List of compensation actions for rollback."""
-        ...
+    def has_timed_out(self) -> bool: ...
 
-    @property
-    def operation_metadata(self) -> "ProtocolMemoryMetadata":
-        """Additional operation metadata."""
-        ...
+    async def get_elapsed_time_ms(self) -> int: ...
+
+    def increment_retry_count(self) -> None: ...
+
+    def add_context_data(self, key: str, value: str) -> None: ...
 
 
 @runtime_checkable
 class ProtocolMemoryErrorHandler(Protocol):
     """
-    Error handling and recovery for memory operations.
+    Comprehensive error handler for memory operations.
 
-    Provides comprehensive error categorization, retry handling,
-    compensation execution, and error reporting capabilities.
+    Orchestrates error classification, retry logic, compensation actions,
+    and recovery strategies for memory operation failures.
     """
 
-    async def categorize_error(
-        self,
-        error: Exception,
-        operation_context: "ProtocolOperationContext",
-        correlation_id: UUID | None = None,
-    ) -> "ProtocolErrorCategory":
-        """
-        Categorize error for appropriate handling strategy.
+    @property
+    def error_categories(self) -> list["ProtocolErrorCategory"]: ...
 
-        Args:
-            error: Exception that occurred
-            operation_context: Context of the failed operation
-            correlation_id: Request correlation ID
+    @property
+    def retry_policies(self) -> dict[str, "ProtocolMemoryRetryPolicy"]: ...
 
-        Returns:
-            Error category with handling recommendations
+    @property
+    def compensation_actions(self) -> list["ProtocolMemoryCompensationAction"]: ...
 
-        Raises:
-            ErrorHandlingError: If error categorization fails
-        """
-        ...
+    async def handle_error(
+        self, error: Exception, context: "ProtocolOperationContext"
+    ) -> bool: ...
+
+    async def classify_error(self, error: Exception) -> "ProtocolErrorCategory": ...
 
     async def should_retry_operation(
-        self,
-        error_category: "ProtocolErrorCategory",
-        retry_policy: "ProtocolMemoryRetryPolicy",
-        current_attempt: int,
-        operation_context: "ProtocolOperationContext",
-        correlation_id: UUID | None = None,
-    ) -> "ProtocolMemoryMetadata":
-        """
-        Determine if operation should be retried.
-
-        Args:
-            error_category: Categorized error information
-            retry_policy: Retry policy configuration
-            current_attempt: Current retry attempt number
-            operation_context: Context of the failed operation
-            correlation_id: Request correlation ID
-
-        Returns:
-            Retry decision with delay information
-
-        Raises:
-            RetryPolicyError: If retry policy evaluation fails
-        """
-        ...
+        self, error: Exception, context: "ProtocolOperationContext"
+    ) -> bool: ...
 
     async def execute_retry(
         self,
-        operation_context: "ProtocolOperationContext",
+        operation_func: Callable[..., Any],
+        context: "ProtocolOperationContext",
         retry_policy: "ProtocolMemoryRetryPolicy",
-        retry_attempt: int,
-        correlation_id: UUID | None = None,
-        timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryMetadata":
-        """
-        Execute retry of failed operation.
+    ) -> Any: ...
 
-        Args:
-            operation_context: Context of the operation to retry
-            retry_policy: Retry policy configuration
-            retry_attempt: Current retry attempt number
-            correlation_id: Request correlation ID
-            timeout_seconds: Optional timeout for retry operation
+    async def execute_compensation(
+        self, context: "ProtocolOperationContext"
+    ) -> bool: ...
 
-        Returns:
-            Retry execution result
-
-        Raises:
-            RetryExecutionError: If retry execution fails
-            TimeoutError: If retry exceeds timeout
-        """
-        ...
-
-    async def execute_compensation_actions(
-        self,
-        operation_context: "ProtocolOperationContext",
-        compensation_actions: list["ProtocolMemoryCompensationAction"],
-        correlation_id: UUID | None = None,
-        timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryMetadata":
-        """
-        Execute compensation actions for failed operation.
-
-        Args:
-            operation_context: Context of the failed operation
-            compensation_actions: List of compensation actions to execute
-            correlation_id: Request correlation ID
-            timeout_seconds: Optional timeout for compensation execution
-
-        Returns:
-            Compensation execution results
-
-        Raises:
-            CompensationError: If compensation execution fails
-            TimeoutError: If compensation exceeds timeout
-        """
-        ...
-
-    async def create_error_report(
+    async def log_error(
         self,
         error: Exception,
-        error_category: "ProtocolErrorCategory",
-        operation_context: "ProtocolOperationContext",
-        recovery_actions: list[str],
-        correlation_id: UUID | None = None,
-    ) -> "ProtocolMemoryMetadata":
-        """
-        Create comprehensive error report for analysis.
+        context: "ProtocolOperationContext",
+        recovery_action: str,
+    ) -> None: ...
 
-        Args:
-            error: Original exception that occurred
-            error_category: Categorized error information
-            operation_context: Context of the failed operation
-            recovery_actions: List of recovery actions taken
-            correlation_id: Request correlation ID
+    async def get_error_statistics(self) -> dict[str, int]: ...
 
-        Returns:
-            Generated error report with analysis
-
-        Raises:
-            ReportGenerationError: If error report creation fails
-        """
-        ...
-
-    async def handle_circuit_breaker(
-        self,
-        operation_type: str,
-        error_rate: float,
-        failure_threshold: int,
-        time_window_seconds: int,
-        correlation_id: UUID | None = None,
-    ) -> "ProtocolMemoryMetadata":
-        """
-        Handle circuit breaker logic for operation protection.
-
-        Args:
-            operation_type: Type of operation for circuit breaker
-            error_rate: Current error rate for operation type
-            failure_threshold: Threshold for opening circuit
-            time_window_seconds: Time window for error rate calculation
-            correlation_id: Request correlation ID
-
-        Returns:
-            Circuit breaker status and recommendations
-
-        Raises:
-            CircuitBreakerError: If circuit breaker handling fails
-        """
-        ...
-
-    async def recover_from_partial_failure(
-        self,
-        operation_context: "ProtocolOperationContext",
-        successful_operations: list[UUID],
-        failed_operations: list[UUID],
-        recovery_strategy: str,
-        correlation_id: UUID | None = None,
-        timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryMetadata":
-        """
-        Recover from partial failure in batch or complex operations.
-
-        Args:
-            operation_context: Context of the partially failed operation
-            successful_operations: Operations that completed successfully
-            failed_operations: Operations that failed
-            recovery_strategy: Strategy for partial failure recovery
-            correlation_id: Request correlation ID
-            timeout_seconds: Optional timeout for recovery operation
-
-        Returns:
-            Partial failure recovery results
-
-        Raises:
-            PartialRecoveryError: If partial recovery fails
-            TimeoutError: If recovery exceeds timeout
-        """
-        ...
+    async def reset_error_statistics(self) -> None: ...
 
 
 @runtime_checkable
 class ProtocolMemoryHealthMonitor(Protocol):
     """
-    Health monitoring and early warning system for memory operations.
+    Health monitoring for memory system components.
 
-    Monitors system health, detects degradation patterns, and provides
-    early warnings to prevent cascading failures.
+    Tracks system health, performance metrics, and provides
+    early warning capabilities for memory operation issues.
     """
 
-    async def monitor_operation_health(
-        self,
-        operation_types: list[str],
-        monitoring_window_minutes: int,
-        correlation_id: UUID | None = None,
-    ) -> "ProtocolMemoryMetadata":
-        """
-        Monitor health of memory operations.
+    @property
+    def health_status(self) -> str: ...
 
-        Args:
-            operation_types: Types of operations to monitor
-            monitoring_window_minutes: Time window for health monitoring
-            correlation_id: Request correlation ID
+    @property
+    def error_rate_threshold(self) -> float: ...
 
-        Returns:
-            Health monitoring results with metrics
+    @property
+    def response_time_threshold_ms(self) -> int: ...
 
-        Raises:
-            MonitoringError: If health monitoring fails
-        """
-        ...
+    @property
+    def monitoring_window_minutes(self) -> int: ...
 
-    async def detect_degradation_patterns(
-        self,
-        metric_types: list[str],
-        baseline_period_hours: int,
-        detection_sensitivity: float,
-        correlation_id: UUID | None = None,
-        timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryMetadata":
-        """
-        Detect performance degradation patterns.
+    async def record_operation(
+        self, operation_type: str, duration_ms: int, success: bool
+    ) -> None: ...
 
-        Args:
-            metric_types: Types of metrics to analyze for degradation
-            baseline_period_hours: Period for baseline comparison
-            detection_sensitivity: Sensitivity for degradation detection
-            correlation_id: Request correlation ID
-            timeout_seconds: Optional timeout for detection operation
+    async def record_error(self, error_category: str, error_severity: str) -> None: ...
 
-        Returns:
-            Degradation detection results
+    async def get_current_error_rate(self) -> float: ...
 
-        Raises:
-            DegradationDetectionError: If pattern detection fails
-            TimeoutError: If detection exceeds timeout
-        """
-        ...
+    async def get_average_response_time_ms(self) -> float: ...
 
-    async def generate_early_warning(
-        self,
-        warning_type: str,
-        severity_level: str,
-        affected_operations: list[str],
-        warning_metadata: "ProtocolMemoryMetadata",
-        correlation_id: UUID | None = None,
-    ) -> "ProtocolMemoryMetadata":
-        """
-        Generate early warning for potential issues.
+    async def get_health_metrics(self) -> dict[str, float]: ...
 
-        Args:
-            warning_type: Type of warning (performance, capacity, security)
-            severity_level: Severity of the warning
-            affected_operations: Operations affected by the warning
-            warning_metadata: Additional warning metadata
-            correlation_id: Request correlation ID
+    async def check_health_thresholds(self) -> bool: ...
 
-        Returns:
-            Early warning generation result
+    async def get_health_recommendations(self) -> list[str]: ...
 
-        Raises:
-            WarningGenerationError: If warning generation fails
-        """
-        ...
-
-    async def create_health_dashboard(
-        self,
-        dashboard_scope: str,
-        time_window_hours: int,
-        correlation_id: UUID | None = None,
-        timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryMetadata":
-        """
-        Create health dashboard with key metrics.
-
-        Args:
-            dashboard_scope: Scope for dashboard (system, user, operation)
-            time_window_hours: Time window for dashboard data
-            correlation_id: Request correlation ID
-            timeout_seconds: Optional timeout for dashboard creation
-
-        Returns:
-            Health dashboard data and visualizations
-
-        Raises:
-            DashboardError: If dashboard creation fails
-            TimeoutError: If creation exceeds timeout
-        """
-        ...
+    async def reset_health_metrics(self) -> None: ...

@@ -7,7 +7,7 @@ and cursor-based pagination following ONEX performance optimization patterns.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, AsyncGenerator, Optional, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, AsyncGenerator, Protocol, runtime_checkable
 from uuid import UUID
 
 if TYPE_CHECKING:
@@ -25,54 +25,34 @@ class ProtocolStreamingChunk(Protocol):
     """
 
     @property
-    def chunk_id(self) -> UUID:
-        """Unique identifier for this chunk."""
-        ...
+    def chunk_id(self) -> UUID: ...
 
     @property
-    def stream_id(self) -> UUID:
-        """Identifier for the overall stream."""
-        ...
+    async def stream_id(self) -> UUID: ...
 
     @property
-    def sequence_number(self) -> int:
-        """Sequential number of this chunk."""
-        ...
+    def sequence_number(self) -> int: ...
 
     @property
-    def total_chunks(self) -> int | None:
-        """Total number of chunks (if known)."""
-        ...
+    def total_chunks(self) -> int | None: ...
 
     @property
-    def chunk_data(self) -> bytes:
-        """Binary data for this chunk."""
-        ...
+    def chunk_data(self) -> bytes: ...
 
     @property
-    def chunk_size(self) -> int:
-        """Size of this chunk in bytes."""
-        ...
+    def chunk_size(self) -> int: ...
 
     @property
-    def is_final_chunk(self) -> bool:
-        """Whether this is the final chunk in the stream."""
-        ...
+    def is_final_chunk(self) -> bool: ...
 
     @property
-    def checksum(self) -> str:
-        """Checksum for chunk integrity verification."""
-        ...
+    def checksum(self) -> str: ...
 
     @property
-    def compression_type(self) -> str | None:
-        """Compression type used for this chunk."""
-        ...
+    async def compression_type(self) -> str | None: ...
 
     @property
-    def chunk_metadata(self) -> "ProtocolMemoryMetadata":
-        """Additional metadata for this chunk."""
-        ...
+    def chunk_metadata(self) -> "ProtocolMemoryMetadata": ...
 
 
 @runtime_checkable
@@ -85,49 +65,31 @@ class ProtocolStreamingConfig(Protocol):
     """
 
     @property
-    def chunk_size_bytes(self) -> int:
-        """Size of each chunk in bytes."""
-        ...
+    def chunk_size_bytes(self) -> int: ...
 
     @property
-    def max_concurrent_chunks(self) -> int:
-        """Maximum number of concurrent chunks to process."""
-        ...
+    def max_concurrent_chunks(self) -> int: ...
 
     @property
-    def buffer_size_mb(self) -> float:
-        """Buffer size for streaming operations in MB."""
-        ...
+    def buffer_size_mb(self) -> float: ...
 
     @property
-    def compression_enabled(self) -> bool:
-        """Whether compression is enabled for chunks."""
-        ...
+    async def compression_enabled(self) -> bool: ...
 
     @property
-    def compression_level(self) -> int:
-        """Compression level (0-9, 0=no compression)."""
-        ...
+    async def compression_level(self) -> int: ...
 
     @property
-    def timeout_per_chunk_seconds(self) -> float:
-        """Timeout for individual chunk operations."""
-        ...
+    def timeout_per_chunk_seconds(self) -> float: ...
 
     @property
-    def retry_failed_chunks(self) -> bool:
-        """Whether to retry failed chunk operations."""
-        ...
+    def retry_failed_chunks(self) -> bool: ...
 
     @property
-    def max_retries_per_chunk(self) -> int:
-        """Maximum retries for failed chunks."""
-        ...
+    def max_retries_per_chunk(self) -> int: ...
 
     @property
-    def enable_checksum_validation(self) -> bool:
-        """Whether to validate chunk checksums."""
-        ...
+    def enable_checksum_validation(self) -> bool: ...
 
 
 @runtime_checkable
@@ -140,34 +102,22 @@ class ProtocolCursorPagination(Protocol):
     """
 
     @property
-    def cursor(self) -> str | None:
-        """Opaque cursor for pagination position."""
-        ...
+    def cursor(self) -> str | None: ...
 
     @property
-    def limit(self) -> int:
-        """Maximum number of items to return."""
-        ...
+    def limit(self) -> int: ...
 
     @property
-    def sort_field(self) -> str:
-        """Field to sort by for consistent ordering."""
-        ...
+    def sort_field(self) -> str: ...
 
     @property
-    def sort_direction(self) -> str:
-        """Sort direction (asc, desc)."""
-        ...
+    def sort_direction(self) -> str: ...
 
     @property
-    def filters(self) -> "ProtocolMemoryMetadata":
-        """Additional filters for pagination."""
-        ...
+    def filters(self) -> "ProtocolMemoryMetadata": ...
 
     @property
-    def include_total_count(self) -> bool:
-        """Whether to include total count in response."""
-        ...
+    def include_total_count(self) -> bool: ...
 
 
 @runtime_checkable
@@ -185,26 +135,7 @@ class ProtocolStreamingMemoryNode(Protocol):
         streaming_config: "ProtocolStreamingConfig",
         security_context: "ProtocolMemorySecurityContext | None" = None,
         timeout_seconds: float | None = None,
-    ) -> AsyncGenerator["ProtocolStreamingChunk", None]:
-        """
-        Stream memory content in chunks for large data.
-
-        Args:
-            memory_id: ID of memory to stream
-            streaming_config: Configuration for streaming operation
-            security_context: Security context for authorization
-            timeout_seconds: Optional timeout for streaming operation
-
-        Yields:
-            Streaming chunks with content data
-
-        Raises:
-            SecurityError: If user not authorized to stream content
-            NotFoundError: If memory not found
-            StreamingError: If streaming operation fails
-            TimeoutError: If operation exceeds timeout
-        """
-        ...
+    ) -> AsyncGenerator["ProtocolStreamingChunk", None]: ...
 
     async def upload_memory_stream(
         self,
@@ -213,51 +144,14 @@ class ProtocolStreamingMemoryNode(Protocol):
         streaming_config: "ProtocolStreamingConfig",
         security_context: "ProtocolMemorySecurityContext | None" = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryMetadata":
-        """
-        Upload memory content from streaming chunks.
-
-        Args:
-            content_stream: Stream of content chunks to upload
-            target_memory_id: Target memory ID for upload
-            streaming_config: Configuration for streaming operation
-            security_context: Security context for authorization
-            timeout_seconds: Optional timeout for upload operation
-
-        Returns:
-            Upload result with metadata
-
-        Raises:
-            SecurityError: If user not authorized to upload content
-            ValidationError: If chunk validation fails
-            StreamingError: If streaming upload fails
-            TimeoutError: If operation exceeds timeout
-        """
-        ...
+    ) -> "ProtocolMemoryMetadata": ...
 
     async def paginate_memories_cursor(
         self,
         pagination_config: "ProtocolCursorPagination",
         security_context: "ProtocolMemorySecurityContext | None" = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryMetadata":
-        """
-        Paginate memory records using cursor-based pagination.
-
-        Args:
-            pagination_config: Cursor pagination configuration
-            security_context: Security context for authorization
-            timeout_seconds: Optional timeout for pagination operation
-
-        Returns:
-            Paginated results with next cursor and metadata
-
-        Raises:
-            SecurityError: If user not authorized to list memories
-            ValidationError: If pagination config is invalid
-            TimeoutError: If operation exceeds timeout
-        """
-        ...
+    ) -> "ProtocolMemoryMetadata": ...
 
     async def stream_search_results(
         self,
@@ -265,26 +159,7 @@ class ProtocolStreamingMemoryNode(Protocol):
         streaming_config: "ProtocolStreamingConfig",
         security_context: "ProtocolMemorySecurityContext | None" = None,
         timeout_seconds: float | None = None,
-    ) -> AsyncGenerator["ProtocolMemoryMetadata", None]:
-        """
-        Stream search results for large result sets.
-
-        Args:
-            search_query: Search query to execute
-            streaming_config: Configuration for streaming operation
-            security_context: Security context for authorization
-            timeout_seconds: Optional timeout for search operation
-
-        Yields:
-            Search result records as they become available
-
-        Raises:
-            SecurityError: If user not authorized to search
-            ValidationError: If search query is invalid
-            SearchError: If search operation fails
-            TimeoutError: If operation exceeds timeout
-        """
-        ...
+    ) -> AsyncGenerator["ProtocolMemoryMetadata", None]: ...
 
     async def compress_memory_content(
         self,
@@ -293,50 +168,14 @@ class ProtocolStreamingMemoryNode(Protocol):
         compression_level: int,
         security_context: "ProtocolMemorySecurityContext | None" = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryMetadata":
-        """
-        Compress memory content for storage optimization.
-
-        Args:
-            memory_id: ID of memory to compress
-            compression_algorithm: Algorithm to use (gzip, lz4, zstd)
-            compression_level: Compression level (0-9)
-            security_context: Security context for authorization
-            timeout_seconds: Optional timeout for compression operation
-
-        Returns:
-            Compression result with statistics
-
-        Raises:
-            SecurityError: If user not authorized to modify memory
-            CompressionError: If compression operation fails
-            TimeoutError: If operation exceeds timeout
-        """
-        ...
+    ) -> "ProtocolMemoryMetadata": ...
 
     async def decompress_memory_content(
         self,
         memory_id: UUID,
         security_context: "ProtocolMemorySecurityContext | None" = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryMetadata":
-        """
-        Decompress memory content for access.
-
-        Args:
-            memory_id: ID of compressed memory to decompress
-            security_context: Security context for authorization
-            timeout_seconds: Optional timeout for decompression operation
-
-        Returns:
-            Decompression result with statistics
-
-        Raises:
-            SecurityError: If user not authorized to access memory
-            CompressionError: If decompression operation fails
-            TimeoutError: If operation exceeds timeout
-        """
-        ...
+    ) -> "ProtocolMemoryMetadata": ...
 
     async def stream_embedding_vectors(
         self,
@@ -345,27 +184,7 @@ class ProtocolStreamingMemoryNode(Protocol):
         compression_enabled: bool,
         security_context: "ProtocolMemorySecurityContext | None" = None,
         timeout_seconds: float | None = None,
-    ) -> AsyncGenerator["ProtocolStreamingChunk", None]:
-        """
-        Stream embedding vectors efficiently for large datasets.
-
-        Args:
-            memory_ids: List of memory IDs to stream vectors for
-            vector_chunk_size: Number of vectors per chunk
-            compression_enabled: Whether to compress vector data
-            security_context: Security context for authorization
-            timeout_seconds: Optional timeout for streaming operation
-
-        Yields:
-            Streaming chunks with compressed embedding vectors
-
-        Raises:
-            SecurityError: If user not authorized to stream embeddings
-            NotFoundError: If memory embeddings not found
-            StreamingError: If streaming operation fails
-            TimeoutError: If operation exceeds timeout
-        """
-        ...
+    ) -> AsyncGenerator["ProtocolStreamingChunk", None]: ...
 
     async def batch_upload_embedding_vectors(
         self,
@@ -375,28 +194,7 @@ class ProtocolStreamingMemoryNode(Protocol):
         streaming_config: "ProtocolStreamingConfig",
         security_context: "ProtocolMemorySecurityContext | None" = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryMetadata":
-        """
-        Batch upload embedding vectors from streaming chunks.
-
-        Args:
-            vector_stream: Stream of embedding vector chunks
-            target_memory_ids: Target memory IDs for vectors
-            vector_dimensions: Dimensions of embedding vectors
-            streaming_config: Configuration for streaming operation
-            security_context: Security context for authorization
-            timeout_seconds: Optional timeout for upload operation
-
-        Returns:
-            Upload result with vector statistics
-
-        Raises:
-            SecurityError: If user not authorized to upload vectors
-            ValidationError: If vector chunk validation fails
-            StreamingError: If streaming upload fails
-            TimeoutError: If operation exceeds timeout
-        """
-        ...
+    ) -> "ProtocolMemoryMetadata": ...
 
 
 @runtime_checkable
@@ -414,47 +212,14 @@ class ProtocolMemoryCache(Protocol):
         cache_ttl_seconds: int,
         cache_level: str,
         security_context: "ProtocolMemorySecurityContext | None" = None,
-    ) -> "ProtocolMemoryMetadata":
-        """
-        Cache memory content for faster access.
-
-        Args:
-            memory_id: ID of memory to cache
-            cache_ttl_seconds: Time-to-live for cache entry
-            cache_level: Cache level (L1, L2, L3)
-            security_context: Security context for authorization
-
-        Returns:
-            Cache operation result
-
-        Raises:
-            SecurityError: If user not authorized to cache memory
-            CacheError: If caching operation fails
-        """
-        ...
+    ) -> "ProtocolMemoryMetadata": ...
 
     async def invalidate_cache(
         self,
         memory_id: UUID,
         invalidation_scope: str,
         security_context: "ProtocolMemorySecurityContext | None" = None,
-    ) -> "ProtocolMemoryMetadata":
-        """
-        Invalidate cached memory content.
-
-        Args:
-            memory_id: ID of memory to invalidate
-            invalidation_scope: Scope of invalidation (single, related, all)
-            security_context: Security context for authorization
-
-        Returns:
-            Cache invalidation result
-
-        Raises:
-            SecurityError: If user not authorized to invalidate cache
-            CacheError: If invalidation operation fails
-        """
-        ...
+    ) -> "ProtocolMemoryMetadata": ...
 
     async def warm_cache(
         self,
@@ -462,45 +227,13 @@ class ProtocolMemoryCache(Protocol):
         warming_strategy: str,
         security_context: "ProtocolMemorySecurityContext | None" = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryMetadata":
-        """
-        Warm cache with frequently accessed memories.
-
-        Args:
-            memory_ids: List of memory IDs to warm
-            warming_strategy: Strategy for cache warming
-            security_context: Security context for authorization
-            timeout_seconds: Optional timeout for warming operation
-
-        Returns:
-            Cache warming result with statistics
-
-        Raises:
-            SecurityError: If user not authorized to warm cache
-            CacheError: If warming operation fails
-            TimeoutError: If operation exceeds timeout
-        """
-        ...
+    ) -> "ProtocolMemoryMetadata": ...
 
     async def get_cache_stats(
         self,
         cache_scope: str,
         security_context: "ProtocolMemorySecurityContext | None" = None,
-    ) -> "ProtocolMemoryMetadata":
-        """
-        Get cache performance statistics.
-
-        Args:
-            cache_scope: Scope for statistics (user, global, memory_id)
-            security_context: Security context for authorization
-
-        Returns:
-            Cache statistics and performance metrics
-
-        Raises:
-            SecurityError: If user not authorized to view cache stats
-        """
-        ...
+    ) -> "ProtocolMemoryMetadata": ...
 
 
 @runtime_checkable
@@ -518,25 +251,7 @@ class ProtocolPerformanceOptimization(Protocol):
         time_window_hours: int,
         security_context: "ProtocolMemorySecurityContext | None" = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryMetadata":
-        """
-        Analyze performance patterns for optimization.
-
-        Args:
-            operation_types: Types of operations to analyze
-            time_window_hours: Time window for analysis
-            security_context: Security context for authorization
-            timeout_seconds: Optional timeout for analysis operation
-
-        Returns:
-            Performance analysis results with optimization suggestions
-
-        Raises:
-            SecurityError: If user not authorized to view performance data
-            AnalysisError: If performance analysis fails
-            TimeoutError: If operation exceeds timeout
-        """
-        ...
+    ) -> "ProtocolMemoryMetadata": ...
 
     async def optimize_memory_access_patterns(
         self,
@@ -544,25 +259,7 @@ class ProtocolPerformanceOptimization(Protocol):
         optimization_strategy: str,
         security_context: "ProtocolMemorySecurityContext | None" = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryMetadata":
-        """
-        Optimize access patterns for specified memories.
-
-        Args:
-            memory_ids: Memory IDs to optimize access for
-            optimization_strategy: Strategy for optimization
-            security_context: Security context for authorization
-            timeout_seconds: Optional timeout for optimization operation
-
-        Returns:
-            Optimization results with performance improvements
-
-        Raises:
-            SecurityError: If user not authorized to optimize memories
-            OptimizationError: If optimization operation fails
-            TimeoutError: If operation exceeds timeout
-        """
-        ...
+    ) -> "ProtocolMemoryMetadata": ...
 
     async def create_performance_baseline(
         self,
@@ -570,22 +267,4 @@ class ProtocolPerformanceOptimization(Protocol):
         baseline_duration_hours: int,
         security_context: "ProtocolMemorySecurityContext | None" = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryMetadata":
-        """
-        Create performance baseline for operation type.
-
-        Args:
-            operation_type: Type of operation for baseline
-            baseline_duration_hours: Duration for baseline collection
-            security_context: Security context for authorization
-            timeout_seconds: Optional timeout for baseline creation
-
-        Returns:
-            Performance baseline data and metrics
-
-        Raises:
-            SecurityError: If user not authorized to create baselines
-            BaselineError: If baseline creation fails
-            TimeoutError: If operation exceeds timeout
-        """
-        ...
+    ) -> "ProtocolMemoryMetadata": ...

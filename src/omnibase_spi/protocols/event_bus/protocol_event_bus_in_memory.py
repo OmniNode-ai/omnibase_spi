@@ -7,11 +7,9 @@ additional introspection and debugging capabilities.
 
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
-# Runtime import needed for forward reference in method signature
 from omnibase_spi.protocols.types.protocol_event_bus_types import ProtocolEventMessage
 
 if TYPE_CHECKING:
-    # No types needed here currently
     pass
 
 
@@ -24,74 +22,35 @@ class ProtocolEventBusInMemory(Protocol):
     features for testing, debugging, and development environments.
 
     Key Features:
-        - Event history tracking for debugging
-        - Subscriber count monitoring
-        - Memory-based event storage
-        - Synchronous event processing
-        - Development and testing support
+    - Event history tracking for debugging
+    - Subscriber count monitoring
+    - Memory-based event storage
+    - Synchronous event processing
+    - Development and testing support
 
     Usage Example:
-        ```python
-        # Implementation example (not part of SPI)
-        class InMemoryEventBusImpl:
-            async def get_event_history(self) -> list:
-                # Implementation returns copy of stored history
-                return self._event_history.copy()
+    ```python
+    # Protocol usage example (SPI-compliant)
+    in_memory_bus: "ProtocolEventBusInMemory" = get_in_memory_event_bus()
 
-            def clear_event_history(self) -> None:
-                # Implementation clears stored events
-                self._event_history.clear()
+    # Check event processing history for debugging
+    history = await in_memory_bus.get_event_history()
+    print(f"Processed {len(history)} events")
 
-            async def get_subscriber_count(self) -> int:
-                # Implementation returns active subscriber count
-                return len(self._subscribers)
+    # Monitor active subscribers for system health
+    subscriber_count = await in_memory_bus.get_subscriber_count()
+    print(f"Active subscribers: {subscriber_count}")
 
-        # Usage in application code
-        in_memory_bus: "ProtocolEventBusInMemory" = InMemoryEventBusImpl()
+    # Clear history for testing scenarios
+    in_memory_bus.clear_event_history()
 
-        # Check event processing history
-        history = in_memory_bus.get_event_history()
-        print(f"Processed {len(history)} events")
-
-        # Monitor active subscribers
-        subscriber_count = in_memory_bus.get_subscriber_count()
-        print(f"Active subscribers: {subscriber_count}")
-
-        # Clear history for testing
-        in_memory_bus.clear_event_history()
-        ```
+    # All methods operate on protocol interface without implementation details
+    # Perfect for testing, debugging, and development environments
+    ```
     """
 
-    async def get_event_history(self) -> list[ProtocolEventMessage]:
-        """
-        Get the history of events processed by this in-memory event bus.
+    async def get_event_history(self) -> list[ProtocolEventMessage]: ...
 
-        Returns:
-            List of processed event messages in chronological order
+    def clear_event_history(self) -> None: ...
 
-        Note:
-            History is maintained in-memory and may be limited by
-            implementation-specific size constraints.
-        """
-        ...
-
-    def clear_event_history(self) -> None:
-        """
-        Clear the event history.
-
-        Removes all stored event history from memory. Useful for
-        testing scenarios where clean state is required.
-        """
-        ...
-
-    async def get_subscriber_count(self) -> int:
-        """
-        Get the number of active subscribers.
-
-        Returns:
-            Current count of active event subscribers
-
-        Note:
-            Count includes all active subscriptions across all topics/patterns.
-        """
-        ...
+    async def get_subscriber_count(self) -> int: ...

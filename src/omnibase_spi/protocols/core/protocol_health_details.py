@@ -6,7 +6,7 @@ their own health status and provide summary information.
 Complements existing health monitoring protocols with service-specific logic.
 """
 
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import LiteralHealthStatus
 
@@ -33,83 +33,31 @@ class ProtocolHealthDetails(Protocol):
 
     Usage Example:
         ```python
-        # Implementation example (not part of SPI)
-        class ModelPostgresHealthDetails(BaseModel):
-            postgres_connection_count: int | None
-            postgres_last_error: str | None
-            max_connections: int | None
+        # Protocol usage example (SPI-compliant)
+        health_details: "ProtocolHealthDetails" = get_service_health_details()
 
-            def get_health_status(self) -> "LiteralHealthStatus":
-                if self.postgres_last_error:
-                    return "unhealthy"
-                if self.postgres_connection_count and self.max_connections:
-                    if self.postgres_connection_count > (self.max_connections * 0.9):
-                        return "warning"
-                return "healthy"
+        # Check service health status using protocol interface
+        health_status = health_details.get_health_status()
+        is_service_healthy = health_details.is_healthy()
+        health_summary = health_details.get_health_summary()
 
-            def is_healthy(self) -> bool:
-                return self.get_health_status() == "healthy"
-
-            def get_health_summary(self) -> str:
-                status = self.get_health_status()
-                if status == "unhealthy":
-                    return f"PostgreSQL Error: {self.postgres_last_error}"
-                return "PostgreSQL connections healthy"
+        # All health assessment logic is encapsulated in the implementation
+        # Protocol provides consistent interface across different service types
         ```
 
     Integration with Health Monitoring:
         ```python
-        async def create_health_check(details: "ProtocolHealthDetails") -> ProtocolHealthCheck:
-            return HealthCheckImpl(
-                service_name=details.__class__.__name__,
-                overall_status=details.get_health_status(),
-                individual_checks={"service": details.get_health_status()},
-                summary=details.get_health_summary()
-            )
+        # Protocol integration example (SPI-compliant)
+        async def create_health_check(details: "ProtocolHealthDetails") -> "ProtocolHealthCheck":
+            # Protocol enables seamless integration with health monitoring
+            # All health data accessed through protocol interface
+            health_check = await build_health_check_from_details(details)
+            return health_check
         ```
     """
 
-    def get_health_status(self) -> "LiteralHealthStatus":
-        """
-        Assess and return the health status based on service-specific metrics.
+    async def get_health_status(self) -> "LiteralHealthStatus": ...
 
-        Returns:
-            LiteralHealthStatus: Current health status of the service
+    async def is_healthy(self) -> bool: ...
 
-        The implementation should analyze service-specific fields and return:
-        - "healthy": Service is operating normally
-        - "warning": Service has minor issues but is functional
-        - "unhealthy": Service has significant issues
-        - "critical": Service is non-functional
-        - "unknown": Health status cannot be determined
-        - "degraded": Service is functional but with reduced capabilities
-        """
-        ...
-
-    def is_healthy(self) -> bool:
-        """
-        Return True if the service is considered healthy.
-
-        Returns:
-            bool: True if service is healthy, False otherwise
-
-        This is a convenience method that typically returns True when
-        get_health_status() returns "healthy".
-        """
-        ...
-
-    def get_health_summary(self) -> str:
-        """
-        Generate a human-readable summary of the health status.
-
-        Returns:
-            str: Human-readable description of current health status
-
-        Should provide actionable information about the service state,
-        including any issues or warnings that operators should be aware of.
-        Examples:
-        - "PostgreSQL healthy - 45/100 connections"
-        - "Kafka warning - high producer lag detected"
-        - "Circuit breaker error - too many failures"
-        """
-        ...
+    async def get_health_summary(self) -> str: ...

@@ -66,7 +66,7 @@ def print_comparison_report(comparison: dict) -> None:
     print(f"   Base Protocols: {p2['base_protocols']}")
 
     # Hash comparison
-    print(f"\n🔐 HASH COMPARISON:")
+    print("\n🔐 HASH COMPARISON:")
     print(f"   Hash 1: {comparison['hash_comparison']['hash1']}")
     print(f"   Hash 2: {comparison['hash_comparison']['hash2']}")
     print(
@@ -75,40 +75,40 @@ def print_comparison_report(comparison: dict) -> None:
 
     # Differences
     if comparison["differences"]:
-        print(f"\n🔍 DIFFERENCES FOUND:")
+        print("\n🔍 DIFFERENCES FOUND:")
         for diff in comparison["differences"]:
             print(f"\n   📝 {diff['component'].replace('_', ' ').title()}:")
             print(f"      Protocol 1: {diff['protocol1_value']}")
             print(f"      Protocol 2: {diff['protocol2_value']}")
     else:
-        print(f"\n✅ NO DIFFERENCES DETECTED")
+        print("\n✅ NO DIFFERENCES DETECTED")
 
     # Detailed properties comparison
     if p1["properties"] or p2["properties"]:
-        print(f"\n📊 PROPERTY DETAILS:")
-        print(f"   Protocol 1 Properties:")
+        print("\n📊 PROPERTY DETAILS:")
+        print("   Protocol 1 Properties:")
         for prop in p1["properties"]:
             print(f"      • {prop}")
-        print(f"   Protocol 2 Properties:")
+        print("   Protocol 2 Properties:")
         for prop in p2["properties"]:
             print(f"      • {prop}")
 
     # Method comparison
     if p1["methods"] or p2["methods"]:
-        print(f"\n🔧 METHOD DETAILS:")
-        print(f"   Protocol 1 Methods:")
+        print("\n🔧 METHOD DETAILS:")
+        print("   Protocol 1 Methods:")
         for method in p1["methods"]:
             print(f"      • {method}")
-        print(f"   Protocol 2 Methods:")
+        print("   Protocol 2 Methods:")
         for method in p2["methods"]:
             print(f"      • {method}")
 
     # Signature string comparison (for debugging)
-    print(f"\n🔍 SIGNATURE STRINGS (for debugging):")
-    print(f"   Protocol 1:")
+    print("\n🔍 SIGNATURE STRINGS (for debugging):")
+    print("   Protocol 1:")
     for line in p1["signature_string"].split("\n"):
         print(f"      {line}")
-    print(f"   Protocol 2:")
+    print("   Protocol 2:")
     for line in p2["signature_string"].split("\n"):
         print(f"      {line}")
 
@@ -183,7 +183,7 @@ Examples:
 
     try:
         # Perform comparison
-        print(f"🔍 Comparing protocols:")
+        print("🔍 Comparing protocols:")
         print(f"   {args.protocol1} in {file1_path}")
         print(f"   {args.protocol2} in {file2_path}")
 

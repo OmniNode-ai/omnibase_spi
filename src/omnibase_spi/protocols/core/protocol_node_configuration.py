@@ -4,7 +4,7 @@ Protocol for node configuration management in ONEX architecture.
 Domain: Core configuration protocols for ONEX nodes
 """
 
-from typing import Optional, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 
@@ -44,137 +44,37 @@ class ProtocolNodeConfiguration(Protocol):
         ```
     """
 
-    def get_config_value(
+    async def get_config_value(
         self, key: str, default: ContextValue | None = None
-    ) -> ContextValue:
-        """
-        Get configuration value by key.
+    ) -> ContextValue: ...
 
-        Args:
-            key: Configuration key (dot-separated path supported)
-            default: Default value if key not found
+    async def get_timeout_ms(
+        self, timeout_type: str, default_ms: int | None = None
+    ) -> int: ...
 
-        Returns:
-            Configuration value or default
-
-        Raises:
-            KeyError: If key not found and no default provided
-        """
-        ...
-
-    def get_timeout_ms(self, timeout_type: str, default_ms: int | None = None) -> int:
-        """
-        Get timeout configuration in milliseconds.
-
-        Args:
-            timeout_type: Type of timeout (api_call, health_check, etc.)
-            default_ms: Default timeout if not configured
-
-        Returns:
-            Timeout in milliseconds
-        """
-        ...
-
-    def get_security_config(
+    async def get_security_config(
         self, key: str, default: ContextValue | None = None
-    ) -> ContextValue:
-        """
-        Get security-related configuration value.
+    ) -> ContextValue: ...
 
-        Args:
-            key: Security configuration key
-            default: Default value if key not found
-
-        Returns:
-            Security configuration value
-        """
-        ...
-
-    def get_business_logic_config(
+    async def get_business_logic_config(
         self, key: str, default: ContextValue | None = None
-    ) -> ContextValue:
-        """
-        Get business logic configuration value.
+    ) -> ContextValue: ...
 
-        Args:
-            key: Business logic configuration key
-            default: Default value if key not found
-
-        Returns:
-            Business logic configuration value
-        """
-        ...
-
-    def get_performance_config(
+    async def get_performance_config(
         self, key: str, default: ContextValue | None = None
-    ) -> ContextValue:
-        """
-        Get performance-related configuration value.
+    ) -> ContextValue: ...
 
-        Args:
-            key: Performance configuration key
-            default: Default value if key not found
+    def has_config(self, key: str) -> bool: ...
 
-        Returns:
-            Performance configuration value
-        """
-        ...
+    async def get_all_config(self) -> dict[str, "ContextValue"]: ...
 
-    def has_config(self, key: str) -> bool:
-        """
-        Check if configuration key exists.
-
-        Args:
-            key: Configuration key to check
-
-        Returns:
-            True if key exists, False otherwise
-        """
-        ...
-
-    def get_all_config(self) -> dict[str, "ContextValue"]:
-        """
-        Get all configuration as dictionary.
-
-        Returns:
-            Complete configuration dictionary
-        """
-        ...
-
-    async def validate_config(self, config_key: str) -> bool:
-        """
-        Validate configuration key exists and has valid value.
-
-        Args:
-            config_key: Configuration key to validate
-
-        Returns:
-            True if configuration is valid, False otherwise
-        """
-        ...
+    async def validate_config(self, config_key: str) -> bool: ...
 
     async def validate_required_configs(
         self, required_keys: list[str]
-    ) -> dict[str, bool]:
-        """
-        Validate multiple required configuration keys.
+    ) -> dict[str, bool]: ...
 
-        Args:
-            required_keys: List of configuration keys that must be present
-
-        Returns:
-            Dictionary mapping config keys to validation status
-        """
-        ...
-
-    def get_config_schema(self) -> dict[str, "ContextValue"]:
-        """
-        Get configuration schema with expected types.
-
-        Returns:
-            Dictionary mapping config keys to expected type names
-        """
-        ...
+    async def get_config_schema(self) -> dict[str, "ContextValue"]: ...
 
 
 @runtime_checkable
@@ -188,38 +88,11 @@ class ProtocolNodeConfigurationProvider(Protocol):
 
     async def load_configuration(
         self, node_type: str, node_id: str
-    ) -> ProtocolNodeConfiguration:
-        """
-        Load configuration for specific node.
+    ) -> ProtocolNodeConfiguration: ...
 
-        Args:
-            node_type: Type of node (COMPUTE, EFFECT, etc.)
-            node_id: Unique identifier for node instance
+    async def reload_configuration(self) -> None: ...
 
-        Returns:
-            Configuration instance for the node
-
-        Raises:
-            ConfigurationError: If configuration cannot be loaded
-        """
-        ...
-
-    async def reload_configuration(self) -> None:
-        """
-        Reload configuration from source.
-
-        Used for hot-reloading configuration changes.
-        """
-        ...
-
-    async def validate_configuration(self) -> bool:
-        """
-        Validate current configuration.
-
-        Returns:
-            True if configuration is valid, False otherwise
-        """
-        ...
+    async def validate_configuration(self) -> bool: ...
 
 
 @runtime_checkable
@@ -244,7 +117,6 @@ class ProtocolConfigurationError(Protocol):
         # Check if error is for specific key
         if error.is_key_error("database.host"):
             # Handle specific key error
-            ...
         ```
     """
 
@@ -252,32 +124,8 @@ class ProtocolConfigurationError(Protocol):
     key: str | None
     source: str
 
-    def __str__(self) -> str:
-        """
-        String representation of configuration error.
+    def __str__(self) -> str: ...
 
-        Returns:
-            Formatted error message with context
-        """
-        ...
+    def is_key_error(self, config_key: str) -> bool: ...
 
-    def is_key_error(self, config_key: str) -> bool:
-        """
-        Check if error is related to specific configuration key.
-
-        Args:
-            config_key: Configuration key to check
-
-        Returns:
-            True if error is for the specified key
-        """
-        ...
-
-    def get_error_context(self) -> dict[str, str | None]:
-        """
-        Get error context information.
-
-        Returns:
-            Dictionary with error context (message, key, source)
-        """
-        ...
+    async def get_error_context(self) -> dict[str, str | None]: ...

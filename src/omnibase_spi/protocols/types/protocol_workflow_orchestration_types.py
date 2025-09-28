@@ -9,7 +9,6 @@ from typing import (
     Any,
     Generic,
     Literal,
-    Optional,
     Protocol,
     TypeVar,
     runtime_checkable,
@@ -24,7 +23,6 @@ from omnibase_spi.protocols.types.protocol_core_types import (
 )
 
 if TYPE_CHECKING:
-    # Forward references for type checking - add any circular import types here
     pass
 
 
@@ -32,17 +30,11 @@ if TYPE_CHECKING:
 class ProtocolWorkflowValue(Protocol):
     """Protocol for workflow data values supporting serialization and validation."""
 
-    def serialize(self) -> dict[str, object]:
-        """Serialize value to dictionary for persistence."""
-        ...
+    def serialize(self) -> dict[str, object]: ...
 
-    def validate(self) -> bool:
-        """Validate the value meets workflow constraints."""
-        ...
+    async def validate(self) -> bool: ...
 
-    def get_type_info(self) -> str:
-        """Get type information for workflow introspection."""
-        ...
+    async def get_type_info(self) -> str: ...
 
 
 @runtime_checkable
@@ -51,13 +43,9 @@ class ProtocolWorkflowStringValue(ProtocolWorkflowValue, Protocol):
 
     value: str
 
-    def get_string_length(self) -> int:
-        """Get the length of the string value."""
-        ...
+    async def get_string_length(self) -> int: ...
 
-    def is_empty_string(self) -> bool:
-        """Check if the string value is empty."""
-        ...
+    def is_empty_string(self) -> bool: ...
 
 
 @runtime_checkable
@@ -66,13 +54,9 @@ class ProtocolWorkflowStringListValue(ProtocolWorkflowValue, Protocol):
 
     value: list[str]
 
-    def get_list_length(self) -> int:
-        """Get the number of items in the string list."""
-        ...
+    async def get_list_length(self) -> int: ...
 
-    def is_empty_list(self) -> bool:
-        """Check if the string list is empty."""
-        ...
+    def is_empty_list(self) -> bool: ...
 
 
 @runtime_checkable
@@ -81,13 +65,9 @@ class ProtocolWorkflowStringDictValue(ProtocolWorkflowValue, Protocol):
 
     value: dict[str, "ContextValue"]
 
-    def get_dict_keys(self) -> list[str]:
-        """Get the keys in the dictionary value."""
-        ...
+    async def get_dict_keys(self) -> list[str]: ...
 
-    def has_key(self, key: str) -> bool:
-        """Check if the dictionary contains the specified key."""
-        ...
+    def has_key(self, key: str) -> bool: ...
 
 
 @runtime_checkable
@@ -96,13 +76,9 @@ class ProtocolWorkflowNumericValue(ProtocolWorkflowValue, Protocol):
 
     value: int | float
 
-    def is_integer(self) -> bool:
-        """Check if the numeric value is an integer."""
-        ...
+    def is_integer(self) -> bool: ...
 
-    def is_positive(self) -> bool:
-        """Check if the numeric value is positive."""
-        ...
+    def is_positive(self) -> bool: ...
 
 
 @runtime_checkable
@@ -111,13 +87,9 @@ class ProtocolWorkflowStructuredValue(ProtocolWorkflowValue, Protocol):
 
     value: dict[str, "ContextValue"]
 
-    def get_structure_depth(self) -> int:
-        """Get the nesting depth of the structured value."""
-        ...
+    async def get_structure_depth(self) -> int: ...
 
-    def flatten_structure(self) -> dict[str, "ContextValue"]:
-        """Flatten nested structure to a single level dictionary."""
-        ...
+    def flatten_structure(self) -> dict[str, "ContextValue"]: ...
 
 
 T_WorkflowValue = TypeVar("T_WorkflowValue", str, int, float, bool)
@@ -129,13 +101,9 @@ class ProtocolTypedWorkflowData(Generic[T_WorkflowValue], Protocol):
 
     value: T_WorkflowValue
 
-    def get_type_name(self) -> str:
-        """Get the type name for this workflow data."""
-        ...
+    async def get_type_name(self) -> str: ...
 
-    def serialize_typed(self) -> dict[str, Any]:
-        """Serialize with type information."""
-        ...
+    def serialize_typed(self) -> dict[str, Any]: ...
 
 
 LiteralWorkflowState = Literal[
@@ -209,13 +177,9 @@ class ProtocolWorkflowMetadata(Protocol):
     tags: dict[str, "ContextValue"]
     metadata: dict[str, "ContextValue"]
 
-    def validate_metadata(self) -> bool:
-        """Validate that workflow metadata is complete and consistent."""
-        ...
+    async def validate_metadata(self) -> bool: ...
 
-    def is_complete(self) -> bool:
-        """Check if all required metadata fields are present and valid."""
-        ...
+    def is_complete(self) -> bool: ...
 
 
 @runtime_checkable
@@ -231,13 +195,9 @@ class ProtocolRetryConfiguration(Protocol):
     retryable_errors: list[str]
     non_retryable_errors: list[str]
 
-    def validate_retry_config(self) -> bool:
-        """Validate that retry configuration parameters are reasonable and consistent."""
-        ...
+    async def validate_retry_config(self) -> bool: ...
 
-    def is_valid_policy(self) -> bool:
-        """Check if the retry policy is valid and the parameters are consistent with the policy."""
-        ...
+    def is_valid_policy(self) -> bool: ...
 
 
 @runtime_checkable
@@ -250,13 +210,9 @@ class ProtocolTimeoutConfiguration(Protocol):
     grace_period_seconds: int | None
     escalation_policy: str | None
 
-    def validate_timeout_config(self) -> bool:
-        """Validate that timeout configuration is reasonable and internally consistent."""
-        ...
+    async def validate_timeout_config(self) -> bool: ...
 
-    def is_reasonable(self) -> bool:
-        """Check if timeout values are within reasonable bounds for the timeout type."""
-        ...
+    def is_reasonable(self) -> bool: ...
 
 
 @runtime_checkable
@@ -268,13 +224,9 @@ class ProtocolTaskDependency(Protocol):
     condition: str | None
     timeout_seconds: int | None
 
-    def validate_dependency(self) -> bool:
-        """Validate that the task dependency configuration is valid."""
-        ...
+    async def validate_dependency(self) -> bool: ...
 
-    def is_conditional(self) -> bool:
-        """Check if this is a conditional dependency with a valid condition."""
-        ...
+    def is_conditional(self) -> bool: ...
 
 
 @runtime_checkable
@@ -290,13 +242,9 @@ class ProtocolWorkflowContext(Protocol):
     capabilities: list[str]
     resource_limits: dict[str, int]
 
-    def validate_context(self) -> bool:
-        """Validate that workflow context is complete and consistent."""
-        ...
+    async def validate_context(self) -> bool: ...
 
-    def has_required_data(self) -> bool:
-        """Check if all required data fields are present for the workflow type."""
-        ...
+    def has_required_data(self) -> bool: ...
 
 
 @runtime_checkable
@@ -315,13 +263,9 @@ class ProtocolTaskConfiguration(Protocol):
     resource_requirements: dict[str, Any]
     annotations: dict[str, "ContextValue"]
 
-    def validate_task(self) -> bool:
-        """Validate that task configuration is complete and consistent."""
-        ...
+    async def validate_task(self) -> bool: ...
 
-    def has_valid_dependencies(self) -> bool:
-        """Check if all task dependencies are valid and resolvable."""
-        ...
+    def has_valid_dependencies(self) -> bool: ...
 
 
 @runtime_checkable
@@ -342,13 +286,9 @@ class ProtocolWorkflowEvent(Protocol):
     causation_id: UUID | None
     correlation_chain: list[UUID]
 
-    def validate_event(self) -> bool:
-        """Validate that workflow event is well-formed and consistent."""
-        ...
+    async def validate_event(self) -> bool: ...
 
-    def is_valid_sequence(self) -> bool:
-        """Check if the event sequence number is valid for the workflow instance."""
-        ...
+    def is_valid_sequence(self) -> bool: ...
 
 
 @runtime_checkable
@@ -364,13 +304,9 @@ class ProtocolWorkflowSnapshot(Protocol):
     created_at: "ProtocolDateTime"
     metadata: dict[str, "ContextValue"]
 
-    def validate_snapshot(self) -> bool:
-        """Validate workflowsnapshot data integrity and consistency."""
-        ...
+    async def validate_snapshot(self) -> bool: ...
 
-    def is_consistent(self) -> bool:
-        """Check if workflowsnapshot consistent."""
-        ...
+    def is_consistent(self) -> bool: ...
 
 
 @runtime_checkable
@@ -389,13 +325,9 @@ class ProtocolTaskResult(Protocol):
     output_artifacts: list[str]
     events_emitted: list["ProtocolWorkflowEvent"]
 
-    def validate_result(self) -> bool:
-        """Validate taskresult data integrity and consistency."""
-        ...
+    async def validate_result(self) -> bool: ...
 
-    def is_success(self) -> bool:
-        """Check if taskresult success."""
-        ...
+    def is_success(self) -> bool: ...
 
 
 @runtime_checkable
@@ -409,13 +341,9 @@ class ProtocolCompensationAction(Protocol):
     timeout_seconds: int
     retry_config: "ProtocolRetryConfiguration"
 
-    def validate_compensation(self) -> bool:
-        """Validate compensationaction data integrity and consistency."""
-        ...
+    async def validate_compensation(self) -> bool: ...
 
-    async def can_execute(self) -> bool:
-        """Check if compensation action can be executed."""
-        ...
+    async def can_execute(self) -> bool: ...
 
 
 @runtime_checkable
@@ -433,13 +361,9 @@ class ProtocolWorkflowDefinition(Protocol):
     validation_rules: dict[str, Any]
     schema: dict[str, Any]
 
-    def validate_definition(self) -> bool:
-        """Validate workflowdefinition data integrity and consistency."""
-        ...
+    async def validate_definition(self) -> bool: ...
 
-    def is_valid_schema(self) -> bool:
-        """Check if workflowdefinition valid schema."""
-        ...
+    def is_valid_schema(self) -> bool: ...
 
 
 @runtime_checkable
@@ -453,13 +377,9 @@ class ProtocolNodeCapability(Protocol):
     configuration_schema: dict[str, Any]
     supported_task_types: list[LiteralTaskType]
 
-    def validate_capability(self) -> bool:
-        """Validate nodecapability data integrity and consistency."""
-        ...
+    async def validate_capability(self) -> bool: ...
 
-    def is_supported(self) -> bool:
-        """Check if nodecapability supported."""
-        ...
+    def is_supported(self) -> bool: ...
 
 
 @runtime_checkable
@@ -474,13 +394,9 @@ class ProtocolWorkflowServiceInstance(Protocol):
     capabilities: list["ProtocolNodeCapability"]
     last_heartbeat: "ProtocolDateTime"
 
-    def validate_service_instance(self) -> bool:
-        """Validate workflowserviceinstance data integrity and consistency."""
-        ...
+    async def validate_service_instance(self) -> bool: ...
 
-    def is_healthy(self) -> bool:
-        """Check if workflowserviceinstance healthy."""
-        ...
+    def is_healthy(self) -> bool: ...
 
 
 @runtime_checkable
@@ -496,13 +412,9 @@ class ProtocolRecoveryPoint(Protocol):
     created_at: "ProtocolDateTime"
     metadata: dict[str, "ContextValue"]
 
-    def validate_recovery_point(self) -> bool:
-        """Validate recoverypoint data integrity and consistency."""
-        ...
+    async def validate_recovery_point(self) -> bool: ...
 
-    def is_restorable(self) -> bool:
-        """Check if recoverypoint restorable."""
-        ...
+    def is_restorable(self) -> bool: ...
 
 
 @runtime_checkable
@@ -516,13 +428,9 @@ class ProtocolReplayStrategy(Protocol):
     skip_failed_events: bool
     validate_state: bool
 
-    def validate_replay_strategy(self) -> bool:
-        """Validate replaystrategy data integrity and consistency."""
-        ...
+    async def validate_replay_strategy(self) -> bool: ...
 
-    def is_executable(self) -> bool:
-        """Check if replaystrategy executable."""
-        ...
+    def is_executable(self) -> bool: ...
 
 
 @runtime_checkable
@@ -538,13 +446,9 @@ class ProtocolEventStream(Protocol):
     is_complete: bool
     next_token: str | None
 
-    def validate_stream(self) -> bool:
-        """Validate eventstream data integrity and consistency."""
-        ...
+    async def validate_stream(self) -> bool: ...
 
-    def is_complete_stream(self) -> bool:
-        """Check if eventstream complete stream."""
-        ...
+    async def is_complete_stream(self) -> bool: ...
 
 
 @runtime_checkable
@@ -558,10 +462,6 @@ class ProtocolEventProjection(Protocol):
     created_at: "ProtocolDateTime"
     updated_at: "ProtocolDateTime"
 
-    def validate_projection(self) -> bool:
-        """Validate eventprojection data integrity and consistency."""
-        ...
+    async def validate_projection(self) -> bool: ...
 
-    def is_up_to_date(self) -> bool:
-        """Check if eventprojection up to date."""
-        ...
+    def is_up_to_date(self) -> bool: ...

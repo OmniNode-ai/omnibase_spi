@@ -4,43 +4,31 @@ Container protocol types for ONEX SPI interfaces.
 Domain: Dependency injection and service container protocols
 """
 
-from typing import Literal, Protocol, runtime_checkable
+from typing import Any, Callable, Literal, Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import (
     ContextValue,
     ProtocolSemVer,
 )
 
-# Container status types
 LiteralContainerStatus = Literal["initializing", "ready", "error", "disposed"]
-
-# Service lifecycle types
 LiteralServiceLifecycle = Literal["singleton", "transient", "scoped", "factory"]
-
-# Dependency scope types
 LiteralDependencyScope = Literal["required", "optional", "lazy", "eager"]
 
 
-# Container protocols
 @runtime_checkable
 class ProtocolContainer(Protocol):
     """Protocol for dependency injection containers."""
 
-    def register(self, service_key: str, service_instance: object) -> None:
-        """Register service instance with container."""
-        ...
+    def register(
+        self, service_key: str, service_instance: Callable[..., Any]
+    ) -> None: ...
 
-    def get_service(self, service_key: str) -> object:
-        """Retrieve service instance by key."""
-        ...
+    async def get_service(self, service_key: str) -> object: ...
 
-    def has_service(self, service_key: str) -> bool:
-        """Check if service is registered."""
-        ...
+    def has_service(self, service_key: str) -> bool: ...
 
-    def dispose(self) -> None:
-        """Dispose container and cleanup resources."""
-        ...
+    def dispose(self) -> None: ...
 
 
 @runtime_checkable
@@ -64,30 +52,16 @@ class ProtocolContainerServiceInstance(Protocol):
     lifecycle: LiteralServiceLifecycle
     is_initialized: bool
 
-    def validate_service_instance(self) -> bool:
-        """Validate containerserviceinstance data integrity and consistency."""
-        ...
-
-    async def is_ready_for_use(self) -> bool:
-        """Check if containerserviceinstance ready for use."""
-        ...
+    async def validate_service_instance(self) -> bool: ...
 
 
 @runtime_checkable
 class ProtocolRegistryWrapper(Protocol):
     """Protocol for registry wrapper objects."""
 
-    def get_service(self, service_key: str) -> object:
-        """Get service by key with fallback handling."""
-        ...
+    async def get_service(self, service_key: str) -> object: ...
 
-    def get_node_version(self) -> ProtocolSemVer:
-        """Get node version information."""
-        ...
-
-    def list_services(self) -> list[str]:
-        """List all registered service keys."""
-        ...
+    async def get_node_version(self) -> ProtocolSemVer: ...
 
 
 @runtime_checkable
@@ -101,8 +75,6 @@ class ProtocolContainerResult(Protocol):
     services_registered: int
 
 
-# Note: "ProtocolToolClass" is defined in protocol_mcp_types.py
-# Tool instances in container context
 @runtime_checkable
 class ProtocolContainerToolInstance(Protocol):
     """Protocol for tool instance objects in dependency injection container context."""
@@ -113,44 +85,33 @@ class ProtocolContainerToolInstance(Protocol):
 
     async def process(
         self, input_data: dict[str, "ContextValue"]
-    ) -> dict[str, "ContextValue"]:
-        """Process input data and return results."""
-        ...
+    ) -> dict[str, "ContextValue"]: ...
 
 
-# Container factory protocols
 @runtime_checkable
 class ProtocolContainerFactory(Protocol):
     """Protocol for container factory objects."""
 
-    def create_container(self) -> ProtocolContainer:
-        """Create new container instance."""
-        ...
+    async def create_container(self) -> ProtocolContainer: ...
 
-    def create_registry_wrapper(
+    async def create_registry_wrapper(
         self, container: "ProtocolContainer"
-    ) -> ProtocolRegistryWrapper:
-        """Create registry wrapper around container."""
-        ...
+    ) -> ProtocolRegistryWrapper: ...
 
 
 @runtime_checkable
 class ProtocolContainerServiceFactory(Protocol):
     """Protocol for dependency injection container service factory objects."""
 
-    def create_service(
-        self,
-        dependency_spec: "ProtocolDependencySpec",
-    ) -> ProtocolContainerServiceInstance:
-        """Create service instance from dependency specification."""
-        ...
+    async def create_service(
+        self, dependency_spec: "ProtocolDependencySpec"
+    ) -> ProtocolContainerServiceInstance: ...
 
-    def validate_dependency(self, dependency_spec: "ProtocolDependencySpec") -> bool:
-        """Validate dependency specification."""
-        ...
+    async def validate_dependency(
+        self, dependency_spec: "ProtocolDependencySpec"
+    ) -> bool: ...
 
 
-# Container configuration protocols
 @runtime_checkable
 class ProtocolContainerConfiguration(Protocol):
     """Protocol for container configuration objects."""

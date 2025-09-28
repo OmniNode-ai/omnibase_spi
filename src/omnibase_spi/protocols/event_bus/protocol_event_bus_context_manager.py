@@ -5,15 +5,12 @@ Provides async context management protocols for event bus lifecycle management.
 Abstracts lifecycle management for event bus resources (e.g., Kafka, RedPanda).
 """
 
-from typing import TYPE_CHECKING, Protocol, TypeVar, Union, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, TypeVar, runtime_checkable
 
-# Runtime import needed for forward reference in method signature
 from omnibase_spi.protocols.event_bus.protocol_event_bus import ProtocolEventBus
 
 if TYPE_CHECKING:
-    # No types needed here currently
     pass
-
 TEventBus = TypeVar("TEventBus", bound=ProtocolEventBus, covariant=True)
 
 
@@ -33,55 +30,18 @@ class ProtocolEventBusContextManager(Protocol):
 
     Usage Example:
         ```python
-        # Implementation example (not part of SPI)
-        class KafkaEventBusContextManager:
-            async def __aenter__(self) -> KafkaEventBus:
-                # Implementation creates and connects event bus
-                event_bus = KafkaEventBus(self.config)
-                await event_bus.connect()
-                return event_bus
+        # Protocol usage example (SPI-compliant)
+        context_manager: "ProtocolEventBusContextManager" = get_event_bus_context_manager()
 
-            async def __aexit__(self, exc_type, exc_val, exc_tb):
-                # Implementation cleans up resources
-                if hasattr(self, '_event_bus'):
-                    await self._event_bus.close()
-
-        # Usage in application code
-        async with context_manager_impl as event_bus:
+        # Usage with async context manager pattern
+        async with context_manager as event_bus:
+            # event_bus is guaranteed to implement ProtocolEventBus
             await event_bus.publish(topic="test", key=None, value=b"data", headers={...})
+
+            # Context manager handles connection lifecycle automatically
+            # - Establishes connection on enter
+            # - Performs cleanup on exit (even if exception occurs)
         ```
     """
 
-    async def __aenter__(self) -> ProtocolEventBus:
-        """
-        Enter async context and return configured event bus instance.
-
-        Returns:
-            Configured and connected event bus instance
-
-        Raises:
-            ConnectionError: If event bus connection fails
-            ValueError: If configuration is invalid
-            RuntimeError: If resource initialization fails
-        """
-        ...
-
-    async def __aexit__(
-        self,
-        exc_type: type[BaseException] | None,
-        exc_val: BaseException | None,
-        exc_tb: object,
-    ) -> None:
-        """
-        Exit async context and clean up event bus resources.
-
-        Args:
-            exc_type: Exception type if context exits with exception
-            exc_val: Exception value if context exits with exception
-            exc_tb: Exception traceback if context exits with exception
-
-        Note:
-            Should properly close connections and clean up resources
-            regardless of whether an exception occurred.
-        """
-        ...
+    async def __aenter__(self) -> ProtocolEventBus: ...

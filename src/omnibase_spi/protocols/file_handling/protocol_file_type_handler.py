@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import (
     ProtocolNodeMetadata,
@@ -41,32 +41,8 @@ class ProtocolFileTypeHandler(Protocol):
     Usage Example:
         ```python
         # Implementation example (not part of SPI)
-        class NodePythonFileProcessor:
-            @property
-            def metadata(self) -> ProtocolNodeMetadata:
-                # Implementation would return configured metadata
-                ...
-
-            @property
-            def node_name(self) -> str:
-                # Implementation returns node identifier
-                ...
-
-            def can_handle(self, path: str, content: str) -> ProtocolCanHandleResult:
-                # Implementation determines if file can be processed
-                ...
-
-            def extract_block(self, path: str, content: str) -> ProtocolExtractedBlock:
-                # Implementation extracts structured block from file content
-                ...
-
-            def stamp(self, path: str, content: str, options: "ProtocolStampOptions") -> ProtocolOnexResult:
-                # Implementation adds metadata stamp to file
-                ...
-
-            def validate(self, path: str, content: str, options: "ProtocolValidationOptions") -> ProtocolOnexResult:
-                # Implementation validates file content and metadata
-                ...
+        # NodePythonFileProcessor would implement the protocol interface
+        # All methods defined in the protocol contract
 
         # Usage in application
         node: "ProtocolFileTypeHandler" = NodePythonFileProcessor()

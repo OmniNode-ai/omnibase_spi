@@ -7,7 +7,7 @@ Handles tool execution routing, load balancing, and result aggregation.
 Domain: MCP tool execution and proxy management
 """
 
-from typing import TYPE_CHECKING, Any, Optional, Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 from uuid import UUID
 
 from omnibase_spi.protocols.types.protocol_core_types import ContextValue
@@ -34,56 +34,17 @@ class ProtocolMCPToolRouter(Protocol):
         tool_name: str,
         parameters: dict[str, ContextValue],
         routing_policy: str | None,
-    ) -> ProtocolMCPToolDefinition | None:
-        """
-        Select the best tool implementation for execution.
-
-        Args:
-            tool_name: Name of the tool
-            parameters: Tool execution parameters
-            routing_policy: Optional routing policy (round_robin, least_loaded, etc.)
-
-        Returns:
-            Selected tool definition or None if no suitable implementation
-        """
-        ...
+    ) -> ProtocolMCPToolDefinition | None: ...
 
     async def get_available_implementations(
         self, tool_name: str
-    ) -> list[ProtocolMCPToolDefinition]:
-        """
-        Get all available implementations of a tool.
-
-        Args:
-            tool_name: Name of the tool
-
-        Returns:
-            List of available tool implementations
-        """
-        ...
+    ) -> list[ProtocolMCPToolDefinition]: ...
 
     async def check_implementation_health(
         self, tool_def: "ProtocolMCPToolDefinition"
-    ) -> bool:
-        """
-        Check if a tool implementation is healthy and available.
+    ) -> bool: ...
 
-        Args:
-            tool_def: Tool definition to check
-
-        Returns:
-            True if implementation is healthy
-        """
-        ...
-
-    async def get_routing_statistics(self) -> dict[str, Any]:
-        """
-        Get routing statistics and metrics.
-
-        Returns:
-            Routing statistics including selection counts and performance
-        """
-        ...
+    async def get_routing_statistics(self) -> dict[str, Any]: ...
 
 
 @runtime_checkable
@@ -103,26 +64,7 @@ class ProtocolMCPToolExecutor(Protocol):
         execution_id: str,
         correlation_id: UUID,
         timeout_seconds: int | None,
-    ) -> dict[str, Any]:
-        """
-        Execute a tool on a specific subsystem.
-
-        Args:
-            tool_def: Tool definition
-            subsystem: Target subsystem registration
-            parameters: Tool execution parameters
-            execution_id: Unique execution identifier
-            correlation_id: Request correlation ID
-            timeout_seconds: Optional timeout override
-
-        Returns:
-            Tool execution result
-
-        Raises:
-            TimeoutError: If execution times out
-            RuntimeError: If execution fails
-        """
-        ...
+    ) -> dict[str, Any]: ...
 
     async def execute_with_retry(
         self,
@@ -132,48 +74,13 @@ class ProtocolMCPToolExecutor(Protocol):
         execution_id: str,
         correlation_id: UUID,
         max_retries: int | None,
-    ) -> dict[str, Any]:
-        """
-        Execute tool with retry logic on failure.
+    ) -> dict[str, Any]: ...
 
-        Args:
-            tool_def: Tool definition
-            subsystem: Target subsystem registration
-            parameters: Tool execution parameters
-            execution_id: Unique execution identifier
-            correlation_id: Request correlation ID
-            max_retries: Optional retry count override
-
-        Returns:
-            Tool execution result
-        """
-        ...
-
-    async def cancel_execution(self, execution_id: str) -> bool:
-        """
-        Cancel a running tool execution.
-
-        Args:
-            execution_id: Tool execution ID
-
-        Returns:
-            True if cancellation successful
-        """
-        ...
+    async def cancel_execution(self, execution_id: str) -> bool: ...
 
     async def get_execution_status(
         self, execution_id: str
-    ) -> LiteralMCPExecutionStatus | None:
-        """
-        Get current execution status.
-
-        Args:
-            execution_id: Tool execution ID
-
-        Returns:
-            Current execution status or None if not found
-        """
-        ...
+    ) -> LiteralMCPExecutionStatus | None: ...
 
 
 @runtime_checkable
@@ -198,9 +105,7 @@ class ProtocolMCPToolProxy(Protocol):
     def router(self) -> ProtocolMCPToolRouter: ...
 
     @property
-    def executor(self) -> ProtocolMCPToolExecutor:
-        """Get the tool executor implementation."""
-        ...
+    def executor(self) -> ProtocolMCPToolExecutor: ...
 
     async def proxy_tool_execution(
         self,
@@ -210,57 +115,15 @@ class ProtocolMCPToolProxy(Protocol):
         timeout_seconds: int | None,
         routing_policy: str | None,
         preferred_subsystem: str | None,
-    ) -> dict[str, Any]:
-        """
-        Proxy tool execution with intelligent routing and error handling.
-
-        Args:
-            tool_name: Name of the tool to execute
-            parameters: Tool execution parameters
-            correlation_id: Request correlation ID
-            timeout_seconds: Optional execution timeout
-            routing_policy: Optional routing policy (round_robin, least_loaded, etc.)
-            preferred_subsystem: Optional preferred subsystem ID
-
-        Returns:
-            Tool execution result
-
-        Raises:
-            ValueError: If tool not found or parameters invalid
-            TimeoutError: If execution times out
-            RuntimeError: If execution fails
-        """
-        ...
+    ) -> dict[str, Any]: ...
 
     async def proxy_batch_execution(
         self, requests: list[dict[str, Any]], correlation_id: UUID, max_parallel: int
-    ) -> list[dict[str, Any]]:
-        """
-        Execute multiple tools in parallel with batching.
-
-        Args:
-            requests: List of tool execution requests
-            correlation_id: Request correlation ID
-            max_parallel: Maximum parallel executions
-
-        Returns:
-            List of execution results in request order
-        """
-        ...
+    ) -> list[dict[str, Any]]: ...
 
     async def get_active_executions(
         self, tool_name: str | None = None
-    ) -> list[ProtocolMCPToolExecution]:
-        """
-        Get currently active tool executions.
-
-        Args:
-            tool_name: Optional filter by tool name
-
-        Returns:
-            List of active executions
-        """
-        ...
+    ) -> list[ProtocolMCPToolExecution]: ...
 
     async def get_execution_history(
         self,
@@ -268,105 +131,24 @@ class ProtocolMCPToolProxy(Protocol):
         subsystem_id: str | None,
         correlation_id: UUID | None,
         limit: int,
-    ) -> list[ProtocolMCPToolExecution]:
-        """
-        Get tool execution history with filtering.
+    ) -> list[ProtocolMCPToolExecution]: ...
 
-        Args:
-            tool_name: Optional filter by tool name
-            subsystem_id: Optional filter by subsystem
-            correlation_id: Optional filter by correlation ID
-            limit: Maximum number of results
-
-        Returns:
-            List of execution history records
-        """
-        ...
-
-    async def cancel_execution(self, execution_id: str) -> bool:
-        """
-        Cancel a running tool execution.
-
-        Args:
-            execution_id: Tool execution ID
-
-        Returns:
-            True if cancellation successful
-        """
-        ...
+    async def cancel_execution(self, execution_id: str) -> bool: ...
 
     async def cancel_all_executions(
         self, tool_name: str | None, subsystem_id: str | None
-    ) -> int:
-        """
-        Cancel multiple running executions.
-
-        Args:
-            tool_name: Optional filter by tool name
-            subsystem_id: Optional filter by subsystem
-
-        Returns:
-            Number of executions cancelled
-        """
-        ...
+    ) -> int: ...
 
     async def get_execution_metrics(
         self, time_range_hours: int, tool_name: str | None
-    ) -> dict[str, Any]:
-        """
-        Get execution metrics and statistics.
+    ) -> dict[str, Any]: ...
 
-        Args:
-            time_range_hours: Time range for metrics
-            tool_name: Optional filter by tool name
-
-        Returns:
-            Execution metrics including success rates, durations, error counts
-        """
-        ...
-
-    async def get_load_balancing_stats(self) -> dict[str, Any]:
-        """
-        Get load balancing statistics across subsystems.
-
-        Returns:
-            Load balancing statistics and distribution metrics
-        """
-        ...
+    async def get_load_balancing_stats(self) -> dict[str, Any]: ...
 
     async def configure_caching(
         self, tool_name: str, cache_ttl_seconds: int, cache_key_fields: list[str]
-    ) -> bool:
-        """
-        Configure result caching for a tool.
+    ) -> bool: ...
 
-        Args:
-            tool_name: Name of the tool
-            cache_ttl_seconds: Cache time-to-live
-            cache_key_fields: Parameter fields to use for cache key
+    async def clear_cache(self, tool_name: str | None = None) -> int: ...
 
-        Returns:
-            True if caching configured successfully
-        """
-        ...
-
-    async def clear_cache(self, tool_name: str | None = None) -> int:
-        """
-        Clear cached results.
-
-        Args:
-            tool_name: Optional filter by tool name
-
-        Returns:
-            Number of cache entries cleared
-        """
-        ...
-
-    async def validate_proxy_configuration(self) -> dict[str, Any]:
-        """
-        Validate proxy configuration and connectivity.
-
-        Returns:
-            Validation results including connectivity tests and configuration checks
-        """
-        ...
+    async def validate_proxy_configuration(self) -> dict[str, Any]: ...

@@ -5,8 +5,6 @@ Script to fix missing Path imports in protocol files.
 Scans protocol files for Path usage and ensures the import is present.
 """
 
-import os
-import re
 from pathlib import Path as PathlibPath
 from typing import List, Tuple
 
@@ -69,7 +67,7 @@ class PathImportFixer:
                 # Insert Path import before the first import or after docstring
                 lines.insert(import_line_index, "from pathlib import Path")
                 fixes_in_file += 1
-                changes.append(f"Added: from pathlib import Path")
+                changes.append("Added: from pathlib import Path")
                 modified = True
 
             if modified:
@@ -104,7 +102,7 @@ class PathImportFixer:
 
                 total_changes.extend(changes)
 
-        print(f"\n📊 Summary:")
+        print("\n📊 Summary:")
         print(f"   • Files modified: {self.files_modified}")
         print(f"   • Path imports added: {self.fixes_applied}")
 

@@ -6,13 +6,16 @@ Defines the contract for request envelopes with metadata, correlation IDs, and s
 """
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Optional, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Optional, Protocol, TypeVar, runtime_checkable
 from uuid import UUID
 
 from omnibase_spi.protocols.core.protocol_onex_validation import (
     ProtocolOnexMetadata,
     ProtocolOnexSecurityContext,
 )
+
+T = TypeVar("T")
+E = TypeVar("E")
 
 
 @runtime_checkable
@@ -26,145 +29,30 @@ class ProtocolOnexEnvelope(Protocol):
 
     async def create_envelope(
         self,
-        payload: "Any",
+        payload: T,
         correlation_id: UUID | None = None,
         security_context: "ProtocolOnexSecurityContext | None" = None,
         metadata: "ProtocolOnexMetadata | None" = None,
-    ) -> "Any":
-        """
-        Create an Onex envelope wrapping the provided payload.
+    ) -> E: ...
 
-        Args:
-            payload: The actual request data to be wrapped
-            correlation_id: Optional correlation ID for request tracking
-            security_context: Security context information
-            metadata: Additional metadata for the request
+    async def extract_payload(self, envelope: E) -> T: ...
 
-        Returns:
-            Onex envelope containing wrapped payload and metadata
-        """
-        ...
+    async def get_correlation_id(self, envelope: E) -> UUID | None: ...
 
-    async def extract_payload(self, envelope: "Any") -> "Any":
-        """
-        Extract the payload from an Onex envelope.
+    async def get_security_context(
+        self, envelope: E
+    ) -> "ProtocolOnexSecurityContext | None": ...
 
-        Args:
-            envelope: Onex envelope containing wrapped payload
+    async def get_metadata(self, envelope: E) -> "ProtocolOnexMetadata | None": ...
 
-        Returns:
-            The unwrapped payload data
-        """
-        ...
+    async def validate_envelope(self, envelope: E) -> bool: ...
 
-    def get_correlation_id(self, envelope: "Any") -> UUID | None:
-        """
-        Get the correlation ID from an Onex envelope.
+    async def get_timestamp(self, envelope: E) -> datetime: ...
 
-        Args:
-            envelope: Onex envelope to extract correlation ID from
+    async def get_source_tool(self, envelope: E) -> str | None: ...
 
-        Returns:
-            The correlation ID if present, None otherwise
-        """
-        ...
+    async def get_target_tool(self, envelope: E) -> str | None: ...
 
-    def get_security_context(
-        self, envelope: "Any"
-    ) -> "ProtocolOnexSecurityContext | None":
-        """
-        Get the security context from an Onex envelope.
+    def with_metadata(self, envelope: E, metadata: "ProtocolOnexMetadata") -> E: ...
 
-        Args:
-            envelope: Onex envelope to extract security context from
-
-        Returns:
-            The security context if present, None otherwise
-        """
-        ...
-
-    def get_metadata(self, envelope: "Any") -> "ProtocolOnexMetadata | None":
-        """
-        Get all metadata from an Onex envelope.
-
-        Args:
-            envelope: Onex envelope to extract metadata from
-
-        Returns:
-            Dictionary containing all envelope metadata
-        """
-        ...
-
-    async def validate_envelope(self, envelope: "Any") -> bool:
-        """
-        Validate an Onex envelope for completeness and compliance.
-
-        Args:
-            envelope: Onex envelope to validate
-
-        Returns:
-            True if envelope is valid, False otherwise
-        """
-        ...
-
-    def get_timestamp(self, envelope: "Any") -> datetime:
-        """
-        Get the creation timestamp from an Onex envelope.
-
-        Args:
-            envelope: Onex envelope to extract timestamp from
-
-        Returns:
-            The envelope creation timestamp
-        """
-        ...
-
-    def get_source_tool(self, envelope: "Any") -> str | None:
-        """
-        Get the source tool identifier from an Onex envelope.
-
-        Args:
-            envelope: Onex envelope to extract source tool from
-
-        Returns:
-            The source tool identifier if present, None otherwise
-        """
-        ...
-
-    def get_target_tool(self, envelope: "Any") -> str | None:
-        """
-        Get the target tool identifier from an Onex envelope.
-
-        Args:
-            envelope: Onex envelope to extract target tool from
-
-        Returns:
-            The target tool identifier if present, None otherwise
-        """
-        ...
-
-    def with_metadata(self, envelope: "Any", metadata: "ProtocolOnexMetadata") -> "Any":
-        """
-        Add metadata to an Onex envelope.
-
-        Args:
-            envelope: Onex envelope to add metadata to
-            key: Metadata key
-            value: Metadata value
-
-        Returns:
-            Updated envelope with new metadata
-        """
-        ...
-
-    def is_onex_compliant(self, envelope: "Any") -> bool:
-        """
-        Check if envelope follows Onex standard compliance.
-
-        Args:
-            envelope: Onex envelope to check compliance for
-
-        Returns:
-            True if envelope is Onex compliant, False otherwise
-        """
-        ...
+    def is_onex_compliant(self, envelope: E) -> bool: ...

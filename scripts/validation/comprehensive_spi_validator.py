@@ -44,8 +44,6 @@ import argparse
 import ast
 import hashlib
 import json
-import os
-import re
 import sys
 import time
 from collections import defaultdict
@@ -1473,7 +1471,7 @@ class ReportGenerator:
 
     def _print_executive_summary(self, report: ValidationReport) -> None:
         """Print executive summary."""
-        print(f"\n📊 EXECUTIVE SUMMARY:")
+        print("\n📊 EXECUTIVE SUMMARY:")
         print(f"   Files analyzed: {report.total_files}")
         print(f"   Protocols found: {report.total_protocols}")
         print(f"   Total violations: {len(report.violations)}")
@@ -1485,7 +1483,7 @@ class ReportGenerator:
 
     def _print_violations_by_category(self, report: ValidationReport) -> None:
         """Print violations grouped by category."""
-        print(f"\n🚨 VIOLATIONS BY CATEGORY:")
+        print("\n🚨 VIOLATIONS BY CATEGORY:")
 
         # Group violations by rule category and severity
         by_category = defaultdict(lambda: defaultdict(list))
@@ -1525,7 +1523,7 @@ class ReportGenerator:
         if not report.protocols:
             return
 
-        print(f"\n📈 PROTOCOL STATISTICS:")
+        print("\n📈 PROTOCOL STATISTICS:")
 
         # Basic statistics
         runtime_checkable = sum(1 for p in report.protocols if p.is_runtime_checkable)
@@ -1543,7 +1541,7 @@ class ReportGenerator:
         for protocol in report.protocols:
             domain_counts[protocol.domain] += 1
 
-        print(f"\n   📁 Domain Distribution:")
+        print("\n   📁 Domain Distribution:")
         for domain, count in sorted(
             domain_counts.items(), key=lambda x: x[1], reverse=True
         ):
@@ -1555,7 +1553,7 @@ class ReportGenerator:
         if complexities:
             avg_complexity = sum(complexities) / len(complexities)
             max_complexity = max(complexities)
-            print(f"\n   🧮 Complexity Analysis:")
+            print("\n   🧮 Complexity Analysis:")
             print(f"      Average complexity: {avg_complexity:.1f}")
             print(f"      Maximum complexity: {max_complexity}")
 
@@ -1564,7 +1562,7 @@ class ReportGenerator:
                 report.protocols, key=lambda p: p.complexity_score, reverse=True
             )[:3]
 
-            print(f"      Most complex protocols:")
+            print("      Most complex protocols:")
             for protocol in complex_protocols:
                 print(
                     f"         • {protocol.name} (score: {protocol.complexity_score})"
@@ -1575,7 +1573,7 @@ class ReportGenerator:
         if not report.performance_metrics:
             return
 
-        print(f"\n⚡ PERFORMANCE METRICS:")
+        print("\n⚡ PERFORMANCE METRICS:")
 
         for metric, value in report.performance_metrics.items():
             if isinstance(value, float):
@@ -1585,17 +1583,17 @@ class ReportGenerator:
 
     def _print_recommendations(self, report: ValidationReport) -> None:
         """Print actionable recommendations."""
-        print(f"\n💡 RECOMMENDATIONS:")
+        print("\n💡 RECOMMENDATIONS:")
 
         for i, recommendation in enumerate(report.recommendations, 1):
             print(f"   {i}. {recommendation}")
 
     def _print_final_status(self, report: ValidationReport) -> None:
         """Print final validation status."""
-        print(f"\n" + "=" * 90)
+        print("\n" + "=" * 90)
 
         if report.error_count == 0:
-            print(f"✅ VALIDATION PASSED")
+            print("✅ VALIDATION PASSED")
             if report.warning_count > 0:
                 print(
                     f"   ⚠️  {report.warning_count} warnings should be addressed for optimal code quality"
@@ -1605,7 +1603,7 @@ class ReportGenerator:
                     f"   ℹ️  {report.info_count} informational items for continuous improvement"
                 )
         else:
-            print(f"❌ VALIDATION FAILED")
+            print("❌ VALIDATION FAILED")
             print(f"   {report.error_count} errors must be fixed before merging")
             if report.auto_fixes_applied > 0:
                 print(
@@ -2082,7 +2080,7 @@ Examples:
             return 1
 
         if args.verbose:
-            print(f"🔍 Starting comprehensive SPI validation")
+            print("🔍 Starting comprehensive SPI validation")
             print(f"   Target: {target_path}")
             print(f"   Config: {args.config or 'built-in defaults'}")
             print(f"   Auto-fix: {'enabled' if args.fix else 'disabled'}")

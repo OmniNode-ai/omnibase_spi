@@ -5,7 +5,7 @@ Defines the interface for tool discovery, instantiation, and registry operations
 for MCP (Model Context Protocol) tool coordination in distributed systems.
 """
 
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import ProtocolMetadata
 from omnibase_spi.protocols.types.protocol_mcp_types import (
@@ -32,148 +32,45 @@ class ProtocolToolDiscoveryService(Protocol):
 
     Usage Example:
         ```python
-        # Implementation example (not part of SPI)
-        class ToolDiscoveryServiceImpl:
-            def resolve_tool_from_contract(self, metadata, registry, contract_path):
-                # Load tool configuration from contract
-                module_path = self.build_module_path_from_contract(contract_path)
-                tool_class = self.discover_tool_class_from_module(module_path, metadata.get('tool_class'))
-                return self.instantiate_tool_with_container(tool_class, registry)
+        # Protocol usage example (SPI-compliant)
+        discovery_service: "ProtocolToolDiscoveryService" = get_tool_discovery_service()
 
-        # Usage in application code
-        discovery_service: "ProtocolToolDiscoveryService" = ToolDiscoveryServiceImpl()
-
+        # Resolve tool from contract specification
         tool = discovery_service.resolve_tool_from_contract(
             metadata={'tool_class': 'MyTool'},
             registry=container,
             contract_path='/path/to/contract.yaml'
         )
+
+        # Discover tool class from module path
+        tool_class = discovery_service.discover_tool_class_from_module(
+            module_path='tools.processing',
+            tool_class_name='DataProcessor'
+        )
+
+        # All operations use protocol interface without exposing implementation
+        # Enables flexible tool discovery and instantiation patterns
         ```
     """
 
     def resolve_tool_from_contract(
         self, metadata: ProtocolMetadata, registry: object, contract_path: str
-    ) -> ProtocolToolInstance:
-        """
-        Resolve and instantiate tool from contract specification.
-
-        Args:
-            metadata: Contract metadata with tool specification
-            registry: Registry/container for tool instantiation
-            contract_path: Path to contract file for module resolution
-
-        Returns:
-            Instantiated tool instance
-
-        Raises:
-            ValueError: If contract metadata is invalid
-            ImportError: If tool module cannot be imported
-            RuntimeError: If tool resolution or instantiation fails
-        """
-        ...
+    ) -> ProtocolToolInstance: ...
 
     async def discover_tool_class_from_module(
         self, module_path: str, tool_class_name: str
-    ) -> ProtocolToolClass:
-        """
-        Discover tool class from module path.
-
-        Args:
-            module_path: Python module path (e.g., 'omnibase.tools.xyz.node')
-            tool_class_name: Name of tool class to find
-
-        Returns:
-            Tool class type
-
-        Raises:
-            ImportError: If module import fails
-            AttributeError: If class is not found in module
-            ValueError: If module path is invalid or insecure
-        """
-        ...
+    ) -> ProtocolToolClass: ...
 
     def instantiate_tool_with_container(
         self, tool_class: ProtocolToolClass, container: object
-    ) -> ProtocolToolInstance:
-        """
-        Instantiate tool with dependency injection container.
-
-        Args:
-            tool_class: Tool class to instantiate
-            container: DI container for tool dependencies
-
-        Returns:
-            Instantiated tool instance
-
-        Raises:
-            TypeError: If tool_class is not a valid class
-            RuntimeError: If tool instantiation fails
-            ValueError: If container is invalid
-        """
-        ...
+    ) -> ProtocolToolInstance: ...
 
     def resolve_tool_from_registry(
         self, registry: object, tool_class_name: str
-    ) -> ProtocolToolInstance | None:
-        """
-        Resolve tool from registry pattern.
+    ) -> ProtocolToolInstance | None: ...
 
-        Args:
-            registry: Legacy registry with tool resolution capabilities
-            tool_class_name: Tool class name to resolve
+    async def build_module_path_from_contract(self, contract_path: str) -> str: ...
 
-        Returns:
-            Tool instance or None if not found
+    async def validate_module_path(self, module_path: str) -> bool: ...
 
-        Note:
-            Returns None for not found rather than raising exception
-            to support graceful fallback patterns.
-        """
-        ...
-
-    def build_module_path_from_contract(self, contract_path: str) -> str:
-        """
-        Build module path from contract file path.
-
-        Args:
-            contract_path: Path to contract.yaml file
-
-        Returns:
-            Python module path for tool's node.py file
-
-        Raises:
-            ValueError: If contract path is invalid
-            FileNotFoundError: If contract file does not exist
-        """
-        ...
-
-    async def validate_module_path(self, module_path: str) -> bool:
-        """
-        Validate module path for security and correctness.
-
-        Args:
-            module_path: Python module path to validate
-
-        Returns:
-            True if module path is valid and secure
-
-        Note:
-            Performs security validation to prevent path traversal
-            and malicious module imports.
-        """
-        ...
-
-    def convert_class_name_to_registry_key(self, class_name: str) -> str:
-        """
-        Convert tool class name to registry key format.
-
-        Args:
-            class_name: Tool class name (e.g., ToolContractValidator)
-
-        Returns:
-            Registry key in snake_case format (e.g., contract_validator)
-
-        Note:
-            Follows consistent naming conventions for registry key mapping.
-        """
-        ...
+    async def convert_class_name_to_registry_key(self, class_name: str) -> str: ...

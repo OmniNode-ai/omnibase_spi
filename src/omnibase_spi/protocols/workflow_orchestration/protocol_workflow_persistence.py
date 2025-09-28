@@ -5,7 +5,7 @@ These protocols define the data persistence contracts for workflow orchestration
 including event stores, snapshot stores, and projection stores with ACID guarantees.
 """
 
-from typing import TYPE_CHECKING, Any, Optional, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, Union, runtime_checkable
 from uuid import UUID
 
 from omnibase_spi.protocols.types.protocol_workflow_orchestration_types import (
@@ -31,13 +31,9 @@ class ProtocolEventStoreTransaction(Protocol):
     transaction_id: UUID
     is_active: bool
 
-    async def commit(self) -> bool:
-        """Commit transaction changes."""
-        ...
+    async def commit(self) -> bool: ...
 
-    async def rollback(self) -> None:
-        """Rollback transaction changes."""
-        ...
+    async def rollback(self) -> None: ...
 
 
 @runtime_checkable
@@ -49,16 +45,16 @@ class ProtocolEventQueryOptions(Protocol):
     for event store queries.
     """
 
-    workflow_type: str | None
-    instance_id: UUID | None
-    event_types: list[LiteralWorkflowEventType] | None
-    from_sequence: int | None
-    to_sequence: int | None
-    from_timestamp: "ProtocolDateTime | None"
-    to_timestamp: "ProtocolDateTime | None"
-    limit: int | None
-    offset: int | None
-    order_by: str | None
+    workflow_type: Union[str, None]
+    instance_id: Union[UUID, None]
+    event_types: Union[list[LiteralWorkflowEventType], None]
+    from_sequence: Union[int, None]
+    to_sequence: Union[int, None]
+    from_timestamp: Union["ProtocolDateTime", None]
+    to_timestamp: Union["ProtocolDateTime", None]
+    limit: Union[int, None]
+    offset: Union[int, None]
+    order_by: Union[str, None]
 
 
 @runtime_checkable
@@ -73,9 +69,9 @@ class ProtocolEventStoreResult(Protocol):
     success: bool
     events_processed: int
     sequence_numbers: list[int]
-    error_message: str | None
+    error_message: Union[str, None]
     operation_time_ms: float
-    storage_size_bytes: int | None
+    storage_size_bytes: Union[int, None]
 
 
 @runtime_checkable
@@ -89,119 +85,42 @@ class ProtocolEventStore(Protocol):
     - Transactional consistency
     - Event stream reading
     - Optimistic concurrency control
-
     """
 
     async def append_events(
         self,
         events: list["ProtocolWorkflowEvent"],
-        expected_sequence: int | None,
-        transaction: "ProtocolEventStoreTransaction | None",
-    ) -> ProtocolEventStoreResult:
-        """
-        Append events to event stream.
-
-        Args:
-            events: List of events to append
-            expected_sequence: Expected current sequence for optimistic concurrency
-            transaction: Optional transaction for consistency
-
-        Returns:
-            Operation result with sequence numbers assigned
-        """
-        ...
+        expected_sequence: Union[int, None],
+        transaction: Union["ProtocolEventStoreTransaction", None],
+    ) -> ProtocolEventStoreResult: ...
 
     async def read_events(
         self,
         query_options: "ProtocolEventQueryOptions",
-        transaction: "ProtocolEventStoreTransaction | None",
-    ) -> list["ProtocolWorkflowEvent"]:
-        """
-        Read events from event store.
-
-        Args:
-            query_options: Query filtering and pagination options
-            transaction: Optional transaction for consistency
-
-        Returns:
-            List of matching events ordered by sequence
-        """
-        ...
+        transaction: Union["ProtocolEventStoreTransaction", None],
+    ) -> list["ProtocolWorkflowEvent"]: ...
 
     async def get_event_stream(
         self,
         workflow_type: str,
         instance_id: UUID,
         from_sequence: int,
-        to_sequence: int | None,
-    ) -> list["ProtocolWorkflowEvent"]:
-        """
-        Get complete event stream for workflow instance.
-
-        Args:
-            workflow_type: Workflow type identifier
-            instance_id: Workflow instance ID
-            from_sequence: Starting sequence number
-            to_sequence: Ending sequence number (optional)
-
-        Returns:
-            Ordered list of events in stream
-        """
-        ...
+        to_sequence: Union[int, None],
+    ) -> list["ProtocolWorkflowEvent"]: ...
 
     async def get_last_sequence_number(
         self, workflow_type: str, instance_id: UUID
-    ) -> int:
-        """
-        Get last sequence number for workflow stream.
+    ) -> int: ...
 
-        Args:
-            workflow_type: Workflow type identifier
-            instance_id: Workflow instance ID
-
-        Returns:
-            Last sequence number (0 if no events)
-        """
-        ...
-
-    async def begin_transaction(self) -> ProtocolEventStoreTransaction:
-        """
-        Begin new event store transaction.
-
-        Returns:
-            Transaction object for atomic operations
-        """
-        ...
+    async def begin_transaction(self) -> ProtocolEventStoreTransaction: ...
 
     async def delete_event_stream(
         self, workflow_type: str, instance_id: UUID
-    ) -> ProtocolEventStoreResult:
-        """
-        Delete entire event stream (use with caution).
-
-        Args:
-            workflow_type: Workflow type identifier
-            instance_id: Workflow instance ID
-
-        Returns:
-            Deletion operation result
-        """
-        ...
+    ) -> ProtocolEventStoreResult: ...
 
     async def archive_old_events(
         self, before_timestamp: "ProtocolDateTime", batch_size: int
-    ) -> ProtocolEventStoreResult:
-        """
-        Archive old events to cold storage.
-
-        Args:
-            before_timestamp: Archive events older than this
-            batch_size: Number of events to process per batch
-
-        Returns:
-            Archive operation result
-        """
-        ...
+    ) -> ProtocolEventStoreResult: ...
 
 
 @runtime_checkable
@@ -214,89 +133,29 @@ class ProtocolSnapshotStore(Protocol):
     - Fast state reconstruction
     - Recovery and replay optimization
     - State validation checkpoints
-
     """
 
     async def save_snapshot(
         self,
         snapshot: "ProtocolWorkflowSnapshot",
-        transaction: "ProtocolEventStoreTransaction | None",
-    ) -> bool:
-        """
-        Save workflow state snapshot.
-
-        Args:
-            snapshot: Workflow snapshot to save
-            transaction: Optional transaction for consistency
-
-        Returns:
-            True if save successful
-        """
-        ...
+        transaction: Union["ProtocolEventStoreTransaction", None],
+    ) -> bool: ...
 
     async def load_snapshot(
-        self, workflow_type: str, instance_id: UUID, sequence_number: int | None
-    ) -> ProtocolWorkflowSnapshot | None:
-        """
-        Load workflow state snapshot.
-
-        Args:
-            workflow_type: Workflow type identifier
-            instance_id: Workflow instance ID
-            sequence_number: Specific sequence (optional, defaults to latest)
-
-        Returns:
-            Workflow snapshot or None if not found
-        """
-        ...
+        self, workflow_type: str, instance_id: UUID, sequence_number: Union[int, None]
+    ) -> Union[ProtocolWorkflowSnapshot, None]: ...
 
     async def list_snapshots(
         self, workflow_type: str, instance_id: UUID, limit: int
-    ) -> list[dict[str, Any]]:
-        """
-        List available snapshots for workflow.
-
-        Args:
-            workflow_type: Workflow type identifier
-            instance_id: Workflow instance ID
-            limit: Maximum snapshots to return
-
-        Returns:
-            List of snapshot metadata (without full content)
-        """
-        ...
+    ) -> list[dict[str, Any]]: ...
 
     async def delete_snapshot(
         self, workflow_type: str, instance_id: UUID, sequence_number: int
-    ) -> bool:
-        """
-        Delete specific workflow snapshot.
-
-        Args:
-            workflow_type: Workflow type identifier
-            instance_id: Workflow instance ID
-            sequence_number: Snapshot sequence number
-
-        Returns:
-            True if deletion successful
-        """
-        ...
+    ) -> bool: ...
 
     async def cleanup_old_snapshots(
         self, workflow_type: str, instance_id: UUID, keep_count: int
-    ) -> int:
-        """
-        Clean up old snapshots, keeping only recent ones.
-
-        Args:
-            workflow_type: Workflow type identifier
-            instance_id: Workflow instance ID
-            keep_count: Number of snapshots to retain
-
-        Returns:
-            Number of snapshots deleted
-        """
-        ...
+    ) -> int: ...
 
 
 @runtime_checkable
@@ -313,70 +172,24 @@ class ProtocolLiteralWorkflowStateStore(Protocol):
 
     async def save_workflow_instance(
         self, workflow_instance: "ProtocolWorkflowSnapshot"
-    ) -> bool:
-        """
-        Save or update workflow instance state.
-
-        Args:
-            workflow_instance: Workflow instance to save
-
-        Returns:
-            True if save successful
-        """
-        ...
+    ) -> bool: ...
 
     async def load_workflow_instance(
         self, workflow_type: str, instance_id: UUID
-    ) -> ProtocolWorkflowSnapshot | None:
-        """
-        Load workflow instance by ID.
-
-        Args:
-            workflow_type: Workflow type identifier
-            instance_id: Workflow instance ID
-
-        Returns:
-            Workflow instance or None if not found
-        """
-        ...
+    ) -> Union[ProtocolWorkflowSnapshot, None]: ...
 
     async def query_workflow_instances(
         self,
-        workflow_type: str | None,
-        state: "LiteralWorkflowState | None",
-        correlation_id: UUID | None,
+        workflow_type: Union[str, None],
+        state: Union["LiteralWorkflowState", None],
+        correlation_id: Union[UUID, None],
         limit: int,
         offset: int,
-    ) -> list["ProtocolWorkflowSnapshot"]:
-        """
-        Query workflow instances by criteria.
-
-        Args:
-            workflow_type: Optional workflow type filter
-            state: Optional state filter
-            correlation_id: Optional correlation filter
-            limit: Maximum instances to return
-            offset: Query offset for pagination
-
-        Returns:
-            List of matching workflow instances
-        """
-        ...
+    ) -> list["ProtocolWorkflowSnapshot"]: ...
 
     async def delete_workflow_instance(
         self, workflow_type: str, instance_id: UUID
-    ) -> bool:
-        """
-        Delete workflow instance.
-
-        Args:
-            workflow_type: Workflow type identifier
-            instance_id: Workflow instance ID
-
-        Returns:
-            True if deletion successful
-        """
-        ...
+    ) -> bool: ...
 
     async def lock_workflow_instance(
         self,
@@ -384,33 +197,8 @@ class ProtocolLiteralWorkflowStateStore(Protocol):
         instance_id: UUID,
         lock_owner: str,
         timeout_seconds: int,
-    ) -> bool:
-        """
-        Acquire exclusive lock on workflow instance.
-
-        Args:
-            workflow_type: Workflow type identifier
-            instance_id: Workflow instance ID
-            lock_owner: Lock owner identifier
-            timeout_seconds: Lock timeout
-
-        Returns:
-            True if lock acquired
-        """
-        ...
+    ) -> bool: ...
 
     async def unlock_workflow_instance(
         self, workflow_type: str, instance_id: UUID, lock_owner: str
-    ) -> bool:
-        """
-        Release lock on workflow instance.
-
-        Args:
-            workflow_type: Workflow type identifier
-            instance_id: Workflow instance ID
-            lock_owner: Lock owner identifier
-
-        Returns:
-            True if unlock successful
-        """
-        ...
+    ) -> bool: ...

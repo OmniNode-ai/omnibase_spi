@@ -7,9 +7,7 @@ import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List
-from typing import Optional as TypingOptional
-from typing import Set
+from typing import List
 
 
 @dataclass
@@ -268,8 +266,8 @@ class OptionalUsageAuditor:
         needs_justification = [v for v in self.violations if v.justification_needed]
         justified_usage = [v for v in self.violations if not v.justification_needed]
 
-        report = f"📊 Optional Type Usage Audit Report\n"
-        report += f"=" * 40 + "\n\n"
+        report = "📊 Optional Type Usage Audit Report\n"
+        report += "=" * 40 + "\n\n"
 
         report += f"Total Optional usage found: {len(self.violations)}\n"
         report += f"Needs business justification: {len(needs_justification)}\n"
@@ -284,9 +282,9 @@ class OptionalUsageAuditor:
                 )
                 report += f"   File: {violation.file_path}\n"
                 report += f"   Context: {violation.context}\n"
-                report += f"   Action: Add comment explaining why Optional is needed\n"
+                report += "   Action: Add comment explaining why Optional is needed\n"
                 report += (
-                    f"   Example: # Optional: User might not provide this value\n\n"
+                    "   Example: # Optional: User might not provide this value\n\n"
                 )
 
         # Show summary of justified usage by category
@@ -375,7 +373,7 @@ def main() -> None:
     print(auditor.generate_report())
 
     if is_valid:
-        print(f"\n✅ SUCCESS: All Optional usage is justified!")
+        print("\n✅ SUCCESS: All Optional usage is justified!")
         sys.exit(0)
     else:
         errors = len([v for v in auditor.violations if v.justification_needed])

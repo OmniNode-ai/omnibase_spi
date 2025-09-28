@@ -20,13 +20,10 @@ from __future__ import annotations
 import argparse
 import ast
 import hashlib
-import os
-import re
 import sys
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
 
 import timeout_utils
 from timeout_utils import timeout_context
@@ -701,7 +698,7 @@ def validate_protocol_duplicates(
                                 violation_code="SPI011",
                                 message=f"Protocol '{protocol.name}' has naming conflict with different signature (domains: {[p.domain for p in real_conflicts]})",
                                 severity="error",
-                                suggestion=f"Rename protocol to be more domain-specific or merge interfaces",
+                                suggestion="Rename protocol to be more domain-specific or merge interfaces",
                                 auto_fixable=False,
                             )
                         )
@@ -854,14 +851,14 @@ def print_validation_report(
     warning_count = sum(1 for v in violations if v.severity == "warning")
     total_protocols = len(protocols)
 
-    print(f"\n📊 VALIDATION SUMMARY:")
+    print("\n📊 VALIDATION SUMMARY:")
     print(f"   Total protocols found: {total_protocols}")
     print(f"   Total violations: {len(violations)}")
     print(f"   Errors: {error_count}")
     print(f"   Warnings: {warning_count}")
 
     if violations:
-        print(f"\n🚨 VIOLATIONS FOUND:")
+        print("\n🚨 VIOLATIONS FOUND:")
 
         # Group violations by type
         by_type = defaultdict(list)
@@ -887,7 +884,7 @@ def print_validation_report(
 
     # Protocol statistics
     if protocols:
-        print(f"\n📈 PROTOCOL STATISTICS:")
+        print("\n📈 PROTOCOL STATISTICS:")
         runtime_checkable = sum(1 for p in protocols if p.is_runtime_checkable)
         with_init = sum(1 for p in protocols if p.has_init)
         with_async = sum(1 for p in protocols if p.async_methods)
@@ -903,7 +900,7 @@ def print_validation_report(
             by_domain[protocol.domain] += 1
             by_type[protocol.protocol_type] += 1
 
-        print(f"\n📊 PROTOCOL DISTRIBUTION:")
+        print("\n📊 PROTOCOL DISTRIBUTION:")
         print("   By Domain:")
         for domain, count in sorted(
             by_domain.items(), key=lambda x: x[1], reverse=True
@@ -915,7 +912,7 @@ def print_validation_report(
             print(f"      {ptype}: {count}")
 
         if show_protocol_info:
-            print(f"\n📋 DETAILED PROTOCOL INFORMATION:")
+            print("\n📋 DETAILED PROTOCOL INFORMATION:")
             for protocol in protocols[:10]:  # Show first 10 for brevity
                 print(f"   • {protocol.name}")
                 print(f"     Domain: {protocol.domain}, Type: {protocol.protocol_type}")
@@ -929,10 +926,10 @@ def print_validation_report(
                 print(f"   ... and {len(protocols) - 10} more protocols")
 
         if with_init > 0:
-            print(f"   🚨 Protocols with __init__ should be refactored!")
+            print("   🚨 Protocols with __init__ should be refactored!")
 
     if error_count == 0:
-        print(f"\n✅ VALIDATION PASSED: No critical errors found")
+        print("\n✅ VALIDATION PASSED: No critical errors found")
         if warning_count > 0:
             print(f"   ⚠️  {warning_count} warnings should be addressed")
     else:

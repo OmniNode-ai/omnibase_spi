@@ -67,7 +67,7 @@ def test_workflow_value_protocols():
     # Check for uniqueness
     unique_signatures = set(signatures.values())
 
-    print(f"\n📊 RESULTS:")
+    print("\n📊 RESULTS:")
     print(f"   Total protocols tested: {len(signatures)}")
     print(f"   Unique signatures: {len(unique_signatures)}")
     print(
@@ -75,7 +75,7 @@ def test_workflow_value_protocols():
     )
 
     if len(signatures) != len(unique_signatures):
-        print(f"\n🚨 DUPLICATE SIGNATURES DETECTED:")
+        print("\n🚨 DUPLICATE SIGNATURES DETECTED:")
         signature_groups = {}
         for name, sig in signatures.items():
             if sig not in signature_groups:
@@ -93,7 +93,7 @@ def test_stamp_validation_options():
     """Test that ProtocolStampOptions and ProtocolValidationOptions have unique signatures."""
     file_path = "src/omnibase_spi/protocols/file_handling/protocol_file_type_handler.py"
 
-    print(f"\n🔍 Testing StampOptions vs ValidationOptions:")
+    print("\n🔍 Testing StampOptions vs ValidationOptions:")
     print("=" * 60)
 
     comparison = compare_protocol_signatures(
@@ -104,21 +104,21 @@ def test_stamp_validation_options():
         print(f"❌ Error: {comparison['error']}")
         return False
 
-    print(f"\n📋 ProtocolStampOptions:")
+    print("\n📋 ProtocolStampOptions:")
     print(f"   Signature Hash: {comparison['protocol1']['signature_hash']}")
     print(f"   Properties: {comparison['protocol1']['properties']}")
 
-    print(f"\n📋 ProtocolValidationOptions:")
+    print("\n📋 ProtocolValidationOptions:")
     print(f"   Signature Hash: {comparison['protocol2']['signature_hash']}")
     print(f"   Properties: {comparison['protocol2']['properties']}")
 
-    print(f"\n📊 COMPARISON RESULT:")
+    print("\n📊 COMPARISON RESULT:")
     print(f"   Are duplicates: {'❌ YES' if comparison['are_duplicates'] else '✅ NO'}")
     print(f"   Hash1: {comparison['hash_comparison']['hash1']}")
     print(f"   Hash2: {comparison['hash_comparison']['hash2']}")
 
     if comparison["differences"]:
-        print(f"\n🔍 DIFFERENCES DETECTED:")
+        print("\n🔍 DIFFERENCES DETECTED:")
         for diff in comparison["differences"]:
             print(
                 f"   {diff['component']}: {diff['protocol1_value']} vs {diff['protocol2_value']}"
@@ -131,7 +131,7 @@ def test_memory_request_protocols():
     """Test memory request protocols that were previously duplicates."""
     file_path = "src/omnibase_spi/protocols/memory/protocol_memory_requests.py"
 
-    print(f"\n🔍 Testing Memory Request protocols:")
+    print("\n🔍 Testing Memory Request protocols:")
     print("=" * 60)
 
     comparison = compare_protocol_signatures(
@@ -145,15 +145,15 @@ def test_memory_request_protocols():
         print(f"❌ Error: {comparison['error']}")
         return False
 
-    print(f"\n📋 ProtocolMemoryRetrieveRequest:")
+    print("\n📋 ProtocolMemoryRetrieveRequest:")
     print(f"   Signature Hash: {comparison['protocol1']['signature_hash']}")
     print(f"   Methods: {len(comparison['protocol1']['methods'])}")
 
-    print(f"\n📋 ProtocolBatchMemoryRetrieveRequest:")
+    print("\n📋 ProtocolBatchMemoryRetrieveRequest:")
     print(f"   Signature Hash: {comparison['protocol2']['signature_hash']}")
     print(f"   Methods: {len(comparison['protocol2']['methods'])}")
 
-    print(f"\n📊 COMPARISON RESULT:")
+    print("\n📊 COMPARISON RESULT:")
     print(f"   Are duplicates: {'❌ YES' if comparison['are_duplicates'] else '✅ NO'}")
 
     return not comparison["are_duplicates"]
@@ -165,7 +165,7 @@ def test_performance_impact():
 
     from validate_protocol_duplicates import find_all_protocols
 
-    print(f"\n🔍 Testing Performance Impact:")
+    print("\n🔍 Testing Performance Impact:")
     print("=" * 60)
 
     base_path = Path("src/")
@@ -176,7 +176,7 @@ def test_performance_impact():
 
     processing_time = end_time - start_time
 
-    print(f"\n📊 PERFORMANCE METRICS:")
+    print("\n📊 PERFORMANCE METRICS:")
     print(f"   Total protocols processed: {len(protocols)}")
     print(f"   Processing time: {processing_time:.3f} seconds")
     print(f"   Protocols per second: {len(protocols) / processing_time:.1f}")
@@ -193,7 +193,7 @@ def test_performance_impact():
         and (len(protocols) / processing_time) > expected_min_throughput
     )
 
-    print(f"\n📈 PERFORMANCE ASSESSMENT:")
+    print("\n📈 PERFORMANCE ASSESSMENT:")
     print(
         f"   Within expected time limit: {'✅ YES' if processing_time < expected_max_time else '❌ NO'}"
     )
@@ -230,7 +230,7 @@ def main():
             results[test_name] = False
 
     # Summary
-    print(f"\n" + "=" * 80)
+    print("\n" + "=" * 80)
     print("📊 TEST SUMMARY")
     print("=" * 80)
 
@@ -241,15 +241,15 @@ def main():
         status = "✅ PASSED" if result else "❌ FAILED"
         print(f"   {test_name}: {status}")
 
-    print(f"\n📈 OVERALL RESULTS:")
+    print("\n📈 OVERALL RESULTS:")
     print(f"   Tests passed: {passed}/{total}")
     print(f"   Success rate: {(passed/total)*100:.1f}%")
 
     if passed == total:
-        print(f"   🎉 ALL TESTS PASSED - Signature improvements working correctly!")
+        print("   🎉 ALL TESTS PASSED - Signature improvements working correctly!")
         return 0
     else:
-        print(f"   ⚠️ Some tests failed - Review implementation")
+        print("   ⚠️ Some tests failed - Review implementation")
         return 1
 
 

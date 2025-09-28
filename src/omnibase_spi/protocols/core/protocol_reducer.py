@@ -21,13 +21,5 @@
 # version: 1.0.0
 # === /OmniNode:Metadata ===
 
-
-from typing import Protocol, runtime_checkable
-
-from omnibase_spi.protocols.types.protocol_core_types import (
-    ProtocolAction,
-    ProtocolState,
-)
-
 # CONSOLIDATED: ProtocolReducer functionality moved to ProtocolWorkflowReducer
 # Use: from omnibase_spi.protocols.core.protocol_workflow_reducer import ProtocolWorkflowReducer as ProtocolReducer

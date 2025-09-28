@@ -59,19 +59,19 @@ Key Protocol Domains:
 
 Usage Examples:
     # Individual module imports (verbose but explicit)
-    from omnibase_spi.protocols.core import ProtocolLogger, ProtocolCacheService
-    from omnibase_spi.protocols.workflow_orchestration import ProtocolWorkflowEventBus
-    from omnibase_spi.protocols.mcp import ProtocolMCPRegistry
+from omnibase_spi.protocols.core import ProtocolLogger, ProtocolCacheService
+from omnibase_spi.protocols.workflow_orchestration import ProtocolWorkflowEventBus
+from omnibase_spi.protocols.mcp import ProtocolMCPRegistry
 
     # Convenience imports from root protocols module
-    from omnibase_spi.protocols import (
+from omnibase_spi.protocols import (
         ProtocolLogger,
         ProtocolWorkflowEventBus,
         ProtocolMCPRegistry
-    )
+)
 
     # Types always available at types module level
-    from omnibase_spi.protocols.types import LogLevel, LiteralWorkflowState
+from omnibase_spi.protocols.types import LogLevel, LiteralWorkflowState
 
     # Implementation example with dependency injection
     class MyService:
@@ -125,10 +125,12 @@ Best Practices:
 """
 
 # Import container protocols for dependency injection and service management
-# Container protocols (19 protocols) - Service lifecycle and dependency resolution
+# Container protocols (21 protocols) - Service lifecycle and dependency resolution
 from omnibase_spi.protocols.container import (  # Phase 3 additions
     InjectionScope,
     LiteralContainerArtifactType,
+    LiteralInjectionScope,
+    LiteralOnexStatus,
     LiteralServiceLifecycle,
     LiteralServiceResolutionStatus,
     ProtocolArtifactContainer,
@@ -205,12 +207,13 @@ from omnibase_spi.protocols.discovery import (
     ProtocolNodeDiscoveryRegistry,
 )
 
-# Event bus protocols (12 protocols) - Distributed messaging infrastructure
+# Event bus protocols (13 protocols) - Distributed messaging infrastructure
 # Supports multiple backends (Kafka, Redis, in-memory) with async/sync patterns
 from omnibase_spi.protocols.event_bus import (  # Phase 2 additions
     ProtocolAsyncEventBus,
     ProtocolEventBus,
     ProtocolEventBusContextManager,
+    ProtocolEventBusHeaders,
     ProtocolEventBusInMemory,
     ProtocolEventBusService,
     ProtocolEventMessage,
@@ -249,6 +252,18 @@ from omnibase_spi.protocols.mcp import (  # Phase 3 additions
     ProtocolToolDiscoveryService,
 )
 
+# Memory protocols (7 protocols) - Memory operations and workflow management
+# Key-value store, workflow management, and composable memory operations
+from omnibase_spi.protocols.memory import (
+    ProtocolAgentCoordinator,
+    ProtocolClusterCoordinator,
+    ProtocolKeyValueStore,
+    ProtocolLifecycleManager,
+    ProtocolMemoryOrchestrator,
+    ProtocolMemoryRecord,
+    ProtocolWorkflowManager,
+)
+
 # Validation protocols (4 protocols) - Input validation and error handling
 # Provides structured validation with error reporting and compliance checking
 from omnibase_spi.protocols.validation import (
@@ -279,8 +294,11 @@ from omnibase_spi.protocols.workflow_orchestration import (
 )
 
 __all__ = [
-    "LiteralContainerArtifactType",
     "InjectionScope",
+    "LiteralContainerArtifactType",
+    "LiteralInjectionScope",
+    "LiteralOnexStatus",
+    "ProtocolAgentCoordinator",
     "ProtocolArtifactContainer",
     "ProtocolArtifactContainerStatus",
     "ProtocolArtifactInfo",
@@ -306,9 +324,11 @@ __all__ = [
     "ProtocolDIServiceMetadata",
     "ProtocolErrorSanitizer",
     "ProtocolErrorSanitizerFactory",
+    "ProtocolClusterCoordinator",
     "ProtocolEventBus",
     "ProtocolEventBusAdapter",
     "ProtocolEventBusContextManager",
+    "ProtocolEventBusHeaders",
     "ProtocolEventBusInMemory",
     "ProtocolEventBusService",
     "ProtocolEventMessage",
@@ -339,6 +359,8 @@ __all__ = [
     "ProtocolKafkaMessage",
     "ProtocolKafkaProducerConfig",
     "ProtocolKafkaTransactionalProducer",
+    "ProtocolKeyValueStore",
+    "ProtocolLifecycleManager",
     "ProtocolLogEmitter",
     "ProtocolLogger",
     "ProtocolMCPDiscovery",
@@ -355,6 +377,8 @@ __all__ = [
     "ProtocolMCPToolRouter",
     "ProtocolMCPToolValidator",
     "ProtocolMCPValidator",
+    "ProtocolMemoryOrchestrator",
+    "ProtocolMemoryRecord",
     "ProtocolNodeConfiguration",
     "ProtocolNodeConfigurationProvider",
     "ProtocolNodeDiscoveryRegistry",
@@ -387,6 +411,7 @@ __all__ = [
     "ProtocolWorkflowEventBus",
     "ProtocolWorkflowEventHandler",
     "ProtocolWorkflowEventMessage",
+    "ProtocolWorkflowManager",
     "ProtocolWorkflowNodeCapability",
     "ProtocolWorkflowNodeInfo",
     "ProtocolWorkflowNodeRegistry",

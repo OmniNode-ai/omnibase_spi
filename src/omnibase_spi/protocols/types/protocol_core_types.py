@@ -5,7 +5,7 @@ Domain: Core system protocols (logging, serialization, validation)
 """
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Literal, Optional, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Literal, Protocol, runtime_checkable
 from uuid import UUID
 
 if TYPE_CHECKING:
@@ -38,9 +38,7 @@ class ProtocolSemVer(Protocol):
     minor: int
     patch: int
 
-    def __str__(self) -> str:
-        """Return string representation in 'major.minor.patch' format (e.g., '1.2.3')."""
-        ...
+    def __str__(self) -> str: ...
 
 
 ProtocolDateTime = datetime
@@ -68,17 +66,11 @@ LiteralHealthStatus = Literal[
 class ProtocolContextValue(Protocol):
     """Protocol for context data values supporting validation and serialization."""
 
-    def validate_for_context(self) -> bool:
-        """Validate value is safe for context storage."""
-        ...
+    async def validate_for_context(self) -> bool: ...
 
-    def serialize_for_context(self) -> dict[str, object]:
-        """Serialize value for context persistence."""
-        ...
+    def serialize_for_context(self) -> dict[str, object]: ...
 
-    def get_context_type_hint(self) -> str:
-        """Get type hint for context schema validation."""
-        ...
+    async def get_context_type_hint(self) -> str: ...
 
 
 @runtime_checkable
@@ -141,13 +133,9 @@ class ProtocolSupportedMetadataType(Protocol):
 
     __omnibase_metadata_type_marker__: Literal[True]
 
-    def __str__(self) -> str:
-        """Convert to string representation for persistence and display."""
-        ...
+    def __str__(self) -> str: ...
 
-    def validate_for_metadata(self) -> bool:
-        """Validate that this type can be safely stored as metadata."""
-        ...
+    async def validate_for_metadata(self) -> bool: ...
 
 
 @runtime_checkable
@@ -179,13 +167,9 @@ class ProtocolConfigValue(Protocol):
     config_type: Literal["string", "int", "float", "bool", "list"]
     default_value: ContextValue | None
 
-    def validate_config_value(self) -> bool:
-        """Validate that the configuration value matches its declared type."""
-        ...
+    async def validate_config_value(self) -> bool: ...
 
-    def has_valid_default(self) -> bool:
-        """Check if the default value is compatible with the configuration type."""
-        ...
+    def has_valid_default(self) -> bool: ...
 
 
 @runtime_checkable
@@ -208,15 +192,7 @@ class ProtocolLogContext(Protocol):
         logger.info("Operation completed", context=context.to_dict())
     """
 
-    def to_dict(self) -> dict[str, "ContextValue"]:
-        """
-        Convert context to dictionary with typed values.
-
-        Returns:
-            Dictionary containing context data with ContextValue types
-            for safe serialization and structured logging.
-        """
-        ...
+    def to_dict(self) -> dict[str, "ContextValue"]: ...
 
 
 @runtime_checkable
@@ -249,13 +225,9 @@ class ProtocolLogEntry(Protocol):
     timestamp: "ProtocolDateTime"
     context: dict[str, "ContextValue"]
 
-    def validate_log_entry(self) -> bool:
-        """Validate logentry data integrity and consistency."""
-        ...
+    async def validate_log_entry(self) -> bool: ...
 
-    def is_complete(self) -> bool:
-        """Check if logentry complete."""
-        ...
+    def is_complete(self) -> bool: ...
 
 
 @runtime_checkable
@@ -285,13 +257,9 @@ class ProtocolSerializationResult(Protocol):
     data: str
     error_message: str | None
 
-    def validate_serialization(self) -> bool:
-        """Validate serializationresult data integrity and consistency."""
-        ...
+    async def validate_serialization(self) -> bool: ...
 
-    def has_data(self) -> bool:
-        """Check if serializationresult data."""
-        ...
+    def has_data(self) -> bool: ...
 
 
 @runtime_checkable
@@ -319,13 +287,9 @@ class ProtocolNodeMetadata(Protocol):
     node_type: str
     metadata: dict[str, "ContextValue"]
 
-    def validate_node_metadata(self) -> bool:
-        """Validate nodemetadata data integrity and consistency."""
-        ...
+    async def validate_node_metadata(self) -> bool: ...
 
-    def is_complete(self) -> bool:
-        """Check if nodemetadata complete."""
-        ...
+    def is_complete(self) -> bool: ...
 
 
 @runtime_checkable
@@ -369,13 +333,9 @@ class ProtocolCacheStatistics(Protocol):
     last_accessed: datetime | None
     cache_size_limit: int | None
 
-    def validate_statistics(self) -> bool:
-        """Validate cachestatistics data integrity and consistency."""
-        ...
+    async def validate_statistics(self) -> bool: ...
 
-    def is_current(self) -> bool:
-        """Check if cachestatistics current."""
-        ...
+    def is_current(self) -> bool: ...
 
 
 LiteralBaseStatus = Literal[
@@ -401,26 +361,22 @@ class ProtocolMetadata(Protocol):
     created_at: "ProtocolDateTime"
     updated_at: "ProtocolDateTime | None"
 
-    def validate_metadata(self) -> bool:
-        """Validate metadata data integrity and consistency."""
-        ...
+    async def validate_metadata(self) -> bool: ...
 
-    def is_up_to_date(self) -> bool:
-        """Check if metadata up to date."""
-        ...
+    def is_up_to_date(self) -> bool: ...
 
 
 @runtime_checkable
 class ProtocolMetadataOperations(Protocol):
     """Protocol for metadata operations - method-based for services."""
 
-    def get_value(self, key: str) -> ContextValue: ...
+    async def get_value(self, key: str) -> ContextValue: ...
 
     def has_key(self, key: str) -> bool: ...
 
     def keys(self) -> list[str]: ...
 
-    def update_value(self, key: str, value: ContextValue) -> None: ...
+    async def update_value(self, key: str, value: ContextValue) -> None: ...
 
 
 @runtime_checkable
@@ -431,13 +387,9 @@ class ProtocolActionPayload(Protocol):
     operation: str
     parameters: dict[str, "ContextValue"]
 
-    async def validate_payload(self) -> bool:
-        """Validate actionpayload data integrity and consistency."""
-        ...
+    async def validate_payload(self) -> bool: ...
 
-    def has_valid_parameters(self) -> bool:
-        """Check if actionpayload valid parameters."""
-        ...
+    def has_valid_parameters(self) -> bool: ...
 
 
 @runtime_checkable
@@ -448,13 +400,9 @@ class ProtocolAction(Protocol):
     payload: "ProtocolActionPayload"
     timestamp: "ProtocolDateTime"
 
-    def validate_action(self) -> bool:
-        """Validate action data integrity and consistency."""
-        ...
+    async def validate_action(self) -> bool: ...
 
-    def is_executable(self) -> bool:
-        """Check if action executable."""
-        ...
+    def is_executable(self) -> bool: ...
 
 
 @runtime_checkable
@@ -465,13 +413,9 @@ class ProtocolState(Protocol):
     version: int
     last_updated: "ProtocolDateTime"
 
-    def validate_state(self) -> bool:
-        """Validate state data integrity and consistency."""
-        ...
+    async def validate_state(self) -> bool: ...
 
-    def is_consistent(self) -> bool:
-        """Check if state consistent."""
-        ...
+    def is_consistent(self) -> bool: ...
 
 
 @runtime_checkable
@@ -489,13 +433,9 @@ class ProtocolNodeMetadataBlock(Protocol):
     lifecycle: str
     protocol_version: "ProtocolSemVer"
 
-    def validate_metadata_block(self) -> bool:
-        """Validate nodemetadatablock data integrity and consistency."""
-        ...
+    async def validate_metadata_block(self) -> bool: ...
 
-    def is_complete(self) -> bool:
-        """Check if nodemetadatablock complete."""
-        ...
+    def is_complete(self) -> bool: ...
 
 
 @runtime_checkable
@@ -508,13 +448,9 @@ class ProtocolSchemaObject(Protocol):
     version: "ProtocolSemVer"
     is_valid: bool
 
-    def validate_schema(self) -> bool:
-        """Validate schemaobject data integrity and consistency."""
-        ...
+    async def validate_schema(self) -> bool: ...
 
-    def is_valid_schema(self) -> bool:
-        """Check if schemaobject valid schema."""
-        ...
+    def is_valid_schema(self) -> bool: ...
 
 
 @runtime_checkable
@@ -553,13 +489,9 @@ class ProtocolErrorInfo(Protocol):
     backoff_strategy: str | None
     max_attempts: int | None
 
-    def validate_error_info(self) -> bool:
-        """Validate errorinfo data integrity and consistency."""
-        ...
+    async def validate_error_info(self) -> bool: ...
 
-    def is_retryable(self) -> bool:
-        """Check if errorinfo retryable."""
-        ...
+    def is_retryable(self) -> bool: ...
 
 
 @runtime_checkable
@@ -571,13 +503,9 @@ class ProtocolSystemEvent(Protocol):
     timestamp: float
     source: str
 
-    def validate_system_event(self) -> bool:
-        """Validate systemevent data integrity and consistency."""
-        ...
+    async def validate_system_event(self) -> bool: ...
 
-    def is_well_formed(self) -> bool:
-        """Check if systemevent well formed."""
-        ...
+    def is_well_formed(self) -> bool: ...
 
 
 @runtime_checkable
@@ -625,13 +553,9 @@ class ProtocolNodeResult(Protocol):
     events: list["ProtocolSystemEvent"]
     state_delta: dict[str, "ContextValue"]
 
-    def validate_result(self) -> bool:
-        """Validate noderesult data integrity and consistency."""
-        ...
+    async def validate_result(self) -> bool: ...
 
-    def is_successful(self) -> bool:
-        """Check if noderesult successful."""
-        ...
+    def is_successful(self) -> bool: ...
 
 
 @runtime_checkable
@@ -643,13 +567,9 @@ class ProtocolServiceMetadata(Protocol):
     capabilities: list[str]
     tags: list[str]
 
-    def validate_service_metadata(self) -> bool:
-        """Validate servicemetadata data integrity and consistency."""
-        ...
+    async def validate_service_metadata(self) -> bool: ...
 
-    def has_capabilities(self) -> bool:
-        """Check if servicemetadata capabilities."""
-        ...
+    def has_capabilities(self) -> bool: ...
 
 
 @runtime_checkable
@@ -664,13 +584,9 @@ class ProtocolServiceInstance(Protocol):
     health_status: "LiteralHealthStatus"
     last_seen: "ProtocolDateTime"
 
-    def validate_service_instance(self) -> bool:
-        """Validate serviceinstance data integrity and consistency."""
-        ...
+    async def validate_service_instance(self) -> bool: ...
 
-    def is_available(self) -> bool:
-        """Check if serviceinstance available."""
-        ...
+    def is_available(self) -> bool: ...
 
 
 @runtime_checkable
@@ -682,13 +598,9 @@ class ProtocolServiceHealthStatus(Protocol):
     last_check: "ProtocolDateTime"
     details: dict[str, "ContextValue"]
 
-    def validate_health_status(self) -> bool:
-        """Validate servicehealthstatus data integrity and consistency."""
-        ...
+    async def validate_health_status(self) -> bool: ...
 
-    def is_healthy(self) -> bool:
-        """Check if servicehealthstatus healthy."""
-        ...
+    def is_healthy(self) -> bool: ...
 
 
 @runtime_checkable
@@ -701,13 +613,9 @@ class ProtocolCheckpointData(Protocol):
     timestamp: "ProtocolDateTime"
     metadata: dict[str, "ContextValue"]
 
-    def validate_checkpoint(self) -> bool:
-        """Validate checkpointdata data integrity and consistency."""
-        ...
+    async def validate_checkpoint(self) -> bool: ...
 
-    def is_restorable(self) -> bool:
-        """Check if checkpointdata restorable."""
-        ...
+    def is_restorable(self) -> bool: ...
 
 
 @runtime_checkable
@@ -717,13 +625,9 @@ class ProtocolStorageCredentials(Protocol):
     credential_type: str
     data: dict[str, "ContextValue"]
 
-    def validate_credentials(self) -> bool:
-        """Validate storagecredentials data integrity and consistency."""
-        ...
+    async def validate_credentials(self) -> bool: ...
 
-    def is_secure(self) -> bool:
-        """Check if storagecredentials secure."""
-        ...
+    def is_secure(self) -> bool: ...
 
 
 @runtime_checkable
@@ -735,13 +639,9 @@ class ProtocolStorageConfiguration(Protocol):
     options: dict[str, "ContextValue"]
     timeout_seconds: int
 
-    def validate_configuration(self) -> bool:
-        """Validate storageconfiguration data integrity and consistency."""
-        ...
+    async def validate_configuration(self) -> bool: ...
 
-    async def is_connectable(self) -> bool:
-        """Check if storageconfiguration connectable."""
-        ...
+    async def is_connectable(self) -> bool: ...
 
 
 @runtime_checkable
@@ -753,13 +653,9 @@ class ProtocolStorageResult(Protocol):
     error_message: str | None
     operation_id: str
 
-    def validate_storage_result(self) -> bool:
-        """Validate storageresult data integrity and consistency."""
-        ...
+    async def validate_storage_result(self) -> bool: ...
 
-    def is_successful(self) -> bool:
-        """Check if storageresult successful."""
-        ...
+    def is_successful(self) -> bool: ...
 
 
 @runtime_checkable
@@ -772,13 +668,9 @@ class ProtocolStorageListResult(Protocol):
     has_more: bool
     error_message: str | None
 
-    def validate_list_result(self) -> bool:
-        """Validate storagelistresult data integrity and consistency."""
-        ...
+    async def validate_list_result(self) -> bool: ...
 
-    def has_items(self) -> bool:
-        """Check if storagelistresult items."""
-        ...
+    def has_items(self) -> bool: ...
 
 
 @runtime_checkable
@@ -790,13 +682,9 @@ class ProtocolStorageHealthStatus(Protocol):
     capacity_info: dict[str, int] | None
     last_check: "ProtocolDateTime"
 
-    def validate_health_status(self) -> bool:
-        """Validate storagehealthstatus data integrity and consistency."""
-        ...
+    async def validate_health_status(self) -> bool: ...
 
-    def is_available(self) -> bool:
-        """Check if storagehealthstatus available."""
-        ...
+    def is_available(self) -> bool: ...
 
 
 LiteralErrorRecoveryStrategy = Literal[
@@ -815,13 +703,9 @@ class ProtocolErrorContext(Protocol):
     context_data: dict[str, "ContextValue"]
     stack_trace: str | None
 
-    def validate_error_context(self) -> bool:
-        """Validate errorcontext data integrity and consistency."""
-        ...
+    async def validate_error_context(self) -> bool: ...
 
-    def has_trace(self) -> bool:
-        """Check if errorcontext trace."""
-        ...
+    def has_trace(self) -> bool: ...
 
 
 @runtime_checkable
@@ -834,13 +718,9 @@ class ProtocolRecoveryAction(Protocol):
     timeout_seconds: int
     fallback_value: ContextValue | None
 
-    def validate_recovery_action(self) -> bool:
-        """Validate recoveryaction data integrity and consistency."""
-        ...
+    async def validate_recovery_action(self) -> bool: ...
 
-    def is_applicable(self) -> bool:
-        """Check if recoveryaction applicable."""
-        ...
+    def is_applicable(self) -> bool: ...
 
 
 @runtime_checkable
@@ -855,13 +735,9 @@ class ProtocolErrorResult(Protocol):
     recovery_action: "ProtocolRecoveryAction | None"
     context: "ProtocolErrorContext"
 
-    def validate_error(self) -> bool:
-        """Validate errorresult data integrity and consistency."""
-        ...
+    async def validate_error(self) -> bool: ...
 
-    def is_retryable(self) -> bool:
-        """Check if errorresult retryable."""
-        ...
+    def is_retryable(self) -> bool: ...
 
 
 @runtime_checkable
@@ -874,13 +750,9 @@ class ProtocolVersionInfo(Protocol):
     retirement_date: "ProtocolDateTime | None"
     migration_guide_url: str | None
 
-    def validate_version_info(self) -> bool:
-        """Validate versioninfo data integrity and consistency."""
-        ...
+    async def validate_version_info(self) -> bool: ...
 
-    def is_compatible(self) -> bool:
-        """Check if versioninfo compatible."""
-        ...
+    def is_compatible(self) -> bool: ...
 
 
 @runtime_checkable
@@ -893,9 +765,7 @@ class ProtocolCompatibilityCheck(Protocol):
     breaking_changes: list[str]
     migration_required: bool
 
-    def validate_compatibility(self) -> bool:
-        """Validate compatibilitycheck data integrity and consistency."""
-        ...
+    async def validate_compatibility(self) -> bool: ...
 
 
 LiteralHealthCheckLevel = Literal[
@@ -962,9 +832,7 @@ class ProtocolSupportedPropertyValue(Protocol):
 
     __omnibase_property_value_marker__: Literal[True]
 
-    def validate_for_property(self) -> bool:
-        """Validate that this value can be used as a property."""
-        ...
+    async def validate_for_property(self) -> bool: ...
 
 
 @runtime_checkable
@@ -979,13 +847,9 @@ class ProtocolHealthMetrics(Protocol):
     error_rate_percent: float
     throughput_per_second: float
 
-    def validate_metrics(self) -> bool:
-        """Validate healthmetrics data integrity and consistency."""
-        ...
+    async def validate_metrics(self) -> bool: ...
 
-    def is_within_thresholds(self) -> bool:
-        """Check if healthmetrics within thresholds."""
-        ...
+    def is_within_thresholds(self) -> bool: ...
 
 
 @runtime_checkable
@@ -1002,13 +866,9 @@ class ProtocolHealthCheck(Protocol):
     timestamp: "ProtocolDateTime"
     recommendations: list[str]
 
-    def validate_health_check(self) -> bool:
-        """Validate healthcheck data integrity and consistency."""
-        ...
+    async def validate_health_check(self) -> bool: ...
 
-    def is_passing(self) -> bool:
-        """Check if healthcheck passing."""
-        ...
+    def is_passing(self) -> bool: ...
 
 
 @runtime_checkable
@@ -1022,13 +882,9 @@ class ProtocolHealthMonitoring(Protocol):
     alert_on_status: list["LiteralHealthStatus"]
     escalation_rules: dict[str, "ContextValue"]
 
-    def validate_monitoring_config(self) -> bool:
-        """Validate healthmonitoring data integrity and consistency."""
-        ...
+    async def validate_monitoring_config(self) -> bool: ...
 
-    def is_reasonable(self) -> bool:
-        """Check if healthmonitoring reasonable."""
-        ...
+    def is_reasonable(self) -> bool: ...
 
 
 @runtime_checkable
@@ -1042,13 +898,9 @@ class ProtocolMetricsPoint(Protocol):
     tags: dict[str, "ContextValue"]
     dimensions: dict[str, "ContextValue"]
 
-    def validate_metrics_point(self) -> bool:
-        """Validate metricspoint data integrity and consistency."""
-        ...
+    async def validate_metrics_point(self) -> bool: ...
 
-    def is_valid_measurement(self) -> bool:
-        """Check if metricspoint valid measurement."""
-        ...
+    def is_valid_measurement(self) -> bool: ...
 
 
 @runtime_checkable
@@ -1065,13 +917,9 @@ class ProtocolTraceSpan(Protocol):
     tags: dict[str, "ContextValue"]
     logs: list[dict[str, "ContextValue"]]
 
-    def validate_trace_span(self) -> bool:
-        """Validate tracespan data integrity and consistency."""
-        ...
+    async def validate_trace_span(self) -> bool: ...
 
-    def is_complete(self) -> bool:
-        """Check if tracespan complete."""
-        ...
+    def is_complete(self) -> bool: ...
 
 
 @runtime_checkable
@@ -1088,13 +936,9 @@ class ProtocolAuditEvent(Protocol):
     metadata: dict[str, "ContextValue"]
     sensitivity_level: Literal["public", "internal", "confidential", "restricted"]
 
-    def validate_audit_event(self) -> bool:
-        """Validate auditevent data integrity and consistency."""
-        ...
+    async def validate_audit_event(self) -> bool: ...
 
-    def is_complete(self) -> bool:
-        """Check if auditevent complete."""
-        ...
+    def is_complete(self) -> bool: ...
 
 
 @runtime_checkable
@@ -1137,9 +981,7 @@ class ProtocolSerializable(Protocol):
         | bool
         | list[str | int | float | bool]
         | dict[str, str | int | float | bool],
-    ]:
-        """Serialize object to dictionary with type-safe values."""
-        ...
+    ]: ...
 
 
 @runtime_checkable
@@ -1149,9 +991,7 @@ class ProtocolIdentifiable(Protocol):
     __omnibase_identifiable_marker__: Literal[True]
 
     @property
-    def id(self) -> str:
-        """Get the object ID."""
-        ...
+    def id(self) -> str: ...
 
 
 @runtime_checkable
@@ -1161,9 +1001,7 @@ class ProtocolNameable(Protocol):
     __omnibase_nameable_marker__: Literal[True]
 
     @property
-    def name(self) -> str:
-        """Get the object name."""
-        ...
+    def name(self) -> str: ...
 
 
 @runtime_checkable
@@ -1172,9 +1010,7 @@ class ProtocolConfigurable(Protocol):
 
     __omnibase_configurable_marker__: Literal[True]
 
-    def configure(self, **kwargs: ContextValue) -> None:
-        """Configure the object with parameters."""
-        ...
+    def configure(self, **kwargs: ContextValue) -> None: ...
 
 
 @runtime_checkable
@@ -1183,9 +1019,7 @@ class ProtocolExecutable(Protocol):
 
     __omnibase_executable_marker__: Literal[True]
 
-    async def execute(self) -> object:
-        """Execute the object."""
-        ...
+    async def execute(self) -> object: ...
 
 
 @runtime_checkable
@@ -1194,9 +1028,7 @@ class ProtocolMetadataProvider(Protocol):
 
     __omnibase_metadata_provider_marker__: Literal[True]
 
-    def get_metadata(self) -> dict[str, str | int | bool | float]:
-        """Get metadata dictionary."""
-        ...
+    async def get_metadata(self) -> dict[str, str | int | bool | float]: ...
 
 
 LiteralRetryBackoffStrategy = Literal[
@@ -1218,13 +1050,9 @@ class ProtocolRetryConfig(Protocol):
     timeout_ms: int
     jitter_factor: float
 
-    def validate_retry_config(self) -> bool:
-        """Validate retryconfig data integrity and consistency."""
-        ...
+    async def validate_retry_config(self) -> bool: ...
 
-    def is_reasonable(self) -> bool:
-        """Check if retryconfig reasonable."""
-        ...
+    def is_reasonable(self) -> bool: ...
 
 
 @runtime_checkable
@@ -1237,13 +1065,9 @@ class ProtocolRetryPolicy(Protocol):
     retry_budget_limit: int
     budget_window_seconds: int
 
-    def validate_retry_policy(self) -> bool:
-        """Validate retrypolicy data integrity and consistency."""
-        ...
+    async def validate_retry_policy(self) -> bool: ...
 
-    def is_applicable(self) -> bool:
-        """Check if retrypolicy applicable."""
-        ...
+    def is_applicable(self) -> bool: ...
 
 
 @runtime_checkable
@@ -1257,13 +1081,9 @@ class ProtocolRetryAttempt(Protocol):
     success: bool
     backoff_applied_ms: int
 
-    def validate_retry_attempt(self) -> bool:
-        """Validate retryattempt data integrity and consistency."""
-        ...
+    async def validate_retry_attempt(self) -> bool: ...
 
-    def is_valid_attempt(self) -> bool:
-        """Check if retryattempt valid attempt."""
-        ...
+    def is_valid_attempt(self) -> bool: ...
 
 
 @runtime_checkable
@@ -1277,13 +1097,9 @@ class ProtocolRetryResult(Protocol):
     final_error: Exception | None
     attempts: list["ProtocolRetryAttempt"]
 
-    def validate_retry_result(self) -> bool:
-        """Validate retryresult data integrity and consistency."""
-        ...
+    async def validate_retry_result(self) -> bool: ...
 
-    def is_final(self) -> bool:
-        """Check if retryresult final."""
-        ...
+    def is_final(self) -> bool: ...
 
 
 LiteralTimeBasedType = Literal["duration", "timeout", "interval", "deadline"]
@@ -1300,13 +1116,9 @@ class ProtocolTimeBased(Protocol):
     is_active: bool
     has_expired: bool
 
-    def validate_time_based(self) -> bool:
-        """Validate timebased data integrity and consistency."""
-        ...
+    async def validate_time_based(self) -> bool: ...
 
-    def is_valid_timing(self) -> bool:
-        """Check if timebased valid timing."""
-        ...
+    def is_valid_timing(self) -> bool: ...
 
 
 @runtime_checkable
@@ -1319,13 +1131,9 @@ class ProtocolTimeout(Protocol):
     is_expired: bool
     time_remaining_ms: int
 
-    def validate_timeout(self) -> bool:
-        """Validate timeout data integrity and consistency."""
-        ...
+    async def validate_timeout(self) -> bool: ...
 
-    def is_reasonable(self) -> bool:
-        """Check if timeout reasonable."""
-        ...
+    def is_reasonable(self) -> bool: ...
 
 
 @runtime_checkable
@@ -1338,13 +1146,9 @@ class ProtocolDuration(Protocol):
     is_completed: bool
     can_measure: bool
 
-    def validate_duration(self) -> bool:
-        """Validate duration data integrity and consistency."""
-        ...
+    async def validate_duration(self) -> bool: ...
 
-    def is_measurable(self) -> bool:
-        """Check if duration measurable."""
-        ...
+    def is_measurable(self) -> bool: ...
 
 
 LiteralAnalyticsTimeWindow = Literal[
@@ -1365,13 +1169,9 @@ class ProtocolAnalyticsMetric(Protocol):
     tags: dict[str, "ContextValue"]
     metadata: dict[str, "ContextValue"]
 
-    def validate_metric(self) -> bool:
-        """Validate analyticsmetric data integrity and consistency."""
-        ...
+    async def validate_metric(self) -> bool: ...
 
-    def is_valid_measurement(self) -> bool:
-        """Check if analyticsmetric valid measurement."""
-        ...
+    def is_valid_measurement(self) -> bool: ...
 
 
 @runtime_checkable
@@ -1385,13 +1185,9 @@ class ProtocolAnalyticsProvider(Protocol):
     time_windows: list[LiteralAnalyticsTimeWindow]
     last_updated: "ProtocolDateTime"
 
-    def validate_provider(self) -> bool:
-        """Validate analyticsprovider data integrity and consistency."""
-        ...
+    async def validate_provider(self) -> bool: ...
 
-    def is_available(self) -> bool:
-        """Check if analyticsprovider available."""
-        ...
+    def is_available(self) -> bool: ...
 
 
 @runtime_checkable
@@ -1406,13 +1202,9 @@ class ProtocolAnalyticsSummary(Protocol):
     recommendations: list[str]
     confidence_score: float
 
-    def validate_summary(self) -> bool:
-        """Validate analyticssummary data integrity and consistency."""
-        ...
+    async def validate_summary(self) -> bool: ...
 
-    def is_complete(self) -> bool:
-        """Check if analyticssummary complete."""
-        ...
+    def is_complete(self) -> bool: ...
 
 
 LiteralPerformanceCategory = Literal[
@@ -1433,13 +1225,9 @@ class ProtocolPerformanceMetric(Protocol):
     threshold_warning: float | None
     threshold_critical: float | None
 
-    def validate_performance_metric(self) -> bool:
-        """Validate performancemetric data integrity and consistency."""
-        ...
+    async def validate_performance_metric(self) -> bool: ...
 
-    def is_valid(self) -> bool:
-        """Check if performancemetric valid."""
-        ...
+    def is_valid(self) -> bool: ...
 
 
 @runtime_checkable
@@ -1453,13 +1241,9 @@ class ProtocolPerformanceMetrics(Protocol):
     performance_trends: dict[str, float]
     recommendations: list[str]
 
-    def validate_performance_metrics(self) -> bool:
-        """Validate performancemetrics data integrity and consistency."""
-        ...
+    async def validate_performance_metrics(self) -> bool: ...
 
-    def is_healthy(self) -> bool:
-        """Check if performancemetrics healthy."""
-        ...
+    def is_healthy(self) -> bool: ...
 
 
 LiteralConnectionState = Literal[
@@ -1479,13 +1263,9 @@ class ProtocolConnectionConfig(Protocol):
     connection_pool_size: int
     keep_alive_interval_ms: int
 
-    async def validate_connection_config(self) -> bool:
-        """Validate connectionconfig data integrity and consistency."""
-        ...
+    async def validate_connection_config(self) -> bool: ...
 
-    async def is_connectable(self) -> bool:
-        """Check if connectionconfig connectable."""
-        ...
+    async def is_connectable(self) -> bool: ...
 
 
 @runtime_checkable
@@ -1499,13 +1279,9 @@ class ProtocolConnectionStatus(Protocol):
     bytes_sent: int
     bytes_received: int
 
-    async def validate_connection_status(self) -> bool:
-        """Validate connectionstatus data integrity and consistency."""
-        ...
+    async def validate_connection_status(self) -> bool: ...
 
-    async def is_connected(self) -> bool:
-        """Check if connectionstatus connected."""
-        ...
+    async def is_connected(self) -> bool: ...
 
 
 LiteralValidationSeverity = Literal["error", "warning", "info"]
@@ -1539,26 +1315,8 @@ class ProtocolValidatable(Protocol):
                 return f"config_{self.name}"
     """
 
-    def get_validation_context(self) -> dict[str, "ContextValue"]:
-        """
-        Provide validation context for this object.
+    async def get_validation_context(self) -> dict[str, "ContextValue"]: ...
 
-        Returns context information that validation rules can use to
-        determine applicability and customize validation behavior.
+    async def get_validation_id(self) -> str: ...
 
-        Returns:
-            dict[str, "ContextValue"]: Validation context metadata
-        """
-        ...
-
-    def get_validation_id(self) -> str:
-        """
-        Provide unique identifier for validation reporting.
-
-        Returns a string identifier that can be used in validation
-        results to identify which object was validated.
-
-        Returns:
-            str: Unique identifier for this validatable object
-        """
-        ...
+    ...

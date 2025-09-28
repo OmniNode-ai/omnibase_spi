@@ -20,7 +20,6 @@ import sys
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
 
 import timeout_utils
 from timeout_utils import timeout_context
@@ -443,14 +442,14 @@ def print_naming_report(violations: list[NamingViolation]) -> None:
     warning_count = sum(1 for v in violations if v.severity == "warning")
     info_count = sum(1 for v in violations if v.severity == "info")
 
-    print(f"\n📊 VALIDATION SUMMARY:")
+    print("\n📊 VALIDATION SUMMARY:")
     print(f"   Total violations: {len(violations)}")
     print(f"   Errors: {error_count}")
     print(f"   Warnings: {warning_count}")
     print(f"   Info: {info_count}")
 
     if violations:
-        print(f"\n🏷️  NAMING VIOLATIONS FOUND:")
+        print("\n🏷️  NAMING VIOLATIONS FOUND:")
 
         # Group violations by type
         by_type = defaultdict(list)
@@ -494,12 +493,12 @@ def print_naming_report(violations: list[NamingViolation]) -> None:
             domain_violations["core"].append(violation)
 
     if domain_violations:
-        print(f"\n📁 VIOLATIONS BY DOMAIN:")
+        print("\n📁 VIOLATIONS BY DOMAIN:")
         for domain, domain_viols in domain_violations.items():
             print(f"   {domain}: {len(domain_viols)} violations")
 
     # Best practices recommendations
-    print(f"\n💡 NAMING BEST PRACTICES:")
+    print("\n💡 NAMING BEST PRACTICES:")
     print("   📝 Use 'Protocol' prefix for all protocol classes")
     print("   📝 Consider domain-specific prefixes (e.g., WorkflowProtocol...)")
     print("   📝 Use PascalCase for type aliases and Literal types")
@@ -507,7 +506,7 @@ def print_naming_report(violations: list[NamingViolation]) -> None:
     print("   📝 Use specific, descriptive names over vague terms")
 
     if error_count == 0:
-        print(f"\n✅ NAMING VALIDATION PASSED: No critical errors found")
+        print("\n✅ NAMING VALIDATION PASSED: No critical errors found")
         if warning_count > 0:
             print(f"   ⚠️  {warning_count} warnings should be addressed for consistency")
     else:

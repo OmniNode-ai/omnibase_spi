@@ -68,11 +68,8 @@ def test_event_bus_inheritance():
 def test_memory_base_inheritance():
     """Test memory protocol inheritance."""
     from omnibase_spi.protocols.memory.protocol_memory_base import (
-        ProtocolAggregationCriteria,
-        ProtocolAnalysisParameters,
         ProtocolKeyValueStore,
         ProtocolMemoryMetadata,
-        ProtocolWorkflowConfiguration,
     )
 
     class MockMetadata:
@@ -116,10 +113,7 @@ def test_workflow_value_inheritance():
     """Test workflow value protocol inheritance."""
     from omnibase_spi.protocols.types.protocol_workflow_orchestration_types import (
         ProtocolWorkflowNumericValue,
-        ProtocolWorkflowStringDictValue,
-        ProtocolWorkflowStringListValue,
         ProtocolWorkflowStringValue,
-        ProtocolWorkflowStructuredValue,
         ProtocolWorkflowValue,
     )
 

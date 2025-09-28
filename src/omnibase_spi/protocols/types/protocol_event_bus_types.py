@@ -4,13 +4,11 @@ Event bus protocol types for ONEX SPI interfaces.
 Domain: Event-driven architecture protocols
 """
 
-from typing import TYPE_CHECKING, Literal, Optional, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Literal, Protocol, runtime_checkable
 from uuid import UUID
 
 if TYPE_CHECKING:
-    from omnibase_spi.protocols.event_bus.protocol_event_bus import (
-        ProtocolEventBusHeaders,
-    )
+    pass
 from omnibase_spi.protocols.types.protocol_core_types import (
     ContextValue,
     LiteralBaseStatus,
@@ -23,17 +21,7 @@ from omnibase_spi.protocols.types.protocol_core_types import (
 class ProtocolEventData(Protocol):
     """Protocol for event data values supporting validation and serialization."""
 
-    def validate_for_transport(self) -> bool:
-        """Validate value is safe for event transport."""
-        ...
-
-    def serialize_for_event(self) -> dict[str, object]:
-        """Serialize value for event messaging."""
-        ...
-
-    def get_event_type_hint(self) -> str:
-        """Get type hint for event schema validation."""
-        ...
+    async def validate_for_transport(self) -> bool: ...
 
 
 @runtime_checkable
@@ -73,13 +61,7 @@ class ProtocolEvent(Protocol):
     timestamp: "ProtocolDateTime"
     source: str
 
-    def validate_event(self) -> bool:
-        """Validate event data integrity and consistency."""
-        ...
-
-    def has_required_fields(self) -> bool:
-        """Check if event required fields."""
-        ...
+    async def validate_event(self) -> bool: ...
 
 
 @runtime_checkable
@@ -91,13 +73,7 @@ class ProtocolEventResult(Protocol):
     processing_time: float
     error_message: str | None
 
-    def validate_result(self) -> bool:
-        """Validate eventresult data integrity and consistency."""
-        ...
-
-    def is_successful(self) -> bool:
-        """Check if eventresult successful."""
-        ...
+    async def validate_result(self) -> bool: ...
 
 
 @runtime_checkable
@@ -109,13 +85,7 @@ class ProtocolSecurityContext(Protocol):
     auth_status: LiteralAuthStatus
     token_expires_at: "ProtocolDateTime | None"
 
-    def validate_security_context(self) -> bool:
-        """Validate securitycontext data integrity and consistency."""
-        ...
-
-    def is_authenticated(self) -> bool:
-        """Check if securitycontext authenticated."""
-        ...
+    async def validate_security_context(self) -> bool: ...
 
 
 @runtime_checkable
@@ -127,9 +97,7 @@ class ProtocolEventSubscription(Protocol):
     filter_criteria: dict[str, "ContextValue"]
     is_active: bool
 
-    def validate_subscription(self) -> bool:
-        """Validate eventsubscription data integrity and consistency."""
-        ...
+    async def validate_subscription(self) -> bool: ...
 
 
 @runtime_checkable
@@ -144,13 +112,7 @@ class ProtocolOnexEvent(Protocol):
     correlation_id: UUID
     metadata: dict[str, "ProtocolEventData"]
 
-    def validate_onex_event(self) -> bool:
-        """Validate onexevent data integrity and consistency."""
-        ...
-
-    def is_well_formed(self) -> bool:
-        """Check if onexevent well formed."""
-        ...
+    async def validate_onex_event(self) -> bool: ...
 
 
 @runtime_checkable
@@ -194,13 +156,7 @@ class ProtocolEventHeaders(Protocol):
     max_retries: int | None
     ttl_seconds: int | None
 
-    def validate_headers(self) -> bool:
-        """Validate eventheaders data integrity and consistency."""
-        ...
-
-    def has_required_headers(self) -> bool:
-        """Check if eventheaders required headers."""
-        ...
+    async def validate_headers(self) -> bool: ...
 
 
 EventMessage = "ProtocolEventMessage"
@@ -222,9 +178,7 @@ class ProtocolEventMessage(Protocol):
     offset: str | None
     partition: int | None
 
-    async def ack(self) -> None:
-        """Acknowledge message processing (adapter-specific implementation)."""
-        ...
+    async def ack(self) -> None: ...
 
 
 @runtime_checkable
@@ -241,6 +195,4 @@ class ProtocolCompletionData(Protocol):
     code: int | None
     tags: list[str] | None
 
-    def to_event_kwargs(self) -> dict[str, str | bool | int | list[str]]:
-        """Convert to kwargs for event creation, excluding None values."""
-        ...
+    def to_event_kwargs(self) -> dict[str, str | bool | int | list[str]]: ...

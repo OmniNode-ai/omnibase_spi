@@ -12,28 +12,17 @@ from omnibase_spi.protocols.types.protocol_core_types import (
     ProtocolSemVer,
 )
 
-# Discovery result types
 LiteralDiscoveryStatus = Literal["found", "not_found", "error", "timeout"]
 LiteralHandlerStatus = Literal["available", "busy", "offline", "error"]
-
-# === Capability Value Protocol Hierarchy (Eliminates Union anti-patterns) ===
 
 
 @runtime_checkable
 class ProtocolCapabilityValue(Protocol):
     """Protocol for capability data values supporting validation and serialization."""
 
-    def validate_for_capability(self) -> bool:
-        """Validate value is safe for capability storage."""
-        ...
+    async def validate_for_capability(self) -> bool: ...
 
-    def serialize_for_capability(self) -> dict[str, object]:
-        """Serialize value for capability metadata."""
-        ...
-
-    def get_capability_type_hint(self) -> str:
-        """Get type hint for capability schema validation."""
-        ...
+    def serialize_for_capability(self) -> dict[str, object]: ...
 
 
 @runtime_checkable
@@ -64,11 +53,9 @@ class ProtocolCapabilityStringListValue(ProtocolCapabilityValue, Protocol):
     value: list[str]
 
 
-# Backward compatibility alias - use ProtocolCapabilityValue for new code
 CapabilityValue = ProtocolCapabilityValue
 
 
-# Handler discovery protocols
 @runtime_checkable
 class ProtocolHandlerCapability(Protocol):
     """Protocol for node capability objects."""
@@ -113,7 +100,6 @@ class ProtocolDiscoveryResult(Protocol):
     error_message: str | None
 
 
-# Handler registration protocols
 @runtime_checkable
 class ProtocolHandlerRegistration(Protocol):
     """Protocol for node registration objects."""

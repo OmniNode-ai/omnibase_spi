@@ -5,7 +5,7 @@ Provides strongly-typed configuration contracts to replace generic
 dict returns with specific, validated configuration structures.
 """
 
-from typing import Optional, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 
@@ -180,122 +180,20 @@ class ProtocolClientConfigProvider(Protocol):
 
     async def get_http_client_config(
         self, client_name: str
-    ) -> ProtocolHttpClientConfig:
-        """
-        Get HTTP client configuration for named client.
+    ) -> ProtocolHttpClientConfig: ...
 
-        Args:
-            client_name: Name of the HTTP client configuration
-
-        Returns:
-            HTTP client configuration protocol implementation
-
-        Raises:
-            OnexError: If configuration is not found or invalid
-        """
-        ...
-
-    async def get_http_auth_config(self, auth_name: str) -> ProtocolHttpAuthConfig:
-        """
-        Get HTTP authentication configuration for named auth scheme.
-
-        Args:
-            auth_name: Name of the authentication configuration
-
-        Returns:
-            HTTP auth configuration protocol implementation
-
-        Raises:
-            OnexError: If auth configuration is not found or invalid
-        """
-        ...
+    async def get_http_auth_config(self, auth_name: str) -> ProtocolHttpAuthConfig: ...
 
     async def get_kafka_client_config(
         self, client_name: str
-    ) -> ProtocolKafkaClientConfig:
-        """
-        Get Kafka client configuration for named client.
-
-        Args:
-            client_name: Name of the Kafka client configuration
-
-        Returns:
-            Kafka client configuration protocol implementation
-
-        Raises:
-            OnexError: If configuration is not found or invalid
-        """
-        ...
+    ) -> ProtocolKafkaClientConfig: ...
 
     async def get_kafka_producer_config(
         self, producer_name: str
-    ) -> ProtocolKafkaProducerConfig:
-        """
-        Get Kafka producer configuration for named producer.
-
-        Args:
-            producer_name: Name of the producer configuration
-
-        Returns:
-            Kafka producer configuration protocol implementation
-
-        Raises:
-            OnexError: If configuration is not found or invalid
-        """
-        ...
+    ) -> ProtocolKafkaProducerConfig: ...
 
     async def get_kafka_consumer_config(
         self, consumer_name: str
-    ) -> ProtocolKafkaConsumerConfig:
-        """
-        Get Kafka consumer configuration for named consumer.
+    ) -> ProtocolKafkaConsumerConfig: ...
 
-        Args:
-            consumer_name: Name of the consumer configuration
-
-        Returns:
-            Kafka consumer configuration protocol implementation
-
-        Raises:
-            OnexError: If configuration is not found or invalid
-        """
-        ...
-
-    async def validate_configurations(self) -> list[str]:
-        """
-        Validate all loaded configurations.
-
-        Checks configuration completeness, validates connectivity,
-        and verifies security settings.
-
-        Returns:
-            List of validation warnings or empty list if all valid
-
-        Raises:
-            OnexError: If critical configuration errors are found
-        """
-        ...
-
-    async def reload_configurations(self) -> None:
-        """
-        Reload configurations from source.
-
-        Refreshes configuration data from environment variables,
-        config files, or external configuration services.
-
-        Raises:
-            OnexError: If configuration reload fails
-        """
-        ...
-
-    async def get_configuration_summary(self) -> dict[str, dict[str, str | int | bool]]:
-        """
-        Get summary of all loaded configurations.
-
-        Returns non-sensitive configuration information for debugging
-        and monitoring purposes.
-
-        Returns:
-            Dictionary with configuration summaries (sensitive data masked)
-        """
-        ...
+    async def validate_configurations(self) -> list[str]: ...

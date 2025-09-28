@@ -1,12 +1,4 @@
-from typing import (
-    Any,
-    Awaitable,
-    Callable,
-    Literal,
-    Optional,
-    Protocol,
-    runtime_checkable,
-)
+from typing import Any, Awaitable, Callable, Literal, Protocol, runtime_checkable
 from uuid import UUID
 
 from omnibase_spi.protocols.types.protocol_core_types import (
@@ -32,126 +24,80 @@ class ProtocolEventBusHeaders(Protocol):
     """
 
     @property
-    def content_type(self) -> str:
-        """MIME type: 'application/json', 'application/avro', etc."""
-        ...
+    def content_type(self) -> str: ...
 
     @property
-    def correlation_id(self) -> UUID:
-        """UUID format for distributed business tracing."""
-        ...
+    def correlation_id(self) -> UUID: ...
 
     @property
-    def message_id(self) -> UUID:
-        """UUID format for unique message identification."""
-        ...
+    def message_id(self) -> UUID: ...
 
     @property
-    def timestamp(self) -> ProtocolDateTime:
-        """Message creation timestamp (datetime object)."""
-        ...
+    def timestamp(self) -> ProtocolDateTime: ...
 
     @property
-    def source(self) -> str:
-        """Source agent/service identifier."""
-        ...
+    def source(self) -> str: ...
 
     @property
-    def event_type(self) -> str:
-        """Event classification (e.g., 'core.node.start')."""
-        ...
+    def event_type(self) -> str: ...
 
     @property
-    def schema_version(self) -> ProtocolSemVer:
-        """Message schema version for compatibility."""
-        ...
+    def schema_version(self) -> ProtocolSemVer: ...
 
     @property
-    def destination(self) -> str | None:
-        """Target agent/service (for direct routing)."""
-        ...
+    def destination(self) -> str | None: ...
 
     @property
-    def trace_id(self) -> str | None:
-        """OpenTelemetry trace ID (32 hex chars, no hyphens)."""
-        ...
+    def trace_id(self) -> str | None: ...
 
     @property
-    def span_id(self) -> str | None:
-        """OpenTelemetry span ID (16 hex chars, no hyphens)."""
-        ...
+    def span_id(self) -> str | None: ...
 
     @property
-    def parent_span_id(self) -> str | None:
-        """Parent span ID (16 hex chars, no hyphens)."""
-        ...
+    def parent_span_id(self) -> str | None: ...
 
     @property
-    def operation_name(self) -> str | None:
-        """Operation being performed (for tracing context)."""
-        ...
+    def operation_name(self) -> str | None: ...
 
     @property
-    def priority(self) -> Literal["low", "normal", "high", "critical"] | None:
-        """Message priority."""
-        ...
+    def priority(self) -> Literal["low", "normal", "high", "critical"] | None: ...
 
     @property
-    def routing_key(self) -> str | None:
-        """Kafka/messaging routing key."""
-        ...
+    def routing_key(self) -> str | None: ...
 
     @property
-    def partition_key(self) -> str | None:
-        """Explicit partition assignment key."""
-        ...
+    def partition_key(self) -> str | None: ...
 
     @property
-    def retry_count(self) -> int | None:
-        """Number of retry attempts (for error handling)."""
-        ...
+    def retry_count(self) -> int | None: ...
 
     @property
-    def max_retries(self) -> int | None:
-        """Maximum retry attempts allowed."""
-        ...
+    def max_retries(self) -> int | None: ...
 
     @property
-    def ttl_seconds(self) -> int | None:
-        """Message time-to-live in seconds."""
-        ...
+    def ttl_seconds(self) -> int | None: ...
 
 
 @runtime_checkable
 class ProtocolKafkaEventBusAdapter(Protocol):
     """
-    Protocol for Event Bus Adapters supporting pluggable Kafka/Redpanda backends.
+        Protocol for Event Bus Adapters supporting pluggable Kafka/Redpanda backends.
 
-    Implements the ONEX Messaging Design v0.3 Event Bus Adapter interface
-    enabling drop-in support for both Kafka and Redpanda without code changes.
+        Implements the ONEX Messaging Design v0.3 Event Bus Adapter interface
+        enabling drop-in support for both Kafka and Redpanda without code changes.
 
-    Environment isolation and node group mini-meshes are supported through
-    topic naming conventions and group isolation patterns.
+        Environment isolation and node group mini-meshes are supported through
+        topic naming conventions and group isolation patterns.
 
-    Usage Example:
+        Usage Example:
         ```python
-        # Implementation example (not part of SPI)
-        class KafkaAdapter:
-            async def publish(self, topic: str, key: Optional[bytes],
-                            value: bytes, headers: "ProtocolEventBusHeaders") -> None:
-                # Kafka-specific publishing logic
-                producer = self._get_producer()
-                await producer.send(topic, key=key, value=value, headers=headers)
+        # Protocol usage example (SPI-compliant)
+        service: "EventBus" = get_event_bus()
 
-            async def subscribe(self, topic: str, group_id: str,
-                              on_message: Callable) -> Callable:
-                # Kafka-specific subscription logic
-                consumer = self._create_consumer(group_id)
-                consumer.subscribe([topic])
-                # Return unsubscribe function
-                return lambda: consumer.unsubscribe()
+        # Usage demonstrates protocol interface without implementation details
+        # All operations work through the protocol contract
+        # Implementation details are abstracted away from the interface
 
-        # Usage in application code
         adapter: "ProtocolKafkaEventBusAdapter" = KafkaAdapter()
 
         # Publishing events
@@ -179,18 +125,18 @@ class ProtocolKafkaEventBusAdapter(Protocol):
         unsubscribe = await adapter.subscribe(
             topic="user-events",
             group_id="user-service",
-            on_message=handle_message
+        on_message=handle_message
         )
 
-        # Later cleanup
+    # Later cleanup
         await unsubscribe()
         await adapter.close()
         ```
 
     Topic Naming Conventions:
-        - Environment isolation: `{env}-{topic}` (e.g., "prod-user-events")
-        - Node group isolation: `{group}-{topic}` (e.g., "auth-user-events")
-        - Combined: `{env}-{group}-{topic}` (e.g., "prod-auth-user-events")
+    - Environment isolation: `{env}-{topic}` (e.g., "prod-user-events")
+    - Node group isolation: `{group}-{topic}` (e.g., "auth-user-events")
+    - Combined: `{env}-{group}-{topic}` (e.g., "prod-auth-user-events")
     """
 
     async def publish(
@@ -199,40 +145,16 @@ class ProtocolKafkaEventBusAdapter(Protocol):
         key: bytes | None,
         value: bytes,
         headers: "ProtocolEventBusHeaders",
-    ) -> None:
-        """
-        Publish message to topic.
-
-        Args:
-            topic: Target topic following ONEX naming conventions
-            key: Optional message key for partitioning
-            value: Serialized message payload
-            headers: Message metadata and routing headers
-        """
-        ...
+    ) -> None: ...
 
     async def subscribe(
         self,
         topic: str,
         group_id: str,
         on_message: Callable[[ProtocolEventMessage], Awaitable[None]],
-    ) -> Callable[[], Awaitable[None]]:
-        """
-        Subscribe to topic with message node.
+    ) -> Callable[[], Awaitable[None]]: ...
 
-        Args:
-            topic: Source topic following ONEX naming conventions
-            group_id: Consumer group for load balancing
-            on_message: Async message node
-
-        Returns:
-            Unsubscribe function to clean up subscription
-        """
-        ...
-
-    async def close(self) -> None:
-        """Close adapter and clean up resources."""
-        ...
+    async def close(self) -> None: ...
 
 
 @runtime_checkable
@@ -248,19 +170,13 @@ class ProtocolEventBus(Protocol):
     """
 
     @property
-    def adapter(self) -> ProtocolKafkaEventBusAdapter:
-        """Get the event bus adapter implementation."""
-        ...
+    def adapter(self) -> ProtocolKafkaEventBusAdapter: ...
 
     @property
-    def environment(self) -> str:
-        """Get environment name for topic isolation."""
-        ...
+    def environment(self) -> str: ...
 
     @property
-    def group(self) -> str:
-        """Get node group name for mini-mesh isolation."""
-        ...
+    def group(self) -> str: ...
 
     async def publish(
         self,
@@ -268,68 +184,24 @@ class ProtocolEventBus(Protocol):
         key: bytes | None,
         value: bytes,
         headers: "ProtocolEventBusHeaders | None" = None,
-    ) -> None:
-        """
-        Publish message to topic.
-
-        Args:
-            topic: Target topic (supports ONEX naming conventions)
-            key: Optional message key for partitioning
-            value: Serialized message payload
-            headers: Optional message headers
-        """
-        ...
+    ) -> None: ...
 
     async def subscribe(
         self,
         topic: str,
         group_id: str,
         on_message: Callable[[ProtocolEventMessage], Awaitable[None]],
-    ) -> Callable[[], Awaitable[None]]:
-        """
-        Subscribe to topic with message node.
-
-        Args:
-            topic: Source topic (supports ONEX naming conventions)
-            group_id: Consumer group for load balancing
-            on_message: Message node
-
-        Returns:
-            Unsubscribe function
-        """
-        ...
+    ) -> Callable[[], Awaitable[None]]: ...
 
     async def broadcast_to_environment(
         self,
         command: str,
         payload: dict[str, Any],
         target_environment: str | None = None,
-    ) -> None:
-        """
-        Broadcast command to entire environment.
-
-        Args:
-            command: Command type (e.g., 'introspection')
-            payload: Command payload
-            target_environment: Target env (default: current environment)
-        """
-        ...
+    ) -> None: ...
 
     async def send_to_group(
         self, command: str, payload: dict[str, Any], target_group: str
-    ) -> None:
-        """
-        Send command to specific node group.
+    ) -> None: ...
 
-        Args:
-            command: Command type
-            payload: Command payload
-            target_group: Target node group name
-        """
-        ...
-
-    async def close(self) -> None:
-        """
-        Close event bus and clean up resources.
-        """
-        ...
+    async def close(self) -> None: ...

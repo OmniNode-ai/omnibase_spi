@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING, Callable, Optional, Protocol, runtime_checkabl
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types import ContextValue, ProtocolEvent
 else:
-    # Use forward references in runtime to avoid circular imports
     ContextValue = "ContextValue"
     ProtocolEvent = "ProtocolEvent"
 
@@ -23,13 +22,9 @@ class ProtocolEventBusCredentials(Protocol):
     ca: str | None
     extra: dict[str, "ContextValue"] | None
 
-    def validate_credentials(self) -> bool:
-        """Validate eventbuscredentials data integrity and consistency."""
-        ...
+    async def validate_credentials(self) -> bool: ...
 
-    def is_secure(self) -> bool:
-        """Check if eventbuscredentials secure."""
-        ...
+    def is_secure(self) -> bool: ...
 
 
 @runtime_checkable
@@ -57,7 +52,7 @@ class ProtocolEventPubSub(Protocol):
         self, callback: Callable[[ProtocolEvent], None]
     ) -> None: ...
 
-    def unsubscribe(self, callback: Callable[[ProtocolEvent], None]) -> None: ...
+    async def unsubscribe(self, callback: Callable[[ProtocolEvent], None]) -> None: ...
 
     async def unsubscribe_async(
         self, callback: Callable[[ProtocolEvent], None]
@@ -66,9 +61,4 @@ class ProtocolEventPubSub(Protocol):
     def clear(self) -> None: ...
 
     @property
-    def bus_id(self) -> str:
-        """
-        Unique, stable identifier for this event bus instance (MUST be unique per bus, stable for its lifetime).
-            ...
-        """
-        ...
+    def bus_id(self) -> str: ...

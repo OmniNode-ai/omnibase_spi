@@ -31,6 +31,7 @@ from .protocol_memory_base import (  # ProtocolMemoryRecordData, # CONSOLIDATED:
     ProtocolCoordinationMetadata,
     ProtocolCustomMetrics,
     ProtocolErrorCategoryMap,
+    ProtocolKeyValueStore,
     ProtocolMemoryErrorContext,
     ProtocolMemoryMetadata,
     ProtocolMemoryRecord,
@@ -38,6 +39,16 @@ from .protocol_memory_base import (  # ProtocolMemoryRecordData, # CONSOLIDATED:
     ProtocolSearchFilters,
     ProtocolSearchResult,
     ProtocolWorkflowConfiguration,
+)
+
+# Composable Protocols
+from .protocol_memory_composable import (
+    ProtocolAgentCoordinator,
+    ProtocolClusterCoordinator,
+    ProtocolComputeNodeComposite,
+    ProtocolLifecycleManager,
+    ProtocolMemoryOrchestrator,
+    ProtocolWorkflowManager,
 )
 
 # Enhanced Error Handling Protocols
@@ -147,6 +158,7 @@ __all__ = [
     "LiteralMemoryAccessLevel",
     "ProtocolAgentCoordinationRequest",
     "ProtocolAgentCoordinationResponse",
+    "ProtocolAgentCoordinator",
     "ProtocolAgentResponseMap",
     "ProtocolAgentStatusMap",
     "ProtocolAggregatedData",
@@ -164,6 +176,8 @@ __all__ = [
     "ProtocolBatchMemoryStoreRequest",
     "ProtocolBatchMemoryStoreResponse",
     "ProtocolBatchOperationResult",
+    "ProtocolClusterCoordinator",
+    "ProtocolComputeNodeComposite",
     "ProtocolMemoryCompensationAction",
     "ProtocolConsolidationRequest",
     "ProtocolConsolidationResponse",
@@ -177,6 +191,8 @@ __all__ = [
     "ProtocolMemoryErrorContext",
     "ProtocolErrorRecoveryStrategy",
     "ProtocolInputValidation",
+    "ProtocolKeyValueStore",
+    "ProtocolLifecycleManager",
     "ProtocolMemoryAuthorizationError",
     "ProtocolMemoryCache",
     "ProtocolMemoryCapacityError",
@@ -197,6 +213,7 @@ __all__ = [
     "ProtocolMemoryMetricsRequest",
     "ProtocolMemoryMetricsResponse",
     "ProtocolMemoryNotFoundError",
+    "ProtocolMemoryOrchestrator",
     "ProtocolMemoryOrchestratorNode",
     "ProtocolMemoryRecord",
     # "ProtocolMemoryRecordData", # CONSOLIDATED: Use "ProtocolAggregatedData" instead
@@ -234,5 +251,6 @@ __all__ = [
     "ProtocolWorkflowConfiguration",
     "ProtocolWorkflowExecutionRequest",
     "ProtocolWorkflowExecutionResponse",
+    "ProtocolWorkflowManager",
     "LiteralWorkflowStatus",
 ]

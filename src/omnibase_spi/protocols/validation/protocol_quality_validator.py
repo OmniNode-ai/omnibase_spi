@@ -6,7 +6,7 @@ complexity metrics, and best practices compliance for NodeQualityValidatorEffect
 implementations.
 """
 
-from typing import List, Optional, Protocol, runtime_checkable
+from typing import List, Protocol, runtime_checkable
 
 from .protocol_validation import ProtocolValidationResult
 
@@ -22,13 +22,7 @@ class ProtocolQualityMetrics(Protocol):
     test_coverage_percentage: float
     technical_debt_score: float
 
-    async def get_complexity_rating(self) -> str:
-        """Get complexity rating: LOW, MEDIUM, HIGH, CRITICAL."""
-        ...
-
-    async def get_maintainability_rating(self) -> str:
-        """Get maintainability rating: EXCELLENT, GOOD, FAIR, POOR."""
-        ...
+    async def get_complexity_rating(self) -> str: ...
 
 
 @runtime_checkable
@@ -44,13 +38,7 @@ class ProtocolQualityIssue(Protocol):
     rule_id: str
     suggested_fix: str | None
 
-    async def get_issue_summary(self) -> str:
-        """Get concise issue summary."""
-        ...
-
-    def is_fixable(self) -> bool:
-        """Check if issue has an automated fix."""
-        ...
+    async def get_issue_summary(self) -> str: ...
 
 
 @runtime_checkable
@@ -65,13 +53,9 @@ class ProtocolQualityStandards(Protocol):
     naming_conventions: List[str]
     required_patterns: List[str]
 
-    async def check_complexity_compliance(self, complexity: int) -> bool:
-        """Check if complexity meets standards."""
-        ...
+    async def check_complexity_compliance(self, complexity: int) -> bool: ...
 
-    async def check_maintainability_compliance(self, score: float) -> bool:
-        """Check if maintainability meets standards."""
-        ...
+    async def check_maintainability_compliance(self, score: float) -> bool: ...
 
 
 @runtime_checkable
@@ -85,13 +69,7 @@ class ProtocolQualityReport(Protocol):
     overall_score: float
     recommendations: List[str]
 
-    async def get_critical_issues(self) -> List[ProtocolQualityIssue]:
-        """Get list of critical quality issues."""
-        ...
-
-    async def get_fix_suggestions(self) -> List[str]:
-        """Get automated fix suggestions."""
-        ...
+    async def get_critical_issues(self) -> List[ProtocolQualityIssue]: ...
 
 
 @runtime_checkable
@@ -111,143 +89,38 @@ class ProtocolQualityValidator(Protocol):
 
     async def validate_file_quality(
         self, file_path: str, content: str | None = None
-    ) -> ProtocolQualityReport:
-        """
-        Validate quality of a single file.
-
-        Args:
-            file_path: Path to file for quality validation
-            content: Optional file content (if not provided, reads from file)
-
-        Returns:
-            ProtocolQualityReport with quality assessment
-        """
-        ...
+    ) -> ProtocolQualityReport: ...
 
     async def validate_directory_quality(
         self, directory_path: str, file_patterns: List[str] | None = None
-    ) -> List[ProtocolQualityReport]:
-        """
-        Validate quality of all files in a directory.
-
-        Args:
-            directory_path: Directory path for quality validation
-            file_patterns: File patterns to include (default: ["*.py"])
-
-        Returns:
-            List of ProtocolQualityReport for all validated files
-        """
-        ...
+    ) -> List[ProtocolQualityReport]: ...
 
     def calculate_quality_metrics(
         self, file_path: str, content: str | None = None
-    ) -> ProtocolQualityMetrics:
-        """
-        Calculate quality metrics for a file.
-
-        Args:
-            file_path: Path to file for metric calculation
-            content: Optional file content
-
-        Returns:
-            ProtocolQualityMetrics with calculated metrics
-        """
-        ...
+    ) -> ProtocolQualityMetrics: ...
 
     def detect_code_smells(
         self, file_path: str, content: str | None = None
-    ) -> List[ProtocolQualityIssue]:
-        """
-        Detect code smells and anti-patterns.
-
-        Args:
-            file_path: Path to file for smell detection
-            content: Optional file content
-
-        Returns:
-            List of ProtocolQualityIssue representing detected smells
-        """
-        ...
+    ) -> List[ProtocolQualityIssue]: ...
 
     async def check_naming_conventions(
         self, file_path: str, content: str | None = None
-    ) -> List[ProtocolQualityIssue]:
-        """
-        Check compliance with naming conventions.
-
-        Args:
-            file_path: Path to file for naming validation
-            content: Optional file content
-
-        Returns:
-            List of ProtocolQualityIssue for naming violations
-        """
-        ...
+    ) -> List[ProtocolQualityIssue]: ...
 
     async def analyze_complexity(
         self, file_path: str, content: str | None = None
-    ) -> List[ProtocolQualityIssue]:
-        """
-        Analyze code complexity and identify high-complexity areas.
-
-        Args:
-            file_path: Path to file for complexity analysis
-            content: Optional file content
-
-        Returns:
-            List of ProtocolQualityIssue for complexity violations
-        """
-        ...
+    ) -> List[ProtocolQualityIssue]: ...
 
     async def validate_documentation(
         self, file_path: str, content: str | None = None
-    ) -> List[ProtocolQualityIssue]:
-        """
-        Validate documentation completeness and quality.
-
-        Args:
-            file_path: Path to file for documentation validation
-            content: Optional file content
-
-        Returns:
-            List of ProtocolQualityIssue for documentation issues
-        """
-        ...
+    ) -> List[ProtocolQualityIssue]: ...
 
     def suggest_refactoring(
         self, file_path: str, content: str | None = None
-    ) -> List[str]:
-        """
-        Suggest refactoring opportunities.
+    ) -> List[str]: ...
 
-        Args:
-            file_path: Path to file for refactoring analysis
-            content: Optional file content
-
-        Returns:
-            List of refactoring suggestions
-        """
-        ...
-
-    def configure_standards(self, standards: "ProtocolQualityStandards") -> None:
-        """
-        Configure quality standards.
-
-        Args:
-            standards: Quality standards configuration
-        """
-        ...
+    def configure_standards(self, standards: "ProtocolQualityStandards") -> None: ...
 
     async def get_validation_summary(
         self, reports: List[ProtocolQualityReport]
-    ) -> ProtocolValidationResult:
-        """
-        Generate validation summary from quality reports.
-
-        Args:
-            reports: List of quality reports to summarize
-
-        Returns:
-            ProtocolValidationResult with overall quality assessment
-        """
-        ...
+    ) -> ProtocolValidationResult: ...

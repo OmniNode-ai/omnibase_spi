@@ -5,7 +5,7 @@ Provides Kafka client protocols that can be implemented by different
 Kafka client backends (aiokafka, confluent-kafka-python, etc.) and injected via ONEXContainer.
 """
 
-from typing import Optional, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 
 @runtime_checkable
@@ -35,81 +35,21 @@ class ProtocolKafkaClient(Protocol):
         ```
     """
 
-    async def start(self) -> None:
-        """
-        Start the Kafka client connection.
+    async def start(self) -> None: ...
 
-        Initializes connection to Kafka brokers and prepares client for operations.
-        Must be called before any send/receive operations.
-
-        Raises:
-            OnexError: If connection to Kafka brokers fails
-        """
-        ...
-
-    async def stop(self) -> None:
-        """
-        Stop the Kafka client connection.
-
-        Cleanly shuts down connections to Kafka brokers and releases resources.
-        Should be called when client is no longer needed.
-
-        Raises:
-            OnexError: If shutdown encounters errors
-        """
-        ...
+    async def stop(self) -> None: ...
 
     async def send_and_wait(
         self, topic: str, value: bytes, key: bytes | None = None
-    ) -> None:
-        """
-        Send message to Kafka topic and wait for acknowledgment.
+    ) -> None: ...
 
-        Sends a message to the specified topic and waits for broker acknowledgment
-        to ensure reliable delivery.
-
-        Args:
-            topic: Kafka topic name to send message to
-            value: Message payload as bytes
-            key: Optional message key for partitioning
-
-        Raises:
-            OnexError: If message sending fails or times out
-        """
-        ...
-
-    def bootstrap_servers(self) -> list[str]:
-        """
-        Get list of bootstrap servers.
-
-        Returns the list of Kafka broker addresses that this client
-        is configured to connect to.
-
-        Returns:
-            List of bootstrap server addresses (e.g., ["localhost:9092"])
-        """
-        ...
+    def bootstrap_servers(self) -> list[str]: ...
 
 
 @runtime_checkable
 class ProtocolKafkaClientProvider(Protocol):
     """Protocol for Kafka client provider."""
 
-    async def create_kafka_client(self) -> ProtocolKafkaClient:
-        """
-        Create Kafka client instance.
+    async def create_kafka_client(self) -> ProtocolKafkaClient: ...
 
-        Returns:
-            ProtocolKafkaClient implementation configured for the environment
-        """
-        ...
-
-    async def get_kafka_configuration(self) -> dict[str, str | int | float | bool]:
-        """
-        Get Kafka client configuration parameters.
-
-        Returns:
-            Dictionary with Kafka client configuration including
-            bootstrap servers, security settings, etc.
-        """
-        ...
+    async def get_kafka_configuration(self) -> dict[str, str | int | float | bool]: ...

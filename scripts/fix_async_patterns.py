@@ -6,8 +6,6 @@ This script adds 'async' keyword to methods that clearly should be async
 based on their names and functionality patterns.
 """
 
-import ast
-import os
 import re
 from pathlib import Path
 from typing import List, Tuple
@@ -167,7 +165,7 @@ class AsyncPatternFixer:
 
                 total_changes.extend(changes)
 
-        print(f"\n📊 Summary:")
+        print("\n📊 Summary:")
         print(f"   • Files modified: {self.files_modified}")
         print(f"   • Methods made async: {self.fixes_applied}")
 

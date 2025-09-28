@@ -23,26 +23,26 @@ Domain Organization:
 
 Usage Examples:
     # Basic type imports
-    from omnibase_spi.protocols.types import LiteralLogLevel, LiteralHealthStatus, LiteralNodeType
+from omnibase_spi.protocols.types import LiteralLogLevel, LiteralHealthStatus, LiteralNodeType
 
     # Complex protocol imports
-    from omnibase_spi.protocols.types import (
+from omnibase_spi.protocols.types import (
         ProtocolWorkflowEvent,
         ProtocolMCPToolDefinition,
         ProtocolLogEntry
-    )
+)
 
     # Service types disambiguation (available as both generic and specific names)
-    from omnibase_spi.protocols.types import (
+from omnibase_spi.protocols.types import (
         ProtocolServiceMetadata,                # Generic service metadata
         ProtocolDiscoveryServiceMetadata,      # Service discovery metadata (alias)
         ProtocolServiceInstance,               # Generic service instance
         ProtocolDiscoveryServiceInstance       # Service discovery instance (alias)
-    )
+)
 
     # Domain-specific imports
-    from omnibase_spi.protocols.types.protocol_workflow_orchestration_types import LiteralWorkflowState
-    from omnibase_spi.protocols.types.protocol_mcp_types import MCPToolType
+from omnibase_spi.protocols.types.protocol_workflow_orchestration_types import LiteralWorkflowState
+from omnibase_spi.protocols.types.protocol_mcp_types import MCPToolType
 
     # Usage in service implementations
     def log_event(level: LogLevel, message: str) -> ProtocolLogEntry:
@@ -66,7 +66,10 @@ Type Safety Features:
 # Core types
 from omnibase_spi.protocols.types.protocol_core_types import (
     ContextValue,
+    LiteralAnalyticsMetricType,
+    LiteralAnalyticsTimeWindow,
     LiteralBaseStatus,
+    LiteralConnectionState,
     LiteralErrorRecoveryStrategy,
     LiteralErrorSeverity,
     LiteralExecutionMode,
@@ -77,16 +80,27 @@ from omnibase_spi.protocols.types.protocol_core_types import (
     LiteralNodeStatus,
     LiteralNodeType,
     LiteralOperationStatus,
+    LiteralPerformanceCategory,
+    LiteralRetryBackoffStrategy,
+    LiteralRetryCondition,
+    LiteralTimeBasedType,
+    LiteralValidationCategory,
     LiteralValidationLevel,
     LiteralValidationMode,
+    LiteralValidationSeverity,
     ProtocolAction,
     ProtocolActionPayload,
+    ProtocolAnalyticsMetric,
+    ProtocolAnalyticsProvider,
+    ProtocolAnalyticsSummary,
     ProtocolAuditEvent,
     ProtocolCacheStatistics,
     ProtocolCheckpointData,
     ProtocolCompatibilityCheck,
     ProtocolConfigurable,
     ProtocolConfigValue,
+    ProtocolConnectionConfig,
+    ProtocolConnectionStatus,
     ProtocolContextBooleanValue,
     ProtocolContextNumericValue,
     ProtocolContextStringDictValue,
@@ -94,6 +108,7 @@ from omnibase_spi.protocols.types.protocol_core_types import (
     ProtocolContextStringValue,
     ProtocolContextValue,
     ProtocolDateTime,
+    ProtocolDuration,
     ProtocolErrorContext,
     ProtocolErrorInfo,
     ProtocolErrorResult,
@@ -113,7 +128,13 @@ from omnibase_spi.protocols.types.protocol_core_types import (
     ProtocolNodeMetadata,
     ProtocolNodeMetadataBlock,
     ProtocolNodeResult,
+    ProtocolPerformanceMetric,
+    ProtocolPerformanceMetrics,
     ProtocolRecoveryAction,
+    ProtocolRetryAttempt,
+    ProtocolRetryConfig,
+    ProtocolRetryPolicy,
+    ProtocolRetryResult,
     ProtocolSchemaObject,
     ProtocolSemVer,
     ProtocolSerializable,
@@ -130,6 +151,8 @@ from omnibase_spi.protocols.types.protocol_core_types import (
     ProtocolSupportedMetadataType,
     ProtocolSupportedPropertyValue,
     ProtocolSystemEvent,
+    ProtocolTimeBased,
+    ProtocolTimeout,
     ProtocolTraceSpan,
     ProtocolValidatable,
     ProtocolVersionInfo,
@@ -144,6 +167,13 @@ from omnibase_spi.protocols.validation.protocol_validation import (
 # Core types are for service discovery, container types are for dependency injection
 ProtocolDiscoveryServiceMetadata = ProtocolServiceMetadata
 ProtocolDiscoveryServiceInstance = ProtocolServiceInstance
+
+# Container types
+from omnibase_spi.protocols.types.protocol_container_types import (
+    LiteralContainerStatus,
+    LiteralDependencyScope,
+    LiteralServiceLifecycle,
+)
 
 # Discovery types
 from omnibase_spi.protocols.types.protocol_discovery_types import (
@@ -248,6 +278,7 @@ from omnibase_spi.protocols.types.protocol_workflow_orchestration_types import (
     ProtocolTaskDependency,
     ProtocolTaskResult,
     ProtocolTimeoutConfiguration,
+    ProtocolTypedWorkflowData,
     ProtocolWorkflowContext,
     ProtocolWorkflowDefinition,
     ProtocolWorkflowEvent,
@@ -265,9 +296,14 @@ from omnibase_spi.protocols.types.protocol_workflow_orchestration_types import (
 __all__ = [
     "CapabilityValue",
     "ContextValue",
-    "LiteralDiscoveryStatus",
+    "LiteralAnalyticsMetricType",
+    "LiteralAnalyticsTimeWindow",
     "LiteralAuthStatus",
     "LiteralBaseStatus",
+    "LiteralConnectionState",
+    "LiteralContainerStatus",
+    "LiteralDependencyScope",
+    "LiteralDiscoveryStatus",
     "LiteralErrorRecoveryStrategy",
     "LiteralErrorSeverity",
     "LiteralEventPriority",
@@ -290,9 +326,18 @@ __all__ = [
     "LiteralNodeStatus",
     "LiteralNodeType",
     "LiteralOperationStatus",
+    "LiteralPerformanceCategory",
+    "LiteralRetryBackoffStrategy",
+    "LiteralRetryCondition",
+    "LiteralTimeBasedType",
+    "LiteralValidationCategory",
+    "LiteralValidationSeverity",
     "ProcessingStatus",
     "ProtocolAction",
     "ProtocolActionPayload",
+    "ProtocolAnalyticsMetric",
+    "ProtocolAnalyticsProvider",
+    "ProtocolAnalyticsSummary",
     "ProtocolAuditEvent",
     "ProtocolCacheStatistics",
     "ProtocolCanHandleResult",
@@ -301,6 +346,8 @@ __all__ = [
     "ProtocolCompensationAction",
     "ProtocolConfigurable",
     "ProtocolConfigValue",
+    "ProtocolConnectionConfig",
+    "ProtocolConnectionStatus",
     "ProtocolContextBooleanValue",
     "ProtocolContextNumericValue",
     "ProtocolContextStringDictValue",
@@ -312,6 +359,7 @@ __all__ = [
     "ProtocolDiscoveryResult",
     "ProtocolDiscoveryServiceInstance",
     "ProtocolDiscoveryServiceMetadata",
+    "ProtocolDuration",
     "ProtocolErrorContext",
     "ProtocolErrorInfo",
     "ProtocolErrorResult",
@@ -375,13 +423,19 @@ __all__ = [
     "ProtocolNodeMetadataBlock",
     "ProtocolNodeResult",
     "ProtocolOnexResult",
+    "ProtocolPerformanceMetric",
+    "ProtocolPerformanceMetrics",
     "ProtocolProcessingResult",
     "ProtocolRecoveryAction",
     "ProtocolRecoveryPoint",
     "ProtocolReplayStrategy",
     "ProtocolResultData",
     "ProtocolResultOperations",
+    "ProtocolRetryAttempt",
+    "ProtocolRetryConfig",
     "ProtocolRetryConfiguration",
+    "ProtocolRetryPolicy",
+    "ProtocolRetryResult",
     "ProtocolSchemaObject",
     "ProtocolSecurityContext",
     "ProtocolSemVer",
@@ -404,8 +458,11 @@ __all__ = [
     "ProtocolTaskConfiguration",
     "ProtocolTaskDependency",
     "ProtocolTaskResult",
+    "ProtocolTimeBased",
+    "ProtocolTimeout",
     "ProtocolTimeoutConfiguration",
     "ProtocolTraceSpan",
+    "ProtocolTypedWorkflowData",
     "ProtocolValidatable",
     "ProtocolValidationResult",
     "ProtocolVersionInfo",

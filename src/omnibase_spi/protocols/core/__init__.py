@@ -81,8 +81,11 @@ from omnibase_spi.protocols.core.protocol_node_configuration_utils import (
     ProtocolUtilsNodeConfiguration,
 )
 from omnibase_spi.protocols.core.protocol_node_registry import (
+    ProtocolNodeChangeCallback,
     ProtocolNodeInfo,
     ProtocolNodeRegistry,
+    ProtocolNodeRegistryConfig,
+    ProtocolWatchHandle,
 )
 from omnibase_spi.protocols.core.protocol_observability import (
     ProtocolAuditLogger,
@@ -129,6 +132,7 @@ from omnibase_spi.protocols.core.protocol_version_manager import ProtocolVersion
 from omnibase_spi.protocols.core.protocol_workflow_manageable import (
     ProtocolWorkflowManageable,
 )
+from omnibase_spi.protocols.core.protocol_workflow_reducer import ProtocolWorkflow
 from omnibase_spi.protocols.core.protocol_workflow_reducer import (
     ProtocolWorkflowReducer,
 )
@@ -184,10 +188,12 @@ __all__ = [
     "ProtocolKafkaTransactionalProducer",
     "ProtocolLogger",
     "ProtocolMetricsCollector",
+    "ProtocolNodeChangeCallback",
     "ProtocolNodeConfiguration",
     "ProtocolNodeConfigurationProvider",
     "ProtocolNodeInfo",
     "ProtocolNodeRegistry",
+    "ProtocolNodeRegistryConfig",
     "ProtocolOnexContractData",
     "ProtocolOnexEnvelope",
     "ProtocolOnexMetadata",
@@ -212,6 +218,8 @@ __all__ = [
     "ProtocolValidationRuleSet",
     "ProtocolValidationSession",
     "ProtocolVersionManager",
+    "ProtocolWatchHandle",
+    "ProtocolWorkflow",
     "ProtocolWorkflowManageable",
     "ProtocolWorkflowReducer",
 ]

@@ -1,15 +1,15 @@
 """
-Protocol interface for validation model providers in ONEX ecosystem.
+    Protocol interface for validation model providers in ONEX ecosystem.
 
-This protocol defines the interface for validation providers that orchestrate
-validation workflows, manage validation rules, and provide comprehensive
-quality assurance capabilities for ONEX services and components.
+    This protocol defines the interface for validation providers that orchestrate
+    validation workflows, manage validation rules, and provide comprehensive
+    quality assurance capabilities for ONEX services and components.
 
 Domain: Core validation orchestration and quality assurance
 Author: ONEX Framework Team
 """
 
-from typing import TYPE_CHECKING, Any, Protocol, TypeAlias, Union, runtime_checkable
+from typing import Any, Protocol, TypeAlias, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import (
     ContextValue,
@@ -32,13 +32,13 @@ ValidationTarget: TypeAlias = "ProtocolValidatable | Any"
 @runtime_checkable
 class ProtocolValidationRule(Protocol):
     """
-    Protocol for individual validation rules.
+            Protocol for individual validation rules.
 
-    Defines the structure for validation rules that can be applied
-    to validate different aspects of ONEX components, configurations,
-    and data structures.
+            Defines the structure for validation rules that can be applied
+            to validate different aspects of ONEX components, configurations,
+        and data structures.
 
-    Key Features:
+        Key Features:
         - Rule identification and metadata
         - Severity levels for validation outcomes
         - Conditional rule application
@@ -46,11 +46,11 @@ class ProtocolValidationRule(Protocol):
 
     Usage Example:
         ```python
-        rule: "ProtocolValidationRule" = SomeValidationRule()
-        if rule.is_applicable(target_object):
-            result = rule.validate(target_object, context)
-            if not result.is_valid:
-                handle_validation_failure(result.errors)
+    rule: "ProtocolValidationRule" = SomeValidationRule()
+    if rule.is_applicable(target_object):
+        result = rule.validate(target_object, context)
+    if not result.is_valid:
+        handle_validation_failure(result.errors)
         ```
     """
 
@@ -63,53 +63,24 @@ class ProtocolValidationRule(Protocol):
 
     def is_applicable(
         self, target: ValidationTarget, context: dict[str, "ContextValue"]
-    ) -> bool:
-        """
-        Determine if this rule applies to the target object.
-
-        Args:
-            target: Object to validate
-            context: Validation context with metadata and configuration
-
-        Returns:
-            bool: True if rule should be applied to target
-        """
-        ...
+    ) -> bool: ...
 
     async def validate(
         self, target: ValidationTarget, context: dict[str, "ContextValue"]
-    ) -> "ProtocolValidationResult":
-        """
-        Execute validation rule against target object.
+    ) -> "ProtocolValidationResult": ...
 
-        Args:
-            target: Object to validate
-            context: Validation context and configuration
-
-        Returns:
-            ProtocolValidationResult: Validation outcome with errors/warnings
-        """
-        ...
-
-    async def get_dependencies(self) -> list[str]:
-        """
-        Get list of rule IDs that must be executed before this rule.
-
-        Returns:
-            list[str]: List of dependent rule IDs
-        """
-        ...
+    async def get_dependencies(self) -> list[str]: ...
 
 
 @runtime_checkable
 class ProtocolValidationRuleSet(Protocol):
     """
-    Protocol for collections of validation rules.
+            Protocol for collections of validation rules.
 
-    Manages groups of related validation rules with dependency resolution,
-    conditional execution, and rule composition capabilities.
+            Manages groups of related validation rules with dependency resolution,
+            conditional execution, and rule composition capabilities.
 
-    Key Features:
+        Key Features:
         - Rule collection management
         - Dependency resolution and ordering
         - Conditional rule set application
@@ -117,14 +88,14 @@ class ProtocolValidationRuleSet(Protocol):
 
     Usage Example:
         ```python
-        rule_set: "ProtocolValidationRuleSet" = ComplianceRuleSet()
+    rule_set: "ProtocolValidationRuleSet" = ComplianceRuleSet()
         applicable_rules = rule_set.get_applicable_rules(target, context)
         execution_order = rule_set.resolve_dependencies(applicable_rules)
 
-        for rule in execution_order:
-            result = rule.validate(target, context)
-            if not result.is_valid:
-                handle_rule_failure(rule, result)
+    for rule in execution_order:
+        result = rule.validate(target, context)
+    if not result.is_valid:
+        handle_rule_failure(rule, result)
         ```
     """
 
@@ -135,55 +106,24 @@ class ProtocolValidationRuleSet(Protocol):
 
     async def get_applicable_rules(
         self, target: ValidationTarget, context: dict[str, "ContextValue"]
-    ) -> list["ProtocolValidationRule"]:
-        """
-        Get rules applicable to the target object.
-
-        Args:
-            target: Object to validate
-            context: Validation context
-
-        Returns:
-            list["ProtocolValidationRule"]: Applicable rules for target
-        """
-        ...
+    ) -> list["ProtocolValidationRule"]: ...
 
     def resolve_dependencies(
         self, rules: list["ProtocolValidationRule"]
-    ) -> list["ProtocolValidationRule"]:
-        """
-        Resolve rule dependencies and return execution order.
+    ) -> list["ProtocolValidationRule"]: ...
 
-        Args:
-            rules: Rules to order by dependencies
-
-        Returns:
-            list["ProtocolValidationRule"]: Rules in dependency-resolved order
-        """
-        ...
-
-    async def validate_rule_set(self, context: dict[str, "ContextValue"]) -> bool:
-        """
-        Validate the rule set configuration and dependencies.
-
-        Args:
-            context: Validation context
-
-        Returns:
-            bool: True if rule set is valid and executable
-        """
-        ...
+    async def validate_rule_set(self, context: dict[str, "ContextValue"]) -> bool: ...
 
 
 @runtime_checkable
 class ProtocolValidationSession(Protocol):
     """
-    Protocol for validation execution sessions.
+            Protocol for validation execution sessions.
 
-    Manages the execution context and state for validation operations,
-    providing session isolation, progress tracking, and result aggregation.
+            Manages the execution context and state for validation operations,
+            providing session isolation, progress tracking, and result aggregation.
 
-    Key Features:
+        Key Features:
         - Session isolation and state management
         - Progress tracking and cancellation
         - Result aggregation and reporting
@@ -191,16 +131,16 @@ class ProtocolValidationSession(Protocol):
 
     Usage Example:
         ```python
-        session: "ProtocolValidationSession" = ValidationSession()
+    session: "ProtocolValidationSession" = ValidationSession()
         session.start_validation("component_validation", targets)
 
-        try:
-            results = session.execute_validation_rules(rule_set, level, mode)
-            summary = session.get_session_summary()
-            if not summary.overall_success:
-                handle_validation_failures(results)
-        finally:
-            session.end_validation()
+    try:
+        results = session.execute_validation_rules(rule_set, level, mode)
+        summary = session.get_session_summary()
+    if not summary.overall_success:
+        handle_validation_failures(results)
+    finally:
+        session.end_validation()
         ```
     """
 
@@ -215,16 +155,7 @@ class ProtocolValidationSession(Protocol):
         validation_name: str,
         targets: list[ValidationTarget],
         metadata: "ProtocolMetadata | None" = None,
-    ) -> None:
-        """
-        Start a new validation session.
-
-        Args:
-            validation_name: Name for this validation operation
-            targets: Objects to validate
-            metadata: Optional session metadata
-        """
-        ...
+    ) -> None: ...
 
     async def execute_validation_rules(
         self,
@@ -232,67 +163,29 @@ class ProtocolValidationSession(Protocol):
         level: "LiteralValidationLevel",
         mode: "LiteralValidationMode",
         context: dict[str, "ContextValue"] | None = None,
-    ) -> list["ProtocolValidationResult"]:
-        """
-        Execute validation rules within the session.
+    ) -> list["ProtocolValidationResult"]: ...
 
-        Args:
-            rule_set: Rules to execute
-            level: Validation thoroughness level
-            mode: Validation execution mode
-            context: Optional validation context
+    async def get_session_progress(self) -> dict[str, "ContextValue"]: ...
 
-        Returns:
-            list["ProtocolValidationResult"]: Validation results
-        """
-        ...
+    async def get_session_summary(self) -> dict[str, "ContextValue"]: ...
 
-    async def get_session_progress(self) -> dict[str, "ContextValue"]:
-        """
-        Get current session progress information.
+    def cancel_validation(self) -> bool: ...
 
-        Returns:
-            dict[str, "ContextValue"]: Progress metrics and status
-        """
-        ...
-
-    async def get_session_summary(self) -> dict[str, "ContextValue"]:
-        """
-        Get comprehensive session summary.
-
-        Returns:
-            dict[str, "ContextValue"]: Session results, metrics, and outcomes
-        """
-        ...
-
-    def cancel_validation(self) -> bool:
-        """
-        Cancel ongoing validation operation.
-
-        Returns:
-            bool: True if cancellation was successful
-        """
-        ...
-
-    def end_validation(self) -> None:
-        """
-        End the validation session and clean up resources.
-        """
-        ...
+    def end_validation(self) -> None: ...
 
 
 @runtime_checkable
 class ProtocolValidationProvider(Protocol):
     """
-    Protocol interface for comprehensive validation model providers in ONEX systems.
+            Protocol interface for comprehensive validation model providers in ONEX systems.
 
-    This protocol defines the interface for validation providers that orchestrate
-    validation workflows, manage validation rules and rule sets, and provide
-    comprehensive quality assurance capabilities for ONEX services and components.
+            This protocol defines the interface for validation providers that orchestrate
+            validation workflows, manage validation rules and rule sets, and provide
+        comprehensive quality assurance capabilities for ONEX services and components.
 
-    The validation provider serves as the central orchestration point for all
-    validation activities, managing rule execution, result aggregation, and
-    quality reporting across different validation levels and modes.
+        The validation provider serves as the central orchestration point for all
+        validation activities, managing rule execution, result aggregation, and
+        quality reporting across different validation levels and modes.
 
     Key Features:
         - Multi-level validation orchestration (BASIC, STANDARD, COMPREHENSIVE, PARANOID)
@@ -304,45 +197,45 @@ class ProtocolValidationProvider(Protocol):
         - Plugin architecture for custom validation rules
 
     Validation Levels:
-        - BASIC: Essential validation only (fast performance)
-        - STANDARD: Normal validation with common checks
-        - COMPREHENSIVE: Thorough validation with detailed analysis
-        - PARANOID: Maximum validation with all possible checks
+    - BASIC: Essential validation only (fast performance)
+    - STANDARD: Normal validation with common checks
+    - COMPREHENSIVE: Thorough validation with detailed analysis
+    - PARANOID: Maximum validation with all possible checks
 
     Validation Modes:
-        - strict: Fail on any validation error
-        - lenient: Allow warnings but fail on errors
-        - smoke: Basic functionality validation
-        - regression: Validate against known good states
-        - integration: Cross-system validation testing
+    - strict: Fail on any validation error
+    - lenient: Allow warnings but fail on errors
+    - smoke: Basic functionality validation
+    - regression: Validate against known good states
+    - integration: Cross-system validation testing
 
     Usage Example:
         ```python
         # Initialize validation provider
-        provider: "ProtocolValidationProvider" = SomeValidationProvider()
+    provider: "ProtocolValidationProvider" = SomeValidationProvider()
 
-        # Register validation rules
+    # Register validation rules
         compliance_rules = provider.create_rule_set(
-            "compliance_validation",
-            ["namespace_isolation", "protocol_purity", "import_validation"]
+        "compliance_validation",
+        ["namespace_isolation", "protocol_purity", "import_validation"]
         )
 
-        # Execute comprehensive validation
+    # Execute comprehensive validation
         session = provider.create_validation_session("component_audit")
         results = provider.validate_with_session(
-            session=session,
-            targets=[component1, component2],
-            rule_sets=[compliance_rules],
-            level="COMPREHENSIVE",
-            mode="strict"
+        session=session,
+        targets=[component1, component2],
+        rule_sets=[compliance_rules],
+        level="COMPREHENSIVE",
+        mode="strict"
         )
 
-        # Process results
-        if not provider.is_validation_successful(results):
-            failures = provider.get_critical_issues(results)
-            handle_validation_failures(failures)
+    # Process results
+    if not provider.is_validation_successful(results):
+        failures = provider.get_critical_issues(results)
+        handle_validation_failures(failures)
 
-        # Generate quality report
+    # Generate quality report
         report = provider.generate_quality_report(session, results)
         save_validation_report(report)
         ```
@@ -361,123 +254,38 @@ class ProtocolValidationProvider(Protocol):
     supported_levels: list["LiteralValidationLevel"]
     supported_modes: list["LiteralValidationMode"]
 
-    async def register_validation_rule(self, rule: "ProtocolValidationRule") -> bool:
-        """
-        Register a new validation rule with the provider.
+    async def register_validation_rule(
+        self, rule: "ProtocolValidationRule"
+    ) -> bool: ...
 
-        Args:
-            rule: Validation rule to register
-
-        Returns:
-            bool: True if rule was successfully registered
-
-        Raises:
-            ValueError: If rule is invalid or conflicts with existing rules
-        """
-        ...
-
-    async def unregister_validation_rule(self, rule_id: str) -> bool:
-        """
-        Remove a validation rule from the provider.
-
-        Args:
-            rule_id: ID of rule to remove
-
-        Returns:
-            bool: True if rule was successfully removed
-        """
-        ...
+    async def unregister_validation_rule(self, rule_id: str) -> bool: ...
 
     async def get_validation_rule(
         self, rule_id: str
-    ) -> "ProtocolValidationRule | None":
-        """
-        Retrieve a specific validation rule by ID.
-
-        Args:
-            rule_id: ID of rule to retrieve
-
-        Returns:
-            ProtocolValidationRule | None: Rule if found, None otherwise
-        """
-        ...
+    ) -> "ProtocolValidationRule | None": ...
 
     async def list_validation_rules(
         self,
         category_filter: "LiteralValidationCategory | None" = None,
         severity_filter: "LiteralValidationSeverity | None" = None,
-    ) -> list["ProtocolValidationRule"]:
-        """
-        List available validation rules with optional filtering.
-
-        Args:
-            category_filter: Filter by rule category
-            severity_filter: Filter by rule severity
-
-        Returns:
-            list["ProtocolValidationRule"]: Available rules matching filters
-        """
-        ...
+    ) -> list["ProtocolValidationRule"]: ...
 
     async def create_rule_set(
         self,
         rule_set_name: str,
         rule_ids: list[str],
         rule_set_metadata: dict[str, "ContextValue"] | None = None,
-    ) -> "ProtocolValidationRuleSet":
-        """
-        Create a new rule set from existing rules.
-
-        Args:
-            rule_set_name: Name for the rule set
-            rule_ids: List of rule IDs to include
-            rule_set_metadata: Optional metadata for the rule set
-
-        Returns:
-            ProtocolValidationRuleSet: Configured rule set
-
-        Raises:
-            ValueError: If any rule IDs are invalid or dependencies cannot be resolved
-        """
-        ...
+    ) -> "ProtocolValidationRuleSet": ...
 
     async def create_validation_session(
         self,
         session_name: str,
         session_metadata: dict[str, "ContextValue"] | None = None,
-    ) -> "ProtocolValidationSession":
-        """
-        Create a new validation session for executing validation operations.
+    ) -> "ProtocolValidationSession": ...
 
-        Args:
-            session_name: Name for the validation session
-            session_metadata: Optional session metadata
+    async def get_active_sessions(self) -> list["ProtocolValidationSession"]: ...
 
-        Returns:
-            ProtocolValidationSession: New validation session
-        """
-        ...
-
-    async def get_active_sessions(self) -> list["ProtocolValidationSession"]:
-        """
-        Get list of currently active validation sessions.
-
-        Returns:
-            list["ProtocolValidationSession"]: Active sessions
-        """
-        ...
-
-    def cleanup_completed_sessions(self, older_than_hours: int = 24) -> int:
-        """
-        Clean up completed validation sessions older than specified time.
-
-        Args:
-            older_than_hours: Remove sessions completed more than this many hours ago
-
-        Returns:
-            int: Number of sessions cleaned up
-        """
-        ...
+    def cleanup_completed_sessions(self, older_than_hours: int = 24) -> int: ...
 
     async def validate(
         self,
@@ -486,24 +294,7 @@ class ProtocolValidationProvider(Protocol):
         level: "LiteralValidationLevel" = "STANDARD",
         mode: "LiteralValidationMode" = "strict",
         context: dict[str, "ContextValue"] | None = None,
-    ) -> list["ProtocolValidationResult"]:
-        """
-        Execute validation against targets using specified rule sets.
-
-        This is the primary validation method that orchestrates rule execution
-        according to the specified validation level and mode.
-
-        Args:
-            targets: Objects to validate
-            rule_sets: Rule sets to apply
-            level: Validation thoroughness level
-            mode: Validation execution mode
-            context: Optional validation context
-
-        Returns:
-            list["ProtocolValidationResult"]: Validation results for all targets
-        """
-        ...
+    ) -> list["ProtocolValidationResult"]: ...
 
     async def validate_with_session(
         self,
@@ -513,22 +304,7 @@ class ProtocolValidationProvider(Protocol):
         level: "LiteralValidationLevel" = "STANDARD",
         mode: "LiteralValidationMode" = "strict",
         context: dict[str, "ContextValue"] | None = None,
-    ) -> list["ProtocolValidationResult"]:
-        """
-        Execute validation within an existing session context.
-
-        Args:
-            session: Validation session to use
-            targets: Objects to validate
-            rule_sets: Rule sets to apply
-            level: Validation thoroughness level
-            mode: Validation execution mode
-            context: Optional validation context
-
-        Returns:
-            list["ProtocolValidationResult"]: Validation results for all targets
-        """
-        ...
+    ) -> list["ProtocolValidationResult"]: ...
 
     async def validate_single(
         self,
@@ -537,141 +313,37 @@ class ProtocolValidationProvider(Protocol):
         level: "LiteralValidationLevel" = "STANDARD",
         mode: "LiteralValidationMode" = "strict",
         context: dict[str, "ContextValue"] | None = None,
-    ) -> "ProtocolValidationResult":
-        """
-        Execute validation against a single target.
-
-        Args:
-            target: Object to validate
-            rule_set: Rule set to apply
-            level: Validation thoroughness level
-            mode: Validation execution mode
-            context: Optional validation context
-
-        Returns:
-            ProtocolValidationResult: Validation result for target
-        """
-        ...
+    ) -> "ProtocolValidationResult": ...
 
     def is_validation_successful(
         self, results: list["ProtocolValidationResult"]
-    ) -> bool:
-        """
-        Determine if validation results indicate overall success.
-
-        Args:
-            results: Validation results to analyze
-
-        Returns:
-            bool: True if all validations passed
-        """
-        ...
+    ) -> bool: ...
 
     async def get_critical_issues(
         self, results: list["ProtocolValidationResult"]
-    ) -> list["ProtocolValidationResult"]:
-        """
-        Extract validation results with critical issues.
-
-        Args:
-            results: Validation results to filter
-
-        Returns:
-            list["ProtocolValidationResult"]: Results with critical errors
-        """
-        ...
+    ) -> list["ProtocolValidationResult"]: ...
 
     async def get_validation_summary(
         self, results: list["ProtocolValidationResult"]
-    ) -> dict[str, "ContextValue"]:
-        """
-        Generate summary statistics for validation results.
-
-        Args:
-            results: Validation results to summarize
-
-        Returns:
-            dict[str, "ContextValue"]: Summary metrics and statistics
-        """
-        ...
+    ) -> dict[str, "ContextValue"]: ...
 
     async def generate_quality_report(
         self,
         session: "ProtocolValidationSession",
         results: list["ProtocolValidationResult"],
         report_format: str = "markdown",
-    ) -> str:
-        """
-        Generate comprehensive quality report from validation results.
+    ) -> str: ...
 
-        Args:
-            session: Validation session context
-            results: Validation results to report
-            report_format: Output format ("markdown", "json", "html")
-
-        Returns:
-            str: Formatted quality report
-        """
-        ...
-
-    async def get_provider_metrics(self) -> dict[str, "ContextValue"]:
-        """
-        Get performance and usage metrics for the validation provider.
-
-        Returns:
-            dict[str, "ContextValue"]: Provider performance metrics
-        """
-        ...
+    async def get_provider_metrics(self) -> dict[str, "ContextValue"]: ...
 
     def optimize_rule_execution(
         self, rule_sets: list["ProtocolValidationRuleSet"]
-    ) -> list["ProtocolValidationRuleSet"]:
-        """
-        Optimize rule sets for better execution performance.
+    ) -> list["ProtocolValidationRuleSet"]: ...
 
-        Args:
-            rule_sets: Rule sets to optimize
+    def clear_validation_cache(self) -> bool: ...
 
-        Returns:
-            list["ProtocolValidationRuleSet"]: Optimized rule sets
-        """
-        ...
+    def configure_provider(self, configuration: dict[str, "ContextValue"]) -> bool: ...
 
-    def clear_validation_cache(self) -> bool:
-        """
-        Clear internal validation caches and optimization state.
+    async def get_provider_health(self) -> dict[str, "ContextValue"]: ...
 
-        Returns:
-            bool: True if cache was successfully cleared
-        """
-        ...
-
-    def configure_provider(self, configuration: dict[str, "ContextValue"]) -> bool:
-        """
-        Configure the validation provider with runtime settings.
-
-        Args:
-            configuration: Provider configuration parameters
-
-        Returns:
-            bool: True if configuration was applied successfully
-        """
-        ...
-
-    async def get_provider_health(self) -> dict[str, "ContextValue"]:
-        """
-        Get health status and diagnostics for the validation provider.
-
-        Returns:
-            dict[str, "ContextValue"]: Provider health information
-        """
-        ...
-
-    async def reset_provider_state(self) -> bool:
-        """
-        Reset provider to initial state, clearing all sessions and caches.
-
-        Returns:
-            bool: True if reset was successful
-        """
-        ...
+    async def reset_provider_state(self) -> bool: ...

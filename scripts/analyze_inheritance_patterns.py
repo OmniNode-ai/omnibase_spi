@@ -10,11 +10,10 @@ Analyzes protocol inheritance patterns to identify issues:
 """
 
 import ast
-import importlib.util
 import sys
 from collections import defaultdict
 from pathlib import Path
-from typing import Dict, List, Set, Tuple
+from typing import Dict, List, Set
 
 
 class ProtocolInheritanceAnalyzer(ast.NodeVisitor):
@@ -274,7 +273,7 @@ def print_inheritance_analysis(analysis_results: Dict, issues: Dict) -> None:
     print("🔍 PROTOCOL INHERITANCE ANALYSIS RESULTS")
     print("=" * 80)
 
-    print(f"\n📊 SUMMARY:")
+    print("\n📊 SUMMARY:")
     print(f"   Total protocols analyzed: {len(protocols)}")
     print(f"   Total protocol files: {analysis_results['total_files']}")
 
@@ -286,7 +285,7 @@ def print_inheritance_analysis(analysis_results: Dict, issues: Dict) -> None:
         f"   Protocols with @runtime_checkable: {runtime_checkable_count}/{len(protocols)}"
     )
 
-    print(f"\n🚨 INHERITANCE ISSUES FOUND:")
+    print("\n🚨 INHERITANCE ISSUES FOUND:")
 
     # Circular inheritance
     if issues["circular_inheritance"]:
@@ -347,23 +346,21 @@ def print_inheritance_analysis(analysis_results: Dict, issues: Dict) -> None:
         for item in issues["inheritance_depth_issues"]:
             print(f"      • {item['protocol']} (depth: {item['depth']})")
 
-    print(f"\n💡 RECOMMENDATIONS:")
+    print("\n💡 RECOMMENDATIONS:")
 
     if issues["circular_inheritance"]:
-        print(f"   🔧 Fix circular inheritance by restructuring protocol relationships")
+        print("   🔧 Fix circular inheritance by restructuring protocol relationships")
 
     if issues["complex_multiple_inheritance"]:
-        print(
-            f"   🔧 Simplify multiple inheritance using composition or mixin patterns"
-        )
+        print("   🔧 Simplify multiple inheritance using composition or mixin patterns")
 
     if issues["similar_signature_groups"]:
         print(
-            f"   🔧 Create base protocols for similar signature groups to reduce duplication"
+            "   🔧 Create base protocols for similar signature groups to reduce duplication"
         )
 
     if issues["empty_protocols"]:
-        print(f"   🔧 Add methods to empty protocols or convert to TypedDict/dataclass")
+        print("   🔧 Add methods to empty protocols or convert to TypedDict/dataclass")
 
     if len(issues["missing_runtime_checkable"]) > 0:
         print(
@@ -405,7 +402,7 @@ def main():
         print(f"\n🚨 ANALYSIS FAILED: {total_issues} issues found")
         sys.exit(1)
     else:
-        print(f"\n✅ ANALYSIS PASSED: No critical inheritance issues found")
+        print("\n✅ ANALYSIS PASSED: No critical inheritance issues found")
 
 
 if __name__ == "__main__":

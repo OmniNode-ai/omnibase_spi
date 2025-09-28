@@ -9,7 +9,6 @@ import importlib
 import pkgutil
 import subprocess
 import sys
-from typing import Any
 
 import pytest
 

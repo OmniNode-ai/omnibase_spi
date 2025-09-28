@@ -38,51 +38,13 @@ class ProtocolConnectionManageable(Protocol):
 
     Usage Example:
         ```python
-        # Implementation example (not part of SPI)
-        class DatabaseConnectionManager:
-            @property
-            async def connection_id(self) -> str:
-                return self._connection_id
+        # Protocol usage example (SPI-compliant)
+        service: "ConnectionManageable" = get_connection_manageable()
 
-            @property
-            def config(self) -> "ProtocolConnectionConfig":
-                return self._config
+        # Usage demonstrates protocol interface without implementation details
+        # All operations work through the protocol contract
+        # Implementation details are abstracted away from the interface
 
-            @property
-            def status(self) -> "ProtocolConnectionStatus":
-                return self._status
-
-            @property
-            async def can_reconnect(self) -> bool:
-                return self._can_reconnect
-
-            @property
-            async def auto_reconnect_enabled(self) -> bool:
-                return self._auto_reconnect_enabled
-
-            async def establish_connection(self) -> bool:
-                try:
-                    self._status.state = "connecting"
-                    self._connection = await create_db_connection(self._config)
-                    self._status.state = "connected"
-                    self._status.connected_at = datetime.utcnow()
-                    return True
-                except Exception:
-                    self._status.state = "failed"
-                    self._status.error_count += 1
-                    return False
-
-            async def perform_health_check(self) -> bool:
-                if not self._connection:
-                    return False
-                try:
-                    await self._connection.ping()
-                    return True
-                except Exception:
-                    self._status.error_count += 1
-                    return False
-
-        # Usage in application code
         connection_mgr: "ProtocolConnectionManageable" = DatabaseConnectionManager()
 
         # Establish connection with retry
@@ -127,390 +89,64 @@ class ProtocolConnectionManageable(Protocol):
     can_reconnect: bool
     auto_reconnect_enabled: bool
 
-    async def establish_connection(self) -> bool:
-        """
-        Establish new connection using current configuration.
+    async def establish_connection(self) -> bool: ...
 
-        Returns:
-            True if connection was established successfully
+    async def close_connection(self) -> bool: ...
 
-        Note:
-            Creates new connection based on current configuration settings.
-            Updates connection status and metrics upon completion.
-            Does not retry automatically - use reconnect methods for retry logic.
-        """
-        ...
+    async def disconnect(self) -> bool: ...
 
-    async def close_connection(self) -> bool:
-        """
-        Gracefully close current connection.
-
-        Returns:
-            True if connection was closed successfully
-
-        Note:
-            Performs graceful shutdown with proper resource cleanup.
-            Updates connection status to 'closing' then 'disconnected'.
-            Waits for pending operations to complete before closing.
-        """
-        ...
-
-    async def disconnect(self) -> bool:
-        """
-        Immediately disconnect without graceful shutdown.
-
-        Returns:
-            True if disconnection completed
-
-        Note:
-            Immediate disconnection for emergency situations.
-            Does not wait for pending operations to complete.
-            Updates connection status to 'disconnected' immediately.
-        """
-        ...
-
-    async def reconnect_immediate(self) -> bool:
-        """
-        Attempt immediate reconnection without delay.
-
-        Returns:
-            True if reconnection was successful
-
-        Note:
-            Performs immediate reconnection attempt for transient failures.
-            Updates connection status during reconnection process.
-            Does not implement retry logic - single attempt only.
-        """
-        ...
+    async def reconnect_immediate(self) -> bool: ...
 
     async def reconnect_with_strategy(
         self, retry_config: "ProtocolRetryConfig"
-    ) -> bool:
-        """
-        Reconnect using specified retry strategy and configuration.
+    ) -> bool: ...
 
-        Args:
-            retry_config: Retry configuration with backoff strategy and limits
+    async def recover_connection(self) -> bool: ...
 
-        Returns:
-            True if reconnection succeeded within retry limits
+    async def perform_health_check(self) -> bool: ...
 
-        Note:
-            Implements configurable retry strategies (exponential, linear, fixed).
-            Respects max attempts and timeout limits from retry configuration.
-            Updates connection status throughout retry process.
-        """
-        ...
+    async def perform_deep_health_check(self) -> dict[str, "ContextValue"]: ...
 
-    async def recover_connection(self) -> bool:
-        """
-        Recover from connection failure using default recovery strategy.
+    async def get_connection_state(self) -> "LiteralConnectionState": ...
 
-        Returns:
-            True if connection recovery was successful
+    async def get_connection_status(self) -> "ProtocolConnectionStatus": ...
 
-        Note:
-            Uses default retry configuration and recovery strategy.
-            Suitable for automated recovery in resilient systems.
-            May implement circuit breaker pattern for repeated failures.
-        """
-        ...
-
-    async def perform_health_check(self) -> bool:
-        """
-        Perform basic connection health check.
-
-        Returns:
-            True if connection is healthy and operational
-
-        Note:
-            Performs lightweight connectivity test (ping-level check).
-            Updates last activity timestamp and error count.
-            Suitable for frequent health monitoring with minimal overhead.
-        """
-        ...
-
-    async def perform_deep_health_check(self) -> dict[str, "ContextValue"]:
-        """
-        Perform comprehensive connection health assessment.
-
-        Returns:
-            Dictionary containing detailed health information and metrics
-
-        Note:
-            Comprehensive health check including performance metrics.
-            Tests full connection functionality and feature availability.
-            More expensive than basic health check - use sparingly.
-        """
-        ...
-
-    async def get_connection_state(self) -> "LiteralConnectionState":
-        """
-        Get current connection state.
-
-        Returns:
-            Current connection state (disconnected, connecting, connected, etc.)
-
-        Note:
-            Returns cached connection state without performing active check.
-            Use perform_health_check() for up-to-date connection validation.
-        """
-        ...
-
-    async def get_connection_status(self) -> "ProtocolConnectionStatus":
-        """
-        Get comprehensive connection status information.
-
-        Returns:
-            Complete connection status with metrics and timestamps
-
-        Note:
-            Returns full status including error counts, data transfer metrics,
-            and connection timing information for monitoring and diagnostics.
-        """
-        ...
-
-    async def get_connection_metrics(self) -> dict[str, "ContextValue"]:
-        """
-        Get connection performance metrics.
-
-        Returns:
-            Dictionary containing connection performance data
-
-        Note:
-            Includes metrics like bytes sent/received, error rates,
-            response times, and connection pool statistics.
-        """
-        ...
+    async def get_connection_metrics(self) -> dict[str, "ContextValue"]: ...
 
     async def update_connection_config(
         self, new_config: "ProtocolConnectionConfig"
-    ) -> bool:
-        """
-        Update connection configuration.
+    ) -> bool: ...
 
-        Args:
-            new_config: New connection configuration settings
+    async def enable_auto_reconnect(self) -> bool: ...
 
-        Returns:
-            True if configuration was updated successfully
+    async def disable_auto_reconnect(self) -> bool: ...
 
-        Note:
-            Updates configuration for future connections.
-            Does not affect current active connection.
-            Requires reconnection to apply new settings.
-        """
-        ...
+    async def is_connected(self) -> bool: ...
 
-    async def enable_auto_reconnect(self) -> bool:
-        """
-        Enable automatic reconnection on connection failure.
+    async def is_connecting(self) -> bool: ...
 
-        Returns:
-            True if auto-reconnect was enabled successfully
+    def can_recover(self) -> bool: ...
 
-        Note:
-            Enables background monitoring and automatic reconnection.
-            Uses default retry configuration and recovery strategies.
-            Connection failures will trigger automatic recovery attempts.
-        """
-        ...
+    async def get_last_error(self) -> str | None: ...
 
-    async def disable_auto_reconnect(self) -> bool:
-        """
-        Disable automatic reconnection.
+    async def get_connection_uptime(self) -> int: ...
 
-        Returns:
-            True if auto-reconnect was disabled successfully
+    async def get_idle_time(self) -> int: ...
 
-        Note:
-            Disables background monitoring and automatic recovery.
-            Connection failures will require manual reconnection.
-            Existing connections remain active but won't auto-recover.
-        """
-        ...
+    async def reset_error_count(self) -> bool: ...
 
-    async def is_connected(self) -> bool:
-        """
-        Check if connection is currently active and ready.
+    async def set_connection_timeout(self, timeout_ms: int) -> bool: ...
 
-        Returns:
-            True if connection is in 'connected' state
-
-        Note:
-            Quick check of connection state without performing health check.
-            For actual connectivity validation, use perform_health_check().
-        """
-        ...
-
-    async def is_connecting(self) -> bool:
-        """
-        Check if connection establishment is in progress.
-
-        Returns:
-            True if connection is in 'connecting' or 'reconnecting' state
-
-        Note:
-            Indicates whether connection establishment is currently active.
-            Useful for preventing concurrent connection attempts.
-        """
-        ...
-
-    def can_recover(self) -> bool:
-        """
-        Check if connection can be recovered from current state.
-
-        Returns:
-            True if connection recovery is possible
-
-        Note:
-            Evaluates whether connection can be recovered based on
-            current state, error history, and configuration.
-        """
-        ...
-
-    def get_last_error(self) -> str | None:
-        """
-        Get description of most recent connection error.
-
-        Returns:
-            Error message from last connection failure, or None if no errors
-
-        Note:
-            Provides diagnostic information for troubleshooting
-            connection issues and failure analysis.
-        """
-        ...
-
-    async def get_connection_uptime(self) -> int:
-        """
-        Get connection uptime in milliseconds.
-
-        Returns:
-            Duration connection has been active, or 0 if not connected
-
-        Note:
-            Measures time since successful connection establishment.
-            Returns 0 for disconnected, failed, or connecting states.
-        """
-        ...
-
-    def get_idle_time(self) -> int:
-        """
-        Get connection idle time in milliseconds.
-
-        Returns:
-            Duration since last connection activity
-
-        Note:
-            Measures time since last data transfer or health check.
-            Useful for connection pool management and timeout policies.
-        """
-        ...
-
-    def reset_error_count(self) -> bool:
-        """
-        Reset connection error count to zero.
-
-        Returns:
-            True if error count was reset successfully
-
-        Note:
-            Clears error count for fresh start after resolving issues.
-            Useful for resetting circuit breaker states and retry logic.
-        """
-        ...
-
-    async def set_connection_timeout(self, timeout_ms: int) -> bool:
-        """
-        Set connection operation timeout.
-
-        Args:
-            timeout_ms: Timeout in milliseconds for connection operations
-
-        Returns:
-            True if timeout was set successfully
-
-        Note:
-            Applies to future connection operations and health checks.
-            Does not affect operations currently in progress.
-        """
-        ...
-
-    async def get_connection_pool_stats(self) -> dict[str, "ContextValue"] | None:
-        """
-        Get connection pool statistics if applicable.
-
-        Returns:
-            Pool statistics dictionary, or None if not using connection pooling
-
-        Note:
-            Provides metrics like active connections, pool size,
-            wait times, and resource utilization for pool management.
-        """
-        ...
+    async def get_connection_pool_stats(self) -> dict[str, "ContextValue"] | None: ...
 
     async def validate_connection_config(
         self, config: "ProtocolConnectionConfig"
-    ) -> bool:
-        """
-        Validate connection configuration settings.
-
-        Args:
-            config: Connection configuration to validate
-
-        Returns:
-            True if configuration is valid
-
-        Note:
-            Validates configuration parameters before applying.
-            Checks host reachability, port availability, and credential validity.
-        """
-        ...
+    ) -> bool: ...
 
     async def test_connection_config(
         self, config: "ProtocolConnectionConfig"
-    ) -> dict[str, "ContextValue"]:
-        """
-        Test connection configuration with actual connection attempt.
+    ) -> dict[str, "ContextValue"]: ...
 
-        Args:
-            config: Connection configuration to test
+    async def get_supported_features(self) -> list[str]: ...
 
-        Returns:
-            Test results with success status and diagnostic information
-
-        Note:
-            Performs actual connection test with provided configuration.
-            Does not affect current active connection or stored configuration.
-        """
-        ...
-
-    def get_supported_features(self) -> list[str]:
-        """
-        Get list of supported connection features.
-
-        Returns:
-            List of supported feature names
-
-        Note:
-            Returns connection-specific features like SSL/TLS support,
-            compression, authentication methods, and protocol versions.
-        """
-        ...
-
-    def is_feature_available(self, feature_name: str) -> bool:
-        """
-        Check if specific connection feature is available.
-
-        Args:
-            feature_name: Name of feature to check
-
-        Returns:
-            True if feature is available in current connection
-
-        Note:
-            Checks feature availability in active connection.
-            Feature availability may vary based on server capabilities.
-        """
-        ...
+    def is_feature_available(self, feature_name: str) -> bool: ...

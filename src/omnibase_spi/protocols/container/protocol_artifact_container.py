@@ -64,34 +64,16 @@ class ProtocolArtifactContainer(Protocol):
 
     async def get_status(self) -> ProtocolArtifactContainerStatus: ...
 
-    def get_artifacts(self) -> list["ProtocolArtifactInfo"]:
-        """Get all artifacts in the container."""
-        ...
+    async def get_artifacts(self) -> list["ProtocolArtifactInfo"]: ...
 
-    def get_artifacts_by_type(
+    async def get_artifacts_by_type(
         self, artifact_type: LiteralContainerArtifactType
     ) -> list["ProtocolArtifactInfo"]: ...
 
-    def get_artifact_by_name(
+    async def get_artifact_by_name(
         self, name: str, artifact_type: "LiteralContainerArtifactType | None" = None
-    ) -> ProtocolArtifactInfo:
-        """
-        Get a specific artifact by name.
-            ...
-        Args:
-            name: Artifact name to search for
-            artifact_type: Optional type filter
-
-        Returns:
-            ProtocolArtifactInfo: The found artifact
-
-        Raises:
-            OnexError: If artifact is not found
-        """
-        ...
+    ) -> ProtocolArtifactInfo: ...
 
     def has_artifact(
         self, name: str, artifact_type: "LiteralContainerArtifactType | None" = None
-    ) -> bool:
-        """Check if an artifact exists in the container."""
-        ...
+    ) -> bool: ...

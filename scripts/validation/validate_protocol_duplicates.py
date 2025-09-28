@@ -18,7 +18,6 @@ import argparse
 import ast
 import hashlib
 import json
-import os
 import re
 import sys
 from collections import defaultdict
@@ -569,11 +568,11 @@ def print_duplication_report(
     name_conflicts = analysis["name_conflicts"]
     distribution = analysis["distribution_analysis"]
 
-    print(f"\n📊 PROTOCOL INVENTORY:")
+    print("\n📊 PROTOCOL INVENTORY:")
     print(f"   Total protocols: {total_protocols}")
 
     # Domain distribution
-    print(f"\n📁 PROTOCOL DISTRIBUTION BY DOMAIN:")
+    print("\n📁 PROTOCOL DISTRIBUTION BY DOMAIN:")
     for domain, info in distribution.items():
         checkable_percent = info["runtime_checkable_ratio"] * 100
         print(
@@ -600,8 +599,8 @@ def print_duplication_report(
                 )
 
             # Recommend action
-            print(f"      💡 RECOMMENDATION: Keep one version, remove others")
-            print(f"      💡 Consider: Which domain/location is most appropriate?")
+            print("      💡 RECOMMENDATION: Keep one version, remove others")
+            print("      💡 Consider: Which domain/location is most appropriate?")
 
     # Name conflicts
     if name_conflicts:
@@ -616,7 +615,7 @@ def print_duplication_report(
                 print(f"        Domain: {protocol.domain}")
                 print(f"        Methods: {len(protocol.methods)}")
 
-            print(f"      💡 RECOMMENDATION: Rename protocols to be more specific")
+            print("      💡 RECOMMENDATION: Rename protocols to be more specific")
             print(
                 f"      💡 Consider: Add domain prefix (e.g., WorkflowProtocol{name[8:]})"
             )
@@ -634,12 +633,12 @@ def print_duplication_report(
         quality_issues.append(f"{len(empty_protocols)} protocols with no methods")
 
     if quality_issues:
-        print(f"\n📋 QUALITY ISSUES:")
+        print("\n📋 QUALITY ISSUES:")
         for issue in quality_issues:
             print(f"   ⚠️  {issue}")
 
     # Recommendations
-    print(f"\n💡 RECOMMENDATIONS:")
+    print("\n💡 RECOMMENDATIONS:")
 
     if not exact_duplicates and not name_conflicts:
         print("   ✅ No duplicates found - excellent protocol organization!")
@@ -772,14 +771,14 @@ def main():
 
             with open("spi_protocol_analysis.json", "w") as f:
                 json.dump(report_data, f, indent=2, default=str)
-            print(f"\n💾 Detailed analysis saved to: spi_protocol_analysis.json")
+            print("\n💾 Detailed analysis saved to: spi_protocol_analysis.json")
 
         # Generate migration plan if requested
         if args.generate_plan:
             plan = generate_migration_plan(analysis)
             with open("spi_protocol_migration_plan.json", "w") as f:
                 json.dump(plan, f, indent=2, default=str)
-            print(f"💾 Migration plan saved to: spi_protocol_migration_plan.json")
+            print("💾 Migration plan saved to: spi_protocol_migration_plan.json")
 
         # Exit codes for CI
         exact_dupes = len(analysis["exact_duplicates"])
@@ -791,7 +790,7 @@ def main():
             )
             return 1
         else:
-            print(f"\n✅ VALIDATION PASSED: No duplicates detected")
+            print("\n✅ VALIDATION PASSED: No duplicates detected")
             return 0
 
     except timeout_utils.TimeoutError:

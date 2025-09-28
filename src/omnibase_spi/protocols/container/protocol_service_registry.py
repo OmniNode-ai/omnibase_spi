@@ -67,13 +67,9 @@ class ProtocolServiceDependency(Protocol):
     default_value: Any | None
     metadata: dict[str, "ContextValue"]
 
-    def validate_dependency(self) -> bool:
-        """Validate servicedependency data integrity and consistency."""
-        ...
+    async def validate_dependency(self) -> bool: ...
 
-    def is_satisfied(self) -> bool:
-        """Check if servicedependency satisfied."""
-        ...
+    def is_satisfied(self) -> bool: ...
 
 
 @runtime_checkable
@@ -95,13 +91,9 @@ class ProtocolServiceRegistration(Protocol):
     instance_count: int
     max_instances: int | None
 
-    def validate_registration(self) -> bool:
-        """Validate serviceregistration data integrity and consistency."""
-        ...
+    async def validate_registration(self) -> bool: ...
 
-    def is_active(self) -> bool:
-        """Check if serviceregistration active."""
-        ...
+    def is_active(self) -> bool: ...
 
 
 @runtime_checkable
@@ -119,13 +111,9 @@ class ProtocolRegistryServiceInstance(Protocol):
     is_disposed: bool
     metadata: dict[str, "ContextValue"]
 
-    def validate_instance(self) -> bool:
-        """Validate registryserviceinstance data integrity and consistency."""
-        ...
+    async def validate_instance(self) -> bool: ...
 
-    def is_active(self) -> bool:
-        """Check if registryserviceinstance active."""
-        ...
+    def is_active(self) -> bool: ...
 
 
 @runtime_checkable
@@ -181,28 +169,22 @@ class ProtocolServiceValidator(Protocol):
 
     async def validate_service(
         self, service: Any, interface: Type[Any]
-    ) -> ProtocolValidationResult:
-        """Validate a service implementation against an interface."""
-        ...
+    ) -> ProtocolValidationResult: ...
 
     async def validate_dependencies(
         self, dependencies: list["ProtocolServiceDependency"]
-    ) -> ProtocolValidationResult:
-        """Validate service dependencies."""
-        ...
+    ) -> ProtocolValidationResult: ...
 
 
 @runtime_checkable
 class ProtocolServiceFactory(Protocol):
     """Protocol for service factory operations."""
 
-    async def create_instance(self, interface: Type[T], context: dict[str, Any]) -> T:
-        """Create a service instance."""
-        ...
+    async def create_instance(
+        self, interface: Type[T], context: dict[str, Any]
+    ) -> T: ...
 
-    async def dispose_instance(self, instance: Any) -> None:
-        """Dispose of a service instance."""
-        ...
+    async def dispose_instance(self, instance: Any) -> None: ...
 
 
 @runtime_checkable
@@ -247,19 +229,13 @@ class ProtocolServiceRegistry(Protocol):
     """
 
     @property
-    def config(self) -> ProtocolServiceRegistryConfig:
-        """Get registry configuration protocol."""
-        ...
+    def config(self) -> ProtocolServiceRegistryConfig: ...
 
     @property
-    def validator(self) -> ProtocolServiceValidator | None:
-        """Get service validator."""
-        ...
+    def validator(self) -> ProtocolServiceValidator | None: ...
 
     @property
-    def factory(self) -> ProtocolServiceFactory | None:
-        """Get service factory."""
-        ...
+    def factory(self) -> ProtocolServiceFactory | None: ...
 
     async def register_service(
         self,
@@ -268,24 +244,7 @@ class ProtocolServiceRegistry(Protocol):
         lifecycle: LiteralServiceLifecycle,
         scope: LiteralInjectionScope,
         configuration: dict[str, "ContextValue"] | None = None,
-    ) -> str:
-        """
-        Register a service implementation for an interface.
-
-        Args:
-            interface: Service interface type
-            implementation: Service implementation type
-            lifecycle: Service lifecycle management
-            scope: Dependency injection scope
-            configuration: Optional service configuration
-
-        Returns:
-            Service registration ID
-
-        Raises:
-            ValueError: If registration is invalid or conflicts exist
-        """
-        ...
+    ) -> str: ...
 
     async def register_instance(
         self,
@@ -293,20 +252,7 @@ class ProtocolServiceRegistry(Protocol):
         instance: TInterface,
         scope: "LiteralInjectionScope" = "global",
         metadata: dict[str, "ContextValue"] | None = None,
-    ) -> str:
-        """
-        Register a service instance directly.
-
-        Args:
-            interface: Service interface type
-            instance: Service instance
-            scope: Dependency injection scope
-            metadata: Optional instance metadata
-
-        Returns:
-            Service registration ID
-        """
-        ...
+    ) -> str: ...
 
     async def register_factory(
         self,
@@ -314,287 +260,78 @@ class ProtocolServiceRegistry(Protocol):
         factory: "ProtocolServiceFactory",
         lifecycle: "LiteralServiceLifecycle" = "transient",
         scope: "LiteralInjectionScope" = "global",
-    ) -> str:
-        """
-        Register a service factory for creating instances.
+    ) -> str: ...
 
-        Args:
-            interface: Service interface type
-            factory: Service factory
-            lifecycle: Service lifecycle management
-            scope: Dependency injection scope
-
-        Returns:
-            Service registration ID
-        """
-        ...
-
-    async def unregister_service(self, registration_id: str) -> bool:
-        """
-        Unregister a service and dispose all instances.
-
-        Args:
-            registration_id: Service registration ID
-
-        Returns:
-            True if unregistration successful
-        """
-        ...
+    async def unregister_service(self, registration_id: str) -> bool: ...
 
     async def resolve_service(
         self,
         interface: Type[TInterface],
         scope: "LiteralInjectionScope | None" = None,
         context: dict[str, "ContextValue"] | None = None,
-    ) -> TInterface:
-        """
-        Resolve a service instance by interface.
-
-        Args:
-            interface: Service interface type
-            scope: Optional scope override
-            context: Optional resolution context
-
-        Returns:
-            Service instance
-
-        Raises:
-            ValueError: If service cannot be resolved
-        """
-        ...
+    ) -> TInterface: ...
 
     async def resolve_named_service(
         self,
         interface: Type[TInterface],
         name: str,
         scope: "LiteralInjectionScope | None" = None,
-    ) -> TInterface:
-        """
-        Resolve a named service instance.
-
-        Args:
-            interface: Service interface type
-            name: Service name
-            scope: Optional scope override
-
-        Returns:
-            Named service instance
-        """
-        ...
+    ) -> TInterface: ...
 
     async def resolve_all_services(
         self, interface: Type[TInterface], scope: "LiteralInjectionScope | None" = None
-    ) -> list[TInterface]:
-        """
-        Resolve all registered implementations of an interface.
-
-        Args:
-            interface: Service interface type
-            scope: Optional scope override
-
-        Returns:
-            List of service instances
-        """
-        ...
+    ) -> list[TInterface]: ...
 
     async def try_resolve_service(
         self, interface: Type[TInterface], scope: "LiteralInjectionScope | None" = None
-    ) -> TInterface | None:
-        """
-        Try to resolve a service instance, return None if not found.
-
-        Args:
-            interface: Service interface type
-            scope: Optional scope override
-
-        Returns:
-            Service instance or None if not found
-        """
-        ...
+    ) -> TInterface | None: ...
 
     async def get_registration(
         self, registration_id: str
-    ) -> ProtocolServiceRegistration | None:
-        """
-        Get service registration by ID.
-
-        Args:
-            registration_id: Service registration ID
-
-        Returns:
-            Service registration or None if not found
-        """
-        ...
+    ) -> ProtocolServiceRegistration | None: ...
 
     async def get_registrations_by_interface(
         self, interface: Type[T]
-    ) -> list["ProtocolServiceRegistration"]:
-        """
-        Get all registrations for an interface.
+    ) -> list["ProtocolServiceRegistration"]: ...
 
-        Args:
-            interface: Service interface type
-
-        Returns:
-            List of service registrations
-        """
-        ...
-
-    async def get_all_registrations(self) -> list["ProtocolServiceRegistration"]:
-        """
-        Get all service registrations.
-
-        Returns:
-            List of all service registrations
-        """
-        ...
+    async def get_all_registrations(self) -> list["ProtocolServiceRegistration"]: ...
 
     async def get_active_instances(
         self, registration_id: str | None = None
-    ) -> list["ProtocolRegistryServiceInstance"]:
-        """
-        Get active service instances.
-
-        Args:
-            registration_id: Optional filter by registration ID
-
-        Returns:
-            List of active service instances
-        """
-        ...
+    ) -> list["ProtocolRegistryServiceInstance"]: ...
 
     async def dispose_instances(
         self, registration_id: str, scope: "LiteralInjectionScope | None" = None
-    ) -> int:
-        """
-        Dispose service instances.
-
-        Args:
-            registration_id: Service registration ID
-            scope: Optional scope filter
-
-        Returns:
-            Number of disposed instances
-        """
-        ...
+    ) -> int: ...
 
     async def validate_registration(
         self, registration: "ProtocolServiceRegistration"
-    ) -> bool:
-        """
-        Validate a service registration.
-
-        Args:
-            registration: Service registration to validate
-
-        Returns:
-            True if registration is valid
-        """
-        ...
+    ) -> bool: ...
 
     async def detect_circular_dependencies(
         self, registration: "ProtocolServiceRegistration"
-    ) -> list[str]:
-        """
-        Detect circular dependencies for a registration.
-
-        Args:
-            registration: Service registration to check
-
-        Returns:
-            List of circular dependency paths
-        """
-        ...
+    ) -> list[str]: ...
 
     async def get_dependency_graph(
         self, service_id: str
-    ) -> ProtocolDependencyGraph | None:
-        """
-        Get dependency graph for a service.
+    ) -> ProtocolDependencyGraph | None: ...
 
-        Args:
-            service_id: Service ID
-
-        Returns:
-            Dependency graph or None if service not found
-        """
-        ...
-
-    async def get_registry_status(self) -> ProtocolServiceRegistryStatus:
-        """
-        Get comprehensive registry status.
-
-        Returns:
-            Registry status information
-        """
-        ...
+    async def get_registry_status(self) -> ProtocolServiceRegistryStatus: ...
 
     async def validate_service_health(
         self, registration_id: str
-    ) -> ProtocolValidationResult:
-        """
-        Validate service health status.
-
-        Args:
-            registration_id: Service registration ID
-
-        Returns:
-            Validation result with health information
-        """
-        ...
+    ) -> ProtocolValidationResult: ...
 
     async def update_service_configuration(
         self, registration_id: str, configuration: dict[str, "ContextValue"]
-    ) -> bool:
-        """
-        Update service configuration.
-
-        Args:
-            registration_id: Service registration ID
-            configuration: New configuration values
-
-        Returns:
-            True if update successful
-        """
-        ...
+    ) -> bool: ...
 
     async def create_injection_scope(
         self, scope_name: str, parent_scope: str | None = None
-    ) -> str:
-        """
-        Create a new injection scope.
+    ) -> str: ...
 
-        Args:
-            scope_name: Name for the new scope
-            parent_scope: Optional parent scope
-
-        Returns:
-            Created scope ID
-        """
-        ...
-
-    async def dispose_injection_scope(self, scope_id: str) -> int:
-        """
-        Dispose an injection scope and all its instances.
-
-        Args:
-            scope_id: Scope ID to dispose
-
-        Returns:
-            Number of disposed instances
-        """
-        ...
+    async def dispose_injection_scope(self, scope_id: str) -> int: ...
 
     async def get_injection_context(
         self, context_id: str
-    ) -> ProtocolInjectionContext | None:
-        """
-        Get injection context information.
-
-        Args:
-            context_id: Injection context ID
-
-        Returns:
-            Injection context or None if not found
-        """
-        ...
+    ) -> ProtocolInjectionContext | None: ...

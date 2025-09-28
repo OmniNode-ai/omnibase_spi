@@ -4,10 +4,9 @@ Analyze protocol duplicates in the omnibase_spi codebase.
 """
 
 import ast
-import os
 from collections import defaultdict
 from pathlib import Path
-from typing import Any, DefaultDict, Dict, List, Set, Tuple
+from typing import Any, DefaultDict, Dict, List
 
 
 class ProtocolAnalyzer:
@@ -137,7 +136,7 @@ class ProtocolAnalyzer:
 
     def print_analysis(self) -> None:
         """Print analysis results."""
-        print(f"=== PROTOCOL ANALYSIS RESULTS ===")
+        print("=== PROTOCOL ANALYSIS RESULTS ===")
         print(f"Total protocols found: {sum(len(p) for p in self.protocols.values())}")
         print(f"Unique protocol names: {len(self.protocols)}")
         print(f"Empty protocols (no methods/properties): {len(self.empty_protocols)}")
@@ -168,7 +167,7 @@ class ProtocolAnalyzer:
                 print(f"    Properties: {protocol['properties']}")
 
         # Empty protocols analysis
-        print(f"\n=== EMPTY PROTOCOLS ===")
+        print("\n=== EMPTY PROTOCOLS ===")
         empty_by_file = defaultdict(list)
         for protocol in self.empty_protocols:
             empty_by_file[protocol["file_path"]].append(protocol["name"])

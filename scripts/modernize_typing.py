@@ -34,13 +34,12 @@ Version: 1.0.0
 
 import argparse
 import ast
-import os
 import shutil
 import sys
 from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Dict, List, Optional, Set
 
 
 @dataclass
@@ -477,14 +476,14 @@ def print_file_report(report: TransformationReport, verbose: bool = False) -> No
 def print_overall_report(report: OverallReport, verbose: bool = False) -> None:
     """Print overall summary report."""
 
-    print(f"\n📊 MODERNIZATION SUMMARY")
+    print("\n📊 MODERNIZATION SUMMARY")
     print(f"{'=' * 50}")
     print(f"Files processed: {report.files_processed}")
     print(f"Files with changes: {report.files_with_changes}")
     print(f"Total transformations: {report.total_transformations}")
 
     if report.transformation_counts:
-        print(f"\nTransformations by type:")
+        print("\nTransformations by type:")
         for transform_type, count in sorted(report.transformation_counts.items()):
             print(f"  {transform_type}: {count}")
 
@@ -495,7 +494,7 @@ def print_overall_report(report: OverallReport, verbose: bool = False) -> None:
 
     # Print individual file reports if verbose or if there are changes
     if verbose or report.files_with_changes > 0:
-        print(f"\n📋 FILE DETAILS")
+        print("\n📋 FILE DETAILS")
         print(f"{'=' * 50}")
         for file_report in report.file_reports:
             print_file_report(file_report, verbose=verbose)
@@ -621,13 +620,13 @@ Examples:
             print(f"🔧 TYPING MODERNIZATION - {mode}")
             print(f"{'=' * 50}")
             print(f"Target files: {len(files)}")
-            print(f"Transformations enabled:")
+            print("Transformations enabled:")
             print(f"  Optional[T] → T | None: {enable_optional}")
             print(f"  Union[A, B] → A | B: {enable_union}")
             print(f"  TYPE_CHECKING forward refs: {enable_forward_refs}")
 
             if dry_run:
-                print(f"\n💡 This is a preview. Use --apply to make changes.")
+                print("\n💡 This is a preview. Use --apply to make changes.")
 
     except Exception as e:
         print(f"❌ Error collecting files: {e}")
@@ -661,12 +660,12 @@ Examples:
                     f"\n✅ Successfully applied {report.total_transformations} transformations."
                 )
         else:
-            print(f"\n✨ No changes needed - code is already modernized!")
+            print("\n✨ No changes needed - code is already modernized!")
 
         return 0
 
     except KeyboardInterrupt:
-        print(f"\n❌ Interrupted by user")
+        print("\n❌ Interrupted by user")
         return 1
     except Exception as e:
         print(f"❌ Unexpected error: {e}")

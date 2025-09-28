@@ -5,7 +5,7 @@ Defines interfaces for metrics collection, distributed tracing,
 and audit logging across ONEX services for comprehensive observability.
 """
 
-from typing import TYPE_CHECKING, Optional, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 from uuid import UUID
 
 from omnibase_spi.protocols.types.protocol_core_types import (
@@ -35,18 +35,13 @@ class ProtocolMetricsCollector(Protocol):
 
     Usage Example:
         ```python
-        # Implementation example (not part of SPI)
-        class MetricsCollectorImpl:
-            def record_counter(self, name, value, tags):
-                point = MetricsPoint(
-                    metric_name=name,
-                    value=value,
-                    tags=tags,
-                    timestamp=datetime.utcnow()
-                )
-                self._send_to_backend(point)
+        # Protocol usage example (SPI-compliant)
+        service: "Observability" = get_observability()
 
-        # Usage in application code
+        # Usage demonstrates protocol interface without implementation details
+        # All operations work through the protocol contract
+        # Implementation details are abstracted away from the interface
+
         metrics: "ProtocolMetricsCollector" = MetricsCollectorImpl()
 
         metrics.record_counter(
@@ -57,104 +52,29 @@ class ProtocolMetricsCollector(Protocol):
         ```
     """
 
-    def record_counter(
+    async def record_counter(
         self, name: str, value: float, tags: dict[str, "ContextValue"] | None
-    ) -> None:
-        """
-        Record counter metric increment.
+    ) -> None: ...
 
-        Args:
-            name: Metric name
-            value: Value to increment counter by
-            tags: Optional tags for metric dimensions
-
-        Note:
-            Counters are monotonically increasing values used for
-            request counts, error counts, and event totals.
-        """
-        ...
-
-    def record_gauge(
+    async def record_gauge(
         self, name: str, value: float, tags: dict[str, "ContextValue"] | None
-    ) -> None:
-        """
-        Record gauge metric value.
+    ) -> None: ...
 
-        Args:
-            name: Metric name
-            value: Current gauge value
-            tags: Optional tags for metric dimensions
-
-        Note:
-            Gauges represent current values that can increase or decrease,
-            such as memory usage, connection counts, or queue depth.
-        """
-        ...
-
-    def record_histogram(
+    async def record_histogram(
         self, name: str, value: float, tags: dict[str, "ContextValue"] | None
-    ) -> None:
-        """
-        Record histogram metric observation.
+    ) -> None: ...
 
-        Args:
-            name: Metric name
-            value: Observed value
-            tags: Optional tags for metric dimensions
-
-        Note:
-            Histograms track distribution of values over time,
-            useful for response times, request sizes, and latencies.
-        """
-        ...
-
-    def record_timer(
+    async def record_timer(
         self, name: str, duration_seconds: float, tags: dict[str, "ContextValue"] | None
-    ) -> None:
-        """
-        Record timer metric for operation duration.
+    ) -> None: ...
 
-        Args:
-            name: Metric name
-            duration_seconds: Operation duration in seconds
-            tags: Optional tags for metric dimensions
-
-        Note:
-            Timers are specialized histograms for measuring operation
-            durations with automatic rate and percentile calculations.
-        """
-        ...
-
-    def record_metrics_batch(self, metrics: list["ProtocolMetricsPoint"]) -> None:
-        """
-        Record multiple metrics in batch for efficiency.
-
-        Args:
-            metrics: List of metrics points to record
-
-        Note:
-            Batch submission reduces overhead for high-frequency
-            metrics and improves monitoring system performance.
-        """
-        ...
+    async def record_metrics_batch(
+        self, metrics: list["ProtocolMetricsPoint"]
+    ) -> None: ...
 
     async def create_metrics_context(
         self, default_tags: dict[str, "ContextValue"]
-    ) -> "ProtocolMetricsCollector":
-        """
-        Create metrics collector with default tags.
-
-        Args:
-            default_tags: Tags to apply to all metrics
-
-        Returns:
-            Metrics collector with default tags applied
-
-        Note:
-            Enables context-based metrics with common tags like
-            service name, version, or environment applied automatically.
-        """
-        ...
+    ) -> "ProtocolMetricsCollector": ...
 
 
 @runtime_checkable
@@ -174,18 +94,13 @@ class ProtocolDistributedTracing(Protocol):
 
     Usage Example:
         ```python
-        # Implementation example (not part of SPI)
-        class TracingImpl:
-            async def start_span(self, operation_name, parent_span_id=None):
-                span = TraceSpan(
-                    span_id=uuid.uuid4(),
-                    operation_name=operation_name,
-                    parent_span_id=parent_span_id,
-                    start_time=datetime.utcnow()
-                )
-                return span
+        # Protocol usage example (SPI-compliant)
+        service: "Observability" = get_observability()
 
-        # Usage in application code
+        # Usage demonstrates protocol interface without implementation details
+        # All operations work through the protocol contract
+        # Implementation details are abstracted away from the interface
+
         tracing: "ProtocolDistributedTracing" = TracingImpl()
 
         span = tracing.start_span(
@@ -207,120 +122,27 @@ class ProtocolDistributedTracing(Protocol):
         operation_name: str,
         parent_span_id: "UUID | None",
         trace_id: "UUID | None",
-    ) -> "ProtocolTraceSpan":
-        """
-        Start new trace span.
+    ) -> "ProtocolTraceSpan": ...
 
-        Args:
-            operation_name: Name of operation being traced
-            parent_span_id: Optional parent span ID for hierarchy
-            trace_id: Optional trace ID (generated if not provided)
+    async def finish_span(
+        self, span_id: "UUID", status: "LiteralOperationStatus"
+    ) -> None: ...
 
-        Returns:
-            Started trace span
+    async def add_span_tag(self, span_id: "UUID", key: str, value: str) -> None: ...
 
-        Note:
-            Spans represent individual operations within a request flow.
-            Parent-child relationships build call hierarchy for analysis.
-        """
-        ...
-
-    def finish_span(self, span_id: "UUID", status: "LiteralOperationStatus") -> None:
-        """
-        Finish trace span with final status.
-
-        Args:
-            span_id: ID of span to finish
-            status: Final operation status
-
-        Note:
-            Finishing spans records total duration and makes
-            trace data available for analysis and visualization.
-        """
-        ...
-
-    def add_span_tag(self, span_id: "UUID", key: str, value: str) -> None:
-        """
-        Add tag to trace span.
-
-        Args:
-            span_id: ID of span to tag
-            key: Tag key
-            value: Tag value
-
-        Note:
-            Tags provide structured metadata for filtering
-            and analyzing traces by operation characteristics.
-        """
-        ...
-
-    def add_span_log(
+    async def add_span_log(
         self, span_id: "UUID", message: str, fields: dict[str, object] | None
-    ) -> None:
-        """
-        Add log entry to trace span.
-
-        Args:
-            span_id: ID of span to log to
-            message: Log message
-            fields: Optional structured log fields
-
-        Note:
-            Span logs capture events during operation execution
-            for detailed debugging and performance analysis.
-        """
-        ...
+    ) -> None: ...
 
     def extract_trace_context(
         self, headers: dict[str, "ContextValue"]
-    ) -> tuple["UUID", "UUID"]:
-        """
-        Extract trace context from headers.
-
-        Args:
-            headers: Request headers containing trace context
-
-        Returns:
-            Tuple of (trace_id, span_id) extracted from headers
-
-        Raises:
-            ValueError: If headers don't contain valid trace context
-
-        Note:
-            Enables trace propagation across service boundaries
-            for distributed request flow visibility.
-        """
-        ...
+    ) -> tuple["UUID", "UUID"]: ...
 
     def inject_trace_context(
         self, trace_id: "UUID", span_id: "UUID", headers: dict[str, "ContextValue"]
-    ) -> None:
-        """
-        Inject trace context into headers.
+    ) -> None: ...
 
-        Args:
-            trace_id: Trace ID to inject
-            span_id: Span ID to inject
-            headers: Headers dictionary to modify
-
-        Note:
-            Prepares headers for outbound requests to continue
-            trace across service boundaries.
-        """
-        ...
-
-    def get_current_span(self) -> "ProtocolTraceSpan | None":
-        """
-        Get currently active trace span.
-
-        Returns:
-            Current span or None if no active span
-
-        Note:
-            Enables access to current span for tagging and logging
-            without explicit span ID management.
-        """
-        ...
+    async def get_current_span(self) -> "ProtocolTraceSpan | None": ...
 
 
 @runtime_checkable
@@ -340,14 +162,13 @@ class ProtocolAuditLogger(Protocol):
 
     Usage Example:
         ```python
-        # Implementation example (not part of SPI)
-        class AuditLoggerImpl:
-            def log_audit_event(self, event):
-                if event.sensitivity_level in ["confidential", "restricted"]:
-                    self._encrypt_before_storage(event)
-                self._store_audit_event(event)
+        # Protocol usage example (SPI-compliant)
+        service: "Observability" = get_observability()
 
-        # Usage in application code
+        # Usage demonstrates protocol interface without implementation details
+        # All operations work through the protocol contract
+        # Implementation details are abstracted away from the interface
+
         audit_logger: "ProtocolAuditLogger" = AuditLoggerImpl()
 
         audit_logger.log_audit_event(
@@ -362,7 +183,7 @@ class ProtocolAuditLogger(Protocol):
         ```
     """
 
-    def log_audit_event(
+    async def log_audit_event(
         self,
         event_type: str,
         actor: str,
@@ -371,82 +192,19 @@ class ProtocolAuditLogger(Protocol):
         outcome: "LiteralOperationStatus",
         metadata: dict[str, object] | None,
         sensitivity_level: str,
-    ) -> "ProtocolAuditEvent":
-        """
-        Log audit event.
-
-        Args:
-            event_type: Type of audit event (e.g., "user_access", "data_modification")
-            actor: Who performed the action (user ID, service name, etc.)
-            resource: What resource was acted upon
-            action: What action was performed
-            outcome: Result of the action
-            metadata: Optional additional event metadata
-            sensitivity_level: Data sensitivity classification
-
-        Returns:
-            Created audit event with generated ID
-
-        Note:
-            All audit events are immutable and include comprehensive
-            metadata for security and compliance analysis.
-        """
-        ...
+    ) -> "ProtocolAuditEvent": ...
 
     async def query_audit_events(
         self,
         start_time: "ProtocolDateTime",
         end_time: "ProtocolDateTime",
         filters: dict[str, "ContextValue"] | None,
-    ) -> list["ProtocolAuditEvent"]:
-        """
-        Query audit events by time range and filters.
+    ) -> list["ProtocolAuditEvent"]: ...
 
-        Args:
-            start_time: Start of time range for query
-            end_time: End of time range for query
-            filters: Optional filters (actor, resource, event_type, etc.)
+    async def get_audit_statistics(
+        self, time_window_hours: int
+    ) -> dict[str, object]: ...
 
-        Returns:
-            List of matching audit events
-
-        Note:
-            Enables audit log analysis for security investigations,
-            compliance reporting, and operational insights.
-        """
-        ...
-
-    def get_audit_statistics(self, time_window_hours: int) -> dict[str, object]:
-        """
-        Get audit event statistics.
-
-        Args:
-            time_window_hours: Hours of data to analyze
-
-        Returns:
-            Audit statistics including event counts, actors, and outcomes
-
-        Note:
-            Provides operational visibility into system usage
-            and security event patterns for monitoring.
-        """
-        ...
-
-    def archive_audit_events(
+    async def archive_audit_events(
         self, before_date: "ProtocolDateTime", archive_location: str
-    ) -> int:
-        """
-        Archive audit events older than specified date.
-
-        Args:
-            before_date: Archive events before this date
-            archive_location: Location for archived events
-
-        Returns:
-            Number of events archived
-
-        Note:
-            Supports compliance requirements for audit log retention
-            while managing storage costs and performance.
-        """
-        ...
+    ) -> int: ...

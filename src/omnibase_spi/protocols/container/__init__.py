@@ -15,6 +15,7 @@ general service discovery types in core_types:
 
 from .protocol_artifact_container import (
     LiteralContainerArtifactType,
+    LiteralOnexStatus,
     ProtocolArtifactContainer,
     ProtocolArtifactContainerStatus,
     ProtocolArtifactInfo,
@@ -25,6 +26,7 @@ from .protocol_container_service import ProtocolContainerService
 # Export DI-specific protocols with clear naming to avoid collision with core types
 from .protocol_service_registry import (
     InjectionScope,
+    LiteralInjectionScope,
     LiteralServiceLifecycle,
     LiteralServiceResolutionStatus,
     ProtocolDependencyGraph,
@@ -52,6 +54,8 @@ from .protocol_service_registry import (
 __all__ = [
     "InjectionScope",
     "LiteralContainerArtifactType",
+    "LiteralInjectionScope",
+    "LiteralOnexStatus",
     "LiteralServiceLifecycle",
     "LiteralServiceResolutionStatus",
     "ProtocolArtifactContainer",
