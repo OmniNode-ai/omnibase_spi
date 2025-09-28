@@ -136,7 +136,7 @@ class ProtocolInjectionContext(Protocol):
     context_id: str
     target_service_id: str
     scope: LiteralInjectionScope
-    resolved_dependencies: dict[str, Any]
+    resolved_dependencies: dict[str, "ContextValue"]
     injection_time: "ProtocolDateTime"
     resolution_status: LiteralServiceResolutionStatus
     error_details: str | None
@@ -181,7 +181,7 @@ class ProtocolServiceFactory(Protocol):
     """Protocol for service factory operations."""
 
     async def create_instance(
-        self, interface: Type[T], context: dict[str, Any]
+        self, interface: Type[T], context: dict[str, "ContextValue"]
     ) -> T: ...
 
     async def dispose_instance(self, instance: Any) -> None: ...

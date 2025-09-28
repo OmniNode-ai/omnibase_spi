@@ -8,6 +8,7 @@ messaging patterns, event sourcing, and orchestration coordination.
 from typing import TYPE_CHECKING, Any, Protocol, Union, runtime_checkable
 from uuid import UUID
 
+from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 from omnibase_spi.protocols.types.protocol_workflow_orchestration_types import (
     LiteralWorkflowEventType,
     ProtocolWorkflowEvent,
@@ -29,7 +30,7 @@ class ProtocolWorkflowEventMessage(Protocol):
     topic: str
     key: Union[bytes, None]
     value: bytes
-    headers: dict[str, Any]
+    headers: dict[str, ContextValue]
     offset: Union[str, None]
     partition: Union[int, None]
     workflow_type: str
@@ -54,7 +55,7 @@ class ProtocolWorkflowEventHandler(Protocol):
     """
 
     async def __call__(
-        self, event: "ProtocolWorkflowEvent", context: dict[str, Any]
+        self, event: "ProtocolWorkflowEvent", context: dict[str, ContextValue]
     ) -> None: ...
 
 
@@ -70,12 +71,12 @@ class ProtocolLiteralWorkflowStateProjection(Protocol):
     projection_name: str
 
     async def apply_event(
-        self, event: "ProtocolWorkflowEvent", current_state: dict[str, Any]
-    ) -> dict[str, Any]: ...
+        self, event: "ProtocolWorkflowEvent", current_state: dict[str, ContextValue]
+    ) -> dict[str, ContextValue]: ...
 
     async def get_state(
         self, workflow_type: str, instance_id: UUID
-    ) -> dict[str, Any]: ...
+    ) -> dict[str, ContextValue]: ...
 
 
 @runtime_checkable
@@ -127,7 +128,7 @@ class ProtocolWorkflowEventBus(Protocol):
 
     async def get_projection_state(
         self, projection_name: str, workflow_type: str, instance_id: UUID
-    ) -> dict[str, Any]: ...
+    ) -> dict[str, ContextValue]: ...
 
     async def create_workflow_topic(
         self, workflow_type: str, partition_count: int

@@ -8,6 +8,8 @@ ONEX security standards.
 
 from typing import Any, Protocol, runtime_checkable
 
+from omnibase_spi.protocols.types.protocol_core_types import ContextValue
+
 
 @runtime_checkable
 class ProtocolErrorSanitizer(Protocol):
@@ -33,13 +35,15 @@ class ProtocolErrorSanitizer(Protocol):
 
     def sanitize_exception(self, exception: Exception) -> Exception: ...
 
-    def sanitize_dict(self, data: dict[str, Any]) -> dict[str, Any]: ...
+    def sanitize_dict(
+        self, data: dict[str, ContextValue]
+    ) -> dict[str, ContextValue]: ...
 
     def sanitize_list(self, data: list[Any]) -> list[Any]: ...
 
     def sanitize_file_path(self, path: str) -> str: ...
 
-    async def get_cache_info(self) -> dict[str, Any]: ...
+    async def get_cache_info(self) -> dict[str, ContextValue]: ...
 
 
 @runtime_checkable

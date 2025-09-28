@@ -4,15 +4,7 @@ Workflow orchestration protocol types for ONEX SPI interfaces.
 Domain: Event-driven workflow orchestration with FSM states and event sourcing
 """
 
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Generic,
-    Literal,
-    Protocol,
-    TypeVar,
-    runtime_checkable,
-)
+from typing import TYPE_CHECKING, Generic, Literal, Protocol, TypeVar, runtime_checkable
 from uuid import UUID
 
 from omnibase_spi.protocols.types.protocol_core_types import (
@@ -103,7 +95,7 @@ class ProtocolTypedWorkflowData(Generic[T_WorkflowValue], Protocol):
 
     async def get_type_name(self) -> str: ...
 
-    def serialize_typed(self) -> dict[str, Any]: ...
+    def serialize_typed(self) -> dict[str, ContextValue]: ...
 
 
 LiteralWorkflowState = Literal[
@@ -260,7 +252,7 @@ class ProtocolTaskConfiguration(Protocol):
     dependencies: list["ProtocolTaskDependency"]
     retry_config: "ProtocolRetryConfiguration"
     timeout_config: "ProtocolTimeoutConfiguration"
-    resource_requirements: dict[str, Any]
+    resource_requirements: dict[str, ContextValue]
     annotations: dict[str, "ContextValue"]
 
     async def validate_task(self) -> bool: ...
@@ -358,8 +350,8 @@ class ProtocolWorkflowDefinition(Protocol):
     default_retry_config: "ProtocolRetryConfiguration"
     default_timeout_config: "ProtocolTimeoutConfiguration"
     compensation_actions: list["ProtocolCompensationAction"]
-    validation_rules: dict[str, Any]
-    schema: dict[str, Any]
+    validation_rules: dict[str, ContextValue]
+    schema: dict[str, ContextValue]
 
     async def validate_definition(self) -> bool: ...
 
@@ -373,8 +365,8 @@ class ProtocolNodeCapability(Protocol):
     capability_name: str
     version: "ProtocolSemVer"
     node_types: list[LiteralNodeType]
-    resource_requirements: dict[str, Any]
-    configuration_schema: dict[str, Any]
+    resource_requirements: dict[str, ContextValue]
+    configuration_schema: dict[str, ContextValue]
     supported_task_types: list[LiteralTaskType]
 
     async def validate_capability(self) -> bool: ...

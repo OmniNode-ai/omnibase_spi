@@ -11,6 +11,7 @@ Author: ONEX Framework Team
 from typing import Any, Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import (
+    ContextValue,
     ProtocolAction,
     ProtocolNodeResult,
     ProtocolState,
@@ -92,6 +93,6 @@ class ProtocolWorkflowReducer(Protocol):
         to_state: "ProtocolState",
     ) -> bool: ...
 
-    async def get_state_schema(self) -> dict[str, Any] | None: ...
+    async def get_state_schema(self) -> dict[str, ContextValue] | None: ...
 
-    async def get_action_schema(self) -> dict[str, Any] | None: ...
+    async def get_action_schema(self) -> dict[str, ContextValue] | None: ...

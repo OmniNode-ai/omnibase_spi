@@ -1,7 +1,8 @@
-from typing import Any, Awaitable, Callable, Literal, Protocol, runtime_checkable
+from typing import Awaitable, Callable, Literal, Protocol, runtime_checkable
 from uuid import UUID
 
 from omnibase_spi.protocols.types.protocol_core_types import (
+    ContextValue,
     ProtocolDateTime,
     ProtocolSemVer,
 )
@@ -196,12 +197,12 @@ class ProtocolEventBus(Protocol):
     async def broadcast_to_environment(
         self,
         command: str,
-        payload: dict[str, Any],
+        payload: dict[str, ContextValue],
         target_environment: str | None = None,
     ) -> None: ...
 
     async def send_to_group(
-        self, command: str, payload: dict[str, Any], target_group: str
+        self, command: str, payload: dict[str, ContextValue], target_group: str
     ) -> None: ...
 
     async def close(self) -> None: ...

@@ -10,6 +10,7 @@ from uuid import UUID
 
 from omnibase_spi.protocols.core.protocol_node_registry import ProtocolNodeRegistry
 from omnibase_spi.protocols.types.protocol_core_types import (
+    ContextValue,
     LiteralHealthStatus,
     LiteralNodeType,
 )
@@ -37,10 +38,10 @@ class ProtocolWorkflowNodeCapability(Protocol):
     capability_version: str
     supported_task_types: list[LiteralTaskType]
     supported_node_types: list[LiteralNodeType]
-    resource_requirements: dict[str, Any]
-    configuration_schema: dict[str, Any]
+    resource_requirements: dict[str, ContextValue]
+    configuration_schema: dict[str, ContextValue]
     performance_characteristics: dict[str, float]
-    availability_constraints: dict[str, Any]
+    availability_constraints: dict[str, ContextValue]
 
 
 @runtime_checkable
@@ -60,15 +61,15 @@ class ProtocolWorkflowNodeInfo(Protocol):
     version: str
     health_status: "LiteralHealthStatus"
     endpoint: str
-    metadata: dict[str, Any]
+    metadata: dict[str, ContextValue]
     workflow_capabilities: list["ProtocolWorkflowNodeCapability"]
-    current_workload: dict[str, Any]
+    current_workload: dict[str, ContextValue]
     max_concurrent_tasks: int
     current_task_count: int
     supported_workflow_types: list[str]
-    task_execution_history: dict[str, Any]
+    task_execution_history: dict[str, ContextValue]
     resource_utilization: dict[str, float]
-    scheduling_preferences: dict[str, Any]
+    scheduling_preferences: dict[str, ContextValue]
 
 
 @runtime_checkable
@@ -84,10 +85,10 @@ class ProtocolTaskSchedulingCriteria(Protocol):
     node_type: LiteralNodeType
     required_capabilities: list[str]
     preferred_capabilities: list[str]
-    resource_requirements: dict[str, Any]
-    affinity_rules: dict[str, Any]
-    anti_affinity_rules: dict[str, Any]
-    geographic_constraints: Union[dict[str, Any], None]
+    resource_requirements: dict[str, ContextValue]
+    affinity_rules: dict[str, ContextValue]
+    anti_affinity_rules: dict[str, ContextValue]
+    geographic_constraints: Union[dict[str, ContextValue], None]
     priority: LiteralTaskPriority
     timeout_tolerance: int
 
@@ -105,7 +106,7 @@ class ProtocolNodeSchedulingResult(Protocol):
     scheduling_score: float
     scheduling_rationale: str
     fallback_nodes: list["ProtocolWorkflowNodeInfo"]
-    resource_allocation: dict[str, Any]
+    resource_allocation: dict[str, ContextValue]
     estimated_completion_time: Union[float, None]
     constraints_satisfied: dict[str, bool]
 
@@ -165,7 +166,7 @@ class ProtocolWorkflowNodeRegistry(Protocol):
         self, node_id: str, task_id: UUID, workload_change: str
     ) -> None: ...
 
-    async def get_node_workload(self, node_id: str) -> dict[str, Any]: ...
+    async def get_node_workload(self, node_id: str) -> dict[str, ContextValue]: ...
 
     async def get_resource_utilization(self, node_id: str) -> dict[str, float]: ...
 
@@ -180,14 +181,14 @@ class ProtocolWorkflowNodeRegistry(Protocol):
         self,
         node_id: str,
         task_id: UUID,
-        resource_requirements: dict[str, Any],
+        resource_requirements: dict[str, ContextValue],
         timeout_seconds: int,
     ) -> bool: ...
 
     async def release_resources(self, node_id: str, task_id: UUID) -> bool: ...
 
     async def record_task_execution_metrics(
-        self, node_id: str, task_id: UUID, execution_metrics: dict[str, Any]
+        self, node_id: str, task_id: UUID, execution_metrics: dict[str, ContextValue]
     ) -> None: ...
 
     async def get_node_performance_history(
@@ -195,15 +196,15 @@ class ProtocolWorkflowNodeRegistry(Protocol):
         node_id: str,
         task_type: Union["LiteralTaskType", None],
         time_window_seconds: int,
-    ) -> dict[str, Any]: ...
+    ) -> dict[str, ContextValue]: ...
 
     async def update_node_availability(
         self,
         node_id: str,
         availability_status: str,
-        metadata: Union[dict[str, Any], None],
+        metadata: Union[dict[str, ContextValue], None],
     ) -> bool: ...
 
     async def get_cluster_health_summary(
         self, workflow_type: Union[str, None], node_group: Union[str, None]
-    ) -> dict[str, Any]: ...
+    ) -> dict[str, ContextValue]: ...

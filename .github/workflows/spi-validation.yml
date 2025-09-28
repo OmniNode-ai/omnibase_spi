@@ -72,25 +72,27 @@ jobs:
       - name: Run SPI validation
         id: spi-validation
         run: |
-          echo "Running SPI validation checks..."
+          echo "Running comprehensive SPI validation checks..."
 
-          # Run basic validation
-          poetry run python -c "
-          import sys
-          print('SPI validation completed successfully')
-          "
+          # Set validation mode
+          VALIDATION_MODE="${{ github.event.inputs.validation_mode || 'comprehensive' }}"
+          echo "Running validation in $VALIDATION_MODE mode"
 
-          # Create a simple validation report
-          cat > spi_validation_report.json << 'EOF'
-          {
-            "summary": {
-              "error_count": 0,
-              "warning_count": 0,
-              "total_protocols": 50
-            },
-            "status": "passed"
-          }
-          EOF
+          # Run the comprehensive SPI validator
+          if [ "$VALIDATION_MODE" = "pre-commit" ]; then
+            poetry run python scripts/validation/comprehensive_spi_validator.py \
+              --pre-commit \
+              --json-report \
+              --config validation_config.yaml \
+              src/omnibase_spi/protocols
+          else
+            poetry run python scripts/validation/comprehensive_spi_validator.py \
+              --json-report \
+              --config validation_config.yaml \
+              src/omnibase_spi/protocols
+          fi
+
+          echo "SPI validation completed successfully"
         continue-on-error: true
 
       - name: Upload validation reports
@@ -100,33 +102,60 @@ jobs:
           name: spi-validation-reports
           path: |
             spi_validation_report.json
+            comprehensive_spi_validation_*.json
+            comprehensive_spi_validation_*.html
           retention-days: 30
 
       - name: Parse validation results
         id: parse-results
         run: |
-          if [ -f "spi_validation_report.json" ]; then
+          # Find the actual validation report file
+          REPORT_FILE=$(ls comprehensive_spi_validation_*.json 2>/dev/null | head -1)
+
+          if [ -n "$REPORT_FILE" ] && [ -f "$REPORT_FILE" ]; then
+            echo "Found validation report: $REPORT_FILE"
+
+            # Parse the comprehensive validator report
             ERROR_COUNT=$(python -c "
           import json
-          data=json.load(open('spi_validation_report.json'))
-          print(data['summary']['error_count'])
+          with open('$REPORT_FILE') as f:
+              data = json.load(f)
+          violations = data.get('violations', [])
+          errors = [v for v in violations if v.get('severity') == 'error']
+          print(len(errors))
           ")
+
             WARNING_COUNT=$(python -c "
           import json
-          data=json.load(open('spi_validation_report.json'))
-          print(data['summary']['warning_count'])
+          with open('$REPORT_FILE') as f:
+              data = json.load(f)
+          violations = data.get('violations', [])
+          warnings = [v for v in violations if v.get('severity') == 'warning']
+          print(len(warnings))
           ")
+
             TOTAL_PROTOCOLS=$(python -c "
           import json
-          data=json.load(open('spi_validation_report.json'))
-          print(data['summary']['total_protocols'])
+          with open('$REPORT_FILE') as f:
+              data = json.load(f)
+          summary = data.get('summary', {})
+          print(summary.get('protocols_analyzed', 0))
           ")
 
             echo "error_count=$ERROR_COUNT" >> $GITHUB_OUTPUT
             echo "warning_count=$WARNING_COUNT" >> $GITHUB_OUTPUT
             echo "total_protocols=$TOTAL_PROTOCOLS" >> $GITHUB_OUTPUT
 
-            cat > validation_summary.md << 'EOF'
+            # Create summary based on results
+            if [ "$ERROR_COUNT" -gt 0 ]; then
+              STATUS="❌ **Validation Failed**"
+            elif [ "$WARNING_COUNT" -gt 0 ]; then
+              STATUS="⚠️  **Validation Passed with Warnings**"
+            else
+              STATUS="✅ **Validation Passed**"
+            fi
+
+            cat > validation_summary.md << EOF
           ## 🔍 SPI Protocol Validation Results
 
           | Metric | Count |
@@ -135,15 +164,31 @@ jobs:
           | Errors | ${ERROR_COUNT} |
           | Warnings | ${WARNING_COUNT} |
 
-          ✅ **Validation Passed** - SPI protocols are compliant
+          ${STATUS} - SPI protocol compliance check completed
           EOF
           else
             echo "error_count=0" >> $GITHUB_OUTPUT
             echo "warning_count=0" >> $GITHUB_OUTPUT
             echo "total_protocols=0" >> $GITHUB_OUTPUT
+            echo "No validation report found"
           fi
 
-      - name: Success notification
+      - name: Validation summary
         run: |
-          echo "✅ SPI validation passed successfully!"
-          echo "Found ${{ steps.parse-results.outputs.total_protocols }} protocols"
+          ERROR_COUNT=${{ steps.parse-results.outputs.error_count }}
+          WARNING_COUNT=${{ steps.parse-results.outputs.warning_count }}
+          TOTAL_PROTOCOLS=${{ steps.parse-results.outputs.total_protocols }}
+
+          echo "📊 SPI Validation Summary:"
+          echo "  - Protocols analyzed: $TOTAL_PROTOCOLS"
+          echo "  - Errors found: $ERROR_COUNT"
+          echo "  - Warnings found: $WARNING_COUNT"
+
+          if [ "$ERROR_COUNT" -gt 0 ]; then
+            echo "❌ Validation failed with $ERROR_COUNT errors"
+            exit 1
+          elif [ "$WARNING_COUNT" -gt 0 ]; then
+            echo "⚠️  Validation passed with $WARNING_COUNT warnings"
+          else
+            echo "✅ Validation passed successfully - no issues found!"
+          fi

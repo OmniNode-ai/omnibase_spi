@@ -9,6 +9,7 @@ Domain: MCP monitoring, health checks, and observability
 
 from typing import Any, Callable, Protocol, runtime_checkable
 
+from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 from omnibase_spi.protocols.types.protocol_mcp_types import (
     ProtocolMCPHealthCheck,
     ProtocolMCPSubsystemRegistration,
@@ -47,7 +48,7 @@ class ProtocolMCPHealthMonitor(Protocol):
 
     async def detect_health_anomalies(
         self, subsystem_id: str | None, time_window_hours: int
-    ) -> list[dict[str, Any]]: ...
+    ) -> list[dict[str, ContextValue]]: ...
 
 
 @runtime_checkable
@@ -72,18 +73,20 @@ class ProtocolMCPMonitor(Protocol):
     def health_monitor(self) -> ProtocolMCPHealthMonitor: ...
 
     async def start_comprehensive_monitoring(
-        self, registry_config: dict[str, Any], monitoring_config: dict[str, Any] | None
+        self,
+        registry_config: dict[str, ContextValue],
+        monitoring_config: dict[str, ContextValue] | None,
     ) -> bool: ...
 
     async def stop_all_monitoring(self) -> bool: ...
 
     async def collect_system_metrics(
         self, time_range_minutes: int
-    ) -> dict[str, Any]: ...
+    ) -> dict[str, ContextValue]: ...
 
     async def generate_alerts(
-        self, alert_config: dict[str, Any] | None = None
-    ) -> list[dict[str, Any]]: ...
+        self, alert_config: dict[str, ContextValue] | None = None
+    ) -> list[dict[str, ContextValue]]: ...
 
     async def monitor_subsystem_performance(
         self,
@@ -94,25 +97,25 @@ class ProtocolMCPMonitor(Protocol):
 
     async def analyze_performance_trends(
         self, subsystem_id: str | None, time_range_hours: int, metrics: list[str] | None
-    ) -> dict[str, Any]: ...
+    ) -> dict[str, ContextValue]: ...
 
     async def generate_health_report(
         self, time_range_hours: int, include_recommendations: bool
-    ) -> dict[str, Any]: ...
+    ) -> dict[str, ContextValue]: ...
 
     async def configure_alerting(
         self,
         alert_handlers: list[Callable[[Any], Any]],
-        thresholds: dict[str, Any],
-        escalation_rules: dict[str, Any] | None,
+        thresholds: dict[str, ContextValue],
+        escalation_rules: dict[str, ContextValue] | None,
     ) -> bool: ...
 
-    async def get_monitoring_status(self) -> dict[str, Any]: ...
+    async def get_monitoring_status(self) -> dict[str, ContextValue]: ...
 
     async def generate_dashboard_data(
-        self, dashboard_config: dict[str, Any] | None = None
-    ) -> dict[str, Any]: ...
+        self, dashboard_config: dict[str, ContextValue] | None = None
+    ) -> dict[str, ContextValue]: ...
 
     async def export_monitoring_data(
         self, format_type: str, time_range_hours: int, include_raw_data: bool
-    ) -> dict[str, Any]: ...
+    ) -> dict[str, ContextValue]: ...

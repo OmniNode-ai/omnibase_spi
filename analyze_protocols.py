@@ -141,9 +141,11 @@ def categorize_protocols(protocols: Dict[str, Dict]) -> Dict[str, List[str]]:
 
         if has_marker_attrs:
             categories["marker_interfaces"].append(name)
+        elif has_methods and not has_properties and not has_special_methods:
+            categories["method_only"].append(name)
         elif has_methods or has_special_methods:
             categories["complete_protocols"].append(name)
-        elif has_properties and not has_methods:
+        elif has_properties and not has_methods and not has_special_methods:
             # Determine if this is a legitimate data model or incomplete protocol
             docstring = info["docstring"] or ""
 
@@ -178,8 +180,6 @@ def categorize_protocols(protocols: Dict[str, Dict]) -> Dict[str, List[str]]:
                 categories["data_models"].append(name)
             else:
                 categories["property_only"].append(name)
-        elif not has_properties and has_methods:
-            categories["method_only"].append(name)
         else:
             # No properties or methods
             categories["incomplete_protocols"].append(name)

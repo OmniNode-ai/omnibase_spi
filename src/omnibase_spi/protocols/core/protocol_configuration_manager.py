@@ -8,6 +8,8 @@ across multiple sources following ONEX infrastructure standards.
 
 from typing import Any, Literal, Protocol, runtime_checkable
 
+from omnibase_spi.protocols.types.protocol_core_types import ContextValue
+
 LiteralConfigurationEnvironment = Literal[
     "development", "staging", "production", "test"
 ]
@@ -24,16 +26,16 @@ class ProtocolConfigurationManager(Protocol):
 
     Example:
         class MyConfigurationManager:
-            async def load_configuration(self, config_name: str) -> dict[str, Any]:
+            async def load_configuration(self, config_name: str) -> dict[str, ContextValue]:
                 # Load from multiple sources and merge
                 return self._merge_configuration_sources(config_name)
 
-            async def validate_configuration(self, config_data: dict[str, Any]) -> bool:
+            async def validate_configuration(self, config_data: dict[str, ContextValue]) -> bool:
                 # Validate against schema and constraints
                 return self._apply_validation_rules(config_data)
 
             async def update_configuration_runtime(
-                self, config_name: str, updates: dict[str, Any]
+                self, config_name: str, updates: dict[str, ContextValue]
             ) -> bool:
                 # Apply runtime configuration updates
                 return await self._apply_runtime_updates(config_name, updates)
@@ -45,11 +47,11 @@ class ProtocolConfigurationManager(Protocol):
         *,
         environment: "LiteralConfigurationEnvironment | None" = None,
         force_reload: bool = False,
-    ) -> dict[str, Any]: ...
+    ) -> dict[str, ContextValue]: ...
 
     async def validate_configuration(
         self,
-        config_data: dict[str, Any],
+        config_data: dict[str, ContextValue],
         *,
         config_name: str | None = None,
         environment: "LiteralConfigurationEnvironment | None" = None,
@@ -77,7 +79,7 @@ class ProtocolConfigurationManager(Protocol):
     async def update_configuration_runtime(
         self,
         config_name: str,
-        updates: dict[str, Any],
+        updates: dict[str, ContextValue],
         *,
         validate: bool = True,
         backup: bool = True,
@@ -97,7 +99,7 @@ class ProtocolConfigurationManager(Protocol):
 
     async def get_configuration_sources(
         self, config_name: str
-    ) -> list[dict[str, Any]]: ...
+    ) -> list[dict[str, ContextValue]]: ...
 
     def add_configuration_source(
         self,
@@ -121,7 +123,9 @@ class ProtocolConfigurationManager(Protocol):
         environment: "LiteralConfigurationEnvironment | None" = None,
     ) -> bool: ...
 
-    async def get_configuration_health(self, config_name: str) -> dict[str, Any]: ...
+    async def get_configuration_health(
+        self, config_name: str
+    ) -> dict[str, ContextValue]: ...
 
     def list_configurations(self) -> list[str]: ...
 

@@ -958,7 +958,7 @@ class ProtocolSerializable(Protocol):
 
     Usage:
         class MyDataObject(ProtocolSerializable):
-            def model_dump(self) -> dict[str, Any]:
+            def model_dump(self) -> dict[str, ContextValue]:
                 return {
                     "id": self.id,
                     "name": self.name,

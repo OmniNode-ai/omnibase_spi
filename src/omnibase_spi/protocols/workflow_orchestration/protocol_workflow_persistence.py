@@ -8,6 +8,7 @@ including event stores, snapshot stores, and projection stores with ACID guarant
 from typing import TYPE_CHECKING, Any, Protocol, Union, runtime_checkable
 from uuid import UUID
 
+from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 from omnibase_spi.protocols.types.protocol_workflow_orchestration_types import (
     LiteralWorkflowEventType,
     LiteralWorkflowState,
@@ -147,7 +148,7 @@ class ProtocolSnapshotStore(Protocol):
 
     async def list_snapshots(
         self, workflow_type: str, instance_id: UUID, limit: int
-    ) -> list[dict[str, Any]]: ...
+    ) -> list[dict[str, ContextValue]]: ...
 
     async def delete_snapshot(
         self, workflow_type: str, instance_id: UUID, sequence_number: int

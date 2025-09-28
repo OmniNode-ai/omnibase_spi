@@ -42,7 +42,7 @@ class ProtocolMCPToolParameter(Protocol):
     description: str
     required: bool
     default_value: ContextValue | None
-    schema: dict[str, Any] | None
+    schema: dict[str, ContextValue] | None
     constraints: dict[str, ContextValue]
     examples: list[ContextValue]
 
@@ -60,7 +60,7 @@ class ProtocolMCPToolDefinition(Protocol):
     description: str
     version: ProtocolSemVer
     parameters: list[ProtocolMCPToolParameter]
-    return_schema: dict[str, Any] | None
+    return_schema: dict[str, ContextValue] | None
     execution_endpoint: str
     timeout_seconds: int
     retry_count: int
@@ -129,7 +129,7 @@ class ProtocolMCPToolExecution(Protocol):
     started_at: ProtocolDateTime
     completed_at: ProtocolDateTime | None
     duration_ms: int | None
-    result: dict[str, Any] | None
+    result: dict[str, ContextValue] | None
     error_message: str | None
     retry_count: int
     correlation_id: UUID

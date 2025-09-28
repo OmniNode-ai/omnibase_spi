@@ -86,7 +86,7 @@ class ProtocolMCPSubsystemClient(Protocol):
     async def register_tool_handler(
         self,
         tool_name: str,
-        handler: Callable[[dict[str, ContextValue]], dict[str, Any]],
+        handler: Callable[[dict[str, ContextValue]], dict[str, ContextValue]],
     ) -> bool: ...
 
     async def unregister_tool_handler(self, tool_name: str) -> bool: ...
@@ -99,7 +99,7 @@ class ProtocolMCPSubsystemClient(Protocol):
         parameters: dict[str, ContextValue],
         execution_id: str,
         correlation_id: UUID,
-    ) -> dict[str, Any]: ...
+    ) -> dict[str, ContextValue]: ...
 
     async def validate_configuration(self) -> ProtocolValidationResult: ...
 
@@ -109,7 +109,7 @@ class ProtocolMCPSubsystemClient(Protocol):
 
     async def perform_local_health_check(self) -> ProtocolMCPHealthCheck: ...
 
-    async def get_subsystem_status(self) -> dict[str, Any]: ...
+    async def get_subsystem_status(self) -> dict[str, ContextValue]: ...
 
     async def update_configuration(
         self, configuration: dict[str, "ContextValue"]

@@ -31,7 +31,7 @@ class ProtocolCacheService(Protocol, Generic[T]):
         username = await cache.get("user:123")  # Returns Optional[str]
 
         # Dict cache for complex data
-        cache: "ProtocolCacheService"[dict[str, Any]] = get_dict_cache()
+        cache: "ProtocolCacheService"[dict[str, ContextValue]] = get_dict_cache()
         user_data = {"id": 123, "name": "John", "active": True}
         await cache.set("user:123:profile", user_data, ttl_seconds=1800)
 
