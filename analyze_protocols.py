@@ -3,10 +3,10 @@
 Analyze SPI protocols to identify property-only protocols that may be causing validation confusion.
 """
 
+import argparse
 import ast
-import os
 from pathlib import Path
-from typing import Dict, List, Set, Tuple
+from typing import Dict, List
 
 
 class ProtocolAnalyzer(ast.NodeVisitor):
@@ -189,8 +189,30 @@ def categorize_protocols(protocols: Dict[str, Dict]) -> Dict[str, List[str]]:
 
 def main():
     """Main analysis function."""
-    root_dir = Path("/Volumes/PRO-G40/Code/omnibase_spi")
+    parser = argparse.ArgumentParser(
+        description="Analyze SPI protocols to identify property-only protocols"
+    )
+    parser.add_argument(
+        "root_dir",
+        nargs="?",
+        default=".",
+        help="Root directory of the omnibase-spi project (defaults to current directory)",
+    )
+
+    args = parser.parse_args()
+    root_dir = Path(args.root_dir).resolve()
+
+    if not root_dir.exists():
+        print(f"Error: Directory {root_dir} does not exist")
+        return 1
+
     protocol_files = find_protocol_files(root_dir)
+
+    if not protocol_files:
+        protocols_dir = root_dir / "src" / "omnibase_spi" / "protocols"
+        print(f"Error: No protocol files found in {protocols_dir}")
+        print("Make sure you're running from the correct directory")
+        return 1
 
     print(f"Found {len(protocol_files)} protocol files")
     print("=" * 80)
@@ -251,7 +273,7 @@ def main():
             print(f"  Purpose: {info['docstring'].split('.')[0]}")
 
     # Summary statistics
-    print(f"\nSUMMARY STATISTICS:")
+    print("\nSUMMARY STATISTICS:")
     print("=" * 80)
     print(f"Total protocols: {len(all_protocols)}")
     print(f"Complete protocols (have methods): {len(categories['complete_protocols'])}")
@@ -280,6 +302,10 @@ def main():
     else:
         print(f"? Expected ~177 protocols with no methods, found {property_only_count}")
 
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    import sys
+
+    sys.exit(main())
