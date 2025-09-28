@@ -14,7 +14,6 @@ if TYPE_CHECKING:
     from .protocol_memory_base import ProtocolMemoryMetadata
     from .protocol_memory_security import ProtocolMemorySecurityContext
 
-
 @runtime_checkable
 class ProtocolStreamingChunk(Protocol):
     """
@@ -28,7 +27,7 @@ class ProtocolStreamingChunk(Protocol):
     def chunk_id(self) -> UUID: ...
 
     @property
-    async def stream_id(self) -> UUID: ...
+    def stream_id(self) -> UUID: ...
 
     @property
     def sequence_number(self) -> int: ...
@@ -49,11 +48,9 @@ class ProtocolStreamingChunk(Protocol):
     def checksum(self) -> str: ...
 
     @property
-    async def compression_type(self) -> str | None: ...
+    def compression_type(self) -> str | None: ...
 
-    @property
-    def chunk_metadata(self) -> "ProtocolMemoryMetadata": ...
-
+    async def chunk_metadata(self) -> "ProtocolMemoryMetadata": ...
 
 @runtime_checkable
 class ProtocolStreamingConfig(Protocol):
@@ -74,10 +71,10 @@ class ProtocolStreamingConfig(Protocol):
     def buffer_size_mb(self) -> float: ...
 
     @property
-    async def compression_enabled(self) -> bool: ...
+    def compression_enabled(self) -> bool: ...
 
     @property
-    async def compression_level(self) -> int: ...
+    def compression_level(self) -> int: ...
 
     @property
     def timeout_per_chunk_seconds(self) -> float: ...
@@ -90,7 +87,6 @@ class ProtocolStreamingConfig(Protocol):
 
     @property
     def enable_checksum_validation(self) -> bool: ...
-
 
 @runtime_checkable
 class ProtocolCursorPagination(Protocol):
@@ -118,7 +114,6 @@ class ProtocolCursorPagination(Protocol):
 
     @property
     def include_total_count(self) -> bool: ...
-
 
 @runtime_checkable
 class ProtocolStreamingMemoryNode(Protocol):
@@ -196,7 +191,6 @@ class ProtocolStreamingMemoryNode(Protocol):
         timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryMetadata": ...
 
-
 @runtime_checkable
 class ProtocolMemoryCache(Protocol):
     """
@@ -234,7 +228,6 @@ class ProtocolMemoryCache(Protocol):
         cache_scope: str,
         security_context: "ProtocolMemorySecurityContext | None" = None,
     ) -> "ProtocolMemoryMetadata": ...
-
 
 @runtime_checkable
 class ProtocolPerformanceOptimization(Protocol):

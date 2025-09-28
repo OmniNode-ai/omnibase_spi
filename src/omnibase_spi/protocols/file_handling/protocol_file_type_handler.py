@@ -13,7 +13,6 @@ from omnibase_spi.protocols.types.protocol_file_handling_types import (
     ProtocolSerializedBlock,
 )
 
-
 @runtime_checkable
 class ProtocolStampOptions(Protocol):
     """Protocol for stamping operation options."""
@@ -22,7 +21,6 @@ class ProtocolStampOptions(Protocol):
     backup: bool
     dry_run: bool
 
-
 @runtime_checkable
 class ProtocolValidationOptions(Protocol):
     """Protocol for validation operation options."""
@@ -30,7 +28,6 @@ class ProtocolValidationOptions(Protocol):
     strict: bool
     verbose: bool
     check_syntax: bool
-
 
 @runtime_checkable
 class ProtocolFileTypeHandler(Protocol):
@@ -63,8 +60,7 @@ class ProtocolFileTypeHandler(Protocol):
         - Error handling: Graceful degradation with detailed error messages
     """
 
-    @property
-    def metadata(self) -> ProtocolNodeMetadata: ...
+    async def metadata(self) -> ProtocolNodeMetadata: ...
 
     @property
     def node_name(self) -> str: ...

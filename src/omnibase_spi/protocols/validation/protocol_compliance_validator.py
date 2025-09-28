@@ -137,7 +137,7 @@ class ProtocolComplianceValidator(Protocol):
         self, file_path: str, imports: List[str]
     ) -> List[ProtocolComplianceViolation]: ...
 
-    def aggregate_compliance_results(
+    async def aggregate_compliance_results(
         self, reports: List["ProtocolComplianceReport"]
     ) -> ProtocolValidationResult: ...
 
