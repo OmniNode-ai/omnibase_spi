@@ -8,7 +8,6 @@ node discovery, capability management, and task scheduling support.
 from typing import TYPE_CHECKING, Any, Protocol, Union, runtime_checkable
 from uuid import UUID
 
-from omnibase_spi.protocols.core.protocol_node_registry import ProtocolNodeRegistry
 from omnibase_spi.protocols.types.protocol_core_types import (
     ContextValue,
     LiteralHealthStatus,
@@ -21,7 +20,7 @@ from omnibase_spi.protocols.types.protocol_workflow_orchestration_types import (
 )
 
 if TYPE_CHECKING:
-    pass
+    from omnibase_spi.protocols.core.protocol_node_registry import ProtocolNodeRegistry
 
 
 @runtime_checkable

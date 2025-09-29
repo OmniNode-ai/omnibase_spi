@@ -6,7 +6,7 @@ dependencies across ONEX repositories, providing standardized validation
 capabilities for NodeImportValidatorCompute implementations.
 """
 
-from typing import Any, Dict, List, Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 from .protocol_validation import ProtocolValidationResult
 
@@ -30,15 +30,15 @@ class ProtocolImportAnalysis(Protocol):
     """Protocol for import analysis results."""
 
     import_path: str
-    import_items: List[str]
+    import_items: list[str]
     is_valid: bool
     security_risk: str
     dependency_level: int
-    analysis_details: Dict[str, Any]
+    analysis_details: dict[str, Any]
 
     async def get_risk_summary(self) -> str: ...
 
-    async def get_recommendations(self) -> List[str]: ...
+    async def get_recommendations(self) -> list[str]: ...
 
 
 @runtime_checkable
@@ -56,7 +56,7 @@ class ProtocolImportValidator(Protocol):
     dependency_analysis_enabled: bool
 
     async def validate_import(
-        self, import_path: str, description: str, context: Dict[str, Any] | None = None
+        self, import_path: str, description: str, context: dict[str, Any] | None = None
     ) -> ProtocolValidationResult: ...
 
     async def validate_from_import(
@@ -64,22 +64,22 @@ class ProtocolImportValidator(Protocol):
         from_path: str,
         import_items: str,
         description: str,
-        context: Dict[str, Any] | None = None,
+        context: dict[str, Any] | None = None,
     ) -> ProtocolValidationResult: ...
 
     async def validate_import_security(
-        self, import_path: str, context: Dict[str, Any] | None = None
+        self, import_path: str, context: dict[str, Any] | None = None
     ) -> ProtocolImportAnalysis: ...
 
     async def validate_dependency_chain(
         self, import_path: str, max_depth: int = 3
-    ) -> List[ProtocolImportAnalysis]: ...
+    ) -> list[ProtocolImportAnalysis]: ...
 
     async def validate_repository_imports(
-        self, repository_path: str, patterns: List[str] | None = None
-    ) -> List[ProtocolValidationResult]: ...
+        self, repository_path: str, patterns: list[str] | None = None
+    ) -> list[ProtocolValidationResult]: ...
 
-    async def get_validation_summary(self) -> Dict[str, Any]: ...
+    async def get_validation_summary(self) -> dict[str, Any]: ...
 
     async def configure_validation(
         self, config: "ProtocolImportValidationConfig"

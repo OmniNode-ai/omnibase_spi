@@ -5,9 +5,24 @@ Protocol definition for Kafka backend implementations.
 Defines the contract for Kafka-specific event bus adapters.
 """
 
-from typing import Optional, Protocol, runtime_checkable
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Awaitable,
+    Callable,
+    Optional,
+    Protocol,
+    runtime_checkable,
+)
 
-from .protocol_event_bus import ProtocolKafkaEventBusAdapter
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.types.protocol_event_bus_types import (
+        ProtocolEventMessage,
+    )
+
+# Type aliases to avoid namespace violations
+EventBusHeaders = Any  # Generic headers type
+EventMessage = Any  # Generic event message type
 
 
 @runtime_checkable
@@ -26,12 +41,12 @@ class ProtocolKafkaConfig(Protocol):
 
 
 @runtime_checkable
-class ProtocolKafkaAdapter(ProtocolKafkaEventBusAdapter, Protocol):
+class ProtocolKafkaAdapter(Protocol):
     """
     Protocol for Kafka event bus adapter implementations.
 
-    Extends ProtocolKafkaEventBusAdapter with Kafka-specific configuration
-    and connection management protocols.
+    Provides Kafka-specific configuration and connection management protocols
+    along with the core event bus adapter interface.
     """
 
     @property
@@ -50,3 +65,21 @@ class ProtocolKafkaAdapter(ProtocolKafkaEventBusAdapter, Protocol):
     def kafka_config(self) -> ProtocolKafkaConfig: ...
 
     async def build_topic_name(self, topic: str) -> str: ...
+
+    # Core event bus adapter interface methods
+    async def publish(
+        self,
+        topic: str,
+        key: bytes | None,
+        value: bytes,
+        headers: EventBusHeaders,
+    ) -> None: ...
+
+    async def subscribe(
+        self,
+        topic: str,
+        group_id: str,
+        on_message: Callable[["ProtocolEventMessage"], Awaitable[None]],
+    ) -> Callable[[], Awaitable[None]]: ...
+
+    async def close(self) -> None: ...

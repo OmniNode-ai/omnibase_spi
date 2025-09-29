@@ -13,6 +13,7 @@ LiteralProtocolCircuitBreakerEvent = Literal[
     "success", "failure", "timeout", "state_change", "fallback_executed"
 ]
 
+
 @runtime_checkable
 class ProtocolCircuitBreakerConfig(Protocol):
     """Configuration protocol for circuit breaker settings."""
@@ -23,8 +24,7 @@ class ProtocolCircuitBreakerConfig(Protocol):
     @property
     def recovery_timeout_seconds(self) -> float: ...
 
-    @property
-    def half_open_max_calls(self) -> int: ...
+    async def half_open_max_calls(self) -> int: ...
 
     @property
     def success_threshold(self) -> int: ...
@@ -34,6 +34,7 @@ class ProtocolCircuitBreakerConfig(Protocol):
 
     @property
     def request_timeout_seconds(self) -> float: ...
+
 
 @runtime_checkable
 class ProtocolCircuitBreakerMetrics(Protocol):
@@ -78,20 +79,18 @@ class ProtocolCircuitBreakerMetrics(Protocol):
     @property
     def successes_in_window(self) -> int: ...
 
-    @property
-    def half_open_requests(self) -> int: ...
+    async def half_open_requests(self) -> int: ...
 
-    @property
-    def half_open_successes(self) -> int: ...
+    async def half_open_successes(self) -> int: ...
 
-    @property
-    def half_open_failures(self) -> int: ...
+    async def half_open_failures(self) -> int: ...
 
     async def get_failure_rate(self) -> float: ...
 
     async def get_success_rate(self) -> float: ...
 
     async def reset_window(self) -> None: ...
+
 
 @runtime_checkable
 class ProtocolCircuitBreaker(Protocol):
@@ -141,6 +140,7 @@ class ProtocolCircuitBreaker(Protocol):
     async def record_failure(self, exception: Exception | None = None) -> None: ...
 
     async def record_timeout(self) -> None: ...
+
 
 @runtime_checkable
 class ProtocolCircuitBreakerFactory(Protocol):

@@ -40,6 +40,7 @@ if TYPE_CHECKING:
         ProtocolSearchResult,
     )
 
+
 @runtime_checkable
 class ProtocolMemoryResponse(Protocol):
     """Base protocol for all memory operation responses."""
@@ -51,12 +52,14 @@ class ProtocolMemoryResponse(Protocol):
     @property
     def error_message(self) -> str | None: ...
 
+
 @runtime_checkable
 class ProtocolMemoryStoreResponse(ProtocolMemoryResponse, Protocol):
     """Protocol for memory storage responses."""
 
     memory_id: UUID | None
     storage_location: str | None
+
 
 @runtime_checkable
 class ProtocolMemoryRetrieveResponse(ProtocolMemoryResponse, Protocol):
@@ -67,12 +70,14 @@ class ProtocolMemoryRetrieveResponse(ProtocolMemoryResponse, Protocol):
     @property
     def related_memories(self) -> list["ProtocolMemoryRecord"]: ...
 
+
 @runtime_checkable
 class ProtocolMemoryListResponse(ProtocolMemoryResponse, Protocol):
     """Protocol for paginated memory list responses."""
 
     memories: list["ProtocolMemoryRecord"]
     pagination: "ProtocolPaginationResponse"
+
 
 @runtime_checkable
 class ProtocolBatchOperationResult(Protocol):
@@ -85,6 +90,7 @@ class ProtocolBatchOperationResult(Protocol):
 
     @property
     def execution_time_ms(self) -> int: ...
+
 
 @runtime_checkable
 class ProtocolBatchMemoryStoreResponse(ProtocolMemoryResponse, Protocol):
@@ -99,6 +105,7 @@ class ProtocolBatchMemoryStoreResponse(ProtocolMemoryResponse, Protocol):
     @property
     def partial_success(self) -> bool: ...
 
+
 @runtime_checkable
 class ProtocolBatchMemoryRetrieveResponse(ProtocolMemoryResponse, Protocol):
     """Protocol for batch memory retrieval responses."""
@@ -107,6 +114,7 @@ class ProtocolBatchMemoryRetrieveResponse(ProtocolMemoryResponse, Protocol):
     memories: list["ProtocolMemoryRecord"]
     missing_ids: list[UUID]
     batch_execution_time_ms: int
+
 
 @runtime_checkable
 class ProtocolSemanticSearchResponse(ProtocolMemoryResponse, Protocol):
@@ -118,6 +126,7 @@ class ProtocolSemanticSearchResponse(ProtocolMemoryResponse, Protocol):
 
     async def get_query_embedding(self) -> list[float] | None: ...
 
+
 @runtime_checkable
 class ProtocolPatternAnalysisResponse(ProtocolMemoryResponse, Protocol):
     """Protocol for pattern analysis responses."""
@@ -128,6 +137,7 @@ class ProtocolPatternAnalysisResponse(ProtocolMemoryResponse, Protocol):
     @property
     def confidence_scores(self) -> list[float]: ...
 
+
 @runtime_checkable
 class ProtocolEmbeddingResponse(ProtocolMemoryResponse, Protocol):
     """Protocol for embedding generation responses."""
@@ -136,6 +146,7 @@ class ProtocolEmbeddingResponse(ProtocolMemoryResponse, Protocol):
     algorithm_used: str
     dimensions: int
 
+
 @runtime_checkable
 class ProtocolConsolidationResponse(ProtocolMemoryResponse, Protocol):
     """Protocol for memory consolidation responses."""
@@ -143,12 +154,14 @@ class ProtocolConsolidationResponse(ProtocolMemoryResponse, Protocol):
     consolidated_memory_id: UUID
     source_memory_ids: list[UUID]
 
+
 @runtime_checkable
 class ProtocolAggregationResponse(ProtocolMemoryResponse, Protocol):
     """Protocol for memory aggregation responses."""
 
     aggregated_data: "ProtocolAggregatedData"
     aggregation_metadata: "ProtocolMemoryMetadata"
+
 
 @runtime_checkable
 class ProtocolWorkflowExecutionResponse(ProtocolMemoryResponse, Protocol):
@@ -160,6 +173,7 @@ class ProtocolWorkflowExecutionResponse(ProtocolMemoryResponse, Protocol):
     @property
     def agent_statuses(self) -> "ProtocolAgentStatusMap": ...
 
+
 @runtime_checkable
 class ProtocolAgentCoordinationResponse(ProtocolMemoryResponse, Protocol):
     """Protocol for agent coordination responses."""
@@ -168,6 +182,7 @@ class ProtocolAgentCoordinationResponse(ProtocolMemoryResponse, Protocol):
     coordination_status: str
 
     async def agent_responses(self) -> "ProtocolAgentResponseMap": ...
+
 
 @runtime_checkable
 class ProtocolPaginationResponse(Protocol):
@@ -182,6 +197,7 @@ class ProtocolPaginationResponse(Protocol):
     @property
     def page_info(self) -> "ProtocolPageInfo": ...
 
+
 @runtime_checkable
 class ProtocolMemoryMetrics(Protocol):
     """Protocol for memory system performance metrics."""
@@ -191,14 +207,14 @@ class ProtocolMemoryMetrics(Protocol):
     memory_usage_mb: float
     timestamp: "datetime"
 
-    @property
-    def throughput_ops_per_second(self) -> float: ...
+    async def throughput_ops_per_second(self) -> float: ...
 
     @property
     def error_rate_percent(self) -> float: ...
 
     @property
     def custom_metrics(self) -> "ProtocolCustomMetrics": ...
+
 
 @runtime_checkable
 class ProtocolMemoryMetricsResponse(ProtocolMemoryResponse, Protocol):
@@ -207,6 +223,7 @@ class ProtocolMemoryMetricsResponse(ProtocolMemoryResponse, Protocol):
     metrics: list["ProtocolMemoryMetrics"]
     aggregation_summary: "ProtocolAggregationSummary"
     collection_timestamp: "datetime"
+
 
 @runtime_checkable
 class ProtocolStreamingMemoryResponse(ProtocolMemoryResponse, Protocol):
@@ -220,6 +237,7 @@ class ProtocolStreamingMemoryResponse(ProtocolMemoryResponse, Protocol):
 
     @property
     def compression_ratio(self) -> float | None: ...
+
 
 @runtime_checkable
 class ProtocolStreamingRetrieveResponse(ProtocolStreamingMemoryResponse, Protocol):

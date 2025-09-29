@@ -6,7 +6,7 @@ complexity metrics, and best practices compliance for NodeQualityValidatorEffect
 implementations.
 """
 
-from typing import List, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 from .protocol_validation import ProtocolValidationResult
 
@@ -50,8 +50,8 @@ class ProtocolQualityStandards(Protocol):
     max_line_length: int
     max_function_length: int
     max_class_length: int
-    naming_conventions: List[str]
-    required_patterns: List[str]
+    naming_conventions: list[str]
+    required_patterns: list[str]
 
     async def check_complexity_compliance(self, complexity: int) -> bool: ...
 
@@ -64,12 +64,12 @@ class ProtocolQualityReport(Protocol):
 
     file_path: str
     metrics: "ProtocolQualityMetrics"
-    issues: List[ProtocolQualityIssue]
+    issues: list[ProtocolQualityIssue]
     standards_compliance: bool
     overall_score: float
-    recommendations: List[str]
+    recommendations: list[str]
 
-    async def get_critical_issues(self) -> List[ProtocolQualityIssue]: ...
+    async def get_critical_issues(self) -> list[ProtocolQualityIssue]: ...
 
 
 @runtime_checkable
@@ -92,8 +92,8 @@ class ProtocolQualityValidator(Protocol):
     ) -> ProtocolQualityReport: ...
 
     async def validate_directory_quality(
-        self, directory_path: str, file_patterns: List[str] | None = None
-    ) -> List[ProtocolQualityReport]: ...
+        self, directory_path: str, file_patterns: list[str] | None = None
+    ) -> list[ProtocolQualityReport]: ...
 
     def calculate_quality_metrics(
         self, file_path: str, content: str | None = None
@@ -101,26 +101,26 @@ class ProtocolQualityValidator(Protocol):
 
     def detect_code_smells(
         self, file_path: str, content: str | None = None
-    ) -> List[ProtocolQualityIssue]: ...
+    ) -> list[ProtocolQualityIssue]: ...
 
     async def check_naming_conventions(
         self, file_path: str, content: str | None = None
-    ) -> List[ProtocolQualityIssue]: ...
+    ) -> list[ProtocolQualityIssue]: ...
 
     async def analyze_complexity(
         self, file_path: str, content: str | None = None
-    ) -> List[ProtocolQualityIssue]: ...
+    ) -> list[ProtocolQualityIssue]: ...
 
     async def validate_documentation(
         self, file_path: str, content: str | None = None
-    ) -> List[ProtocolQualityIssue]: ...
+    ) -> list[ProtocolQualityIssue]: ...
 
     def suggest_refactoring(
         self, file_path: str, content: str | None = None
-    ) -> List[str]: ...
+    ) -> list[str]: ...
 
     def configure_standards(self, standards: "ProtocolQualityStandards") -> None: ...
 
     async def get_validation_summary(
-        self, reports: List[ProtocolQualityReport]
+        self, reports: list[ProtocolQualityReport]
     ) -> ProtocolValidationResult: ...

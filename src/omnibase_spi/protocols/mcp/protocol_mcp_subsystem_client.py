@@ -24,6 +24,7 @@ from omnibase_spi.protocols.validation.protocol_validation import (
     ProtocolValidationResult,
 )
 
+
 @runtime_checkable
 class ProtocolMCPSubsystemConfig(Protocol):
     """Protocol for MCP subsystem configuration."""
@@ -38,6 +39,7 @@ class ProtocolMCPSubsystemConfig(Protocol):
     timeout_seconds: int
     health_check_endpoint: str
     configuration: dict[str, ContextValue]
+
 
 @runtime_checkable
 class ProtocolMCPSubsystemClient(Protocol):
@@ -66,8 +68,7 @@ class ProtocolMCPSubsystemClient(Protocol):
     @property
     def lifecycle_state(self) -> LiteralMCPLifecycleState: ...
 
-    @property
-    def connection_status(self) -> LiteralMCPConnectionStatus: ...
+    async def connection_status(self) -> LiteralMCPConnectionStatus: ...
 
     async def register_subsystem(self) -> str: ...
 

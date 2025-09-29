@@ -7,11 +7,10 @@ Abstracts lifecycle management for event bus resources (e.g., Kafka, RedPanda).
 
 from typing import TYPE_CHECKING, Protocol, TypeVar, runtime_checkable
 
-from omnibase_spi.protocols.event_bus.protocol_event_bus import ProtocolEventBus
-
 if TYPE_CHECKING:
-    pass
-TEventBus = TypeVar("TEventBus", bound=ProtocolEventBus, covariant=True)
+    from omnibase_spi.protocols.event_bus.protocol_event_bus import ProtocolEventBus
+
+TEventBus = TypeVar("TEventBus", bound="ProtocolEventBus", covariant=True)
 
 
 @runtime_checkable
@@ -44,4 +43,11 @@ class ProtocolEventBusContextManager(Protocol):
         ```
     """
 
-    async def __aenter__(self) -> ProtocolEventBus: ...
+    async def __aenter__(self) -> "ProtocolEventBus": ...
+
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: object,
+    ) -> None: ...

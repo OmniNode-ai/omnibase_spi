@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from .protocol_memory_base import ProtocolMemoryMetadata
     from .protocol_memory_security import ProtocolMemorySecurityContext
 
+
 @runtime_checkable
 class ProtocolStreamingChunk(Protocol):
     """
@@ -52,6 +53,7 @@ class ProtocolStreamingChunk(Protocol):
 
     async def chunk_metadata(self) -> "ProtocolMemoryMetadata": ...
 
+
 @runtime_checkable
 class ProtocolStreamingConfig(Protocol):
     """
@@ -88,6 +90,7 @@ class ProtocolStreamingConfig(Protocol):
     @property
     def enable_checksum_validation(self) -> bool: ...
 
+
 @runtime_checkable
 class ProtocolCursorPagination(Protocol):
     """
@@ -109,11 +112,11 @@ class ProtocolCursorPagination(Protocol):
     @property
     def sort_direction(self) -> str: ...
 
-    @property
-    def filters(self) -> "ProtocolMemoryMetadata": ...
+    async def filters(self) -> "ProtocolMemoryMetadata": ...
 
     @property
     def include_total_count(self) -> bool: ...
+
 
 @runtime_checkable
 class ProtocolStreamingMemoryNode(Protocol):
@@ -191,6 +194,7 @@ class ProtocolStreamingMemoryNode(Protocol):
         timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryMetadata": ...
 
+
 @runtime_checkable
 class ProtocolMemoryCache(Protocol):
     """
@@ -228,6 +232,7 @@ class ProtocolMemoryCache(Protocol):
         cache_scope: str,
         security_context: "ProtocolMemorySecurityContext | None" = None,
     ) -> "ProtocolMemoryMetadata": ...
+
 
 @runtime_checkable
 class ProtocolPerformanceOptimization(Protocol):

@@ -6,7 +6,7 @@ following SPI purity principles. Concrete implementations have been moved
 to the utils/omnibase_spi_validation package.
 """
 
-from typing import Dict, List, Protocol, TypeVar, runtime_checkable
+from typing import Protocol, TypeVar, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 
@@ -20,7 +20,7 @@ class ProtocolValidationError(Protocol):
 
     error_type: str
     message: str
-    context: Dict[str, ContextValue]
+    context: dict[str, ContextValue]
     severity: str
 
     def __str__(self) -> str: ...
@@ -33,14 +33,14 @@ class ProtocolValidationResult(Protocol):
     is_valid: bool
     protocol_name: str
     implementation_name: str
-    errors: List[ProtocolValidationError]
-    warnings: List[ProtocolValidationError]
+    errors: list[ProtocolValidationError]
+    warnings: list[ProtocolValidationError]
 
     def add_error(
         self,
         error_type: str,
         message: str,
-        context: Dict[str, ContextValue] | None = None,
+        context: dict[str, ContextValue] | None = None,
         severity: str = "error",
     ) -> None: ...
 
@@ -48,7 +48,7 @@ class ProtocolValidationResult(Protocol):
         self,
         error_type: str,
         message: str,
-        context: Dict[str, ContextValue] | None = None,
+        context: dict[str, ContextValue] | None = None,
     ) -> None: ...
 
     async def get_summary(self) -> str: ...
