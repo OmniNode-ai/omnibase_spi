@@ -73,29 +73,8 @@ from omnibase_spi.protocols import (
     # Types always available at types module level
 from omnibase_spi.protocols.types import LogLevel, LiteralWorkflowState
 
-    # Implementation example with dependency injection
-    class MyService:
-        @property
-        def logger(self) -> ProtocolLogger | None:
-            \"\"\"Get logger service with lazy initialization.\"\"\"
-            if not hasattr(self, '_internal_logger'):
-                # In practice, injected via container or constructor params
-                self._internal_logger: "ProtocolLogger | None" = None  # Injected dependency
-            return self._internal_logger
-
-        @property
-        def event_bus(self) -> ProtocolWorkflowEventBus | None:
-            \"\"\"Get event bus service with lazy initialization.\"\"\"
-            if not hasattr(self, '_internal_event_bus'):
-                self._internal_event_bus: "ProtocolWorkflowEventBus | None" = None  # Injected dependency
-            return self._internal_event_bus
-
-        @property
-        def cache(self) -> ProtocolCacheService | None:
-            \"\"\"Get cache service with lazy initialization.\"\"\"
-            if not hasattr(self, '_internal_cache'):
-                self._internal_cache: "ProtocolCacheService | None" = None  # Injected dependency
-            return self._internal_cache
+    # Implementation examples should be placed in your service layer packages,
+    # not in the SPI layer. The SPI defines contracts only.
 
     # Protocol validation example
     def validate_implementation(impl: object, protocol_type: type) -> bool:

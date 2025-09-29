@@ -65,7 +65,7 @@ repos:
       # Enhanced protocol duplicate detection with 8-agent insights
       - id: validate-protocol-duplicates
         name: SPI Protocol Duplicate Detection
-        entry: python scripts/analysis/precommit_duplicate_check.py
+        entry: poetry run python scripts/analysis/precommit_duplicate_check.py
         language: system
         types: [python]
         files: ^src/.*protocol.*\.py$

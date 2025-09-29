@@ -362,6 +362,15 @@ class ValidationConfig:
                 category="typing",
                 priority=1,
             ),
+            ValidationRule(
+                rule_id="SPI016",
+                name="SPI Implementation Purity",
+                description="SPI files must not contain implementation logic (if/else, assignments, function calls)",
+                severity="error",
+                auto_fixable=False,
+                category="purity",
+                priority=1,
+            ),
         ]
 
         for rule in default_rules:
@@ -583,6 +592,85 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
         if self.in_protocol_class:
             self._validate_async_protocol_method(node)
 
+        self.generic_visit(node)
+
+    def visit_Assign(self, node: ast.Assign) -> None:
+        """Detect assignment statements that violate SPI purity."""
+        if self._is_spi_implementation_violation(node):
+            self._add_violation(
+                node,
+                "SPI016",
+                "SPI files must not contain assignment logic - use type annotations only",
+                "Remove assignment logic or move to implementation package",
+                tags=["spi", "purity", "assignment"],
+            )
+        self.generic_visit(node)
+
+    def visit_AugAssign(self, node: ast.AugAssign) -> None:
+        """Detect augmented assignment statements (+=, -=, etc.)."""
+        self._add_violation(
+            node,
+            "SPI016",
+            "SPI files must not contain augmented assignment logic",
+            "Remove assignment logic or move to implementation package",
+            tags=["spi", "purity", "assignment"],
+        )
+        self.generic_visit(node)
+
+    def visit_For(self, node: ast.For) -> None:
+        """Detect for loops that violate SPI purity."""
+        self._add_violation(
+            node,
+            "SPI016",
+            "SPI files must not contain for loops - protocols define contracts only",
+            "Remove loop logic or move to implementation package",
+            tags=["spi", "purity", "control_flow"],
+        )
+        self.generic_visit(node)
+
+    def visit_While(self, node: ast.While) -> None:
+        """Detect while loops that violate SPI purity."""
+        self._add_violation(
+            node,
+            "SPI016",
+            "SPI files must not contain while loops - protocols define contracts only",
+            "Remove loop logic or move to implementation package",
+            tags=["spi", "purity", "control_flow"],
+        )
+        self.generic_visit(node)
+
+    def visit_Try(self, node: ast.Try) -> None:
+        """Detect try/except blocks that violate SPI purity."""
+        self._add_violation(
+            node,
+            "SPI016",
+            "SPI files must not contain try/except blocks - protocols define contracts only",
+            "Remove exception handling or move to implementation package",
+            tags=["spi", "purity", "control_flow"],
+        )
+        self.generic_visit(node)
+
+    def visit_With(self, node: ast.With) -> None:
+        """Detect with statements that violate SPI purity."""
+        self._add_violation(
+            node,
+            "SPI016",
+            "SPI files must not contain with statements - protocols define contracts only",
+            "Remove context manager logic or move to implementation package",
+            tags=["spi", "purity", "control_flow"],
+        )
+        self.generic_visit(node)
+
+    def visit_Call(self, node: ast.Call) -> None:
+        """Detect function calls that violate SPI purity."""
+        if self._is_implementation_function_call(node):
+            self._add_violation(
+                node,
+                "SPI016",
+                f"SPI files must not contain function calls - found call to '{self._get_call_name(node)}'",
+                "Remove function calls or move to implementation package",
+                tags=["spi", "purity", "function_call"],
+            )
         self.generic_visit(node)
 
     def _is_protocol_class(self, node: ast.ClassDef) -> bool:
@@ -856,6 +944,53 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
             return first_is_docstring and second_is_ellipsis
 
         return False
+
+    def _is_spi_implementation_violation(self, node: ast.Assign) -> bool:
+        """Check if assignment violates SPI purity (not a type annotation)."""
+        # Allow legitimate module-level assignments
+        for target in node.targets:
+            if isinstance(target, ast.Name):
+                # Allow __all__, __version__, __author__, etc.
+                if target.id.startswith("__") and target.id.endswith("__"):
+                    return False
+
+                # Allow module-level constants (all caps)
+                if target.id.isupper():
+                    return False
+
+        # Disallow implementation logic assignments like: self._internal_logger = None
+        return True
+
+    def _is_implementation_function_call(self, node: ast.Call) -> bool:
+        """Check if function call violates SPI purity."""
+        call_name = self._get_call_name(node)
+
+        # Allow these specific calls that are common in protocols
+        allowed_calls = {
+            "hasattr",  # Often used incorrectly in protocols
+            "isinstance",
+            "getattr",
+            "setattr",
+            "len",
+        }
+
+        # Allow ellipsis and type checking utilities
+        if call_name in ["...", "Ellipsis", "TYPE_CHECKING"]:
+            return False
+
+        # Disallow most function calls as they indicate implementation logic
+        return call_name not in {
+            "isinstance"
+        }  # isinstance is sometimes OK for validation
+
+    def _get_call_name(self, node: ast.Call) -> str:
+        """Extract function call name for reporting."""
+        if isinstance(node.func, ast.Name):
+            return node.func.id
+        elif isinstance(node.func, ast.Attribute):
+            return node.func.attr
+        else:
+            return "unknown_call"
 
     def _has_complete_type_annotations(self, node: ast.FunctionDef) -> bool:
         """Check if method has complete type annotations."""
@@ -1988,6 +2123,20 @@ def create_sample_config_file(config_path: str) -> None:
         "rules": [
             {"rule_id": "SPI001", "enabled": True, "severity": "error"},
             {"rule_id": "SPI002", "enabled": True, "severity": "warning"},
+            {"rule_id": "SPI003", "enabled": True, "severity": "error"},
+            {"rule_id": "SPI004", "enabled": True, "severity": "error"},
+            {"rule_id": "SPI005", "enabled": True, "severity": "warning"},
+            {"rule_id": "SPI006", "enabled": True, "severity": "error"},
+            {"rule_id": "SPI007", "enabled": True, "severity": "error"},
+            {"rule_id": "SPI008", "enabled": True, "severity": "error"},
+            {"rule_id": "SPI009", "enabled": True, "severity": "warning"},
+            {"rule_id": "SPI010", "enabled": True, "severity": "error"},
+            {"rule_id": "SPI011", "enabled": True, "severity": "error"},
+            {"rule_id": "SPI012", "enabled": True, "severity": "error"},
+            {"rule_id": "SPI013", "enabled": True, "severity": "warning"},
+            {"rule_id": "SPI014", "enabled": True, "severity": "warning"},
+            {"rule_id": "SPI015", "enabled": True, "severity": "error"},
+            {"rule_id": "SPI016", "enabled": True, "severity": "error"},
         ],
     }
 
