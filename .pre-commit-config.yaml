@@ -62,9 +62,20 @@ repos:
         args: ['src/']
         stages: [pre-commit]
 
-      # Protocol duplicate detection
+      # Enhanced protocol duplicate detection with 8-agent insights
       - id: validate-protocol-duplicates
         name: SPI Protocol Duplicate Detection
+        entry: python scripts/analysis/precommit_duplicate_check.py
+        language: system
+        types: [python]
+        files: ^src/.*protocol.*\.py$
+        exclude: ^(tests/|scripts/).*\.py$
+        pass_filenames: true
+        stages: [pre-commit]
+
+      # Comprehensive duplicate analysis (backup validation)
+      - id: comprehensive-duplicate-analysis
+        name: SPI Comprehensive Duplicate Analysis
         entry: poetry run python scripts/validation/validate_protocol_duplicates.py
         language: system
         types: [python]
@@ -72,7 +83,7 @@ repos:
         exclude: ^(tests/|scripts/).*\.py$
         pass_filenames: false
         args: ['src/']
-        stages: [pre-commit]
+        stages: [manual]
 
       # Enhanced namespace isolation
       - id: validate-namespace-isolation
