@@ -908,11 +908,21 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
         return len([item for item in node.body if not isinstance(item, ast.Expr)])
 
     def _generate_signature_hash(self) -> str:
-        """Generate signature hash for duplicate detection."""
+        """Generate signature hash for duplicate detection with collision resistance."""
+        # Include protocol name and file path to prevent false collisions
+        protocol_name = self.current_protocol.name
+        file_path = self.current_protocol.file_path
+        module_path = self.current_protocol.module_path
+
+        # Sort methods and properties for consistency
         methods_str = "|".join(sorted(self.current_protocol.methods))
         props_str = "|".join(sorted(self.current_protocol.properties))
-        combined = f"methods:{methods_str}|props:{props_str}"
-        return hashlib.md5(combined.encode()).hexdigest()[:12]
+
+        # Include additional identifying information to prevent false collisions
+        combined = f"name:{protocol_name}|module:{module_path}|methods:{methods_str}|props:{props_str}|file:{Path(file_path).name}"
+
+        # Use SHA256 for better collision resistance and longer hash
+        return hashlib.sha256(combined.encode()).hexdigest()[:16]
 
     def _has_ellipsis_body(
         self, node: Union[ast.FunctionDef, ast.AsyncFunctionDef]
@@ -959,12 +969,16 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
                 if target.id.isupper():
                     return False
 
-                # Allow type aliases (usually start with Literal, Protocol, or type name patterns)
+                # Allow type aliases and type definitions
                 if self._is_type_alias_assignment(target.id, node.value):
                     return False
 
-        # Disallow implementation logic assignments like: self._internal_logger = None
-        return True
+                # Allow common module-level patterns
+                if self._is_allowed_module_assignment(target.id, node.value):
+                    return False
+
+        # Only flag if this looks like implementation logic inside protocols
+        return self._is_implementation_logic(node)
 
     def _is_type_alias_assignment(self, var_name: str, value_node: ast.AST) -> bool:
         """Check if this looks like a type alias assignment."""
@@ -981,10 +995,26 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
             "Type",
             "Callable",
             "Generic",
+            "TypeVar",
+            "Final",
+            "ClassVar",
+            "Any",
+            "NoReturn",
+            "TypeAlias",
         ]
 
         # Check if variable name follows type alias conventions
-        if var_name.startswith("Literal") or var_name.startswith("Protocol"):
+        if var_name.startswith(("Literal", "Protocol", "Type")):
+            return True
+
+        # Common type alias naming patterns
+        if var_name.endswith(
+            ("Type", "Types", "Value", "Values", "State", "States", "Status")
+        ):
+            return True
+
+        # CamelCase names that look like type definitions
+        if var_name[0].isupper() and any(c.isupper() for c in var_name[1:]):
             return True
 
         # Check if the value is a typing construct
@@ -1002,6 +1032,123 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
             return (
                 value_node.attr in type_alias_patterns or value_node.attr[0].isupper()
             )
+
+        return False
+
+    def _is_allowed_module_assignment(self, var_name: str, value_node: ast.AST) -> bool:
+        """Check if this is an allowed module-level assignment."""
+        # Allow common module-level patterns
+        allowed_patterns = {
+            # Version and metadata
+            "version",
+            "VERSION",
+            "__version__",
+            "SCHEMA_VERSION",
+            "API_VERSION",
+            # Module exports
+            "__all__",
+            "__author__",
+            "__email__",
+            "__license__",
+            "__copyright__",
+            # Configuration constants
+            "DEFAULT_",
+            "MAX_",
+            "MIN_",
+            "TIMEOUT_",
+            "CONFIG_",
+            # Type definitions that don't follow strict patterns
+            "_T",
+            "_P",
+            "_V",
+            "_K",
+            "_Return",
+            "_Args",
+            "_Self",
+        }
+
+        # Check exact matches
+        if var_name in allowed_patterns:
+            return True
+
+        # Check prefix matches
+        if any(
+            var_name.startswith(pattern)
+            for pattern in allowed_patterns
+            if pattern.endswith("_")
+        ):
+            return True
+
+        # Allow simple string/number literals for constants
+        if isinstance(value_node, ast.Constant):
+            if isinstance(value_node.value, (str, int, float, bool)):
+                return True
+
+        # Allow None assignments for optional module attributes
+        if isinstance(value_node, ast.Constant) and value_node.value is None:
+            return True
+
+        return False
+
+    def _is_implementation_logic(self, node: ast.Assign) -> bool:
+        """Check if this assignment contains implementation logic."""
+        # Only flag assignments that contain obvious implementation logic
+        for target in node.targets:
+            if isinstance(target, ast.Attribute):
+                # self.something = ... inside a protocol is definitely implementation
+                if (
+                    isinstance(target.value, ast.Name)
+                    and target.value.id == "self"
+                    and self.in_protocol_class
+                ):
+                    return True
+
+            elif isinstance(target, ast.Subscript):
+                # dict[key] = value type assignments are implementation
+                return True
+
+        # Check if value involves function calls (implementation logic)
+        if self._contains_function_calls(node.value):
+            return True
+
+        # Check for complex expressions that look like implementation
+        if self._is_complex_implementation_expression(node.value):
+            return True
+
+        return False
+
+    def _contains_function_calls(self, node: ast.AST) -> bool:
+        """Check if node contains function calls (implementation logic)."""
+        for child in ast.walk(node):
+            if isinstance(child, ast.Call):
+                # Allow specific typing-related calls
+                allowed_calls = {
+                    "TypeVar",
+                    "Generic",
+                    "Union",
+                    "Optional",
+                    "Literal",
+                    "Final",
+                    "ClassVar",
+                    "runtime_checkable",
+                    "Protocol",
+                }
+                call_name = self._get_call_name(child)
+                if call_name not in allowed_calls:
+                    return True
+        return False
+
+    def _is_complex_implementation_expression(self, node: ast.AST) -> bool:
+        """Check if expression is complex implementation logic."""
+        # Flag complex expressions that involve computation
+        if isinstance(node, (ast.BinOp, ast.BoolOp, ast.Compare, ast.IfExp)):
+            return True
+
+        # Flag comprehensions (implementation logic)
+        if isinstance(
+            node, (ast.ListComp, ast.DictComp, ast.SetComp, ast.GeneratorExp)
+        ):
+            return True
 
         return False
 
@@ -1291,25 +1438,88 @@ class DuplicateProtocolAnalyzer:
 
         for signature_hash, duplicate_protocols in by_signature.items():
             if len(duplicate_protocols) > 1:
-                # Keep the first one, mark others as duplicates
-                primary = duplicate_protocols[0]
+                # Verify these are truly duplicates, not just hash collisions
+                truly_duplicate_groups = self._group_truly_identical_protocols(
+                    duplicate_protocols
+                )
 
-                for duplicate in duplicate_protocols[1:]:
-                    violation = ProtocolViolation(
-                        file_path=duplicate.file_path,
-                        line_number=duplicate.line_number,
-                        column_offset=0,
-                        rule_id="SPI010",
-                        violation_type="Exact Duplicate Protocol",
-                        message=f"Protocol '{duplicate.name}' is identical to '{primary.name}' in {primary.file_path}",
-                        severity="error",
-                        suggestion=f"Remove duplicate or merge with {primary.file_path}:{primary.line_number}",
-                        tags=["duplicate", "exact", "signature"],
-                        performance_impact="medium",
-                    )
-                    violations.append(violation)
+                for duplicate_group in truly_duplicate_groups:
+                    if len(duplicate_group) > 1:
+                        # Keep the first one, mark others as duplicates
+                        primary = duplicate_group[0]
+
+                        for duplicate in duplicate_group[1:]:
+                            # Only flag if protocols have same name AND same signatures
+                            if (
+                                duplicate.name == primary.name
+                                and self._are_protocols_truly_identical(
+                                    duplicate, primary
+                                )
+                            ):
+                                violation = ProtocolViolation(
+                                    file_path=duplicate.file_path,
+                                    line_number=duplicate.line_number,
+                                    column_offset=0,
+                                    rule_id="SPI010",
+                                    violation_type="Exact Duplicate Protocol",
+                                    message=f"Protocol '{duplicate.name}' is identical to '{primary.name}' in {primary.file_path}",
+                                    severity="error",
+                                    suggestion=f"Remove duplicate or merge with {primary.file_path}:{primary.line_number}",
+                                    tags=["duplicate", "exact", "signature"],
+                                    performance_impact="medium",
+                                )
+                                violations.append(violation)
 
         return violations
+
+    def _group_truly_identical_protocols(
+        self, protocols: List[ProtocolInfo]
+    ) -> List[List[ProtocolInfo]]:
+        """Group protocols that are truly identical, not just hash collisions."""
+        groups = []
+        processed = set()
+
+        for i, protocol in enumerate(protocols):
+            if i in processed:
+                continue
+
+            group = [protocol]
+            processed.add(i)
+
+            for j, other_protocol in enumerate(protocols[i + 1 :], i + 1):
+                if j in processed:
+                    continue
+
+                if self._are_protocols_truly_identical(protocol, other_protocol):
+                    group.append(other_protocol)
+                    processed.add(j)
+
+            if len(group) > 1:  # Only add groups with actual duplicates
+                groups.append(group)
+
+        return groups
+
+    def _are_protocols_truly_identical(
+        self, protocol1: ProtocolInfo, protocol2: ProtocolInfo
+    ) -> bool:
+        """Check if two protocols are truly identical."""
+        # Must have same name
+        if protocol1.name != protocol2.name:
+            return False
+
+        # Must have identical method signatures
+        if set(protocol1.methods) != set(protocol2.methods):
+            return False
+
+        # Must have identical properties
+        if set(protocol1.properties) != set(protocol2.properties):
+            return False
+
+        # Must have same async method patterns
+        if set(protocol1.async_methods) != set(protocol2.async_methods):
+            return False
+
+        return True
 
     def _find_name_conflicts(
         self, by_name: Dict[str, List[ProtocolInfo]]
