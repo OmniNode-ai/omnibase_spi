@@ -13,7 +13,9 @@ from uuid import UUID
 if TYPE_CHECKING:
     from datetime import datetime
 
-    from .protocol_memory_base import ProtocolMemoryMetadata
+    from omnibase_spi.protocols.memory.protocol_memory_base import (
+        ProtocolMemoryMetadata,
+    )
 
 
 @runtime_checkable

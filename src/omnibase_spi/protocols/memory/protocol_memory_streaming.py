@@ -11,8 +11,12 @@ from typing import TYPE_CHECKING, AsyncGenerator, Protocol, runtime_checkable
 from uuid import UUID
 
 if TYPE_CHECKING:
-    from .protocol_memory_base import ProtocolMemoryMetadata
-    from .protocol_memory_security import ProtocolMemorySecurityContext
+    from omnibase_spi.protocols.memory.protocol_memory_base import (
+        ProtocolMemoryMetadata,
+    )
+    from omnibase_spi.protocols.memory.protocol_memory_security import (
+        ProtocolMemorySecurityContext,
+    )
 
 
 @runtime_checkable

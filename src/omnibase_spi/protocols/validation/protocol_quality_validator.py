@@ -8,7 +8,9 @@ implementations.
 
 from typing import Protocol, runtime_checkable
 
-from .protocol_validation import ProtocolValidationResult
+from omnibase_spi.protocols.validation.protocol_validation import (
+    ProtocolValidationResult,
+)
 
 
 @runtime_checkable

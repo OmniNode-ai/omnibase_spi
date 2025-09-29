@@ -119,7 +119,52 @@ This SPI package maintains **complete namespace isolation** to prevent circular 
 
 ### Validation Tools
 
-#### 1. Pre-Push Hook Validation
+#### 1. Comprehensive SPI Protocol Validation
+The repository includes a comprehensive validation framework with configurable rules:
+
+```bash
+# Run comprehensive validation with default configuration
+python scripts/validation/comprehensive_spi_validator.py src/
+
+# Run with custom configuration file
+python scripts/validation/comprehensive_spi_validator.py src/ --config validation_config.yaml
+
+# Apply automatic fixes for supported violations
+python scripts/validation/comprehensive_spi_validator.py src/ --fix
+
+# Generate JSON report for CI/CD integration
+python scripts/validation/comprehensive_spi_validator.py src/ --json-report
+
+# Pre-commit integration mode (faster)
+python scripts/validation/comprehensive_spi_validator.py --pre-commit
+```
+
+**Validation Rules** (16 comprehensive rules):
+- **SPI001**: No Protocol `__init__` methods
+- **SPI002**: Protocol naming conventions  
+- **SPI003**: `@runtime_checkable` decorator enforcement
+- **SPI004**: Protocol method bodies (ellipsis only)
+- **SPI005**: Async I/O operations
+- **SPI006**: Proper Callable types
+- **SPI007**: No concrete classes in SPI
+- **SPI008**: No standalone functions
+- **SPI009**: ContextValue usage patterns
+- **SPI010**: Duplicate protocol detection
+- **SPI011**: Protocol name conflicts
+- **SPI012**: Namespace isolation
+- **SPI013**: Forward reference typing
+- **SPI014**: Protocol documentation
+- **SPI015**: Method type annotations
+- **SPI016**: SPI implementation purity
+
+**Configuration File** (`validation_config.yaml`):
+- Customize rule severity levels (error/warning/info)
+- Enable/disable specific rules
+- Environment-specific overrides (pre_commit, ci_cd, development, production)
+- Performance optimization settings
+- Output format configuration
+
+#### 2. Pre-Push Hook Validation
 ```bash
 # Manual validation
 ./scripts/validate-namespace-isolation.sh

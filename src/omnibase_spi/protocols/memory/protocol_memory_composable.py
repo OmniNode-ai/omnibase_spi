@@ -12,17 +12,21 @@ from typing import TYPE_CHECKING, Protocol, runtime_checkable
 from uuid import UUID
 
 if TYPE_CHECKING:
-    from .protocol_memory_base import ProtocolMemoryMetadata
-    from .protocol_memory_requests import (
+    from omnibase_spi.protocols.memory.protocol_memory_base import (
+        ProtocolMemoryMetadata,
+    )
+    from omnibase_spi.protocols.memory.protocol_memory_requests import (
         ProtocolAgentCoordinationRequest,
         ProtocolWorkflowExecutionRequest,
     )
-    from .protocol_memory_responses import (
+    from omnibase_spi.protocols.memory.protocol_memory_responses import (
         ProtocolAgentCoordinationResponse,
         ProtocolMemoryResponse,
         ProtocolWorkflowExecutionResponse,
     )
-    from .protocol_memory_security import ProtocolMemorySecurityContext
+    from omnibase_spi.protocols.memory.protocol_memory_security import (
+        ProtocolMemorySecurityContext,
+    )
 
 
 @runtime_checkable

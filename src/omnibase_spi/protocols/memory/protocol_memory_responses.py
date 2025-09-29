@@ -22,12 +22,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, AsyncIterator, Protocol, runtime_checkable
 from uuid import UUID
 
-from .protocol_memory_errors import ProtocolMemoryError
+from omnibase_spi.protocols.memory.protocol_memory_errors import ProtocolMemoryError
 
 if TYPE_CHECKING:
     from datetime import datetime
 
-    from .protocol_memory_base import (
+    from omnibase_spi.protocols.memory.protocol_memory_base import (
         ProtocolAgentResponseMap,
         ProtocolAgentStatusMap,
         ProtocolAggregatedData,

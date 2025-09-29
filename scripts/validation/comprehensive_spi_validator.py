@@ -691,6 +691,7 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
             "datetime",
             "uuid",
             "__future__",
+            "collections.abc",  # Standard library abstract base classes
         ]
 
         return any(import_name.startswith(prefix) for prefix in allowed_prefixes)
@@ -958,30 +959,87 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
                 if target.id.isupper():
                     return False
 
+                # Allow type aliases (usually start with Literal, Protocol, or type name patterns)
+                if self._is_type_alias_assignment(target.id, node.value):
+                    return False
+
         # Disallow implementation logic assignments like: self._internal_logger = None
         return True
+
+    def _is_type_alias_assignment(self, var_name: str, value_node: ast.AST) -> bool:
+        """Check if this looks like a type alias assignment."""
+        # Type alias patterns
+        type_alias_patterns = [
+            "Literal",
+            "Protocol",
+            "Union",
+            "Optional",
+            "Dict",
+            "List",
+            "Tuple",
+            "Set",
+            "Type",
+            "Callable",
+            "Generic",
+        ]
+
+        # Check if variable name follows type alias conventions
+        if var_name.startswith("Literal") or var_name.startswith("Protocol"):
+            return True
+
+        # Check if the value is a typing construct
+        if isinstance(value_node, ast.Subscript):
+            if isinstance(value_node.value, ast.Name):
+                return value_node.value.id in type_alias_patterns
+            elif isinstance(value_node.value, ast.Attribute):
+                return value_node.value.attr in type_alias_patterns
+
+        # Check if it's a direct reference to a type
+        if isinstance(value_node, ast.Name):
+            return value_node.id in type_alias_patterns or value_node.id[0].isupper()
+
+        if isinstance(value_node, ast.Attribute):
+            return (
+                value_node.attr in type_alias_patterns or value_node.attr[0].isupper()
+            )
+
+        return False
 
     def _is_implementation_function_call(self, node: ast.Call) -> bool:
         """Check if function call violates SPI purity."""
         call_name = self._get_call_name(node)
 
-        # Allow these specific calls that are common in protocols
+        # Allow these specific calls that are common in protocols and typing
         allowed_calls = {
             "hasattr",  # Often used incorrectly in protocols
             "isinstance",
             "getattr",
             "setattr",
             "len",
+            # Typing system constructs
+            "TypeVar",
+            "Generic",
+            "Union",
+            "Optional",
+            "Literal",
+            "get_args",
+            "get_origin",
+            "runtime_checkable",
+            "Protocol",
+            "overload",
+            "cast",
+            "TYPE_CHECKING",
+            "ForwardRef",
+            "_GenericAlias",
+            "_SpecialForm",
         }
 
         # Allow ellipsis and type checking utilities
         if call_name in ["...", "Ellipsis", "TYPE_CHECKING"]:
             return False
 
-        # Disallow most function calls as they indicate implementation logic
-        return call_name not in {
-            "isinstance"
-        }  # isinstance is sometimes OK for validation
+        # Allow typing and validation calls, disallow implementation logic
+        return call_name not in allowed_calls
 
     def _get_call_name(self, node: ast.Call) -> str:
         """Extract function call name for reporting."""
@@ -1575,9 +1633,14 @@ class ReportGenerator:
         self._print_final_status(report)
 
     def generate_json_report(
-        self, report: ValidationReport, output_file: str = "spi_validation_report.json"
+        self, report: ValidationReport, output_file: str = None
     ) -> None:
         """Generate JSON report for CI/CD integration."""
+        # Generate timestamped filename if not provided
+        if output_file is None:
+            timestamp = time.strftime("%Y%m%d_%H%M%S", time.gmtime())
+            output_file = f"comprehensive_spi_validation_{timestamp}.json"
+
         json_data = report.to_dict()
 
         # Add metadata

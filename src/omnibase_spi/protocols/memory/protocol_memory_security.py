@@ -13,7 +13,10 @@ from uuid import UUID
 if TYPE_CHECKING:
     from datetime import datetime
 
-    from .protocol_memory_base import ProtocolMemoryMetadata
+    from omnibase_spi.protocols.memory.protocol_memory_base import (
+        ProtocolMemoryMetadata,
+    )
+
 
 @runtime_checkable
 class ProtocolMemorySecurityContext(Protocol):
@@ -44,6 +47,7 @@ class ProtocolMemorySecurityContext(Protocol):
 
     @property
     def pii_detection_enabled(self) -> bool: ...
+
 
 @runtime_checkable
 class ProtocolAuditTrail(Protocol):
@@ -80,6 +84,7 @@ class ProtocolAuditTrail(Protocol):
     @property
     def compliance_tags(self) -> list[str]: ...
 
+
 @runtime_checkable
 class ProtocolRateLimitConfig(Protocol):
     """
@@ -107,6 +112,7 @@ class ProtocolRateLimitConfig(Protocol):
     @property
     def concurrent_operations_limit(self) -> int: ...
 
+
 @runtime_checkable
 class ProtocolInputValidation(Protocol):
     """
@@ -133,6 +139,7 @@ class ProtocolInputValidation(Protocol):
 
     @property
     def encoding_requirements(self) -> list[str]: ...
+
 
 @runtime_checkable
 class ProtocolMemorySecurityNode(Protocol):
@@ -193,6 +200,7 @@ class ProtocolMemorySecurityNode(Protocol):
         security_context: "ProtocolMemorySecurityContext",
         correlation_id: UUID | None = None,
     ) -> "ProtocolMemoryMetadata": ...
+
 
 @runtime_checkable
 class ProtocolMemoryComplianceNode(Protocol):

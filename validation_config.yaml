@@ -1,6 +1,14 @@
 # Comprehensive SPI Validation Configuration
 # This file configures the validation rules and settings for the omnibase-spi
 # architectural compliance checker.
+#
+# Version: 2.1.0
+# Last Updated: 2025-01-30
+# Compatible with: comprehensive_spi_validator.py v2.0.0+
+#
+# Usage:
+#   python scripts/validation/comprehensive_spi_validator.py src/ --config validation_config.yaml
+#   python scripts/validation/comprehensive_spi_validator.py --pre-commit --config validation_config.yaml
 
 # Global validation settings
 global_settings:
@@ -245,6 +253,22 @@ rules:
       allow_any_type: false
       check_generic_constraints: true
 
+  # SPI016: SPI Implementation Purity (NEW RULE)
+  - rule_id: "SPI016"
+    name: "SPI Implementation Purity"
+    description: "SPI files must not contain implementation logic (if/else, assignments, function calls)"
+    enabled: true
+    severity: "error"
+    auto_fixable: false
+    category: "purity"
+    priority: 1
+    configuration:
+      allow_type_aliases: true
+      allow_module_constants: true
+      allow_literal_assignments: true
+      forbidden_constructs: ["for", "while", "try", "with", "if", "function_calls"]
+      exception_functions: ["hasattr", "isinstance", "getattr", "len", "runtime_checkable"]
+
 # Environment-specific overrides
 environments:
   # Pre-commit environment - faster, less comprehensive
@@ -257,21 +281,48 @@ environments:
     rule_overrides:
       "SPI002":
         severity: "info" # Naming less critical in pre-commit
+      "SPI009":
+        enabled: false # Skip ContextValue checks in pre-commit
 
   # CI/CD environment - comprehensive but time-bounded
   ci_cd:
     global_settings:
       timeout_seconds: 180
       enable_caching: false # Fresh validation in CI
+      parallel_processing: true
     rule_overrides:
       "SPI008":
         severity: "error" # Stricter in CI
+      "SPI013":
+        severity: "error" # Forward references critical in CI
 
   # Development environment - all checks enabled
   development:
     global_settings:
       enable_performance_metrics: true
+      enable_caching: true
     enable_all_rules: true
+    rule_overrides:
+      "SPI014":
+        configuration:
+          minimum_docstring_length: 100
+          require_examples: true
+          require_usage_section: true
+
+  # Production validation - strictest settings
+  production:
+    global_settings:
+      timeout_seconds: 600
+      enable_performance_metrics: true
+    rule_overrides:
+      "SPI002":
+        severity: "error" # Naming convention critical in production
+      "SPI008":
+        severity: "error"
+      "SPI013":
+        severity: "error"
+      "SPI014":
+        severity: "error" # Documentation required in production
 
 # Output configuration
 output:
@@ -281,15 +332,71 @@ output:
     max_violations_displayed: 50
     group_by_category: true
     show_performance_metrics: true
+    show_fix_suggestions: true
+    color_output: true
 
   # JSON report settings
   json:
     include_source_snippets: false
     include_fix_suggestions: true
     include_performance_data: true
+    include_rule_configuration: true
+    pretty_print: false
 
   # HTML report settings
   html:
     include_interactive_features: true
     include_charts: true
+    include_source_viewer: true
+    include_fix_suggestions: true
     theme: "light" # light, dark, auto
+    template_style: "comprehensive" # minimal, standard, comprehensive
+
+# Performance optimization settings
+performance:
+  # Enable caching of AST parsing results
+  enable_ast_caching: true
+
+  # Enable parallel file processing
+  enable_parallel_processing: true
+  max_worker_threads: 4
+
+  # Memory management
+  max_memory_usage_mb: 512
+  enable_gc_optimization: true
+
+  # Timeout settings per operation
+  file_analysis_timeout_seconds: 30
+  ast_parsing_timeout_seconds: 10
+  rule_execution_timeout_seconds: 5
+
+# Integration settings
+integration:
+  # Pre-commit hook integration
+  pre_commit:
+    fail_fast: true
+    show_diff: false
+    cache_results: true
+
+  # CI/CD integration
+  ci_cd:
+    exit_code_on_warnings: false
+    generate_junit_xml: false
+    upload_reports: false
+
+  # IDE integration
+  ide:
+    language_server_protocol: true
+    real_time_validation: false
+    inline_suggestions: true
+
+# Experimental features (use with caution)
+experimental:
+  # Enable machine learning-based duplicate detection
+  ml_duplicate_detection: false
+
+  # Enable automatic rule suggestion based on codebase patterns
+  auto_rule_suggestions: false
+
+  # Enable cross-repository validation
+  cross_repo_validation: false
