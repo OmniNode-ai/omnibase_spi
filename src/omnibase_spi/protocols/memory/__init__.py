@@ -14,7 +14,7 @@ All protocols use pure typing.Protocol for SPI compliance.
 """
 
 # Base Types and Literals
-from .protocol_memory_base import (
+from .protocol_memory_base import (  # ProtocolMemoryRecordData, # CONSOLIDATED: Use ProtocolAggregatedData instead
     LiteralAgentStatus,
     LiteralAnalysisType,
     LiteralCompressionAlgorithm,
@@ -31,24 +31,34 @@ from .protocol_memory_base import (
     ProtocolCoordinationMetadata,
     ProtocolCustomMetrics,
     ProtocolErrorCategoryMap,
-    ProtocolErrorContext,
+    ProtocolKeyValueStore,
+    ProtocolMemoryErrorContext,
     ProtocolMemoryMetadata,
     ProtocolMemoryRecord,
-    ProtocolMemoryRecordData,
     ProtocolPageInfo,
     ProtocolSearchFilters,
     ProtocolSearchResult,
     ProtocolWorkflowConfiguration,
 )
 
+# Composable Protocols
+from .protocol_memory_composable import (
+    ProtocolAgentCoordinator,
+    ProtocolClusterCoordinator,
+    ProtocolComputeNodeComposite,
+    ProtocolLifecycleManager,
+    ProtocolMemoryOrchestrator,
+    ProtocolWorkflowManager,
+)
+
 # Enhanced Error Handling Protocols
 from .protocol_memory_error_handling import (
-    ProtocolCompensationAction,
     ProtocolErrorCategory,
+    ProtocolMemoryCompensationAction,
     ProtocolMemoryErrorHandler,
     ProtocolMemoryHealthMonitor,
+    ProtocolMemoryRetryPolicy,
     ProtocolOperationContext,
-    ProtocolRetryPolicy,
 )
 
 # Error Protocols
@@ -125,9 +135,9 @@ from .protocol_memory_security import (
     ProtocolAuditTrail,
     ProtocolInputValidation,
     ProtocolMemoryComplianceNode,
+    ProtocolMemorySecurityContext,
     ProtocolMemorySecurityNode,
     ProtocolRateLimitConfig,
-    ProtocolSecurityContext,
 )
 
 # Streaming and Performance Protocols
@@ -148,6 +158,7 @@ __all__ = [
     "LiteralMemoryAccessLevel",
     "ProtocolAgentCoordinationRequest",
     "ProtocolAgentCoordinationResponse",
+    "ProtocolAgentCoordinator",
     "ProtocolAgentResponseMap",
     "ProtocolAgentStatusMap",
     "ProtocolAggregatedData",
@@ -165,7 +176,9 @@ __all__ = [
     "ProtocolBatchMemoryStoreRequest",
     "ProtocolBatchMemoryStoreResponse",
     "ProtocolBatchOperationResult",
-    "ProtocolCompensationAction",
+    "ProtocolClusterCoordinator",
+    "ProtocolComputeNodeComposite",
+    "ProtocolMemoryCompensationAction",
     "ProtocolConsolidationRequest",
     "ProtocolConsolidationResponse",
     "ProtocolCoordinationMetadata",
@@ -175,9 +188,11 @@ __all__ = [
     "ProtocolEmbeddingResponse",
     "ProtocolErrorCategory",
     "ProtocolErrorCategoryMap",
-    "ProtocolErrorContext",
+    "ProtocolMemoryErrorContext",
     "ProtocolErrorRecoveryStrategy",
     "ProtocolInputValidation",
+    "ProtocolKeyValueStore",
+    "ProtocolLifecycleManager",
     "ProtocolMemoryAuthorizationError",
     "ProtocolMemoryCache",
     "ProtocolMemoryCapacityError",
@@ -198,9 +213,10 @@ __all__ = [
     "ProtocolMemoryMetricsRequest",
     "ProtocolMemoryMetricsResponse",
     "ProtocolMemoryNotFoundError",
+    "ProtocolMemoryOrchestrator",
     "ProtocolMemoryOrchestratorNode",
     "ProtocolMemoryRecord",
-    "ProtocolMemoryRecordData",
+    # "ProtocolMemoryRecordData", # CONSOLIDATED: Use "ProtocolAggregatedData" instead
     "ProtocolMemoryReducerNode",
     "ProtocolMemoryRequest",
     "ProtocolMemoryResponse",
@@ -219,10 +235,10 @@ __all__ = [
     "ProtocolPatternAnalysisResponse",
     "ProtocolPerformanceOptimization",
     "ProtocolRateLimitConfig",
-    "ProtocolRetryPolicy",
+    "ProtocolMemoryRetryPolicy",
     "ProtocolSearchFilters",
     "ProtocolSearchResult",
-    "ProtocolSecurityContext",
+    "ProtocolMemorySecurityContext",
     "ProtocolSemanticSearchRequest",
     "ProtocolSemanticSearchResponse",
     "ProtocolStreamingChunk",
@@ -235,5 +251,6 @@ __all__ = [
     "ProtocolWorkflowConfiguration",
     "ProtocolWorkflowExecutionRequest",
     "ProtocolWorkflowExecutionResponse",
+    "ProtocolWorkflowManager",
     "LiteralWorkflowStatus",
 ]

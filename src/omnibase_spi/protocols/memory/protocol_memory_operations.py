@@ -12,17 +12,17 @@ All protocols use typing.Protocol for structural typing with zero dependencies.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 from uuid import UUID
 
 if TYPE_CHECKING:
-    from .protocol_memory_base import (
+    from omnibase_spi.protocols.memory.protocol_memory_base import (
         LiteralAnalysisType,
         LiteralCompressionAlgorithm,
         ProtocolAggregationCriteria,
         ProtocolMemoryMetadata,
     )
-    from .protocol_memory_requests import (
+    from omnibase_spi.protocols.memory.protocol_memory_requests import (
         ProtocolAgentCoordinationRequest,
         ProtocolBatchMemoryRetrieveRequest,
         ProtocolBatchMemoryStoreRequest,
@@ -35,7 +35,7 @@ if TYPE_CHECKING:
         ProtocolSemanticSearchRequest,
         ProtocolWorkflowExecutionRequest,
     )
-    from .protocol_memory_responses import (
+    from omnibase_spi.protocols.memory.protocol_memory_responses import (
         ProtocolAgentCoordinationResponse,
         ProtocolBatchMemoryRetrieveResponse,
         ProtocolBatchMemoryStoreResponse,
@@ -49,13 +49,10 @@ if TYPE_CHECKING:
         ProtocolSemanticSearchResponse,
         ProtocolWorkflowExecutionResponse,
     )
-    from .protocol_memory_security import (
+    from omnibase_spi.protocols.memory.protocol_memory_security import (
+        ProtocolMemorySecurityContext,
         ProtocolRateLimitConfig,
-        ProtocolSecurityContext,
     )
-
-
-# === EFFECT NODE PROTOCOLS ===
 
 
 @runtime_checkable
@@ -70,186 +67,56 @@ class ProtocolMemoryEffectNode(Protocol):
     async def store_memory(
         self,
         request: "ProtocolMemoryStoreRequest",
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        timeout_seconds: Optional[float] = None,
-    ) -> "ProtocolMemoryStoreResponse":
-        """
-        Store a new memory record with optional expiration and metadata.
-
-        Args:
-            request: Memory storage request with content and metadata
-            security_context: Security context for authorization and audit
-            timeout_seconds: Optional timeout for storage operation
-
-        Returns:
-            Storage response with memory ID and location
-
-        Raises:
-            SecurityError: If user not authorized to store memory
-            ValidationError: If input validation fails
-            TimeoutError: If operation exceeds timeout
-        """
-        ...
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        timeout_seconds: float | None = None,
+    ) -> "ProtocolMemoryStoreResponse": ...
 
     async def retrieve_memory(
         self,
         request: "ProtocolMemoryRetrieveRequest",
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        timeout_seconds: Optional[float] = None,
-    ) -> "ProtocolMemoryRetrieveResponse":
-        """
-        Retrieve a memory record by ID with optional related memories.
-
-        Args:
-            request: Memory retrieval request with ID and options
-            security_context: Security context for authorization and audit
-            timeout_seconds: Optional timeout for retrieval operation
-
-        Returns:
-            Retrieval response with memory record and relations
-
-        Raises:
-            SecurityError: If user not authorized to retrieve memory
-            NotFoundError: If memory record not found
-            TimeoutError: If operation exceeds timeout
-        """
-        ...
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        timeout_seconds: float | None = None,
+    ) -> "ProtocolMemoryRetrieveResponse": ...
 
     async def update_memory(
         self,
         memory_id: UUID,
         updates: "ProtocolMemoryMetadata",
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        correlation_id: Optional[UUID] = None,
-        timeout_seconds: Optional[float] = None,
-    ) -> "ProtocolMemoryResponse":
-        """
-        Update an existing memory record with new content or metadata.
-
-        Args:
-            memory_id: ID of memory to update
-            updates: Dictionary of fields to update
-            security_context: Security context for authorization and audit
-            correlation_id: Request correlation ID
-            timeout_seconds: Optional timeout for update operation
-
-        Returns:
-            Update response with success status
-
-        Raises:
-            SecurityError: If user not authorized to update memory
-            NotFoundError: If memory record not found
-            ValidationError: If update data is invalid
-            TimeoutError: If operation exceeds timeout
-        """
-        ...
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        correlation_id: UUID | None = None,
+        timeout_seconds: float | None = None,
+    ) -> "ProtocolMemoryResponse": ...
 
     async def delete_memory(
         self,
         memory_id: UUID,
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        correlation_id: Optional[UUID] = None,
-        timeout_seconds: Optional[float] = None,
-    ) -> "ProtocolMemoryResponse":
-        """
-        Delete a memory record (soft delete with retention policy).
-
-        Args:
-            memory_id: ID of memory to delete
-            security_context: Security context for authorization and audit
-            correlation_id: Request correlation ID
-            timeout_seconds: Optional timeout for deletion operation
-
-        Returns:
-            Deletion response with success status
-
-        Raises:
-            SecurityError: If user not authorized to delete memory
-            NotFoundError: If memory record not found
-            TimeoutError: If operation exceeds timeout
-        """
-        ...
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        correlation_id: UUID | None = None,
+        timeout_seconds: float | None = None,
+    ) -> "ProtocolMemoryResponse": ...
 
     async def list_memories(
         self,
         request: "ProtocolMemoryListRequest",
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        timeout_seconds: Optional[float] = None,
-    ) -> "ProtocolMemoryListResponse":
-        """
-        List memory records with paginated filtering.
-
-        Args:
-            request: Paginated memory list request with filters and pagination
-            security_context: Security context for authorization and audit
-            timeout_seconds: Optional timeout for list operation
-
-        Returns:
-            Paginated response with memory records and pagination metadata
-
-        Raises:
-            SecurityError: If user not authorized to list memories
-            ValidationError: If request parameters are invalid
-            TimeoutError: If operation exceeds timeout
-        """
-        ...
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        timeout_seconds: float | None = None,
+    ) -> "ProtocolMemoryListResponse": ...
 
     async def batch_store_memories(
         self,
         request: "ProtocolBatchMemoryStoreRequest",
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        rate_limit_config: Optional["ProtocolRateLimitConfig"] = None,
-        timeout_seconds: Optional[float] = None,
-    ) -> "ProtocolBatchMemoryStoreResponse":
-        """
-        Store multiple memory records in a single batch operation.
-
-        Args:
-            request: Batch storage request with multiple memory records
-            security_context: Security context for authorization and audit
-            rate_limit_config: Rate limiting configuration for batch operation
-            timeout_seconds: Optional timeout for batch storage operation
-
-        Returns:
-            Batch response with individual operation results
-
-        Raises:
-            SecurityError: If user not authorized for batch operations
-            RateLimitError: If batch size or rate limits exceeded
-            ValidationError: If batch request is invalid
-            TimeoutError: If operation exceeds timeout
-        """
-        ...
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        rate_limit_config: "ProtocolRateLimitConfig | None" = None,
+        timeout_seconds: float | None = None,
+    ) -> "ProtocolBatchMemoryStoreResponse": ...
 
     async def batch_retrieve_memories(
         self,
         request: "ProtocolBatchMemoryRetrieveRequest",
-        security_context: Optional["ProtocolSecurityContext"] = None,
-        rate_limit_config: Optional["ProtocolRateLimitConfig"] = None,
-        timeout_seconds: Optional[float] = None,
-    ) -> "ProtocolBatchMemoryRetrieveResponse":
-        """
-        Retrieve multiple memory records in a single batch operation.
-
-        Args:
-            request: Batch retrieval request with memory IDs
-            security_context: Security context for authorization and audit
-            rate_limit_config: Rate limiting configuration for batch operation
-            timeout_seconds: Optional timeout for batch retrieval operation
-
-        Returns:
-            Batch response with retrieved memories and results
-
-        Raises:
-            SecurityError: If user not authorized for batch operations
-            RateLimitError: If batch size or rate limits exceeded
-            ValidationError: If batch request is invalid
-            TimeoutError: If operation exceeds timeout
-        """
-        ...
-
-
-# === COMPUTE NODE PROTOCOLS ===
+        security_context: "ProtocolMemorySecurityContext | None" = None,
+        rate_limit_config: "ProtocolRateLimitConfig | None" = None,
+        timeout_seconds: float | None = None,
+    ) -> "ProtocolBatchMemoryRetrieveResponse": ...
 
 
 @runtime_checkable
@@ -262,114 +129,38 @@ class ProtocolMemoryComputeNode(Protocol):
     """
 
     async def semantic_search(
-        self,
-        request: "ProtocolSemanticSearchRequest",
-    ) -> "ProtocolSemanticSearchResponse":
-        """
-        Perform semantic search using vector embeddings and similarity.
-
-        Args:
-            request: Semantic search request with query and parameters
-
-        Returns:
-            Search response with ranked results and metadata
-        """
-        ...
+        self, request: "ProtocolSemanticSearchRequest"
+    ) -> "ProtocolSemanticSearchResponse": ...
 
     async def generate_embedding(
         self,
         text: str,
-        model: Optional[str] = None,
-        correlation_id: Optional[UUID] = None,
-        timeout_seconds: Optional[float] = None,
-    ) -> "ProtocolMemoryResponse":
-        """
-        Generate vector embedding for text content.
-
-        Args:
-            text: Text content to embed
-            model: Optional specific embedding model
-            correlation_id: Request correlation ID
-            timeout_seconds: Optional timeout for embedding generation
-
-        Returns:
-            Response with generated embedding vector
-
-        Raises:
-            TimeoutError: If embedding generation exceeds timeout
-            EmbeddingError: If embedding generation fails
-        """
-        ...
+        model: str | None = None,
+        correlation_id: UUID | None = None,
+        timeout_seconds: float | None = None,
+    ) -> "ProtocolMemoryResponse": ...
 
     async def analyze_patterns(
         self,
         request: "ProtocolPatternAnalysisRequest",
-        timeout_seconds: Optional[float] = None,
-    ) -> "ProtocolPatternAnalysisResponse":
-        """
-        Analyze patterns in memory data using ML algorithms.
-
-        Args:
-            request: Pattern analysis request with data source and type
-            timeout_seconds: Optional timeout for pattern analysis operation
-
-        Returns:
-            Analysis response with discovered patterns and confidence
-        """
-        ...
+        timeout_seconds: float | None = None,
+    ) -> "ProtocolPatternAnalysisResponse": ...
 
     async def extract_insights(
         self,
         memory_ids: list[UUID],
         analysis_type: "LiteralAnalysisType" = "standard",
-        correlation_id: Optional[UUID] = None,
-        timeout_seconds: Optional[float] = None,
-    ) -> "ProtocolMemoryResponse":
-        """
-        Extract insights from a collection of memories.
-
-        Args:
-            memory_ids: List of memory IDs to analyze
-            analysis_type: Type of insight extraction
-            correlation_id: Request correlation ID
-            timeout_seconds: Optional timeout for insight extraction
-
-        Returns:
-            Response with extracted insights and scores
-
-        Raises:
-            TimeoutError: If insight extraction exceeds timeout
-            AnalysisError: If insight extraction fails
-        """
-        ...
+        correlation_id: UUID | None = None,
+        timeout_seconds: float | None = None,
+    ) -> "ProtocolMemoryResponse": ...
 
     async def compare_semantics(
         self,
         content_a: str,
         content_b: str,
-        correlation_id: Optional[UUID] = None,
-        timeout_seconds: Optional[float] = None,
-    ) -> "ProtocolMemoryResponse":
-        """
-        Compare semantic similarity between two pieces of content.
-
-        Args:
-            content_a: First content to compare
-            content_b: Second content to compare
-            correlation_id: Request correlation ID
-            timeout_seconds: Optional timeout for semantic comparison
-
-        Returns:
-            Response with similarity score and analysis
-
-        Raises:
-            TimeoutError: If semantic comparison exceeds timeout
-            ComparisonError: If semantic comparison fails
-        """
-        ...
-
-
-# === REDUCER NODE PROTOCOLS ===
+        correlation_id: UUID | None = None,
+        timeout_seconds: float | None = None,
+    ) -> "ProtocolMemoryResponse": ...
 
 
 @runtime_checkable
@@ -384,120 +175,41 @@ class ProtocolMemoryReducerNode(Protocol):
     async def consolidate_memories(
         self,
         request: "ProtocolConsolidationRequest",
-        timeout_seconds: Optional[float] = None,
-    ) -> "ProtocolConsolidationResponse":
-        """
-        Consolidate multiple memories into a single optimized record.
-
-        Args:
-            request: Consolidation request with memory IDs and strategy
-            timeout_seconds: Optional timeout for consolidation operation
-
-        Returns:
-            Consolidation response with new memory ID
-        """
-        ...
+        timeout_seconds: float | None = None,
+    ) -> "ProtocolConsolidationResponse": ...
 
     async def deduplicate_memories(
         self,
         memory_scope: "ProtocolMemoryMetadata",
         similarity_threshold: float = 0.95,
-        correlation_id: Optional[UUID] = None,
-        timeout_seconds: Optional[float] = None,
-    ) -> "ProtocolMemoryResponse":
-        """
-        Remove duplicate memories based on similarity threshold.
-
-        Args:
-            memory_scope: Scope of deduplication operation
-            similarity_threshold: Threshold for duplicate detection
-            correlation_id: Request correlation ID
-            timeout_seconds: Optional timeout for deduplication operation
-
-        Returns:
-            Response with deduplication results
-
-        Raises:
-            TimeoutError: If deduplication exceeds timeout
-            DeduplicationError: If deduplication operation fails
-        """
-        ...
+        correlation_id: UUID | None = None,
+        timeout_seconds: float | None = None,
+    ) -> "ProtocolMemoryResponse": ...
 
     async def aggregate_data(
         self,
         aggregation_criteria: "ProtocolAggregationCriteria",
-        time_window_start: Optional[str] = None,
-        time_window_end: Optional[str] = None,
-        correlation_id: Optional[UUID] = None,
-        timeout_seconds: Optional[float] = None,
-    ) -> "ProtocolMemoryResponse":
-        """
-        Aggregate memory data based on specified criteria.
-
-        Args:
-            aggregation_criteria: Criteria for data aggregation
-            time_window_start: Start of aggregation time window
-            time_window_end: End of aggregation time window
-            correlation_id: Request correlation ID
-            timeout_seconds: Optional timeout for aggregation operation
-
-        Returns:
-            Response with aggregated data
-
-        Raises:
-            TimeoutError: If aggregation exceeds timeout
-            AggregationError: If aggregation operation fails
-        """
-        ...
+        time_window_start: str | None = None,
+        time_window_end: str | None = None,
+        correlation_id: UUID | None = None,
+        timeout_seconds: float | None = None,
+    ) -> "ProtocolMemoryResponse": ...
 
     async def compress_memories(
         self,
         memory_ids: list[UUID],
         compression_algorithm: "LiteralCompressionAlgorithm",
         quality_threshold: float = 0.9,
-        correlation_id: Optional[UUID] = None,
-        timeout_seconds: Optional[float] = None,
-    ) -> "ProtocolMemoryResponse":
-        """
-        Compress memory content using specified algorithm.
-
-        Args:
-            memory_ids: List of memories to compress
-            compression_algorithm: Algorithm to use for compression
-            quality_threshold: Minimum quality threshold
-            correlation_id: Request correlation ID
-            timeout_seconds: Optional timeout for compression operation
-
-        Returns:
-            Response with compression results
-
-        Raises:
-            TimeoutError: If compression exceeds timeout
-            CompressionError: If compression operation fails
-        """
-        ...
+        correlation_id: UUID | None = None,
+        timeout_seconds: float | None = None,
+    ) -> "ProtocolMemoryResponse": ...
 
     async def optimize_storage(
         self,
         optimization_strategy: str,
-        correlation_id: Optional[UUID] = None,
-        timeout_seconds: Optional[float] = None,
-    ) -> "ProtocolMemoryResponse":
-        """
-        Optimize memory storage layout and access patterns.
-
-        Args:
-            optimization_strategy: Strategy for storage optimization
-            correlation_id: Request correlation ID
-            timeout_seconds: Optional timeout for optimization operation
-
-        Returns:
-            Response with optimization results
-        """
-        ...
-
-
-# === ORCHESTRATOR NODE PROTOCOLS ===
+        correlation_id: UUID | None = None,
+        timeout_seconds: float | None = None,
+    ) -> "ProtocolMemoryResponse": ...
 
 
 @runtime_checkable
@@ -512,118 +224,38 @@ class ProtocolMemoryOrchestratorNode(Protocol):
     async def execute_workflow(
         self,
         request: "ProtocolWorkflowExecutionRequest",
-        timeout_seconds: Optional[float] = None,
-    ) -> "ProtocolWorkflowExecutionResponse":
-        """
-        Execute a memory workflow across multiple nodes and agents.
-
-        Args:
-            request: Workflow execution request with type and config
-            timeout_seconds: Optional timeout for workflow execution
-
-        Returns:
-            Execution response with workflow ID and status
-        """
-        ...
+        timeout_seconds: float | None = None,
+    ) -> "ProtocolWorkflowExecutionResponse": ...
 
     async def coordinate_agents(
         self,
         request: "ProtocolAgentCoordinationRequest",
-        timeout_seconds: Optional[float] = None,
-    ) -> "ProtocolAgentCoordinationResponse":
-        """
-        Coordinate multiple agents for distributed memory operations.
-
-        Args:
-            request: Agent coordination request with IDs and task
-            timeout_seconds: Optional timeout for agent coordination
-
-        Returns:
-            Coordination response with status and agent responses
-
-        Raises:
-            TimeoutError: If agent coordination exceeds timeout
-            CoordinationError: If agent coordination fails
-        """
-        ...
+        timeout_seconds: float | None = None,
+    ) -> "ProtocolAgentCoordinationResponse": ...
 
     async def broadcast_update(
         self,
         update_type: str,
         update_data: "ProtocolMemoryMetadata",
-        target_agents: Optional[list[UUID]] = None,
-        correlation_id: Optional[UUID] = None,
-        timeout_seconds: Optional[float] = None,
-    ) -> "ProtocolMemoryResponse":
-        """
-        Broadcast memory update to specified agents or all agents.
-
-        Args:
-            update_type: Type of update to broadcast
-            update_data: Data to broadcast
-            target_agents: Specific agents to notify (None = all)
-            correlation_id: Request correlation ID
-            timeout_seconds: Optional timeout for broadcast operation
-
-        Returns:
-            Response with broadcast results
-
-        Raises:
-            TimeoutError: If broadcast exceeds timeout
-            BroadcastError: If broadcast operation fails
-        """
-        ...
+        target_agents: list[UUID] | None = None,
+        correlation_id: UUID | None = None,
+        timeout_seconds: float | None = None,
+    ) -> "ProtocolMemoryResponse": ...
 
     async def synchronize_state(
         self,
         agent_ids: list[UUID],
         synchronization_scope: "ProtocolMemoryMetadata",
-        correlation_id: Optional[UUID] = None,
-        timeout_seconds: Optional[float] = None,
-    ) -> "ProtocolMemoryResponse":
-        """
-        Synchronize memory state across specified agents.
-
-        Args:
-            agent_ids: Agents to synchronize
-            synchronization_scope: Scope of synchronization
-            correlation_id: Request correlation ID
-            timeout_seconds: Optional timeout for synchronization operation
-
-        Returns:
-            Response with synchronization results
-
-        Raises:
-            TimeoutError: If synchronization exceeds timeout
-            SynchronizationError: If synchronization operation fails
-        """
-        ...
+        correlation_id: UUID | None = None,
+        timeout_seconds: float | None = None,
+    ) -> "ProtocolMemoryResponse": ...
 
     async def manage_lifecycle(
         self,
         lifecycle_policies: "ProtocolMemoryMetadata",
-        correlation_id: Optional[UUID] = None,
-        timeout_seconds: Optional[float] = None,
-    ) -> "ProtocolMemoryResponse":
-        """
-        Manage memory lifecycle based on retention policies.
-
-        Args:
-            lifecycle_policies: Policies for memory lifecycle management
-            correlation_id: Request correlation ID
-            timeout_seconds: Optional timeout for lifecycle management
-
-        Returns:
-            Response with lifecycle management results
-
-        Raises:
-            TimeoutError: If lifecycle management exceeds timeout
-            LifecycleError: If lifecycle management operation fails
-        """
-        ...
-
-
-# === HEALTH AND MONITORING PROTOCOLS ===
+        correlation_id: UUID | None = None,
+        timeout_seconds: float | None = None,
+    ) -> "ProtocolMemoryResponse": ...
 
 
 @runtime_checkable
@@ -636,48 +268,13 @@ class ProtocolMemoryHealthNode(Protocol):
     """
 
     async def check_health(
-        self,
-        correlation_id: Optional[UUID] = None,
-    ) -> "ProtocolMemoryResponse":
-        """
-        Perform comprehensive health check of memory system.
-
-        Args:
-            correlation_id: Request correlation ID
-
-        Returns:
-            Response with health status and diagnostics
-        """
-        ...
+        self, correlation_id: UUID | None = None
+    ) -> "ProtocolMemoryResponse": ...
 
     async def collect_metrics(
-        self,
-        request: "ProtocolMemoryMetricsRequest",
-    ) -> "ProtocolMemoryMetricsResponse":
-        """
-        Collect system metrics for specified time window.
-
-        Args:
-            request: Metrics collection request with time window and options
-
-        Returns:
-            Response with collected metrics and aggregation summary
-        """
-        ...
+        self, request: "ProtocolMemoryMetricsRequest"
+    ) -> "ProtocolMemoryMetricsResponse": ...
 
     async def get_status(
-        self,
-        include_detailed: bool = False,
-        correlation_id: Optional[UUID] = None,
-    ) -> "ProtocolMemoryResponse":
-        """
-        Get current system status and operational state.
-
-        Args:
-            include_detailed: Include detailed status information
-            correlation_id: Request correlation ID
-
-        Returns:
-            Response with system status
-        """
-        ...
+        self, include_detailed: bool = False, correlation_id: UUID | None = None
+    ) -> "ProtocolMemoryResponse": ...

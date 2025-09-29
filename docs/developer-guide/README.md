@@ -40,7 +40,7 @@ from typing import Protocol, runtime_checkable
 @runtime_checkable
 class ProtocolUserService(Protocol):
     """Protocol for user management operations."""
-    
+
     async def get_user(self, user_id: str) -> Optional["User"]:
         """Get user by ID."""
         ...
@@ -50,7 +50,7 @@ from omnibase_spi.protocols.user import ProtocolUserService
 
 class DatabaseUserService(ProtocolUserService):
     """Database-backed user service implementation."""
-    
+
     async def get_user(self, user_id: str) -> Optional[User]:
         return await self.db.fetch_user(user_id)
 ```
@@ -78,17 +78,17 @@ from omnibase_spi.protocols.event_bus import ProtocolEventBus
 class RedisEventBus(ProtocolEventBus):
     def __init__(self, redis_client):
         self.redis = redis_client
-    
+
     async def publish(self, event: dict) -> None:
         await self.redis.publish("events", json.dumps(event))
 
 # ❌ Never mix protocols and implementations
 class BadEventBus(ProtocolEventBus):
     """Don't do this - mixing protocol and implementation"""
-    
+
     def __init__(self):
         self.redis = redis.Redis()  # Concrete dependency in protocol
-    
+
     async def publish(self, event: dict) -> None:
         # Actual implementation in protocol layer
         await self.redis.publish("events", json.dumps(event))
@@ -228,16 +228,16 @@ if TYPE_CHECKING:
 class ProtocolUserService(Protocol):
     """
     Protocol for user management operations.
-    
+
     Provides user CRUD operations with filtering and validation
     capabilities for distributed user management systems.
-    
+
     Key Features:
         - **User Management**: Create, read, update, delete operations
         - **Filtering**: Advanced user filtering capabilities
         - **Validation**: Input validation with detailed error reporting
         - **Async Support**: Full async/await support for scalability
-    
+
     Example:
         ```python
         async def manage_users(service: ProtocolUserService):
@@ -246,54 +246,54 @@ class ProtocolUserService(Protocol):
                 email="user@example.com",
                 name="John Doe"
             )
-            
+
             # Get user
             retrieved_user = await service.get_user(user.id)
-            
+
             # Update user
             await service.update_user(user.id, {"name": "Jane Doe"})
-            
+
             # List users
             users = await service.list_users(
                 filter_criteria={"active": True}
             )
         ```
     """
-    
+
     async def create_user(
-        self, 
-        email: str, 
+        self,
+        email: str,
         name: str,
         metadata: Optional[dict[str, str]] = None
     ) -> "User":
         """
         Create a new user.
-        
+
         Args:
             email: User email address (must be unique)
             name: User display name
             metadata: Optional user metadata
-            
+
         Returns:
             Created user object
-            
+
         Raises:
             ValueError: If email already exists or validation fails
         """
         ...
-    
+
     async def get_user(self, user_id: UUID) -> Optional["User"]:
         """
         Get user by ID.
-        
+
         Args:
             user_id: Unique user identifier
-            
+
         Returns:
             User object or None if not found
         """
         ...
-    
+
     async def list_users(
         self,
         filter_criteria: Optional["UserFilter"] = None,
@@ -302,44 +302,44 @@ class ProtocolUserService(Protocol):
     ) -> list["User"]:
         """
         List users with optional filtering.
-        
+
         Args:
             filter_criteria: Optional filter criteria
             limit: Maximum users to return
             offset: Number of users to skip
-            
+
         Returns:
             List of matching users
         """
         ...
-    
+
     async def update_user(
-        self, 
-        user_id: UUID, 
+        self,
+        user_id: UUID,
         updates: dict[str, str]
     ) -> bool:
         """
         Update user information.
-        
+
         Args:
             user_id: User to update
             updates: Fields to update
-            
+
         Returns:
             True if update successful
-            
+
         Raises:
             ValueError: If user not found or validation fails
         """
         ...
-    
+
     async def delete_user(self, user_id: UUID) -> bool:
         """
         Delete user by ID.
-        
+
         Args:
             user_id: User to delete
-            
+
         Returns:
             True if deletion successful
         """
@@ -358,7 +358,7 @@ UserStatus = Literal["active", "inactive", "suspended", "deleted"]
 
 class User(Protocol):
     """Protocol for user data objects."""
-    
+
     id: UUID
     email: str
     name: str
@@ -369,7 +369,7 @@ class User(Protocol):
 
 class UserFilter(Protocol):
     """Protocol for user filtering criteria."""
-    
+
     status: Optional[UserStatus]
     email_contains: Optional[str]
     created_after: Optional[datetime]
@@ -413,10 +413,10 @@ class MockUser(User):
 
 class MockUserService(ProtocolUserService):
     """Test implementation of user service protocol."""
-    
+
     def __init__(self):
         self.users: dict[UUID, MockUser] = {}
-    
+
     async def create_user(self, email: str, name: str, metadata=None):
         user_id = uuid4()
         user = MockUser(
@@ -430,10 +430,10 @@ class MockUserService(ProtocolUserService):
         )
         self.users[user_id] = user
         return user
-    
+
     async def get_user(self, user_id: UUID):
         return self.users.get(user_id)
-    
+
     # ... implement other methods
 
 def test_protocol_compliance():
@@ -445,16 +445,16 @@ def test_protocol_compliance():
 async def test_user_creation():
     """Test user creation functionality."""
     service = MockUserService()
-    
+
     user = await service.create_user(
         email="test@example.com",
         name="Test User"
     )
-    
+
     assert user.email == "test@example.com"
     assert user.name == "Test User"
     assert user.status == "active"
-    
+
     # Verify retrieval
     retrieved_user = await service.get_user(user.id)
     assert retrieved_user is not None
@@ -485,33 +485,33 @@ T = TypeVar('T')
 
 class ServiceContainer:
     """Simple service container for protocol-based DI."""
-    
+
     def __init__(self):
         self._services: Dict[Type, Any] = {}
         self._singletons: Dict[Type, Any] = {}
-    
+
     def register(self, protocol: Type[T], implementation: T) -> None:
         """Register implementation for protocol."""
         if not isinstance(implementation, protocol):
             raise ValueError(f"Implementation must satisfy {protocol}")
         self._services[protocol] = implementation
-    
+
     def register_singleton(self, protocol: Type[T], implementation: T) -> None:
         """Register singleton implementation."""
         self.register(protocol, implementation)
         self._singletons[protocol] = implementation
-    
+
     def get(self, protocol: Type[T]) -> T:
         """Get implementation for protocol."""
         if protocol in self._singletons:
             return self._singletons[protocol]
-        
+
         if protocol in self._services:
             impl_class = self._services[protocol]
             if isinstance(impl_class, type):
                 return impl_class()  # Instantiate if class
             return impl_class  # Return instance
-        
+
         raise ValueError(f"No implementation registered for {protocol}")
 
 # Usage
@@ -532,26 +532,26 @@ from abc import ABC
 @runtime_checkable
 class ProtocolServiceFactory(Protocol):
     """Protocol for service factory implementations."""
-    
+
     def create_user_service(self) -> ProtocolUserService:
         """Create user service implementation."""
         ...
-    
+
     def create_logger(self) -> ProtocolLogger:
         """Create logger implementation."""
         ...
 
 class ProductionServiceFactory(ProtocolServiceFactory):
     """Production service factory."""
-    
+
     def __init__(self, config: dict):
         self.config = config
-    
+
     def create_user_service(self) -> ProtocolUserService:
         return DatabaseUserService(
             connection_string=self.config["database_url"]
         )
-    
+
     def create_logger(self) -> ProtocolLogger:
         return StructuredLogger(
             level=self.config.get("log_level", "INFO")
@@ -559,10 +559,10 @@ class ProductionServiceFactory(ProtocolServiceFactory):
 
 class TestServiceFactory(ProtocolServiceFactory):
     """Test service factory with mocks."""
-    
+
     def create_user_service(self) -> ProtocolUserService:
         return MockUserService()
-    
+
     def create_logger(self) -> ProtocolLogger:
         return MockLogger()
 
@@ -584,10 +584,10 @@ from external_user_lib import ExternalUserAPI
 
 class ExternalUserServiceAdapter(ProtocolUserService):
     """Adapt external user API to our protocol."""
-    
+
     def __init__(self, api_client: ExternalUserAPI):
         self.client = api_client
-    
+
     async def create_user(self, email: str, name: str, metadata=None):
         # Adapt external API call to our protocol
         result = await self.client.users.create({
@@ -595,7 +595,7 @@ class ExternalUserServiceAdapter(ProtocolUserService):
             "full_name": name,
             "custom_fields": metadata or {}
         })
-        
+
         # Convert external format to our protocol
         return User(
             id=UUID(result["user_id"]),
@@ -606,14 +606,14 @@ class ExternalUserServiceAdapter(ProtocolUserService):
             updated_at=None,
             metadata=result.get("custom_fields", {})
         )
-    
+
     async def get_user(self, user_id: UUID):
         try:
             result = await self.client.users.get(str(user_id))
             return self._convert_external_user(result)
         except ExternalUserAPI.NotFound:
             return None
-    
+
     def _convert_external_user(self, external_user: dict) -> User:
         """Convert external user format to protocol format."""
         return User(
@@ -622,7 +622,7 @@ class ExternalUserServiceAdapter(ProtocolUserService):
             name=external_user["full_name"],
             status="active" if external_user["is_active"] else "inactive",
             created_at=datetime.fromisoformat(external_user["created_timestamp"]),
-            updated_at=datetime.fromisoformat(external_user["updated_timestamp"]) 
+            updated_at=datetime.fromisoformat(external_user["updated_timestamp"])
                        if external_user.get("updated_timestamp") else None,
             metadata=external_user.get("custom_fields", {})
         )
@@ -640,27 +640,27 @@ from omnibase_spi.protocols.workflow_orchestration import (
 
 class UserEventHandler(ProtocolWorkflowEventHandler):
     """Handle user-related workflow events."""
-    
+
     def __init__(self, user_service: ProtocolUserService):
         self.user_service = user_service
-    
+
     async def __call__(self, event: ProtocolWorkflowEvent, context: dict):
         if event.event_type == "user.creation_requested":
             await self._handle_user_creation(event)
         elif event.event_type == "user.update_requested":
             await self._handle_user_update(event)
-    
+
     async def _handle_user_creation(self, event: ProtocolWorkflowEvent):
         """Handle user creation event."""
         user_data = event.data
-        
+
         try:
             user = await self.user_service.create_user(
                 email=user_data["email"],
                 name=user_data["name"],
                 metadata=user_data.get("metadata")
             )
-            
+
             # Publish success event
             success_event = ProtocolWorkflowEvent(
                 event_type="user.created",
@@ -670,7 +670,7 @@ class UserEventHandler(ProtocolWorkflowEventHandler):
                 causation_id=event.event_id,
                 data={"user_id": str(user.id), "email": user.email}
             )
-            
+
         except Exception as e:
             # Publish failure event
             failure_event = ProtocolWorkflowEvent(
@@ -688,7 +688,7 @@ async def setup_user_event_handling(
     user_service: ProtocolUserService
 ):
     handler = UserEventHandler(user_service)
-    
+
     await event_bus.subscribe_to_workflow_events(
         workflow_type="user_management",
         event_types=["user.creation_requested", "user.update_requested"],
@@ -702,7 +702,7 @@ async def setup_user_event_handling(
 ```python
 class CompositeUserManager:
     """Compose multiple protocols for complex user management."""
-    
+
     def __init__(
         self,
         user_service: ProtocolUserService,
@@ -714,7 +714,7 @@ class CompositeUserManager:
         self.logger = logger
         self.event_bus = event_bus
         self.cache = cache
-    
+
     async def create_user_with_workflow(
         self,
         email: str,
@@ -722,9 +722,9 @@ class CompositeUserManager:
         workflow_instance_id: UUID
     ) -> User:
         """Create user with full workflow integration."""
-        
+
         correlation_id = uuid4()
-        
+
         # Log operation start
         await self.logger.info(
             "Starting user creation workflow",
@@ -734,20 +734,20 @@ class CompositeUserManager:
                 "workflow_instance_id": str(workflow_instance_id)
             }
         )
-        
+
         try:
             # Check cache first
             cache_key = f"user_creation:{email}"
             cached_result = await self.cache.get(cache_key)
             if cached_result:
                 return cached_result
-            
+
             # Create user
             user = await self.user_service.create_user(email, name)
-            
+
             # Cache result
             await self.cache.set(cache_key, user, ttl_seconds=300)
-            
+
             # Publish workflow event
             creation_event = ProtocolWorkflowEvent(
                 event_type="user.created",
@@ -762,7 +762,7 @@ class CompositeUserManager:
                 }
             )
             await self.event_bus.publish_workflow_event(creation_event)
-            
+
             # Log success
             await self.logger.info(
                 "User creation completed successfully",
@@ -772,9 +772,9 @@ class CompositeUserManager:
                     "correlation_id": str(correlation_id)
                 }
             )
-            
+
             return user
-            
+
         except Exception as e:
             # Log error
             await self.logger.error(
@@ -785,7 +785,7 @@ class CompositeUserManager:
                     "correlation_id": str(correlation_id)
                 }
             )
-            
+
             # Publish failure event
             failure_event = ProtocolWorkflowEvent(
                 event_type="user.creation_failed",
@@ -796,7 +796,7 @@ class CompositeUserManager:
                 data={"error": str(e), "email": email}
             )
             await self.event_bus.publish_workflow_event(failure_event)
-            
+
             raise
 ```
 
@@ -839,7 +839,7 @@ async def get_user(
     user = await user_service.get_user(UUID(user_id))
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    
+
     return {
         "user_id": str(user.id),
         "email": user.email,
@@ -873,13 +873,13 @@ from .protocols import get_user_service
 async def create_user(request):
     """Create user view."""
     user_service = get_user_service()
-    
+
     data = json.loads(request.body)
     user = await user_service.create_user(
         email=data["email"],
         name=data["name"]
     )
-    
+
     return JsonResponse({
         "user_id": str(user.id),
         "email": user.email
@@ -898,12 +898,12 @@ from omnibase_spi.protocols.example import ProtocolUserService
 
 class UserServiceComplianceTests(ABC):
     """Abstract test suite for user service protocol compliance."""
-    
+
     @pytest.fixture
     def user_service(self) -> ProtocolUserService:
         """Override in subclasses to provide implementation."""
         raise NotImplementedError
-    
+
     @pytest.mark.asyncio
     async def test_create_user_success(self, user_service: ProtocolUserService):
         """Test successful user creation."""
@@ -911,12 +911,12 @@ class UserServiceComplianceTests(ABC):
             email="test@example.com",
             name="Test User"
         )
-        
+
         assert user.email == "test@example.com"
         assert user.name == "Test User"
         assert user.status in get_args(UserStatus)  # Valid status
         assert user.id is not None
-    
+
     @pytest.mark.asyncio
     async def test_get_user_existing(self, user_service: ProtocolUserService):
         """Test retrieving existing user."""
@@ -925,29 +925,29 @@ class UserServiceComplianceTests(ABC):
             email="existing@example.com",
             name="Existing User"
         )
-        
+
         # Retrieve user
         retrieved_user = await user_service.get_user(created_user.id)
-        
+
         assert retrieved_user is not None
         assert retrieved_user.id == created_user.id
         assert retrieved_user.email == created_user.email
-    
+
     @pytest.mark.asyncio
     async def test_get_user_nonexistent(self, user_service: ProtocolUserService):
         """Test retrieving non-existent user."""
         non_existent_id = uuid4()
         user = await user_service.get_user(non_existent_id)
         assert user is None
-    
+
     @pytest.mark.asyncio
     async def test_create_user_duplicate_email(self, user_service: ProtocolUserService):
         """Test creating user with duplicate email."""
         email = "duplicate@example.com"
-        
+
         # Create first user
         await user_service.create_user(email=email, name="First User")
-        
+
         # Try to create second user with same email
         with pytest.raises(ValueError):
             await user_service.create_user(email=email, name="Second User")
@@ -970,7 +970,7 @@ class TestDatabaseUserService(UserServiceComplianceTests):
 @pytest.mark.integration
 class TestUserServiceIntegration:
     """Integration tests with real dependencies."""
-    
+
     @pytest.fixture
     async def services(self):
         """Setup real service dependencies."""
@@ -978,20 +978,20 @@ class TestUserServiceIntegration:
         db_service = DatabaseUserService("postgresql://test_db")
         cache_service = RedisCache("redis://localhost:6379/0")
         logger = StructuredLogger(level="DEBUG")
-        
+
         return {
             "user_service": db_service,
             "cache": cache_service,
             "logger": logger
         }
-    
+
     @pytest.mark.asyncio
     async def test_user_lifecycle_integration(self, services):
         """Test complete user lifecycle with all services."""
         user_service = services["user_service"]
         cache = services["cache"]
         logger = services["logger"]
-        
+
         # Create composite manager
         manager = CompositeUserManager(
             user_service=user_service,
@@ -999,7 +999,7 @@ class TestUserServiceIntegration:
             cache=cache,
             event_bus=MockEventBus()  # Could be real for full integration
         )
-        
+
         # Test user creation workflow
         workflow_id = uuid4()
         user = await manager.create_user_with_workflow(
@@ -1007,11 +1007,11 @@ class TestUserServiceIntegration:
             name="Integration User",
             workflow_instance_id=workflow_id
         )
-        
+
         # Verify user exists in database
         db_user = await user_service.get_user(user.id)
         assert db_user is not None
-        
+
         # Verify caching worked
         cache_key = f"user_creation:integration@example.com"
         cached_user = await cache.get(cache_key)
@@ -1023,23 +1023,23 @@ class TestUserServiceIntegration:
 ```python
 class MockUserService(ProtocolUserService):
     """Mock implementation for testing."""
-    
+
     def __init__(self):
         self.users: dict[UUID, User] = {}
         self.call_log: list[dict] = []
-    
+
     async def create_user(self, email: str, name: str, metadata=None):
         # Log call for test assertions
         self.call_log.append({
             "method": "create_user",
             "args": {"email": email, "name": name, "metadata": metadata}
         })
-        
+
         # Simulate email uniqueness constraint
         for user in self.users.values():
             if user.email == email:
                 raise ValueError(f"User with email {email} already exists")
-        
+
         user = MockUser(
             id=uuid4(),
             email=email,
@@ -1051,11 +1051,11 @@ class MockUserService(ProtocolUserService):
         )
         self.users[user.id] = user
         return user
-    
+
     def assert_create_user_called_with(self, email: str, name: str):
         """Test helper for verifying calls."""
         for call in self.call_log:
-            if (call["method"] == "create_user" and 
+            if (call["method"] == "create_user" and
                 call["args"]["email"] == email and
                 call["args"]["name"] == name):
                 return True
@@ -1065,9 +1065,9 @@ class MockUserService(ProtocolUserService):
 def test_user_manager_calls_user_service():
     mock_service = MockUserService()
     manager = UserManager(user_service=mock_service)
-    
+
     await manager.register_user("test@example.com", "Test User")
-    
+
     # Verify the service was called correctly
     mock_service.assert_create_user_called_with("test@example.com", "Test User")
 ```
@@ -1121,22 +1121,22 @@ async def create_user(self, data: dict) -> Any:  # Too generic
 class ProtocolPaymentService(Protocol):
     """
     Payment processing service protocol.
-    
+
     Handles secure payment transactions with support for multiple
     payment methods, refunds, and transaction monitoring.
-    
+
     Key Features:
         - **Multi-Payment Methods**: Credit card, PayPal, bank transfer
         - **Security**: PCI DSS compliant transaction handling
         - **Refund Support**: Full and partial refund capabilities
         - **Transaction Tracking**: Complete audit trail
         - **Async Processing**: Non-blocking payment operations
-    
+
     Security Considerations:
         - Never log sensitive payment data
         - Use secure tokenization for card storage
         - Implement proper error handling to prevent data leakage
-    
+
     Example:
         ```python
         async def process_order(payment_service: ProtocolPaymentService):
@@ -1147,7 +1147,7 @@ class ProtocolPaymentService(Protocol):
                 card_token="tok_abc123",
                 description="Order #12345"
             )
-            
+
             if transaction.status == "completed":
                 print(f"Payment successful: {transaction.id}")
             else:
@@ -1164,7 +1164,7 @@ class ProtocolPaymentService(Protocol):
 # Good - composition pattern
 class EnhancedUserService:
     """Enhanced user service using composition."""
-    
+
     def __init__(
         self,
         user_service: ProtocolUserService,
@@ -1174,25 +1174,25 @@ class EnhancedUserService:
         self._user_service = user_service
         self._logger = logger
         self._cache = cache
-    
+
     async def create_user_with_caching(self, email: str, name: str) -> User:
         # Check cache first
         cached_user = await self._cache.get(f"user:email:{email}")
         if cached_user:
             return cached_user
-        
+
         # Create user
         user = await self._user_service.create_user(email, name)
-        
+
         # Cache result
         await self._cache.set(f"user:{user.id}", user, ttl_seconds=3600)
-        
+
         # Log creation
         await self._logger.info(
             "User created",
             context={"user_id": str(user.id), "email": email}
         )
-        
+
         return user
 
 # Avoid - inheritance mixing concerns
@@ -1207,25 +1207,25 @@ class CachedUserService(DatabaseUserService):  # Tight coupling
 ```python
 class RobustUserService(ProtocolUserService):
     """User service with comprehensive error handling."""
-    
+
     async def create_user(self, email: str, name: str, metadata=None):
         try:
             # Validate input
             if not email or "@" not in email:
                 raise ValueError("Invalid email address")
-            
+
             if not name or len(name.strip()) == 0:
                 raise ValueError("Name cannot be empty")
-            
+
             # Check for existing user
             existing = await self._find_user_by_email(email)
             if existing:
                 raise ValueError(f"User with email {email} already exists")
-            
+
             # Create user
             user = await self._create_user_in_database(email, name, metadata)
             return user
-            
+
         except DatabaseError as e:
             # Log and re-raise as appropriate exception type
             await self._logger.error(
@@ -1233,7 +1233,7 @@ class RobustUserService(ProtocolUserService):
                 context={"email": email, "error": str(e)}
             )
             raise RuntimeError("Failed to create user due to database error") from e
-        
+
         except ValidationError as e:
             # Log validation errors
             await self._logger.warning(
@@ -1248,39 +1248,39 @@ class RobustUserService(ProtocolUserService):
 ```python
 class EfficientUserService(ProtocolUserService):
     """User service with efficient async patterns."""
-    
+
     async def get_users_batch(self, user_ids: list[UUID]) -> dict[UUID, Optional[User]]:
         """Get multiple users efficiently."""
         # Good - concurrent fetching
         tasks = [self.get_user(user_id) for user_id in user_ids]
         users = await asyncio.gather(*tasks, return_exceptions=True)
-        
+
         result = {}
         for user_id, user in zip(user_ids, users):
             if isinstance(user, Exception):
                 result[user_id] = None
             else:
                 result[user_id] = user
-        
+
         return result
-    
+
     async def create_users_batch(self, user_data_list: list[dict]) -> list[User]:
         """Create multiple users with proper error handling."""
         created_users = []
-        
+
         # Process in batches to avoid overwhelming the system
         batch_size = 10
         for i in range(0, len(user_data_list), batch_size):
             batch = user_data_list[i:i + batch_size]
-            
+
             # Create batch concurrently
             tasks = [
                 self.create_user(data["email"], data["name"], data.get("metadata"))
                 for data in batch
             ]
-            
+
             batch_results = await asyncio.gather(*tasks, return_exceptions=True)
-            
+
             for result in batch_results:
                 if isinstance(result, Exception):
                     # Log error but continue processing
@@ -1290,7 +1290,7 @@ class EfficientUserService(ProtocolUserService):
                     )
                 else:
                     created_users.append(result)
-        
+
         return created_users
 ```
 
@@ -1309,7 +1309,7 @@ class ProtocolUserService(Protocol):
     ) -> tuple[list[User], int]:  # Returns (users, total_count)
         """Get users with pagination info in single call."""
         ...
-    
+
     async def get_user_exists(self, email: str) -> bool:
         """Efficient existence check without full user data."""
         ...
@@ -1318,7 +1318,7 @@ class ProtocolUserService(Protocol):
 class IneffientUserService(Protocol):
     async def get_all_users(self) -> list[User]:  # Could be huge
         ...
-    
+
     async def get_user_count(self) -> int:  # Separate call needed
         ...
 ```
@@ -1328,9 +1328,9 @@ class IneffientUserService(Protocol):
 ```python
 class CachedProtocolWrapper:
     """Generic caching wrapper for protocols."""
-    
+
     def __init__(
-        self, 
+        self,
         wrapped_service: ProtocolUserService,
         cache: ProtocolCacheService,
         default_ttl: int = 3600
@@ -1338,33 +1338,33 @@ class CachedProtocolWrapper:
         self._service = wrapped_service
         self._cache = cache
         self._default_ttl = default_ttl
-    
+
     async def get_user(self, user_id: UUID) -> Optional[User]:
         """Get user with caching."""
         cache_key = f"user:{user_id}"
-        
+
         # Try cache first
         cached_user = await self._cache.get(cache_key)
         if cached_user:
             return cached_user
-        
+
         # Get from service
         user = await self._service.get_user(user_id)
-        
+
         # Cache result
         if user:
             await self._cache.set(cache_key, user, ttl_seconds=self._default_ttl)
-        
+
         return user
-    
+
     async def create_user(self, email: str, name: str, metadata=None) -> User:
         """Create user and cache result."""
         user = await self._service.create_user(email, name, metadata)
-        
+
         # Cache the new user
         cache_key = f"user:{user.id}"
         await self._cache.set(cache_key, user, ttl_seconds=self._default_ttl)
-        
+
         return user
 ```
 
@@ -1423,12 +1423,12 @@ async def get_user(self, user_id: UUID) -> Optional["User"]:  # Forward ref
 def debug_protocol_compliance(obj: object, protocol: type) -> None:
     """Debug protocol compliance issues."""
     print(f"Checking {obj.__class__.__name__} against {protocol.__name__}")
-    
+
     # Check if runtime checkable
     if not hasattr(protocol, '__runtime_checkable__'):
         print("❌ Protocol is not @runtime_checkable")
         return
-    
+
     # Check required methods
     for attr_name in dir(protocol):
         if not attr_name.startswith('_'):
@@ -1442,7 +1442,7 @@ def debug_protocol_compliance(obj: object, protocol: type) -> None:
                         print(f"❌ Attribute {attr_name} is not callable")
                 else:
                     print(f"❌ Method {attr_name} missing")
-    
+
     # Final check
     compliant = isinstance(obj, protocol)
     print(f"Overall compliance: {'✅' if compliant else '❌'}")

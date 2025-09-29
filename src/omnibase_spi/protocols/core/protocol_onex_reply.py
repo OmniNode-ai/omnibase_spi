@@ -5,18 +5,20 @@ Protocol interface for Onex standard reply pattern.
 Defines the contract for response replies with status, data, and error information.
 """
 
-from typing import Any, Literal, Optional, Protocol
+from typing import Literal, Optional, Protocol, TypeVar, runtime_checkable
 from uuid import UUID
 
 from omnibase_spi.protocols.core.protocol_onex_validation import ProtocolOnexMetadata
 from omnibase_spi.protocols.types.protocol_core_types import ProtocolDateTime
 
-# Standard Onex reply status values - using Literal instead of Enum
+T = TypeVar("T")
+R = TypeVar("R")
 LiteralOnexReplyStatus = Literal[
     "success", "partial_success", "failure", "error", "timeout", "validation_error"
 ]
 
 
+@runtime_checkable
 class ProtocolOnexReply(Protocol):
     """
     Protocol interface for Onex reply pattern.
@@ -25,233 +27,53 @@ class ProtocolOnexReply(Protocol):
     Provides standardized response wrapping with status and error information.
     """
 
-    def create_success_reply(
+    async def create_success_reply(
         self,
-        data: Any,
-        correlation_id: Optional[UUID] = None,
-        metadata: Optional[ProtocolOnexMetadata] = None,
-    ) -> Any:
-        """
-        Create a successful Onex reply with data.
+        data: T,
+        correlation_id: UUID | None = None,
+        metadata: "ProtocolOnexMetadata | None" = None,
+    ) -> R: ...
 
-        Args:
-            data: The response data to be wrapped
-            correlation_id: Optional correlation ID for request tracking
-            metadata: Additional metadata for the reply
-
-        Returns:
-            Onex reply containing success status and data
-        """
-        ...
-
-    def create_error_reply(
+    async def create_error_reply(
         self,
         error_message: str,
-        error_code: Optional[str] = None,
-        error_details: Optional[str] = None,
-        correlation_id: Optional[UUID] = None,
-        metadata: Optional[ProtocolOnexMetadata] = None,
-    ) -> Any:
-        """
-        Create an error Onex reply with error information.
+        error_code: str | None = None,
+        error_details: str | None = None,
+        correlation_id: UUID | None = None,
+        metadata: "ProtocolOnexMetadata | None" = None,
+    ) -> R: ...
 
-        Args:
-            error_message: Human-readable error message
-            error_code: Optional error code for programmatic handling
-            error_details: Additional error details and context
-            correlation_id: Optional correlation ID for request tracking
-            metadata: Additional metadata for the reply
-
-        Returns:
-            Onex reply containing error status and information
-        """
-        ...
-
-    def create_validation_error_reply(
+    async def create_validation_error_reply(
         self,
         validation_errors: list[str],
-        correlation_id: Optional[UUID] = None,
-        metadata: Optional[ProtocolOnexMetadata] = None,
-    ) -> Any:
-        """
-        Create a validation error Onex reply with validation issues.
+        correlation_id: UUID | None = None,
+        metadata: "ProtocolOnexMetadata | None" = None,
+    ) -> R: ...
 
-        Args:
-            validation_errors: List of validation error messages
-            correlation_id: Optional correlation ID for request tracking
-            metadata: Additional metadata for the reply
+    def extract_data(self, reply: R) -> T | None: ...
 
-        Returns:
-            Onex reply containing validation error status and details
-        """
-        ...
+    async def get_status(self, reply: R) -> "LiteralOnexReplyStatus": ...
 
-    def extract_data(self, reply: Any) -> Optional[Any]:
-        """
-        Extract the data from an Onex reply.
+    async def get_error_message(self, reply: R) -> str | None: ...
 
-        Args:
-            reply: Onex reply containing response data
+    async def get_error_code(self, reply: R) -> str | None: ...
 
-        Returns:
-            The unwrapped response data, None if error reply
-        """
-        ...
+    async def get_error_details(self, reply: R) -> str | None: ...
 
-    def get_status(self, reply: Any) -> LiteralOnexReplyStatus:
-        """
-        Get the status from an Onex reply.
+    async def get_correlation_id(self, reply: R) -> UUID | None: ...
 
-        Args:
-            reply: Onex reply to extract status from
+    async def get_metadata(self, reply: R) -> ProtocolOnexMetadata | None: ...
 
-        Returns:
-            The reply status
-        """
-        ...
+    def is_success(self, reply: R) -> bool: ...
 
-    def get_error_message(self, reply: Any) -> Optional[str]:
-        """
-        Get the error message from an Onex reply.
+    def is_error(self, reply: R) -> bool: ...
 
-        Args:
-            reply: Onex reply to extract error message from
+    async def get_timestamp(self, reply: R) -> ProtocolDateTime: ...
 
-        Returns:
-            The error message if present, None otherwise
-        """
-        ...
+    async def get_processing_time(self, reply: R) -> float | None: ...
 
-    def get_error_code(self, reply: Any) -> Optional[str]:
-        """
-        Get the error code from an Onex reply.
+    def with_metadata(self, reply: R, metadata: "ProtocolOnexMetadata") -> R: ...
 
-        Args:
-            reply: Onex reply to extract error code from
+    def is_onex_compliant(self, reply: R) -> bool: ...
 
-        Returns:
-            The error code if present, None otherwise
-        """
-        ...
-
-    def get_error_details(self, reply: Any) -> Optional[str]:
-        """
-        Get the error details from an Onex reply.
-
-        Args:
-            reply: Onex reply to extract error details from
-
-        Returns:
-            The error details if present, None otherwise
-        """
-        ...
-
-    def get_correlation_id(self, reply: Any) -> Optional[UUID]:
-        """
-        Get the correlation ID from an Onex reply.
-
-        Args:
-            reply: Onex reply to extract correlation ID from
-
-        Returns:
-            The correlation ID if present, None otherwise
-        """
-        ...
-
-    def get_metadata(self, reply: Any) -> Optional[ProtocolOnexMetadata]:
-        """
-        Get all metadata from an Onex reply.
-
-        Args:
-            reply: Onex reply to extract metadata from
-
-        Returns:
-            Dictionary containing all reply metadata
-        """
-        ...
-
-    def is_success(self, reply: Any) -> bool:
-        """
-        Check if Onex reply indicates success.
-
-        Args:
-            reply: Onex reply to check status for
-
-        Returns:
-            True if reply indicates success, False otherwise
-        """
-        ...
-
-    def is_error(self, reply: Any) -> bool:
-        """
-        Check if Onex reply indicates error.
-
-        Args:
-            reply: Onex reply to check status for
-
-        Returns:
-            True if reply indicates error, False otherwise
-        """
-        ...
-
-    def get_timestamp(self, reply: Any) -> ProtocolDateTime:
-        """
-        Get the creation timestamp from an Onex reply.
-
-        Args:
-            reply: Onex reply to extract timestamp from
-
-        Returns:
-            The reply creation timestamp
-        """
-        ...
-
-    def get_processing_time(self, reply: Any) -> Optional[float]:
-        """
-        Get the processing time from an Onex reply.
-
-        Args:
-            reply: Onex reply to extract processing time from
-
-        Returns:
-            The processing time in seconds if present, None otherwise
-        """
-        ...
-
-    def with_metadata(self, reply: Any, metadata: ProtocolOnexMetadata) -> Any:
-        """
-        Add metadata to an Onex reply.
-
-        Args:
-            reply: Onex reply to add metadata to
-            key: Metadata key
-            value: Metadata value
-
-        Returns:
-            Updated reply with new metadata
-        """
-        ...
-
-    def is_onex_compliant(self, reply: Any) -> bool:
-        """
-        Check if reply follows Onex standard compliance.
-
-        Args:
-            reply: Onex reply to check compliance for
-
-        Returns:
-            True if reply is Onex compliant, False otherwise
-        """
-        ...
-
-    def validate_reply(self, reply: Any) -> bool:
-        """
-        Validate an Onex reply for completeness and compliance.
-
-        Args:
-            reply: Onex reply to validate
-
-        Returns:
-            True if reply is valid, False otherwise
-        """
-        ...
+    async def validate_reply(self, reply: R) -> bool: ...

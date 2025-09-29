@@ -1,46 +1,16 @@
-# === OmniNode:Metadata ===
-# author: OmniNode Team
-# copyright: OmniNode.ai
-# created_at: '2025-05-28T12:36:27.128231'
-# description: Stamped by NodePython
-# entrypoint: python://protocol_event_bus
-# hash: d08b73065d9e8de6ac3b18881f8669d08f07ca6678ec78d1f0cdb96e3b9016eb
-# last_modified_at: '2025-05-29T14:14:00.220362+00:00'
-# lifecycle: active
-# meta_type: node
-# metadata_version: 0.1.0
-# name: protocol_event_bus.py
-# namespace: python://omnibase_spi.protocol.protocol_event_bus
-# owner: OmniNode Team
-# protocol_version: 0.1.0
-# runtime_language_hint: python>=3.11
-# schema_version: 0.1.0
-# state_contract: state_contract://default
-# tools: null
-# uuid: 2d9c79c5-6422-462b-b10c-e080a10c1d42
-# version: 1.0.0
-# === /OmniNode:Metadata ===
-
-
-from typing import (
-    Any,
-    Awaitable,
-    Callable,
-    Literal,
-    Optional,
-    Protocol,
-    runtime_checkable,
-)
+from typing import Awaitable, Callable, Literal, Protocol, runtime_checkable
 from uuid import UUID
 
 from omnibase_spi.protocols.types.protocol_core_types import (
+    ContextValue,
     ProtocolDateTime,
     ProtocolSemVer,
 )
+from omnibase_spi.protocols.types.protocol_event_bus_types import ProtocolEventMessage
 
 
 @runtime_checkable
-class ProtocolEventHeaders(Protocol):
+class ProtocolEventBusHeaders(Protocol):
     """
     Protocol for standardized headers for ONEX event bus messages.
 
@@ -54,154 +24,82 @@ class ProtocolEventHeaders(Protocol):
     - OpenTelemetry Span ID: "00f067aa0ba902b7" (16 hex digits, no hyphens)
     """
 
-    # REQUIRED - Essential for system operation and observability
     @property
-    def content_type(self) -> str:
-        """MIME type: 'application/json', 'application/avro', etc."""
-        ...
+    def content_type(self) -> str: ...
 
     @property
-    def correlation_id(self) -> UUID:
-        """UUID format for distributed business tracing."""
-        ...
+    def correlation_id(self) -> UUID: ...
 
     @property
-    def message_id(self) -> UUID:
-        """UUID format for unique message identification."""
-        ...
+    def message_id(self) -> UUID: ...
 
     @property
-    def timestamp(self) -> "ProtocolDateTime":
-        """Message creation timestamp (datetime object)."""
-        ...
+    def timestamp(self) -> ProtocolDateTime: ...
 
     @property
-    def source(self) -> str:
-        """Source agent/service identifier."""
-        ...
+    def source(self) -> str: ...
 
     @property
-    def event_type(self) -> str:
-        """Event classification (e.g., 'core.node.start')."""
-        ...
+    def event_type(self) -> str: ...
 
     @property
-    def schema_version(self) -> "ProtocolSemVer":
-        """Message schema version for compatibility."""
-        ...
-
-    # OPTIONAL - Standardized but not mandatory for all messages
-    @property
-    def destination(self) -> Optional[str]:
-        """Target agent/service (for direct routing)."""
-        ...
+    def schema_version(self) -> ProtocolSemVer: ...
 
     @property
-    def trace_id(self) -> Optional[str]:
-        """OpenTelemetry trace ID (32 hex chars, no hyphens)."""
-        ...
+    def destination(self) -> str | None: ...
 
     @property
-    def span_id(self) -> Optional[str]:
-        """OpenTelemetry span ID (16 hex chars, no hyphens)."""
-        ...
+    def trace_id(self) -> str | None: ...
 
     @property
-    def parent_span_id(self) -> Optional[str]:
-        """Parent span ID (16 hex chars, no hyphens)."""
-        ...
+    def span_id(self) -> str | None: ...
 
     @property
-    def operation_name(self) -> Optional[str]:
-        """Operation being performed (for tracing context)."""
-        ...
+    def parent_span_id(self) -> str | None: ...
 
     @property
-    def priority(self) -> Optional[Literal["low", "normal", "high", "critical"]]:
-        """Message priority."""
-        ...
+    def operation_name(self) -> str | None: ...
 
     @property
-    def routing_key(self) -> Optional[str]:
-        """Kafka/messaging routing key."""
-        ...
+    def priority(self) -> Literal["low", "normal", "high", "critical"] | None: ...
 
     @property
-    def partition_key(self) -> Optional[str]:
-        """Explicit partition assignment key."""
-        ...
+    def routing_key(self) -> str | None: ...
 
     @property
-    def retry_count(self) -> Optional[int]:
-        """Number of retry attempts (for error handling)."""
-        ...
+    def partition_key(self) -> str | None: ...
 
     @property
-    def max_retries(self) -> Optional[int]:
-        """Maximum retry attempts allowed."""
-        ...
+    def retry_count(self) -> int | None: ...
 
     @property
-    def ttl_seconds(self) -> Optional[int]:
-        """Message time-to-live in seconds."""
-        ...
+    def max_retries(self) -> int | None: ...
+
+    @property
+    def ttl_seconds(self) -> int | None: ...
 
 
 @runtime_checkable
-class ProtocolEventMessage(Protocol):
+class ProtocolKafkaEventBusAdapter(Protocol):
     """
-    Protocol for ONEX event bus message objects.
+        Protocol for Event Bus Adapters supporting pluggable Kafka/Redpanda backends.
 
-    Defines the contract that all event message implementations must satisfy
-    for Kafka/Redpanda compatibility following the ONEX Messaging Design v0.3.
+        Implements the ONEX Messaging Design v0.3 Event Bus Adapter interface
+        enabling drop-in support for both Kafka and Redpanda without code changes.
 
-    Implementations can use dataclass, NamedTuple, or custom classes as long
-    as they provide the required attributes and methods.
-    """
+        Environment isolation and node group mini-meshes are supported through
+        topic naming conventions and group isolation patterns.
 
-    topic: str
-    key: Optional[bytes]
-    value: bytes
-    headers: ProtocolEventHeaders
-    offset: Optional[str]
-    partition: Optional[int]
-
-    async def ack(self) -> None:
-        """Acknowledge message processing (adapter-specific implementation)."""
-        ...
-
-
-@runtime_checkable
-class ProtocolEventBusAdapter(Protocol):
-    """
-    Protocol for Event Bus Adapters supporting pluggable Kafka/Redpanda backends.
-
-    Implements the ONEX Messaging Design v0.3 Event Bus Adapter interface
-    enabling drop-in support for both Kafka and Redpanda without code changes.
-
-    Environment isolation and node group mini-meshes are supported through
-    topic naming conventions and group isolation patterns.
-
-    Usage Example:
+        Usage Example:
         ```python
-        # Implementation example (not part of SPI)
-        class KafkaAdapter:
-            async def publish(self, topic: str, key: Optional[bytes],
-                            value: bytes, headers: ProtocolEventHeaders) -> None:
-                # Kafka-specific publishing logic
-                producer = self._get_producer()
-                await producer.send(topic, key=key, value=value, headers=headers)
+        # Protocol usage example (SPI-compliant)
+        service: "EventBus" = get_event_bus()
 
-            async def subscribe(self, topic: str, group_id: str,
-                              on_message: Callable) -> Callable:
-                # Kafka-specific subscription logic
-                consumer = self._create_consumer(group_id)
-                consumer.subscribe([topic])
-                # Return unsubscribe function
-                return lambda: consumer.unsubscribe()
+        # Usage demonstrates protocol interface without implementation details
+        # All operations work through the protocol contract
+        # Implementation details are abstracted away from the interface
 
-        # Usage in application code
-        adapter: ProtocolEventBusAdapter = KafkaAdapter()
+        adapter: "ProtocolKafkaEventBusAdapter" = KafkaAdapter()
 
         # Publishing events
         await adapter.publish(
@@ -220,7 +118,7 @@ class ProtocolEventBusAdapter(Protocol):
         )
 
         # Subscribing to events
-        async def handle_message(msg: ProtocolEventMessage) -> None:
+        async def handle_message(msg: "ProtocolEventMessage") -> None:
             data = json.loads(msg.value.decode())
             print(f"Received: {data}")
             await msg.ack()
@@ -228,60 +126,36 @@ class ProtocolEventBusAdapter(Protocol):
         unsubscribe = await adapter.subscribe(
             topic="user-events",
             group_id="user-service",
-            on_message=handle_message
+        on_message=handle_message
         )
 
-        # Later cleanup
+    # Later cleanup
         await unsubscribe()
         await adapter.close()
         ```
 
     Topic Naming Conventions:
-        - Environment isolation: `{env}-{topic}` (e.g., "prod-user-events")
-        - Node group isolation: `{group}-{topic}` (e.g., "auth-user-events")
-        - Combined: `{env}-{group}-{topic}` (e.g., "prod-auth-user-events")
+    - Environment isolation: `{env}-{topic}` (e.g., "prod-user-events")
+    - Node group isolation: `{group}-{topic}` (e.g., "auth-user-events")
+    - Combined: `{env}-{group}-{topic}` (e.g., "prod-auth-user-events")
     """
 
     async def publish(
         self,
         topic: str,
-        key: Optional[bytes],
+        key: bytes | None,
         value: bytes,
-        headers: ProtocolEventHeaders,
-    ) -> None:
-        """
-        Publish message to topic.
-
-        Args:
-            topic: Target topic following ONEX naming conventions
-            key: Optional message key for partitioning
-            value: Serialized message payload
-            headers: Message metadata and routing headers
-        """
-        ...
+        headers: "ProtocolEventBusHeaders",
+    ) -> None: ...
 
     async def subscribe(
         self,
         topic: str,
         group_id: str,
         on_message: Callable[[ProtocolEventMessage], Awaitable[None]],
-    ) -> Callable[[], Awaitable[None]]:
-        """
-        Subscribe to topic with message node.
+    ) -> Callable[[], Awaitable[None]]: ...
 
-        Args:
-            topic: Source topic following ONEX naming conventions
-            group_id: Consumer group for load balancing
-            on_message: Async message node
-
-        Returns:
-            Unsubscribe function to clean up subscription
-        """
-        ...
-
-    async def close(self) -> None:
-        """Close adapter and clean up resources."""
-        ...
+    async def close(self) -> None: ...
 
 
 @runtime_checkable
@@ -297,90 +171,38 @@ class ProtocolEventBus(Protocol):
     """
 
     @property
-    def adapter(self) -> ProtocolEventBusAdapter:
-        """Get the event bus adapter implementation."""
-        ...
+    def adapter(self) -> ProtocolKafkaEventBusAdapter: ...
 
     @property
-    def environment(self) -> str:
-        """Get environment name for topic isolation."""
-        ...
+    def environment(self) -> str: ...
 
     @property
-    def group(self) -> str:
-        """Get node group name for mini-mesh isolation."""
-        ...
-
-    # === Distributed Messaging Interface ===
+    def group(self) -> str: ...
 
     async def publish(
         self,
         topic: str,
-        key: Optional[bytes],
+        key: bytes | None,
         value: bytes,
-        headers: Optional[ProtocolEventHeaders] = None,
-    ) -> None:
-        """
-        Publish message to topic.
-
-        Args:
-            topic: Target topic (supports ONEX naming conventions)
-            key: Optional message key for partitioning
-            value: Serialized message payload
-            headers: Optional message headers
-        """
-        ...
+        headers: "ProtocolEventBusHeaders | None" = None,
+    ) -> None: ...
 
     async def subscribe(
         self,
         topic: str,
         group_id: str,
         on_message: Callable[[ProtocolEventMessage], Awaitable[None]],
-    ) -> Callable[[], Awaitable[None]]:
-        """
-        Subscribe to topic with message node.
-
-        Args:
-            topic: Source topic (supports ONEX naming conventions)
-            group_id: Consumer group for load balancing
-            on_message: Message node
-
-        Returns:
-            Unsubscribe function
-        """
-        ...
+    ) -> Callable[[], Awaitable[None]]: ...
 
     async def broadcast_to_environment(
         self,
         command: str,
-        payload: dict[str, Any],
-        target_environment: Optional[str] = None,
-    ) -> None:
-        """
-        Broadcast command to entire environment.
-
-        Args:
-            command: Command type (e.g., 'introspection')
-            payload: Command payload
-            target_environment: Target env (default: current environment)
-        """
-        ...
+        payload: dict[str, ContextValue],
+        target_environment: str | None = None,
+    ) -> None: ...
 
     async def send_to_group(
-        self, command: str, payload: dict[str, Any], target_group: str
-    ) -> None:
-        """
-        Send command to specific node group.
+        self, command: str, payload: dict[str, ContextValue], target_group: str
+    ) -> None: ...
 
-        Args:
-            command: Command type
-            payload: Command payload
-            target_group: Target node group name
-        """
-        ...
-
-    async def close(self) -> None:
-        """
-        Close event bus and clean up resources.
-        """
-        ...
+    async def close(self) -> None: ...

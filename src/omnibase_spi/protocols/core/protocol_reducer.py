@@ -21,29 +21,5 @@
 # version: 1.0.0
 # === /OmniNode:Metadata ===
 
-
-from typing import Protocol
-
-from omnibase_spi.protocols.types.protocol_core_types import (
-    ProtocolAction,
-    ProtocolState,
-)
-
-
-class ProtocolReducer(Protocol):
-    """
-    Protocol for ONEX reducers (state transition logic).
-
-    Example:
-        class MyReducer:
-            def initial_state(self) -> ProtocolState:
-                ...
-            def dispatch(self, state: ProtocolState, action: ProtocolAction) -> ProtocolState:
-                ...
-    """
-
-    def initial_state(self) -> ProtocolState: ...
-
-    def dispatch(
-        self, state: ProtocolState, action: ProtocolAction
-    ) -> ProtocolState: ...
+# CONSOLIDATED: ProtocolReducer functionality moved to ProtocolWorkflowReducer
+# Use: from omnibase_spi.protocols.core.protocol_workflow_reducer import ProtocolWorkflowReducer as ProtocolReducer

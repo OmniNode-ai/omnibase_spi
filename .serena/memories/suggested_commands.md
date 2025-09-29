@@ -210,7 +210,7 @@ pip install dist/*.whl
 python -c "
 import sys
 from omnibase_spi.protocols.types import LogLevel
-external_modules = [name for name in sys.modules.keys() 
+external_modules = [name for name in sys.modules.keys()
                    if name.startswith('omnibase_spi.') and not name.startswith('omnibase_spi.protocols')]
 if external_modules:
     print(f'FAILURE: External omnibase modules loaded: {external_modules}')

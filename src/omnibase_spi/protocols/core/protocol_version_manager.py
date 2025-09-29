@@ -5,15 +5,14 @@ Defines interfaces for protocol versioning, compatibility checking,
 and migration support across ONEX service evolution.
 """
 
-from typing import TYPE_CHECKING, Optional, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.protocol_core_types import (
-        ProtocolCompatibilityCheck,
-        ProtocolDateTime,
-        ProtocolSemVer,
-        ProtocolVersionInfo,
-    )
+from omnibase_spi.protocols.types.protocol_core_types import (
+    ProtocolCompatibilityCheck,
+    ProtocolDateTime,
+    ProtocolSemVer,
+    ProtocolVersionInfo,
+)
 
 
 @runtime_checkable
@@ -36,7 +35,7 @@ class ProtocolVersionManager(Protocol):
         ```python
         # Implementation example (not part of SPI)
         class VersionManagerImpl:
-            def check_compatibility(self, required, current):
+            async def check_compatibility(self, required, current):
                 if current.major != required.major:
                     return CompatibilityCheck(
                         is_compatible=False,
@@ -46,7 +45,7 @@ class ProtocolVersionManager(Protocol):
                 return CompatibilityCheck(is_compatible=True)
 
         # Usage in application code
-        version_manager: ProtocolVersionManager = VersionManagerImpl()
+        version_manager: "ProtocolVersionManager" = VersionManagerImpl()
 
         compatibility = version_manager.check_compatibility(
             required_version=SemVer(2, 1, 0),
@@ -58,244 +57,63 @@ class ProtocolVersionManager(Protocol):
         ```
     """
 
-    def get_protocol_version_info(
-        self,
-        protocol_name: str,
-    ) -> "ProtocolVersionInfo":
-        """
-        Get version information for specified protocol.
+    async def get_protocol_version_info(
+        self, protocol_name: str
+    ) -> "ProtocolVersionInfo": ...
 
-        Args:
-            protocol_name: Name of protocol to get version info for
-
-        Returns:
-            Complete version information including deprecation status
-
-        Raises:
-            KeyError: If protocol is not registered
-
-        Note:
-            Provides comprehensive version metadata including current version,
-            compatibility information, deprecation timeline, and migration resources.
-        """
-        ...
-
-    def register_protocol_version(
+    async def register_protocol_version(
         self,
         protocol_name: str,
         version: "ProtocolSemVer",
         compatibility_version: "ProtocolSemVer",
         migration_guide_url: str | None = None,
-    ) -> bool:
-        """
-        Register version information for protocol.
+    ) -> bool: ...
 
-        Args:
-            protocol_name: Name of protocol to register
-            version: Current semantic version of protocol
-            compatibility_version: Minimum compatible version
-            migration_guide_url: Optional URL to migration documentation
-
-        Returns:
-            True if version was registered successfully
-
-        Note:
-            Establishes version metadata for compatibility checking
-            and migration planning. Should be called during service initialization.
-        """
-        ...
-
-    def check_compatibility(
+    async def check_compatibility(
         self,
         protocol_name: str,
         required_version: "ProtocolSemVer",
         current_version: "ProtocolSemVer",
-    ) -> "ProtocolCompatibilityCheck":
-        """
-        Check compatibility between protocol versions.
+    ) -> "ProtocolCompatibilityCheck": ...
 
-        Args:
-            protocol_name: Name of protocol to check
-            required_version: Version required by consumer
-            current_version: Version provided by producer
-
-        Returns:
-            Compatibility check result with migration information
-
-        Note:
-            Performs semantic version compatibility analysis following
-            semver rules with protocol-specific compatibility logic.
-        """
-        ...
-
-    def get_breaking_changes(
+    async def get_breaking_changes(
         self,
         protocol_name: str,
         from_version: "ProtocolSemVer",
         to_version: "ProtocolSemVer",
-    ) -> list[str]:
-        """
-        Get list of breaking changes between versions.
-
-        Args:
-            protocol_name: Name of protocol to analyze
-            from_version: Starting version for comparison
-            to_version: Target version for comparison
-
-        Returns:
-            List of breaking changes descriptions
-
-        Note:
-            Provides detailed breaking change information for
-            migration planning and impact assessment.
-        """
-        ...
+    ) -> list[str]: ...
 
     def schedule_retirement(
         self,
         protocol_name: str,
         version: "ProtocolSemVer",
         retirement_date: "ProtocolDateTime",
-        replacement_version: Optional["ProtocolSemVer"] = None,
-    ) -> bool:
-        """
-        Schedule protocol version for retirement.
+        replacement_version: "ProtocolSemVer | None" = None,
+    ) -> bool: ...
 
-        Args:
-            protocol_name: Name of protocol to retire
-            version: Version to retire
-            retirement_date: Date when version becomes retired
-            replacement_version: Optional recommended replacement version
-
-        Returns:
-            True if retirement was scheduled successfully
-
-        Note:
-            Establishes retirement timeline for version lifecycle management
-            and consumer migration planning.
-        """
-        ...
-
-    def get_retired_versions(
-        self,
-        protocol_name: str,
-    ) -> list["ProtocolVersionInfo"]:
-        """
-        Get list of retired versions for protocol.
-
-        Args:
-            protocol_name: Name of protocol to check
-
-        Returns:
-            List of retired version information
-
-        Note:
-            Provides visibility into retired versions for
-            migration planning and compliance checking.
-        """
-        ...
+    async def get_retired_versions(
+        self, protocol_name: str
+    ) -> list["ProtocolVersionInfo"]: ...
 
     def is_version_retired(
-        self,
-        protocol_name: str,
-        version: "ProtocolSemVer",
-    ) -> bool:
-        """
-        Check if protocol version is retired.
+        self, protocol_name: str, version: "ProtocolSemVer"
+    ) -> bool: ...
 
-        Args:
-            protocol_name: Name of protocol to check
-            version: Version to check retirement status for
+    async def get_recommended_version(
+        self, protocol_name: str, current_version: "ProtocolSemVer"
+    ) -> "ProtocolSemVer": ...
 
-        Returns:
-            True if version is retired
-
-        Note:
-            Enables runtime retirement checking for proactive
-            migration and compliance enforcement.
-        """
-        ...
-
-    def get_recommended_version(
-        self,
-        protocol_name: str,
-        current_version: "ProtocolSemVer",
-    ) -> "ProtocolSemVer":
-        """
-        Get recommended version for upgrade.
-
-        Args:
-            protocol_name: Name of protocol for recommendation
-            current_version: Current version being used
-
-        Returns:
-            Recommended version for upgrade
-
-        Note:
-            Provides upgrade recommendations based on compatibility,
-            security updates, and deprecation timeline.
-        """
-        ...
-
-    def generate_migration_plan(
+    async def generate_migration_plan(
         self,
         protocol_name: str,
         from_version: "ProtocolSemVer",
         to_version: "ProtocolSemVer",
-    ) -> dict[str, object]:
-        """
-        Generate migration plan between versions.
+    ) -> dict[str, object]: ...
 
-        Args:
-            protocol_name: Name of protocol to migrate
-            from_version: Current version
-            to_version: Target version
+    async def validate_version_usage(
+        self, protocol_name: str, version: "ProtocolSemVer"
+    ) -> list[str]: ...
 
-        Returns:
-            Migration plan with steps and resources
-
-        Note:
-            Provides structured migration guidance including
-            breaking changes, migration steps, and validation procedures.
-        """
-        ...
-
-    def validate_version_usage(
-        self,
-        protocol_name: str,
-        version: "ProtocolSemVer",
-    ) -> list[str]:
-        """
-        Validate version usage against current policies.
-
-        Args:
-            protocol_name: Name of protocol to validate
-            version: Version to validate usage for
-
-        Returns:
-            List of validation warnings or violations
-
-        Note:
-            Checks version against deprecation policies, security requirements,
-            and organizational standards for compliance validation.
-        """
-        ...
-
-    def get_version_statistics(
-        self,
-        time_window_days: int,
-    ) -> dict[str, object]:
-        """
-        Get version usage statistics.
-
-        Args:
-            time_window_days: Days of statistics to include
-
-        Returns:
-            Version usage statistics and trends
-
-        Note:
-            Provides insights into version adoption, deprecation compliance,
-            and migration progress across the service ecosystem.
-        """
-        ...
+    async def get_version_statistics(
+        self, time_window_days: int
+    ) -> dict[str, object]: ...

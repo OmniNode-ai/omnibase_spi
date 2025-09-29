@@ -5,15 +5,14 @@ Defines the interface for pluggable storage backends at the root level.
 
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.protocol_core_types import (
-        ProtocolCheckpointData,
-        ProtocolStorageConfiguration,
-        ProtocolStorageCredentials,
-        ProtocolStorageHealthStatus,
-        ProtocolStorageListResult,
-        ProtocolStorageResult,
-    )
+from omnibase_spi.protocols.types.protocol_core_types import (
+    ProtocolCheckpointData,
+    ProtocolStorageConfiguration,
+    ProtocolStorageCredentials,
+    ProtocolStorageHealthStatus,
+    ProtocolStorageListResult,
+    ProtocolStorageResult,
+)
 
 
 @runtime_checkable
@@ -33,167 +32,43 @@ class ProtocolStorageBackend(Protocol):
         - Retention policy management
     """
 
-    def store_checkpoint(
-        self,
-        checkpoint_data: "ProtocolCheckpointData",
-    ) -> "ProtocolStorageResult":
-        """
-        Store a checkpoint to the backend.
+    async def store_checkpoint(
+        self, checkpoint_data: "ProtocolCheckpointData"
+    ) -> "ProtocolStorageResult": ...
 
-        Args:
-            checkpoint_data: The checkpoint data to store
+    async def retrieve_checkpoint(
+        self, checkpoint_id: str
+    ) -> "ProtocolStorageResult": ...
 
-        Returns:
-            StorageResult: Result of the storage operation
-
-        Raises:
-            ValueError: If checkpoint_data is invalid
-            RuntimeError: If storage operation fails
-            TimeoutError: If operation exceeds timeout
-        """
-        ...
-
-    def retrieve_checkpoint(self, checkpoint_id: str) -> "ProtocolStorageResult":
-        """
-        Retrieve a checkpoint by ID.
-
-        Args:
-            checkpoint_id: Unique checkpoint identifier
-
-        Returns:
-            StorageResult: Result containing checkpoint data if found
-
-        Raises:
-            ValueError: If checkpoint_id format is invalid
-            KeyError: If checkpoint not found
-            RuntimeError: If retrieval operation fails
-        """
-        ...
-
-    def list_checkpoints(
+    async def list_checkpoints(
         self,
         workflow_id: str | None = None,
         limit: int | None = None,
         offset: int | None = None,
-    ) -> "ProtocolStorageListResult":
-        """
-        List checkpoints, optionally filtered by workflow ID.
+    ) -> "ProtocolStorageListResult": ...
 
-        Args:
-            workflow_id: Optional workflow ID filter
-            limit: Optional limit on number of results
-            offset: Optional offset for pagination
+    async def delete_checkpoint(
+        self, checkpoint_id: str
+    ) -> "ProtocolStorageResult": ...
 
-        Returns:
-            StorageListResult: Result containing list of matching checkpoints
+    async def cleanup_expired_checkpoints(
+        self, retention_hours: int
+    ) -> "ProtocolStorageResult": ...
 
-        Raises:
-            ValueError: If parameters are invalid
-            RuntimeError: If list operation fails
-        """
-        ...
+    async def get_storage_status(self) -> "ProtocolStorageHealthStatus": ...
 
-    def delete_checkpoint(self, checkpoint_id: str) -> "ProtocolStorageResult":
-        """
-        Delete a checkpoint by ID.
+    async def test_connection(self) -> "ProtocolStorageResult": ...
 
-        Args:
-            checkpoint_id: Unique checkpoint identifier
-
-        Returns:
-            StorageResult: Result of the deletion operation
-
-        Raises:
-            ValueError: If checkpoint_id format is invalid
-            KeyError: If checkpoint not found
-            RuntimeError: If deletion operation fails
-        """
-        ...
-
-    def cleanup_expired_checkpoints(
-        self,
-        retention_hours: int,
-    ) -> "ProtocolStorageResult":
-        """
-        Clean up expired checkpoints based on retention policies.
-
-        Args:
-            retention_hours: Hours to retain checkpoints
-
-        Returns:
-            StorageResult: Result containing number of checkpoints cleaned up
-
-        Raises:
-            ValueError: If retention_hours is invalid
-            RuntimeError: If cleanup operation fails
-        """
-        ...
-
-    def get_storage_status(self) -> "ProtocolStorageHealthStatus":
-        """
-        Get storage backend status and health information.
-
-        Returns:
-            StorageHealthStatus: Status information including health, capacity, etc.
-
-        Raises:
-            RuntimeError: If status check fails
-        """
-        ...
-
-    def test_connection(self) -> "ProtocolStorageResult":
-        """
-        Test connectivity to the storage backend.
-
-        Returns:
-            StorageResult: Result of the connection test
-
-        Raises:
-            RuntimeError: If connection test fails
-        """
-        ...
-
-    def initialize_storage(self) -> "ProtocolStorageResult":
-        """
-        Initialize storage backend (create tables, directories, etc.).
-
-        Returns:
-            StorageResult: Result of the initialization operation
-
-        Raises:
-            RuntimeError: If initialization fails
-        """
-        ...
+    async def initialize_storage(self) -> "ProtocolStorageResult": ...
 
     @property
-    def backend_id(self) -> str:
-        """
-        Get unique backend identifier.
-
-        Returns:
-            Unique string identifying this backend instance
-        """
-        ...
+    def backend_id(self) -> str: ...
 
     @property
-    def backend_type(self) -> str:
-        """
-        Get backend type (filesystem, sqlite, postgresql, etc.).
-
-        Returns:
-            String identifying the backend type
-        """
-        ...
+    def backend_type(self) -> str: ...
 
     @property
-    def is_healthy(self) -> bool:
-        """
-        Check if backend is healthy and operational.
-
-        Returns:
-            True if backend is healthy, False otherwise
-        """
-        ...
+    def is_healthy(self) -> bool: ...
 
 
 @runtime_checkable
@@ -205,71 +80,20 @@ class ProtocolStorageBackendFactory(Protocol):
     Provides pluggable factory interface for different backend types.
     """
 
-    def get_storage_backend(
+    async def get_storage_backend(
         self,
         backend_type: str,
         storage_config: "ProtocolStorageConfiguration",
         credentials: "ProtocolStorageCredentials | None" = None,
         **kwargs: object,
-    ) -> "ProtocolStorageBackend":
-        """
-        Create a storage backend instance.
+    ) -> "ProtocolStorageBackend": ...
 
-        Args:
-            backend_type: Storage backend type (filesystem, sqlite, postgresql)
-            storage_config: Storage configuration object
-            credentials: Optional authentication credentials
-            **kwargs: Additional backend-specific parameters
+    async def list_available_backends(self) -> list[str]: ...
 
-        Returns:
-            ProtocolStorageBackend: Configured storage backend instance
+    async def validate_backend_config(
+        self, backend_type: str, storage_config: "ProtocolStorageConfiguration"
+    ) -> "ProtocolStorageResult": ...
 
-        Raises:
-            ValueError: If backend_type is invalid or unsupported
-            RuntimeError: If backend creation fails
-        """
-        ...
-
-    def list_available_backends(self) -> list[str]:
-        """
-        List available storage backend types.
-
-        Returns:
-            list[str]: List of available backend type names
-        """
-        ...
-
-    def validate_backend_config(
-        self,
-        backend_type: str,
-        storage_config: "ProtocolStorageConfiguration",
-    ) -> "ProtocolStorageResult":
-        """
-        Validate configuration for a specific backend type.
-
-        Args:
-            backend_type: Storage backend type
-            storage_config: Configuration to validate
-
-        Returns:
-            StorageResult: Result of the validation operation
-
-        Raises:
-            ValueError: If backend_type is invalid
-        """
-        ...
-
-    def get_default_config(self, backend_type: str) -> "ProtocolStorageConfiguration":
-        """
-        Get default configuration for a backend type.
-
-        Args:
-            backend_type: Storage backend type
-
-        Returns:
-            StorageConfiguration: Default configuration object for the backend type
-
-        Raises:
-            ValueError: If backend_type is invalid or unsupported
-        """
-        ...
+    async def get_default_config(
+        self, backend_type: str
+    ) -> "ProtocolStorageConfiguration": ...

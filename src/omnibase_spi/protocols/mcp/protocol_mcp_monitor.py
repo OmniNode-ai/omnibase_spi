@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 MCP Monitor Protocol - ONEX SPI Interface.
 
@@ -8,8 +7,9 @@ Provides comprehensive monitoring, alerting, and health management for MCP syste
 Domain: MCP monitoring, health checks, and observability
 """
 
-from typing import Any, Callable, Optional, Protocol, runtime_checkable
+from typing import Any, Callable, Protocol, runtime_checkable
 
+from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 from omnibase_spi.protocols.types.protocol_mcp_types import (
     ProtocolMCPHealthCheck,
     ProtocolMCPSubsystemRegistration,
@@ -26,102 +26,29 @@ class ProtocolMCPHealthMonitor(Protocol):
     """
 
     async def perform_health_check(
-        self,
-        subsystem: ProtocolMCPSubsystemRegistration,
-        check_tools: bool,
-    ) -> ProtocolMCPHealthCheck:
-        """
-        Perform comprehensive health check on a subsystem.
-
-        Args:
-            subsystem: Subsystem to check
-            check_tools: Whether to test individual tools
-
-        Returns:
-            Health check result
-        """
-        ...
+        self, subsystem: ProtocolMCPSubsystemRegistration, check_tools: bool
+    ) -> ProtocolMCPHealthCheck: ...
 
     async def monitor_subsystem_health(
         self,
         subsystem_id: str,
         interval_seconds: int,
-        callback: Optional[Callable[[Any], Any]],
-    ) -> bool:
-        """
-        Start continuous health monitoring for a subsystem.
+        callback: Callable[[Any], Any] | None,
+    ) -> bool: ...
 
-        Args:
-            subsystem_id: Subsystem to monitor
-            interval_seconds: Check interval
-            callback: Optional callback for status changes
-
-        Returns:
-            True if monitoring started successfully
-        """
-        ...
-
-    async def stop_health_monitoring(self, subsystem_id: str) -> bool:
-        """
-        Stop health monitoring for a subsystem.
-
-        Args:
-            subsystem_id: Subsystem to stop monitoring
-
-        Returns:
-            True if monitoring stopped successfully
-        """
-        ...
+    async def stop_health_monitoring(self, subsystem_id: str) -> bool: ...
 
     async def get_health_status(
         self, subsystem_id: str
-    ) -> Optional[ProtocolMCPHealthCheck]:
-        """
-        Get latest health status for a subsystem.
-
-        Args:
-            subsystem_id: Subsystem ID
-
-        Returns:
-            Latest health check result or None if not found
-        """
-        ...
+    ) -> ProtocolMCPHealthCheck | None: ...
 
     async def get_health_history(
-        self,
-        subsystem_id: str,
-        hours: int,
-        limit: int,
-    ) -> list[ProtocolMCPHealthCheck]:
-        """
-        Get health check history for a subsystem.
-
-        Args:
-            subsystem_id: Subsystem ID
-            hours: Time range in hours
-            limit: Maximum results
-
-        Returns:
-            List of historical health checks
-        """
-        ...
+        self, subsystem_id: str, hours: int, limit: int
+    ) -> list[ProtocolMCPHealthCheck]: ...
 
     async def detect_health_anomalies(
-        self,
-        subsystem_id: Optional[str],
-        time_window_hours: int,
-    ) -> list[dict[str, Any]]:
-        """
-        Detect health anomalies and patterns.
-
-        Args:
-            subsystem_id: Optional filter by subsystem
-            time_window_hours: Analysis time window
-
-        Returns:
-            List of detected anomalies
-        """
-        ...
+        self, subsystem_id: str | None, time_window_hours: int
+    ) -> list[dict[str, ContextValue]]: ...
 
 
 @runtime_checkable
@@ -143,174 +70,52 @@ class ProtocolMCPMonitor(Protocol):
     """
 
     @property
-    def health_monitor(self) -> ProtocolMCPHealthMonitor:
-        """Get the health monitor implementation."""
-        ...
+    def health_monitor(self) -> ProtocolMCPHealthMonitor: ...
 
     async def start_comprehensive_monitoring(
         self,
-        registry_config: dict[str, Any],
-        monitoring_config: Optional[dict[str, Any]],
-    ) -> bool:
-        """
-        Start comprehensive monitoring of the MCP system.
+        registry_config: dict[str, ContextValue],
+        monitoring_config: dict[str, ContextValue] | None,
+    ) -> bool: ...
 
-        Args:
-            registry_config: Registry connection configuration
-            monitoring_config: Monitoring-specific configuration
+    async def stop_all_monitoring(self) -> bool: ...
 
-        Returns:
-            True if monitoring started successfully
-        """
-        ...
-
-    async def stop_all_monitoring(self) -> bool:
-        """
-        Stop all monitoring activities.
-
-        Returns:
-            True if all monitoring stopped successfully
-        """
-        ...
-
-    async def collect_system_metrics(self, time_range_minutes: int) -> dict[str, Any]:
-        """
-        Collect comprehensive system metrics.
-
-        Args:
-            time_range_minutes: Time range for metric collection
-
-        Returns:
-            System metrics including registry, subsystem, and tool metrics
-        """
-        ...
+    async def collect_system_metrics(
+        self, time_range_minutes: int
+    ) -> dict[str, ContextValue]: ...
 
     async def generate_alerts(
-        self, alert_config: Optional[dict[str, Any]] = None
-    ) -> list[dict[str, Any]]:
-        """
-        Generate alerts based on current system status.
-
-        Args:
-            alert_config: Alert configuration and thresholds
-
-        Returns:
-            List of active alerts
-        """
-        ...
+        self, alert_config: dict[str, ContextValue] | None = None
+    ) -> list[dict[str, ContextValue]]: ...
 
     async def monitor_subsystem_performance(
         self,
         subsystem_id: str,
         interval_seconds: int,
-        callback: Optional[Callable[[Any], Any]],
-    ) -> bool:
-        """
-        Monitor performance metrics for a specific subsystem.
-
-        Args:
-            subsystem_id: Subsystem to monitor
-            interval_seconds: Monitoring interval
-            callback: Optional callback for metric updates
-
-        Returns:
-            True if monitoring started successfully
-        """
-        ...
+        callback: Callable[[Any], Any] | None,
+    ) -> bool: ...
 
     async def analyze_performance_trends(
-        self,
-        subsystem_id: Optional[str],
-        time_range_hours: int,
-        metrics: Optional[list[str]],
-    ) -> dict[str, Any]:
-        """
-        Analyze performance trends and patterns.
-
-        Args:
-            subsystem_id: Optional filter by subsystem
-            time_range_hours: Analysis time range
-            metrics: Optional specific metrics to analyze
-
-        Returns:
-            Trend analysis results
-        """
-        ...
+        self, subsystem_id: str | None, time_range_hours: int, metrics: list[str] | None
+    ) -> dict[str, ContextValue]: ...
 
     async def generate_health_report(
-        self,
-        time_range_hours: int,
-        include_recommendations: bool,
-    ) -> dict[str, Any]:
-        """
-        Generate comprehensive health report.
-
-        Args:
-            time_range_hours: Report time range
-            include_recommendations: Whether to include improvement recommendations
-
-        Returns:
-            Health report with status, metrics, and recommendations
-        """
-        ...
+        self, time_range_hours: int, include_recommendations: bool
+    ) -> dict[str, ContextValue]: ...
 
     async def configure_alerting(
         self,
         alert_handlers: list[Callable[[Any], Any]],
-        thresholds: dict[str, Any],
-        escalation_rules: Optional[dict[str, Any]],
-    ) -> bool:
-        """
-        Configure alerting system.
+        thresholds: dict[str, ContextValue],
+        escalation_rules: dict[str, ContextValue] | None,
+    ) -> bool: ...
 
-        Args:
-            alert_handlers: List of alert handler functions
-            thresholds: Alert thresholds and conditions
-            escalation_rules: Optional escalation configuration
-
-        Returns:
-            True if alerting configured successfully
-        """
-        ...
-
-    async def get_monitoring_status(self) -> dict[str, Any]:
-        """
-        Get current monitoring system status.
-
-        Returns:
-            Monitoring status including active monitors and health
-        """
-        ...
+    async def get_monitoring_status(self) -> dict[str, ContextValue]: ...
 
     async def generate_dashboard_data(
-        self, dashboard_config: Optional[dict[str, Any]] = None
-    ) -> dict[str, Any]:
-        """
-        Generate data for operational dashboard.
-
-        Args:
-            dashboard_config: Dashboard configuration
-
-        Returns:
-            Dashboard data including widgets and metrics
-        """
-        ...
+        self, dashboard_config: dict[str, ContextValue] | None = None
+    ) -> dict[str, ContextValue]: ...
 
     async def export_monitoring_data(
-        self,
-        format_type: str,
-        time_range_hours: int,
-        include_raw_data: bool,
-    ) -> dict[str, Any]:
-        """
-        Export monitoring data for external analysis.
-
-        Args:
-            format_type: Export format (json, csv, prometheus)
-            time_range_hours: Data time range
-            include_raw_data: Whether to include raw metric data
-
-        Returns:
-            Exported monitoring data
-        """
-        ...
+        self, format_type: str, time_range_hours: int, include_raw_data: bool
+    ) -> dict[str, ContextValue]: ...

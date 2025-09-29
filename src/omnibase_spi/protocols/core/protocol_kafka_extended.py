@@ -5,7 +5,9 @@ Provides enhanced Kafka protocols with consumer operations, batch processing,
 transactions, partitioning strategies, and advanced configuration.
 """
 
-from typing import Optional, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
+
+from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 
 
 @runtime_checkable
@@ -17,12 +19,12 @@ class ProtocolKafkaMessage(Protocol):
     for comprehensive message handling across producers and consumers.
     """
 
-    key: Optional[bytes]
+    key: bytes | None
     value: bytes
     topic: str
-    partition: Optional[int]
-    offset: Optional[int]
-    timestamp: Optional[int]
+    partition: int | None
+    offset: int | None
+    timestamp: int | None
     headers: dict[str, bytes]
 
 
@@ -36,7 +38,7 @@ class ProtocolKafkaConsumer(Protocol):
 
     Example:
         ```python
-        consumer: ProtocolKafkaConsumer = get_kafka_consumer()
+        consumer: "ProtocolKafkaConsumer" = get_kafka_consumer()
 
         # Subscribe to topics
         await consumer.subscribe_to_topics(
@@ -52,140 +54,29 @@ class ProtocolKafkaConsumer(Protocol):
         ```
     """
 
-    async def subscribe_to_topics(self, topics: list[str], group_id: str) -> None:
-        """
-        Subscribe to Kafka topics with consumer group.
+    async def subscribe_to_topics(self, topics: list[str], group_id: str) -> None: ...
 
-        Args:
-            topics: List of topic names to subscribe to
-            group_id: Consumer group ID for coordination
-
-        Raises:
-            OnexError: If subscription fails or topics don't exist
-        """
-        ...
-
-    async def unsubscribe_from_topics(self, topics: list[str]) -> None:
-        """
-        Unsubscribe from specific Kafka topics.
-
-        Args:
-            topics: List of topic names to unsubscribe from
-
-        Raises:
-            OnexError: If unsubscription encounters errors
-        """
-        ...
+    async def unsubscribe_from_topics(self, topics: list[str]) -> None: ...
 
     async def consume_messages(
         self, timeout_ms: int, max_messages: int
-    ) -> list[ProtocolKafkaMessage]:
-        """
-        Consume messages from subscribed topics.
-
-        Args:
-            timeout_ms: Maximum time to wait for messages in milliseconds
-            max_messages: Maximum number of messages to consume in one batch
-
-        Returns:
-            List of consumed messages
-
-        Raises:
-            OnexError: If message consumption encounters errors
-        """
-        ...
+    ) -> list["ProtocolKafkaMessage"]: ...
 
     async def consume_messages_stream(
         self, batch_timeout_ms: int
-    ) -> list[ProtocolKafkaMessage]:
-        """
-        Stream consume messages continuously from subscribed topics.
+    ) -> list["ProtocolKafkaMessage"]: ...
 
-        Args:
-            batch_timeout_ms: Timeout for each batch of messages
+    async def commit_offsets(self) -> None: ...
 
-        Yields:
-            Batches of consumed messages
+    async def seek_to_beginning(self, topic: str, partition: int) -> None: ...
 
-        Raises:
-            OnexError: If streaming consumption encounters errors
-        """
-        ...
+    async def seek_to_end(self, topic: str, partition: int) -> None: ...
 
-    async def commit_offsets(self) -> None:
-        """
-        Commit current message offsets to Kafka.
+    async def seek_to_offset(self, topic: str, partition: int, offset: int) -> None: ...
 
-        Acknowledges processing of consumed messages and advances
-        consumer position to prevent reprocessing.
+    async def get_current_offsets(self) -> dict[str, dict[int, int]]: ...
 
-        Raises:
-            OnexError: If offset commit fails
-        """
-        ...
-
-    async def seek_to_beginning(self, topic: str, partition: int) -> None:
-        """
-        Seek to the beginning of a topic partition.
-
-        Args:
-            topic: Topic name to seek in
-            partition: Partition number to seek in
-
-        Raises:
-            OnexError: If seek operation fails
-        """
-        ...
-
-    async def seek_to_end(self, topic: str, partition: int) -> None:
-        """
-        Seek to the end of a topic partition.
-
-        Args:
-            topic: Topic name to seek in
-            partition: Partition number to seek in
-
-        Raises:
-            OnexError: If seek operation fails
-        """
-        ...
-
-    async def seek_to_offset(self, topic: str, partition: int, offset: int) -> None:
-        """
-        Seek to specific offset in a topic partition.
-
-        Args:
-            topic: Topic name to seek in
-            partition: Partition number to seek in
-            offset: Target offset position
-
-        Raises:
-            OnexError: If seek operation fails
-        """
-        ...
-
-    async def get_current_offsets(self) -> dict[str, dict[int, int]]:
-        """
-        Get current consumer offsets for all assigned partitions.
-
-        Returns:
-            Dictionary mapping topic -> partition -> current offset
-
-        Raises:
-            OnexError: If offset retrieval fails
-        """
-        ...
-
-    async def close_consumer(self) -> None:
-        """
-        Close consumer and release resources.
-
-        Properly closes connections and commits any pending offsets.
-
-        Raises:
-            OnexError: If consumer close encounters errors
-        """
-        ...
+    async def close_consumer(self) -> None: ...
 
 
 @runtime_checkable
@@ -198,7 +89,7 @@ class ProtocolKafkaBatchProducer(Protocol):
 
     Example:
         ```python
-        producer: ProtocolKafkaBatchProducer = get_batch_producer()
+        producer: "ProtocolKafkaBatchProducer" = get_batch_producer()
 
         # Prepare batch of messages
         messages = [
@@ -212,88 +103,29 @@ class ProtocolKafkaBatchProducer(Protocol):
         ```
     """
 
-    async def send_batch(self, messages: list[ProtocolKafkaMessage]) -> None:
-        """
-        Send batch of messages to Kafka.
-
-        Args:
-            messages: List of messages to send in batch
-
-        Raises:
-            OnexError: If batch sending fails
-        """
-        ...
+    async def send_batch(self, messages: list["ProtocolKafkaMessage"]) -> None: ...
 
     async def send_to_partition(
         self,
         topic: str,
         partition: int,
-        key: Optional[bytes],
+        key: bytes | None,
         value: bytes,
-        headers: Optional[dict[str, bytes]] = None,
-    ) -> None:
-        """
-        Send message to specific partition.
-
-        Args:
-            topic: Target topic name
-            partition: Target partition number
-            key: Optional message key
-            value: Message value as bytes
-            headers: Optional message headers
-
-        Raises:
-            OnexError: If message sending fails
-        """
-        ...
+        headers: dict[str, bytes] | None = None,
+    ) -> None: ...
 
     async def send_with_custom_partitioner(
         self,
         topic: str,
-        key: Optional[bytes],
+        key: bytes | None,
         value: bytes,
         partition_strategy: str,
-        headers: Optional[dict[str, bytes]] = None,
-    ) -> None:
-        """
-        Send message using custom partitioning strategy.
+        headers: dict[str, bytes] | None = None,
+    ) -> None: ...
 
-        Args:
-            topic: Target topic name
-            key: Optional message key
-            value: Message value as bytes
-            partition_strategy: Partitioning strategy name
-            headers: Optional message headers
+    async def flush_pending(self, timeout_ms: int) -> None: ...
 
-        Raises:
-            OnexError: If message sending fails
-        """
-        ...
-
-    async def flush_pending(self, timeout_ms: int) -> None:
-        """
-        Flush all pending messages and wait for acknowledgments.
-
-        Args:
-            timeout_ms: Maximum time to wait for flush completion
-
-        Raises:
-            OnexError: If flush operation times out or fails
-        """
-        ...
-
-    async def get_batch_metrics(self) -> dict[str, int]:
-        """
-        Get batch producer performance metrics.
-
-        Returns:
-            Dictionary with metrics like messages_sent, batches_sent,
-            average_batch_size, etc.
-
-        Raises:
-            OnexError: If metrics retrieval fails
-        """
-        ...
+    async def get_batch_metrics(self) -> dict[str, int]: ...
 
 
 @runtime_checkable
@@ -306,7 +138,7 @@ class ProtocolKafkaTransactionalProducer(Protocol):
 
     Example:
         ```python
-        producer: ProtocolKafkaTransactionalProducer = get_transactional_producer()
+        producer: "ProtocolKafkaTransactionalProducer" = get_transactional_producer()
 
         # Start transaction
         await producer.begin_transaction()
@@ -321,72 +153,21 @@ class ProtocolKafkaTransactionalProducer(Protocol):
         ```
     """
 
-    async def init_transactions(self, transaction_id: str) -> None:
-        """
-        Initialize transactional producer with transaction ID.
+    async def init_transactions(self, transaction_id: str) -> None: ...
 
-        Args:
-            transaction_id: Unique transaction identifier
-
-        Raises:
-            OnexError: If transaction initialization fails
-        """
-        ...
-
-    async def begin_transaction(self) -> None:
-        """
-        Begin a new transaction.
-
-        All subsequent send operations will be part of this transaction
-        until commit or abort is called.
-
-        Raises:
-            OnexError: If transaction begin fails
-        """
-        ...
+    async def begin_transaction(self) -> None: ...
 
     async def send_transactional(
         self,
         topic: str,
         value: bytes,
-        key: Optional[bytes] = None,
-        headers: Optional[dict[str, bytes]] = None,
-    ) -> None:
-        """
-        Send message as part of current transaction.
+        key: bytes | None = None,
+        headers: dict[str, bytes] | None = None,
+    ) -> None: ...
 
-        Args:
-            topic: Target topic name
-            value: Message value as bytes
-            key: Optional message key
-            headers: Optional message headers
+    async def commit_transaction(self) -> None: ...
 
-        Raises:
-            OnexError: If transactional send fails
-        """
-        ...
-
-    async def commit_transaction(self) -> None:
-        """
-        Commit current transaction.
-
-        Makes all messages sent in this transaction visible to consumers.
-
-        Raises:
-            OnexError: If transaction commit fails
-        """
-        ...
-
-    async def abort_transaction(self) -> None:
-        """
-        Abort current transaction.
-
-        Discards all messages sent in this transaction.
-
-        Raises:
-            OnexError: If transaction abort fails
-        """
-        ...
+    async def abort_transaction(self) -> None: ...
 
 
 @runtime_checkable
@@ -399,7 +180,7 @@ class ProtocolKafkaExtendedClient(Protocol):
 
     Example:
         ```python
-        client: ProtocolKafkaExtendedClient = get_extended_kafka_client()
+        client: "ProtocolKafkaExtendedClient" = get_extended_kafka_client()
 
         # Create consumer and producer
         consumer = client.create_consumer()
@@ -411,109 +192,28 @@ class ProtocolKafkaExtendedClient(Protocol):
         ```
     """
 
-    def create_consumer(self) -> ProtocolKafkaConsumer:
-        """
-        Create Kafka consumer instance.
+    async def create_consumer(self) -> ProtocolKafkaConsumer: ...
 
-        Returns:
-            Kafka consumer protocol implementation
-        """
-        ...
+    async def create_batch_producer(self) -> ProtocolKafkaBatchProducer: ...
 
-    def create_batch_producer(self) -> ProtocolKafkaBatchProducer:
-        """
-        Create batch Kafka producer instance.
-
-        Returns:
-            Batch producer protocol implementation
-        """
-        ...
-
-    def create_transactional_producer(self) -> ProtocolKafkaTransactionalProducer:
-        """
-        Create transactional Kafka producer instance.
-
-        Returns:
-            Transactional producer protocol implementation
-        """
-        ...
+    async def create_transactional_producer(
+        self,
+    ) -> ProtocolKafkaTransactionalProducer: ...
 
     async def create_topic(
         self,
         topic_name: str,
         partitions: int,
         replication_factor: int,
-        config: Optional[dict[str, str]] = None,
-    ) -> None:
-        """
-        Create new Kafka topic.
+        config: dict[str, "ContextValue"] | None = None,
+    ) -> None: ...
 
-        Args:
-            topic_name: Name of the topic to create
-            partitions: Number of partitions for the topic
-            replication_factor: Replication factor for the topic
-            config: Optional topic configuration
+    async def delete_topic(self, topic_name: str) -> None: ...
 
-        Raises:
-            OnexError: If topic creation fails
-        """
-        ...
+    async def list_topics(self) -> list[str]: ...
 
-    async def delete_topic(self, topic_name: str) -> None:
-        """
-        Delete Kafka topic.
+    async def get_topic_metadata(self, topic_name: str) -> dict[str, str | int]: ...
 
-        Args:
-            topic_name: Name of the topic to delete
+    async def health_check(self) -> bool: ...
 
-        Raises:
-            OnexError: If topic deletion fails
-        """
-        ...
-
-    async def list_topics(self) -> list[str]:
-        """
-        List all available Kafka topics.
-
-        Returns:
-            List of topic names
-
-        Raises:
-            OnexError: If topic listing fails
-        """
-        ...
-
-    async def get_topic_metadata(self, topic_name: str) -> dict[str, str | int]:
-        """
-        Get metadata for specific topic.
-
-        Args:
-            topic_name: Name of the topic
-
-        Returns:
-            Dictionary with topic metadata (partitions, replication, etc.)
-
-        Raises:
-            OnexError: If metadata retrieval fails
-        """
-        ...
-
-    async def health_check(self) -> bool:
-        """
-        Check if Kafka client is healthy and connected.
-
-        Returns:
-            True if client is healthy, False otherwise
-        """
-        ...
-
-    async def close_client(self) -> None:
-        """
-        Close Kafka client and clean up resources.
-
-        Properly closes all producers, consumers, and connections.
-
-        Raises:
-            OnexError: If client close encounters errors
-        """
-        ...
+    async def close_client(self) -> None: ...

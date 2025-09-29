@@ -32,17 +32,17 @@ Each protocol is documented with:
 class ProtocolExample(Protocol):
     """
     Brief description of the protocol's purpose.
-    
+
     Detailed description covering:
     - Primary use cases and scenarios
     - Key features and capabilities
     - Integration patterns and usage
     - Implementation requirements
-    
+
     Key Features:
         - **Feature 1**: Description of key feature
         - **Feature 2**: Description of another feature
-        
+
     Example:
         ```python
         # Usage example
@@ -51,26 +51,26 @@ class ProtocolExample(Protocol):
             return result
         ```
     """
-    
+
     # Properties are documented with type annotations
     property_name: str
     """Description of the property."""
-    
+
     async def method_name(
-        self, 
-        param: str, 
+        self,
+        param: str,
         optional_param: Optional[int] = None
     ) -> str:
         """
         Method description with clear purpose.
-        
+
         Args:
             param: Description of required parameter
             optional_param: Description of optional parameter
-            
+
         Returns:
             Description of return value
-            
+
         Raises:
             ValueError: When parameter validation fails
             TimeoutError: When operation times out

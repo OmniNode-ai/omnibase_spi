@@ -41,7 +41,7 @@ Types of nodes in the ONEX distributed system.
 ```python
 HealthStatus = Literal[
     "healthy", "degraded", "unhealthy", "critical", "unknown",
-    "warning", "unreachable", "available", "unavailable", 
+    "warning", "unreachable", "available", "unavailable",
     "initializing", "disposing", "error"
 ]
 ```
@@ -86,7 +86,7 @@ BaseStatus = Literal["pending", "processing", "completed", "failed", "cancelled"
 
 Base status values used across different operations.
 
-#### `OperationStatus` 
+#### `OperationStatus`
 ```python
 OperationStatus = Literal["success", "failed", "in_progress", "cancelled", "pending"]
 ```
@@ -124,11 +124,11 @@ Validation modes for different testing scenarios.
 @runtime_checkable
 class ProtocolSemVer(Protocol):
     """Protocol for semantic version objects."""
-    
+
     major: int
     minor: int  
     patch: int
-    
+
     def __str__(self) -> str:
         """Return string representation (e.g., '1.2.3')."""
         ...
@@ -149,7 +149,7 @@ Semantic version protocol ensuring consistent version handling across the system
 @runtime_checkable
 class ProtocolLogEntry(Protocol):
     """Protocol for log entry objects."""
-    
+
     level: LogLevel
     message: str
     correlation_id: UUID
@@ -170,7 +170,7 @@ Structured log entry protocol for consistent logging across the system.
 ```python
 class ProtocolValidationResult(Protocol):
     """Protocol for validation results."""
-    
+
     is_valid: bool
     errors: list[str]
     warnings: list[str]
@@ -190,7 +190,7 @@ Standard validation result structure.
 @runtime_checkable
 class ProtocolMetadata(Protocol):
     """Protocol for structured metadata."""
-    
+
     data: dict[str, ContextValue]
     version: ProtocolSemVer
     created_at: ProtocolDateTime
@@ -209,7 +209,7 @@ Metadata protocol for data structures requiring version tracking and timestamps.
 ```python
 class ProtocolMetadataOperations(Protocol):
     """Protocol for metadata operations."""
-    
+
     def get_value(self, key: str) -> ContextValue: ...
     def has_key(self, key: str) -> bool: ...
     def keys(self) -> list[str]: ...
@@ -230,7 +230,7 @@ Operations protocol for manipulating metadata.
 ```python
 class ProtocolConfigValue(Protocol):
     """Protocol for configuration values."""
-    
+
     key: str
     value: ContextValue
     config_type: Literal["string", "int", "float", "bool", "list"]
@@ -252,7 +252,7 @@ Configuration value protocol with type information.
 @runtime_checkable
 class ProtocolCacheStatistics(Protocol):
     """Protocol for structured cache service statistics."""
-    
+
     hit_count: int
     miss_count: int
     total_requests: int
@@ -283,7 +283,7 @@ Comprehensive cache performance statistics protocol.
 ```python
 class ProtocolAction(Protocol):
     """Protocol for reducer actions."""
-    
+
     type: str
     payload: ProtocolActionPayload
     timestamp: ProtocolDateTime
@@ -295,7 +295,7 @@ Action protocol for state reduction patterns.
 ```python
 class ProtocolActionPayload(Protocol):
     """Protocol for action payload with specific data."""
-    
+
     target_id: str
     operation: str
     parameters: dict[str, ContextValue]
@@ -307,7 +307,7 @@ Action payload with typed parameters.
 ```python
 class ProtocolState(Protocol):
     """Protocol for reducer state."""
-    
+
     metadata: ProtocolMetadata
     version: int  # Sequence number, not semver
     last_updated: ProtocolDateTime
@@ -321,7 +321,7 @@ State protocol for reducer pattern implementations.
 ```python
 class ProtocolErrorInfo(Protocol):
     """Protocol for error information in results."""
-    
+
     error_type: str
     message: str
     trace: Optional[str]
@@ -344,7 +344,7 @@ Comprehensive error information protocol.
 ```python
 class ProtocolNodeResult(Protocol):
     """Protocol for node processing results with monadic composition."""
-    
+
     value: Optional[ContextValue]
     is_success: bool
     is_failure: bool
@@ -477,8 +477,8 @@ Leverage rich error protocols for better debugging:
 from omnibase_spi.protocols.types.core_types import ProtocolErrorInfo
 
 def create_error_info(
-    error_type: str, 
-    message: str, 
+    error_type: str,
+    message: str,
     retryable: bool = False
 ) -> ProtocolErrorInfo:
     return ProtocolErrorInfo(

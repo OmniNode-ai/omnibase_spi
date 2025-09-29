@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Node Registry Protocol - ONEX SPI Interface.
 
@@ -8,7 +7,9 @@ Supports the ONEX Messaging Design v0.3 with environment isolation and node grou
 Integrates with Consul-based discovery while maintaining clean protocol boundaries.
 """
 
-from typing import Optional, Protocol, runtime_checkable
+from __future__ import annotations
+
+from typing import Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import (
     ContextValue,
@@ -23,9 +24,7 @@ from omnibase_spi.protocols.types.protocol_core_types import (
 class ProtocolNodeChangeCallback(Protocol):
     """Protocol for node change callback functions."""
 
-    def __call__(self, node_info: "ProtocolNodeInfo", change_type: str) -> None:
-        """Handle node registry changes."""
-        ...
+    def __call__(self, node_info: "ProtocolNodeInfo", change_type: str) -> None: ...
 
 
 @runtime_checkable
@@ -42,7 +41,7 @@ class ProtocolNodeRegistryConfig(Protocol):
 
     consul_host: str
     consul_port: int
-    consul_token: Optional[str]
+    consul_token: str | None
     health_check_interval: int
     retry_attempts: int
 
@@ -56,12 +55,12 @@ class ProtocolNodeInfo(Protocol):
     node_name: str
     environment: str
     group: str
-    version: ProtocolSemVer
-    health_status: LiteralHealthStatus
+    version: "ProtocolSemVer"
+    health_status: "LiteralHealthStatus"
     endpoint: str
-    metadata: dict[str, ContextValue]
-    registered_at: ProtocolDateTime
-    last_heartbeat: ProtocolDateTime
+    metadata: dict[str, "ContextValue"]
+    registered_at: "ProtocolDateTime"
+    last_heartbeat: "ProtocolDateTime"
 
 
 @runtime_checkable
@@ -80,53 +79,11 @@ class ProtocolNodeRegistry(Protocol):
     Usage Example:
         ```python
         # Implementation example (not part of SPI)
-        class RegistryConsulNode:
-            @property
-            def environment(self) -> str: ...
-
-            @property
-            def consul_endpoint(self) -> str: ...
-
-            @property
-            def watches(self) -> dict[str, object]: ...
-
-            async def register_node(self, node_info: ProtocolNodeInfo, ttl_seconds: int) -> bool:
-                # Register node in Consul with TTL health check
-                service_id = f"{node_info.node_id}-{self.environment}"
-                return await self.consul.agent.service.register(
-                    name=f"{self.environment}-{node_info.group}-{node_info.node_type}",
-                    service_id=service_id,
-                    address=node_info.endpoint.split(':')[0],
-                    port=int(node_info.endpoint.split(':')[1]),
-                    tags=[node_info.group, str(node_info.version)],
-                    meta=node_info.metadata,
-                    check=consul.Check.ttl(f"{ttl_seconds}s")
-                )
-
-            async def discover_nodes(self, node_type: Optional[LiteralNodeType] = None,
-                                   environment: Optional[str] = None,
-                                   group: Optional[str] = None) -> list[ProtocolNodeInfo]:
-                # Discover nodes from Consul catalog
-                env = environment or self.environment
-                service_filter = f"{env}-"
-                if group:
-                    service_filter += f"{group}-"
-                if node_type:
-                    service_filter += str(node_type)
-
-                services = await self.consul.catalog.services()
-                matching_nodes = []
-
-                for service_name in services:
-                    if service_name.startswith(service_filter):
-                        service_info = await self.consul.catalog.service(service_name)
-                        for node in service_info:
-                            matching_nodes.append(self._convert_to_node_info(node))
-
-                return matching_nodes
+        # RegistryConsulNode would implement the protocol interface
+        # All methods defined in the protocol contract
 
         # Usage in application
-        registry: ProtocolNodeRegistry = RegistryConsulNode("prod", "consul.company.com:8500")
+        registry: "ProtocolNodeRegistry" = RegistryConsulNode("prod", "consul.company.com:8500")
 
         # Register current node
         node_info = NodeInfo(
@@ -157,7 +114,7 @@ class ProtocolNodeRegistry(Protocol):
         print(f"Found {len(compute_nodes)} compute nodes in analytics group")
 
         # Set up node change monitoring
-        async def on_node_change(node: ProtocolNodeInfo, change_type: str):
+        async def on_node_change(node: "ProtocolNodeInfo", change_type: str):
             print(f"Node {node.node_name} changed: {change_type}")
             if change_type == "unhealthy":
                 # Implement failover logic
@@ -184,159 +141,48 @@ class ProtocolNodeRegistry(Protocol):
     """
 
     @property
-    def environment(self) -> str:
-        """Get environment name (dev, staging, prod)."""
-        ...
+    def environment(self) -> str: ...
 
     @property
-    def consul_endpoint(self) -> Optional[str]:
-        """Get Consul endpoint configuration."""
-        ...
+    def consul_endpoint(self) -> str | None: ...
 
     @property
-    def config(self) -> Optional[ProtocolNodeRegistryConfig]:
-        """Get registry configuration protocol."""
-        ...
+    def config(self) -> ProtocolNodeRegistryConfig | None: ...
 
     async def register_node(
-        self, node_info: ProtocolNodeInfo, ttl_seconds: int
-    ) -> bool:
-        """
-        Register a node in the registry.
+        self, node_info: "ProtocolNodeInfo", ttl_seconds: int
+    ) -> bool: ...
 
-        Args:
-            node_info: Node information to register
-            ttl_seconds: Time-to-live for registration
-
-        Returns:
-            True if registration successful
-        """
-        ...
-
-    async def unregister_node(self, node_id: str) -> bool:
-        """
-        Unregister a node from the registry.
-
-        Args:
-            node_id: Node ID to unregister
-
-        Returns:
-            True if unregistration successful
-        """
-        ...
+    async def unregister_node(self, node_id: str) -> bool: ...
 
     async def update_node_health(
         self,
         node_id: str,
-        health_status: LiteralHealthStatus,
-        metadata: dict[str, ContextValue],
-    ) -> bool:
-        """
-        Update node health status.
+        health_status: "LiteralHealthStatus",
+        metadata: dict[str, "ContextValue"],
+    ) -> bool: ...
 
-        Args:
-            node_id: Node ID to update
-            health_status: New health status
-            metadata: Health status metadata (required for proper monitoring)
-
-        Returns:
-            True if update successful
-        """
-        ...
-
-    async def heartbeat(self, node_id: str) -> bool:
-        """
-        Send heartbeat for a registered node.
-
-        Args:
-            node_id: Node ID for heartbeat
-
-        Returns:
-            True if heartbeat accepted
-        """
-        ...
+    async def heartbeat(self, node_id: str) -> bool: ...
 
     async def discover_nodes(
         self,
-        node_type: Optional[LiteralNodeType] = None,
-        environment: Optional[str] = None,
-        group: Optional[str] = None,
-        health_filter: Optional[LiteralHealthStatus] = None,
-    ) -> list[ProtocolNodeInfo]:
-        """
-        Discover nodes matching criteria.
+        node_type: "LiteralNodeType | None" = None,
+        environment: str | None = None,
+        group: str | None = None,
+        health_filter: "LiteralHealthStatus | None" = None,
+    ) -> list["ProtocolNodeInfo"]: ...
 
-        Args:
-            node_type: Filter by node type
-            environment: Filter by environment (default: current)
-            group: Filter by node group
-            health_filter: Filter by health status
+    async def get_node(self, node_id: str) -> ProtocolNodeInfo | None: ...
 
-        Returns:
-            List of matching node information
-        """
-        ...
+    async def get_nodes_by_group(self, group: str) -> list["ProtocolNodeInfo"]: ...
 
-    async def get_node(self, node_id: str) -> Optional[ProtocolNodeInfo]:
-        """
-        Get specific node information.
-
-        Args:
-            node_id: Node ID to retrieve
-
-        Returns:
-            Node information or None if not found
-        """
-        ...
-
-    async def get_nodes_by_group(self, group: str) -> list[ProtocolNodeInfo]:
-        """
-        Get all nodes in a node group.
-
-        Args:
-            group: Node group name
-
-        Returns:
-            List of nodes in the group
-        """
-        ...
-
-    async def get_gateway_for_group(self, group: str) -> Optional[ProtocolNodeInfo]:
-        """
-        Get the Group Gateway node for a node group.
-
-        Args:
-            group: Node group name
-
-        Returns:
-            Gateway node info or None if no gateway
-        """
-        ...
+    async def get_gateway_for_group(self, group: str) -> ProtocolNodeInfo | None: ...
 
     async def watch_node_changes(
         self,
-        callback: ProtocolNodeChangeCallback,
-        node_type: Optional[LiteralNodeType] = None,
-        group: Optional[str] = None,
-    ) -> ProtocolWatchHandle:
-        """
-        Watch for node registry changes.
+        callback: "ProtocolNodeChangeCallback",
+        node_type: "LiteralNodeType | None" = None,
+        group: str | None = None,
+    ) -> ProtocolWatchHandle: ...
 
-        Args:
-            callback: Function to call on changes
-            node_type: Optional filter by node type
-            group: Optional filter by group
-
-        Returns:
-            Watch handle for cleanup
-        """
-        ...
-
-    async def stop_watch(self, watch_handle: ProtocolWatchHandle) -> None:
-        """
-        Stop watching node changes.
-
-        Args:
-            watch_handle: Handle returned by watch_node_changes
-        """
-        ...
+    async def stop_watch(self, watch_handle: "ProtocolWatchHandle") -> None: ...

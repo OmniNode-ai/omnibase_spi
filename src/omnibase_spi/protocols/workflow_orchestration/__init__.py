@@ -7,7 +7,7 @@ node discovery, and persistence layer contracts.
 
 All contracts follow ONEX SPI purity principles:
 - Protocol interfaces for behavior contracts
-- Type definitions for data structures  
+- Type definitions for data structures
 - No implementations, only pure contracts
 - Strong typing throughout
 - Event sourcing support

@@ -8,6 +8,7 @@ form data, file uploads, streaming responses, and advanced authentication.
 from typing import Optional, Protocol, runtime_checkable
 
 from omnibase_spi.protocols.core.protocol_http_client import ProtocolHttpResponse
+from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 
 
 @runtime_checkable
@@ -20,176 +21,46 @@ class ProtocolHttpRequestBuilder(Protocol):
 
     Example:
         ```python
-        builder: ProtocolHttpRequestBuilder = get_request_builder()
-        response = await builder.url("https://api.example.com/upload") \
-            .with_query_params({"version": "2.0", "format": "json"}) \
-            .with_bearer_token("token123") \
-            .with_file_upload({"document": file_bytes}) \
-            .post()
+        builder: "ProtocolHttpRequestBuilder" = get_request_builder()
+        response = await builder.url("https://api.example.com/upload")             .with_query_params({"version": "2.0", "format": "json"})             .with_bearer_token("token123")             .with_file_upload({"document": file_bytes})             .post()
         ```
     """
 
-    def url(self, url: str) -> "ProtocolHttpRequestBuilder":
-        """
-        Set the target URL for the request.
+    def url(self, url: str) -> "ProtocolHttpRequestBuilder": ...
 
-        Args:
-            url: Target URL for the HTTP request
+    async def with_query_params(
+        self, params: dict[str, "ContextValue"]
+    ) -> "ProtocolHttpRequestBuilder": ...
 
-        Returns:
-            Self for method chaining
-        """
-        ...
+    def with_form_data(
+        self, data: dict[str, "ContextValue"]
+    ) -> "ProtocolHttpRequestBuilder": ...
 
-    def with_query_params(self, params: dict[str, str]) -> "ProtocolHttpRequestBuilder":
-        """
-        Add query parameters to the request URL.
-
-        Args:
-            params: Query parameters as key-value pairs
-
-        Returns:
-            Self for method chaining
-        """
-        ...
-
-    def with_form_data(self, data: dict[str, str]) -> "ProtocolHttpRequestBuilder":
-        """
-        Set form data for the request body (application/x-www-form-urlencoded).
-
-        Args:
-            data: Form data as key-value pairs
-
-        Returns:
-            Self for method chaining
-        """
-        ...
-
-    def with_file_upload(self, files: dict[str, bytes]) -> "ProtocolHttpRequestBuilder":
-        """
-        Add file uploads for multipart/form-data requests.
-
-        Args:
-            files: Files to upload as filename -> content mapping
-
-        Returns:
-            Self for method chaining
-        """
-        ...
+    async def with_file_upload(
+        self, files: dict[str, bytes]
+    ) -> "ProtocolHttpRequestBuilder": ...
 
     def with_json(
         self, data: dict[str, str | int | float | bool]
-    ) -> "ProtocolHttpRequestBuilder":
-        """
-        Set JSON data for the request body.
+    ) -> "ProtocolHttpRequestBuilder": ...
 
-        Args:
-            data: JSON data to send in request body
-
-        Returns:
-            Self for method chaining
-        """
-        ...
-
-    def with_bearer_token(self, token: str) -> "ProtocolHttpRequestBuilder":
-        """
-        Add Bearer token authentication header.
-
-        Args:
-            token: Bearer token for authentication
-
-        Returns:
-            Self for method chaining
-        """
-        ...
+    def with_bearer_token(self, token: str) -> "ProtocolHttpRequestBuilder": ...
 
     def with_basic_auth(
         self, username: str, password: str
-    ) -> "ProtocolHttpRequestBuilder":
-        """
-        Add Basic authentication header.
+    ) -> "ProtocolHttpRequestBuilder": ...
 
-        Args:
-            username: Username for basic authentication
-            password: Password for basic authentication
+    def with_header(self, name: str, value: str) -> "ProtocolHttpRequestBuilder": ...
 
-        Returns:
-            Self for method chaining
-        """
-        ...
+    def with_timeout(self, timeout_seconds: int) -> "ProtocolHttpRequestBuilder": ...
 
-    def with_header(self, name: str, value: str) -> "ProtocolHttpRequestBuilder":
-        """
-        Add custom header to the request.
+    async def get(self) -> "ProtocolHttpResponse": ...
 
-        Args:
-            name: Header name
-            value: Header value
+    async def post(self) -> "ProtocolHttpResponse": ...
 
-        Returns:
-            Self for method chaining
-        """
-        ...
+    async def put(self) -> "ProtocolHttpResponse": ...
 
-    def with_timeout(self, timeout_seconds: int) -> "ProtocolHttpRequestBuilder":
-        """
-        Set request timeout.
-
-        Args:
-            timeout_seconds: Timeout in seconds
-
-        Returns:
-            Self for method chaining
-        """
-        ...
-
-    async def get(self) -> "ProtocolHttpResponse":
-        """
-        Execute HTTP GET request.
-
-        Returns:
-            HTTP response protocol implementation
-
-        Raises:
-            OnexError: For HTTP client errors, timeouts, or connection issues
-        """
-        ...
-
-    async def post(self) -> "ProtocolHttpResponse":
-        """
-        Execute HTTP POST request.
-
-        Returns:
-            HTTP response protocol implementation
-
-        Raises:
-            OnexError: For HTTP client errors, timeouts, or connection issues
-        """
-        ...
-
-    async def put(self) -> "ProtocolHttpResponse":
-        """
-        Execute HTTP PUT request.
-
-        Returns:
-            HTTP response protocol implementation
-
-        Raises:
-            OnexError: For HTTP client errors, timeouts, or connection issues
-        """
-        ...
-
-    async def delete(self) -> "ProtocolHttpResponse":
-        """
-        Execute HTTP DELETE request.
-
-        Returns:
-            HTTP response protocol implementation
-
-        Raises:
-            OnexError: For HTTP client errors, timeouts, or connection issues
-        """
-        ...
+    async def delete(self) -> "ProtocolHttpResponse": ...
 
 
 @runtime_checkable
@@ -202,7 +73,7 @@ class ProtocolHttpStreamingResponse(Protocol):
 
     Example:
         ```python
-        response: ProtocolHttpStreamingResponse = await client.stream_get(url)
+        response: "ProtocolHttpStreamingResponse" = await client.stream_get(url)
 
         # Stream raw content
         async for chunk in response.stream_content():
@@ -215,64 +86,16 @@ class ProtocolHttpStreamingResponse(Protocol):
     """
 
     status_code: int
-    headers: dict[str, str]
+    headers: dict[str, "ContextValue"]
     url: str
 
-    async def stream_content(self, chunk_size: int) -> bytes:
-        """
-        Stream response content in chunks.
+    async def stream_content(self, chunk_size: int) -> bytes: ...
 
-        Args:
-            chunk_size: Size of each chunk in bytes
+    async def stream_json_lines(self) -> dict[str, str | int | float | bool]: ...
 
-        Yields:
-            Content chunks as bytes
+    async def stream_text_lines(self, encoding: str) -> str: ...
 
-        Raises:
-            OnexError: If streaming encounters errors
-        """
-        ...
-
-    async def stream_json_lines(self) -> dict[str, str | int | float | bool]:
-        """
-        Stream JSON lines from response (newline-delimited JSON).
-
-        Parses each line as a separate JSON object and yields the parsed data.
-
-        Yields:
-            Parsed JSON objects
-
-        Raises:
-            OnexError: If JSON parsing or streaming encounters errors
-        """
-        ...
-
-    async def stream_text_lines(self, encoding: str) -> str:
-        """
-        Stream text lines from response.
-
-        Args:
-            encoding: Text encoding to use for decoding
-
-        Yields:
-            Text lines as strings
-
-        Raises:
-            OnexError: If text decoding or streaming encounters errors
-        """
-        ...
-
-    async def get_full_content(self) -> bytes:
-        """
-        Read the entire response content into memory.
-
-        Returns:
-            Complete response content as bytes
-
-        Raises:
-            OnexError: If reading content encounters errors
-        """
-        ...
+    async def get_full_content(self) -> bytes: ...
 
 
 @runtime_checkable
@@ -285,13 +108,11 @@ class ProtocolHttpExtendedClient(Protocol):
 
     Example:
         ```python
-        client: ProtocolHttpExtendedClient = get_extended_http_client()
+        client: "ProtocolHttpExtendedClient" = get_extended_http_client()
 
         # Use request builder
         builder = client.create_request_builder()
-        response = await builder.url("https://api.example.com") \
-            .with_bearer_token("token") \
-            .get()
+        response = await builder.url("https://api.example.com")             .with_bearer_token("token")             .get()
 
         # Stream large responses
         stream_response = await client.stream_request("GET", "https://api.example.com/large-data")
@@ -300,54 +121,12 @@ class ProtocolHttpExtendedClient(Protocol):
         ```
     """
 
-    def create_request_builder(self) -> ProtocolHttpRequestBuilder:
-        """
-        Create a new request builder for complex requests.
-
-        Returns:
-            HTTP request builder instance
-        """
-        ...
+    async def create_request_builder(self) -> ProtocolHttpRequestBuilder: ...
 
     async def stream_request(
-        self,
-        method: str,
-        url: str,
-        headers: Optional[dict[str, str]] = None,
-    ) -> ProtocolHttpStreamingResponse:
-        """
-        Perform streaming HTTP request for large responses.
+        self, method: str, url: str, headers: dict[str, "ContextValue"] | None = None
+    ) -> ProtocolHttpStreamingResponse: ...
 
-        Args:
-            method: HTTP method (GET, POST, etc.)
-            url: Target URL for the request
-            headers: Optional HTTP headers
+    async def health_check(self) -> bool: ...
 
-        Returns:
-            Streaming HTTP response protocol implementation
-
-        Raises:
-            OnexError: For HTTP client errors, timeouts, or connection issues
-        """
-        ...
-
-    async def health_check(self) -> bool:
-        """
-        Check if HTTP client is healthy and ready for requests.
-
-        Returns:
-            True if client is healthy, False otherwise
-        """
-        ...
-
-    async def close(self) -> None:
-        """
-        Close HTTP client and clean up resources.
-
-        Should be called when client is no longer needed to properly
-        close connection pools and release resources.
-
-        Raises:
-            OnexError: If cleanup encounters errors
-        """
-        ...
+    async def close(self) -> None: ...

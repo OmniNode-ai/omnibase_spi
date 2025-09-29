@@ -80,7 +80,7 @@ if TYPE_CHECKING:
 @runtime_checkable
 class ProtocolName(Protocol):
     """Clear protocol documentation."""
-    
+
     def method_name(self, param: str) -> bool:
         """Method documentation with clear contract."""
         ...
@@ -125,22 +125,22 @@ class ProtocolLogEntry(TypedDict):
 ```python
 class ProtocolExample(Protocol):
     """One-line summary of the protocol.
-    
+
     Longer description explaining the protocol's purpose,
     expected behavior, and usage patterns.
-    
+
     Example:
         class MyImplementation(ProtocolExample):
             def method(self) -> str:
                 return "implemented"
     """
-    
+
     def method(self) -> str:
         """Method description with clear expectations.
-        
+
         Returns:
             Description of return value and constraints.
-            
+
         Raises:
             Exceptions that implementations might raise.
         """

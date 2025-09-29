@@ -56,7 +56,7 @@ Hierarchical FSM states for workflow execution.
 #### `TaskState`
 ```python
 TaskState = Literal[
-    "pending", "scheduled", "running", "completed", 
+    "pending", "scheduled", "running", "completed",
     "failed", "cancelled", "skipped", "retrying",
     "waiting_for_dependency", "timeout", "paused"
 ]
@@ -70,7 +70,7 @@ WorkflowEventType = Literal[
     "workflow.created", "workflow.started", "workflow.completed",
     "workflow.failed", "workflow.cancelled", "workflow.paused",
     "workflow.resumed", "workflow.retrying", "workflow.timeout",
-    "task.scheduled", "task.started", "task.completed", 
+    "task.scheduled", "task.started", "task.completed",
     "task.failed", "task.cancelled", "task.skipped",
     "dependency.resolved", "dependency.failed", "state.transitioned",
     "compensation.started", "compensation.completed", "compensation.failed",
@@ -85,8 +85,8 @@ Complete event taxonomy for workflow orchestration.
 #### `WorkflowData`
 ```python
 WorkflowData = Union[
-    str, int, float, bool, 
-    list[str], 
+    str, int, float, bool,
+    list[str],
     dict[str, Union[str, int, float, bool]]
 ]
 ```
@@ -115,7 +115,7 @@ Execution guarantees for task processing.
 ```python
 class ProtocolWorkflowContext(Protocol):
     """Workflow execution context with isolation and security."""
-    
+
     workflow_type: str
     instance_id: UUID
     correlation_id: UUID
@@ -146,7 +146,7 @@ Complete workflow context defining the execution environment.
 ```python
 class ProtocolWorkflowEvent(Protocol):
     """Event sourcing event with complete causation tracking."""
-    
+
     event_id: UUID
     event_type: WorkflowEventType
     workflow_type: str
@@ -181,7 +181,7 @@ Event sourcing event with full traceability.
 ```python
 class ProtocolWorkflowSnapshot(Protocol):
     """Complete workflow state snapshot for persistence."""
-    
+
     workflow_type: str
     instance_id: UUID
     sequence_number: int
@@ -205,7 +205,7 @@ Complete workflow state for persistence and recovery.
 ```python
 class ProtocolTaskConfiguration(Protocol):
     """Task configuration with dependencies and constraints."""
-    
+
     task_id: UUID
     task_type: TaskType
     name: str
@@ -228,7 +228,7 @@ Complete task definition with execution parameters.
 ```python
 class ProtocolTaskResult(Protocol):
     """Task execution result with comprehensive metadata."""
-    
+
     task_id: UUID
     execution_id: UUID
     state: TaskState
@@ -251,7 +251,7 @@ Comprehensive task execution result.
 ```python
 class ProtocolRetryConfiguration(Protocol):
     """Retry behavior configuration."""
-    
+
     max_attempts: int
     backoff_strategy: Literal["fixed", "linear", "exponential", "custom"]
     base_delay_ms: int
@@ -267,7 +267,7 @@ Comprehensive retry configuration.
 ```python
 class ProtocolTimeoutConfiguration(Protocol):
     """Timeout configuration for different operations."""
-    
+
     execution_timeout_ms: int
     heartbeat_timeout_ms: int
     response_timeout_ms: int
@@ -287,21 +287,21 @@ Multi-level timeout configuration.
 class ProtocolWorkflowEventBus(Protocol):
     """
     Workflow-specific event bus with event sourcing and orchestration.
-    
+
     Extends the base event bus with workflow orchestration patterns:
     - Event sourcing with sequence numbers
     - Workflow instance isolation
     - Task coordination messaging
     - State projection updates
     - Recovery and replay support
-    
+
     Key Features:
         - **Event Sourcing**: Complete event streams with causation tracking
         - **Instance Isolation**: {workflowType, instanceId} isolation pattern
         - **Task Coordination**: Distributed task execution coordination
         - **State Projections**: Real-time state projections for queries
         - **Recovery Support**: Event replay for failure recovery
-    
+
     Example:
         ```python
         async def coordinate_workflow(event_bus: ProtocolWorkflowEventBus):
@@ -312,7 +312,7 @@ class ProtocolWorkflowEventBus(Protocol):
                 handler=handle_task_completion,
                 group_id="orchestrator"
             )
-            
+
             # Publish workflow event
             event = ProtocolWorkflowEvent(
                 event_type="workflow.started",
@@ -324,25 +324,25 @@ class ProtocolWorkflowEventBus(Protocol):
             await event_bus.publish_workflow_event(event)
         ```
     """
-    
+
     @property
     def base_event_bus(self) -> ProtocolEventBus:
         """Get underlying event bus implementation."""
         ...
-    
+
     # Event Publishing
     async def publish_workflow_event(
         self, event: ProtocolWorkflowEvent, target_topic: Optional[str] = None
     ) -> None:
         """
         Publish workflow event to event stream.
-        
+
         Args:
             event: Workflow event to publish
             target_topic: Optional topic override (default: workflow-{type})
         """
         ...
-    
+
     async def publish_workflow_state_change(
         self,
         workflow_instance: ProtocolWorkflowSnapshot,
@@ -352,7 +352,7 @@ class ProtocolWorkflowEventBus(Protocol):
     ) -> None:
         """
         Publish workflow state change event.
-        
+
         Args:
             workflow_instance: Workflow instance
             previous_state: Previous workflow state
@@ -360,7 +360,7 @@ class ProtocolWorkflowEventBus(Protocol):
             metadata: Additional event metadata
         """
         ...
-    
+
     # Event Subscription
     async def subscribe_to_workflow_events(
         self,
@@ -371,18 +371,18 @@ class ProtocolWorkflowEventBus(Protocol):
     ) -> Callable[[], Awaitable[None]]:
         """
         Subscribe to specific workflow events.
-        
+
         Args:
             workflow_type: Workflow type to subscribe to
             event_types: Event types to handle
             handler: Event handler function
             group_id: Consumer group ID
-            
+
         Returns:
             Unsubscribe function
         """
         ...
-    
+
     # Task Coordination
     async def coordinate_task_execution(
         self,
@@ -391,13 +391,13 @@ class ProtocolWorkflowEventBus(Protocol):
     ) -> None:
         """
         Coordinate task execution across node groups.
-        
+
         Args:
             workflow_instance: Workflow instance to coordinate
             task_assignments: Mapping of task IDs to node groups
         """
         ...
-    
+
     # Recovery and Replay
     async def replay_events(
         self,
@@ -409,14 +409,14 @@ class ProtocolWorkflowEventBus(Protocol):
     ) -> list[ProtocolWorkflowEvent]:
         """
         Replay workflow events for recovery.
-        
+
         Args:
             workflow_type: Workflow type identifier
             instance_id: Workflow instance ID
             from_sequence: Starting sequence number
             to_sequence: Ending sequence number (optional)
             handler: Optional event handler for processing
-            
+
         Returns:
             List of replayed events
         """
@@ -429,17 +429,17 @@ class ProtocolWorkflowEventBus(Protocol):
 class ProtocolWorkflowEventHandler(Protocol):
     """
     Protocol for workflow event handler functions.
-    
+
     Event handlers process workflow events and update workflow state
     according to event sourcing patterns.
     """
-    
+
     async def __call__(
         self, event: ProtocolWorkflowEvent, context: dict[str, WorkflowData]
     ) -> None:
         """
         Handle workflow event.
-        
+
         Args:
             event: Workflow event to process
             context: Processing context and metadata
@@ -455,17 +455,17 @@ class ProtocolWorkflowEventHandler(Protocol):
 class ProtocolWorkflowPersistence(Protocol):
     """
     Workflow state persistence with event sourcing support.
-    
+
     Manages workflow state persistence, event storage, and recovery
     operations with ACID guarantees and consistency controls.
-    
+
     Key Features:
         - **Event Storage**: Persistent event stream storage
         - **State Snapshots**: Periodic state snapshots for performance
         - **ACID Guarantees**: Transactional consistency
         - **Recovery Support**: State reconstruction from events
         - **Query Optimization**: Efficient state queries
-    
+
     Example:
         ```python
         async def persist_workflow(persistence: ProtocolWorkflowPersistence):
@@ -477,7 +477,7 @@ class ProtocolWorkflowPersistence(Protocol):
                 # ... other fields
             )
             await persistence.save_workflow_snapshot(snapshot)
-            
+
             # Store event
             event = ProtocolWorkflowEvent(
                 event_type="task.completed",
@@ -486,67 +486,67 @@ class ProtocolWorkflowPersistence(Protocol):
             await persistence.store_workflow_event(event)
         ```
     """
-    
+
     # Workflow State Management
     async def save_workflow_snapshot(
         self, snapshot: ProtocolWorkflowSnapshot
     ) -> bool:
         """
         Save workflow state snapshot.
-        
+
         Args:
             snapshot: Complete workflow state snapshot
-            
+
         Returns:
             True if save successful
         """
         ...
-    
+
     async def load_workflow_snapshot(
         self, workflow_type: str, instance_id: UUID
     ) -> Optional[ProtocolWorkflowSnapshot]:
         """
         Load workflow state snapshot.
-        
+
         Args:
             workflow_type: Workflow type identifier
             instance_id: Workflow instance ID
-            
+
         Returns:
             Workflow snapshot or None if not found
         """
         ...
-    
+
     async def delete_workflow_snapshot(
         self, workflow_type: str, instance_id: UUID
     ) -> bool:
         """
         Delete workflow state snapshot.
-        
+
         Args:
             workflow_type: Workflow type identifier
             instance_id: Workflow instance ID
-            
+
         Returns:
             True if deletion successful
         """
         ...
-    
+
     # Event Storage
     async def store_workflow_event(
         self, event: ProtocolWorkflowEvent
     ) -> bool:
         """
         Store workflow event in event stream.
-        
+
         Args:
             event: Workflow event to store
-            
+
         Returns:
             True if storage successful
         """
         ...
-    
+
     async def get_workflow_events(
         self,
         workflow_type: str,
@@ -557,36 +557,36 @@ class ProtocolWorkflowPersistence(Protocol):
     ) -> list[ProtocolWorkflowEvent]:
         """
         Retrieve workflow events from event stream.
-        
+
         Args:
             workflow_type: Workflow type identifier
             instance_id: Workflow instance ID
             from_sequence: Starting sequence number
             to_sequence: Ending sequence number (optional)
             limit: Maximum number of events (optional)
-            
+
         Returns:
             List of workflow events
         """
         ...
-    
+
     # State Reconstruction
     async def reconstruct_workflow_state(
         self, workflow_type: str, instance_id: UUID, up_to_sequence: Optional[int] = None
     ) -> Optional[ProtocolWorkflowSnapshot]:
         """
         Reconstruct workflow state from events.
-        
+
         Args:
             workflow_type: Workflow type identifier
             instance_id: Workflow instance ID
             up_to_sequence: Reconstruct up to this sequence number
-            
+
         Returns:
             Reconstructed workflow state or None
         """
         ...
-    
+
     # Queries and Analytics
     async def query_workflows(
         self,
@@ -597,13 +597,13 @@ class ProtocolWorkflowPersistence(Protocol):
     ) -> list[ProtocolWorkflowSnapshot]:
         """
         Query workflows with filtering.
-        
+
         Args:
             workflow_type: Optional workflow type filter
             state_filter: Optional state filter
             created_after: Optional creation time filter
             limit: Maximum results to return
-            
+
         Returns:
             List of matching workflow snapshots
         """
@@ -618,10 +618,10 @@ class ProtocolWorkflowPersistence(Protocol):
 class ProtocolWorkflowNodeRegistry(Protocol):
     """
     Workflow node registry for distributed coordination.
-    
+
     Manages workflow execution nodes, capabilities, and task assignment
     with health monitoring and automatic failover support.
-    
+
     Key Features:
         - **Node Registration**: Register workflow execution capabilities
         - **Capability Matching**: Match tasks to node capabilities
@@ -629,7 +629,7 @@ class ProtocolWorkflowNodeRegistry(Protocol):
         - **Load Balancing**: Distribute tasks based on node capacity
         - **Failover Support**: Automatic failover for failed nodes
     """
-    
+
     # Node Management
     async def register_workflow_node(
         self,
@@ -639,17 +639,17 @@ class ProtocolWorkflowNodeRegistry(Protocol):
     ) -> str:
         """
         Register a workflow execution node.
-        
+
         Args:
             node_metadata: Node identification and metadata
             capabilities: List of supported capabilities
             capacity_limits: Resource capacity limits
-            
+
         Returns:
             Node registration ID
         """
         ...
-    
+
     async def update_node_heartbeat(
         self,
         registration_id: str,
@@ -659,18 +659,18 @@ class ProtocolWorkflowNodeRegistry(Protocol):
     ) -> bool:
         """
         Update node heartbeat and status.
-        
+
         Args:
             registration_id: Node registration ID
             health_status: Current health status
             current_load: Current resource utilization
             active_tasks: List of active task IDs
-            
+
         Returns:
             True if update successful
         """
         ...
-    
+
     # Task Assignment
     async def find_capable_nodes(
         self,
@@ -680,17 +680,17 @@ class ProtocolWorkflowNodeRegistry(Protocol):
     ) -> list[ProtocolServiceDiscovery]:
         """
         Find nodes capable of executing a task.
-        
+
         Args:
             required_capabilities: Required node capabilities
             resource_requirements: Required resources
             exclude_nodes: Nodes to exclude from search
-            
+
         Returns:
             List of capable nodes
         """
         ...
-    
+
     async def assign_task_to_node(
         self,
         task_config: ProtocolTaskConfiguration,
@@ -698,11 +698,11 @@ class ProtocolWorkflowNodeRegistry(Protocol):
     ) -> Optional[str]:
         """
         Assign task to an appropriate node.
-        
+
         Args:
             task_config: Task configuration and requirements
             preferred_node: Preferred node ID (optional)
-            
+
         Returns:
             Assigned node ID or None if no nodes available
         """
@@ -724,25 +724,25 @@ from omnibase_spi.protocols.types.workflow_orchestration_types import (
 
 class MyWorkflowHandler(ProtocolWorkflowEventHandler):
     async def __call__(
-        self, 
-        event: ProtocolWorkflowEvent, 
+        self,
+        event: ProtocolWorkflowEvent,
         context: dict[str, WorkflowData]
     ) -> None:
         if event.event_type == "task.completed":
             await self.handle_task_completion(event)
         elif event.event_type == "task.failed":
             await self.handle_task_failure(event)
-    
+
     async def handle_task_completion(self, event: ProtocolWorkflowEvent) -> None:
         print(f"Task completed in workflow {event.workflow_type}")
-    
+
     async def handle_task_failure(self, event: ProtocolWorkflowEvent) -> None:
         print(f"Task failed in workflow {event.workflow_type}")
 
 # Usage
 async def setup_workflow_processing(event_bus: ProtocolWorkflowEventBus):
     handler = MyWorkflowHandler()
-    
+
     # Subscribe to workflow events
     unsubscribe = await event_bus.subscribe_to_workflow_events(
         workflow_type="data_processing_pipeline",
@@ -750,7 +750,7 @@ async def setup_workflow_processing(event_bus: ProtocolWorkflowEventBus):
         handler=handler,
         group_id="workflow_orchestrator"
     )
-    
+
     # Later, unsubscribe
     await unsubscribe()
 ```
@@ -813,13 +813,13 @@ async def recover_workflow_state(
 ) -> Optional[ProtocolWorkflowSnapshot]:
     # Try to load latest snapshot
     snapshot = await persistence.load_workflow_snapshot(workflow_type, instance_id)
-    
+
     if snapshot is None:
         # Reconstruct from events if no snapshot
         snapshot = await persistence.reconstruct_workflow_state(
             workflow_type, instance_id
         )
-    
+
     return snapshot
 ```
 
@@ -834,20 +834,20 @@ async def schedule_tasks(
 ) -> dict[UUID, str]:
     """Schedule tasks across available nodes."""
     task_assignments = {}
-    
+
     for task in tasks:
         # Find capable nodes
         capable_nodes = await node_registry.find_capable_nodes(
             required_capabilities=task.capabilities,
             resource_requirements=task.resource_requirements
         )
-        
+
         if capable_nodes:
             # Assign to first available node
             assigned_node = await node_registry.assign_task_to_node(task)
             if assigned_node:
                 task_assignments[task.task_id] = assigned_node
-    
+
     return task_assignments
 ```
 
@@ -858,27 +858,27 @@ async def schedule_tasks(
 ```python
 class WorkflowEventStore:
     """Example event store implementation."""
-    
+
     def __init__(self, persistence: ProtocolWorkflowPersistence):
         self.persistence = persistence
-    
+
     async def append_event(self, event: ProtocolWorkflowEvent) -> None:
         """Append event to stream with idempotency."""
         # Check idempotency
         existing_events = await self.persistence.get_workflow_events(
-            event.workflow_type, 
+            event.workflow_type,
             event.instance_id,
             from_sequence=event.sequence_number,
             to_sequence=event.sequence_number
         )
-        
+
         if not existing_events:
             await self.persistence.store_workflow_event(event)
-    
+
     async def get_events_since(
-        self, 
-        workflow_type: str, 
-        instance_id: UUID, 
+        self,
+        workflow_type: str,
+        instance_id: UUID,
         since_sequence: int
     ) -> list[ProtocolWorkflowEvent]:
         """Get events since sequence number."""
@@ -892,27 +892,27 @@ class WorkflowEventStore:
 ```python
 class DistributedTaskExecutor:
     """Example distributed task executor."""
-    
+
     def __init__(
-        self, 
+        self,
         event_bus: ProtocolWorkflowEventBus,
         node_registry: ProtocolWorkflowNodeRegistry
     ):
         self.event_bus = event_bus
         self.node_registry = node_registry
-    
+
     async def execute_task(
-        self, 
+        self,
         task_config: ProtocolTaskConfiguration,
         workflow_instance: ProtocolWorkflowSnapshot
     ) -> ProtocolTaskResult:
         """Execute task on appropriate node."""
         # Find and assign node
         assigned_node = await self.node_registry.assign_task_to_node(task_config)
-        
+
         if not assigned_node:
             raise RuntimeError("No nodes available for task execution")
-        
+
         # Create task started event
         started_event = ProtocolWorkflowEvent(
             event_type="task.started",
@@ -922,11 +922,11 @@ class DistributedTaskExecutor:
             # ... other fields
         )
         await self.event_bus.publish_workflow_event(started_event)
-        
+
         # Execute task (implementation specific)
         # This would typically send a message to the assigned node
         # and wait for the result
-        
+
         # Return task result
         return ProtocolTaskResult(
             task_id=task_config.task_id,
@@ -981,19 +981,19 @@ def apply_event_to_state(
         updated_tasks = [
             task if task.task_id != event.data["task_id"] else
             ProtocolTaskConfiguration(
-                **task.__dict__, 
+                **task.__dict__,
                 state="completed"
             )
             for task in current_state.tasks
         ]
-        
+
         return ProtocolWorkflowSnapshot(
             **current_state.__dict__,
             tasks=updated_tasks,
             sequence_number=event.sequence_number,
             updated_at=event.timestamp
         )
-    
+
     return current_state
 
 # Avoid - Mutable state updates that break event sourcing
@@ -1008,9 +1008,9 @@ def bad_apply_event(state: ProtocolWorkflowSnapshot, event: ProtocolWorkflowEven
 ```python
 class WorkflowEventProcessor:
     """Example event processor with proper error handling."""
-    
+
     async def process_event(
-        self, 
+        self,
         event: ProtocolWorkflowEvent
     ) -> None:
         try:

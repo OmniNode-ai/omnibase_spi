@@ -1,34 +1,33 @@
 """
-Memory Response Protocols for OmniMemory ONEX Architecture
+    Memory Response Protocols for OmniMemory ONEX Architecture
 
-This module defines all response protocol interfaces for memory operations.
-Separated from the main types module to prevent circular imports and
-improve maintainability.
+    This module defines all response protocol interfaces for memory operations.
+    Separated from the main types module to prevent circular imports and
+    improve maintainability.
 
 Contains:
-- Base response protocols
-- Effect node response protocols
-- Compute node response protocols
-- Reducer node response protocols
-- Orchestrator node response protocols
-- Batch operation response protocols
-- Streaming response protocols
+    - Base response protocols
+    - Effect node response protocols
+    - Compute node response protocols
+    - Reducer node response protocols
+    - Orchestrator node response protocols
+    - Batch operation response protocols
+    - Streaming response protocols
 
-All types are pure protocols with no implementation dependencies.
+    All types are pure protocols with no implementation dependencies.
 """
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, AsyncIterator, Optional, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, AsyncIterator, Protocol, runtime_checkable
 from uuid import UUID
 
-# Import for runtime type annotation
-from .protocol_memory_errors import ProtocolMemoryError
+from omnibase_spi.protocols.memory.protocol_memory_errors import ProtocolMemoryError
 
 if TYPE_CHECKING:
     from datetime import datetime
 
-    from .protocol_memory_base import (
+    from omnibase_spi.protocols.memory.protocol_memory_base import (
         ProtocolAgentResponseMap,
         ProtocolAgentStatusMap,
         ProtocolAggregatedData,
@@ -42,44 +41,34 @@ if TYPE_CHECKING:
     )
 
 
-# === BASE RESPONSE PROTOCOLS ===
-
-
 @runtime_checkable
 class ProtocolMemoryResponse(Protocol):
     """Base protocol for all memory operation responses."""
 
-    correlation_id: Optional[UUID]
+    correlation_id: UUID | None
     response_timestamp: "datetime"
     success: bool
 
     @property
-    def error_message(self) -> Optional[str]:
-        """Error message if operation failed."""
-        ...
-
-
-# === EFFECT NODE RESPONSE PROTOCOLS ===
+    def error_message(self) -> str | None: ...
 
 
 @runtime_checkable
 class ProtocolMemoryStoreResponse(ProtocolMemoryResponse, Protocol):
     """Protocol for memory storage responses."""
 
-    memory_id: Optional[UUID]
-    storage_location: Optional[str]
+    memory_id: UUID | None
+    storage_location: str | None
 
 
 @runtime_checkable
 class ProtocolMemoryRetrieveResponse(ProtocolMemoryResponse, Protocol):
     """Protocol for memory retrieval responses."""
 
-    memory: Optional["ProtocolMemoryRecord"]
+    memory: "ProtocolMemoryRecord | None"
 
     @property
-    def related_memories(self) -> list["ProtocolMemoryRecord"]:
-        """Related memory records if requested."""
-        ...
+    def related_memories(self) -> list["ProtocolMemoryRecord"]: ...
 
 
 @runtime_checkable
@@ -96,42 +85,35 @@ class ProtocolBatchOperationResult(Protocol):
 
     operation_index: int
     success: bool
-    result_id: Optional[UUID]
-    error: Optional[ProtocolMemoryError]
+    result_id: UUID | None
+    error: "ProtocolMemoryError | None"
 
     @property
-    def execution_time_ms(self) -> int:
-        """Execution time for this individual operation."""
-        ...
+    def execution_time_ms(self) -> int: ...
 
 
 @runtime_checkable
 class ProtocolBatchMemoryStoreResponse(ProtocolMemoryResponse, Protocol):
     """Protocol for batch memory storage responses."""
 
-    results: list[ProtocolBatchOperationResult]
+    results: list["ProtocolBatchOperationResult"]
     total_processed: int
     successful_count: int
     failed_count: int
     batch_execution_time_ms: int
 
     @property
-    def partial_success(self) -> bool:
-        """Whether batch had partial success (some operations failed)."""
-        ...
+    def partial_success(self) -> bool: ...
 
 
 @runtime_checkable
 class ProtocolBatchMemoryRetrieveResponse(ProtocolMemoryResponse, Protocol):
     """Protocol for batch memory retrieval responses."""
 
-    results: list[ProtocolBatchOperationResult]
+    results: list["ProtocolBatchOperationResult"]
     memories: list["ProtocolMemoryRecord"]
     missing_ids: list[UUID]
     batch_execution_time_ms: int
-
-
-# === COMPUTE NODE RESPONSE PROTOCOLS ===
 
 
 @runtime_checkable
@@ -142,10 +124,7 @@ class ProtocolSemanticSearchResponse(ProtocolMemoryResponse, Protocol):
     total_matches: int
     search_time_ms: int
 
-    @property
-    def query_embedding(self) -> Optional[list[float]]:
-        """Query embedding used for search."""
-        ...
+    async def get_query_embedding(self) -> list[float] | None: ...
 
 
 @runtime_checkable
@@ -156,9 +135,7 @@ class ProtocolPatternAnalysisResponse(ProtocolMemoryResponse, Protocol):
     analysis_results: "ProtocolAnalysisResults"
 
     @property
-    def confidence_scores(self) -> list[float]:
-        """Confidence scores for discovered patterns."""
-        ...
+    def confidence_scores(self) -> list[float]: ...
 
 
 @runtime_checkable
@@ -168,9 +145,6 @@ class ProtocolEmbeddingResponse(ProtocolMemoryResponse, Protocol):
     embedding: list[float]
     algorithm_used: str
     dimensions: int
-
-
-# === REDUCER NODE RESPONSE PROTOCOLS ===
 
 
 @runtime_checkable
@@ -189,9 +163,6 @@ class ProtocolAggregationResponse(ProtocolMemoryResponse, Protocol):
     aggregation_metadata: "ProtocolMemoryMetadata"
 
 
-# === ORCHESTRATOR NODE RESPONSE PROTOCOLS ===
-
-
 @runtime_checkable
 class ProtocolWorkflowExecutionResponse(ProtocolMemoryResponse, Protocol):
     """Protocol for workflow execution responses."""
@@ -200,9 +171,7 @@ class ProtocolWorkflowExecutionResponse(ProtocolMemoryResponse, Protocol):
     execution_status: str
 
     @property
-    def agent_statuses(self) -> "ProtocolAgentStatusMap":
-        """Status of each agent in workflow."""
-        ...
+    def agent_statuses(self) -> "ProtocolAgentStatusMap": ...
 
 
 @runtime_checkable
@@ -212,13 +181,7 @@ class ProtocolAgentCoordinationResponse(ProtocolMemoryResponse, Protocol):
     coordination_id: UUID
     coordination_status: str
 
-    @property
-    def agent_responses(self) -> "ProtocolAgentResponseMap":
-        """Response from each coordinated agent."""
-        ...
-
-
-# === PAGINATION RESPONSE PROTOCOLS ===
+    async def agent_responses(self) -> "ProtocolAgentResponseMap": ...
 
 
 @runtime_checkable
@@ -228,16 +191,11 @@ class ProtocolPaginationResponse(Protocol):
     total_count: int
     has_next_page: bool
     has_previous_page: bool
-    next_cursor: Optional[str]
-    previous_cursor: Optional[str]
+    next_cursor: str | None
+    previous_cursor: str | None
 
     @property
-    def page_info(self) -> "ProtocolPageInfo":
-        """Additional pagination metadata."""
-        ...
-
-
-# === METRICS RESPONSE PROTOCOLS ===
+    def page_info(self) -> "ProtocolPageInfo": ...
 
 
 @runtime_checkable
@@ -249,32 +207,22 @@ class ProtocolMemoryMetrics(Protocol):
     memory_usage_mb: float
     timestamp: "datetime"
 
-    @property
-    def throughput_ops_per_second(self) -> float:
-        """Operations per second for this metric period."""
-        ...
+    async def throughput_ops_per_second(self) -> float: ...
 
     @property
-    def error_rate_percent(self) -> float:
-        """Error rate as percentage for this operation type."""
-        ...
+    def error_rate_percent(self) -> float: ...
 
     @property
-    def custom_metrics(self) -> "ProtocolCustomMetrics":
-        """Additional operation-specific metrics."""
-        ...
+    def custom_metrics(self) -> "ProtocolCustomMetrics": ...
 
 
 @runtime_checkable
 class ProtocolMemoryMetricsResponse(ProtocolMemoryResponse, Protocol):
     """Protocol for metrics collection responses."""
 
-    metrics: list[ProtocolMemoryMetrics]
+    metrics: list["ProtocolMemoryMetrics"]
     aggregation_summary: "ProtocolAggregationSummary"
     collection_timestamp: "datetime"
-
-
-# === STREAMING RESPONSE PROTOCOLS ===
 
 
 @runtime_checkable
@@ -285,14 +233,10 @@ class ProtocolStreamingMemoryResponse(ProtocolMemoryResponse, Protocol):
     chunk_count: int
     total_size_bytes: int
 
-    async def stream_content(self) -> AsyncIterator[bytes]:
-        """Stream memory content in chunks."""
-        ...
+    async def stream_content(self) -> AsyncIterator[bytes]: ...
 
     @property
-    def compression_ratio(self) -> Optional[float]:
-        """Compression ratio if compression was used."""
-        ...
+    def compression_ratio(self) -> float | None: ...
 
 
 @runtime_checkable
@@ -301,6 +245,4 @@ class ProtocolStreamingRetrieveResponse(ProtocolStreamingMemoryResponse, Protoco
 
     memory_metadata: list["ProtocolMemoryRecord"]
 
-    async def stream_memory_content(self, memory_id: UUID) -> AsyncIterator[bytes]:
-        """Stream content for a specific memory record."""
-        ...
+    async def stream_memory_content(self, memory_id: UUID) -> AsyncIterator[bytes]: ...

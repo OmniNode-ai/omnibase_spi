@@ -20,23 +20,23 @@ Usage:
 Example Integration Pattern:
     ```python
     # Subsystem registration
-    registry: ProtocolMCPRegistry
-    client: ProtocolMCPSubsystemClient
-    
+    registry: "ProtocolMCPRegistry"
+    client: "ProtocolMCPSubsystemClient"
+
     # Register subsystem and tools
     registration_id = await client.register_subsystem(
         subsystem_config, tool_definitions
-    )
-    
+)
+
     # Start health monitoring
     await client.start_heartbeat(interval=30)
-    
+
     # Tool execution through registry
     result = await registry.execute_tool(
         tool_name="process_data",
         parameters={"input": "data"},
         correlation_id=uuid4()
-    )
+)
     ```
 
 Architecture:

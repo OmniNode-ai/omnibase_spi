@@ -59,11 +59,11 @@ class User:
 # Simple in-memory user storage using protocol interfaces
 class InMemoryUserService:
     """Simple user service implementation."""
-    
+
     def __init__(self, logger: ProtocolLogger):
         self.users: dict[UUID, User] = {}
         self.logger = logger
-    
+
     async def create_user(self, email: str, name: str) -> User:
         """Create a new user."""
         # Validate input
@@ -73,14 +73,14 @@ class InMemoryUserService:
                 context={"email": email, "name": name}
             )
             raise ValueError("Valid email required")
-        
+
         if not name or len(name.strip()) == 0:
             await self.logger.error(
-                "Empty name provided", 
+                "Empty name provided",
                 context={"email": email, "name": name}
             )
             raise ValueError("Name cannot be empty")
-        
+
         # Check for duplicate email
         for user in self.users.values():
             if user.email == email:
@@ -89,7 +89,7 @@ class InMemoryUserService:
                     context={"email": email}
                 )
                 raise ValueError(f"User with email {email} already exists")
-        
+
         # Create user
         user = User(
             id=uuid4(),
@@ -97,9 +97,9 @@ class InMemoryUserService:
             name=name,
             created_at=datetime.now()
         )
-        
+
         self.users[user.id] = user
-        
+
         await self.logger.info(
             "User created successfully",
             context={
@@ -108,13 +108,13 @@ class InMemoryUserService:
                 "name": user.name
             }
         )
-        
+
         return user
-    
+
     async def get_user(self, user_id: UUID) -> Optional[User]:
         """Get user by ID."""
         user = self.users.get(user_id)
-        
+
         if user:
             await self.logger.debug(
                 "User retrieved",
@@ -122,47 +122,47 @@ class InMemoryUserService:
             )
         else:
             await self.logger.debug(
-                "User not found", 
+                "User not found",
                 context={"user_id": str(user_id), "found": False}
             )
-        
+
         return user
-    
+
     async def list_users(self) -> list[User]:
         """List all users."""
         users = list(self.users.values())
-        
+
         await self.logger.info(
             "Users listed",
             context={"count": len(users)}
         )
-        
+
         return users
 
 # Simple logger implementation for demonstration
 class SimpleLogger(ProtocolLogger):
     """Simple console logger implementation."""
-    
+
     async def log(
-        self, 
-        level: LogLevel, 
-        message: str, 
+        self,
+        level: LogLevel,
+        message: str,
         context: dict[str, ContextValue]
     ) -> None:
         """Log message with context."""
         timestamp = datetime.now().isoformat()
         context_str = ", ".join(f"{k}={v}" for k, v in context.items())
         print(f"[{timestamp}] {level}: {message} | {context_str}")
-    
+
     async def debug(self, message: str, context: dict[str, ContextValue]) -> None:
         await self.log("DEBUG", message, context)
-    
+
     async def info(self, message: str, context: dict[str, ContextValue]) -> None:
         await self.log("INFO", message, context)
-    
+
     async def warning(self, message: str, context: dict[str, ContextValue]) -> None:
         await self.log("WARNING", message, context)
-    
+
     async def error(self, message: str, context: dict[str, ContextValue]) -> None:
         await self.log("ERROR", message, context)
 
@@ -171,47 +171,47 @@ async def main():
     """Demonstrate basic user service functionality."""
     # Create logger
     logger = SimpleLogger()
-    
+
     # Create user service
     user_service = InMemoryUserService(logger)
-    
+
     print("🚀 Starting User Service Demo")
     print("-" * 40)
-    
+
     try:
         # Create some users
         print("\n📝 Creating users...")
         alice = await user_service.create_user("alice@example.com", "Alice Smith")
         bob = await user_service.create_user("bob@example.com", "Bob Johnson")
-        
+
         # List users
         print("\n📋 Listing all users...")
         users = await user_service.list_users()
         for user in users:
             print(f"  - {user.name} ({user.email}) - ID: {user.id}")
-        
+
         # Get specific user
         print("\n🔍 Getting Alice's details...")
         retrieved_alice = await user_service.get_user(alice.id)
         if retrieved_alice:
             print(f"  Found: {retrieved_alice.name} - {retrieved_alice.email}")
-        
+
         # Try to create duplicate user (will fail)
         print("\n❌ Attempting to create duplicate user...")
         try:
             await user_service.create_user("alice@example.com", "Alice Duplicate")
         except ValueError as e:
             print(f"  Expected error: {e}")
-        
+
         # Try invalid data (will fail)
         print("\n❌ Attempting invalid user creation...")
         try:
             await user_service.create_user("invalid-email", "Test User")
         except ValueError as e:
             print(f"  Expected error: {e}")
-        
+
         print("\n✅ Demo completed successfully!")
-        
+
     except Exception as e:
         print(f"\n💥 Demo failed: {e}")
 
@@ -320,18 +320,18 @@ class CachedUserService:
     ):
         self.user_service = user_service
         self.cache = cache
-    
+
     async def get_user_cached(self, user_id: UUID) -> Optional[User]:
         # Try cache first
         cached_user = await self.cache.get(f"user:{user_id}")
         if cached_user:
             return cached_user
-        
+
         # Get from service and cache
         user = await self.user_service.get_user(user_id)
         if user:
             await self.cache.set(f"user:{user_id}", user, ttl_seconds=300)
-        
+
         return user
 ```
 
@@ -344,7 +344,7 @@ from typing import Protocol, runtime_checkable
 @runtime_checkable
 class ProtocolEmailService(Protocol):
     """Protocol for email operations."""
-    
+
     async def send_email(
         self,
         to: str,
@@ -354,7 +354,7 @@ class ProtocolEmailService(Protocol):
     ) -> bool:
         """Send email message."""
         ...
-    
+
     async def send_bulk_email(
         self,
         recipients: list[str],
@@ -369,12 +369,12 @@ class SMTPEmailService(ProtocolEmailService):
     def __init__(self, smtp_host: str, smtp_port: int):
         self.smtp_host = smtp_host
         self.smtp_port = smtp_port
-    
+
     async def send_email(self, to: str, subject: str, body: str, from_address=None):
         print(f"📧 Sending email to {to}: {subject}")
         # SMTP implementation here
         return True
-    
+
     async def send_bulk_email(self, recipients: list[str], subject: str, body: str):
         results = {}
         for recipient in recipients:
@@ -390,18 +390,18 @@ class UserServiceWithEmail:
     ):
         self.user_service = user_service
         self.email_service = email_service
-    
+
     async def create_user_with_welcome_email(self, email: str, name: str) -> User:
         # Create user
         user = await self.user_service.create_user(email, name)
-        
+
         # Send welcome email
         await self.email_service.send_email(
             to=user.email,
             subject="Welcome!",
             body=f"Hello {user.name}, welcome to our service!"
         )
-        
+
         return user
 ```
 
@@ -423,11 +423,11 @@ Explore advanced patterns like:
 class ServiceContainer:
     def __init__(self):
         self.services = {}
-    
+
     def register(self, protocol: type, implementation):
         """Register service implementation."""
         self.services[protocol] = implementation
-    
+
     def get(self, protocol: type):
         """Get service implementation."""
         return self.services[protocol]
@@ -453,13 +453,13 @@ from unittest.mock import AsyncMock
 class MockLogger(ProtocolLogger):
     def __init__(self):
         self.logs = []
-    
+
     async def log(self, level: LogLevel, message: str, context: dict):
         self.logs.append({"level": level, "message": message, "context": context})
-    
+
     async def info(self, message: str, context: dict):
         await self.log("INFO", message, context)
-    
+
     async def error(self, message: str, context: dict):
         await self.log("ERROR", message, context)
 
@@ -468,9 +468,9 @@ class MockLogger(ProtocolLogger):
 async def test_user_creation():
     mock_logger = MockLogger()
     service = InMemoryUserService(mock_logger)
-    
+
     user = await service.create_user("test@example.com", "Test User")
-    
+
     assert user.email == "test@example.com"
     assert user.name == "Test User"
     assert len(mock_logger.logs) == 1

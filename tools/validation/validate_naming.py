@@ -7,7 +7,7 @@ import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Set
+from typing import Dict, List
 
 
 @dataclass
@@ -225,8 +225,8 @@ class NamingConventionValidator:
         errors = [v for v in self.violations if v.severity == "error"]
         warnings = [v for v in self.violations if v.severity == "warning"]
 
-        report = f"🚨 Naming Convention Validation Report\n"
-        report += f"=" * 40 + "\n\n"
+        report = "🚨 Naming Convention Validation Report\n"
+        report += "=" * 40 + "\n\n"
 
         report += f"Summary: {len(errors)} errors, {len(warnings)} warnings\n\n"
 
@@ -276,7 +276,7 @@ def main() -> None:
     print(validator.generate_report())
 
     if is_valid:
-        print(f"\n✅ SUCCESS: All naming conventions are compliant!")
+        print("\n✅ SUCCESS: All naming conventions are compliant!")
         sys.exit(0)
     else:
         errors = len([v for v in validator.violations if v.severity == "error"])

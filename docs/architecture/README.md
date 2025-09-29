@@ -80,13 +80,13 @@ graph TB
     D --> F[Event Handlers]
     F --> G[Side Effects]
     E --> H[Query Models]
-    
+
     subgraph "Event Sourcing Layer"
         C
         D
         E
     end
-    
+
     subgraph "Command/Query Separation"
         A
         H
@@ -99,13 +99,13 @@ graph TB
 @runtime_checkable
 class ProtocolWorkflowEventBus(Protocol):
     """Event sourcing for workflow orchestration."""
-    
+
     async def publish_workflow_event(
         self, event: ProtocolWorkflowEvent
     ) -> None:
         """Publish event with sequence number and causation tracking."""
         ...
-    
+
     async def replay_events(
         self,
         workflow_type: str,
@@ -138,16 +138,16 @@ graph LR
         A2[Instance: uuid-2]
         A3[Instance: uuid-3]
     end
-    
+
     subgraph "Workflow Type: data_pipeline"  
         B1[Instance: uuid-4]
         B2[Instance: uuid-5]
     end
-    
+
     subgraph "Workflow Type: payment_processing"
         C1[Instance: uuid-6]
     end
-    
+
     A1 -.-> ES1[Event Stream 1]
     A2 -.-> ES2[Event Stream 2]
     B1 -.-> ES3[Event Stream 3]
@@ -160,7 +160,7 @@ class ProtocolWorkflowContext(Protocol):
     workflow_type: str     # Logical workflow type
     instance_id: UUID      # Unique instance within type
     isolation_level: IsolationLevel  # Transaction isolation
-    
+
     # Instance-specific data and configuration
     data: dict[str, WorkflowData]
     secrets: dict[str, str]
@@ -174,9 +174,9 @@ async def route_workflow_event(
     """Route event to appropriate workflow instance."""
     topic = f"workflow.{event.workflow_type}"
     partition_key = str(event.instance_id)
-    
+
     await event_bus.publish_workflow_event(
-        event, 
+        event,
         target_topic=topic,
         partition_key=partition_key  # Ensures ordering per instance
     )
@@ -197,36 +197,36 @@ graph TB
         H[Health Monitor]
         LB[Load Balancer]
     end
-    
+
     subgraph "Subsystem A"
         SA1[Tool 1]
         SA2[Tool 2]
     end
-    
+
     subgraph "Subsystem B"  
         SB1[Tool 1]
         SB3[Tool 3]
     end
-    
+
     subgraph "Subsystem C"
         SC2[Tool 2]
         SC4[Tool 4]
     end
-    
+
     R --> SA1
     R --> SA2
     R --> SB1
     R --> SB3
     R --> SC2
     R --> SC4
-    
+
     H --> SA1
     H --> SB1
     H --> SC2
-    
+
     LB --> SA1
     LB --> SB1
-    
+
     Client[Client] --> R
     Client --> LB
 ```
@@ -237,7 +237,7 @@ graph TB
 @runtime_checkable
 class ProtocolMCPRegistry(Protocol):
     """Registry for multiple MCP subsystems."""
-    
+
     async def register_subsystem(
         self,
         subsystem_metadata: ProtocolMCPSubsystemMetadata,
@@ -246,7 +246,7 @@ class ProtocolMCPRegistry(Protocol):
     ) -> str:
         """Register subsystem with its tools."""
         ...
-    
+
     async def execute_tool(
         self,
         tool_name: str,
@@ -280,36 +280,36 @@ graph TB
         HC[Health Checker]
         AS[Assignment Service]
     end
-    
+
     subgraph "Compute Nodes"
         CN1[Compute Node 1]
         CN2[Compute Node 2]
         CN3[Compute Node 3]
     end
-    
+
     subgraph "Effect Nodes"
         EN1[Effect Node 1]
         EN2[Effect Node 2]
     end
-    
+
     subgraph "Orchestrator Nodes"
         ON1[Orchestrator 1]
         ON2[Orchestrator 2]
     end
-    
+
     NR --> CN1
     NR --> CN2
     NR --> EN1
     NR --> ON1
-    
+
     HC --> CN1
     HC --> CN2
     HC --> EN1
-    
+
     AS --> CN1
     AS --> CN2
     AS --> EN1
-    
+
     ON1 --> AS
     ON2 --> AS
 ```
@@ -330,7 +330,7 @@ class ProtocolNodeCapability(Protocol):
 @runtime_checkable
 class ProtocolWorkflowNodeRegistry(Protocol):
     """Registry for distributed workflow nodes."""
-    
+
     async def register_workflow_node(
         self,
         node_metadata: ProtocolNodeCapability,
@@ -339,7 +339,7 @@ class ProtocolWorkflowNodeRegistry(Protocol):
     ) -> str:
         """Register node with capabilities."""
         ...
-    
+
     async def find_capable_nodes(
         self,
         required_capabilities: list[str],
@@ -366,14 +366,14 @@ graph TB
         VT[ValidationResult, ErrorInfo]
         MT[Metadata, Configuration]
     end
-    
+
     subgraph "Core Protocols"
         L[ProtocolLogger]
         CS[ProtocolCacheService]
         NR[ProtocolNodeRegistry]
         R[ProtocolReducer]
     end
-    
+
     CT --> L
     CT --> CS
     VT --> NR
@@ -396,23 +396,23 @@ graph TB
         WE[WorkflowEventType]
         WD[WorkflowData, TaskConfiguration]
     end
-    
+
     subgraph "Workflow Protocols"
         WEB[ProtocolWorkflowEventBus]
         WP[ProtocolWorkflowPersistence]
         WNR[ProtocolWorkflowNodeRegistry]
     end
-    
+
     subgraph "Event Sourcing"
         ES[Event Store]
         SP[State Projections]
         EH[Event Handlers]
     end
-    
+
     WS --> WEB
     WE --> WP
     WD --> WNR
-    
+
     WEB --> ES
     WP --> SP
     WNR --> EH
@@ -433,24 +433,24 @@ graph TB
         ME[MCPExecutionStatus, MCPLifecycleState]
         MP[MCPToolDefinition, MCPSubsystemMetadata]
     end
-    
+
     subgraph "MCP Protocols"
         MR[ProtocolMCPRegistry]
         MTP[ProtocolMCPToolProxy]
         MM[ProtocolMCPMonitor]
         MV[ProtocolMCPValidator]
     end
-    
+
     subgraph "Tool Coordination"
         TR[Tool Registry]
         LB[Load Balancer]
         HM[Health Monitor]
     end
-    
+
     MT --> MR
     ME --> MTP
     MP --> MM
-    
+
     MR --> TR
     MTP --> LB
     MM --> HM
@@ -470,22 +470,22 @@ graph TB
         EM[EventMessage, EventMetadata]
         ET[Event routing and filtering]
     end
-    
+
     subgraph "Event Protocols"
         EB[ProtocolEventBus]
         KA[ProtocolKafkaAdapter]
         RA[ProtocolRedpandaAdapter]
     end
-    
+
     subgraph "Messaging Infrastructure"
         K[Kafka/Redpanda]
         CG[Consumer Groups]
         P[Partitioning]
     end
-    
+
     EM --> EB
     ET --> KA
-    
+
     EB --> K
     KA --> CG
     RA --> P
@@ -509,24 +509,24 @@ graph TB
         FP[Forbidden Patterns]
         TC[Type Checker]
     end
-    
+
     subgraph "Quality Gates"
         PC[Pre-commit Hooks]
         CI[CI Pipeline]
         PR[PR Validation]
     end
-    
+
     subgraph "Protocols"
         P1[Protocol Files]
         P2[Type Files]
         P3[Test Files]
     end
-    
+
     AST --> PC
     NS --> CI
     FP --> PR
     TC --> PC
-    
+
     PC --> P1
     CI --> P2
     PR --> P3
@@ -537,7 +537,7 @@ graph TB
 # AST-based SPI validation
 class SPIValidator(ast.NodeVisitor):
     """Validate SPI purity rules using AST parsing."""
-    
+
     def visit_Import(self, node: ast.Import):
         """Check for forbidden imports."""
         forbidden_imports = ["os", "sys", "json", "asyncio", "logging"]
@@ -546,7 +546,7 @@ class SPIValidator(ast.NodeVisitor):
                 self.violations.append(
                     SPIViolation("implementation_import", node.lineno)
                 )
-    
+
     def visit_ClassDef(self, node: ast.ClassDef):
         """Check for protocol vs implementation patterns."""
         # Check for dataclass usage (should use Protocol)
@@ -577,12 +577,12 @@ ContextValue = str | int | float | bool | list[str] | dict[str, str]
 @runtime_checkable
 class ProtocolUserService(Protocol):
     async def create_user(
-        self, 
+        self,
         email: str,              # Specific type
         metadata: dict[str, str] # Constrained dict type
     ) -> User:                   # Concrete return type
         ...
-    
+
     # Avoid: Any types break type safety
     # async def process_data(self, data: Any) -> Any: ...
 
@@ -605,13 +605,13 @@ def process_workflow(self, state: "WorkflowState") -> bool:
 @runtime_checkable
 class ProtocolEventBus(Protocol):
     """Async-first event bus protocol."""
-    
+
     async def publish(self, event: EventMessage) -> None:
         """Non-blocking event publishing."""
         ...
-    
+
     async def subscribe(
-        self, 
+        self,
         topic: str,
         handler: Callable[[EventMessage], Awaitable[None]]
     ) -> Callable[[], Awaitable[None]]:
@@ -621,12 +621,12 @@ class ProtocolEventBus(Protocol):
 # Efficient batch operations
 class ProtocolWorkflowPersistence(Protocol):
     async def store_events_batch(
-        self, 
+        self,
         events: list[ProtocolWorkflowEvent]
     ) -> list[bool]:
         """Batch event storage for efficiency."""
         ...
-    
+
     async def get_events_stream(
         self,
         workflow_type: str,
@@ -644,17 +644,17 @@ graph TB
     subgraph "Application Layer"
         APP[Application Code]
     end
-    
+
     subgraph "Caching Layer"
         L1[L1: In-Memory]
         L2[L2: Redis]
         L3[L3: Database]
     end
-    
+
     APP --> L1
     L1 --> L2
     L2 --> L3
-    
+
     L1 -.-> |Cache Miss| L2
     L2 -.-> |Cache Miss| L3
 ```
@@ -664,15 +664,15 @@ graph TB
 @runtime_checkable
 class ProtocolCacheService(Protocol):
     """Multi-level caching protocol."""
-    
+
     async def get(
-        self, 
+        self,
         key: str,
         cache_level: Literal["L1", "L2", "L3"] = "L1"
     ) -> Optional[Any]:
         """Get value from specified cache level."""
         ...
-    
+
     async def set(
         self,
         key: str,
@@ -682,7 +682,7 @@ class ProtocolCacheService(Protocol):
     ) -> bool:
         """Set value in multiple cache levels."""
         ...
-    
+
     async def get_statistics(self) -> ProtocolCacheStatistics:
         """Get comprehensive cache performance metrics."""
         ...
@@ -696,29 +696,29 @@ class CachedServiceWrapper:
     ):
         self.service = service
         self.cache = cache
-    
+
     async def get_user(self, user_id: UUID) -> Optional[User]:
         # Try L1 cache first (in-memory)
         cached = await self.cache.get(f"user:{user_id}", cache_level="L1")
         if cached:
             return cached
-        
+
         # Try L2 cache (Redis)
         cached = await self.cache.get(f"user:{user_id}", cache_level="L2")
         if cached:
             # Populate L1 cache
             await self.cache.set(f"user:{user_id}", cached, cache_levels=["L1"])
             return cached
-        
+
         # Get from service and populate caches
         user = await self.service.get_user(user_id)
         if user:
             await self.cache.set(
-                f"user:{user_id}", 
-                user, 
+                f"user:{user_id}",
+                user,
                 cache_levels=["L1", "L2"]
             )
-        
+
         return user
 ```
 
@@ -734,7 +734,7 @@ ContextValue = str | int | float | bool | list[str] | dict[str, str]
 class ProtocolWorkflowContext(Protocol):
     data: dict[str, ContextValue]    # Safe, constrained values
     secrets: dict[str, str]          # Encrypted string values only
-    
+
     # Avoid: arbitrary objects that could execute code
     # dangerous_data: dict[str, Any]  # Could contain anything
 
@@ -742,14 +742,14 @@ class ProtocolWorkflowContext(Protocol):
 @runtime_checkable
 class ProtocolInputValidator(Protocol):
     """Validate inputs at system boundaries."""
-    
+
     async def validate_workflow_data(
-        self, 
+        self,
         data: dict[str, Any]  # Unvalidated input
     ) -> dict[str, ContextValue]:  # Validated output
         """Convert and validate arbitrary input to safe types."""
         ...
-    
+
     async def sanitize_user_input(
         self,
         user_input: str
@@ -765,7 +765,7 @@ class ProtocolInputValidator(Protocol):
 @runtime_checkable
 class ProtocolSecretsManager(Protocol):
     """Secure secrets management."""
-    
+
     async def store_secret(
         self,
         key: str,
@@ -774,7 +774,7 @@ class ProtocolSecretsManager(Protocol):
     ) -> bool:
         """Store encrypted secret."""
         ...
-    
+
     async def retrieve_secret(
         self,
         key: str,
@@ -782,7 +782,7 @@ class ProtocolSecretsManager(Protocol):
     ) -> Optional[str]:
         """Retrieve decrypted secret with access control."""
         ...
-    
+
     async def rotate_secret(
         self,
         key: str,
@@ -794,7 +794,7 @@ class ProtocolSecretsManager(Protocol):
 # Workflow context with secure secrets
 class ProtocolWorkflowContext(Protocol):
     secrets: dict[str, str]  # Encrypted values
-    
+
     async def get_secret(
         self,
         key: str,
@@ -804,7 +804,7 @@ class ProtocolWorkflowContext(Protocol):
         encrypted_value = self.secrets.get(key)
         if not encrypted_value:
             return None
-        
+
         return await secrets_manager.retrieve_secret(
             key=encrypted_value,
             requester_context={
@@ -822,22 +822,22 @@ class ProtocolWorkflowContext(Protocol):
 # Abstract compliance test suite
 class WorkflowEventBusComplianceTests(ABC):
     """Abstract test suite for event bus compliance."""
-    
+
     @pytest.fixture
     def event_bus(self) -> ProtocolWorkflowEventBus:
         """Override in subclasses."""
         raise NotImplementedError
-    
+
     @pytest.mark.asyncio
     async def test_publish_event_success(
-        self, 
+        self,
         event_bus: ProtocolWorkflowEventBus
     ):
         """Test successful event publishing."""
         event = create_test_workflow_event()
         await event_bus.publish_workflow_event(event)
         # Verify event was published
-    
+
     @pytest.mark.asyncio  
     async def test_replay_events(
         self,
@@ -873,23 +873,23 @@ graph TB
         TMQ[Test Message Queue]
         TCH[Test Cache]
     end
-    
+
     subgraph "Test Services"
         TUS[Test User Service]
         TWS[Test Workflow Service]
         TES[Test Event Service]
     end
-    
+
     subgraph "Integration Tests"
         IT1[User Workflow Tests]
         IT2[Event Processing Tests]
         IT3[Cache Integration Tests]
     end
-    
+
     TDB --> TUS
     TMQ --> TWS
     TCH --> TES
-    
+
     TUS --> IT1
     TWS --> IT2
     TES --> IT3
@@ -914,13 +914,13 @@ class ProtocolUserServiceV2(ProtocolUserServiceV1, Protocol):
 # Backward compatibility adapter
 class UserServiceV1Adapter(ProtocolUserServiceV2):
     """Adapt V1 service to V2 interface."""
-    
+
     def __init__(self, v1_service: ProtocolUserServiceV1):
         self.v1_service = v1_service
-    
+
     async def get_user(self, user_id: UUID) -> Optional[User]:
         return await self.v1_service.get_user(user_id)
-    
+
     async def get_users_batch(
         self, user_ids: list[UUID]
     ) -> dict[UUID, Optional[User]]:
@@ -938,7 +938,7 @@ class UserServiceV1Adapter(ProtocolUserServiceV2):
 @runtime_checkable
 class ProtocolFeatureFlags(Protocol):
     """Feature flag management for migrations."""
-    
+
     async def is_enabled(
         self,
         flag_name: str,
@@ -950,7 +950,7 @@ class ProtocolFeatureFlags(Protocol):
 # Migration-aware service implementation
 class MigrationAwareUserService(ProtocolUserServiceV2):
     """Service that supports gradual migration."""
-    
+
     def __init__(
         self,
         v1_service: ProtocolUserServiceV1,
@@ -960,13 +960,13 @@ class MigrationAwareUserService(ProtocolUserServiceV2):
         self.v1_service = v1_service
         self.v2_service = v2_service
         self.feature_flags = feature_flags
-    
+
     async def get_user(self, user_id: UUID) -> Optional[User]:
         use_v2 = await self.feature_flags.is_enabled(
             "user_service_v2",
             {"user_id": str(user_id)}
         )
-        
+
         if use_v2:
             return await self.v2_service.get_user(user_id)
         else:

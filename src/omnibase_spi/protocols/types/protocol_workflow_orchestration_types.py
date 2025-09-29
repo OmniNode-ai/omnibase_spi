@@ -4,7 +4,7 @@ Workflow orchestration protocol types for ONEX SPI interfaces.
 Domain: Event-driven workflow orchestration with FSM states and event sourcing
 """
 
-from typing import Any, Generic, Literal, Optional, Protocol, TypeVar, runtime_checkable
+from typing import TYPE_CHECKING, Generic, Literal, Protocol, TypeVar, runtime_checkable
 from uuid import UUID
 
 from omnibase_spi.protocols.types.protocol_core_types import (
@@ -14,27 +14,19 @@ from omnibase_spi.protocols.types.protocol_core_types import (
     ProtocolSemVer,
 )
 
-# === Protocol-Based Value Types ===
+if TYPE_CHECKING:
+    pass
 
 
 @runtime_checkable
 class ProtocolWorkflowValue(Protocol):
     """Protocol for workflow data values supporting serialization and validation."""
 
-    def serialize(self) -> dict[str, object]:
-        """Serialize value to dictionary for persistence."""
-        ...
+    def serialize(self) -> dict[str, object]: ...
 
-    def validate(self) -> bool:
-        """Validate the value meets workflow constraints."""
-        ...
+    async def validate(self) -> bool: ...
 
-    def get_type_info(self) -> str:
-        """Get type information for workflow introspection."""
-        ...
-
-
-# === Workflow Value Protocol Hierarchy (Eliminates Union anti-patterns) ===
+    async def get_type_info(self) -> str: ...
 
 
 @runtime_checkable
@@ -43,6 +35,10 @@ class ProtocolWorkflowStringValue(ProtocolWorkflowValue, Protocol):
 
     value: str
 
+    async def get_string_length(self) -> int: ...
+
+    def is_empty_string(self) -> bool: ...
+
 
 @runtime_checkable
 class ProtocolWorkflowStringListValue(ProtocolWorkflowValue, Protocol):
@@ -50,12 +46,20 @@ class ProtocolWorkflowStringListValue(ProtocolWorkflowValue, Protocol):
 
     value: list[str]
 
+    async def get_list_length(self) -> int: ...
+
+    def is_empty_list(self) -> bool: ...
+
 
 @runtime_checkable
 class ProtocolWorkflowStringDictValue(ProtocolWorkflowValue, Protocol):
     """Protocol for string dictionary workflow values."""
 
-    value: dict[str, str]
+    value: dict[str, "ContextValue"]
+
+    async def get_dict_keys(self) -> list[str]: ...
+
+    def has_key(self, key: str) -> bool: ...
 
 
 @runtime_checkable
@@ -64,37 +68,36 @@ class ProtocolWorkflowNumericValue(ProtocolWorkflowValue, Protocol):
 
     value: int | float
 
+    def is_integer(self) -> bool: ...
+
+    def is_positive(self) -> bool: ...
+
 
 @runtime_checkable
 class ProtocolWorkflowStructuredValue(ProtocolWorkflowValue, Protocol):
     """Protocol for structured workflow values with context data."""
 
-    value: dict[str, ContextValue]
+    value: dict[str, "ContextValue"]
+
+    async def get_structure_depth(self) -> int: ...
+
+    def flatten_structure(self) -> dict[str, "ContextValue"]: ...
 
 
-# === Generic Type Definitions ===
-
-# Constrained TypeVar for workflow primitive values
 T_WorkflowValue = TypeVar("T_WorkflowValue", str, int, float, bool)
 
 
-# Generic protocol for typed workflow data
 @runtime_checkable
 class ProtocolTypedWorkflowData(Generic[T_WorkflowValue], Protocol):
     """Protocol for strongly typed workflow data values."""
 
     value: T_WorkflowValue
 
-    def get_type_name(self) -> str:
-        """Get the type name for this workflow data."""
-        ...
+    async def get_type_name(self) -> str: ...
 
-    def serialize_typed(self) -> dict[str, Any]:
-        """Serialize with type information."""
-        ...
+    def serialize_typed(self) -> dict[str, ContextValue]: ...
 
 
-# Workflow state types - hierarchical FSM states
 LiteralWorkflowState = Literal[
     "pending",
     "initializing",
@@ -109,8 +112,6 @@ LiteralWorkflowState = Literal[
     "compensating",
     "compensated",
 ]
-
-# Task state types - individual task execution states
 LiteralTaskState = Literal[
     "pending",
     "scheduled",
@@ -124,17 +125,9 @@ LiteralTaskState = Literal[
     "waiting_for_input",
     "blocked",
 ]
-
-# Task types - dispatch annotations for effects[] and computes[]
 LiteralTaskType = Literal["compute", "effect", "orchestrator", "reducer"]
-
-# Execution semantics - await vs fire-and-forget
 LiteralExecutionSemantics = Literal["await", "fire_and_forget", "async_await"]
-
-# Retry policy types
 LiteralRetryPolicy = Literal["none", "fixed", "exponential", "linear", "custom"]
-
-# Event types for workflow orchestration
 LiteralWorkflowEventType = Literal[
     "workflow.created",
     "workflow.started",
@@ -155,20 +148,14 @@ LiteralWorkflowEventType = Literal[
     "compensation.started",
     "compensation.completed",
 ]
-
-# Timeout types
 LiteralTimeoutType = Literal["execution", "idle", "total", "heartbeat"]
-
-# Priority levels for task scheduling
 LiteralTaskPriority = Literal["low", "normal", "high", "critical", "urgent"]
-
-# Isolation levels for workflow instances
 LiteralIsolationLevel = Literal[
     "read_uncommitted", "read_committed", "repeatable_read", "serializable"
 ]
 
 
-# Core workflow protocols
+@runtime_checkable
 class ProtocolWorkflowMetadata(Protocol):
     """Protocol for workflow metadata objects."""
 
@@ -178,11 +165,16 @@ class ProtocolWorkflowMetadata(Protocol):
     created_by: str
     environment: str
     group: str
-    version: ProtocolSemVer
-    tags: dict[str, str]
-    metadata: dict[str, ContextValue]
+    version: "ProtocolSemVer"
+    tags: dict[str, "ContextValue"]
+    metadata: dict[str, "ContextValue"]
+
+    async def validate_metadata(self) -> bool: ...
+
+    def is_complete(self) -> bool: ...
 
 
+@runtime_checkable
 class ProtocolRetryConfiguration(Protocol):
     """Protocol for retry configuration objects."""
 
@@ -195,26 +187,41 @@ class ProtocolRetryConfiguration(Protocol):
     retryable_errors: list[str]
     non_retryable_errors: list[str]
 
+    async def validate_retry_config(self) -> bool: ...
 
+    def is_valid_policy(self) -> bool: ...
+
+
+@runtime_checkable
 class ProtocolTimeoutConfiguration(Protocol):
     """Protocol for timeout configuration objects."""
 
     timeout_type: LiteralTimeoutType
     timeout_seconds: int
-    warning_seconds: Optional[int]
-    grace_period_seconds: Optional[int]
-    escalation_policy: Optional[str]
+    warning_seconds: int | None
+    grace_period_seconds: int | None
+    escalation_policy: str | None
+
+    async def validate_timeout_config(self) -> bool: ...
+
+    def is_reasonable(self) -> bool: ...
 
 
+@runtime_checkable
 class ProtocolTaskDependency(Protocol):
     """Protocol for task dependency objects."""
 
     task_id: UUID
     dependency_type: Literal["hard", "soft", "conditional"]
-    condition: Optional[str]
-    timeout_seconds: Optional[int]
+    condition: str | None
+    timeout_seconds: int | None
+
+    async def validate_dependency(self) -> bool: ...
+
+    def is_conditional(self) -> bool: ...
 
 
+@runtime_checkable
 class ProtocolWorkflowContext(Protocol):
     """Protocol for workflow context objects with isolation."""
 
@@ -222,12 +229,17 @@ class ProtocolWorkflowContext(Protocol):
     instance_id: UUID
     correlation_id: UUID
     isolation_level: LiteralIsolationLevel
-    data: dict[str, ProtocolWorkflowValue]
-    secrets: dict[str, str]  # Encrypted/protected values
+    data: dict[str, "ProtocolWorkflowValue"]
+    secrets: dict[str, "ContextValue"]
     capabilities: list[str]
     resource_limits: dict[str, int]
 
+    async def validate_context(self) -> bool: ...
 
+    def has_required_data(self) -> bool: ...
+
+
+@runtime_checkable
 class ProtocolTaskConfiguration(Protocol):
     """Protocol for task configuration objects."""
 
@@ -237,13 +249,18 @@ class ProtocolTaskConfiguration(Protocol):
     node_type: LiteralNodeType
     execution_semantics: LiteralExecutionSemantics
     priority: LiteralTaskPriority
-    dependencies: list[ProtocolTaskDependency]
-    retry_config: ProtocolRetryConfiguration
-    timeout_config: ProtocolTimeoutConfiguration
-    resource_requirements: dict[str, Any]
-    annotations: dict[str, str]
+    dependencies: list["ProtocolTaskDependency"]
+    retry_config: "ProtocolRetryConfiguration"
+    timeout_config: "ProtocolTimeoutConfiguration"
+    resource_requirements: dict[str, ContextValue]
+    annotations: dict[str, "ContextValue"]
+
+    async def validate_task(self) -> bool: ...
+
+    def has_valid_dependencies(self) -> bool: ...
 
 
+@runtime_checkable
 class ProtocolWorkflowEvent(Protocol):
     """Protocol for workflow event objects with event sourcing."""
 
@@ -253,15 +270,20 @@ class ProtocolWorkflowEvent(Protocol):
     instance_id: UUID
     correlation_id: UUID
     sequence_number: int
-    timestamp: ProtocolDateTime
+    timestamp: "ProtocolDateTime"
     source: str
     idempotency_key: str
-    payload: dict[str, ProtocolWorkflowValue]
-    metadata: dict[str, ContextValue]
-    causation_id: Optional[UUID]  # Event that caused this event
-    correlation_chain: list[UUID]  # Full correlation chain
+    payload: dict[str, "ProtocolWorkflowValue"]
+    metadata: dict[str, "ContextValue"]
+    causation_id: UUID | None
+    correlation_chain: list[UUID]
+
+    async def validate_event(self) -> bool: ...
+
+    def is_valid_sequence(self) -> bool: ...
 
 
+@runtime_checkable
 class ProtocolWorkflowSnapshot(Protocol):
     """Protocol for workflow snapshot objects."""
 
@@ -269,79 +291,107 @@ class ProtocolWorkflowSnapshot(Protocol):
     instance_id: UUID
     sequence_number: int
     state: LiteralWorkflowState
-    context: ProtocolWorkflowContext
-    tasks: list[ProtocolTaskConfiguration]
-    created_at: ProtocolDateTime
-    metadata: dict[str, ContextValue]
+    context: "ProtocolWorkflowContext"
+    tasks: list["ProtocolTaskConfiguration"]
+    created_at: "ProtocolDateTime"
+    metadata: dict[str, "ContextValue"]
+
+    async def validate_snapshot(self) -> bool: ...
+
+    def is_consistent(self) -> bool: ...
 
 
+@runtime_checkable
 class ProtocolTaskResult(Protocol):
     """Protocol for task execution results."""
 
     task_id: UUID
     execution_id: UUID
     state: LiteralTaskState
-    result_data: dict[str, ProtocolWorkflowValue]
-    error_message: Optional[str]
-    error_code: Optional[str]
+    result_data: dict[str, "ProtocolWorkflowValue"]
+    error_message: str | None
+    error_code: str | None
     retry_count: int
     execution_time_seconds: float
     resource_usage: dict[str, float]
     output_artifacts: list[str]
-    events_emitted: list[ProtocolWorkflowEvent]
+    events_emitted: list["ProtocolWorkflowEvent"]
+
+    async def validate_result(self) -> bool: ...
+
+    def is_success(self) -> bool: ...
 
 
+@runtime_checkable
 class ProtocolCompensationAction(Protocol):
     """Protocol for compensation action objects."""
 
     compensation_id: UUID
     task_id: UUID
     action_type: Literal["rollback", "cleanup", "notify", "custom"]
-    action_data: dict[str, ProtocolWorkflowValue]
+    action_data: dict[str, "ProtocolWorkflowValue"]
     timeout_seconds: int
-    retry_config: ProtocolRetryConfiguration
+    retry_config: "ProtocolRetryConfiguration"
+
+    async def validate_compensation(self) -> bool: ...
+
+    async def can_execute(self) -> bool: ...
 
 
+@runtime_checkable
 class ProtocolWorkflowDefinition(Protocol):
     """Protocol for workflow definition objects."""
 
     workflow_type: str
-    version: ProtocolSemVer
+    version: "ProtocolSemVer"
     name: str
     description: str
-    tasks: list[ProtocolTaskConfiguration]
-    default_retry_config: ProtocolRetryConfiguration
-    default_timeout_config: ProtocolTimeoutConfiguration
-    compensation_actions: list[ProtocolCompensationAction]
-    validation_rules: dict[str, Any]
-    schema: dict[str, Any]  # JSON schema for workflow data
+    tasks: list["ProtocolTaskConfiguration"]
+    default_retry_config: "ProtocolRetryConfiguration"
+    default_timeout_config: "ProtocolTimeoutConfiguration"
+    compensation_actions: list["ProtocolCompensationAction"]
+    validation_rules: dict[str, ContextValue]
+    schema: dict[str, ContextValue]
+
+    async def validate_definition(self) -> bool: ...
+
+    def is_valid_schema(self) -> bool: ...
 
 
-# Node capability protocols
+@runtime_checkable
 class ProtocolNodeCapability(Protocol):
     """Protocol for node capability objects."""
 
     capability_name: str
-    version: ProtocolSemVer
+    version: "ProtocolSemVer"
     node_types: list[LiteralNodeType]
-    resource_requirements: dict[str, Any]
-    configuration_schema: dict[str, Any]
+    resource_requirements: dict[str, ContextValue]
+    configuration_schema: dict[str, ContextValue]
     supported_task_types: list[LiteralTaskType]
 
+    async def validate_capability(self) -> bool: ...
 
-class ProtocolServiceDiscovery(Protocol):
-    """Protocol for service discovery objects."""
+    def is_supported(self) -> bool: ...
+
+
+@runtime_checkable
+class ProtocolWorkflowServiceInstance(Protocol):
+    """Protocol for discovered service instance objects in workflow orchestration."""
 
     service_name: str
     service_type: str
     endpoint: str
     health_check_url: str
-    metadata: dict[str, ContextValue]
-    capabilities: list[ProtocolNodeCapability]
-    last_heartbeat: ProtocolDateTime
+    metadata: dict[str, "ContextValue"]
+    capabilities: list["ProtocolNodeCapability"]
+    last_heartbeat: "ProtocolDateTime"
+
+    async def validate_service_instance(self) -> bool: ...
+
+    def is_healthy(self) -> bool: ...
 
 
-# Recovery and replay protocols
+@runtime_checkable
 class ProtocolRecoveryPoint(Protocol):
     """Protocol for recovery point objects."""
 
@@ -351,22 +401,31 @@ class ProtocolRecoveryPoint(Protocol):
     sequence_number: int
     state: LiteralWorkflowState
     recovery_type: Literal["checkpoint", "savepoint", "snapshot"]
-    created_at: ProtocolDateTime
-    metadata: dict[str, ContextValue]
+    created_at: "ProtocolDateTime"
+    metadata: dict[str, "ContextValue"]
+
+    async def validate_recovery_point(self) -> bool: ...
+
+    def is_restorable(self) -> bool: ...
 
 
+@runtime_checkable
 class ProtocolReplayStrategy(Protocol):
     """Protocol for replay strategy objects."""
 
     strategy_type: Literal["full", "partial", "from_checkpoint", "from_sequence"]
-    start_sequence: Optional[int]
-    end_sequence: Optional[int]
+    start_sequence: int | None
+    end_sequence: int | None
     event_filters: list[str]
     skip_failed_events: bool
     validate_state: bool
 
+    async def validate_replay_strategy(self) -> bool: ...
 
-# Event sourcing specific protocols
+    def is_executable(self) -> bool: ...
+
+
+@runtime_checkable
 class ProtocolEventStream(Protocol):
     """Protocol for event stream objects."""
 
@@ -375,17 +434,26 @@ class ProtocolEventStream(Protocol):
     instance_id: UUID
     start_sequence: int
     end_sequence: int
-    events: list[ProtocolWorkflowEvent]
+    events: list["ProtocolWorkflowEvent"]
     is_complete: bool
-    next_token: Optional[str]
+    next_token: str | None
+
+    async def validate_stream(self) -> bool: ...
+
+    async def is_complete_stream(self) -> bool: ...
 
 
+@runtime_checkable
 class ProtocolEventProjection(Protocol):
     """Protocol for event projection objects."""
 
     projection_name: str
     workflow_type: str
     last_processed_sequence: int
-    projection_data: dict[str, ProtocolWorkflowValue]
-    created_at: ProtocolDateTime
-    updated_at: ProtocolDateTime
+    projection_data: dict[str, "ProtocolWorkflowValue"]
+    created_at: "ProtocolDateTime"
+    updated_at: "ProtocolDateTime"
+
+    async def validate_projection(self) -> bool: ...
+
+    def is_up_to_date(self) -> bool: ...

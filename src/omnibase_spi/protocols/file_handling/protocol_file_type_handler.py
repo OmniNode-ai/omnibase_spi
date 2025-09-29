@@ -1,31 +1,6 @@
-# === OmniNode:Metadata ===
-# author: OmniNode Team
-# copyright: OmniNode.ai
-# created_at: '2025-05-28T12:36:27.169382'
-# description: Stamped by NodePython
-# entrypoint: python://protocol_file_type_node
-# hash: f865199088b42907bcfd03147a6071a4ec1c21659e83436e8b30537c67f30d6c
-# last_modified_at: '2025-05-29T14:14:00.255085+00:00'
-# lifecycle: active
-# meta_type: node
-# metadata_version: 0.1.0
-# name: protocol_file_type_node.py
-# namespace: python://omnibase_spi.protocol.protocol_file_type_node
-# owner: OmniNode Team
-# protocol_version: 0.1.0
-# runtime_language_hint: python>=3.11
-# schema_version: 0.1.0
-# state_contract: state_contract://default
-# tools: null
-# uuid: 4e1063a3-c759-42a8-8a3f-2d05489e0ea4
-# version: 1.0.0
-# === /OmniNode:Metadata ===
-
-
 from __future__ import annotations
 
-from pathlib import Path
-from typing import Optional, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import (
     ProtocolNodeMetadata,
@@ -38,7 +13,6 @@ from omnibase_spi.protocols.types.protocol_file_handling_types import (
     ProtocolSerializedBlock,
 )
 
-
 @runtime_checkable
 class ProtocolStampOptions(Protocol):
     """Protocol for stamping operation options."""
@@ -46,7 +20,6 @@ class ProtocolStampOptions(Protocol):
     force: bool
     backup: bool
     dry_run: bool
-
 
 @runtime_checkable
 class ProtocolValidationOptions(Protocol):
@@ -56,7 +29,7 @@ class ProtocolValidationOptions(Protocol):
     verbose: bool
     check_syntax: bool
 
-
+@runtime_checkable
 class ProtocolFileTypeHandler(Protocol):
     """
     Protocol for file type nodes in the ONEX stamper engine.
@@ -65,41 +38,17 @@ class ProtocolFileTypeHandler(Protocol):
     Usage Example:
         ```python
         # Implementation example (not part of SPI)
-        class NodePythonFileProcessor:
-            @property
-            def metadata(self) -> ProtocolNodeMetadata:
-                # Implementation would return configured metadata
-                ...
-
-            @property
-            def node_name(self) -> str:
-                # Implementation returns node identifier
-                ...
-
-            def can_handle(self, path: Path, content: str) -> ProtocolCanHandleResult:
-                # Implementation determines if file can be processed
-                ...
-
-            def extract_block(self, path: Path, content: str) -> ProtocolExtractedBlock:
-                # Implementation extracts structured block from file content
-                ...
-
-            def stamp(self, path: Path, content: str, options: ProtocolStampOptions) -> ProtocolOnexResult:
-                # Implementation adds metadata stamp to file
-                ...
-
-            def validate(self, path: Path, content: str, options: ProtocolValidationOptions) -> ProtocolOnexResult:
-                # Implementation validates file content and metadata
-                ...
+        # NodePythonFileProcessor would implement the protocol interface
+        # All methods defined in the protocol contract
 
         # Usage in application
-        node: ProtocolFileTypeHandler = NodePythonFileProcessor()
+        node: "ProtocolFileTypeHandler" = NodePythonFileProcessor()
 
         # Check if node can process a file
-        result = node.can_handle(Path("example.py"), "file_content")
+        result = node.can_handle("example.py", "file_content")
         if result.can_handle:
             # Extract, stamp, and validate file
-            block = node.extract_block(Path("example.py"), "file_content")
+            block = node.extract_block("example.py", "file_content")
             # ... implementation handles file operations
         ```
 
@@ -111,8 +60,7 @@ class ProtocolFileTypeHandler(Protocol):
         - Error handling: Graceful degradation with detailed error messages
     """
 
-    @property
-    def metadata(self) -> ProtocolNodeMetadata: ...
+    async def metadata(self) -> ProtocolNodeMetadata: ...
 
     @property
     def node_name(self) -> str: ...
@@ -138,9 +86,11 @@ class ProtocolFileTypeHandler(Protocol):
     @property
     def requires_content_analysis(self) -> bool: ...
 
-    def can_handle(self, path: Path, content: str) -> ProtocolCanHandleResult: ...
+    async def can_handle(self, path: str, content: str) -> ProtocolCanHandleResult: ...
 
-    def extract_block(self, path: Path, content: str) -> ProtocolExtractedBlock: ...
+    async def extract_block(
+        self, path: str, content: str
+    ) -> ProtocolExtractedBlock: ...
 
     def serialize_block(
         self, meta: ProtocolExtractedBlock
@@ -148,18 +98,18 @@ class ProtocolFileTypeHandler(Protocol):
 
     def normalize_rest(self, rest: str) -> str: ...
 
-    def stamp(
-        self, path: Path, content: str, options: ProtocolStampOptions
+    async def stamp(
+        self, path: str, content: str, options: ProtocolStampOptions
     ) -> ProtocolOnexResult: ...
 
-    def pre_validate(
-        self, path: Path, content: str, options: ProtocolValidationOptions
-    ) -> Optional[ProtocolOnexResult]: ...
+    async def pre_validate(
+        self, path: str, content: str, options: ProtocolValidationOptions
+    ) -> ProtocolOnexResult | None: ...
 
-    def post_validate(
-        self, path: Path, content: str, options: ProtocolValidationOptions
-    ) -> Optional[ProtocolOnexResult]: ...
+    async def post_validate(
+        self, path: str, content: str, options: ProtocolValidationOptions
+    ) -> ProtocolOnexResult | None: ...
 
-    def validate(
-        self, path: Path, content: str, options: ProtocolValidationOptions
+    async def validate(
+        self, path: str, content: str, options: ProtocolValidationOptions
     ) -> ProtocolOnexResult: ...

@@ -7,11 +7,11 @@ implementation dependencies or mixin complexity.
 
 from typing import TYPE_CHECKING, Optional, Protocol, Union, runtime_checkable
 
+from omnibase_spi.protocols.types.protocol_core_types import LiteralLogLevel
+from omnibase_spi.protocols.types.protocol_event_bus_types import ProtocolEventMessage
+
 if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.protocol_core_types import LiteralLogLevel
-    from omnibase_spi.protocols.types.protocol_event_bus_types import (
-        ProtocolEventMessage,
-    )
+    pass
 
 
 @runtime_checkable
@@ -29,31 +29,17 @@ class ProtocolEventBusBase(Protocol):
         - Compatible with dependency injection patterns
     """
 
-    def publish(self, event: "ProtocolEventMessage") -> None:
-        """
-        Publish event to the event bus.
-
-        Args:
-            event: Event message to publish
-
-        Raises:
-            ValueError: If event format is invalid
-            RuntimeError: If event bus is unavailable
-
-        Note:
-            Implementations may handle this synchronously or asynchronously
-            depending on their execution pattern.
-        """
-        ...
+    async def publish(self, event: ProtocolEventMessage) -> None: ...
 
 
 @runtime_checkable
-class ProtocolSyncEventBus(Protocol):
+class ProtocolSyncEventBus(ProtocolEventBusBase, Protocol):
     """
     Protocol for synchronous event bus operations.
 
     Defines synchronous event publishing interface for
     event bus implementations that operate synchronously.
+    Inherits from ProtocolEventBusBase for unified interface.
 
     Key Features:
         - Synchronous event publishing
@@ -61,27 +47,17 @@ class ProtocolSyncEventBus(Protocol):
         - Compatible with sync event processing
     """
 
-    def publish(self, event: "ProtocolEventMessage") -> None:
-        """
-        Publish event synchronously.
-
-        Args:
-            event: Event message to publish
-
-        Raises:
-            ValueError: If event format is invalid
-            RuntimeError: If event bus is unavailable
-        """
-        ...
+    async def publish_sync(self, event: ProtocolEventMessage) -> None: ...
 
 
 @runtime_checkable
-class ProtocolAsyncEventBus(Protocol):
+class ProtocolAsyncEventBus(ProtocolEventBusBase, Protocol):
     """
     Protocol for asynchronous event bus operations.
 
     Defines asynchronous event publishing interface for
     event bus implementations that operate asynchronously.
+    Inherits from ProtocolEventBusBase for unified interface.
 
     Key Features:
         - Asynchronous event publishing
@@ -89,18 +65,7 @@ class ProtocolAsyncEventBus(Protocol):
         - Non-blocking event processing
     """
 
-    async def publish(self, event: "ProtocolEventMessage") -> None:
-        """
-        Publish event asynchronously.
-
-        Args:
-            event: Event message to publish
-
-        Raises:
-            ValueError: If event format is invalid
-            RuntimeError: If event bus is unavailable
-        """
-        ...
+    async def publish_async(self, event: ProtocolEventMessage) -> None: ...
 
 
 @runtime_checkable
@@ -117,7 +82,11 @@ class ProtocolRegistryWithBus(Protocol):
         - Support for both sync and async event buses
     """
 
-    event_bus: Optional[ProtocolEventBusBase]
+    event_bus: ProtocolEventBusBase | None
+
+    async def validate_registry_bus(self) -> bool: ...
+
+    def has_bus_access(self) -> bool: ...
 
 
 @runtime_checkable
@@ -136,20 +105,7 @@ class ProtocolLogEmitter(Protocol):
 
     def emit_log_event(
         self,
-        level: "LiteralLogLevel",
+        level: LiteralLogLevel,
         message: str,
-        data: dict[str, Union[str, int, float, bool]],
-    ) -> None:
-        """
-        Emit structured log event.
-
-        Args:
-            level: Log level (DEBUG, INFO, WARNING, ERROR, etc.)
-            message: Log message
-            data: Structured log data with typed values
-
-        Note:
-            Implementations should support structured logging
-            with proper serialization of typed data.
-        """
-        ...
+        data: dict[str, str | int | float | bool],
+    ) -> None: ...

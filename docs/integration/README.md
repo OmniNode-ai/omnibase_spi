@@ -26,46 +26,46 @@ T = TypeVar('T')
 
 class ServiceContainer:
     """Simple dependency injection container for protocol-based services."""
-    
+
     def __init__(self):
         self._services: Dict[Type, Any] = {}
         self._singletons: Dict[Type, Any] = {}
         self._factories: Dict[Type, Any] = {}
-    
+
     def register_singleton(self, protocol: Type[T], instance: T) -> None:
         """Register singleton instance for protocol."""
         if not isinstance(instance, protocol):
             raise ValueError(f"Instance must implement {protocol.__name__}")
         self._singletons[protocol] = instance
-    
+
     def register_transient(self, protocol: Type[T], impl_class: Type[T]) -> None:
         """Register transient implementation class for protocol."""
         self._services[protocol] = impl_class
-    
+
     def register_factory(self, protocol: Type[T], factory_func) -> None:
         """Register factory function for protocol."""
         self._factories[protocol] = factory_func
-    
+
     def get(self, protocol: Type[T]) -> T:
         """Resolve instance for protocol."""
         # Check singletons first
         if protocol in self._singletons:
             return self._singletons[protocol]
-        
+
         # Check factories
         if protocol in self._factories:
             instance = self._factories[protocol]()
             if not isinstance(instance, protocol):
                 raise ValueError(f"Factory must return {protocol.__name__}")
             return instance
-        
+
         # Check transient services
         if protocol in self._services:
             impl_class = self._services[protocol]
             return impl_class()
-        
+
         raise ValueError(f"No implementation registered for {protocol.__name__}")
-    
+
     def resolve_dependencies(self, obj: Any) -> None:
         """Resolve dependencies for object using constructor annotations."""
         if hasattr(obj.__class__, '__init__'):
@@ -79,19 +79,19 @@ class ServiceContainer:
 def setup_container() -> ServiceContainer:
     """Setup service container with implementations."""
     container = ServiceContainer()
-    
+
     # Register singleton services (shared instances)
     container.register_singleton(
-        ProtocolLogger, 
+        ProtocolLogger,
         StructuredLogger(level="INFO")
     )
-    
+
     # Register transient services (new instance each time)
     container.register_transient(
         ProtocolUserService,
         DatabaseUserService
     )
-    
+
     # Register factory functions (custom creation logic)
     container.register_factory(
         ProtocolCacheService,
@@ -100,7 +100,7 @@ def setup_container() -> ServiceContainer:
             port=int(os.getenv("REDIS_PORT", "6379"))
         )
     )
-    
+
     return container
 ```
 
@@ -118,12 +118,12 @@ class ServiceScope(Enum):
 
 class ScopedServiceContainer:
     """Advanced container with scoping support."""
-    
+
     def __init__(self):
         self._registrations: Dict[Type, Dict] = {}
         self._singletons: Dict[Type, Any] = {}
         self._scoped_instances = local()
-    
+
     def register(
         self,
         protocol: Type[T],
@@ -135,32 +135,32 @@ class ScopedServiceContainer:
             'implementation': implementation,
             'scope': scope
         }
-    
+
     def get(self, protocol: Type[T]) -> T:
         """Get service instance based on scope."""
         if protocol not in self._registrations:
             raise ValueError(f"No registration for {protocol.__name__}")
-        
+
         registration = self._registrations[protocol]
         scope = registration['scope']
         implementation = registration['implementation']
-        
+
         if scope == ServiceScope.SINGLETON:
             if protocol not in self._singletons:
                 self._singletons[protocol] = self._create_instance(implementation)
             return self._singletons[protocol]
-        
+
         elif scope == ServiceScope.SCOPED:
             if not hasattr(self._scoped_instances, 'instances'):
                 self._scoped_instances.instances = {}
-            
+
             if protocol not in self._scoped_instances.instances:
                 self._scoped_instances.instances[protocol] = self._create_instance(implementation)
             return self._scoped_instances.instances[protocol]
-        
+
         else:  # TRANSIENT
             return self._create_instance(implementation)
-    
+
     def _create_instance(self, implementation):
         """Create instance, handling both classes and factories."""
         if callable(implementation) and not isinstance(implementation, type):
@@ -169,7 +169,7 @@ class ScopedServiceContainer:
             return implementation()  # Class constructor
         else:
             return implementation   # Instance
-    
+
     @contextmanager
     def scope(self):
         """Context manager for scoped services."""
@@ -207,7 +207,7 @@ def setup_services():
         StructuredLogger(level="INFO"),
         ServiceScope.SINGLETON
     )
-    
+
     container.register(
         ProtocolUserService,
         lambda: DatabaseUserService(
@@ -215,7 +215,7 @@ def setup_services():
         ),
         ServiceScope.SCOPED
     )
-    
+
     container.register(
         ProtocolWorkflowEventBus,
         lambda: KafkaWorkflowEventBus(
@@ -259,23 +259,23 @@ async def create_user(
             "Creating user",
             context={"email": user_data.get("email")}
         )
-        
+
         user = await user_service.create_user(
             email=user_data["email"],
             name=user_data["name"]
         )
-        
+
         await logger.info(
             "User created successfully",
             context={"user_id": str(user.id), "email": user.email}
         )
-        
+
         return {
             "user_id": str(user.id),
             "email": user.email,
             "name": user.name
         }
-        
+
     except ValueError as e:
         await logger.error(
             "User creation failed",
@@ -293,7 +293,7 @@ async def get_user(
         user = await user_service.get_user(UUID(user_id))
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
-        
+
         return {
             "user_id": str(user.id),
             "email": user.email,
@@ -312,7 +312,7 @@ async def start_workflow(
 ):
     """Start workflow endpoint."""
     instance_id = uuid4()
-    
+
     # Create workflow started event
     event = ProtocolWorkflowEvent(
         event_id=uuid4(),
@@ -326,9 +326,9 @@ async def start_workflow(
         idempotency_key=f"{workflow_type}-{instance_id}-started",
         source_node_id="api-server"
     )
-    
+
     await event_bus.publish_workflow_event(event)
-    
+
     await logger.info(
         "Workflow started",
         context={
@@ -336,7 +336,7 @@ async def start_workflow(
             "instance_id": str(instance_id)
         }
     )
-    
+
     return {
         "workflow_type": workflow_type,
         "instance_id": str(instance_id),
@@ -348,7 +348,7 @@ async def start_workflow(
 async def startup_event():
     """Initialize services on startup."""
     setup_services()
-    
+
     logger = container.get(ProtocolLogger)
     await logger.info("FastAPI application started", context={"version": "1.0.0"})
 
@@ -370,11 +370,11 @@ from omnibase_spi.protocols.workflow_orchestration import ProtocolUserService
 
 class DjangoServiceRegistry:
     """Django-specific service registry."""
-    
+
     def __init__(self):
         self._services = {}
         self._setup_services()
-    
+
     def _setup_services(self):
         """Setup services based on Django settings."""
         # Logger setup
@@ -384,7 +384,7 @@ class DjangoServiceRegistry:
             self._services[ProtocolLogger] = ProductionLogger(
                 level=settings.LOG_LEVEL
             )
-        
+
         # User service setup
         if hasattr(settings, 'USER_SERVICE_TYPE'):
             if settings.USER_SERVICE_TYPE == 'database':
@@ -395,7 +395,7 @@ class DjangoServiceRegistry:
                 )
         else:
             self._services[ProtocolUserService] = DjangoORMUserService()
-    
+
     def get(self, protocol: Type[T]) -> T:
         """Get service implementation."""
         if protocol not in self._services:
@@ -419,15 +419,15 @@ def create_user_view(request):
     """Django view for user creation using protocols."""
     try:
         data = json.loads(request.body)
-        
+
         # Get services from registry
         user_service = service_registry.get(ProtocolUserService)
         logger = service_registry.get(ProtocolLogger)
-        
+
         # Run async operations
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        
+
         try:
             # Log request
             loop.run_until_complete(
@@ -437,7 +437,7 @@ def create_user_view(request):
                     "user_agent": request.META.get("HTTP_USER_AGENT", "")
                 })
             )
-            
+
             # Create user
             user = loop.run_until_complete(
                 user_service.create_user(
@@ -445,7 +445,7 @@ def create_user_view(request):
                     name=data["name"]
                 )
             )
-            
+
             # Log success
             loop.run_until_complete(
                 logger.info("User created successfully", context={
@@ -453,7 +453,7 @@ def create_user_view(request):
                     "email": user.email
                 })
             )
-            
+
             return JsonResponse({
                 "success": True,
                 "user": {
@@ -462,10 +462,10 @@ def create_user_view(request):
                     "name": user.name
                 }
             })
-            
+
         finally:
             loop.close()
-    
+
     except json.JSONDecodeError:
         return JsonResponse({"error": "Invalid JSON"}, status=400)
     except KeyError as e:
@@ -483,17 +483,17 @@ import uuid
 
 class ProtocolLoggingMiddleware(MiddlewareMixin):
     """Django middleware for protocol-based logging."""
-    
+
     def process_request(self, request):
         """Log incoming requests."""
         request.correlation_id = str(uuid.uuid4())
-        
+
         logger = service_registry.get(ProtocolLogger)
-        
+
         # Run async logging in sync context
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        
+
         try:
             loop.run_until_complete(
                 logger.info("Request received", context={
@@ -506,15 +506,15 @@ class ProtocolLoggingMiddleware(MiddlewareMixin):
             )
         finally:
             loop.close()
-    
+
     def process_response(self, request, response):
         """Log responses."""
         if hasattr(request, 'correlation_id'):
             logger = service_registry.get(ProtocolLogger)
-            
+
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
-            
+
             try:
                 loop.run_until_complete(
                     logger.info("Request completed", context={
@@ -525,7 +525,7 @@ class ProtocolLoggingMiddleware(MiddlewareMixin):
                 )
             finally:
                 loop.close()
-        
+
         return response
 ```
 
@@ -558,7 +558,7 @@ def setup_flask_services():
         ProtocolLogger,
         FlaskLogger(app.logger)
     )
-    
+
     container.register_transient(
         ProtocolUserService,
         DatabaseUserService
@@ -574,7 +574,7 @@ def inject(*protocols):
             dependencies = {}
             for protocol in protocols:
                 dependencies[protocol.__name__] = container.get(protocol)
-            
+
             # Add dependencies to kwargs
             kwargs.update(dependencies)
             return f(*args, **kwargs)
@@ -587,10 +587,10 @@ def inject(*protocols):
 def create_user(ProtocolUserService=None, ProtocolLogger=None):
     """Create user with injected dependencies."""
     loop = get_event_loop()
-    
+
     try:
         data = request.get_json()
-        
+
         # Log request
         loop.run_until_complete(
             ProtocolLogger.info("User creation requested", context={
@@ -598,7 +598,7 @@ def create_user(ProtocolUserService=None, ProtocolLogger=None):
                 "remote_addr": request.remote_addr
             })
         )
-        
+
         # Create user
         user = loop.run_until_complete(
             ProtocolUserService.create_user(
@@ -606,20 +606,20 @@ def create_user(ProtocolUserService=None, ProtocolLogger=None):
                 name=data["name"]
             )
         )
-        
+
         # Log success
         loop.run_until_complete(
             ProtocolLogger.info("User created", context={
                 "user_id": str(user.id)
             })
         )
-        
+
         return jsonify({
             "user_id": str(user.id),
             "email": user.email,
             "name": user.name
         })
-        
+
     except Exception as e:
         loop.run_until_complete(
             ProtocolLogger.error("User creation failed", context={
@@ -645,10 +645,10 @@ def after_request(response):
     """Cleanup after request."""
     if hasattr(g, 'correlation_id'):
         duration = time.time() - g.start_time
-        
+
         logger = container.get(ProtocolLogger)
         loop = get_event_loop()
-        
+
         loop.run_until_complete(
             logger.info("Request completed", context={
                 "correlation_id": g.correlation_id,
@@ -656,7 +656,7 @@ def after_request(response):
                 "status_code": response.status_code
             })
         )
-    
+
     return response
 ```
 
@@ -671,27 +671,27 @@ import pytest
 
 class ProtocolMockFactory:
     """Factory for creating protocol mocks."""
-    
+
     @staticmethod
     def create_mock_user_service() -> ProtocolUserService:
         """Create mock user service with common behaviors."""
         mock = AsyncMock(spec=ProtocolUserService)
-        
+
         # Store users for stateful testing
         mock._users: Dict[UUID, Any] = {}
-        
+
         async def mock_create_user(email: str, name: str) -> Any:
             # Simulate validation
             if not email or "@" not in email:
                 raise ValueError("Invalid email")
             if not name:
                 raise ValueError("Name required")
-            
+
             # Check for duplicates
             for user in mock._users.values():
                 if user.email == email:
                     raise ValueError(f"User {email} already exists")
-            
+
             # Create mock user
             user = MagicMock()
             user.id = uuid.uuid4()
@@ -699,29 +699,29 @@ class ProtocolMockFactory:
             user.name = name
             user.status = "active"
             user.created_at = datetime.now()
-            
+
             mock._users[user.id] = user
             return user
-        
+
         async def mock_get_user(user_id: UUID) -> Optional[Any]:
             return mock._users.get(user_id)
-        
+
         async def mock_list_users() -> list:
             return list(mock._users.values())
-        
+
         # Bind mock methods
         mock.create_user.side_effect = mock_create_user
         mock.get_user.side_effect = mock_get_user
         mock.list_users.side_effect = mock_list_users
-        
+
         return mock
-    
+
     @staticmethod
     def create_mock_logger() -> ProtocolLogger:
         """Create mock logger that captures log entries."""
         mock = AsyncMock(spec=ProtocolLogger)
         mock.log_entries = []
-        
+
         async def capture_log(level: str, message: str, context: dict):
             mock.log_entries.append({
                 "level": level,
@@ -729,12 +729,12 @@ class ProtocolMockFactory:
                 "context": context,
                 "timestamp": datetime.now()
             })
-        
+
         mock.info.side_effect = lambda msg, ctx: capture_log("INFO", msg, ctx)
         mock.error.side_effect = lambda msg, ctx: capture_log("ERROR", msg, ctx)
         mock.warning.side_effect = lambda msg, ctx: capture_log("WARNING", msg, ctx)
         mock.debug.side_effect = lambda msg, ctx: capture_log("DEBUG", msg, ctx)
-        
+
         return mock
 
 # Test fixtures
@@ -762,14 +762,14 @@ async def test_user_creation_workflow(test_container):
     """Test complete user creation workflow."""
     user_service = test_container.get(ProtocolUserService)
     logger = test_container.get(ProtocolLogger)
-    
+
     # Test user creation
     user = await user_service.create_user("test@example.com", "Test User")
-    
+
     assert user.email == "test@example.com"
     assert user.name == "Test User"
     assert user.status == "active"
-    
+
     # Test duplicate creation fails
     with pytest.raises(ValueError, match="already exists"):
         await user_service.create_user("test@example.com", "Duplicate User")
@@ -778,18 +778,18 @@ async def test_user_creation_workflow(test_container):
 async def test_logging_integration(test_container):
     """Test logging integration."""
     logger = test_container.get(ProtocolLogger)
-    
+
     await logger.info("Test message", context={"key": "value"})
     await logger.error("Error message", context={"error_code": "E001"})
-    
+
     # Verify logs were captured
     assert len(logger.log_entries) == 2
-    
+
     info_log = logger.log_entries[0]
     assert info_log["level"] == "INFO"
     assert info_log["message"] == "Test message"
     assert info_log["context"]["key"] == "value"
-    
+
     error_log = logger.log_entries[1]
     assert error_log["level"] == "ERROR"
     assert error_log["message"] == "Error message"
@@ -802,26 +802,26 @@ def test_fastapi_integration():
     # Override dependencies with mocks
     mock_user_service = ProtocolMockFactory.create_mock_user_service()
     mock_logger = ProtocolMockFactory.create_mock_logger()
-    
+
     app.dependency_overrides[get_user_service] = lambda: mock_user_service
     app.dependency_overrides[get_logger] = lambda: mock_logger
-    
+
     client = TestClient(app)
-    
+
     # Test user creation
     response = client.post("/users", json={
         "email": "test@example.com",
         "name": "Test User"
     })
-    
+
     assert response.status_code == 200
     data = response.json()
     assert data["email"] == "test@example.com"
     assert data["name"] == "Test User"
-    
+
     # Verify logger was called
     assert len(mock_logger.log_entries) >= 2  # Request start and success
-    
+
     # Clean up overrides
     app.dependency_overrides.clear()
 ```
@@ -846,13 +846,13 @@ async def test_db():
     """Setup test database."""
     # Use in-memory SQLite for testing
     engine = create_async_engine("sqlite+aiosqlite:///:memory:")
-    
+
     # Create tables
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    
+
     yield engine
-    
+
     # Cleanup
     await engine.dispose()
 
@@ -862,7 +862,7 @@ async def db_session(test_db):
     async_session = sessionmaker(
         test_db, class_=AsyncSession, expire_on_commit=False
     )
-    
+
     async with async_session() as session:
         yield session
         await session.rollback()  # Rollback after each test
@@ -878,16 +878,16 @@ async def test_database_user_service_integration(db_user_service):
     """Test user service with real database."""
     # Create user
     user = await db_user_service.create_user("db@example.com", "DB User")
-    
+
     assert user.id is not None
     assert user.email == "db@example.com"
     assert user.name == "DB User"
-    
+
     # Retrieve user
     retrieved = await db_user_service.get_user(user.id)
     assert retrieved is not None
     assert retrieved.email == user.email
-    
+
     # Test duplicate email
     with pytest.raises(ValueError):
         await db_user_service.create_user("db@example.com", "Duplicate")
@@ -905,28 +905,28 @@ from dataclasses import dataclass
 @dataclass
 class ServiceConfig:
     """Configuration for protocol services."""
-    
+
     # Database
     database_url: str
     database_pool_size: int = 10
-    
+
     # Redis Cache
     redis_host: str = "localhost"
     redis_port: int = 6379
     redis_db: int = 0
-    
+
     # Kafka Event Bus
     kafka_bootstrap_servers: str = "localhost:9092"
     kafka_security_protocol: str = "PLAINTEXT"
-    
+
     # Logging
     log_level: str = "INFO"
     log_format: str = "json"
-    
+
     # MCP Integration
     mcp_registry_url: Optional[str] = None
     mcp_api_key: Optional[str] = None
-    
+
     @classmethod
     def from_env(cls) -> 'ServiceConfig':
         """Load configuration from environment variables."""
@@ -946,10 +946,10 @@ class ServiceConfig:
 
 class ProductionServiceFactory:
     """Factory for production service implementations."""
-    
+
     def __init__(self, config: ServiceConfig):
         self.config = config
-    
+
     def create_logger(self) -> ProtocolLogger:
         """Create production logger."""
         if self.config.log_format == "json":
@@ -959,7 +959,7 @@ class ProductionServiceFactory:
             )
         else:
             return ConsoleLogger(level=self.config.log_level)
-    
+
     def create_cache_service(self) -> ProtocolCacheService:
         """Create Redis cache service."""
         return RedisCache(
@@ -968,21 +968,21 @@ class ProductionServiceFactory:
             db=self.config.redis_db,
             max_connections=20
         )
-    
+
     def create_user_service(self) -> ProtocolUserService:
         """Create database user service."""
         return DatabaseUserService(
             connection_string=self.config.database_url,
             pool_size=self.config.database_pool_size
         )
-    
+
     def create_event_bus(self) -> ProtocolWorkflowEventBus:
         """Create Kafka event bus."""
         return KafkaWorkflowEventBus(
             bootstrap_servers=self.config.kafka_bootstrap_servers,
             security_protocol=self.config.kafka_security_protocol
         )
-    
+
     def create_mcp_registry(self) -> Optional[ProtocolMCPRegistry]:
         """Create MCP registry if configured."""
         if self.config.mcp_registry_url:
@@ -996,32 +996,32 @@ def setup_production_container(config: ServiceConfig) -> ServiceContainer:
     """Setup service container for production."""
     container = ScopedServiceContainer()
     factory = ProductionServiceFactory(config)
-    
+
     # Register production services
     container.register(
         ProtocolLogger,
         factory.create_logger(),
         ServiceScope.SINGLETON
     )
-    
+
     container.register(
         ProtocolCacheService,
         factory.create_cache_service(),
         ServiceScope.SINGLETON
     )
-    
+
     container.register(
         ProtocolUserService,
         factory.create_user_service,  # Factory function
         ServiceScope.SCOPED
     )
-    
+
     container.register(
         ProtocolWorkflowEventBus,
         factory.create_event_bus(),
         ServiceScope.SINGLETON
     )
-    
+
     mcp_registry = factory.create_mcp_registry()
     if mcp_registry:
         container.register(
@@ -1029,7 +1029,7 @@ def setup_production_container(config: ServiceConfig) -> ServiceContainer:
             mcp_registry,
             ServiceScope.SINGLETON
         )
-    
+
     return container
 ```
 
@@ -1042,12 +1042,12 @@ import time
 
 class HealthChecker:
     """Health check manager for protocol services."""
-    
+
     def __init__(self, container: ServiceContainer):
         self.container = container
         self.health_checks = {}
         self.last_check_results = {}
-    
+
     def register_health_check(
         self,
         name: str,
@@ -1059,7 +1059,7 @@ class HealthChecker:
             'func': check_func,
             'timeout': timeout_seconds
         }
-    
+
     async def check_all(self) -> Dict[str, Any]:
         """Run all health checks."""
         results = {
@@ -1067,20 +1067,20 @@ class HealthChecker:
             'overall_status': 'healthy',
             'checks': {}
         }
-        
+
         for name, check_config in self.health_checks.items():
             try:
                 check_result = await asyncio.wait_for(
                     check_config['func'](),
                     timeout=check_config['timeout']
                 )
-                
+
                 results['checks'][name] = {
                     'status': 'healthy',
                     'response_time_ms': check_result.get('response_time_ms', 0),
                     'details': check_result.get('details', {})
                 }
-                
+
             except asyncio.TimeoutError:
                 results['checks'][name] = {
                     'status': 'unhealthy',
@@ -1088,74 +1088,74 @@ class HealthChecker:
                     'timeout_seconds': check_config['timeout']
                 }
                 results['overall_status'] = 'unhealthy'
-                
+
             except Exception as e:
                 results['checks'][name] = {
                     'status': 'unhealthy',
                     'error': str(e)
                 }
                 results['overall_status'] = 'unhealthy'
-        
+
         self.last_check_results = results
         return results
-    
+
     async def check_database(self) -> Dict[str, Any]:
         """Health check for database connectivity."""
         start_time = time.time()
-        
+
         try:
             user_service = self.container.get(ProtocolUserService)
             # Attempt a simple database operation
             await user_service.get_user(uuid.uuid4())  # Expected to return None
-            
+
             response_time = (time.time() - start_time) * 1000
             return {
                 'response_time_ms': round(response_time, 2),
                 'details': {'connection': 'ok'}
             }
-            
+
         except Exception as e:
             return {
                 'response_time_ms': (time.time() - start_time) * 1000,
                 'details': {'error': str(e)}
             }
-    
+
     async def check_cache(self) -> Dict[str, Any]:
         """Health check for cache service."""
         start_time = time.time()
-        
+
         try:
             cache = self.container.get(ProtocolCacheService)
-            
+
             # Test cache operations
             test_key = f"health_check_{int(time.time())}"
             test_value = "health_check_value"
-            
+
             await cache.set(test_key, test_value, ttl_seconds=10)
             retrieved_value = await cache.get(test_key)
-            
+
             if retrieved_value != test_value:
                 raise Exception("Cache set/get mismatch")
-            
+
             response_time = (time.time() - start_time) * 1000
             return {
                 'response_time_ms': round(response_time, 2),
                 'details': {'cache_operations': 'ok'}
             }
-            
+
         except Exception as e:
             return {
                 'response_time_ms': (time.time() - start_time) * 1000,
                 'details': {'error': str(e)}
             }
-    
+
     async def check_event_bus(self) -> Dict[str, Any]:
         """Health check for event bus connectivity."""
         start_time = time.time()
-        
+
         try:
             event_bus = self.container.get(ProtocolWorkflowEventBus)
-            
+
             # Create test event
             test_event = ProtocolWorkflowEvent(
                 event_id=uuid.uuid4(),
@@ -1169,15 +1169,15 @@ class HealthChecker:
                 idempotency_key=f"health_check_{int(time.time())}",
                 source_node_id="health_checker"
             )
-            
+
             await event_bus.publish_workflow_event(test_event)
-            
+
             response_time = (time.time() - start_time) * 1000
             return {
                 'response_time_ms': round(response_time, 2),
                 'details': {'event_publishing': 'ok'}
             }
-            
+
         except Exception as e:
             return {
                 'response_time_ms': (time.time() - start_time) * 1000,
@@ -1188,26 +1188,26 @@ class HealthChecker:
 def setup_health_checks(container: ServiceContainer) -> HealthChecker:
     """Setup health checker with standard checks."""
     health_checker = HealthChecker(container)
-    
+
     # Register standard health checks
     health_checker.register_health_check(
         'database',
         health_checker.check_database,
         timeout_seconds=5.0
     )
-    
+
     health_checker.register_health_check(
         'cache',
         health_checker.check_cache,
         timeout_seconds=3.0
     )
-    
+
     health_checker.register_health_check(
         'event_bus',
         health_checker.check_event_bus,
         timeout_seconds=10.0
     )
-    
+
     return health_checker
 
 # Health check endpoint for FastAPI
@@ -1217,7 +1217,7 @@ async def health_check_endpoint(
 ):
     """Health check endpoint."""
     results = await health_checker.check_all()
-    
+
     status_code = 200 if results['overall_status'] == 'healthy' else 503
     return JSONResponse(content=results, status_code=status_code)
 ```
@@ -1233,12 +1233,12 @@ import asyncio
 
 class OptimizedServiceFactory:
     """Service factory with performance optimizations."""
-    
+
     def __init__(self, config: ServiceConfig):
         self.config = config
         self._db_engine = None
         self._redis_pool = None
-    
+
     async def get_db_engine(self):
         """Get database engine with connection pooling."""
         if not self._db_engine:
@@ -1252,7 +1252,7 @@ class OptimizedServiceFactory:
                 echo=self.config.log_level == "DEBUG"
             )
         return self._db_engine
-    
+
     async def get_redis_pool(self):
         """Get Redis connection pool."""
         if not self._redis_pool:
@@ -1265,7 +1265,7 @@ class OptimizedServiceFactory:
                 health_check_interval=30
             )
         return self._redis_pool
-    
+
     async def create_optimized_user_service(self) -> ProtocolUserService:
         """Create optimized user service."""
         engine = await self.get_db_engine()
@@ -1291,27 +1291,27 @@ def cache_result(ttl_seconds: int = 3600, cache_key_prefix: str = ""):
             # Generate cache key from method and arguments
             cache_key_data = f"{cache_key_prefix}:{func.__name__}:{args}:{kwargs}"
             cache_key = hashlib.md5(cache_key_data.encode()).hexdigest()
-            
+
             # Try to get from cache
             if hasattr(self, '_cache_service'):
                 cached_result = await self._cache_service.get(cache_key)
                 if cached_result is not None:
                     return cached_result
-            
+
             # Execute method
             result = await func(self, *args, **kwargs)
-            
+
             # Cache result
             if hasattr(self, '_cache_service') and result is not None:
                 await self._cache_service.set(cache_key, result, ttl_seconds)
-            
+
             return result
         return wrapper
     return decorator
 
 class CachedUserService:
     """User service with caching optimization."""
-    
+
     def __init__(
         self,
         user_service: ProtocolUserService,
@@ -1319,21 +1319,21 @@ class CachedUserService:
     ):
         self._user_service = user_service
         self._cache_service = cache_service
-    
+
     @cache_result(ttl_seconds=600, cache_key_prefix="user")
     async def get_user(self, user_id: UUID) -> Optional[User]:
         """Get user with caching."""
         return await self._user_service.get_user(user_id)
-    
+
     async def create_user(self, email: str, name: str) -> User:
         """Create user and invalidate relevant caches."""
         user = await self._user_service.create_user(email, name)
-        
+
         # Invalidate list caches
         await self._invalidate_list_caches()
-        
+
         return user
-    
+
     async def _invalidate_list_caches(self):
         """Invalidate caches that might be affected by user creation."""
         # Implementation depends on cache service capabilities

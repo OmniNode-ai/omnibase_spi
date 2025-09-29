@@ -13,21 +13,21 @@ Key Features:
     - Workflow isolation using {workflowType, instanceId} pattern
     - Multi-subsystem MCP tool coordination and discovery
     - Distributed event bus with pluggable backend adapters
-    - LAZY LOADING: Protocols loaded only when accessed for optimal performance
+    - LAZY LOADING: "Protocols" loaded only when accessed for optimal performance
 
 Usage Examples:
     # Import specific protocols from their domains (RECOMMENDED - fastest)
     from omnibase_spi.protocols.core import ProtocolLogger, ProtocolCacheService
     from omnibase_spi.protocols.workflow_orchestration import ProtocolWorkflowEventBus
     from omnibase_spi.protocols.mcp import ProtocolMCPRegistry
-    
+
     # Convenience imports from protocols module (all protocols)
     from omnibase_spi.protocols import (
         ProtocolLogger,
         ProtocolWorkflowEventBus,
         ProtocolMCPRegistry
     )
-    
+
     # Type definitions (consolidated at types level)
     from omnibase_spi.protocols.types import (
         LogLevel,
@@ -35,7 +35,7 @@ Usage Examples:
         MCPToolType,
         EventData
     )
-    
+
     # Root-level convenience (LAZY LOADED - optimal performance)
     from omnibase_spi import (
         ProtocolLogger,              # Core logging
@@ -212,30 +212,33 @@ if TYPE_CHECKING:
     # This ensures type checkers and tests work correctly while maintaining lazy loading at runtime
 
     from omnibase_spi.protocols.container import (
-        ProtocolArtifactContainer,
-        ProtocolServiceRegistry,
+        ProtocolArtifactContainer as ProtocolArtifactContainer,
     )
+    from omnibase_spi.protocols.container import (
+        ProtocolServiceRegistry as ProtocolServiceRegistry,
+    )
+    from omnibase_spi.protocols.core import ProtocolCacheService as ProtocolCacheService
+    from omnibase_spi.protocols.core import ProtocolLogger as ProtocolLogger
+    from omnibase_spi.protocols.core import ProtocolNodeRegistry as ProtocolNodeRegistry
     from omnibase_spi.protocols.core import (
-        ProtocolCacheService,
-        ProtocolLogger,
-        ProtocolNodeRegistry,
-        ProtocolWorkflowReducer,
+        ProtocolWorkflowReducer as ProtocolWorkflowReducer,
     )
-    from omnibase_spi.protocols.event_bus import (
-        ProtocolEventBus,
-        ProtocolEventBusAdapter,
-    )
+    from omnibase_spi.protocols.event_bus import ProtocolEventBus as ProtocolEventBus
+    from omnibase_spi.protocols.mcp import ProtocolMCPRegistry as ProtocolMCPRegistry
     from omnibase_spi.protocols.mcp import (
-        ProtocolMCPRegistry,
-        ProtocolMCPSubsystemClient,
-        ProtocolMCPToolProxy,
+        ProtocolMCPSubsystemClient as ProtocolMCPSubsystemClient,
     )
+    from omnibase_spi.protocols.mcp import ProtocolMCPToolProxy as ProtocolMCPToolProxy
     from omnibase_spi.protocols.validation import (
-        ProtocolValidationResult,
-        ProtocolValidator,
+        ProtocolValidationResult as ProtocolValidationResult,
+    )
+    from omnibase_spi.protocols.validation import ProtocolValidator as ProtocolValidator
+    from omnibase_spi.protocols.workflow_orchestration import (
+        ProtocolEventStore as ProtocolEventStore,
     )
     from omnibase_spi.protocols.workflow_orchestration import (
-        ProtocolEventStore,
-        ProtocolWorkflowEventBus,
-        ProtocolWorkflowNodeRegistry,
+        ProtocolWorkflowEventBus as ProtocolWorkflowEventBus,
+    )
+    from omnibase_spi.protocols.workflow_orchestration import (
+        ProtocolWorkflowNodeRegistry as ProtocolWorkflowNodeRegistry,
     )

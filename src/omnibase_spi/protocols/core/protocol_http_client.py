@@ -5,9 +5,12 @@ Provides HTTP client protocols that can be implemented by different
 HTTP backends (aiohttp, httpx, etc.) and injected via ONEXContainer.
 """
 
-from typing import Optional, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
+
+from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 
 
+@runtime_checkable
 class ProtocolHttpResponse(Protocol):
     """
     Protocol representing an HTTP response.
@@ -16,7 +19,7 @@ class ProtocolHttpResponse(Protocol):
     """
 
     status_code: int
-    headers: dict[str, str]
+    headers: dict[str, "ContextValue"]
     body: str | bytes | dict[str, str | int | float | bool]
     url: str
 
@@ -33,7 +36,7 @@ class ProtocolHttpClient(Protocol):
     Example:
         ```python
         # GET request
-        client: ProtocolHttpClient = get_http_client()
+        client: "ProtocolHttpClient" = get_http_client()
         response = await client.request("GET", "https://api.example.com/users")
         print(f"Status: {response.status_code}")
         print(f"Data: {response.body}")
@@ -65,127 +68,44 @@ class ProtocolHttpClient(Protocol):
         self,
         method: str,
         url: str,
-        json: Optional[dict[str, str | int | float | bool]] = None,
-        headers: Optional[dict[str, str]] = None,
-        timeout: Optional[int] = None,
-    ) -> "ProtocolHttpResponse":
-        """
-        Perform HTTP request with specified method and parameters.
-
-        Args:
-            method: HTTP method (GET, POST, PUT, DELETE, etc.)
-            url: Target URL for the request
-            json: Optional JSON payload to send in request body
-            headers: Optional HTTP headers as key-value pairs
-            timeout: Optional request timeout in seconds
-
-        Returns:
-            ProtocolHttpResponse containing status, headers, and body
-
-        Raises:
-            OnexError: For HTTP client errors, timeouts, or connection issues
-        """
-        ...
+        json: dict[str, str | int | float | bool] | None = None,
+        headers: dict[str, "ContextValue"] | None = None,
+        timeout: int | None = None,
+    ) -> "ProtocolHttpResponse": ...
 
     async def get(
         self,
         url: str,
-        headers: Optional[dict[str, str]] = None,
-        timeout: Optional[int] = None,
-    ) -> "ProtocolHttpResponse":
-        """
-        Perform HTTP GET request.
-
-        Args:
-            url: Target URL for the GET request
-            headers: Optional HTTP headers as key-value pairs
-            timeout: Optional request timeout in seconds
-
-        Returns:
-            ProtocolHttpResponse containing status, headers, and body
-        """
-        ...
+        headers: dict[str, "ContextValue"] | None = None,
+        timeout: int | None = None,
+    ) -> "ProtocolHttpResponse": ...
 
     async def post(
         self,
         url: str,
-        json: Optional[dict[str, str | int | float | bool]] = None,
-        headers: Optional[dict[str, str]] = None,
-        timeout: Optional[int] = None,
-    ) -> "ProtocolHttpResponse":
-        """
-        Perform HTTP POST request.
-
-        Args:
-            url: Target URL for the POST request
-            json: Optional JSON payload to send in request body
-            headers: Optional HTTP headers as key-value pairs
-            timeout: Optional request timeout in seconds
-
-        Returns:
-            ProtocolHttpResponse containing status, headers, and body
-        """
-        ...
+        json: dict[str, str | int | float | bool] | None = None,
+        headers: dict[str, "ContextValue"] | None = None,
+        timeout: int | None = None,
+    ) -> "ProtocolHttpResponse": ...
 
     async def put(
         self,
         url: str,
-        json: Optional[dict[str, str | int | float | bool]] = None,
-        headers: Optional[dict[str, str]] = None,
-        timeout: Optional[int] = None,
-    ) -> "ProtocolHttpResponse":
-        """
-        Perform HTTP PUT request.
-
-        Args:
-            url: Target URL for the PUT request
-            json: Optional JSON payload to send in request body
-            headers: Optional HTTP headers as key-value pairs
-            timeout: Optional request timeout in seconds
-
-        Returns:
-            ProtocolHttpResponse containing status, headers, and body
-        """
-        ...
+        json: dict[str, str | int | float | bool] | None = None,
+        headers: dict[str, "ContextValue"] | None = None,
+        timeout: int | None = None,
+    ) -> "ProtocolHttpResponse": ...
 
     async def delete(
         self,
         url: str,
-        headers: Optional[dict[str, str]] = None,
-        timeout: Optional[int] = None,
-    ) -> "ProtocolHttpResponse":
-        """
-        Perform HTTP DELETE request.
-
-        Args:
-            url: Target URL for the DELETE request
-            headers: Optional HTTP headers as key-value pairs
-            timeout: Optional request timeout in seconds
-
-        Returns:
-            ProtocolHttpResponse containing status, headers, and body
-        """
-        ...
+        headers: dict[str, "ContextValue"] | None = None,
+        timeout: int | None = None,
+    ) -> "ProtocolHttpResponse": ...
 
 
 @runtime_checkable
 class ProtocolHttpClientProvider(Protocol):
     """Protocol for HTTP client provider."""
 
-    def create_http_client(self) -> ProtocolHttpClient:
-        """
-        Create HTTP client instance.
-
-        Returns:
-            ProtocolHttpClient implementation
-        """
-        ...
-
-    def get_http_configuration(self) -> dict[str, str | int | float | bool]:
-        """
-        Get HTTP client configuration parameters.
-
-        Returns:
-            Dictionary with HTTP client configuration
-        """
-        ...
+    async def create_http_client(self) -> ProtocolHttpClient: ...

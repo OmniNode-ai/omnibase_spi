@@ -179,7 +179,7 @@ pip install dist/*.whl
 python -c "
 import sys
 from omnibase_spi.protocols.types import LogLevel
-external_modules = [name for name in sys.modules.keys() 
+external_modules = [name for name in sys.modules.keys()
                    if name.startswith('omnibase_spi.') and not name.startswith('omnibase_spi.protocols')]
 assert len(external_modules) == 0, f'External modules: {external_modules}'
 print('✅ Installation isolation test passed!')

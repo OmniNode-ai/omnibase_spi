@@ -1,13 +1,140 @@
+# SPI Pre-commit Configuration
+# Enhanced validation for Service Provider Interface architectural compliance
+
 repos:
+  # Standard formatting tools
   - repo: https://github.com/psf/black
     rev: 24.8.0
     hooks:
       - id: black
+        name: Black Python Formatter
+        args: [--line-length, "88", --target-version, py311]
+
   - repo: https://github.com/pycqa/isort
     rev: 5.13.2
     hooks:
       - id: isort
+        name: isort Import Sorter
+        args: [--profile, black, --line-length, "88"]
+
+  # YAML formatting
+  - repo: https://github.com/google/yamlfmt
+    rev: v0.17.2
+    hooks:
+      - id: yamlfmt
+        args: [--formatter, retain_line_breaks=true]
+        exclude: ^(tests/fixtures/validation/invalid/|\.github/workflows/)
+
+  # Basic file quality checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+        exclude: ^\.github/workflows/
+      - id: end-of-file-fixer
+        exclude: ^\.github/workflows/
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: [--maxkb=1000]
+
+  # Type checking
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.11.2
     hooks:
       - id: mypy
+        name: MyPy Type Checking
+        args: [--strict, --ignore-missing-imports, --show-error-codes]
+        exclude: ^(tests/|scripts/|.*_analysis\.py$|analyze_protocols\.py$|fix_remaining_protocols\.py$)
+
+  # SPI-specific validation hooks
+  - repo: local
+    hooks:
+      # Core SPI architecture validation
+      - id: validate-spi-protocols
+        name: SPI Protocol Architecture Validation
+        entry: poetry run python scripts/validation/validate_spi_protocols.py
+        language: system
+        types: [python]
+        files: ^src/.*\.py$
+        exclude: ^(tests/|scripts/).*\.py$
+        pass_filenames: false
+        args: ['src/']
+        stages: [pre-commit]
+
+      # Enhanced protocol duplicate detection with 8-agent insights
+      - id: validate-protocol-duplicates
+        name: SPI Protocol Duplicate Detection
+        entry: poetry run python scripts/analysis/precommit_duplicate_check.py
+        language: system
+        types: [python]
+        files: ^src/.*protocol.*\.py$
+        exclude: ^(tests/|scripts/).*\.py$
+        pass_filenames: true
+        stages: [pre-commit]
+
+      # Comprehensive duplicate analysis (backup validation)
+      - id: comprehensive-duplicate-analysis
+        name: SPI Comprehensive Duplicate Analysis
+        entry: poetry run python scripts/validation/validate_protocol_duplicates.py
+        language: system
+        types: [python]
+        files: ^src/.*\.py$
+        exclude: ^(tests/|scripts/).*\.py$
+        pass_filenames: false
+        args: ['src/']
+        stages: [manual]
+
+      # Enhanced namespace isolation
+      - id: validate-namespace-isolation
+        name: SPI Namespace Isolation Validation
+        entry: ./scripts/validate-namespace-isolation.sh
+        language: system
+        always_run: true
+        pass_filenames: false
+        stages: [pre-commit]
+
+      # Enhanced SPI purity check
+      - id: validate-spi-purity
+        name: SPI Architectural Purity Validation
+        entry: ./scripts/validate-spi-purity.sh
+        language: system
+        always_run: true
+        pass_filenames: false
+        stages: [pre-commit]
+
+      # Note: Protocol __init__ and runtime_checkable validation are now handled by validate_spi_protocols.py
+
+      # Enhanced SPI typing pattern validation (adapted from omnibase_core)
+      - id: validate-spi-typing-patterns
+        name: SPI Typing Pattern Validation
+        entry: poetry run python scripts/validation/validate_spi_typing_patterns.py
+        language: system
+        types: [python]
+        files: ^src/.*\.py$
+        exclude: ^(tests/|scripts/).*\.py$
+        pass_filenames: false
+        args: ['src/']
+        stages: [pre-commit]
+
+      # Enhanced SPI naming convention validation (adapted from omnibase_core)
+      - id: validate-spi-naming-conventions
+        name: SPI Naming Convention Validation
+        entry: poetry run python scripts/validation/validate_spi_naming.py
+        language: system
+        types: [python]
+        files: ^src/.*\.py$
+        exclude: ^(tests/|scripts/).*\.py$
+        pass_filenames: false
+        args: ['src/']
+        stages: [pre-commit]
+
+# Configuration
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes for omnibase_spi
+
+    SPI architectural compliance fixes
+  autofix_prs: true
+  autoupdate_schedule: weekly
+  submodules: false

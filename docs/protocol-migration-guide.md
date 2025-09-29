@@ -16,7 +16,7 @@ This guide helps you migrate from the old protocol naming conventions to the new
 ### 1. ProtocolRegistry → ProtocolArtifactContainer
 
 #### What Changed
-- **Old**: Generic "registry" concept 
+- **Old**: Generic "registry" concept
 - **New**: Specific "artifact container" for managing ONEX components
 - **Reason**: Clearer separation between artifact management and service discovery
 
@@ -98,7 +98,7 @@ The new pattern requires implementing discovery sources rather than direct regis
 class OldHandlerSystem:
     def __init__(self):
         self.registry: ProtocolHandlerRegistry = HandlerRegistryImpl()
-    
+
     def add_handler(self, handler_class, extensions):
         # Direct registration
         self.registry.register_handler(handler_class, extensions)
@@ -107,23 +107,23 @@ class OldHandlerSystem:
 class NewHandlerSystem:
     def __init__(self):
         self.registry: ProtocolNodeDiscoveryRegistry = NodeDiscoveryRegistryImpl()
-        
+
         # Setup discovery sources
         self.setup_discovery_sources()
-    
+
     def setup_discovery_sources(self):
         # Entry point node discovery
         entry_discovery: ProtocolHandlerDiscovery = EntryPointDiscovery("onex.handlers")
         self.registry.register_discovery_source(entry_discovery)
-        
+
         # Config file node discovery
         config_discovery: ProtocolHandlerDiscovery = ConfigFileDiscovery("config/handlers.yaml")
         self.registry.register_discovery_source(config_discovery)
-        
+
         # Environment node discovery
         env_discovery: ProtocolHandlerDiscovery = EnvironmentDiscovery("ONEX_HANDLER_")
         self.registry.register_discovery_source(env_discovery)
-        
+
         # Trigger node discovery and registration
         self.registry.discover_and_register_nodes()
 ```
@@ -140,10 +140,10 @@ class OldHandlerInfo:
 class NewHandlerInfo:
     def __init__(self):
         self.node_class: Type[ProtocolFileTypeHandler] = handler_class
-        self.name: str = "pdf_handler" 
+        self.name: str = "pdf_handler"
         self.source: str = "entry_point"  # "core", "runtime", "plugin"
         self.priority: int = 50
-        self.extensions: List[str] = [".pdf", ".docx"] 
+        self.extensions: List[str] = [".pdf", ".docx"]
         self.special_files: List[str] = ["README", "Dockerfile"]
         self.metadata: Dict[str, Any] = {"version": "1.0.0"}
 ```
@@ -152,19 +152,19 @@ class NewHandlerInfo:
 ```python
 def migrate_handler_registry():
     """Migration script from old to new handler registry."""
-    
+
     # 1. Extract existing handlers from old registry
     old_registry: ProtocolHandlerRegistry = get_legacy_registry()
     existing_handlers = old_registry.get_all_handlers()
-    
+
     # 2. Create new discovery registry
     new_registry: ProtocolNodeDiscoveryRegistry = NodeDiscoveryRegistryImpl()
-    
+
     # 3. Create compatibility discovery source for existing handlers
     class LegacyHandlerDiscovery:
         def __init__(self, legacy_handlers):
             self.legacy_handlers = legacy_handlers
-        
+
         def discover_nodes(self) -> List[ProtocolHandlerInfo]:
             nodes = []
             for handler in self.legacy_handlers:
@@ -179,21 +179,21 @@ def migrate_handler_registry():
                 )
                 nodes.append(node_info)
             return nodes
-        
+
         def get_source_name(self) -> str:
             return "LegacyMigration"
-    
+
     # 4. Register legacy handlers through discovery
     legacy_discovery = LegacyHandlerDiscovery(existing_handlers)
     new_registry.register_discovery_source(legacy_discovery)
-    
+
     # 5. Add modern discovery sources
     new_registry.register_discovery_source(EntryPointDiscovery("onex.handlers"))
     new_registry.register_discovery_source(ConfigFileDiscovery("config/handlers.yaml"))
-    
+
     # 6. Discover and register all handlers
     new_registry.discover_and_register_nodes()
-    
+
     return new_registry
 ```
 
@@ -214,12 +214,12 @@ class DistributedSystem:
     def __init__(self, environment: str = "prod"):
         # NEW - Add distributed node registry
         self.node_registry: ProtocolNodeRegistry = ConsulNodeRegistry(environment)
-        
+
     async def coordinate_nodes(self):
         # Register this node
         node_info = self._create_node_info()
         await self.node_registry.register_node(node_info)
-        
+
         # Discover peer nodes
         peer_nodes = await self.node_registry.discover_nodes(
             node_type="COMPUTE",
@@ -239,7 +239,7 @@ from omnibase_spi.protocols.types.container_types import ProtocolServiceRegistry
 class ServiceMonitor:
     def __init__(self, registry: ProtocolServiceRegistry):
         self.registry = registry
-        
+
     def get_health_status(self):
         return {
             "total_services": self.registry.total_services,
@@ -297,7 +297,7 @@ grep -r ": ProtocolHandlerRegistry" src/ --include="*.py"
 ### Phase 3: Discovery Implementation (Week 3-4)
 1. **Implement discovery sources** (entry points, config files, environment)
 2. **Update handler registration logic** to use discovery pattern
-3. **Test handler discovery and registration** 
+3. **Test handler discovery and registration**
 4. **Migrate existing handlers** to new discovery model
 
 ### Phase 4: Integration & Testing (Week 5)
@@ -316,17 +316,17 @@ class TransitionSystem:
     def __init__(self):
         # Keep old system running
         self.legacy_registry: ProtocolHandlerRegistry = LegacyHandlerRegistry()
-        
+
         # Add new system
         self.new_registry: ProtocolNodeDiscoveryRegistry = NodeDiscoveryRegistryImpl()
-        
+
         # Synchronize between them
         self.sync_registries()
-    
+
     def sync_registries(self):
         """Keep registries synchronized during transition."""
         legacy_handlers = self.legacy_registry.get_all_handlers()
-        
+
         # Register legacy handlers in new system
         for handler in legacy_handlers:
             handler_info = self._convert_to_new_format(handler)
@@ -340,11 +340,11 @@ Migrate one component at a time:
 class GradualMigration:
     def __init__(self):
         self.migration_phase = os.getenv("MIGRATION_PHASE", "legacy")
-        
+
     def get_registry(self) -> Union[ProtocolHandlerRegistry, ProtocolNodeDiscoveryRegistry]:
         if self.migration_phase == "legacy":
             return LegacyHandlerRegistry()
-        elif self.migration_phase == "transition": 
+        elif self.migration_phase == "transition":
             return TransitionRegistry()  # Supports both APIs
         else:
             return NodeDiscoveryRegistryImpl()
@@ -359,27 +359,27 @@ class TestProtocolMigration:
         """Ensure ProtocolArtifactContainer works with existing logic."""
         # OLD usage pattern should still work
         container: ProtocolArtifactContainer = TestArtifactContainer()
-        
+
         # Test same method signatures  
         artifacts = container.get_artifacts()
         status = container.get_status()
         has_node = container.has_artifact("test_node")
-        
+
         assert len(artifacts) > 0
         assert status.status in ["ACTIVE", "INACTIVE", "ERROR", "UNKNOWN"]
         assert isinstance(has_node, bool)
-    
+
     def test_discovery_registry_functionality(self):
         """Test new discovery-based registration."""
         registry: ProtocolNodeDiscoveryRegistry = TestDiscoveryRegistry()
-        
+
         # Test discovery source registration
         discovery_source = MockHandlerDiscovery()
         registry.register_discovery_source(discovery_source)
-        
+
         # Test node discovery and registration
         registry.discover_and_register_nodes()
-        
+
         # Verify handlers were discovered and registered
         # (specific assertions depend on your implementation)
 ```
@@ -389,18 +389,18 @@ class TestProtocolMigration:
 class TestE2EMigration:
     def test_full_migration_workflow(self):
         """Test complete migration from old to new protocols."""
-        
+
         # 1. Start with legacy system
         legacy_system = LegacyHandlerSystem()
         legacy_handlers = legacy_system.get_all_handlers()
-        
+
         # 2. Migrate to new system
         new_system = NewHandlerSystem()
         migration_result = migrate_handlers(legacy_handlers, new_system)
-        
+
         # 3. Verify functionality preserved
         assert len(new_system.get_discovered_handlers()) >= len(legacy_handlers)
-        
+
         # 4. Test handler functionality still works
         for handler in new_system.get_discovered_handlers():
             assert handler.can_handle_file("test.pdf") == expected_result

@@ -18,12 +18,12 @@ ONEX Validation Node Protocols:
 
 Usage:
     ```python
-    from omnibase_spi.protocols.validation import (
+from omnibase_spi.protocols.validation import (
         ProtocolImportValidator,
         ProtocolValidationOrchestrator,
         ProtocolQualityValidator,
         ProtocolComplianceValidator
-    )
+)
 
     # Concrete implementations will be available in omnibase_core nodes
     ```
@@ -55,12 +55,6 @@ from .protocol_quality_validator import (
 )
 
 # Core validation protocols (existing)
-from .protocol_validation import (
-    ValidationError,  # Type alias for backward compatibility
-)
-from .protocol_validation import (
-    ValidationResult,  # Type alias for backward compatibility
-)
 from .protocol_validation import (
     ProtocolValidationDecorator,
     ProtocolValidationError,
@@ -101,6 +95,4 @@ __all__ = [
     "ProtocolValidationSummary",
     "ProtocolValidationWorkflow",
     "ProtocolValidator",
-    "ValidationError",
-    "ValidationResult",
 ]
