@@ -7,17 +7,19 @@ Provides comprehensive validation for registrations, tool definitions, and execu
 Domain: MCP validation and quality assurance
 """
 
-from typing import Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import ContextValue
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.validation.protocol_validation import (
+        ProtocolValidationResult,
+    )
+
 from omnibase_spi.protocols.types.protocol_mcp_types import (
     ProtocolMCPSubsystemMetadata,
     ProtocolMCPToolDefinition,
     ProtocolMCPValidationError,
     ProtocolMCPValidationResult,
-)
-from omnibase_spi.protocols.validation.protocol_validation import (
-    ProtocolValidationResult,
 )
 
 
@@ -36,7 +38,7 @@ class ProtocolMCPToolValidator(Protocol):
 
     async def validate_tool_parameters(
         self, tool_def: ProtocolMCPToolDefinition, parameters: dict[str, ContextValue]
-    ) -> ProtocolValidationResult: ...
+    ) -> "ProtocolValidationResult": ...
 
     async def validate_parameter_schema(
         self, schema: dict[str, ContextValue]
@@ -80,7 +82,7 @@ class ProtocolMCPValidator(Protocol):
         tool_name: str,
         parameters: dict[str, ContextValue],
         subsystem_id: str | None,
-    ) -> ProtocolValidationResult: ...
+    ) -> "ProtocolValidationResult": ...
 
     async def validate_api_key(
         self, api_key: str, subsystem_id: str | None = None

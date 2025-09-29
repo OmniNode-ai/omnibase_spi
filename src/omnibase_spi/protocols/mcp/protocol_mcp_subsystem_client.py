@@ -11,6 +11,11 @@ from typing import TYPE_CHECKING, Any, Callable, Optional, Protocol, runtime_che
 from uuid import UUID
 
 from omnibase_spi.protocols.types.protocol_core_types import ContextValue
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.validation.protocol_validation import (
+        ProtocolValidationResult,
+    )
+
 from omnibase_spi.protocols.types.protocol_mcp_types import (
     LiteralMCPConnectionStatus,
     LiteralMCPLifecycleState,
@@ -19,9 +24,6 @@ from omnibase_spi.protocols.types.protocol_mcp_types import (
     ProtocolMCPSubsystemRegistration,
     ProtocolMCPToolDefinition,
     ProtocolMCPToolExecution,
-)
-from omnibase_spi.protocols.validation.protocol_validation import (
-    ProtocolValidationResult,
 )
 
 @runtime_checkable
@@ -99,11 +101,11 @@ class ProtocolMCPSubsystemClient(Protocol):
         correlation_id: UUID,
     ) -> dict[str, ContextValue]: ...
 
-    async def validate_configuration(self) -> ProtocolValidationResult: ...
+    async def validate_configuration(self) -> "ProtocolValidationResult": ...
 
     async def validate_tool_parameters(
         self, tool_name: str, parameters: dict[str, ContextValue]
-    ) -> ProtocolValidationResult: ...
+    ) -> "ProtocolValidationResult": ...
 
     async def perform_local_health_check(self) -> ProtocolMCPHealthCheck: ...
 

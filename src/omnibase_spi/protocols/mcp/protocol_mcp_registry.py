@@ -7,13 +7,18 @@ Supports distributed tool registration, execution routing, and subsystem coordin
 Domain: MCP infrastructure and service coordination
 """
 
-from typing import Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 from uuid import UUID
 
 from omnibase_spi.protocols.types.protocol_core_types import (
     ContextValue,
     LiteralOperationStatus,
 )
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.validation.protocol_validation import (
+        ProtocolValidationResult,
+    )
+
 from omnibase_spi.protocols.types.protocol_mcp_types import (
     LiteralMCPSubsystemType,
     LiteralMCPToolType,
@@ -26,9 +31,6 @@ from omnibase_spi.protocols.types.protocol_mcp_types import (
     ProtocolMCPToolDefinition,
     ProtocolMCPToolExecution,
     ProtocolMCPValidationResult,
-)
-from omnibase_spi.protocols.validation.protocol_validation import (
-    ProtocolValidationResult,
 )
 
 
@@ -126,7 +128,7 @@ class ProtocolMCPRegistry(Protocol):
 
     async def validate_tool_parameters(
         self, tool_name: str, parameters: dict[str, "ContextValue"]
-    ) -> ProtocolValidationResult: ...
+    ) -> "ProtocolValidationResult": ...
 
     async def perform_health_check(
         self, registration_id: str

@@ -7,7 +7,7 @@ Supports the complete service lifecycle including registration, resolution, inje
 Focuses purely on dependency injection patterns rather than artifact or service discovery concerns.
 """
 
-from typing import Any, Literal, Protocol, Type, TypeVar, runtime_checkable
+from typing import TYPE_CHECKING, Any, Literal, Protocol, Type, TypeVar, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import (
     ContextValue,
@@ -16,9 +16,11 @@ from omnibase_spi.protocols.types.protocol_core_types import (
     ProtocolDateTime,
     ProtocolSemVer,
 )
-from omnibase_spi.protocols.validation.protocol_validation import (
-    ProtocolValidationResult,
-)
+
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.validation.protocol_validation import (
+        ProtocolValidationResult,
+    )
 
 T = TypeVar("T")
 TInterface = TypeVar("TInterface")
@@ -169,11 +171,11 @@ class ProtocolServiceValidator(Protocol):
 
     async def validate_service(
         self, service: Any, interface: Type[Any]
-    ) -> ProtocolValidationResult: ...
+    ) -> "ProtocolValidationResult": ...
 
     async def validate_dependencies(
         self, dependencies: list["ProtocolServiceDependency"]
-    ) -> ProtocolValidationResult: ...
+    ) -> "ProtocolValidationResult": ...
 
 
 @runtime_checkable
@@ -320,7 +322,7 @@ class ProtocolServiceRegistry(Protocol):
 
     async def validate_service_health(
         self, registration_id: str
-    ) -> ProtocolValidationResult: ...
+    ) -> "ProtocolValidationResult": ...
 
     async def update_service_configuration(
         self, registration_id: str, configuration: dict[str, "ContextValue"]

@@ -12,9 +12,11 @@ from omnibase_spi.protocols.types.protocol_core_types import (
     LiteralValidationLevel,
     LiteralValidationMode,
 )
-from omnibase_spi.protocols.validation.protocol_validation import (
-    ProtocolValidationResult,
-)
+
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.validation.protocol_validation import (
+        ProtocolValidationResult,
+    )
 
 
 @runtime_checkable

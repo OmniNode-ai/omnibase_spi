@@ -9,7 +9,7 @@ Domain: Core validation orchestration and quality assurance
 Author: ONEX Framework Team
 """
 
-from typing import Any, Protocol, TypeAlias, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, TypeAlias, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import (
     ContextValue,
@@ -22,9 +22,11 @@ from omnibase_spi.protocols.types.protocol_core_types import (
     ProtocolSemVer,
     ProtocolValidatable,
 )
-from omnibase_spi.protocols.validation.protocol_validation import (
-    ProtocolValidationResult,
-)
+
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.validation.protocol_validation import (
+        ProtocolValidationResult,
+    )
 
 ValidationTarget: TypeAlias = "ProtocolValidatable | Any"
 
