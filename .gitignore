@@ -187,6 +187,10 @@ PHASE*_*.md
 DESIGN_*.md
 PR_DESCRIPTION.md
 
+# SPI validation reports (generated artifacts)
+comprehensive_spi_validation_*.json
+*_spi_validation_*.json
+
 # Ruff stuff:
 .ruff_cache/
 
@@ -209,6 +213,12 @@ env.bak/
 
 # MacOS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 
 # Env files
 .env
@@ -224,8 +234,11 @@ env.bak/
 data/
 logs/
 generated/
-reports/
 secrets/
+
+# Runtime reports (not documentation)
+/reports/
+*_reports/
 
 # Ignore sensitive and legacy files
 .cursor/mcp.json

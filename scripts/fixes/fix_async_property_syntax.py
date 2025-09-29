@@ -12,6 +12,7 @@ import sys
 from pathlib import Path
 from typing import List, Tuple
 
+
 def fix_invalid_property_async_syntax(file_path: Path) -> Tuple[bool, List[str]]:
     """
     Fix invalid @property async def syntax in a file.
@@ -20,7 +21,7 @@ def fix_invalid_property_async_syntax(file_path: Path) -> Tuple[bool, List[str]]
         (changed, fixes_applied): Boolean indicating if file was changed, list of fixes
     """
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             content = f.read()
 
         original_content = content
@@ -28,7 +29,7 @@ def fix_invalid_property_async_syntax(file_path: Path) -> Tuple[bool, List[str]]
 
         # Find pattern: @property followed by async def
         # This is invalid syntax that needs to be fixed
-        lines = content.split('\n')
+        lines = content.split("\n")
         i = 0
 
         while i < len(lines) - 1:
@@ -36,12 +37,14 @@ def fix_invalid_property_async_syntax(file_path: Path) -> Tuple[bool, List[str]]
             next_line = lines[i + 1].strip() if i + 1 < len(lines) else ""
 
             # Look for @property followed by async def
-            if (line == "@property" and
-                next_line.startswith("async def ") and
-                next_line.endswith(": ...")):
+            if (
+                line == "@property"
+                and next_line.startswith("async def ")
+                and next_line.endswith(": ...")
+            ):
 
                 # Extract method name for analysis
-                method_match = re.search(r'async def (\w+)', next_line)
+                method_match = re.search(r"async def (\w+)", next_line)
                 if method_match:
                     method_name = method_match.group(1)
 
@@ -49,11 +52,15 @@ def fix_invalid_property_async_syntax(file_path: Path) -> Tuple[bool, List[str]]
                     if should_be_async_method(method_name):
                         # Remove @property, keep async def
                         lines[i] = ""  # Remove @property line
-                        fixes_applied.append(f"Removed @property from async method {method_name}")
+                        fixes_applied.append(
+                            f"Removed @property from async method {method_name}"
+                        )
                     else:
                         # Remove async, keep @property
                         lines[i + 1] = next_line.replace("async def ", "def ")
-                        fixes_applied.append(f"Removed async from property {method_name}")
+                        fixes_applied.append(
+                            f"Removed async from property {method_name}"
+                        )
 
                     i += 2  # Skip both lines we just processed
                     continue
@@ -61,12 +68,14 @@ def fix_invalid_property_async_syntax(file_path: Path) -> Tuple[bool, List[str]]
             i += 1
 
         # Clean up empty lines that might have been created
-        content = '\n'.join(lines)
-        content = re.sub(r'\n\n\n+', '\n\n', content)  # Replace multiple newlines with double
+        content = "\n".join(lines)
+        content = re.sub(
+            r"\n\n\n+", "\n\n", content
+        )  # Replace multiple newlines with double
 
         # Write back if changed
         if content != original_content and fixes_applied:
-            with open(file_path, 'w', encoding='utf-8') as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.write(content)
             return True, fixes_applied
 
@@ -76,6 +85,7 @@ def fix_invalid_property_async_syntax(file_path: Path) -> Tuple[bool, List[str]]
         print(f"Error processing {file_path}: {e}")
         return False, []
 
+
 def should_be_async_method(method_name: str) -> bool:
     """
     Determine if a method should be async based on its name and purpose.
@@ -84,15 +94,42 @@ def should_be_async_method(method_name: str) -> bool:
     """
     # Methods that typically involve I/O or complex operations (should be async)
     async_indicators = [
-        'get_', 'fetch_', 'load_', 'save_', 'store_', 'read_', 'write_',
-        'connect_', 'disconnect_', 'send_', 'receive_', 'query_', 'execute_',
-        'process_', 'validate_', 'calculate_', 'analyze_', 'compute_'
+        "get_",
+        "fetch_",
+        "load_",
+        "save_",
+        "store_",
+        "read_",
+        "write_",
+        "connect_",
+        "disconnect_",
+        "send_",
+        "receive_",
+        "query_",
+        "execute_",
+        "process_",
+        "validate_",
+        "calculate_",
+        "analyze_",
+        "compute_",
     ]
 
     # Simple property getters (should remain properties)
     property_indicators = [
-        'threshold', 'timeout', 'max_', 'min_', 'limit', 'count', 'size',
-        'name', 'id', 'type', 'status', 'state', 'level', 'rate'
+        "threshold",
+        "timeout",
+        "max_",
+        "min_",
+        "limit",
+        "count",
+        "size",
+        "name",
+        "id",
+        "type",
+        "status",
+        "state",
+        "level",
+        "rate",
     ]
 
     method_lower = method_name.lower()
@@ -107,23 +144,27 @@ def should_be_async_method(method_name: str) -> bool:
 
     # Default: if it looks like a simple getter, make it a property
     # If it has complex words, make it async
-    complex_indicators = ['coordination', 'metadata', 'responses']
+    complex_indicators = ["coordination", "metadata", "responses"]
     if any(indicator in method_lower for indicator in complex_indicators):
         return True
 
     return False  # Default to property for simple getters
+
 
 def find_protocol_files(directory: Path) -> List[Path]:
     """Find all protocol files that might have the invalid syntax."""
     protocol_files = []
 
     for py_file in directory.rglob("*.py"):
-        if (py_file.name.startswith("protocol_") and
-            not py_file.name.startswith("test_") and
-            "__pycache__" not in str(py_file)):
+        if (
+            py_file.name.startswith("protocol_")
+            and not py_file.name.startswith("test_")
+            and "__pycache__" not in str(py_file)
+        ):
             protocol_files.append(py_file)
 
     return sorted(protocol_files)
+
 
 def main():
     """Main function to fix async property syntax issues."""
@@ -161,6 +202,7 @@ def main():
         print("   Run the validator again to check for remaining issues.")
     else:
         print("\n✅ No invalid syntax found.")
+
 
 if __name__ == "__main__":
     main()
