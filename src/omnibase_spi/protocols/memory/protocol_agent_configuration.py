@@ -5,24 +5,69 @@ This protocol defines the interface for managing Claude Code agent configuration
 including validation, persistence, versioning, and security.
 """
 
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
-if TYPE_CHECKING:
-    # Forward references for configuration and validation types
-    class ModelValidationResult:
-        """Protocol for validation results."""
 
-        is_valid: bool
-        errors: list[str]
-        warnings: list[str]
+@runtime_checkable
+class ProtocolLegacyConfigValidationResult(Protocol):
+    """Protocol for legacy configuration validation results.
 
-    class ModelAgentConfig:
-        """Protocol for agent configuration."""
+    Defines the interface for configuration validation results,
+    including validation status and any errors or warnings found.
 
-        agent_id: str
-        agent_type: str
-        configuration: dict[str, Any]
-        security_context: dict[str, Any]
+    Note: This is part of the legacy configuration system.
+    For new implementations, use ProtocolAgentValidationResult
+    from protocol_agent_config_interfaces.py
+    """
+
+    @property
+    def is_valid(self) -> bool:
+        """Whether the validation passed without errors."""
+        ...
+
+    @property
+    def errors(self) -> list[str]:
+        """List of validation errors found."""
+        ...
+
+    @property
+    def warnings(self) -> list[str]:
+        """List of validation warnings found."""
+        ...
+
+
+@runtime_checkable
+class ProtocolLegacyAgentConfigData(Protocol):
+    """Protocol for legacy agent configuration data.
+
+    Defines the interface for agent configuration objects,
+    including agent identification, type, configuration data,
+    and security context.
+
+    Note: This is part of the legacy configuration system.
+    For new implementations, use ProtocolAgentConfig
+    from protocol_agent_config_interfaces.py
+    """
+
+    @property
+    def agent_id(self) -> str:
+        """Unique identifier for the agent."""
+        ...
+
+    @property
+    def agent_type(self) -> str:
+        """Type classification of the agent."""
+        ...
+
+    @property
+    def configuration(self) -> dict[str, Any]:
+        """Agent configuration data."""
+        ...
+
+    @property
+    def security_context(self) -> dict[str, Any]:
+        """Security context for agent operations."""
+        ...
 
 
 @runtime_checkable
@@ -36,8 +81,8 @@ class ProtocolAgentConfigurationLegacy(Protocol):
 
     async def validate_configuration(
         self,
-        config: "ModelAgentConfig",
-    ) -> "ModelValidationResult":
+        config: ProtocolLegacyAgentConfigData,
+    ) -> ProtocolLegacyConfigValidationResult:
         """
         Validate agent configuration for correctness and security.
 
@@ -52,7 +97,7 @@ class ProtocolAgentConfigurationLegacy(Protocol):
         """
         ...
 
-    async def save_configuration(self, config: "ModelAgentConfig") -> bool:
+    async def save_configuration(self, config: ProtocolLegacyAgentConfigData) -> bool:
         """
         Save agent configuration to persistent storage.
 
@@ -68,7 +113,9 @@ class ProtocolAgentConfigurationLegacy(Protocol):
         """
         ...
 
-    async def load_configuration(self, agent_id: str) -> "ModelAgentConfig" | None:
+    async def load_configuration(
+        self, agent_id: str
+    ) -> ProtocolLegacyAgentConfigData | None:
         """
         Load agent configuration from persistent storage.
 
@@ -111,7 +158,7 @@ class ProtocolAgentConfigurationLegacy(Protocol):
         self,
         agent_id: str,
         updates: dict[str, Any],
-    ) -> "ModelAgentConfig":
+    ) -> ProtocolLegacyAgentConfigData:
         """
         Update specific fields in an agent configuration.
 
@@ -131,7 +178,7 @@ class ProtocolAgentConfigurationLegacy(Protocol):
     async def create_configuration_template(
         self,
         template_name: str,
-        base_config: "ModelAgentConfig",
+        base_config: ProtocolLegacyAgentConfigData,
     ) -> bool:
         """
         Create a reusable configuration template.
@@ -153,7 +200,7 @@ class ProtocolAgentConfigurationLegacy(Protocol):
         agent_id: str,
         template_name: str,
         overrides: dict[str, Any] | None = None,
-    ) -> "ModelAgentConfig":
+    ) -> ProtocolLegacyAgentConfigData:
         """
         Apply a configuration template to create agent configuration.
 
@@ -228,7 +275,7 @@ class ProtocolAgentConfigurationLegacy(Protocol):
         self,
         source_agent_id: str,
         target_agent_id: str,
-    ) -> "ModelAgentConfig":
+    ) -> ProtocolLegacyAgentConfigData:
         """
         Clone configuration from one agent to another.
 
@@ -245,7 +292,9 @@ class ProtocolAgentConfigurationLegacy(Protocol):
         """
         ...
 
-    async def validate_security_policies(self, config: "ModelAgentConfig") -> list[str]:
+    async def validate_security_policies(
+        self, config: ProtocolLegacyAgentConfigData
+    ) -> list[str]:
         """
         Validate configuration against security policies.
 
@@ -259,8 +308,8 @@ class ProtocolAgentConfigurationLegacy(Protocol):
 
     async def encrypt_sensitive_fields(
         self,
-        config: "ModelAgentConfig",
-    ) -> "ModelAgentConfig":
+        config: ProtocolLegacyAgentConfigData,
+    ) -> ProtocolLegacyAgentConfigData:
         """
         Encrypt sensitive fields in agent configuration.
 
@@ -277,8 +326,8 @@ class ProtocolAgentConfigurationLegacy(Protocol):
 
     async def decrypt_sensitive_fields(
         self,
-        config: "ModelAgentConfig",
-    ) -> "ModelAgentConfig":
+        config: ProtocolLegacyAgentConfigData,
+    ) -> ProtocolLegacyAgentConfigData:
         """
         Decrypt sensitive fields in agent configuration.
 
@@ -295,8 +344,8 @@ class ProtocolAgentConfigurationLegacy(Protocol):
 
     async def set_configuration_defaults(
         self,
-        config: "ModelAgentConfig",
-    ) -> "ModelAgentConfig":
+        config: ProtocolLegacyAgentConfigData,
+    ) -> ProtocolLegacyAgentConfigData:
         """
         Apply default values to agent configuration.
 
@@ -310,9 +359,9 @@ class ProtocolAgentConfigurationLegacy(Protocol):
 
     async def merge_configurations(
         self,
-        base_config: "ModelAgentConfig",
-        override_config: "ModelAgentConfig",
-    ) -> "ModelAgentConfig":
+        base_config: ProtocolLegacyAgentConfigData,
+        override_config: ProtocolLegacyAgentConfigData,
+    ) -> ProtocolLegacyAgentConfigData:
         """
         Merge two configurations with override taking precedence.
 
@@ -351,7 +400,7 @@ class ProtocolAgentConfigurationLegacy(Protocol):
         agent_id: str,
         config_data: str,
         format_type: str = "yaml",
-    ) -> "ModelAgentConfig":
+    ) -> ProtocolLegacyAgentConfigData:
         """
         Import agent configuration from serialized data.
 

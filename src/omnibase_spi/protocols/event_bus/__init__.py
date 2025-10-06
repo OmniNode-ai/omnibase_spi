@@ -19,8 +19,8 @@ from .protocol_event_bus_in_memory import ProtocolEventBusInMemory
 from .protocol_event_bus_mixin import (
     ProtocolAsyncEventBus,
     ProtocolEventBusBase,
-    ProtocolLogEmitter,
-    ProtocolRegistryWithBus,
+    ProtocolEventBusLogEmitter,
+    ProtocolEventBusRegistry,
     ProtocolSyncEventBus,
 )
 from .protocol_event_bus_service import (
@@ -37,13 +37,13 @@ __all__ = [
     "ProtocolEventBusContextManager",
     "ProtocolEventBusHeaders",
     "ProtocolEventBusInMemory",
+    "ProtocolEventBusLogEmitter",
+    "ProtocolEventBusRegistry",
     "ProtocolEventBusService",
     "ProtocolEventMessage",
     "ProtocolHttpEventBusAdapter",
     "ProtocolKafkaAdapter",
     "ProtocolKafkaEventBusAdapter",
-    "ProtocolLogEmitter",
     "ProtocolRedpandaAdapter",
-    "ProtocolRegistryWithBus",
     "ProtocolSyncEventBus",
 ]

@@ -7,17 +7,29 @@ Supports the complete service lifecycle including registration, resolution, inje
 Focuses purely on dependency injection patterns rather than artifact or service discovery concerns.
 """
 
-from typing import Any, Literal, Protocol, Type, TypeVar, runtime_checkable
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Literal,
+    Protocol,
+    Type,
+    TypeVar,
+    runtime_checkable,
+)
+
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.types.protocol_core_types import (
+        ContextValue,
+        ProtocolDateTime,
+        ProtocolSemVer,
+    )
+    from omnibase_spi.protocols.validation.protocol_validation import (
+        ProtocolValidationResult,
+    )
 
 from omnibase_spi.protocols.types.protocol_core_types import (
-    ContextValue,
     LiteralHealthStatus,
     LiteralOperationStatus,
-    ProtocolDateTime,
-    ProtocolSemVer,
-)
-from omnibase_spi.protocols.validation.protocol_validation import (
-    ProtocolValidationResult,
 )
 
 T = TypeVar("T")

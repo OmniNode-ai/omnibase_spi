@@ -1,16 +1,12 @@
-from typing import Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.schema.protocol_trusted_schema_loader import (
+        ProtocolSchemaValidationResult,
+    )
 
-@runtime_checkable
-class ProtocolModelValidationResult(Protocol):
-    """Protocol for validation results."""
-
-    success: bool
-    errors: list[str]
-    warnings: list[str]
-    info: list[str]
-
-    def to_dict(self) -> dict[str, Any]: ...
+# Type alias for backward compatibility
+ProtocolModelValidationResult = "ProtocolSchemaValidationResult"
 
 
 @runtime_checkable
@@ -30,23 +26,25 @@ class ProtocolRegistryHealthReport(Protocol):
 class ProtocolModelRegistryValidator(Protocol):
     """Protocol for validating dynamic model registries and detecting conflicts"""
 
-    async def validate_action_registry(self) -> "ProtocolModelValidationResult":
+    async def validate_action_registry(self) -> "ProtocolSchemaValidationResult":
         """Validate action registry for conflicts and compliance"""
         ...
 
-    async def validate_event_type_registry(self) -> "ProtocolModelValidationResult":
+    async def validate_event_type_registry(self) -> "ProtocolSchemaValidationResult":
         """Validate event type registry for conflicts and compliance"""
         ...
 
-    async def validate_capability_registry(self) -> "ProtocolModelValidationResult":
+    async def validate_capability_registry(self) -> "ProtocolSchemaValidationResult":
         """Validate capability registry for conflicts and compliance"""
         ...
 
-    async def validate_node_reference_registry(self) -> "ProtocolModelValidationResult":
+    async def validate_node_reference_registry(
+        self,
+    ) -> "ProtocolSchemaValidationResult":
         """Validate node reference registry for conflicts and compliance"""
         ...
 
-    async def validate_all_registries(self) -> "ProtocolModelValidationResult":
+    async def validate_all_registries(self) -> "ProtocolSchemaValidationResult":
         """Validate all dynamic registries comprehensively"""
         ...
 
@@ -56,7 +54,7 @@ class ProtocolModelRegistryValidator(Protocol):
 
     async def verify_contract_compliance(
         self, contract_path: str
-    ) -> "ProtocolModelValidationResult":
+    ) -> "ProtocolSchemaValidationResult":
         """Verify a contract file complies with schema requirements"""
         ...
 
@@ -68,6 +66,6 @@ class ProtocolModelRegistryValidator(Protocol):
         """Get overall health status of all registries"""
         ...
 
-    async def audit_model_integrity(self) -> "ProtocolModelValidationResult":
+    async def audit_model_integrity(self) -> "ProtocolSchemaValidationResult":
         """Audit integrity of all registered models"""
         ...

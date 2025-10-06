@@ -1,11 +1,10 @@
-from typing import Optional, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 from uuid import UUID
 
-from omnibase_spi.protocols.types import (
-    LiteralLogLevel,
-    ProtocolLogContext,
-    ProtocolLogEntry,
-)
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.types import ProtocolLogEntry
+
+from omnibase_spi.protocols.types import LiteralLogLevel, ProtocolLogContext
 
 
 @runtime_checkable
@@ -28,7 +27,7 @@ class ProtocolLogger(Protocol):
         level: LiteralLogLevel,
         message: str,
         correlation_id: UUID,
-        context: Optional[ProtocolLogContext] = None,
+        context: ProtocolLogContext | None = None,
     ) -> None: ...
 
     async def log(self, entry: "ProtocolLogEntry") -> None: ...

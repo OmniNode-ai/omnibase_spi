@@ -4,17 +4,32 @@ Discovery Client Protocol for ONEX Event-Driven Service Discovery
 Defines the protocol interface for discovery client implementations.
 """
 
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
-if TYPE_CHECKING:
-    # Forward reference for discovery types to maintain namespace isolation
-    class ModelDiscoveredTool:
-        """Protocol for discovered tool information."""
 
-        tool_name: str
-        tool_type: str
-        metadata: dict[str, Any]
-        is_healthy: bool
+@runtime_checkable
+class ProtocolDiscoveredTool(Protocol):
+    """Protocol for discovered tool information."""
+
+    @property
+    def tool_name(self) -> str:
+        """Name of the discovered tool."""
+        ...
+
+    @property
+    def tool_type(self) -> str:
+        """Type of the tool."""
+        ...
+
+    @property
+    def metadata(self) -> dict[str, Any]:
+        """Tool metadata."""
+        ...
+
+    @property
+    def is_healthy(self) -> bool:
+        """Whether the tool is healthy."""
+        ...
 
 
 @runtime_checkable
@@ -34,7 +49,7 @@ class ProtocolDiscoveryClient(Protocol):
         include_metadata: bool = True,
         retry_count: int = 0,
         retry_delay: float = 1.0,
-    ) -> list["ModelDiscoveredTool"]:
+    ) -> list[ProtocolDiscoveredTool]:
         """
         Discover available tools/services based on filters.
 
@@ -60,7 +75,7 @@ class ProtocolDiscoveryClient(Protocol):
         protocol: str,
         timeout: float | None = None,
         **kwargs: Any,
-    ) -> list["ModelDiscoveredTool"]:
+    ) -> list[ProtocolDiscoveredTool]:
         """
         Convenience method to discover tools by protocol.
 
@@ -79,7 +94,7 @@ class ProtocolDiscoveryClient(Protocol):
         tags: list[str],
         timeout: float | None = None,
         **kwargs: Any,
-    ) -> list["ModelDiscoveredTool"]:
+    ) -> list[ProtocolDiscoveredTool]:
         """
         Convenience method to discover tools by tags.
 
@@ -97,7 +112,7 @@ class ProtocolDiscoveryClient(Protocol):
         self,
         timeout: float | None = None,
         **kwargs: Any,
-    ) -> list["ModelDiscoveredTool"]:
+    ) -> list[ProtocolDiscoveredTool]:
         """
         Convenience method to discover only healthy tools.
 
@@ -119,7 +134,12 @@ class ProtocolDiscoveryClient(Protocol):
         ...
 
     async def get_pending_request_count(self) -> int:
-        """Get the number of pending discovery requests"""
+        """
+        Get the number of pending discovery requests.
+
+        Returns:
+            Number of pending requests
+        """
         ...
 
     async def get_client_stats(self) -> dict[str, Any]:

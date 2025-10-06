@@ -5,13 +5,14 @@ Defines the interface for tool discovery, instantiation, and registry operations
 for MCP (Model Context Protocol) tool coordination in distributed systems.
 """
 
-from typing import Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
-from omnibase_spi.protocols.types.protocol_core_types import ProtocolMetadata
-from omnibase_spi.protocols.types.protocol_mcp_types import (
-    ProtocolToolClass,
-    ProtocolToolInstance,
-)
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.types.protocol_core_types import ProtocolMetadata
+    from omnibase_spi.protocols.types.protocol_mcp_types import (
+        ProtocolToolClass,
+        ProtocolToolInstance,
+    )
 
 
 @runtime_checkable

@@ -6,11 +6,12 @@ complexity metrics, and best practices compliance for NodeQualityValidatorEffect
 implementations.
 """
 
-from typing import Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
-from omnibase_spi.protocols.validation.protocol_validation import (
-    ProtocolValidationResult,
-)
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.validation.protocol_validation import (
+        ProtocolValidationResult,
+    )
 
 
 @runtime_checkable

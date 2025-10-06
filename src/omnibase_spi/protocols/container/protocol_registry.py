@@ -7,58 +7,28 @@ to enable testing and cross-node registry access while maintaining proper
 architectural boundaries.
 """
 
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, TypeAlias, runtime_checkable
 
 if TYPE_CHECKING:
+    from omnibase_spi.protocols.container.protocol_artifact_container import (
+        ProtocolArtifactMetadata,
+    )
     from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 
+from omnibase_spi.protocols.container.protocol_artifact_container import (
+    LiteralContainerArtifactType,
+)
 
-# Protocol-compatible literal type for registry artifact types
-RegistryArtifactType = str
+# Type alias for backward compatibility
+RegistryArtifactType: TypeAlias = LiteralContainerArtifactType
 
-# Registry artifact type constants
+# Registry artifact type constants (deprecated - use LiteralContainerArtifactType)
 ARTIFACT_TYPE_NODES = "nodes"
 ARTIFACT_TYPE_CLI_TOOLS = "cli_tools"
 ARTIFACT_TYPE_RUNTIMES = "runtimes"
 ARTIFACT_TYPE_ADAPTERS = "adapters"
 ARTIFACT_TYPE_CONTRACTS = "contracts"
 ARTIFACT_TYPE_PACKAGES = "packages"
-
-
-@runtime_checkable
-class ProtocolRegistryArtifactMetadata(Protocol):
-    """
-    Protocol for registry artifact metadata.
-
-    Defines the interface for metadata associated with registry artifacts including
-    creation timestamps, authorship, and modification tracking. This protocol
-    enables consistent metadata handling across different artifact types and
-    registry implementations.
-
-    Attributes:
-        description: Human-readable description of the artifact purpose and functionality
-        author: Creator or maintainer of the artifact
-        created_at: ISO timestamp of artifact creation
-        last_modified_at: ISO timestamp of last modification
-
-    Example:
-        ```python
-        @runtime_checkable
-        class RegistryMetadataImpl:
-            description: str | None = "Workflow orchestrator node"
-            author: str | None = "workflow-team"
-            created_at: str | None = "2025-01-15T10:30:00Z"
-            last_modified_at: str | None = "2025-01-20T14:45:00Z"
-
-        # Usage with protocol validation
-        metadata: ProtocolRegistryArtifactMetadata = RegistryMetadataImpl()
-        ```
-    """
-
-    description: str | None
-    author: str | None
-    created_at: str | None
-    last_modified_at: str | None
 
 
 @runtime_checkable
@@ -70,6 +40,9 @@ class ProtocolRegistryArtifactInfo(Protocol):
     type classification, file system location, and work-in-progress status. This
     protocol enables consistent artifact identification and management across the
     ONEX ecosystem.
+
+    Note: This protocol is deprecated in favor of ProtocolArtifactInfo from
+    protocol_artifact_container.py for consistency across the container domain.
 
     Attributes:
         name: Unique identifier for the artifact within its type
@@ -87,7 +60,7 @@ class ProtocolRegistryArtifactInfo(Protocol):
             version: str = "1.2.0"
             artifact_type: RegistryArtifactType = ARTIFACT_TYPE_NODES
             path: str = "/nodes/workflow/orchestrator.py"
-            metadata: ProtocolRegistryArtifactMetadata = metadata_impl
+            metadata: ProtocolArtifactMetadata = metadata_impl
             is_wip: bool = False
 
         # Usage in registry operations
@@ -101,7 +74,7 @@ class ProtocolRegistryArtifactInfo(Protocol):
     version: str
     artifact_type: RegistryArtifactType
     path: str
-    metadata: "ProtocolRegistryArtifactMetadata"
+    metadata: "ProtocolArtifactMetadata"
     is_wip: bool
 
 

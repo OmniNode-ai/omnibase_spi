@@ -77,7 +77,7 @@ class ProtocolLLMAgentConfig(Protocol):
 
 
 @runtime_checkable
-class ProtocolAgentInstance(Protocol):
+class ProtocolMcpAgentInstance(Protocol):
     """
     Protocol for agent instance.
 
@@ -85,7 +85,7 @@ class ProtocolAgentInstance(Protocol):
     capability management, and lifecycle monitoring for distributed agent coordination.
 
     Example:
-        class AgentInstance(ProtocolAgentInstance):
+        class AgentInstance(ProtocolMcpAgentInstance):
             def __init__(self, agent_id, provider, model_name, capabilities):
                 self.agent_id = agent_id
                 self.provider = provider
@@ -219,7 +219,7 @@ class ProtocolLLMAgentProvider(Protocol):
 
     async def spawn_agent(
         self, config: ProtocolLLMAgentConfig
-    ) -> ProtocolAgentInstance:
+    ) -> ProtocolMcpAgentInstance:
         """
         Spawn a new LLM agent instance.
 
@@ -243,7 +243,7 @@ class ProtocolLLMAgentProvider(Protocol):
         """
         ...
 
-    async def get_agent(self, agent_id: str) -> ProtocolAgentInstance | None:
+    async def get_agent(self, agent_id: str) -> ProtocolMcpAgentInstance | None:
         """
         Get agent instance by ID.
 
@@ -255,7 +255,7 @@ class ProtocolLLMAgentProvider(Protocol):
         """
         ...
 
-    async def list_active_agents(self) -> list[ProtocolAgentInstance]:
+    async def list_active_agents(self) -> list[ProtocolMcpAgentInstance]:
         """
         List all active agent instances.
 
@@ -286,7 +286,7 @@ class ProtocolLLMAgentProvider(Protocol):
     async def get_agents_by_capability(
         self,
         capability: LiteralAgentCapability,
-    ) -> list[ProtocolAgentInstance]:
+    ) -> list[ProtocolMcpAgentInstance]:
         """
         Get agents that have a specific capability.
 
@@ -301,7 +301,7 @@ class ProtocolLLMAgentProvider(Protocol):
     async def get_agents_by_provider(
         self,
         provider: LiteralLLMProvider,
-    ) -> list[ProtocolAgentInstance]:
+    ) -> list[ProtocolMcpAgentInstance]:
         """
         Get agents using a specific LLM provider.
 
@@ -334,7 +334,7 @@ class ProtocolLLMAgentProvider(Protocol):
         """
         ...
 
-    async def restart_agent(self, agent_id: str) -> ProtocolAgentInstance:
+    async def restart_agent(self, agent_id: str) -> ProtocolMcpAgentInstance:
         """
         Restart an existing agent.
 

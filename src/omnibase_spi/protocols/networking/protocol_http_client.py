@@ -8,7 +8,7 @@ and notification systems.
 Security Note: Implementations must include SSRF protection and validate all target URLs.
 """
 
-from typing import TYPE_CHECKING, Any, Dict, Optional, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Dict, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types.protocol_core_types import ContextValue
@@ -50,9 +50,9 @@ class ProtocolHttpClient(Protocol):
         method: str,
         url: str,
         *,
-        json: Optional[Dict[str, Any]] = None,
-        headers: Optional[Dict[str, str]] = None,
-        timeout: Optional[float] = 10.0,
+        json: Dict[str, Any] | None = None,
+        headers: Dict[str, str] | None = None,
+        timeout: float | None = 10.0,
     ) -> "ProtocolHttpResponse":
         """
         Make an HTTP request.

@@ -52,6 +52,10 @@ class SPITypingValidator(ast.NodeVisitor):
         self.protocol_imports: set[str] = set()
         self.in_protocol_class: bool = False
         self.current_protocol: str = ""
+        self.protocol_classes_in_file: set[str] = set()  # Track protocols in this file
+        self.has_type_checking_import: bool = (
+            False  # Track TYPE_CHECKING import at module level
+        )
 
     def visit_Import(self, node: ast.Import) -> None:
         """Track imports for validation context."""
@@ -64,6 +68,8 @@ class SPITypingValidator(ast.NodeVisitor):
         """Track from imports for validation context."""
         if node.module == "typing":
             for alias in node.names:
+                if alias.name == "TYPE_CHECKING":
+                    self.has_type_checking_import = True
                 if alias.name in ("Optional", "Union", "Callable", "Any", "Protocol"):
                     self.typing_imports.add(alias.asname or alias.name)
         elif node.module and "protocol" in node.module.lower():
@@ -76,6 +82,7 @@ class SPITypingValidator(ast.NodeVisitor):
         is_protocol = self._is_protocol_class(node)
 
         if is_protocol:
+            self.protocol_classes_in_file.add(node.name)  # Track protocol in this file
             self.current_protocol = node.name
             self.in_protocol_class = True
             self._validate_protocol_class_typing(node)
@@ -146,15 +153,8 @@ class SPITypingValidator(ast.NodeVisitor):
 
     def _validate_protocol_class_typing(self, node: ast.ClassDef) -> None:
         """Validate typing patterns in protocol class definition."""
-        # Check for proper TYPE_CHECKING imports for forward references
-        if any(
-            "TYPE_CHECKING" in ast.unparse(stmt)
-            for stmt in ast.walk(node)
-            if isinstance(stmt, ast.ImportFrom)
-        ):
-            # Good practice detected
-            pass
-        else:
+        # Check if forward references are used without TYPE_CHECKING import at module level
+        if not self.has_type_checking_import:
             # Check if forward references are used without TYPE_CHECKING
             for item in node.body:
                 if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)):
@@ -370,17 +370,55 @@ class SPITypingValidator(ast.NodeVisitor):
         ]
         return any(pattern in return_type for pattern in awaitable_patterns)
 
+    def _is_cross_file_reference(self, type_str: str) -> bool:
+        """Check if a forward reference type is from a different file.
+
+        Args:
+            type_str: Forward reference string like "ProtocolFoo" or "ProtocolFoo | None"
+
+        Returns:
+            True if this is a cross-file reference, False if same-file reference
+        """
+        import re
+
+        # Extract all Protocol class names from the forward reference string
+        # Handle cases like: "ProtocolFoo", "ProtocolFoo | None", "list[ProtocolFoo]"
+        protocol_names = re.findall(r"Protocol\w+", type_str)
+
+        if not protocol_names:
+            # No protocol references found, consider it cross-file to be safe
+            return True
+
+        # Check if any of the referenced protocols are defined in the current file
+        for proto_name in protocol_names:
+            if proto_name in self.protocol_classes_in_file:
+                # At least one protocol is in the same file
+                # If ALL protocols are in the same file, it's not cross-file
+                pass
+            else:
+                # Found a protocol not in this file
+                return True
+
+        # All referenced protocols are in this file
+        return False
+
     def _has_string_annotations(
         self, node: ast.FunctionDef | ast.AsyncFunctionDef
     ) -> bool:
-        """Check if function has string annotations (forward references)."""
+        """Check if function has string annotations (forward references) that are cross-file.
+
+        Only returns True for forward references that point to types in other files,
+        not for same-file forward references which are acceptable.
+        """
         # Check return annotation
         if (
             node.returns
             and isinstance(node.returns, ast.Constant)
             and isinstance(node.returns.value, str)
         ):
-            return True
+            # Check if this is a cross-file reference
+            if self._is_cross_file_reference(node.returns.value):
+                return True
 
         # Check parameter annotations
         for arg in node.args.args:
@@ -389,7 +427,9 @@ class SPITypingValidator(ast.NodeVisitor):
                 and isinstance(arg.annotation, ast.Constant)
                 and isinstance(arg.annotation.value, str)
             ):
-                return True
+                # Check if this is a cross-file reference
+                if self._is_cross_file_reference(arg.annotation.value):
+                    return True
 
         return False
 

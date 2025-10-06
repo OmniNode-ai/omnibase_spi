@@ -1,139 +1,182 @@
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
-
-if TYPE_CHECKING:
-    # Forward references for agent configuration and model types
-    class ModelAgentConfig:
-        """Protocol for agent configuration."""
-
-        agent_id: str
-        agent_type: str
-        configuration: dict[str, Any]
-        security_context: dict[str, Any]
-
-    class ModelAgentInstance:
-        """Protocol for agent instance."""
-
-        instance_id: str
-        agent_id: str
-        status: str
-        health_status: str
-        configuration: "ModelAgentConfig"
-
-    class ModelAgentHealthStatus:
-        """Protocol for agent health status."""
-
-        status: str
-        last_check: str
-        metrics: dict[str, Any]
-
-    class ModelAgentStatus:
-        """Protocol for agent status."""
-
-        state: str
-        error_message: str | None
-        last_activity: str
-
-    class ModelValidationResult:
-        """Protocol for validation results."""
-
-        is_valid: bool
-        errors: list[str]
-        warnings: list[str]
-
-    class ModelMemoryOperation:
-        """Protocol for memory operations."""
-
-        operation_type: str
-        data: dict[str, Any]
-        timestamp: str
-
-    class ModelMemoryResponse:
-        """Protocol for memory responses."""
-
-        success: bool
-        data: Any
-        error_message: str | None
-
-    class ModelMemoryMetadata:
-        """Protocol for memory metadata."""
-
-        size: int
-        created_at: str
-        modified_at: str
-        access_count: int
-
-    class ModelMemoryError:
-        """Protocol for memory errors."""
-
-        error_type: str
-        message: str
-        details: dict[str, Any]
-
-    class ModelMemoryRequest:
-        """Protocol for memory requests."""
-
-        operation: str
-        key: str
-        data: Any
-        options: dict[str, Any]
-
-    class ModelMemoryResponseV2:
-        """Protocol for memory responses (version 2)."""
-
-        success: bool
-        data: Any
-        error: str | None
-
-    class ModelMemorySecurityContext:
-        """Protocol for memory security context."""
-
-        user_id: str
-        permissions: list[str]
-        session_id: str
-
-    class ModelMemoryStreamingResponse:
-        """Protocol for streaming memory responses."""
-
-        chunk_id: str
-        data: Any
-        is_last: bool
-
-    class ModelMemoryStreamingRequest:
-        """Protocol for streaming memory requests."""
-
-        stream_id: str
-        operation: str
-        parameters: dict[str, Any]
-
-    class ModelMemorySecurityPolicy:
-        """Protocol for memory security policies."""
-
-        policy_id: str
-        rules: list[dict[str, Any]]
-        default_action: str
-
-    class ModelMemoryComposable:
-        """Protocol for composable memory operations."""
-
-        components: list[str]
-        operations: list[str]
-        metadata: dict[str, Any]
-
-    class ModelMemoryErrorHandling:
-        """Protocol for memory error handling."""
-
-        error_type: str
-        severity: str
-        recovery_strategy: str
-        context: dict[str, Any]
-
-
 """
 Protocol for Agent Pool Management.
 
 This protocol defines the interface for managing pools of Claude Code agents,
 including dynamic scaling, load balancing, and resource optimization.
 """
+
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+
+from omnibase_spi.protocols.memory.protocol_agent_config_interfaces import (
+    ProtocolAgentConfig,
+)
+from omnibase_spi.protocols.memory.protocol_agent_config_interfaces import (
+    ProtocolAgentValidationResult as ProtocolAgentPoolValidationResult,
+)
+from omnibase_spi.protocols.memory.protocol_agent_manager import (
+    ProtocolAgentHealthStatus,
+)
+from omnibase_spi.protocols.memory.protocol_agent_manager import (
+    ProtocolAgentStatus as ProtocolMemoryAgentStatus,
+)
+from omnibase_spi.protocols.memory.protocol_agent_manager import (
+    ProtocolMemoryAgentInstance,
+)
+from omnibase_spi.protocols.memory.protocol_memory_base import ProtocolMemoryMetadata
+from omnibase_spi.protocols.memory.protocol_memory_errors import ProtocolMemoryError
+from omnibase_spi.protocols.memory.protocol_memory_requests import ProtocolMemoryRequest
+from omnibase_spi.protocols.memory.protocol_memory_responses import (
+    ProtocolMemoryResponse,
+)
+from omnibase_spi.protocols.memory.protocol_memory_security import (
+    ProtocolMemorySecurityContext,
+)
+
+
+@runtime_checkable
+class ProtocolMemoryOperation(Protocol):
+    """Protocol for memory operations."""
+
+    @property
+    def operation_type(self) -> str:
+        """Type of memory operation."""
+        ...
+
+    @property
+    def data(self) -> dict[str, Any]:
+        """Operation data."""
+        ...
+
+    @property
+    def timestamp(self) -> str:
+        """Operation timestamp."""
+        ...
+
+
+@runtime_checkable
+class ProtocolMemoryResponseV2(Protocol):
+    """Protocol for memory responses (version 2)."""
+
+    @property
+    def success(self) -> bool:
+        """Whether operation succeeded."""
+        ...
+
+    @property
+    def data(self) -> Any:
+        """Response data."""
+        ...
+
+    @property
+    def error(self) -> str | None:
+        """Error message if operation failed."""
+        ...
+
+
+@runtime_checkable
+class ProtocolMemoryStreamingResponse(Protocol):
+    """Protocol for streaming memory responses."""
+
+    @property
+    def chunk_id(self) -> str:
+        """Chunk identifier."""
+        ...
+
+    @property
+    def data(self) -> Any:
+        """Chunk data."""
+        ...
+
+    @property
+    def is_last(self) -> bool:
+        """Whether this is the last chunk."""
+        ...
+
+
+@runtime_checkable
+class ProtocolMemoryStreamingRequest(Protocol):
+    """Protocol for streaming memory requests."""
+
+    @property
+    def stream_id(self) -> str:
+        """Stream identifier."""
+        ...
+
+    @property
+    def operation(self) -> str:
+        """Stream operation."""
+        ...
+
+    @property
+    def parameters(self) -> dict[str, Any]:
+        """Stream parameters."""
+        ...
+
+
+@runtime_checkable
+class ProtocolMemorySecurityPolicy(Protocol):
+    """Protocol for memory security policies."""
+
+    @property
+    def policy_id(self) -> str:
+        """Policy identifier."""
+        ...
+
+    @property
+    def rules(self) -> list[dict[str, Any]]:
+        """Policy rules."""
+        ...
+
+    @property
+    def default_action(self) -> str:
+        """Default policy action."""
+        ...
+
+
+@runtime_checkable
+class ProtocolMemoryComposable(Protocol):
+    """Protocol for composable memory operations."""
+
+    @property
+    def components(self) -> list[str]:
+        """Operation components."""
+        ...
+
+    @property
+    def operations(self) -> list[str]:
+        """Composable operations."""
+        ...
+
+    @property
+    def metadata(self) -> dict[str, Any]:
+        """Operation metadata."""
+        ...
+
+
+@runtime_checkable
+class ProtocolMemoryErrorHandling(Protocol):
+    """Protocol for memory error handling."""
+
+    @property
+    def error_type(self) -> str:
+        """Type of error."""
+        ...
+
+    @property
+    def severity(self) -> str:
+        """Error severity level."""
+        ...
+
+    @property
+    def recovery_strategy(self) -> str:
+        """Recovery strategy."""
+        ...
+
+    @property
+    def context(self) -> dict[str, Any]:
+        """Error context."""
+        ...
+
 
 if TYPE_CHECKING:
     from typing import Literal

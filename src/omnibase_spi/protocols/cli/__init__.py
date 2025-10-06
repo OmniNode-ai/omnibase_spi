@@ -6,8 +6,8 @@ from .protocol_cli import ProtocolCLI, ProtocolCLIResult
 from .protocol_cli_dir_fixture_case import ProtocolCLIDirFixtureCase
 from .protocol_cli_dir_fixture_registry import ProtocolCLIDirFixtureRegistry
 from .protocol_cli_tool_discovery import (
+    ProtocolCliDiscoveredTool,
     ProtocolCLIToolDiscovery,
-    ProtocolDiscoveredTool,
 )
 from .protocol_cli_workflow import ProtocolCliWorkflow
 from .protocol_node_cli_adapter import ProtocolNodeCliAdapter
@@ -17,7 +17,7 @@ __all__ = [
     "ProtocolCLIResult",
     "ProtocolCLIDirFixtureCase",
     "ProtocolCLIDirFixtureRegistry",
-    "ProtocolDiscoveredTool",
+    "ProtocolCliDiscoveredTool",
     "ProtocolCLIToolDiscovery",
     "ProtocolCliWorkflow",
     "ProtocolNodeCliAdapter",

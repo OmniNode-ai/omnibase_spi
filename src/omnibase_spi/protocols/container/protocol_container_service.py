@@ -5,16 +5,17 @@ Defines the interface for dependency injection container management,
 service registration, and registry lifecycle operations.
 """
 
-from typing import Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
-from omnibase_spi.protocols.types.protocol_container_types import (
-    ProtocolContainer,
-    ProtocolContainerResult,
-    ProtocolContainerServiceInstance,
-    ProtocolDependencySpec,
-    ProtocolRegistryWrapper,
-)
-from omnibase_spi.protocols.types.protocol_core_types import ProtocolMetadata
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.types.protocol_container_types import (
+        ProtocolContainer,
+        ProtocolContainerResult,
+        ProtocolContainerServiceInstance,
+        ProtocolDependencySpec,
+        ProtocolRegistryWrapper,
+    )
+    from omnibase_spi.protocols.types.protocol_core_types import ProtocolMetadata
 
 
 @runtime_checkable

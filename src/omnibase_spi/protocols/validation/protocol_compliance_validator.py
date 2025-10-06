@@ -6,11 +6,12 @@ standards, architectural patterns, and ecosystem requirements for
 NodeComplianceValidatorReducer implementations.
 """
 
-from typing import List, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, List, Protocol, runtime_checkable
 
-from omnibase_spi.protocols.validation.protocol_validation import (
-    ProtocolValidationResult,
-)
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.validation.protocol_validation import (
+        ProtocolValidationResult,
+    )
 
 
 @runtime_checkable
@@ -141,7 +142,7 @@ class ProtocolComplianceValidator(Protocol):
 
     async def aggregate_compliance_results(
         self, reports: List["ProtocolComplianceReport"]
-    ) -> ProtocolValidationResult: ...
+    ) -> "ProtocolValidationResult": ...
 
     def add_custom_rule(self, rule: "ProtocolComplianceRule") -> None: ...
 

@@ -5,12 +5,13 @@ Provides cache service protocols that can be implemented by different
 cache backends (in-memory, Redis, etc.) and injected via ONEXContainer.
 """
 
-from typing import Generic, Protocol, TypeVar, runtime_checkable
+from typing import TYPE_CHECKING, Generic, Protocol, TypeVar, runtime_checkable
 
-from omnibase_spi.protocols.types.protocol_core_types import (
-    ContextValue,
-    ProtocolCacheStatistics,
-)
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.types.protocol_core_types import (
+        ContextValue,
+        ProtocolCacheStatistics,
+    )
 
 T = TypeVar("T")
 
@@ -28,7 +29,7 @@ class ProtocolCacheService(Protocol, Generic[T]):
         # String cache
         cache: "ProtocolCacheService"[str] = get_string_cache()
         await cache.set("user:123", "john_doe", ttl_seconds=3600)
-        username = await cache.get("user:123")  # Returns Optional[str]
+        username = await cache.get("user:123")  # Returns str | None
 
         # Dict cache for complex data
         cache: "ProtocolCacheService"[dict[str, ContextValue]] = get_dict_cache()

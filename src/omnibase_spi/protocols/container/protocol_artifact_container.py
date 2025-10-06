@@ -7,9 +7,10 @@ to enable testing and cross-node container access while maintaining proper
 architectural boundaries.
 """
 
-from typing import Literal, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Literal, Protocol, runtime_checkable
 
-from omnibase_spi.protocols.types.protocol_core_types import ProtocolSemVer
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.types.protocol_core_types import ProtocolSemVer
 
 LiteralOnexStatus = Literal["ACTIVE", "INACTIVE", "ERROR", "UNKNOWN"]
 LiteralContainerArtifactType = Literal[

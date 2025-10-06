@@ -9,7 +9,7 @@ Domain: Validation and Input Processing
 Author: ONEX Framework Team
 """
 
-from typing import TYPE_CHECKING, Any, Optional, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types import ContextValue, ProtocolSemVer
@@ -89,7 +89,7 @@ class ProtocolKafkaEventBusOutputState(Protocol):
     """
 
     success: bool
-    error_message: Optional[str]
+    error_message: str | None
     processed_events: int
     output_data: dict[str, Any]
 

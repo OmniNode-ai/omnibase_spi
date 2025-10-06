@@ -1,133 +1,3 @@
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
-
-if TYPE_CHECKING:
-    # Forward references for agent configuration and model types
-    class ModelAgentConfig:
-        """Protocol for agent configuration."""
-
-        agent_id: str
-        agent_type: str
-        configuration: dict[str, Any]
-        security_context: dict[str, Any]
-
-    class ModelAgentInstance:
-        """Protocol for agent instance."""
-
-        instance_id: str
-        agent_id: str
-        status: str
-        health_status: str
-        configuration: "ModelAgentConfig"
-
-    class ModelAgentHealthStatus:
-        """Protocol for agent health status."""
-
-        status: str
-        last_check: str
-        metrics: dict[str, Any]
-
-    class ModelAgentStatus:
-        """Protocol for agent status."""
-
-        state: str
-        error_message: str | None
-        last_activity: str
-
-    class ModelValidationResult:
-        """Protocol for validation results."""
-
-        is_valid: bool
-        errors: list[str]
-        warnings: list[str]
-
-    class ModelMemoryOperation:
-        """Protocol for memory operations."""
-
-        operation_type: str
-        data: dict[str, Any]
-        timestamp: str
-
-    class ModelMemoryResponse:
-        """Protocol for memory responses."""
-
-        success: bool
-        data: Any
-        error_message: str | None
-
-    class ModelMemoryMetadata:
-        """Protocol for memory metadata."""
-
-        size: int
-        created_at: str
-        modified_at: str
-        access_count: int
-
-    class ModelMemoryError:
-        """Protocol for memory errors."""
-
-        error_type: str
-        message: str
-        details: dict[str, Any]
-
-    class ModelMemoryRequest:
-        """Protocol for memory requests."""
-
-        operation: str
-        key: str
-        data: Any
-        options: dict[str, Any]
-
-    class ModelMemoryResponseV2:
-        """Protocol for memory responses (version 2)."""
-
-        success: bool
-        data: Any
-        error: str | None
-
-    class ModelMemorySecurityContext:
-        """Protocol for memory security context."""
-
-        user_id: str
-        permissions: list[str]
-        session_id: str
-
-    class ModelMemoryStreamingResponse:
-        """Protocol for streaming memory responses."""
-
-        chunk_id: str
-        data: Any
-        is_last: bool
-
-    class ModelMemoryStreamingRequest:
-        """Protocol for streaming memory requests."""
-
-        stream_id: str
-        operation: str
-        parameters: dict[str, Any]
-
-    class ModelMemorySecurityPolicy:
-        """Protocol for memory security policies."""
-
-        policy_id: str
-        rules: list[dict[str, Any]]
-        default_action: str
-
-    class ModelMemoryComposable:
-        """Protocol for composable memory operations."""
-
-        components: list[str]
-        operations: list[str]
-        metadata: dict[str, Any]
-
-    class ModelMemoryErrorHandling:
-        """Protocol for memory error handling."""
-
-        error_type: str
-        severity: str
-        recovery_strategy: str
-        context: dict[str, Any]
-
-
 """
 Protocol for Distributed Agent Orchestrator.
 
@@ -135,7 +5,40 @@ Defines the interface for orchestrating agents across multiple devices
 with location-aware routing, failover, and load balancing capabilities.
 """
 
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
+from omnibase_spi.protocols.memory.protocol_agent_config_interfaces import (
+    ProtocolAgentConfig,
+    ProtocolAgentValidationResult,
+)
+from omnibase_spi.protocols.memory.protocol_agent_manager import (
+    ProtocolAgentHealthStatus,
+)
+from omnibase_spi.protocols.memory.protocol_agent_manager import (
+    ProtocolAgentStatus as ProtocolMemoryAgentStatus,
+)
+from omnibase_spi.protocols.memory.protocol_agent_manager import (
+    ProtocolMemoryAgentInstance,
+)
+from omnibase_spi.protocols.memory.protocol_agent_pool import (
+    ProtocolMemoryComposable,
+    ProtocolMemoryErrorHandling,
+    ProtocolMemoryResponseV2,
+    ProtocolMemorySecurityPolicy,
+    ProtocolMemoryStreamingRequest,
+    ProtocolMemoryStreamingResponse,
+)
+from omnibase_spi.protocols.memory.protocol_memory_base import ProtocolMemoryMetadata
+from omnibase_spi.protocols.memory.protocol_memory_errors import ProtocolMemoryError
+from omnibase_spi.protocols.memory.protocol_memory_requests import ProtocolMemoryRequest
+from omnibase_spi.protocols.memory.protocol_memory_responses import (
+    ProtocolMemoryResponse,
+)
+from omnibase_spi.protocols.memory.protocol_memory_security import (
+    ProtocolMemorySecurityContext,
+)
+
+# Protocol definitions for type checking
 if TYPE_CHECKING:
     from typing import Literal
 
@@ -149,7 +52,7 @@ class ProtocolDistributedAgentOrchestrator(Protocol):
     async def spawn_agents_for_device(
         self,
         device_name: str,
-    ) -> list["ModelAgentInstance"]:
+    ) -> list[ProtocolMemoryAgentInstance]:
         """
         Spawn agents for a specific device based on configuration.
 
@@ -171,7 +74,7 @@ class ProtocolDistributedAgentOrchestrator(Protocol):
         prompt: str,
         system_prompt: str | None = None,
         prefer_local: bool = True,
-        required_capabilities: list[EnumAgentCapability] | None = None,
+        required_capabilities: list["EnumAgentCapability"] | None = None,
     ) -> Any:
         """
         Route a task to the most appropriate agent.
@@ -195,9 +98,9 @@ class ProtocolDistributedAgentOrchestrator(Protocol):
     async def find_best_agent(
         self,
         task_type: str,
-        required_capabilities: list[EnumAgentCapability] | None = None,
+        required_capabilities: list["EnumAgentCapability"] | None = None,
         prefer_local: bool = True,
-    ) -> "ModelAgentInstance" | None:
+    ) -> ProtocolMemoryAgentInstance | None:
         """
         Find the best agent for a given task type.
 
@@ -220,7 +123,7 @@ class ProtocolDistributedAgentOrchestrator(Protocol):
         """
         ...
 
-    async def health_check_agents(self) -> dict[str, "ModelAgentHealthStatus"]:
+    async def health_check_agents(self) -> dict[str, ProtocolAgentHealthStatus]:
         """
         Perform health check on all active agents.
 
@@ -241,8 +144,18 @@ class ProtocolDistributedAgentOrchestrator(Protocol):
         """
         ...
 
-    def set_location(self, location: str) -> None: ...
-    async def get_device_agents(self, device_name: str) -> list["ModelAgentInstance"]:
+    def set_location(self, location: str) -> None:
+        """
+        Set the current location for routing decisions.
+
+        Args:
+            location: Location identifier
+        """
+        ...
+
+    async def get_device_agents(
+        self, device_name: str
+    ) -> list[ProtocolMemoryAgentInstance]:
         """
         Get all agents running on a specific device.
 
@@ -254,7 +167,7 @@ class ProtocolDistributedAgentOrchestrator(Protocol):
         """
         ...
 
-    async def get_agents_by_role(self, role: str) -> list["ModelAgentInstance"]:
+    async def get_agents_by_role(self, role: str) -> list[ProtocolMemoryAgentInstance]:
         """
         Get all agents with a specific role.
 
@@ -281,7 +194,7 @@ class ProtocolDistributedAgentOrchestrator(Protocol):
         """
         ...
 
-    async def restart_agent(self, agent_id: str) -> "ModelAgentInstance":
+    async def restart_agent(self, agent_id: str) -> ProtocolMemoryAgentInstance:
         """
         Restart a specific agent.
 

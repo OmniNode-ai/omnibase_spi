@@ -7,16 +7,7 @@ retrieval systems, preprocessing, and natural language processing capabilities.
 All types follow the zero-dependency principle and use strong typing without Any.
 """
 
-from typing import (
-    Any,
-    Dict,
-    List,
-    Optional,
-    Protocol,
-    TypedDict,
-    Union,
-    runtime_checkable,
-)
+from typing import Any, Dict, List, Protocol, TypedDict, Union, runtime_checkable
 
 
 @runtime_checkable
@@ -38,7 +29,7 @@ class ProtocolRetrievalInputState(Protocol):
         ...
 
     @property
-    def filters(self) -> Optional[Dict[str, Any]]:
+    def filters(self) -> Dict[str, Any] | None:
         """Optional filters to apply to search results."""
         ...
 
@@ -117,7 +108,7 @@ class ProtocolPreprocessingInputState(Protocol):
         ...
 
     @property
-    def language(self) -> Optional[str]:
+    def language(self) -> str | None:
         """Language of the documents."""
         ...
 

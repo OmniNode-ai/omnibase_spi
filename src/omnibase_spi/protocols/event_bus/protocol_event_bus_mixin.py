@@ -69,7 +69,7 @@ class ProtocolAsyncEventBus(ProtocolEventBusBase, Protocol):
 
 
 @runtime_checkable
-class ProtocolRegistryWithBus(Protocol):
+class ProtocolEventBusRegistry(Protocol):
     """
     Protocol for registry that provides event bus access.
 
@@ -90,7 +90,7 @@ class ProtocolRegistryWithBus(Protocol):
 
 
 @runtime_checkable
-class ProtocolLogEmitter(Protocol):
+class ProtocolEventBusLogEmitter(Protocol):
     """
     Protocol for structured log emission.
 

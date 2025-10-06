@@ -9,21 +9,25 @@ Domain: Core validation orchestration and quality assurance
 Author: ONEX Framework Team
 """
 
-from typing import Any, Protocol, TypeAlias, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, TypeAlias, runtime_checkable
+
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.types.protocol_core_types import (
+        ContextValue,
+        ProtocolDateTime,
+        ProtocolMetadata,
+        ProtocolSemVer,
+        ProtocolValidatable,
+    )
+    from omnibase_spi.protocols.validation.protocol_validation import (
+        ProtocolValidationResult,
+    )
 
 from omnibase_spi.protocols.types.protocol_core_types import (
-    ContextValue,
     LiteralValidationCategory,
     LiteralValidationLevel,
     LiteralValidationMode,
     LiteralValidationSeverity,
-    ProtocolDateTime,
-    ProtocolMetadata,
-    ProtocolSemVer,
-    ProtocolValidatable,
-)
-from omnibase_spi.protocols.validation.protocol_validation import (
-    ProtocolValidationResult,
 )
 
 ValidationTarget: TypeAlias = "ProtocolValidatable | Any"

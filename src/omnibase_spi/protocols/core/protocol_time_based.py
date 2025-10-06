@@ -5,15 +5,16 @@
     scheduling across all ONEX services with consistent patterns.
 """
 
-from typing import Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
-from omnibase_spi.protocols.types.protocol_core_types import (
-    LiteralTimeBasedType,
-    ProtocolDateTime,
-    ProtocolDuration,
-    ProtocolTimeBased,
-    ProtocolTimeout,
-)
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.types.protocol_core_types import (
+        LiteralTimeBasedType,
+        ProtocolDateTime,
+        ProtocolDuration,
+        ProtocolTimeBased,
+        ProtocolTimeout,
+    )
 
 
 @runtime_checkable

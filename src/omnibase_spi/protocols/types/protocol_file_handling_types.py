@@ -4,14 +4,16 @@ File handling protocol types for ONEX SPI interfaces.
 Domain: File processing and writing protocols
 """
 
-from typing import Literal, Optional, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Literal, Optional, Protocol, runtime_checkable
 from uuid import UUID
 
-from omnibase_spi.protocols.types.protocol_core_types import (
-    LiteralBaseStatus,
-    ProtocolDateTime,
-    ProtocolSemVer,
-)
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.types.protocol_core_types import (
+        ProtocolDateTime,
+        ProtocolSemVer,
+    )
+
+from omnibase_spi.protocols.types.protocol_core_types import LiteralBaseStatus
 
 LiteralFileOperation = Literal["read", "write", "append", "delete", "move", "copy"]
 LiteralFileStatus = Literal["exists", "missing", "locked", "corrupted", "accessible"]

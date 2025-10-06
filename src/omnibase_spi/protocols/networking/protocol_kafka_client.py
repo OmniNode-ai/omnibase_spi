@@ -5,7 +5,7 @@ Provides Kafka client protocols that can be implemented by different
 Kafka client backends (aiokafka, confluent-kafka-python, etc.) and injected via ONEXContainer.
 """
 
-from typing import Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 
 @runtime_checkable

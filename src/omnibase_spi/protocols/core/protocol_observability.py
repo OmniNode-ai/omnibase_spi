@@ -5,17 +5,18 @@ Defines interfaces for metrics collection, distributed tracing,
 and audit logging across ONEX services for comprehensive observability.
 """
 
-from typing import Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 from uuid import UUID
 
-from omnibase_spi.protocols.types.protocol_core_types import (
-    ContextValue,
-    LiteralOperationStatus,
-    ProtocolAuditEvent,
-    ProtocolDateTime,
-    ProtocolMetricsPoint,
-    ProtocolTraceSpan,
-)
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.types.protocol_core_types import (
+        ContextValue,
+        LiteralOperationStatus,
+        ProtocolAuditEvent,
+        ProtocolDateTime,
+        ProtocolMetricsPoint,
+        ProtocolTraceSpan,
+    )
 
 
 @runtime_checkable

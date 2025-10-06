@@ -7,7 +7,7 @@ query processing, conversation management, and health monitoring.
 All types follow the zero-dependency principle and use strong typing without Any.
 """
 
-from typing import Any, List, Optional, Protocol, runtime_checkable
+from typing import Any, List, Protocol, runtime_checkable
 
 # Enum-like types for LLM operations
 LiteralQueryType = str
@@ -44,7 +44,7 @@ class ProtocolLLMHealthResponse(Protocol):
         ...
 
     @property
-    def error_message(self) -> Optional[str]:
+    def error_message(self) -> str | None:
         """Error message if health check failed."""
         ...
 
@@ -74,12 +74,12 @@ class ProtocolLLMRequest(Protocol):
         ...
 
     @property
-    def max_tokens(self) -> Optional[int]:
+    def max_tokens(self) -> int | None:
         """Maximum tokens to generate."""
         ...
 
     @property
-    def temperature(self) -> Optional[float]:
+    def temperature(self) -> float | None:
         """Temperature for generation."""
         ...
 
@@ -169,12 +169,12 @@ class ProtocolProviderConfig(Protocol):
         ...
 
     @property
-    def api_key(self) -> Optional[str]:
+    def api_key(self) -> str | None:
         """API key for authentication."""
         ...
 
     @property
-    def base_url(self) -> Optional[str]:
+    def base_url(self) -> str | None:
         """Base URL for API calls."""
         ...
 
@@ -243,7 +243,7 @@ class ProtocolConversationContext(Protocol):
         ...
 
     @property
-    def system_prompt(self) -> Optional[str]:
+    def system_prompt(self) -> str | None:
         """System prompt for the conversation."""
         ...
 

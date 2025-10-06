@@ -5,15 +5,7 @@ Protocol definition for Redpanda backend implementations.
 Redpanda is Kafka API compatible with optimized defaults.
 """
 
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Awaitable,
-    Callable,
-    Optional,
-    Protocol,
-    runtime_checkable,
-)
+from typing import TYPE_CHECKING, Any, Awaitable, Callable, Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 
@@ -51,7 +43,7 @@ class ProtocolRedpandaAdapter(Protocol):
     def group(self) -> str: ...
 
     @property
-    def config(self) -> Optional[KafkaConfig]: ...
+    def config(self) -> KafkaConfig | None: ...
 
     @property
     def kafka_config(self) -> KafkaConfig: ...

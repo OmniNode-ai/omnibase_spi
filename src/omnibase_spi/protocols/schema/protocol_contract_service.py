@@ -5,16 +5,17 @@ Defines the interface for contract loading, parsing, validation, caching,
 and metadata extraction operations following ONEX standards.
 """
 
-from typing import Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
-from omnibase_spi.protocols.types.protocol_core_types import (
-    ContextValue,
-    ProtocolMetadata,
-    ProtocolSemVer,
-)
-from omnibase_spi.protocols.validation.protocol_validation import (
-    ProtocolValidationResult,
-)
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.types.protocol_core_types import (
+        ContextValue,
+        ProtocolMetadata,
+        ProtocolSemVer,
+    )
+    from omnibase_spi.protocols.validation.protocol_validation import (
+        ProtocolValidationResult,
+    )
 
 
 @runtime_checkable

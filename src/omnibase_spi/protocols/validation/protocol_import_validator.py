@@ -6,11 +6,12 @@ dependencies across ONEX repositories, providing standardized validation
 capabilities for NodeImportValidatorCompute implementations.
 """
 
-from typing import Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
-from omnibase_spi.protocols.validation.protocol_validation import (
-    ProtocolValidationResult,
-)
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.validation.protocol_validation import (
+        ProtocolValidationResult,
+    )
 
 
 @runtime_checkable
@@ -59,7 +60,7 @@ class ProtocolImportValidator(Protocol):
 
     async def validate_import(
         self, import_path: str, description: str, context: dict[str, Any] | None = None
-    ) -> ProtocolValidationResult: ...
+    ) -> "ProtocolValidationResult": ...
 
     async def validate_from_import(
         self,
@@ -67,7 +68,7 @@ class ProtocolImportValidator(Protocol):
         import_items: str,
         description: str,
         context: dict[str, Any] | None = None,
-    ) -> ProtocolValidationResult: ...
+    ) -> "ProtocolValidationResult": ...
 
     async def validate_import_security(
         self, import_path: str, context: dict[str, Any] | None = None
@@ -79,7 +80,7 @@ class ProtocolImportValidator(Protocol):
 
     async def validate_repository_imports(
         self, repository_path: str, patterns: list[str] | None = None
-    ) -> list[ProtocolValidationResult]: ...
+    ) -> list["ProtocolValidationResult"]: ...
 
     async def get_validation_summary(self) -> dict[str, Any]: ...
 

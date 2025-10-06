@@ -5,47 +5,90 @@ This protocol defines the interface for managing Claude Code agent instances,
 including spawning, monitoring, lifecycle management, and resource tracking.
 """
 
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
-if TYPE_CHECKING:
-    # Forward references for agent configuration and model types
-    class ModelAgentConfig:
-        """Protocol for agent configuration."""
+from omnibase_spi.protocols.memory.protocol_agent_config_interfaces import (
+    ProtocolAgentConfig,
+)
 
-        agent_id: str
-        agent_type: str
-        configuration: dict[str, Any]
-        security_context: dict[str, Any]
 
-    class ModelAgentInstance:
-        """Protocol for agent instance."""
+@runtime_checkable
+class ProtocolMemoryAgentInstance(Protocol):
+    """Protocol for agent instance."""
 
-        instance_id: str
-        agent_id: str
-        status: str
-        health_status: str
-        configuration: "ModelAgentConfig"
+    @property
+    def instance_id(self) -> str:
+        """Unique instance identifier."""
+        ...
 
-    class ModelAgentHealthStatus:
-        """Protocol for agent health status."""
+    @property
+    def agent_id(self) -> str:
+        """Agent identifier."""
+        ...
 
-        status: str
-        last_check: str
-        metrics: dict[str, Any]
+    @property
+    def status(self) -> str:
+        """Current agent status."""
+        ...
 
-    class ModelAgentStatus:
-        """Protocol for agent status."""
+    @property
+    def health_status(self) -> str:
+        """Current health status."""
+        ...
 
-        state: str
-        error_message: str | None
-        last_activity: str
+    @property
+    def configuration(self) -> ProtocolAgentConfig:
+        """Agent configuration."""
+        ...
+
+
+@runtime_checkable
+class ProtocolAgentHealthStatus(Protocol):
+    """Protocol for agent health status."""
+
+    @property
+    def status(self) -> str:
+        """Health status indicator."""
+        ...
+
+    @property
+    def last_check(self) -> str:
+        """Timestamp of last health check."""
+        ...
+
+    @property
+    def metrics(self) -> dict[str, Any]:
+        """Health metrics data."""
+        ...
+
+
+@runtime_checkable
+class ProtocolAgentStatus(Protocol):
+    """Protocol for agent status."""
+
+    @property
+    def state(self) -> str:
+        """Current agent state."""
+        ...
+
+    @property
+    def error_message(self) -> str | None:
+        """Error message if in error state."""
+        ...
+
+    @property
+    def last_activity(self) -> str:
+        """Timestamp of last activity."""
+        ...
 
 
 @runtime_checkable
 class ProtocolAgentManager(Protocol):
     """Protocol for managing Claude Code agent instances."""
 
-    async def spawn_agent(self, config: "ModelAgentConfig") -> "ModelAgentInstance":
+    async def spawn_agent(
+        self, config: ProtocolAgentConfig
+    ) -> ProtocolMemoryAgentInstance:
         """
         Spawn a new Claude Code agent instance.
 
@@ -77,7 +120,7 @@ class ProtocolAgentManager(Protocol):
         """
         ...
 
-    async def get_agent(self, agent_id: str) -> "ModelAgentInstance" | None:
+    async def get_agent(self, agent_id: str) -> ProtocolMemoryAgentInstance | None:
         """
         Retrieve agent instance by ID.
 
@@ -89,7 +132,7 @@ class ProtocolAgentManager(Protocol):
         """
         ...
 
-    async def list_active_agents(self) -> list["ModelAgentInstance"]:
+    async def list_active_agents(self) -> list[ProtocolMemoryAgentInstance]:
         """
         List all active agent instances.
 
@@ -98,7 +141,7 @@ class ProtocolAgentManager(Protocol):
         """
         ...
 
-    async def get_agent_status(self, agent_id: str) -> "ModelAgentStatus":
+    async def get_agent_status(self, agent_id: str) -> ProtocolAgentStatus:
         """
         Get current status of an agent.
 
@@ -113,7 +156,7 @@ class ProtocolAgentManager(Protocol):
         """
         ...
 
-    async def health_check(self) -> "ModelAgentHealthStatus":
+    async def health_check(self) -> ProtocolAgentHealthStatus:
         """
         Perform health check on the agent manager service.
 
@@ -122,7 +165,7 @@ class ProtocolAgentManager(Protocol):
         """
         ...
 
-    async def restart_agent(self, agent_id: str) -> "ModelAgentInstance":
+    async def restart_agent(self, agent_id: str) -> ProtocolMemoryAgentInstance:
         """
         Restart an existing agent instance.
 
@@ -141,8 +184,8 @@ class ProtocolAgentManager(Protocol):
     async def update_agent_config(
         self,
         agent_id: str,
-        config: "ModelAgentConfig",
-    ) -> "ModelAgentInstance":
+        config: ProtocolAgentConfig,
+    ) -> ProtocolMemoryAgentInstance:
         """
         Update configuration of an existing agent.
 

@@ -12,14 +12,14 @@ from typing import (
 from uuid import UUID, uuid4
 
 if TYPE_CHECKING:
-    pass
-
-from omnibase_spi.protocols.types.protocol_core_types import (
-    ContextValue,
-    ProtocolDateTime,
-    ProtocolSemVer,
-)
-from omnibase_spi.protocols.types.protocol_event_bus_types import ProtocolEventMessage
+    from omnibase_spi.protocols.types.protocol_core_types import (
+        ContextValue,
+        ProtocolDateTime,
+        ProtocolSemVer,
+    )
+    from omnibase_spi.protocols.types.protocol_event_bus_types import (
+        ProtocolEventMessage,
+    )
 
 
 @runtime_checkable

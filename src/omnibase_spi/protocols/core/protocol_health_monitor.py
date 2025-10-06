@@ -5,16 +5,17 @@ Defines interfaces for health checks, monitoring, and service availability
 across all ONEX services with consistent patterns and observability.
 """
 
-from typing import Callable, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Callable, Protocol, runtime_checkable
 
-from omnibase_spi.protocols.types.protocol_core_types import (
-    LiteralHealthCheckLevel,
-    LiteralHealthDimension,
-    LiteralHealthStatus,
-    ProtocolHealthCheck,
-    ProtocolHealthMetrics,
-    ProtocolHealthMonitoring,
-)
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.types.protocol_core_types import (
+        LiteralHealthCheckLevel,
+        LiteralHealthDimension,
+        LiteralHealthStatus,
+        ProtocolHealthCheck,
+        ProtocolHealthMetrics,
+        ProtocolHealthMonitoring,
+    )
 
 
 @runtime_checkable

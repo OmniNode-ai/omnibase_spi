@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 
 @runtime_checkable
-class ProtocolDiscoveredTool(Protocol):
+class ProtocolCliDiscoveredTool(Protocol):
     """Protocol for discovered CLI tool information."""
 
     name: str
@@ -30,7 +30,7 @@ class ProtocolCLIToolDiscovery(Protocol):
 
     async def discover_cli_tools(
         self, search_path: str
-    ) -> list["ProtocolDiscoveredTool"]:
+    ) -> list["ProtocolCliDiscoveredTool"]:
         """
         Discover CLI tools in the specified search path.
 
@@ -68,7 +68,7 @@ class ProtocolCLIToolDiscovery(Protocol):
         """
         ...
 
-    async def register_tool(self, tool_data: "ProtocolDiscoveredTool") -> str:
+    async def register_tool(self, tool_data: "ProtocolCliDiscoveredTool") -> str:
         """
         Register a discovered tool for tracking and management.
 

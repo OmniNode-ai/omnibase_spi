@@ -5,14 +5,15 @@ Defines interfaces for error handling, recovery strategies, and observability
 across all ONEX services following consistent patterns.
 """
 
-from typing import Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
-from omnibase_spi.protocols.types.protocol_core_types import (
-    LiteralErrorSeverity,
-    ProtocolErrorContext,
-    ProtocolErrorResult,
-    ProtocolRecoveryAction,
-)
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.types.protocol_core_types import (
+        LiteralErrorSeverity,
+        ProtocolErrorContext,
+        ProtocolErrorResult,
+        ProtocolRecoveryAction,
+    )
 
 
 @runtime_checkable

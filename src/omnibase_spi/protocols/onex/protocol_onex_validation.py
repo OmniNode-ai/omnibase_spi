@@ -5,13 +5,14 @@ Protocol interface for Onex contract validation and compliance checking.
 Defines the contract for validating Onex patterns and contract compliance.
 """
 
-from typing import Literal, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Literal, Protocol, runtime_checkable
 
-from omnibase_spi.protocols.types.protocol_core_types import (
-    ContextValue,
-    ProtocolDateTime,
-    ProtocolSemVer,
-)
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.types.protocol_core_types import (
+        ContextValue,
+        ProtocolDateTime,
+        ProtocolSemVer,
+    )
 
 
 @runtime_checkable

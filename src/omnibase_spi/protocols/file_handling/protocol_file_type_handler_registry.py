@@ -48,13 +48,13 @@ class ProtocolFileTypeHandlerRegistry(Protocol):
         registry: ProtocolFileTypeHandlerRegistry = SomeRegistry()
 
         # Register extension-based handler
-        registry.register('.yaml', yaml_handler)
+        await registry.register('.yaml', yaml_handler)
 
         # Register special filename handler
-        registry.register_special('node.onex.yaml', node_handler)
+        await registry.register_special('node.onex.yaml', node_handler)
 
         # Enhanced registration with metadata
-        registry.register_handler(
+        await registry.register_handler(
             extension_or_name='.json',
             handler=json_handler,
             source=HandlerSourceEnum.CORE,
@@ -63,9 +63,9 @@ class ProtocolFileTypeHandlerRegistry(Protocol):
         )
 
         # Get handler for file
-        handler = registry.get_handler(str('config.yaml'))
+        handler = await registry.get_handler(str('config.yaml'))
         if handler:
-            result = handler.process_file(str('config.yaml'))
+            result = await handler.process_file(str('config.yaml'))
         ```
 
     Integration Patterns:
@@ -75,7 +75,7 @@ class ProtocolFileTypeHandlerRegistry(Protocol):
         - Provides handler metadata for discovery
     """
 
-    def register(
+    async def register(
         self, extension: str, handler: "ProtocolFileProcessingTypeHandler"
     ) -> None:
         """
@@ -87,7 +87,7 @@ class ProtocolFileTypeHandlerRegistry(Protocol):
         """
         ...
 
-    def register_special(
+    async def register_special(
         self, filename: str, handler: "ProtocolFileProcessingTypeHandler"
     ) -> None:
         """
@@ -99,7 +99,7 @@ class ProtocolFileTypeHandlerRegistry(Protocol):
         """
         ...
 
-    def register_handler(
+    async def register_handler(
         self,
         extension_or_name: str,
         handler: "ProtocolFileProcessingTypeHandler | type[ProtocolFileProcessingTypeHandler]",
@@ -149,7 +149,7 @@ class ProtocolFileTypeHandlerRegistry(Protocol):
         """
         ...
 
-    def list_handlers(self) -> list[dict[str, "ContextValue"]]:
+    async def list_handlers(self) -> list[dict[str, "ContextValue"]]:
         """
         List all registered handlers with metadata.
 
@@ -158,7 +158,7 @@ class ProtocolFileTypeHandlerRegistry(Protocol):
         """
         ...
 
-    def handled_extensions(self) -> set[str]:
+    async def handled_extensions(self) -> set[str]:
         """
         Return the set of handled file extensions.
 
@@ -167,7 +167,7 @@ class ProtocolFileTypeHandlerRegistry(Protocol):
         """
         ...
 
-    def handled_specials(self) -> set[str]:
+    async def handled_specials(self) -> set[str]:
         """
         Return the set of handled special filenames.
 
@@ -176,7 +176,7 @@ class ProtocolFileTypeHandlerRegistry(Protocol):
         """
         ...
 
-    def handled_names(self) -> set[str]:
+    async def handled_names(self) -> set[str]:
         """
         Return the set of handled named handlers.
 
@@ -185,11 +185,11 @@ class ProtocolFileTypeHandlerRegistry(Protocol):
         """
         ...
 
-    def register_all_handlers(self) -> None:
+    async def register_all_handlers(self) -> None:
         """Register all canonical handlers for this registry."""
         ...
 
-    def register_node_local_handlers(
+    async def register_node_local_handlers(
         self,
         handlers: dict[
             str,
@@ -204,6 +204,6 @@ class ProtocolFileTypeHandlerRegistry(Protocol):
         """
         ...
 
-    def clear_registry(self) -> None:
+    async def clear_registry(self) -> None:
         """Clear all handler registrations for test isolation (required for protocol-compliant testing)."""
         ...

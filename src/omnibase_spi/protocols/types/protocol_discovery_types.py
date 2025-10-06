@@ -4,13 +4,14 @@ Discovery protocol types for ONEX SPI interfaces.
 Domain: Service and node discovery protocols
 """
 
-from typing import Literal, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Literal, Protocol, runtime_checkable
 from uuid import UUID
 
-from omnibase_spi.protocols.types.protocol_core_types import (
-    ContextValue,
-    ProtocolSemVer,
-)
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.types.protocol_core_types import (
+        ContextValue,
+        ProtocolSemVer,
+    )
 
 LiteralDiscoveryStatus = Literal["found", "not_found", "error", "timeout"]
 LiteralHandlerStatus = Literal["available", "busy", "offline", "error"]

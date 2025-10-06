@@ -5,11 +5,21 @@ Protocol interface for Onex standard reply pattern.
 Defines the contract for response replies with status, data, and error information.
 """
 
-from typing import Literal, Optional, Protocol, TypeVar, runtime_checkable
+from typing import (
+    TYPE_CHECKING,
+    Literal,
+    Optional,
+    Protocol,
+    TypeVar,
+    runtime_checkable,
+)
 from uuid import UUID
 
-from omnibase_spi.protocols.onex.protocol_onex_validation import ProtocolOnexMetadata
-from omnibase_spi.protocols.types.protocol_core_types import ProtocolDateTime
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.onex.protocol_onex_validation import (
+        ProtocolOnexMetadata,
+    )
+    from omnibase_spi.protocols.types.protocol_core_types import ProtocolDateTime
 
 T = TypeVar("T")
 R = TypeVar("R")

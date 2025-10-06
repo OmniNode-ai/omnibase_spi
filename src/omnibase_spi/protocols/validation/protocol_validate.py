@@ -22,7 +22,7 @@
 # === /OmniNode:Metadata ===
 
 
-from typing import TYPE_CHECKING, Any, Optional, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.core.protocol_logger import ProtocolLogger
@@ -49,7 +49,7 @@ class ProtocolValidateMessageModel(Protocol):
 
     message: str
     severity: str
-    location: Optional[str]
+    location: str | None
 
     def to_dict(self) -> dict[str, Any]: ...
 
@@ -58,7 +58,7 @@ class ProtocolValidateMessageModel(Protocol):
 class ProtocolModelMetadataConfig(Protocol):
     """Protocol for metadata configuration models."""
 
-    config_path: Optional[str]
+    config_path: str | None
     validation_rules: dict[str, Any]
 
     async def get_config_value(self, key: str) -> Any: ...
@@ -82,7 +82,7 @@ class ProtocolValidate(ProtocolCLI, Protocol):
 
     Example:
         class MyValidator(ProtocolValidate):
-            def validate(self, path: str, config: Optional[ProtocolModelMetadataConfig] = None) -> ProtocolValidateResultModel:
+            def validate(self, path: str, config: ProtocolModelMetadataConfig | None = None) -> ProtocolValidateResultModel:
                 ...
             def get_validation_errors(self) -> list[ProtocolValidateMessageModel]:
                 ...
@@ -97,7 +97,7 @@ class ProtocolValidate(ProtocolCLI, Protocol):
     async def validate(
         self,
         target: str,
-        config: Optional["ProtocolModelMetadataConfig"] = None,
+        config: "ProtocolModelMetadataConfig | None" = None,
     ) -> ProtocolValidateResultModel: ...
 
     async def get_name(self) -> str: ...

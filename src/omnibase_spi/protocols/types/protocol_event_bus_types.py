@@ -213,8 +213,8 @@ class ProtocolAgentEvent(Protocol):
 
 
 @runtime_checkable
-class ProtocolAgentStatus(Protocol):
-    """Protocol for agent status objects."""
+class ProtocolEventBusAgentStatus(Protocol):
+    """Protocol for agent status objects in event bus domain."""
 
     agent_id: str
     status: Literal["idle", "busy", "error", "offline", "terminating"]

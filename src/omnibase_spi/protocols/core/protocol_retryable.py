@@ -5,17 +5,18 @@ Defines interfaces for retry logic, backoff strategies, and retry policy
 management across all ONEX services with consistent patterns.
 """
 
-from typing import Any, Callable, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Callable, Protocol, runtime_checkable
 
-from omnibase_spi.protocols.types.protocol_core_types import (
-    ContextValue,
-    LiteralRetryBackoffStrategy,
-    LiteralRetryCondition,
-    ProtocolRetryAttempt,
-    ProtocolRetryConfig,
-    ProtocolRetryPolicy,
-    ProtocolRetryResult,
-)
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.types.protocol_core_types import (
+        ContextValue,
+        LiteralRetryBackoffStrategy,
+        LiteralRetryCondition,
+        ProtocolRetryAttempt,
+        ProtocolRetryConfig,
+        ProtocolRetryPolicy,
+        ProtocolRetryResult,
+    )
 
 
 @runtime_checkable

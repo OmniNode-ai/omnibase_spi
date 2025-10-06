@@ -5,9 +5,10 @@ Provides strongly-typed configuration contracts to replace generic
 dict returns with specific, validated configuration structures.
 """
 
-from typing import Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
-from omnibase_spi.protocols.types.protocol_core_types import ContextValue
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 
 
 @runtime_checkable
