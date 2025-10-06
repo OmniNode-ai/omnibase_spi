@@ -112,7 +112,7 @@ class ProtocolWorkflowManageable(Protocol):
         workflow_type: str,
         instance_id: UUID,
         termination_reason: str,
-        force: bool = False,
+        force: bool | None = None,
     ) -> bool: ...
 
     async def transition_workflow_state(
@@ -129,7 +129,10 @@ class ProtocolWorkflowManageable(Protocol):
     ) -> "LiteralWorkflowState": ...
 
     async def get_workflow_snapshot(
-        self, workflow_type: str, instance_id: UUID, include_task_details: bool = True
+        self,
+        workflow_type: str,
+        instance_id: UUID,
+        include_task_details: bool | None = None,
     ) -> "ProtocolWorkflowSnapshot": ...
 
     async def schedule_workflow_task(

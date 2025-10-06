@@ -98,7 +98,7 @@ class ProtocolUtilsNodeConfiguration(Protocol):
         ...
 
     async def get_security_config(
-        self, key: str, default: "ContextValue" | None = None
+        self, key: str, default: "ContextValue | None" = None
     ) -> "ContextValue":
         """
         Get security-related configuration values.
@@ -117,7 +117,7 @@ class ProtocolUtilsNodeConfiguration(Protocol):
         ...
 
     async def get_performance_config(
-        self, key: str, default: "ContextValue" | None = None
+        self, key: str, default: "ContextValue | None" = None
     ) -> "ContextValue":
         """
         Get performance-related configuration values.
@@ -136,7 +136,7 @@ class ProtocolUtilsNodeConfiguration(Protocol):
         ...
 
     async def get_business_logic_config(
-        self, key: str, default: "ContextValue" | None = None
+        self, key: str, default: "ContextValue | None" = None
     ) -> "ContextValue":
         """
         Get business logic configuration values.

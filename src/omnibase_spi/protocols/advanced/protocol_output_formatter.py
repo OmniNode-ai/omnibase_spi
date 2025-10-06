@@ -38,7 +38,7 @@ class ProtocolOutputFormatter(Protocol):
 
     Example:
         class MyFormatter:
-            def format(self, data: ProtocolOutputData, style: ProtocolOutputFormat) -> str:
+            def format(self, data: "ProtocolOutputData", style: "ProtocolOutputFormat") -> str:
                 ...
     """
 

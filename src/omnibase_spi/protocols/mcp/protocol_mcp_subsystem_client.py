@@ -34,35 +34,31 @@ class ProtocolMCPSubsystemConfig(Protocol):
     authentication, tool definitions, and operational parameters for subsystem integration.
 
     Example:
-        class MCPSubsystemConfig(ProtocolMCPSubsystemConfig):
-            def __init__(self, subsystem_metadata, registry_url, api_key, tool_definitions):
-                self.subsystem_metadata = subsystem_metadata
-                self.registry_url = registry_url
-                self.api_key = api_key
-                self.heartbeat_interval = 30
-                self.tool_definitions = tool_definitions
-                self.auto_register = True
-                self.retry_count = 3
-                self.timeout_seconds = 30
-                self.health_check_endpoint = f"{registry_url}/health"
-                self.configuration = {"environment": "production"}
+        @runtime_checkable
+        class MCPSubsystemConfig(Protocol):
+            @property
+            def subsystem_metadata(self) -> ProtocolMCPSubsystemMetadata: ...
+            @property
+            def registry_url(self) -> str: ...
+            @property
+            def api_key(self) -> str: ...
+            @property
+            def heartbeat_interval(self) -> int: ...
+            @property
+            def tool_definitions(self) -> list[ProtocolMCPToolDefinition]: ...
+            @property
+            def auto_register(self) -> bool: ...
+            @property
+            def retry_count(self) -> int: ...
+            @property
+            def timeout_seconds(self) -> int: ...
+            @property
+            def health_check_endpoint(self) -> str: ...
+            @property
+            def configuration(self) -> dict[str, ContextValue]: ...
 
-            async def validate_configuration(self):
-                # Validate configuration parameters
-                return (
-                    self.subsystem_metadata is not None and
-                    self.registry_url and
-                    self.api_key and
-                    len(self.tool_definitions) > 0
-                )
-
-            def get_connection_params(self):
-                return {
-                    "url": self.registry_url,
-                    "timeout": self.timeout_seconds,
-                    "retry_count": self.retry_count,
-                    "api_key": self.api_key
-                }
+            async def validate_configuration(self) -> bool: ...
+            def get_connection_params(self) -> dict[str, ContextValue]: ...
     """
 
     subsystem_metadata: ProtocolMCPSubsystemMetadata

@@ -60,7 +60,7 @@ class ProtocolWorkQueue(Protocol):
     async def get_available_tickets(
         self,
         agent_capabilities: list[str] | None = None,
-        max_priority: "LiteralWorkQueuePriority" | None = None,
+        max_priority: "LiteralWorkQueuePriority | None" = None,
     ) -> list[Any]: ...
 
     async def reserve_ticket(

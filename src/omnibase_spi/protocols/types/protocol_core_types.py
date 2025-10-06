@@ -1408,7 +1408,7 @@ class ProtocolHasModelDump(Protocol):
             return obj.model_dump(mode="json")
     """
 
-    def model_dump(self, mode: str = "json") -> dict[str, ContextValue]: ...
+    def model_dump(self, mode: str | None = None) -> dict[str, ContextValue]: ...
 
 
 @runtime_checkable

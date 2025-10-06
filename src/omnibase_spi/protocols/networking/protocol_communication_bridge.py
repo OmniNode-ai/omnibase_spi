@@ -340,7 +340,7 @@ class ProtocolCommunicationBridge(Protocol):
     async def transform_agent_to_onex_event(
         self,
         agent_event: "ProtocolBridgeAgentMessage",
-    ) -> "ProtocolOnexEvent" | None:
+    ) -> "ProtocolOnexEvent | None":
         """
         Transform external agent event to ONEX event format.
 

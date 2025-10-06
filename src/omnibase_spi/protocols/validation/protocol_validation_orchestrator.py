@@ -78,12 +78,12 @@ class ProtocolValidationReport(Protocol):
     repository_name: str
     scope: "ProtocolValidationScope"
     workflow: "ProtocolValidationWorkflow"
-    results: List[ProtocolValidationResult]
+    results: List["ProtocolValidationResult"]
     summary: "ProtocolValidationSummary"
     metrics: "ProtocolValidationMetrics"
     recommendations: List[str]
 
-    async def get_critical_issues(self) -> List[ProtocolValidationResult]: ...
+    async def get_critical_issues(self) -> List["ProtocolValidationResult"]: ...
 
 
 @runtime_checkable
@@ -107,22 +107,22 @@ class ProtocolValidationOrchestrator(Protocol):
 
     async def validate_imports(
         self, scope: "ProtocolValidationScope"
-    ) -> List[ProtocolValidationResult]: ...
+    ) -> List["ProtocolValidationResult"]: ...
 
     async def validate_quality(
         self, scope: "ProtocolValidationScope"
-    ) -> List[ProtocolValidationResult]: ...
+    ) -> List["ProtocolValidationResult"]: ...
 
     async def validate_compliance(
         self, scope: "ProtocolValidationScope"
-    ) -> List[ProtocolValidationResult]: ...
+    ) -> List["ProtocolValidationResult"]: ...
 
     async def create_validation_workflow(
         self,
         workflow_name: str,
         validation_steps: List[str],
         dependencies: List[str],
-        parallel_execution: bool = True,
+        parallel_execution: bool | None = None,
     ) -> ProtocolValidationWorkflow: ...
 
     async def create_validation_scope(

@@ -51,8 +51,8 @@ class ProtocolEventQueryOptions(Protocol):
     event_types: list[LiteralWorkflowEventType] | None
     from_sequence: int | None
     to_sequence: int | None
-    from_timestamp: "ProtocolDateTime" | None
-    to_timestamp: "ProtocolDateTime" | None
+    from_timestamp: "ProtocolDateTime | None"
+    to_timestamp: "ProtocolDateTime | None"
     limit: int | None
     offset: int | None
     order_by: str | None
@@ -92,13 +92,13 @@ class ProtocolEventStore(Protocol):
         self,
         events: list["ProtocolWorkflowEvent"],
         expected_sequence: int | None,
-        transaction: "ProtocolEventStoreTransaction" | None,
+        transaction: "ProtocolEventStoreTransaction | None",
     ) -> ProtocolEventStoreResult: ...
 
     async def read_events(
         self,
         query_options: "ProtocolEventQueryOptions",
-        transaction: "ProtocolEventStoreTransaction" | None,
+        transaction: "ProtocolEventStoreTransaction | None",
     ) -> list["ProtocolWorkflowEvent"]: ...
 
     async def get_event_stream(
@@ -139,7 +139,7 @@ class ProtocolSnapshotStore(Protocol):
     async def save_snapshot(
         self,
         snapshot: "ProtocolWorkflowSnapshot",
-        transaction: "ProtocolEventStoreTransaction" | None,
+        transaction: "ProtocolEventStoreTransaction | None",
     ) -> bool: ...
 
     async def load_snapshot(
@@ -182,7 +182,7 @@ class ProtocolLiteralWorkflowStateStore(Protocol):
     async def query_workflow_instances(
         self,
         workflow_type: str | None,
-        state: "LiteralWorkflowState" | None,
+        state: "LiteralWorkflowState | None",
         correlation_id: UUID | None,
         limit: int,
         offset: int,

@@ -47,7 +47,7 @@ class ProtocolEventBusHeaders(Protocol):
     def message_id(self) -> UUID: ...
 
     @property
-    def timestamp(self) -> ProtocolDateTime: ...
+    def timestamp(self) -> "ProtocolDateTime": ...
 
     @property
     def source(self) -> str: ...
@@ -56,7 +56,7 @@ class ProtocolEventBusHeaders(Protocol):
     def event_type(self) -> str: ...
 
     @property
-    def schema_version(self) -> ProtocolSemVer: ...
+    def schema_version(self) -> "ProtocolSemVer": ...
 
     @property
     def destination(self) -> str | None: ...
@@ -166,7 +166,7 @@ class ProtocolKafkaEventBusAdapter(Protocol):
         self,
         topic: str,
         group_id: str,
-        on_message: Callable[[ProtocolEventMessage], Awaitable[None]],
+        on_message: Callable[["ProtocolEventMessage"], Awaitable[None]],
     ) -> Callable[[], Awaitable[None]]: ...
 
     async def close(self) -> None: ...
@@ -205,18 +205,18 @@ class ProtocolEventBus(Protocol):
         self,
         topic: str,
         group_id: str,
-        on_message: Callable[[ProtocolEventMessage], Awaitable[None]],
+        on_message: Callable[["ProtocolEventMessage"], Awaitable[None]],
     ) -> Callable[[], Awaitable[None]]: ...
 
     async def broadcast_to_environment(
         self,
         command: str,
-        payload: dict[str, ContextValue],
+        payload: dict[str, "ContextValue"],
         target_environment: str | None = None,
     ) -> None: ...
 
     async def send_to_group(
-        self, command: str, payload: dict[str, ContextValue], target_group: str
+        self, command: str, payload: dict[str, "ContextValue"], target_group: str
     ) -> None: ...
 
     async def close(self) -> None: ...

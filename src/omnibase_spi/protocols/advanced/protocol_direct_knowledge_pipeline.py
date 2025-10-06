@@ -106,7 +106,7 @@ class ProtocolDirectKnowledgePipeline(Protocol):
         self,
         agent_id: str | None = None,
         task_type: str | None = None,
-        days: int = 7,
+        days: int | None = None,
     ) -> list["ProtocolAIExecutionMetrics"]:
         """
         Get velocity analytics for agents and tasks.
@@ -127,7 +127,7 @@ class ProtocolDirectKnowledgePipeline(Protocol):
     async def get_agent_productivity(
         self,
         agent_id: str,
-        days: int = 30,
+        days: int | None = None,
     ) -> list["ProtocolAIExecutionMetrics"]:
         """
         Get productivity metrics for a specific agent.
@@ -149,7 +149,7 @@ class ProtocolDirectKnowledgePipeline(Protocol):
         agent_id: str | None = None,
         success: bool | None = None,
         keywords: str | None = None,
-        limit: int = 100,
+        limit: int | None = None,
     ) -> list["ProtocolAgentDebugIntelligence"]:
         """
         Search debug logs with filters.
@@ -173,7 +173,7 @@ class ProtocolDirectKnowledgePipeline(Protocol):
         agent_id: str | None = None,
         status: str | None = None,
         branch: str | None = None,
-        limit: int = 50,
+        limit: int | None = None,
     ) -> list["ProtocolPRTicket"]:
         """
         Get PR tickets with optional filters.
@@ -198,7 +198,7 @@ class ProtocolDirectKnowledgePipeline(Protocol):
         action_type: str | None = None,
         correlation_id: str | None = None,
         work_session_id: str | None = None,
-        limit: int = 200,
+        limit: int | None = None,
     ) -> list["ProtocolAgentAction"]:
         """
         Get agent actions with optional filters.

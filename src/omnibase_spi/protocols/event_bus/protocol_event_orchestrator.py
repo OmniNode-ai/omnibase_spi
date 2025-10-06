@@ -15,7 +15,7 @@ from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types.protocol_event_bus_types import (
         ProtocolAgentEvent,
-        ProtocolAgentStatus,
+        ProtocolEventBusAgentStatus,
         ProtocolOnexEvent,
         ProtocolProgressUpdate,
         ProtocolWorkResult,
@@ -47,7 +47,7 @@ class ProtocolEventOrchestrator(Protocol):
         orchestrator: ProtocolEventOrchestrator = get_orchestrator()
 
         # Handle work ticket creation
-        ticket: ProtocolWorkTicket = create_work_ticket()
+        ticket: "ProtocolWorkTicket" = create_work_ticket()
         success = await orchestrator.handle_work_ticket_created(ticket)
 
         # Monitor agent health
@@ -145,7 +145,7 @@ class ProtocolEventOrchestrator(Protocol):
         """
         ...
 
-    async def monitor_agent_health(self) -> dict[str, "ProtocolAgentStatus"]:
+    async def monitor_agent_health(self) -> dict[str, "ProtocolEventBusAgentStatus"]:
         """
         Monitor health of all active agents.
 

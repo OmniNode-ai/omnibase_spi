@@ -193,7 +193,7 @@ class ProtocolWorkflowNodeRegistry(Protocol):
     async def get_node_performance_history(
         self,
         node_id: str,
-        task_type: "LiteralTaskType" | None,
+        task_type: "LiteralTaskType | None",
         time_window_seconds: int,
     ) -> dict[str, ContextValue]: ...
 

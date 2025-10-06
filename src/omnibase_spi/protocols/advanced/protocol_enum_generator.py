@@ -46,8 +46,8 @@ class ProtocolEnumGenerator(Protocol):
 
     async def discover_enums_from_schema(
         self,
-        schema: "ProtocolSchemaDefinition" | dict[str, Any],
-        path: str = "root",
+        schema: "ProtocolSchemaDefinition | dict[str, Any]",
+        path: str | None = None,
     ) -> list["ProtocolProtocolEnumInfo"]:
         """Recursively discover enums from a schema definition.
 
@@ -62,7 +62,7 @@ class ProtocolEnumGenerator(Protocol):
 
     def generate_enum_name_from_values(self, enum_values: list[str]) -> str: ...
     def generate_enum_name_from_schema(
-        self, schema: "ProtocolSchemaDefinition" | dict[str, Any]
+        self, schema: "ProtocolSchemaDefinition | dict[str, Any]"
     ) -> str:
         """Generate enum name from a schema with enum values.
 
@@ -114,7 +114,7 @@ class ProtocolEnumGenerator(Protocol):
         ...
 
     def is_enum_schema(
-        self, schema: "ProtocolSchemaDefinition" | dict[str, Any]
+        self, schema: "ProtocolSchemaDefinition | dict[str, Any]"
     ) -> bool:
         """Check if a schema defines an enum.
 
@@ -127,7 +127,7 @@ class ProtocolEnumGenerator(Protocol):
         ...
 
     async def get_enum_values(
-        self, schema: "ProtocolSchemaDefinition" | dict[str, Any]
+        self, schema: "ProtocolSchemaDefinition | dict[str, Any]"
     ) -> list[str] | None:
         """Extract enum values from a schema.
 

@@ -181,7 +181,7 @@ class ProtocolMemoryReducerNode(Protocol):
     async def deduplicate_memories(
         self,
         memory_scope: "ProtocolMemoryMetadata",
-        similarity_threshold: float = 0.95,
+        similarity_threshold: float | None = None,
         correlation_id: UUID | None = None,
         timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryResponse": ...
@@ -199,7 +199,7 @@ class ProtocolMemoryReducerNode(Protocol):
         self,
         memory_ids: list[UUID],
         compression_algorithm: "LiteralCompressionAlgorithm",
-        quality_threshold: float = 0.9,
+        quality_threshold: float | None = None,
         correlation_id: UUID | None = None,
         timeout_seconds: float | None = None,
     ) -> "ProtocolMemoryResponse": ...
@@ -276,5 +276,5 @@ class ProtocolMemoryHealthNode(Protocol):
     ) -> "ProtocolMemoryMetricsResponse": ...
 
     async def get_status(
-        self, include_detailed: bool = False, correlation_id: UUID | None = None
+        self, include_detailed: bool | None = None, correlation_id: UUID | None = None
     ) -> "ProtocolMemoryResponse": ...

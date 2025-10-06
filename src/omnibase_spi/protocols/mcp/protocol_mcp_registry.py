@@ -59,7 +59,7 @@ class ProtocolMCPRegistry(Protocol):
         subsystem_metadata: ProtocolMCPSubsystemMetadata,
         tools: list[ProtocolMCPToolDefinition],
         api_key: str,
-        configuration: dict[str, ContextValue] | None,
+        configuration: dict[str, "ContextValue"] | None,
     ) -> str: ...
 
     async def unregister_subsystem(self, registration_id: str) -> bool: ...
@@ -68,7 +68,7 @@ class ProtocolMCPRegistry(Protocol):
         self,
         registration_id: str,
         health_status: str | None,
-        metadata: dict[str, ContextValue] | None,
+        metadata: dict[str, "ContextValue"] | None,
     ) -> bool: ...
 
     async def get_subsystem_registration(
@@ -99,11 +99,11 @@ class ProtocolMCPRegistry(Protocol):
     async def execute_tool(
         self,
         tool_name: str,
-        parameters: dict[str, ContextValue],
+        parameters: dict[str, "ContextValue"],
         correlation_id: UUID,
         timeout_seconds: int | None,
         preferred_subsystem: str | None,
-    ) -> dict[str, ContextValue]: ...
+    ) -> dict[str, "ContextValue"]: ...
 
     async def get_tool_execution(
         self, execution_id: str
@@ -140,7 +140,7 @@ class ProtocolMCPRegistry(Protocol):
     async def cleanup_expired_registrations(self) -> int: ...
 
     async def update_subsystem_configuration(
-        self, registration_id: str, configuration: dict[str, ContextValue]
+        self, registration_id: str, configuration: dict[str, "ContextValue"]
     ) -> bool: ...
 
     async def get_registry_status(self) -> ProtocolMCPRegistryStatus: ...
@@ -162,16 +162,16 @@ class ProtocolMCPRegistryAdmin(Protocol):
     async def force_subsystem_cleanup(self, registration_id: str) -> bool: ...
 
     async def update_registry_configuration(
-        self, configuration: dict[str, ContextValue]
+        self, configuration: dict[str, "ContextValue"]
     ) -> bool: ...
 
-    async def export_registry_state(self) -> dict[str, ContextValue]: ...
+    async def export_registry_state(self) -> dict[str, "ContextValue"]: ...
 
     async def import_registry_state(
-        self, state_data: dict[str, ContextValue]
+        self, state_data: dict[str, "ContextValue"]
     ) -> bool: ...
 
-    async def get_system_diagnostics(self) -> dict[str, ContextValue]: ...
+    async def get_system_diagnostics(self) -> dict[str, "ContextValue"]: ...
 
 
 @runtime_checkable
@@ -185,14 +185,14 @@ class ProtocolMCPRegistryMetricsOperations(Protocol):
 
     async def get_execution_metrics(
         self, time_range_hours: int, tool_name: str | None, subsystem_id: str | None
-    ) -> dict[str, ContextValue]: ...
+    ) -> dict[str, "ContextValue"]: ...
 
     async def get_performance_trends(
         self, metric_name: str, time_range_hours: int
-    ) -> dict[str, ContextValue]: ...
+    ) -> dict[str, "ContextValue"]: ...
 
     async def get_error_analysis(
         self, time_range_hours: int
-    ) -> dict[str, ContextValue]: ...
+    ) -> dict[str, "ContextValue"]: ...
 
-    async def get_capacity_metrics(self) -> dict[str, ContextValue]: ...
+    async def get_capacity_metrics(self) -> dict[str, "ContextValue"]: ...

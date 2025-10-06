@@ -44,14 +44,14 @@ class ProtocolWorkflowEventCoordinator(Protocol):
         coordinator: ProtocolWorkflowEventCoordinator = get_workflow_event_coordinator()
 
         # Set up registry and event bus
-        registry: ProtocolNodeRegistry = get_node_registry()
-        event_bus: ProtocolEventBus = get_event_bus()
+        registry: "ProtocolNodeRegistry" = get_node_registry()
+        event_bus: "ProtocolEventBus" = get_event_bus()
 
         coordinator.set_registry(registry)
         coordinator.set_event_bus(event_bus)
 
         # Create workflow event
-        event: ProtocolWorkflowEvent = create_workflow_event(
+        event: "ProtocolWorkflowEvent" = create_workflow_event(
             event_type="task.completed",
             workflow_type="data_processing",
             instance_id=uuid.uuid4()

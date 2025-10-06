@@ -377,7 +377,7 @@ class ProtocolAgentConfigurationLegacy(Protocol):
     async def export_configuration(
         self,
         agent_id: str,
-        format_type: str = "yaml",
+        format_type: str | None = None,
     ) -> str:
         """
         Export agent configuration to specified format.
@@ -399,7 +399,7 @@ class ProtocolAgentConfigurationLegacy(Protocol):
         self,
         agent_id: str,
         config_data: str,
-        format_type: str = "yaml",
+        format_type: str | None = None,
     ) -> ProtocolLegacyAgentConfigData:
         """
         Import agent configuration from serialized data.

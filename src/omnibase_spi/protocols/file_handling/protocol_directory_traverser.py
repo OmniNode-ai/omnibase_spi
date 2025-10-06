@@ -115,7 +115,7 @@ class ProtocolDirectoryTraverser(Protocol):
         directory: str,
         include_patterns: list[str] | None = None,
         exclude_patterns: list[str] | None = None,
-        recursive: bool = True,
+        recursive: bool | None = None,
         ignore_file: str | None = None,
     ) -> set[str]:
         """
@@ -155,9 +155,9 @@ class ProtocolDirectoryTraverser(Protocol):
         processor: Callable[[str], T],
         include_patterns: list[str] | None = None,
         exclude_patterns: list[str] | None = None,
-        recursive: bool = True,
+        recursive: bool | None = None,
         ignore_file: str | None = None,
-        dry_run: bool = False,
+        dry_run: bool | None = None,
         max_file_size: int | None = None,
     ) -> "ProtocolDirectoryProcessingResult":
         """

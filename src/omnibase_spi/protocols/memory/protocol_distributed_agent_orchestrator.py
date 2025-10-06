@@ -73,7 +73,7 @@ class ProtocolDistributedAgentOrchestrator(Protocol):
         task_type: str,
         prompt: str,
         system_prompt: str | None = None,
-        prefer_local: bool = True,
+        prefer_local: bool | None = None,
         required_capabilities: list["EnumAgentCapability"] | None = None,
     ) -> Any:
         """
@@ -99,7 +99,7 @@ class ProtocolDistributedAgentOrchestrator(Protocol):
         self,
         task_type: str,
         required_capabilities: list["EnumAgentCapability"] | None = None,
-        prefer_local: bool = True,
+        prefer_local: bool | None = None,
     ) -> ProtocolMemoryAgentInstance | None:
         """
         Find the best agent for a given task type.

@@ -32,7 +32,7 @@ class ProtocolCacheService(Protocol, Generic[T]):
         username = await cache.get("user:123")  # Returns str | None
 
         # Dict cache for complex data
-        cache: "ProtocolCacheService"[dict[str, ContextValue]] = get_dict_cache()
+        cache: "ProtocolCacheService"[dict[str, "ContextValue"]] = get_dict_cache()
         user_data = {"id": 123, "name": "John", "active": True}
         await cache.set("user:123:profile", user_data, ttl_seconds=1800)
 
@@ -80,7 +80,7 @@ class ProtocolCacheServiceProvider(Protocol, Generic[T]):
                 # Create Redis-backed cache service
                 return RedisCacheService(host="localhost", port=6379)
 
-            async def get_cache_configuration(self) -> dict[str, ContextValue]:
+            async def get_cache_configuration(self) -> dict[str, "ContextValue"]:
                 return {
                     "backend": "redis",
                     "host": "localhost",

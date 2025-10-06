@@ -46,7 +46,7 @@ class ProtocolConfigurationManager(Protocol):
         config_name: str,
         *,
         environment: "LiteralConfigurationEnvironment | None" = None,
-        force_reload: bool = False,
+        force_reload: bool | None = None,
     ) -> dict[str, ContextValue]: ...
 
     async def validate_configuration(
@@ -55,7 +55,7 @@ class ProtocolConfigurationManager(Protocol):
         *,
         config_name: str | None = None,
         environment: "LiteralConfigurationEnvironment | None" = None,
-        strict: bool = True,
+        strict: bool | None = None,
     ) -> bool: ...
 
     async def get_configuration_value(
@@ -72,8 +72,8 @@ class ProtocolConfigurationManager(Protocol):
         key: str,
         value: object,
         *,
-        validate: bool = True,
-        persist: bool = False,
+        validate: bool | None = None,
+        persist: bool | None = None,
     ) -> bool: ...
 
     async def update_configuration_runtime(
@@ -81,8 +81,8 @@ class ProtocolConfigurationManager(Protocol):
         config_name: str,
         updates: dict[str, ContextValue],
         *,
-        validate: bool = True,
-        backup: bool = True,
+        validate: bool | None = None,
+        backup: bool | None = None,
     ) -> bool: ...
 
     async def reload_configuration(
@@ -94,7 +94,7 @@ class ProtocolConfigurationManager(Protocol):
     ) -> str | None: ...
 
     async def restore_configuration(
-        self, config_name: str, backup_path: str, *, validate: bool = True
+        self, config_name: str, backup_path: str, *, validate: bool | None = None
     ) -> bool: ...
 
     async def get_configuration_sources(
@@ -108,8 +108,8 @@ class ProtocolConfigurationManager(Protocol):
         source_path: str | None = None,
         *,
         priority: int,
-        required: bool = False,
-        watch_for_changes: bool = False,
+        required: bool | None = None,
+        watch_for_changes: bool | None = None,
     ) -> bool: ...
 
     def remove_configuration_source(

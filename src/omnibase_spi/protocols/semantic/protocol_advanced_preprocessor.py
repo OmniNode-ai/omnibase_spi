@@ -23,7 +23,7 @@ class ProtocolAdvancedPreprocessor(Protocol):
     text preprocessing capabilities with configurable strategies and validation.
     """
 
-    def process(
+    async def process(
         self, input_state: "ProtocolPreprocessingInputState"
     ) -> "ProtocolPreprocessingOutputState":
         """

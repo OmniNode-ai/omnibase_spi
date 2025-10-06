@@ -216,7 +216,7 @@ class ProtocolAgentPool(Protocol):
         """
         ...
 
-    async def delete_pool(self, pool_name: str, force: bool = False) -> bool:
+    async def delete_pool(self, pool_name: str, force: bool | None = None) -> bool:
         """
         Delete an existing agent pool.
 
@@ -426,7 +426,9 @@ class ProtocolAgentPool(Protocol):
         """
         ...
 
-    async def drain_pool(self, pool_name: str, timeout_seconds: int = 300) -> bool:
+    async def drain_pool(
+        self, pool_name: str, timeout_seconds: int | None = None
+    ) -> bool:
         """
         Drain a pool by waiting for agents to complete work and not assigning new work.
 

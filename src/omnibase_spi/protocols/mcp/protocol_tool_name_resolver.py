@@ -33,7 +33,7 @@ class ProtocolToolNameResolver(Protocol):
 
     def discover_all_tools(
         self,
-        force_refresh: bool = False,
+        force_refresh: bool | None = None,
     ) -> dict[str, ProtocolModelToolInfo]:
         """
         Discover all tools by scanning for contract.yaml files.

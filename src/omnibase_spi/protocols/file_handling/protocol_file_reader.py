@@ -35,19 +35,20 @@ class ProtocolFileReader(Protocol):
 
     Usage Example:
         ```python
+        from typing import Protocol, runtime_checkable
+
         reader: ProtocolFileReader = SomeFileReader()
 
         # Read text content
         content = await reader.read_text('config.yaml')
 
         # Read and parse YAML with type conversion
-        from dataclasses import dataclass
-        @dataclass
-        class Config:
+        @runtime_checkable
+        class ProtocolConfig(Protocol):
             name: str
             version: str
 
-        config = await reader.read_yaml('config.yaml', Config)
+        config = await reader.read_yaml('config.yaml', ProtocolConfig)
 
         # Check file existence
         if await reader.exists('important.txt'):
@@ -108,13 +109,15 @@ class ProtocolFileReader(Protocol):
 
         Example:
             ```python
-            @dataclass
-            class DatabaseConfig:
+            from typing import Protocol, runtime_checkable
+
+            @runtime_checkable
+            class ProtocolDatabaseConfig(Protocol):
                 host: str
                 port: int
                 username: str
 
-            config = await reader.read_yaml('database.yaml', DatabaseConfig)
+            config = await reader.read_yaml('database.yaml', ProtocolDatabaseConfig)
             print(f"Database host: {config.host}")
             ```
         """

@@ -289,7 +289,9 @@ class ProtocolValidationProvider(Protocol):
 
     async def get_active_sessions(self) -> list["ProtocolValidationSession"]: ...
 
-    def cleanup_completed_sessions(self, older_than_hours: int = 24) -> int: ...
+    def cleanup_completed_sessions(
+        self, older_than_hours: int | None = None
+    ) -> int: ...
 
     async def validate(
         self,
@@ -335,7 +337,7 @@ class ProtocolValidationProvider(Protocol):
         self,
         session: "ProtocolValidationSession",
         results: list["ProtocolValidationResult"],
-        report_format: str = "markdown",
+        report_format: str | None = None,
     ) -> str: ...
 
     async def get_provider_metrics(self) -> dict[str, "ContextValue"]: ...

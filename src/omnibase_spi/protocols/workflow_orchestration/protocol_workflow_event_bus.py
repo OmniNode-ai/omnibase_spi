@@ -106,7 +106,7 @@ class ProtocolWorkflowEventBus(Protocol):
         self,
         workflow_type: str,
         event_types: list[LiteralWorkflowEventType] | None = None,
-        handler: "ProtocolWorkflowEventHandler" | None = None,
+        handler: "ProtocolWorkflowEventHandler | None" = None,
     ) -> str: ...
 
     async def unsubscribe_from_workflow_events(self, subscription_id: str) -> None: ...
@@ -117,7 +117,7 @@ class ProtocolWorkflowEventBus(Protocol):
         instance_id: UUID,
         from_sequence: int,
         to_sequence: int | None = None,
-        handler: "ProtocolWorkflowEventHandler" | None = None,
+        handler: "ProtocolWorkflowEventHandler | None" = None,
     ) -> list["ProtocolWorkflowEvent"]: ...
 
     async def register_projection(

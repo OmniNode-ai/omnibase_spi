@@ -201,7 +201,7 @@ class ProtocolCircuitBreakerFactory(Protocol):
         service_name: str,
         config: "ProtocolCircuitBreakerConfig | None" = None,
         *,
-        create_if_missing: bool = True,
+        create_if_missing: bool | None = None,
     ) -> ProtocolCircuitBreaker | None: ...
 
     async def register_circuit_breaker(

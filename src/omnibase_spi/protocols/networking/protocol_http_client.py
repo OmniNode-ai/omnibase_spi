@@ -8,10 +8,13 @@ and notification systems.
 Security Note: Implementations must include SSRF protection and validate all target URLs.
 """
 
-from typing import TYPE_CHECKING, Any, Dict, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types.protocol_core_types import ContextValue
+    from omnibase_spi.protocols.types.protocol_event_bus_types import (
+        ProtocolEventHeaders,
+    )
 
 
 @runtime_checkable
@@ -25,7 +28,7 @@ class ProtocolHttpResponse(Protocol):
     """
 
     status_code: int
-    headers: Dict[str, str]
+    headers: "ProtocolEventHeaders"
     body: bytes
 
 
@@ -50,9 +53,9 @@ class ProtocolHttpClient(Protocol):
         method: str,
         url: str,
         *,
-        json: Dict[str, Any] | None = None,
-        headers: Dict[str, str] | None = None,
-        timeout: float | None = 10.0,
+        json: dict[str, Any] | None = None,
+        headers: "ProtocolEventHeaders | None" = None,
+        timeout: float | None = None,
     ) -> "ProtocolHttpResponse":
         """
         Make an HTTP request.

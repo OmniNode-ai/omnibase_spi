@@ -29,42 +29,18 @@ class ProtocolDatabaseConnection(Protocol):
     connectivity, query execution, transaction management, and health monitoring.
 
     Example:
-        class PostgreSQLConnection(ProtocolDatabaseConnection):
-            def __init__(self, connection_string: str):
-                self.connection_string = connection_string
-                self.connection = None
+        @runtime_checkable
+        class PostgreSQLConnection(Protocol):
+            @property
+            def connection_string(self) -> str: ...
+            @property
+            def connection(self) -> Any | None: ...
 
-            async def connect(self) -> bool:
-                try:
-                    self.connection = await asyncpg.connect(self.connection_string)
-                    return True
-                except Exception:
-                    return False
-
-            async def disconnect(self) -> None:
-                if self.connection:
-                    await self.connection.close()
-
-            async def execute_query(self, query: str, parameters: tuple | None = None) -> ProtocolQueryResult:
-                try:
-                    rows = await self.connection.fetch(query, *parameters or [])
-                    return ProtocolQueryResult(
-                        success=True,
-                        rows=[ProtocolDatabaseRow(data=dict(row), column_types={}) for row in rows],
-                        row_count=len(rows),
-                        execution_time_ms=100,
-                        query_type="select",
-                        timestamp=datetime.utcnow().isoformat()
-                    )
-                except Exception as e:
-                    return ProtocolQueryResult(
-                        success=False,
-                        rows=[],
-                        row_count=0,
-                        execution_time_ms=100,
-                        query_type="select",
-                        timestamp=datetime.utcnow().isoformat()
-                    )
+            async def connect(self) -> bool: ...
+            async def disconnect(self) -> None: ...
+            async def execute_query(
+                self, query: str, parameters: tuple[Any, ...] | None
+            ) -> ProtocolQueryResult: ...
     """
 
     async def connect(self) -> bool:
@@ -137,7 +113,7 @@ class ProtocolDatabaseConnection(Protocol):
     async def acquire_lock(
         self,
         lock_name: str,
-        timeout_seconds: int = 30,
+        timeout_seconds: int | None = None,
     ) -> ProtocolLockResult:
         """
         Acquire a named advisory lock.

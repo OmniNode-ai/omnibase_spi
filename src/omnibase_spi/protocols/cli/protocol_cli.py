@@ -76,7 +76,7 @@ class ProtocolCLI(Protocol):
     async def run(self, args: list[str]) -> "ProtocolCLIResult": ...
 
     def describe_flags(
-        self, format: str = "json"
+        self, format: str | None = None
     ) -> list["ProtocolCLIFlagDescription"]: ...
 
     async def execute_command(

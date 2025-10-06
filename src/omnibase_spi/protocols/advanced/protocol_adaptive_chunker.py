@@ -23,7 +23,7 @@ class ProtocolAdaptiveChunker(Protocol):
         self,
         content: str,
         config: "ProtocolIndexingConfiguration",
-        intelligence_result: "ProtocolIntelligenceResult" | None = None,
+        intelligence_result: "ProtocolIntelligenceResult | None" = None,
         entities: list[Any] | None = None,
     ) -> tuple[list["ProtocolAdaptiveChunk"], "ProtocolChunkingQualityMetrics"]:
         """

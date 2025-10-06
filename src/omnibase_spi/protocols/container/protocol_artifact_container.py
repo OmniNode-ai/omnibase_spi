@@ -76,12 +76,12 @@ class ProtocolArtifactInfo(Protocol):
         ```python
         @runtime_checkable
         class ArtifactInfoImpl:
-            name: str = "user-auth-service"
-            version: ProtocolSemVer = "1.2.0"
+            name: str | None = None
+            version: "ProtocolSemVer" = "1.2.0"
             artifact_type: LiteralContainerArtifactType = "nodes"
-            path: str = "/nodes/security/user_auth.py"
+            path: str | None = None
             metadata: ProtocolArtifactMetadata = metadata_impl
-            is_wip: bool = False
+            is_wip: bool | None = None
 
         # Usage in artifact discovery
         artifact: ProtocolArtifactInfo = ArtifactInfoImpl()

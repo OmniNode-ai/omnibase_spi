@@ -46,9 +46,9 @@ class ProtocolDiscoveryClient(Protocol):
         filters: dict[str, Any] | None = None,
         timeout: float | None = None,
         max_results: int | None = None,
-        include_metadata: bool = True,
-        retry_count: int = 0,
-        retry_delay: float = 1.0,
+        include_metadata: bool | None = None,
+        retry_count: int | None = None,
+        retry_delay: float | None = None,
     ) -> list[ProtocolDiscoveredTool]:
         """
         Discover available tools/services based on filters.

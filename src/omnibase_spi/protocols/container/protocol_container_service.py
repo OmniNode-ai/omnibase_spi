@@ -55,23 +55,23 @@ class ProtocolContainerService(Protocol):
 
     async def create_container_from_contract(
         self,
-        contract_metadata: ProtocolMetadata,
+        contract_metadata: "ProtocolMetadata",
         node_id: str,
         node_ref: object | None = None,
-    ) -> ProtocolContainerResult: ...
+    ) -> "ProtocolContainerResult": ...
 
     async def create_service_from_dependency(
-        self, dependency_spec: ProtocolDependencySpec
-    ) -> ProtocolContainerServiceInstance | None: ...
+        self, dependency_spec: "ProtocolDependencySpec"
+    ) -> "ProtocolContainerServiceInstance | None": ...
 
     async def validate_container_dependencies(
-        self, container: ProtocolContainer
+        self, container: "ProtocolContainer"
     ) -> bool: ...
 
     async def get_registry_wrapper(
-        self, container: ProtocolContainer, node_ref: object | None = None
-    ) -> ProtocolRegistryWrapper: ...
+        self, container: "ProtocolContainer", node_ref: object | None = None
+    ) -> "ProtocolRegistryWrapper": ...
 
     async def update_container_lifecycle(
-        self, registry: ProtocolRegistryWrapper, node_ref: object
+        self, registry: "ProtocolRegistryWrapper", node_ref: object
     ) -> None: ...

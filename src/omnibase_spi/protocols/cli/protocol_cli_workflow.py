@@ -49,7 +49,7 @@ class ProtocolCliWorkflow(Protocol):
         self,
         domain: str,
         workflow_name: str,
-        dry_run: bool = False,
+        dry_run: bool | None = None,
         timeout: int | None = None,
         parameters: dict[str, Any] | None = None,
     ) -> ProtocolCliExecutionResult:

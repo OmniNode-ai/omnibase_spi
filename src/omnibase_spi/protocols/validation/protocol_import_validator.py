@@ -75,7 +75,7 @@ class ProtocolImportValidator(Protocol):
     ) -> ProtocolImportAnalysis: ...
 
     async def validate_dependency_chain(
-        self, import_path: str, max_depth: int = 3
+        self, import_path: str, max_depth: int | None = None
     ) -> list[ProtocolImportAnalysis]: ...
 
     async def validate_repository_imports(

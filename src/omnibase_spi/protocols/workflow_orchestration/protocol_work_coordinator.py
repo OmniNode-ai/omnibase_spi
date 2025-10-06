@@ -60,7 +60,7 @@ class ProtocolWorkCoordinator(Protocol):
         )
 
         # Distribute work
-        tickets: list[ProtocolWorkTicket] = create_work_tickets()
+        tickets: list["ProtocolWorkTicket"] = create_work_tickets()
         assignments = await coordinator.distribute_work(
             tickets=tickets,
             distribution_mode="adaptive"
@@ -97,7 +97,7 @@ class ProtocolWorkCoordinator(Protocol):
         self,
         agent_id: str,
         capabilities: list[str],
-        max_concurrent_work: int = 3,
+        max_concurrent_work: int | None = None,
     ) -> bool:
         """
         Register an agent with the coordination system.
@@ -367,7 +367,7 @@ class ProtocolWorkCoordinator(Protocol):
 
     async def coordinate_parallel_execution(
         self,
-        max_parallel_agents: int = 3,
+        max_parallel_agents: int | None = None,
     ) -> dict[str, list[str]]:
         """
         Coordinate parallel execution across multiple agents.

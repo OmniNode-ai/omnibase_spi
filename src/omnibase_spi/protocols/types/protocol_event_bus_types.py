@@ -232,7 +232,7 @@ class ProtocolProgressUpdate(Protocol):
     work_item_id: str
     progress_percentage: float
     status_message: str
-    estimated_completion: "ProtocolDateTime" | None
+    estimated_completion: "ProtocolDateTime | None"
     metadata: dict[str, "ContextValue"]
 
     async def validate_progress_update(self) -> bool: ...

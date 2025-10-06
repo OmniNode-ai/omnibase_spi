@@ -142,7 +142,7 @@ class ProtocolHandlerMetadata(Protocol):
     """Protocol for node metadata."""
 
     name: str
-    version: ProtocolSemVer
+    version: "ProtocolSemVer"
     author: str
     description: str
     supported_extensions: list[str]
@@ -169,7 +169,7 @@ class ProtocolSerializedBlock(Protocol):
 
     serialized_data: str
     format: str
-    version: ProtocolSemVer
+    version: "ProtocolSemVer"
     file_metadata: ProtocolFileMetadata
 
 
@@ -191,7 +191,7 @@ class ProtocolOnexResult(Protocol):
     message: str
     result_data: ProtocolResultData | None
     error_code: str | None
-    timestamp: ProtocolDateTime
+    timestamp: "ProtocolDateTime"
 
 
 @runtime_checkable

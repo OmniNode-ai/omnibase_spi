@@ -29,34 +29,22 @@ class ProtocolStorageBackend(Protocol):
     SQLite, PostgreSQL, or cloud storage solutions.
 
     Example:
-        class FileSystemStorageBackend(ProtocolStorageBackend):
-            def __init__(self, storage_config: ProtocolStorageConfiguration):
-                self.config = storage_config
-                self.base_path = storage_config.connection_params.get("base_path", "./checkpoints")
-
+        @runtime_checkable
+        class FileSystemStorageBackend(Protocol):
             @property
-            def backend_id(self) -> str:
-                return f"filesystem-{self.base_path}"
-
+            def config(self) -> ProtocolStorageConfiguration: ...
             @property
-            def backend_type(self) -> str:
-                return "filesystem"
-
+            def base_path(self) -> str: ...
             @property
-            def is_healthy(self) -> bool:
-                return os.path.exists(self.base_path) and os.access(self.base_path, os.W_OK)
+            def backend_id(self) -> str: ...
+            @property
+            def backend_type(self) -> str: ...
+            @property
+            def is_healthy(self) -> bool: ...
 
-            async def store_checkpoint(self, checkpoint_data: ProtocolCheckpointData) -> ProtocolStorageResult:
-                # Implementation details for filesystem storage
-                return ProtocolStorageResult(
-                    success=True,
-                    operation="store_checkpoint",
-                    message="Checkpoint stored successfully",
-                    data={"checkpoint_id": checkpoint_data.checkpoint_id},
-                    execution_time_ms=150,
-                    timestamp=datetime.utcnow().isoformat(),
-                    metadata={"backend_type": "filesystem"}
-                )
+            async def store_checkpoint(
+                self, checkpoint_data: ProtocolCheckpointData
+            ) -> ProtocolStorageResult: ...
     """
 
     async def store_checkpoint(
@@ -124,7 +112,7 @@ class ProtocolStorageBackend(Protocol):
 
     async def cleanup_expired_checkpoints(
         self,
-        retention_hours: int = 72,
+        retention_hours: int | None = None,
     ) -> ProtocolStorageResult:
         """
         Clean up expired checkpoints based on retention policies.

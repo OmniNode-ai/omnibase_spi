@@ -505,8 +505,8 @@ class ProtocolWorkTicket(Protocol):
     status: Literal["pending", "assigned", "in_progress", "completed", "failed"]
     assigned_to: str | None
     created_at: "ProtocolDateTime"
-    due_at: "ProtocolDateTime" | None
-    completed_at: "ProtocolDateTime" | None
+    due_at: "ProtocolDateTime | None"
+    completed_at: "ProtocolDateTime | None"
     payload: dict[str, "ContextValue"]
     metadata: dict[str, "ContextValue"]
 

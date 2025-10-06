@@ -555,7 +555,7 @@ class ProtocolFileMetricsCollector(Protocol):
     def increment(
         self,
         metric: str,
-        value: int = 1,
+        value: int | None = None,
         tags: dict[str, str] | None = None,
     ) -> None:
         """

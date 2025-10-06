@@ -150,7 +150,7 @@ class ProtocolClusterCoordinator(Protocol):
 
     async def get_cluster_status(
         self,
-        include_node_details: bool = False,
+        include_node_details: bool | None = None,
         security_context: "ProtocolMemorySecurityContext | None" = None,
         correlation_id: UUID | None = None,
     ) -> "ProtocolMemoryResponse": ...
@@ -177,7 +177,7 @@ class ProtocolLifecycleManager(Protocol):
     async def apply_retention_policies(
         self,
         policy_scope: "ProtocolMemoryMetadata",
-        dry_run: bool = False,
+        dry_run: bool | None = None,
         security_context: "ProtocolMemorySecurityContext | None" = None,
         correlation_id: UUID | None = None,
         timeout_seconds: float | None = None,

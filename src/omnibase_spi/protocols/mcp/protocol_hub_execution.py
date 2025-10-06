@@ -19,36 +19,32 @@ class ProtocolModelCliExecutionResult(Protocol):
     metadata tracking, execution metrics, and domain-specific workflow information.
 
     Example:
-        class CliExecutionResult(ProtocolModelCliExecutionResult):
-            def __init__(self, success, domain, workflow_name, execution_id,
-                         result_data, message, exit_code, execution_time_ms,
-                         dry_run, timestamp, metadata):
-                self.success = success
-                self.domain = domain
-                self.workflow_name = workflow_name
-                self.execution_id = execution_id
-                self.result_data = result_data
-                self.message = message
-                self.exit_code = exit_code
-                self.execution_time_ms = execution_time_ms
-                self.dry_run = dry_run
-                self.timestamp = timestamp
-                self.metadata = metadata or {}
+        @runtime_checkable
+        class CliExecutionResult(Protocol):
+            @property
+            def success(self) -> bool: ...
+            @property
+            def domain(self) -> str: ...
+            @property
+            def workflow_name(self) -> str: ...
+            @property
+            def execution_id(self) -> str | None: ...
+            @property
+            def result_data(self) -> dict[str, ContextValue] | None: ...
+            @property
+            def message(self) -> str: ...
+            @property
+            def exit_code(self) -> int: ...
+            @property
+            def execution_time_ms(self) -> int | None: ...
+            @property
+            def dry_run(self) -> bool: ...
+            @property
+            def timestamp(self) -> str: ...
+            @property
+            def metadata(self) -> dict[str, ContextValue]: ...
 
-            def to_dict(self):
-                return {
-                    "success": self.success,
-                    "domain": self.domain,
-                    "workflow_name": self.workflow_name,
-                    "execution_id": self.execution_id,
-                    "result_data": self.result_data,
-                    "message": self.message,
-                    "exit_code": self.exit_code,
-                    "execution_time_ms": self.execution_time_ms,
-                    "dry_run": self.dry_run,
-                    "timestamp": self.timestamp,
-                    "metadata": self.metadata
-                }
+            def to_dict(self) -> dict[str, ContextValue]: ...
     """
 
     success: bool
@@ -77,7 +73,7 @@ class ProtocolHubExecution(Protocol):
         self,
         domain: str,
         workflow_name: str,
-        dry_run: bool = False,
+        dry_run: bool | None = None,
         timeout: int | None = None,
         parameters: dict[str, Any] | None = None,
     ) -> ProtocolModelCliExecutionResult:

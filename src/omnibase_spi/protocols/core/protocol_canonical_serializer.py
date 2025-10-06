@@ -53,7 +53,7 @@ class ProtocolCanonicalSerializer(Protocol):
             "hash",
             "last_modified_at",
         ),
-        placeholder: str = "<PLACEHOLDER>",
+        placeholder: str | None = None,
         **kwargs: "ContextValue",
     ) -> str:
         """

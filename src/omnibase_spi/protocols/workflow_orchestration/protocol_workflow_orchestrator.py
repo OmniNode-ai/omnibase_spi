@@ -45,11 +45,11 @@ class ProtocolWorkflowOrchestrator(Protocol):
         orchestrator: ProtocolWorkflowOrchestrator = get_workflow_orchestrator()
 
         # Set up registry for tool access
-        registry: ProtocolNodeRegistry = get_node_registry()
+        registry: "ProtocolNodeRegistry" = get_node_registry()
         orchestrator.set_registry(registry)
 
         # Create input state
-        input_state: ProtocolWorkflowInputState = create_workflow_input(
+        input_state: "ProtocolWorkflowInputState" = create_workflow_input(
             action="execute_workflow",
             parameters={"workflow_type": "data_processing"}
         )

@@ -74,7 +74,7 @@ class ProtocolContractCompliance(Protocol):
     ) -> list["ProtocolValidationResult"]: ...
 
     def generate_compliance_report(
-        self, results: list["ProtocolValidationResult"], format: str = "markdown"
+        self, results: list["ProtocolValidationResult"], format: str | None = None
     ) -> str: ...
 
     def configure_validation(

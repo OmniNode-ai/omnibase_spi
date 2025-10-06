@@ -85,7 +85,7 @@ class ProtocolLogFormatHandler(Protocol):
         ...
 
     # Core handler methods
-    def can_handle(self, format_name: str) -> bool:
+    async def can_handle(self, format_name: str) -> bool:
         """Return True if this handler can process the given format."""
         ...
 

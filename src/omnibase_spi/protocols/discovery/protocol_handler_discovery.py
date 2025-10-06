@@ -20,7 +20,7 @@ if TYPE_CHECKING:
         Examples:
             ```python
             class JsonFileHandler:
-                name: str = "json"
+                name: str | None = None
                 extensions: list[str] = [".json"]
                 special_files: list[str] = ["package.json"]
             ```

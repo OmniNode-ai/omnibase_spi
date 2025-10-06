@@ -109,9 +109,9 @@ class ProtocolInputValidator(Protocol):
     async def sanitize_input(
         self,
         value: str,
-        remove_html: bool = True,
-        escape_special_chars: bool = True,
-        normalize_whitespace: bool = True,
+        remove_html: bool | None = None,
+        escape_special_chars: bool | None = None,
+        normalize_whitespace: bool | None = None,
     ) -> str: ...
 
     async def validate_batch(

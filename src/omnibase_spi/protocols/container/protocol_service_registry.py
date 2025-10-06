@@ -94,14 +94,14 @@ class ProtocolServiceDependency(Protocol):
         ```python
         @runtime_checkable
         class ServiceDependencyImpl:
-            dependency_name: str = "user_repository"
-            dependency_interface: str = "IUserRepository"
-            dependency_version: ProtocolSemVer | None = "1.0.0"
-            is_required: bool = True
-            is_circular: bool = False
-            injection_point: str = "constructor"
+            dependency_name: str | None = None
+            dependency_interface: str | None = None
+            dependency_version: "ProtocolSemVer | None = "1.0.0"
+            is_required: bool | None = None
+            is_circular: bool | None = None
+            injection_point: str | None = None
             default_value: Any | None = None
-            metadata: dict[str, ContextValue] = {"timeout": 30}
+            metadata: dict[str, "ContextValue"] = {"timeout": 30}
 
             async def validate_dependency(self) -> bool:
                 # Validate version compatibility and interface implementation
@@ -168,17 +168,17 @@ class ProtocolServiceRegistration(Protocol):
         ```python
         @runtime_checkable
         class ServiceRegistrationImpl:
-            registration_id: str = "user-service-001"
+            registration_id: str | None = None
             service_metadata: ProtocolServiceRegistrationMetadata = metadata
             lifecycle: LiteralServiceLifecycle = "singleton"
             scope: LiteralInjectionScope = "global"
             dependencies: list[ProtocolServiceDependency] = []
-            registration_status: str = "registered"
+            registration_status: str | None = None
             health_status: ServiceHealthStatus = "healthy"
-            registration_time: ProtocolDateTime = current_time()
-            last_access_time: ProtocolDateTime | None = current_time()
-            access_count: int = 150
-            instance_count: int = 1
+            registration_time: "ProtocolDateTime" = current_time()
+            last_access_time: "ProtocolDateTime" | None = None
+            access_count: int | None = None
+            instance_count: int | None = None
             max_instances: int | None = None
 
             async def validate_registration(self) -> bool:
@@ -265,13 +265,13 @@ class ProtocolDependencyGraph(Protocol):
         ```python
         @runtime_checkable
         class DependencyGraphImpl:
-            service_id: str = "user-service"
+            service_id: str | None = None
             dependencies: list[str] = ["database", "cache", "auth-service"]
             dependents: list[str] = ["api-gateway", "admin-service"]
-            depth_level: int = 2
+            depth_level: int | None = None
             circular_references: list[str] = []
             resolution_order: list[str] = ["database", "auth-service", "cache", "user-service"]
-            metadata: dict[str, ContextValue] = {"complexity_score": 0.75}
+            metadata: dict[str, "ContextValue"] = {"complexity_score": 0.75}
 
         # Usage in dependency analysis
         graph: ProtocolDependencyGraph = DependencyGraphImpl()
@@ -320,18 +320,18 @@ class ProtocolInjectionContext(Protocol):
         ```python
         @runtime_checkable
         class InjectionContextImpl:
-            context_id: str = "ctx-123"
-            target_service_id: str = "user-service"
+            context_id: str | None = None
+            target_service_id: str | None = None
             scope: LiteralInjectionScope = "request"
-            resolved_dependencies: dict[str, ContextValue] = {
+            resolved_dependencies: dict[str, "ContextValue"] = {
                 "database": db_connection,
                 "cache": cache_client
             }
-            injection_time: ProtocolDateTime = current_time()
+            injection_time: "ProtocolDateTime" = current_time()
             resolution_status: ServiceResolutionStatus = "resolved"
             error_details: str | None = None
             resolution_path: list[str] = ["database", "cache", "auth-service"]
-            metadata: dict[str, ContextValue] = {"request_id": "req-456"}
+            metadata: dict[str, "ContextValue"] = {"request_id": "req-456"}
 
         # Usage in injection tracking
         context: ProtocolInjectionContext = InjectionContextImpl()
@@ -387,13 +387,13 @@ class ProtocolServiceRegistryStatus(Protocol):
         ```python
         @runtime_checkable
         class ServiceRegistryStatusImpl:
-            registry_id: str = "main-registry"
+            registry_id: str | None = None
             status: LiteralOperationStatus = "operational"
-            message: str = "Registry operating normally"
-            total_registrations: int = 150
-            active_instances: int = 89
-            failed_registrations: int = 3
-            circular_dependencies: int = 0
+            message: str | None = None
+            total_registrations: int | None = None
+            active_instances: int | None = None
+            failed_registrations: int | None = None
+            circular_dependencies: int | None = None
             lifecycle_distribution: dict[LiteralServiceLifecycle, int] = {
                 "singleton": 95, "transient": 45, "scoped": 10
             }
@@ -405,7 +405,7 @@ class ProtocolServiceRegistryStatus(Protocol):
             }
             memory_usage_bytes: int | None = 4567890
             average_resolution_time_ms: float | None = 2.5
-            last_updated: ProtocolDateTime = current_time()
+            last_updated: "ProtocolDateTime" = current_time()
 
         # Usage in monitoring and alerting
         status: ProtocolServiceRegistryStatus = ServiceRegistryStatusImpl()
@@ -455,7 +455,7 @@ class ProtocolServiceValidator(Protocol):
         class ServiceValidatorImpl:
             async def validate_service(
                 self, service: Any, interface: Type[Any]
-            ) -> ProtocolValidationResult:
+            ) -> "ProtocolValidationResult":
                 # Check if service implements all required methods
                 if not isinstance(service, interface):
                     return ProtocolValidationResult(
@@ -475,7 +475,7 @@ class ProtocolServiceValidator(Protocol):
 
             async def validate_dependencies(
                 self, dependencies: list[ProtocolServiceDependency]
-            ) -> ProtocolValidationResult:
+            ) -> "ProtocolValidationResult":
                 # Validate that all dependencies can be resolved
                 unresolved = []
                 for dep in dependencies:
@@ -507,11 +507,11 @@ class ProtocolServiceValidator(Protocol):
 
     async def validate_service(
         self, service: Any, interface: Type[Any]
-    ) -> ProtocolValidationResult: ...
+    ) -> "ProtocolValidationResult": ...
 
     async def validate_dependencies(
         self, dependencies: list["ProtocolServiceDependency"]
-    ) -> ProtocolValidationResult: ...
+    ) -> "ProtocolValidationResult": ...
 
 
 @runtime_checkable
@@ -534,7 +534,7 @@ class ProtocolServiceFactory(Protocol):
         @runtime_checkable
         class ServiceFactoryImpl:
             async def create_instance(
-                self, interface: Type[T], context: dict[str, ContextValue]
+                self, interface: Type[T], context: dict[str, "ContextValue"]
             ) -> T:
                 # Resolve dependencies for the requested interface
                 dependencies = await self._resolve_dependencies(interface, context)
@@ -549,7 +549,7 @@ class ProtocolServiceFactory(Protocol):
                 return instance
 
             async def _resolve_dependencies(
-                self, interface: Type[T], context: dict[str, ContextValue]
+                self, interface: Type[T], context: dict[str, "ContextValue"]
             ) -> dict[str, Any]:
                 # Analyze constructor parameters and resolve dependencies
                 signature = inspect.signature(interface.__init__)
@@ -570,7 +570,7 @@ class ProtocolServiceFactory(Protocol):
 
         # Usage in service creation
         factory: ProtocolServiceFactory = ServiceFactoryImpl()
-        context: dict[str, ContextValue] = {"request_id": "req-123"}
+        context: dict[str, "ContextValue"] = {"request_id": "req-123"}
 
         user_service = await factory.create_instance(IUserService, context)
         repository = await factory.create_instance(IUserRepository, context)
@@ -614,15 +614,15 @@ class ProtocolServiceRegistryConfig(Protocol):
         ```python
         @runtime_checkable
         class ServiceRegistryConfigImpl:
-            registry_name: str = "production-registry"
-            auto_wire_enabled: bool = True
-            lazy_loading_enabled: bool = True
-            circular_dependency_detection: bool = True
-            max_resolution_depth: int = 10
-            instance_pooling_enabled: bool = True
-            health_monitoring_enabled: bool = True
-            performance_monitoring_enabled: bool = True
-            configuration: dict[str, ContextValue] = {
+            registry_name: str | None = None
+            auto_wire_enabled: bool | None = None
+            lazy_loading_enabled: bool | None = None
+            circular_dependency_detection: bool | None = None
+            max_resolution_depth: int | None = None
+            instance_pooling_enabled: bool | None = None
+            health_monitoring_enabled: bool | None = None
+            performance_monitoring_enabled: bool | None = None
+            configuration: dict[str, "ContextValue"] = {
                 "default_lifecycle": "singleton",
                 "default_scope": "global",
                 "resolution_timeout": 30.0,
@@ -771,7 +771,7 @@ class ProtocolServiceRegistry(Protocol):
 
     async def validate_service_health(
         self, registration_id: str
-    ) -> ProtocolValidationResult: ...
+    ) -> "ProtocolValidationResult": ...
 
     async def update_service_configuration(
         self, registration_id: str, configuration: dict[str, "ContextValue"]

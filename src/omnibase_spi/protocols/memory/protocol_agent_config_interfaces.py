@@ -24,7 +24,7 @@ class ProtocolAgentConfig(Protocol):
     capabilities: list[str]
     permissions: list[str]
     resource_limits: dict[str, int]
-    configuration: dict[str, ContextValue]
+    configuration: dict[str, "ContextValue"]
 
     @property
     def is_valid(self) -> bool: ...
@@ -142,7 +142,7 @@ class ProtocolAgentConfiguration(Protocol):
     async def update_configuration(
         self,
         agent_id: str,
-        updates: dict[str, ContextValue],
+        updates: dict[str, "ContextValue"],
     ) -> ProtocolAgentConfig:
         """
         Update specific fields in an agent configuration.
@@ -184,7 +184,7 @@ class ProtocolAgentConfiguration(Protocol):
         self,
         agent_id: str,
         template_name: str,
-        overrides: dict[str, ContextValue] | None = None,
+        overrides: dict[str, "ContextValue"] | None = None,
     ) -> ProtocolAgentConfig:
         """
         Apply a configuration template to create agent configuration.
@@ -362,7 +362,7 @@ class ProtocolAgentConfiguration(Protocol):
     async def export_configuration(
         self,
         agent_id: str,
-        format_type: str = "yaml",
+        format_type: str | None = None,
     ) -> str:
         """
         Export agent configuration to specified format.
@@ -384,7 +384,7 @@ class ProtocolAgentConfiguration(Protocol):
         self,
         agent_id: str,
         config_data: str,
-        format_type: str = "yaml",
+        format_type: str | None = None,
     ) -> ProtocolAgentConfig:
         """
         Import agent configuration from serialized data.

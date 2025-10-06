@@ -47,21 +47,28 @@ class ProtocolLLMAgentConfig(Protocol):
     model parameters, capabilities, and metadata for multi-provider LLM integration.
 
     Example:
-        class OpenAIAgentConfig(ProtocolLLMAgentConfig):
-            def __init__(self, model_name, api_key, capabilities):
-                self.provider = "openai"
-                self.model_name = model_name
-                self.api_key = api_key
-                self.max_tokens = 4000
-                self.temperature = 0.7
-                self.timeout_seconds = 30
-                self.system_prompt = "You are a helpful assistant."
-                self.capabilities = capabilities
-                self.metadata = {"version": "1.0.0"}
+        @runtime_checkable
+        class OpenAIAgentConfig(Protocol):
+            @property
+            def provider(self) -> LiteralLLMProvider: ...
+            @property
+            def model_name(self) -> str: ...
+            @property
+            def api_key(self) -> str | None: ...
+            @property
+            def max_tokens(self) -> int: ...
+            @property
+            def temperature(self) -> float: ...
+            @property
+            def timeout_seconds(self) -> int: ...
+            @property
+            def system_prompt(self) -> str | None: ...
+            @property
+            def capabilities(self) -> list[LiteralAgentCapability]: ...
+            @property
+            def metadata(self) -> dict[str, ContextValue]: ...
 
-            async def validate_config(self):
-                # Validate configuration parameters
-                return self.api_key is not None and self.model_name in ["gpt-4", "gpt-3.5-turbo"]
+            async def validate_config(self) -> bool: ...
     """
 
     provider: LiteralLLMProvider
@@ -85,26 +92,27 @@ class ProtocolMcpAgentInstance(Protocol):
     capability management, and lifecycle monitoring for distributed agent coordination.
 
     Example:
-        class AgentInstance(ProtocolMcpAgentInstance):
-            def __init__(self, agent_id, provider, model_name, capabilities):
-                self.agent_id = agent_id
-                self.provider = provider
-                self.model_name = model_name
-                self.status = "initializing"
-                self.capabilities = capabilities
-                self.created_at = datetime.utcnow().isoformat()
-                self.last_activity = self.created_at
-                self.metadata = {"pool": "default"}
+        @runtime_checkable
+        class AgentInstance(Protocol):
+            @property
+            def agent_id(self) -> str: ...
+            @property
+            def provider(self) -> LiteralLLMProvider: ...
+            @property
+            def model_name(self) -> str: ...
+            @property
+            def status(self) -> str: ...
+            @property
+            def capabilities(self) -> list[LiteralAgentCapability]: ...
+            @property
+            def created_at(self) -> str: ...
+            @property
+            def last_activity(self) -> str: ...
+            @property
+            def metadata(self) -> dict[str, ContextValue]: ...
 
-            async def update_status(self, new_status):
-                self.status = new_status
-                self.last_activity = datetime.utcnow().isoformat()
-
-            async def add_capability(self, capability):
-                if capability not in self.capabilities:
-                    self.capabilities.append(capability)
-                    return True
-                return False
+            async def update_status(self, new_status: str) -> None: ...
+            async def add_capability(self, capability: LiteralAgentCapability) -> bool: ...
     """
 
     agent_id: str
@@ -126,25 +134,25 @@ class ProtocolLLMAgentResponse(Protocol):
     metadata management, and performance monitoring for multi-provider integration.
 
     Example:
-        class LLMResponse(ProtocolLLMAgentResponse):
-            def __init__(self, content, role, model, usage):
-                self.content = content
-                self.role = role
-                self.finish_reason = "stop"
-                self.usage = usage
-                self.model = model
-                self.timestamp = datetime.utcnow().isoformat()
-                self.metadata = {"provider": "openai", "latency_ms": 1200}
+        @runtime_checkable
+        class LLMResponse(Protocol):
+            @property
+            def content(self) -> str: ...
+            @property
+            def role(self) -> str: ...
+            @property
+            def finish_reason(self) -> str: ...
+            @property
+            def usage(self) -> dict[str, int]: ...
+            @property
+            def model(self) -> str: ...
+            @property
+            def timestamp(self) -> str: ...
+            @property
+            def metadata(self) -> dict[str, ContextValue]: ...
 
-            def calculate_cost(self):
-                # Calculate cost based on usage and provider
-                if self.metadata["provider"] == "openai":
-                    return (self.usage.get("prompt_tokens", 0) * 0.00001 +
-                           self.usage.get("completion_tokens", 0) * 0.00003)
-                return 0.0
-
-            def is_successful(self):
-                return self.finish_reason in ["stop", "length"] and self.content is not None
+            def calculate_cost(self) -> float: ...
+            def is_successful(self) -> bool: ...
     """
 
     content: str

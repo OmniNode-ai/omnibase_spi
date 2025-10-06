@@ -25,7 +25,7 @@ class ProtocolASTBuilder(Protocol):
         self,
         class_name: str,
         schema: "ProtocolSchemaDefinition",
-        base_class: str = "BaseModel",
+        base_class: str | None = None,
     ) -> "Any":
         """Generate a Pydantic model class from a schema definition.
 
@@ -43,7 +43,7 @@ class ProtocolASTBuilder(Protocol):
         self,
         field_name: str,
         field_schema: "ProtocolSchemaDefinition",
-        required: bool = True,
+        required: bool | None = None,
     ) -> "Any":
         """Generate a model field annotation.
 
@@ -106,7 +106,7 @@ class ProtocolASTBuilder(Protocol):
     def generate_validator_method(
         self,
         field_name: str,
-        validator_type: str = "field_validator",
+        validator_type: str | None = None,
     ) -> "Any":
         """Generate a Pydantic validator method.
 

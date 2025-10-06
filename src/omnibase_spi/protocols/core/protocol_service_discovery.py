@@ -64,7 +64,7 @@ class ProtocolServiceDiscovery(Protocol):
     async def discover_services(
         self,
         service_name: str,
-        healthy_only: bool = True,
+        healthy_only: bool | None = None,
     ) -> list[dict[str, "ContextValue"]]:
         """
         Discover instances of a service.
@@ -127,7 +127,7 @@ class ProtocolServiceDiscovery(Protocol):
         """
         ...
 
-    async def list_keys(self, prefix: str = "") -> list[str]:
+    async def list_keys(self, prefix: str | None = None) -> list[str]:
         """
         List keys with optional prefix filter.
 

@@ -104,8 +104,8 @@ class ProtocolFileTypeHandlerRegistry(Protocol):
         extension_or_name: str,
         handler: "ProtocolFileProcessingTypeHandler | type[ProtocolFileProcessingTypeHandler]",
         source: str,
-        priority: int = 0,
-        override: bool = False,
+        priority: int | None = None,
+        override: bool | None = None,
         **handler_kwargs: Any,
     ) -> None:
         """

@@ -56,12 +56,12 @@ class ProtocolRegistryArtifactInfo(Protocol):
         ```python
         @runtime_checkable
         class RegistryArtifactInfoImpl:
-            name: str = "workflow-orchestrator"
-            version: str = "1.2.0"
+            name: str | None = None
+            version: str | None = None
             artifact_type: RegistryArtifactType = ARTIFACT_TYPE_NODES
-            path: str = "/nodes/workflow/orchestrator.py"
-            metadata: ProtocolArtifactMetadata = metadata_impl
-            is_wip: bool = False
+            path: str | None = None
+            metadata: "ProtocolArtifactMetadata" = metadata_impl
+            is_wip: bool | None = None
 
         # Usage in registry operations
         artifact: ProtocolRegistryArtifactInfo = RegistryArtifactInfoImpl()
@@ -101,12 +101,12 @@ class ProtocolRegistryStatus(Protocol):
         ```python
         @runtime_checkable
         class RegistryStatusImpl:
-            status: str = "ready"
-            message: str = "Registry loaded successfully with 42 artifacts"
-            artifact_count: int = 42
-            valid_artifact_count: int = 38
-            invalid_artifact_count: int = 2
-            wip_artifact_count: int = 2
+            status: str | None = None
+            message: str | None = None
+            artifact_count: int | None = None
+            valid_artifact_count: int | None = None
+            invalid_artifact_count: int | None = None
+            wip_artifact_count: int | None = None
             artifact_types_found: list[RegistryArtifactType] = [
                 ARTIFACT_TYPE_NODES, ARTIFACT_TYPE_CLI_TOOLS, ARTIFACT_TYPE_PACKAGES
             ]
