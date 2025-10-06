@@ -12,11 +12,12 @@ from typing import TYPE_CHECKING, Any, AsyncIterator, Protocol, runtime_checkabl
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types.protocol_core_types import ContextValue
+    from omnibase_spi.protocols.types.protocol_event_bus_types import ProtocolOnexEvent
 
 
 @runtime_checkable
-class ProtocolAgentEvent(Protocol):
-    """Protocol for agent event data."""
+class ProtocolBridgeAgentMessage(Protocol):
+    """Protocol for bridge agent event data."""
 
     event_type: str
     agent_id: str
@@ -25,8 +26,8 @@ class ProtocolAgentEvent(Protocol):
 
 
 @runtime_checkable
-class ProtocolProgressUpdate(Protocol):
-    """Protocol for progress update data."""
+class ProtocolBridgeProgressUpdate(Protocol):
+    """Protocol for agent progress update data."""
 
     agent_id: str
     progress: float
@@ -35,8 +36,8 @@ class ProtocolProgressUpdate(Protocol):
 
 
 @runtime_checkable
-class ProtocolWorkResult(Protocol):
-    """Protocol for work result data."""
+class ProtocolBridgeWorkResult(Protocol):
+    """Protocol for agent work result data."""
 
     agent_id: str
     success: bool
@@ -46,8 +47,8 @@ class ProtocolWorkResult(Protocol):
 
 
 @runtime_checkable
-class ProtocolOnexEvent(Protocol):
-    """Protocol for ONEX event data."""
+class ProtocolBridgeOnexEvent(Protocol):
+    """Protocol for bridge ONEX event data."""
 
     event_type: str
     source: str
@@ -56,8 +57,8 @@ class ProtocolOnexEvent(Protocol):
 
 
 @runtime_checkable
-class ProtocolWorkTicket(Protocol):
-    """Protocol for work ticket data."""
+class ProtocolAgentWorkTicket(Protocol):
+    """Protocol for agent work ticket data."""
 
     ticket_id: str
     agent_id: str
@@ -87,7 +88,7 @@ class ProtocolCommunicationBridge(Protocol):
         await bridge.register_agent("agent-001", "http://localhost:8080")
 
         # Forward work request
-        ticket = ProtocolWorkTicket(
+        ticket = ProtocolAgentWorkTicket(
             ticket_id="ticket-123",
             agent_id="agent-001",
             work_type="data_processing",
@@ -130,7 +131,7 @@ class ProtocolCommunicationBridge(Protocol):
     async def forward_work_request(
         self,
         agent_id: str,
-        ticket: "ProtocolWorkTicket",
+        ticket: "ProtocolAgentWorkTicket",
     ) -> bool:
         """
         Forward work request from ONEX to external agent.
@@ -171,7 +172,9 @@ class ProtocolCommunicationBridge(Protocol):
         """
         ...
 
-    async def receive_progress_update(self, update: "ProtocolProgressUpdate") -> None:
+    async def receive_progress_update(
+        self, update: "ProtocolBridgeProgressUpdate"
+    ) -> None:
         """
         Receive progress update from external agent.
 
@@ -183,7 +186,7 @@ class ProtocolCommunicationBridge(Protocol):
         """
         ...
 
-    async def receive_work_completion(self, result: "ProtocolWorkResult") -> None:
+    async def receive_work_completion(self, result: "ProtocolBridgeWorkResult") -> None:
         """
         Receive work completion notification from external agent.
 
@@ -195,7 +198,7 @@ class ProtocolCommunicationBridge(Protocol):
         """
         ...
 
-    async def receive_agent_event(self, event: "ProtocolAgentEvent") -> None:
+    async def receive_agent_event(self, event: "ProtocolBridgeAgentMessage") -> None:
         """
         Receive general event from external agent.
 
@@ -210,7 +213,7 @@ class ProtocolCommunicationBridge(Protocol):
     async def subscribe_to_agent_events(
         self,
         agent_id: str,
-    ) -> "AsyncIterator[ProtocolAgentEvent]":
+    ) -> "AsyncIterator[ProtocolBridgeAgentMessage]":
         """
         Subscribe to event stream from specific external agent.
 
@@ -336,7 +339,7 @@ class ProtocolCommunicationBridge(Protocol):
 
     async def transform_agent_to_onex_event(
         self,
-        agent_event: "ProtocolAgentEvent",
+        agent_event: "ProtocolBridgeAgentMessage",
     ) -> "ProtocolOnexEvent" | None:
         """
         Transform external agent event to ONEX event format.

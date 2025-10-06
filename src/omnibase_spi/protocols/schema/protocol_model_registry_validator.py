@@ -30,23 +30,23 @@ class ProtocolRegistryHealthReport(Protocol):
 class ProtocolModelRegistryValidator(Protocol):
     """Protocol for validating dynamic model registries and detecting conflicts"""
 
-    async def validate_action_registry(self) -> ProtocolValidationResult:
+    async def validate_action_registry(self) -> "ProtocolModelValidationResult":
         """Validate action registry for conflicts and compliance"""
         ...
 
-    async def validate_event_type_registry(self) -> ProtocolValidationResult:
+    async def validate_event_type_registry(self) -> "ProtocolModelValidationResult":
         """Validate event type registry for conflicts and compliance"""
         ...
 
-    async def validate_capability_registry(self) -> ProtocolValidationResult:
+    async def validate_capability_registry(self) -> "ProtocolModelValidationResult":
         """Validate capability registry for conflicts and compliance"""
         ...
 
-    async def validate_node_reference_registry(self) -> ProtocolValidationResult:
+    async def validate_node_reference_registry(self) -> "ProtocolModelValidationResult":
         """Validate node reference registry for conflicts and compliance"""
         ...
 
-    async def validate_all_registries(self) -> ProtocolValidationResult:
+    async def validate_all_registries(self) -> "ProtocolModelValidationResult":
         """Validate all dynamic registries comprehensively"""
         ...
 
@@ -56,7 +56,7 @@ class ProtocolModelRegistryValidator(Protocol):
 
     async def verify_contract_compliance(
         self, contract_path: str
-    ) -> ProtocolValidationResult:
+    ) -> "ProtocolModelValidationResult":
         """Verify a contract file complies with schema requirements"""
         ...
 
@@ -68,6 +68,6 @@ class ProtocolModelRegistryValidator(Protocol):
         """Get overall health status of all registries"""
         ...
 
-    async def audit_model_integrity(self) -> ProtocolValidationResult:
+    async def audit_model_integrity(self) -> "ProtocolModelValidationResult":
         """Audit integrity of all registered models"""
         ...

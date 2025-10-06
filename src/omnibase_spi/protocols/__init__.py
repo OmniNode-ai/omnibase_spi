@@ -202,8 +202,8 @@ from omnibase_spi.protocols.event_bus import (  # Phase 2 additions
 # File handling protocols (4 protocols) - File processing and ONEX metadata
 # Handles file type detection, processing, and metadata stamping
 from omnibase_spi.protocols.file_handling import (
-    ProtocolFileReader,
     ProtocolFileProcessingTypeHandler,
+    ProtocolFileReader,
     ProtocolStampOptions,
     ProtocolValidationOptions,
 )

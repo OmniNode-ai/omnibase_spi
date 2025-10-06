@@ -4,7 +4,7 @@ from omnibase_spi.protocols.types import ProtocolOnexResult
 
 
 @runtime_checkable
-class ProtocolValidationResult(Protocol):
+class ProtocolSchemaValidationResult(Protocol):
     """Protocol for validation results."""
 
     success: bool
@@ -23,11 +23,15 @@ class ProtocolTrustedSchemaLoader(Protocol):
         """Check if a path is safe for schema loading"""
         ...
 
-    async def load_schema_safely(self, schema_path: str) -> "ProtocolValidationResult":
+    async def load_schema_safely(
+        self, schema_path: str
+    ) -> "ProtocolSchemaValidationResult":
         """Safely load a schema file with security validation"""
         ...
 
-    async def resolve_ref_safely(self, ref_string: str) -> "ProtocolValidationResult":
+    async def resolve_ref_safely(
+        self, ref_string: str
+    ) -> "ProtocolSchemaValidationResult":
         """Safely resolve a $ref string with security validation"""
         ...
 

@@ -40,7 +40,7 @@ class ProtocolAgentConfig(Protocol):
 
 
 @runtime_checkable
-class ProtocolValidationResult(Protocol):
+class ProtocolAgentValidationResult(Protocol):
     """Protocol for validation result data structure."""
 
     is_valid: bool
@@ -69,7 +69,7 @@ class ProtocolAgentConfiguration(Protocol):
     async def validate_configuration(
         self,
         config: ProtocolAgentConfig,
-    ) -> "ProtocolValidationResult":
+    ) -> "ProtocolAgentValidationResult":
         """
         Validate agent configuration for correctness and security.
 

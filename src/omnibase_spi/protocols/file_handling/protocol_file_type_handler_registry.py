@@ -75,7 +75,9 @@ class ProtocolFileTypeHandlerRegistry(Protocol):
         - Provides handler metadata for discovery
     """
 
-    def register(self, extension: str, handler: "ProtocolFileProcessingTypeHandler") -> None:
+    def register(
+        self, extension: str, handler: "ProtocolFileProcessingTypeHandler"
+    ) -> None:
         """
         Register a handler for a file extension.
 
@@ -119,7 +121,9 @@ class ProtocolFileTypeHandlerRegistry(Protocol):
         """
         ...
 
-    async def get_handler(self, path: str) -> "ProtocolFileProcessingTypeHandler | None":
+    async def get_handler(
+        self, path: str
+    ) -> "ProtocolFileProcessingTypeHandler | None":
         """
         Return the handler for the given path, or None if unhandled.
 
@@ -131,7 +135,9 @@ class ProtocolFileTypeHandlerRegistry(Protocol):
         """
         ...
 
-    async def get_named_handler(self, name: str) -> "ProtocolFileProcessingTypeHandler | None":
+    async def get_named_handler(
+        self, name: str
+    ) -> "ProtocolFileProcessingTypeHandler | None":
         """
         Get a handler by name.
 

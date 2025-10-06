@@ -62,7 +62,7 @@ class ProtocolValidator(Protocol):
 
     async def validate_implementation(
         self, implementation: T, protocol: type[P]
-    ) -> ProtocolValidationResult: ...
+    ) -> "ProtocolValidationResult": ...
 
 
 @runtime_checkable
@@ -71,6 +71,6 @@ class ProtocolValidationDecorator(Protocol):
 
     async def validate_protocol_implementation(
         self, implementation: T, protocol: type[P], strict: bool = True
-    ) -> ProtocolValidationResult: ...
+    ) -> "ProtocolValidationResult": ...
 
     def validation_decorator(self, protocol: type[P]) -> object: ...

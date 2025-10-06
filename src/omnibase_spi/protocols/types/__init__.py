@@ -95,7 +95,6 @@ from omnibase_spi.protocols.types.protocol_core_types import (
     ProtocolAnalyticsSummary,
     ProtocolAuditEvent,
     ProtocolCacheStatistics,
-    ProtocolCheckpointData,
     ProtocolCompatibilityCheck,
     ProtocolConfigurable,
     ProtocolConfigValue,
@@ -145,11 +144,6 @@ from omnibase_spi.protocols.types.protocol_core_types import (
     ProtocolServiceInstance,
     ProtocolServiceMetadata,
     ProtocolState,
-    ProtocolStorageConfiguration,
-    ProtocolStorageCredentials,
-    ProtocolStorageHealthStatus,
-    ProtocolStorageListResult,
-    ProtocolStorageResult,
     ProtocolSupportedMetadataType,
     ProtocolSupportedPropertyValue,
     ProtocolSystemEvent,
@@ -158,6 +152,16 @@ from omnibase_spi.protocols.types.protocol_core_types import (
     ProtocolTraceSpan,
     ProtocolValidatable,
     ProtocolVersionInfo,
+)
+
+# Storage types
+from omnibase_spi.protocols.types.protocol_storage_types import (
+    ProtocolCheckpointData,
+    ProtocolStorageConfiguration,
+    ProtocolStorageCredentials,
+    ProtocolStorageHealthStatus,
+    ProtocolStorageListResult,
+    ProtocolStorageResult,
 )
 
 # Validation types

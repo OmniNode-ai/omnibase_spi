@@ -263,9 +263,9 @@ class ProtocolSerializationResult(Protocol):
 
 
 @runtime_checkable
-class ProtocolNodeConfiguration(Protocol):
+class ProtocolNodeConfigurationData(Protocol):
     """
-    Protocol for ONEX node configuration objects.
+    Protocol for ONEX node configuration data objects.
 
     Defines the configuration structure for nodes in the ONEX distributed system,
     including execution parameters, resource limits, and behavioral settings.
@@ -642,8 +642,8 @@ class ProtocolServiceHealthStatus(Protocol):
 
 
 @runtime_checkable
-class ProtocolCheckpointData(Protocol):
-    """Protocol for checkpoint data."""
+class ProtocolGenericCheckpointData(Protocol):
+    """Protocol for generic checkpoint data."""
 
     checkpoint_id: str
     workflow_id: str
@@ -657,8 +657,8 @@ class ProtocolCheckpointData(Protocol):
 
 
 @runtime_checkable
-class ProtocolStorageCredentials(Protocol):
-    """Protocol for storage credentials."""
+class ProtocolGenericStorageCredentials(Protocol):
+    """Protocol for generic storage credentials."""
 
     credential_type: str
     data: dict[str, "ContextValue"]
@@ -669,8 +669,8 @@ class ProtocolStorageCredentials(Protocol):
 
 
 @runtime_checkable
-class ProtocolStorageConfiguration(Protocol):
-    """Protocol for storage configuration."""
+class ProtocolGenericStorageConfiguration(Protocol):
+    """Protocol for generic storage configuration."""
 
     backend_type: str
     connection_string: str
@@ -683,8 +683,8 @@ class ProtocolStorageConfiguration(Protocol):
 
 
 @runtime_checkable
-class ProtocolStorageResult(Protocol):
-    """Protocol for storage operation results."""
+class ProtocolGenericStorageResult(Protocol):
+    """Protocol for generic storage operation results."""
 
     success: bool
     data: dict[str, "ContextValue"] | None
@@ -697,8 +697,8 @@ class ProtocolStorageResult(Protocol):
 
 
 @runtime_checkable
-class ProtocolStorageListResult(Protocol):
-    """Protocol for storage list operation results."""
+class ProtocolGenericStorageListResult(Protocol):
+    """Protocol for generic storage list operation results."""
 
     success: bool
     items: list[dict[str, "ContextValue"]]
@@ -712,8 +712,8 @@ class ProtocolStorageListResult(Protocol):
 
 
 @runtime_checkable
-class ProtocolStorageHealthStatus(Protocol):
-    """Protocol for storage health status."""
+class ProtocolGenericStorageHealthStatus(Protocol):
+    """Protocol for generic storage health status."""
 
     is_healthy: bool
     status_details: dict[str, "ContextValue"]
