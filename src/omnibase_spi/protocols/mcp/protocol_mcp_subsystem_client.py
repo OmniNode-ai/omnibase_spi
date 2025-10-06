@@ -27,7 +27,43 @@ from omnibase_spi.protocols.validation.protocol_validation import (
 
 @runtime_checkable
 class ProtocolMCPSubsystemConfig(Protocol):
-    """Protocol for MCP subsystem configuration."""
+    """
+    Protocol for MCP subsystem configuration.
+
+    Defines the interface for MCP subsystem configuration including registry connection,
+    authentication, tool definitions, and operational parameters for subsystem integration.
+
+    Example:
+        class MCPSubsystemConfig(ProtocolMCPSubsystemConfig):
+            def __init__(self, subsystem_metadata, registry_url, api_key, tool_definitions):
+                self.subsystem_metadata = subsystem_metadata
+                self.registry_url = registry_url
+                self.api_key = api_key
+                self.heartbeat_interval = 30
+                self.tool_definitions = tool_definitions
+                self.auto_register = True
+                self.retry_count = 3
+                self.timeout_seconds = 30
+                self.health_check_endpoint = f"{registry_url}/health"
+                self.configuration = {"environment": "production"}
+
+            async def validate_configuration(self):
+                # Validate configuration parameters
+                return (
+                    self.subsystem_metadata is not None and
+                    self.registry_url and
+                    self.api_key and
+                    len(self.tool_definitions) > 0
+                )
+
+            def get_connection_params(self):
+                return {
+                    "url": self.registry_url,
+                    "timeout": self.timeout_seconds,
+                    "retry_count": self.retry_count,
+                    "api_key": self.api_key
+                }
+    """
 
     subsystem_metadata: ProtocolMCPSubsystemMetadata
     registry_url: str

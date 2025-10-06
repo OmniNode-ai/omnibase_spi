@@ -43,12 +43,19 @@ from omnibase_spi.protocols.workflow_orchestration.protocol_workflow_persistence
     ProtocolSnapshotStore,
 )
 
+# Additional workflow protocols moved from core
+from .protocol_workflow_reducer import ProtocolWorkflowReducer
+
+# Type alias for backward compatibility
+ProtocolReducer = ProtocolWorkflowReducer
+
 # Work queue protocols
 from .protocol_work_queue import (
     LiteralAssignmentStrategy,
     LiteralWorkQueuePriority,
     ProtocolWorkQueue,
 )
+from .protocol_workflow_manageable import ProtocolWorkflowManageable
 
 __all__ = [
     "LiteralAssignmentStrategy",
@@ -69,4 +76,8 @@ __all__ = [
     "ProtocolWorkflowNodeInfo",
     "ProtocolWorkflowNodeRegistry",
     "ProtocolWorkQueue",
+    "ProtocolWorkflowManageable",
+    "ProtocolWorkflowReducer",
+    # Type alias for backward compatibility
+    "ProtocolReducer",
 ]

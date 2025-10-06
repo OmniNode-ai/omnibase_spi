@@ -7,7 +7,7 @@ assignment, processing, and status synchronization.
 """
 
 from collections.abc import AsyncIterator
-from typing import TYPE_CHECKING, Any, Literal, Protocol, Union, runtime_checkable
+from typing import TYPE_CHECKING, Any, Literal, Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 
@@ -29,16 +29,14 @@ class ProtocolWorkQueue(Protocol):
 
     async def connect_to_work_system(self) -> bool: ...
 
-    async def fetch_pending_tickets(
-        self, limit: Union[int, None] = None
-    ) -> list[Any]: ...
+    async def fetch_pending_tickets(self, limit: int | None = None) -> list[Any]: ...
 
     async def subscribe_to_ticket_updates(self) -> AsyncIterator[Any]: ...
 
     async def assign_ticket_to_agent(self, ticket_id: str, agent_id: str) -> Any: ...
 
     async def update_ticket_status(
-        self, ticket_id: str, status: str, message: Union[str, None] = None
+        self, ticket_id: str, status: str, message: str | None = None
     ) -> bool: ...
 
     async def update_ticket_progress(
@@ -51,7 +49,7 @@ class ProtocolWorkQueue(Protocol):
 
     async def fail_ticket(self, ticket_id: str, error_message: str) -> bool: ...
 
-    async def get_ticket_by_id(self, ticket_id: str) -> Union[Any, None]: ...
+    async def get_ticket_by_id(self, ticket_id: str) -> Any | None: ...
 
     async def get_tickets_by_priority(
         self, priority: LiteralWorkQueuePriority
@@ -61,8 +59,8 @@ class ProtocolWorkQueue(Protocol):
 
     async def get_available_tickets(
         self,
-        agent_capabilities: Union[list[str], None] = None,
-        max_priority: Union["LiteralWorkQueuePriority", None] = None,
+        agent_capabilities: list[str] | None = None,
+        max_priority: "LiteralWorkQueuePriority" | None = None,
     ) -> list[Any]: ...
 
     async def reserve_ticket(

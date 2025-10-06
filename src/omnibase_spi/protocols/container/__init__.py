@@ -21,6 +21,10 @@ from .protocol_artifact_container import (
     ProtocolArtifactInfo,
     ProtocolArtifactMetadata,
 )
+from .protocol_cache_service import ProtocolCacheService
+from .protocol_client_config import ProtocolClientConfigProvider
+from .protocol_configuration_manager import ProtocolConfigurationManager
+from .protocol_connection_manageable import ProtocolConnectionManageable
 from .protocol_container_service import ProtocolContainerService
 
 # Export DI-specific protocols with clear naming to avoid collision with core types
@@ -62,6 +66,10 @@ __all__ = [
     "ProtocolArtifactContainerStatus",
     "ProtocolArtifactInfo",
     "ProtocolArtifactMetadata",
+    "ProtocolCacheService",
+    "ProtocolClientConfigProvider",
+    "ProtocolConfigurationManager",
+    "ProtocolConnectionManageable",
     "ProtocolContainerService",
     "ProtocolDependencyGraph",
     "ProtocolDIServiceInstance",

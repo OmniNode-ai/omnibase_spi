@@ -5,7 +5,7 @@ These protocols extend the base event bus with workflow-specific
 messaging patterns, event sourcing, and orchestration coordination.
 """
 
-from typing import TYPE_CHECKING, Any, Protocol, Union, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 from uuid import UUID
 
 from omnibase_spi.protocols.types.protocol_core_types import ContextValue
@@ -28,11 +28,11 @@ class ProtocolWorkflowEventMessage(Protocol):
     """
 
     topic: str
-    key: Union[bytes, None]
+    key: bytes | None
     value: bytes
     headers: dict[str, ContextValue]
-    offset: Union[str, None]
-    partition: Union[int, None]
+    offset: str | None
+    partition: int | None
     workflow_type: str
     instance_id: UUID
     correlation_id: UUID
@@ -98,15 +98,15 @@ class ProtocolWorkflowEventBus(Protocol):
     async def publish_workflow_event(
         self,
         event: "ProtocolWorkflowEvent",
-        target_topic: Union[str, None] = None,
-        partition_key: Union[str, None] = None,
+        target_topic: str | None = None,
+        partition_key: str | None = None,
     ) -> None: ...
 
     async def subscribe_to_workflow_events(
         self,
         workflow_type: str,
-        event_types: Union[list[LiteralWorkflowEventType], None] = None,
-        handler: Union["ProtocolWorkflowEventHandler", None] = None,
+        event_types: list[LiteralWorkflowEventType] | None = None,
+        handler: "ProtocolWorkflowEventHandler" | None = None,
     ) -> str: ...
 
     async def unsubscribe_from_workflow_events(self, subscription_id: str) -> None: ...
@@ -116,8 +116,8 @@ class ProtocolWorkflowEventBus(Protocol):
         workflow_type: str,
         instance_id: UUID,
         from_sequence: int,
-        to_sequence: Union[int, None] = None,
-        handler: Union["ProtocolWorkflowEventHandler", None] = None,
+        to_sequence: int | None = None,
+        handler: "ProtocolWorkflowEventHandler" | None = None,
     ) -> list["ProtocolWorkflowEvent"]: ...
 
     async def register_projection(

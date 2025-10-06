@@ -1,117 +1,114 @@
 """
-Protocol for node discovery and registration.
+Protocol for handler discovery and registration.
 
-This protocol defines the interface for discovering and registering file type nodes
+This protocol defines the interface for discovering and registering file type handlers
 without requiring hardcoded imports in the core registry. It enables plugin-based
-architecture where nodes can be discovered dynamically.
+architecture where handlers can be discovered dynamically.
 """
 
-from typing import TYPE_CHECKING, Protocol, Type, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    from omnibase_spi.protocols.file_handling.protocol_file_type_handler import (
-        ProtocolFileTypeHandler,
-    )
+    # Forward reference for file type handler protocol
+    @runtime_checkable
+    class ProtocolFileTypeHandler(Protocol):
+        """
+        Protocol for file type handlers.
+
+        Defines the interface for handling specific file types in the ONEX system.
+
+        Examples:
+            ```python
+            class JsonFileHandler:
+                name: str = "json"
+                extensions: list[str] = [".json"]
+                special_files: list[str] = ["package.json"]
+            ```
+        """
+
+        name: str
+        extensions: list[str]
+        special_files: list[str]
 
 
 @runtime_checkable
 class ProtocolHandlerInfo(Protocol):
-    """Protocol for node information objects."""
+    """
+    Protocol for handler information.
 
-    node_class: Type["ProtocolFileTypeHandler"]
+    Contains metadata about discovered file type handlers including their
+    capabilities, priority, and source information.
+
+    Examples:
+        ```python
+        handler_info: ProtocolHandlerInfo
+        assert handler_info.name == "json_handler"
+        assert handler_info.source == "core"
+        ```
+    """
+
+    handler_class: type["ProtocolFileTypeHandler"]
     name: str
     source: str
     priority: int
     extensions: list[str]
     special_files: list[str]
-    metadata: dict[str, str | int | float | bool]
+    metadata: dict[str, Any]
 
 
 @runtime_checkable
 class ProtocolHandlerDiscovery(Protocol):
     """
-        Protocol for discovering file type nodes.
+    Protocol for discovering file type handlers.
 
-        Implementations of this protocol can discover nodes from various sources
-        (entry points, configuration files, environment variables, etc.) without
-        requiring hardcoded imports in the core registry.
-
-        Usage Example:
-            ```python
-            # Implementation example (not part of SPI)
-            class EntryPointNodeDiscovery:
-                @property
-                def group_name(self) -> str: ...
-
-
-                @property
-                def discovered_nodes(self) -> list[Any]: ...
-
-
-                async def discover_nodes(self) -> list["ProtocolHandlerInfo"]:
-                    # Discover nodes from Python entry points
-
-                def get_source_name(self) -> str:
-    class ConfigFileNodeDiscovery:
-                @property
-                def config_path(self) -> Any: ...
-
-
-                async def discover_nodes(self) -> list["ProtocolHandlerInfo"]:
-                    # Discover nodes from configuration file
-
-                def get_source_name(self) -> str:
-    class EnvironmentNodeDiscovery:
-                @property
-                def env_prefix(self) -> str: ...
-
-
-                async def discover_nodes(self) -> list["ProtocolHandlerInfo"]:
-                    # Discover nodes from environment variables
-
-                def get_source_name(self) -> str:
-
-            # Usage in application
-            registry: "ProtocolNodeDiscoveryRegistry" = NodeDiscoveryRegistryImpl()
-
-            # Register multiple discovery sources
-            entry_point_discovery: "ProtocolHandlerDiscovery" = EntryPointNodeDiscovery(group_name="your.entry.point.group")
-            config_discovery: "ProtocolHandlerDiscovery" = ConfigFileNodeDiscovery(config_path="path/to/config.yaml")
-            env_discovery: "ProtocolHandlerDiscovery" = EnvironmentNodeDiscovery(env_prefix="YOUR_NODE_PREFIX_")
-
-            registry.register_discovery_source(entry_point_discovery)
-            registry.register_discovery_source(config_discovery)
-            registry.register_discovery_source(env_discovery)
-
-            # Discover and register all nodes
-            registry.discover_and_register_nodes()
-
-            # Print discovered nodes
-            ```
-
-        Discovery Implementation Patterns:
-            - Entry Points: Use setuptools entry points for plugin architecture
-            - Configuration Files: YAML/JSON configuration with dynamic imports
-            - Environment Variables: Runtime node registration via env vars
-            - Directory Scanning: Automatic discovery from node directories
-            - Metadata Caching: Cache node metadata for performance
-            - Error Handling: Graceful fallback when nodes fail to load
+    Implementations of this protocol can discover handlers from various sources
+    (entry points, configuration files, environment variables, etc.) without
+    requiring hardcoded imports in the core registry.
     """
 
-    async def discover_nodes(self) -> list["ProtocolHandlerInfo"]: ...
+    async def discover_handlers(self) -> list["ProtocolHandlerInfo"]: ...
+    async def get_source_name(self) -> str:
+        """
+        Get the name of this discovery source.
+
+        Returns:
+            Human-readable name for this discovery source
+        """
+        ...
 
 
 @runtime_checkable
-class ProtocolNodeDiscoveryRegistry(Protocol):
+class ProtocolHandlerRegistry(Protocol):
     """
-    Protocol for node registries that support dynamic discovery.
+    Protocol for handler registries that support dynamic discovery.
 
-    This protocol extends the basic node registry with discovery capabilities,
-    allowing nodes to be registered from multiple sources without hardcoded imports.
+    This protocol extends the basic handler registry with discovery capabilities,
+    allowing handlers to be registered from multiple sources without hardcoded imports.
     """
 
     async def register_discovery_source(
         self, discovery: "ProtocolHandlerDiscovery"
-    ) -> None: ...
+    ) -> None:
+        """
+        Register a handler discovery source.
 
-    async def discover_and_register_nodes(self) -> None: ...
+        Args:
+            discovery: Handler discovery implementation
+        """
+        ...
+
+    async def discover_and_register_handlers(self) -> None:
+        """
+        Discover and register handlers from all registered discovery sources.
+        """
+        ...
+
+    async def register_handler_info(self, handler_info: "ProtocolHandlerInfo") -> None:
+        """
+            ...
+        Register a handler from HandlerInfo.
+
+        Args:
+            handler_info: Information about the handler to register
+        """
+        ...

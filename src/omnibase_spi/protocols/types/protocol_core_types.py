@@ -263,6 +263,44 @@ class ProtocolSerializationResult(Protocol):
 
 
 @runtime_checkable
+class ProtocolNodeConfiguration(Protocol):
+    """
+    Protocol for ONEX node configuration objects.
+
+    Defines the configuration structure for nodes in the ONEX distributed system,
+    including execution parameters, resource limits, and behavioral settings.
+
+    Key Features:
+        - Execution parameters and settings
+        - Resource limits and constraints
+        - Behavioral configuration options
+        - Node-specific configuration metadata
+
+    Usage:
+        config = await node.get_node_config()
+        max_memory = config.resource_limits.get("max_memory_mb")
+        timeout_seconds = config.execution_parameters.get("timeout_seconds")
+    """
+
+    @property
+    def execution_parameters(self) -> dict[str, "ContextValue"]: ...
+    @property
+    def resource_limits(self) -> dict[str, "ContextValue"]:
+        """Resource limits and constraints."""
+        ...
+
+    @property
+    def behavioral_settings(self) -> dict[str, "ContextValue"]:
+        """Behavioral configuration options."""
+        ...
+
+    @property
+    def configuration_metadata(self) -> dict[str, "ContextValue"]:
+        """Configuration-specific metadata."""
+        ...
+
+
+@runtime_checkable
 class ProtocolNodeMetadata(Protocol):
     """
     Protocol for ONEX node metadata objects.
@@ -1320,3 +1358,26 @@ class ProtocolValidatable(Protocol):
     async def get_validation_id(self) -> str: ...
 
     ...
+
+
+@runtime_checkable
+class ProtocolOnexInputState(Protocol):
+    """Protocol for ONEX input state objects."""
+
+    input_string: str
+    source_format: str
+    metadata: dict[str, "ContextValue"]
+
+    async def validate_input_state(self) -> bool: ...
+
+
+@runtime_checkable
+class ProtocolOnexOutputState(Protocol):
+    """Protocol for ONEX output state objects."""
+
+    output_string: str
+    target_format: str
+    conversion_success: bool
+    metadata: dict[str, "ContextValue"]
+
+    async def validate_output_state(self) -> bool: ...

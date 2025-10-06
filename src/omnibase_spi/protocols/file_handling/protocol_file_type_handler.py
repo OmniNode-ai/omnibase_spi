@@ -13,24 +13,81 @@ from omnibase_spi.protocols.types.protocol_file_handling_types import (
     ProtocolSerializedBlock,
 )
 
+
 @runtime_checkable
 class ProtocolStampOptions(Protocol):
-    """Protocol for stamping operation options."""
+    """
+    Protocol for stamping operation options in ONEX ecosystem.
+
+    Defines the contract for configuration options that control
+    stamping operations across different file types and handlers.
+
+    Key Features:
+        - Force stamping override controls
+        - Backup creation for safety
+        - Dry-run mode for validation
+        - Consistent option interface across handlers
+
+    Usage Example:
+        ```python
+        options: ProtocolStampOptions = SomeStampOptions()
+
+        # Configure stamping behavior
+        if options.force:
+            # Override existing stamps
+            pass
+        if options.backup:
+            # Create backup before stamping
+            pass
+        if options.dry_run:
+            # Validate without making changes
+            pass
+        ```
+    """
 
     force: bool
     backup: bool
     dry_run: bool
 
+
 @runtime_checkable
 class ProtocolValidationOptions(Protocol):
-    """Protocol for validation operation options."""
+    """
+    Protocol for validation operation options in ONEX ecosystem.
+
+    Defines the contract for configuration options that control
+    validation operations across different file types and handlers.
+
+    Key Features:
+        - Strict validation mode controls
+        - Verbose output and logging
+        - Syntax checking options
+        - Consistent validation interface
+
+    Usage Example:
+        ```python
+        options: ProtocolValidationOptions = SomeValidationOptions()
+
+        # Configure validation behavior
+        if options.strict:
+            # Enable strict validation rules
+            pass
+        if options.verbose:
+            # Enable detailed logging and output
+            pass
+        if options.check_syntax:
+            # Enable syntax checking
+            pass
+        ```
+    """
 
     strict: bool
     verbose: bool
     check_syntax: bool
 
+
 @runtime_checkable
-class ProtocolFileTypeHandler(Protocol):
+class ProtocolFileProcessingTypeHandler(Protocol):
     """
     Protocol for file type nodes in the ONEX stamper engine.
     All methods and metadata must use canonical result models per typing_and_protocols rule.
@@ -42,7 +99,7 @@ class ProtocolFileTypeHandler(Protocol):
         # All methods defined in the protocol contract
 
         # Usage in application
-        node: "ProtocolFileTypeHandler" = NodePythonFileProcessor()
+        node: "ProtocolFileProcessingTypeHandler" = NodePythonFileProcessor()
 
         # Check if node can process a file
         result = node.can_handle("example.py", "file_content")
@@ -92,11 +149,11 @@ class ProtocolFileTypeHandler(Protocol):
         self, path: str, content: str
     ) -> ProtocolExtractedBlock: ...
 
-    def serialize_block(
+    async def serialize_block(
         self, meta: ProtocolExtractedBlock
     ) -> ProtocolSerializedBlock: ...
 
-    def normalize_rest(self, rest: str) -> str: ...
+    async def normalize_rest(self, rest: str) -> str: ...
 
     async def stamp(
         self, path: str, content: str, options: ProtocolStampOptions

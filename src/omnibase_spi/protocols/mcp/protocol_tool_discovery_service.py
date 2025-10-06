@@ -53,7 +53,7 @@ class ProtocolToolDiscoveryService(Protocol):
         ```
     """
 
-    def resolve_tool_from_contract(
+    async def resolve_tool_from_contract(
         self, metadata: ProtocolMetadata, registry: object, contract_path: str
     ) -> ProtocolToolInstance: ...
 

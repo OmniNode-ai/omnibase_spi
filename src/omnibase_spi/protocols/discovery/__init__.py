@@ -9,11 +9,11 @@ Node discovery and registration protocols:
 from .protocol_handler_discovery import (
     ProtocolHandlerDiscovery,
     ProtocolHandlerInfo,
-    ProtocolNodeDiscoveryRegistry,
+    ProtocolHandlerRegistry,
 )
 
 __all__ = [
     "ProtocolHandlerDiscovery",
     "ProtocolHandlerInfo",
-    "ProtocolNodeDiscoveryRegistry",
+    "ProtocolHandlerRegistry",
 ]

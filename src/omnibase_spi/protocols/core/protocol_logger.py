@@ -18,12 +18,12 @@ class ProtocolLogger(Protocol):
 
     Example:
         class MyLogger:
-            def emit(self, level: LiteralLogLevel, message: str, correlation_id: UUID) -> None:
+            async def emit(self, level: LiteralLogLevel, message: str, correlation_id: UUID) -> None:
 
-            def log(self, entry: "ProtocolLogEntry") -> None:
+            async def log(self, entry: "ProtocolLogEntry") -> None:
     """
 
-    def emit(
+    async def emit(
         self,
         level: LiteralLogLevel,
         message: str,
@@ -31,6 +31,6 @@ class ProtocolLogger(Protocol):
         context: Optional[ProtocolLogContext] = None,
     ) -> None: ...
 
-    def log(self, entry: "ProtocolLogEntry") -> None: ...
+    async def log(self, entry: "ProtocolLogEntry") -> None: ...
 
-    def is_level_enabled(self, level: LiteralLogLevel) -> bool: ...
+    async def is_level_enabled(self, level: LiteralLogLevel) -> bool: ...

@@ -1,5 +1,18 @@
-from typing import Awaitable, Callable, Literal, Protocol, runtime_checkable
-from uuid import UUID
+from datetime import datetime
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Awaitable,
+    Callable,
+    Literal,
+    Protocol,
+    Union,
+    runtime_checkable,
+)
+from uuid import UUID, uuid4
+
+if TYPE_CHECKING:
+    pass
 
 from omnibase_spi.protocols.types.protocol_core_types import (
     ContextValue,
@@ -105,12 +118,12 @@ class ProtocolKafkaEventBusAdapter(Protocol):
         await adapter.publish(
             topic="user-events",
             key=b"user-123",
-            value=json.dumps({"event": "user_created"}).encode(),
+            value=b'{"event": "user_created"}',  # Example encoded JSON
             headers={
                 "content_type": "application/json",
-                "correlation_id": uuid.uuid4(),
-                "message_id": uuid.uuid4(),
-                "timestamp": datetime.now(),
+                "correlation_id": str(uuid4()),
+                "message_id": str(uuid4()),
+                "timestamp": datetime.now().isoformat(),
                 "source": "example-service",
                 "event_type": "user.created",
                 "schema_version": SemVerImplementation(1, 0, 0)  # Implementation example
@@ -119,8 +132,9 @@ class ProtocolKafkaEventBusAdapter(Protocol):
 
         # Subscribing to events
         async def handle_message(msg: "ProtocolEventMessage") -> None:
-            data = json.loads(msg.value.decode())
-            print(f"Received: {data}")
+            # Note: Implementation would use json.loads for message processing
+            # This is just documentation showing the expected interface
+            print(f"Received event message")
             await msg.ack()
 
         unsubscribe = await adapter.subscribe(
