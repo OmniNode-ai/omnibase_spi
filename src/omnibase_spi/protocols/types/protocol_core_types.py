@@ -1362,13 +1362,25 @@ class ProtocolValidatable(Protocol):
 
 @runtime_checkable
 class ProtocolOnexInputState(Protocol):
-    """Protocol for ONEX input state objects."""
+    """
+    Protocol for ONEX input state objects.
+
+    Used for format conversion and string transformation operations.
+    Distinct from ProtocolWorkflowInputState which handles workflow orchestration.
+    """
 
     input_string: str
     source_format: str
     metadata: dict[str, "ContextValue"]
 
-    async def validate_input_state(self) -> bool: ...
+    async def validate_onex_input(self) -> bool:
+        """
+        Validate ONEX input state for format conversion.
+
+        Returns:
+            True if input string and source format are valid
+        """
+        ...
 
 
 @runtime_checkable

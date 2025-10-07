@@ -517,14 +517,26 @@ class ProtocolWorkTicket(Protocol):
 
 @runtime_checkable
 class ProtocolWorkflowInputState(Protocol):
-    """Protocol for workflow input state objects."""
+    """
+    Protocol for workflow input state objects.
+
+    Used for workflow orchestration input data and parameters.
+    Distinct from ProtocolOnexInputState which handles format conversion.
+    """
 
     workflow_type: str
     input_data: dict[str, "ContextValue"]
     parameters: dict[str, "ContextValue"]
     metadata: dict[str, "ContextValue"]
 
-    async def validate_input_state(self) -> bool: ...
+    async def validate_workflow_input(self) -> bool:
+        """
+        Validate workflow input state for orchestration.
+
+        Returns:
+            True if workflow_type, input_data, and parameters are valid
+        """
+        ...
 
 
 @runtime_checkable
