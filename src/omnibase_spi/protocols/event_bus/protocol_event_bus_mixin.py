@@ -5,7 +5,7 @@ Provides clean protocol interfaces for event bus operations without
 implementation dependencies or mixin complexity.
 """
 
-from typing import TYPE_CHECKING, Optional, Protocol, Union, runtime_checkable
+from typing import TYPE_CHECKING, Optional, Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import LiteralLogLevel
 from omnibase_spi.protocols.types.protocol_event_bus_types import ProtocolEventMessage
@@ -69,7 +69,7 @@ class ProtocolAsyncEventBus(ProtocolEventBusBase, Protocol):
 
 
 @runtime_checkable
-class ProtocolRegistryWithBus(Protocol):
+class ProtocolEventBusRegistry(Protocol):
     """
     Protocol for registry that provides event bus access.
 
@@ -90,7 +90,7 @@ class ProtocolRegistryWithBus(Protocol):
 
 
 @runtime_checkable
-class ProtocolLogEmitter(Protocol):
+class ProtocolEventBusLogEmitter(Protocol):
     """
     Protocol for structured log emission.
 

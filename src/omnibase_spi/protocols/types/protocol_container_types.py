@@ -4,12 +4,13 @@ Container protocol types for ONEX SPI interfaces.
 Domain: Dependency injection and service container protocols
 """
 
-from typing import Any, Callable, Literal, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Callable, Literal, Protocol, runtime_checkable
 
-from omnibase_spi.protocols.types.protocol_core_types import (
-    ContextValue,
-    ProtocolSemVer,
-)
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.types.protocol_core_types import (
+        ContextValue,
+        ProtocolSemVer,
+    )
 
 LiteralContainerStatus = Literal["initializing", "ready", "error", "disposed"]
 LiteralServiceLifecycle = Literal["singleton", "transient", "scoped", "factory"]
@@ -61,7 +62,7 @@ class ProtocolRegistryWrapper(Protocol):
 
     async def get_service(self, service_key: str) -> object: ...
 
-    async def get_node_version(self) -> ProtocolSemVer: ...
+    async def get_node_version(self) -> "ProtocolSemVer": ...
 
 
 @runtime_checkable

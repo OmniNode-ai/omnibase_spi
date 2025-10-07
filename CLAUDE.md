@@ -22,6 +22,28 @@ A pure protocol interface repository defining service contracts for the ONEX dis
 4. **Workflow Isolation**: `{workflowType, instanceId}` isolation with correlation chains
 5. **Type Safety**: Strong typing with no `Any` usage in public interfaces
 
+### Important Protocol Distinctions
+
+**ProtocolOnexInputState vs ProtocolWorkflowInputState**
+
+These protocols serve completely different purposes and should not be consolidated:
+
+- **ProtocolOnexInputState** (defined in `protocol_core_types.py`):
+  - **Purpose**: Format conversion and string transformation operations
+  - **Domain**: Schema/naming conventions, code generation
+  - **Attributes**: `input_string`, `source_format`, `metadata`
+  - **Validation Method**: `validate_onex_input()` - validates input format for transformation
+  - **Usage**: Used by naming convention utilities, class/file name generators
+
+- **ProtocolWorkflowInputState** (defined in `protocol_workflow_orchestration_types.py`):
+  - **Purpose**: Workflow orchestration input data and parameters
+  - **Domain**: Workflow orchestration, event-driven FSM
+  - **Attributes**: `workflow_type`, `input_data`, `parameters`, `metadata`
+  - **Validation Method**: `validate_workflow_input()` - validates workflow orchestration input
+  - **Usage**: Used by workflow orchestrator for FSM state management
+
+**Why They Are Distinct**: These protocols represent fundamentally different domain concepts. One handles string/format transformations (ONEX input), while the other handles workflow orchestration data (Workflow input). Consolidating them would violate domain separation and semantic clarity.
+
 ### Domain Organization
 
 ```

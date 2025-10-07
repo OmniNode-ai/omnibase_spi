@@ -215,20 +215,19 @@ if TYPE_CHECKING:
         ProtocolArtifactContainer as ProtocolArtifactContainer,
     )
     from omnibase_spi.protocols.container import (
+        ProtocolCacheService as ProtocolCacheService,
+    )
+    from omnibase_spi.protocols.container import (
         ProtocolServiceRegistry as ProtocolServiceRegistry,
     )
-    from omnibase_spi.protocols.core import ProtocolCacheService as ProtocolCacheService
     from omnibase_spi.protocols.core import ProtocolLogger as ProtocolLogger
-    from omnibase_spi.protocols.core import ProtocolNodeRegistry as ProtocolNodeRegistry
-    from omnibase_spi.protocols.core import (
-        ProtocolWorkflowReducer as ProtocolWorkflowReducer,
-    )
     from omnibase_spi.protocols.event_bus import ProtocolEventBus as ProtocolEventBus
     from omnibase_spi.protocols.mcp import ProtocolMCPRegistry as ProtocolMCPRegistry
     from omnibase_spi.protocols.mcp import (
         ProtocolMCPSubsystemClient as ProtocolMCPSubsystemClient,
     )
     from omnibase_spi.protocols.mcp import ProtocolMCPToolProxy as ProtocolMCPToolProxy
+    from omnibase_spi.protocols.node import ProtocolNodeRegistry as ProtocolNodeRegistry
     from omnibase_spi.protocols.validation import (
         ProtocolValidationResult as ProtocolValidationResult,
     )
@@ -241,4 +240,7 @@ if TYPE_CHECKING:
     )
     from omnibase_spi.protocols.workflow_orchestration import (
         ProtocolWorkflowNodeRegistry as ProtocolWorkflowNodeRegistry,
+    )
+    from omnibase_spi.protocols.workflow_orchestration import (
+        ProtocolWorkflowReducer as ProtocolWorkflowReducer,
     )

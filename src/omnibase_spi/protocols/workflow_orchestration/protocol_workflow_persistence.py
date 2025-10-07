@@ -5,7 +5,7 @@ These protocols define the data persistence contracts for workflow orchestration
 including event stores, snapshot stores, and projection stores with ACID guarantees.
 """
 
-from typing import TYPE_CHECKING, Any, Protocol, Union, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 from uuid import UUID
 
 from omnibase_spi.protocols.types.protocol_core_types import ContextValue
@@ -46,16 +46,16 @@ class ProtocolEventQueryOptions(Protocol):
     for event store queries.
     """
 
-    workflow_type: Union[str, None]
-    instance_id: Union[UUID, None]
-    event_types: Union[list[LiteralWorkflowEventType], None]
-    from_sequence: Union[int, None]
-    to_sequence: Union[int, None]
-    from_timestamp: Union["ProtocolDateTime", None]
-    to_timestamp: Union["ProtocolDateTime", None]
-    limit: Union[int, None]
-    offset: Union[int, None]
-    order_by: Union[str, None]
+    workflow_type: str | None
+    instance_id: UUID | None
+    event_types: list[LiteralWorkflowEventType] | None
+    from_sequence: int | None
+    to_sequence: int | None
+    from_timestamp: "ProtocolDateTime | None"
+    to_timestamp: "ProtocolDateTime | None"
+    limit: int | None
+    offset: int | None
+    order_by: str | None
 
 
 @runtime_checkable
@@ -70,9 +70,9 @@ class ProtocolEventStoreResult(Protocol):
     success: bool
     events_processed: int
     sequence_numbers: list[int]
-    error_message: Union[str, None]
+    error_message: str | None
     operation_time_ms: float
-    storage_size_bytes: Union[int, None]
+    storage_size_bytes: int | None
 
 
 @runtime_checkable
@@ -91,14 +91,14 @@ class ProtocolEventStore(Protocol):
     async def append_events(
         self,
         events: list["ProtocolWorkflowEvent"],
-        expected_sequence: Union[int, None],
-        transaction: Union["ProtocolEventStoreTransaction", None],
+        expected_sequence: int | None,
+        transaction: "ProtocolEventStoreTransaction | None",
     ) -> ProtocolEventStoreResult: ...
 
     async def read_events(
         self,
         query_options: "ProtocolEventQueryOptions",
-        transaction: Union["ProtocolEventStoreTransaction", None],
+        transaction: "ProtocolEventStoreTransaction | None",
     ) -> list["ProtocolWorkflowEvent"]: ...
 
     async def get_event_stream(
@@ -106,7 +106,7 @@ class ProtocolEventStore(Protocol):
         workflow_type: str,
         instance_id: UUID,
         from_sequence: int,
-        to_sequence: Union[int, None],
+        to_sequence: int | None,
     ) -> list["ProtocolWorkflowEvent"]: ...
 
     async def get_last_sequence_number(
@@ -139,12 +139,12 @@ class ProtocolSnapshotStore(Protocol):
     async def save_snapshot(
         self,
         snapshot: "ProtocolWorkflowSnapshot",
-        transaction: Union["ProtocolEventStoreTransaction", None],
+        transaction: "ProtocolEventStoreTransaction | None",
     ) -> bool: ...
 
     async def load_snapshot(
-        self, workflow_type: str, instance_id: UUID, sequence_number: Union[int, None]
-    ) -> Union[ProtocolWorkflowSnapshot, None]: ...
+        self, workflow_type: str, instance_id: UUID, sequence_number: int | None
+    ) -> ProtocolWorkflowSnapshot | None: ...
 
     async def list_snapshots(
         self, workflow_type: str, instance_id: UUID, limit: int
@@ -177,13 +177,13 @@ class ProtocolLiteralWorkflowStateStore(Protocol):
 
     async def load_workflow_instance(
         self, workflow_type: str, instance_id: UUID
-    ) -> Union[ProtocolWorkflowSnapshot, None]: ...
+    ) -> ProtocolWorkflowSnapshot | None: ...
 
     async def query_workflow_instances(
         self,
-        workflow_type: Union[str, None],
-        state: Union["LiteralWorkflowState", None],
-        correlation_id: Union[UUID, None],
+        workflow_type: str | None,
+        state: "LiteralWorkflowState | None",
+        correlation_id: UUID | None,
         limit: int,
         offset: int,
     ) -> list["ProtocolWorkflowSnapshot"]: ...

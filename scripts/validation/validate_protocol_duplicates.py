@@ -470,11 +470,79 @@ def analyze_duplicates(protocols: list[ProtocolInfo]) -> dict[str, Any]:
     }
 
 
+def _are_semantically_different(p1: ProtocolInfo, p2: ProtocolInfo) -> bool:
+    """Check if two protocols with similar names are semantically different.
+
+    Args:
+        p1: First protocol to compare
+        p2: Second protocol to compare
+
+    Returns:
+        True if protocols are semantically different, False if they're likely duplicates
+    """
+    # Check 1: Different method names indicate different purposes
+    p1_methods = set(m.split("(")[0] for m in p1.methods)
+    p2_methods = set(m.split("(")[0] for m in p2.methods)
+
+    if p1_methods != p2_methods:
+        return True  # Different operations = different protocols
+
+    # Check 2: Check for "Batch" vs singular patterns
+    if "Batch" in p1.name and "Batch" not in p2.name:
+        return True  # Batch operations are semantically different from singular
+    if "Batch" in p2.name and "Batch" not in p1.name:
+        return True
+
+    # Check 3: Different property sets indicate different data models
+    p1_props = set(p1.properties)
+    p2_props = set(p2.properties)
+
+    if p1_props != p2_props:
+        # Check if it's a meaningful difference (not just additions)
+        if len(p1_props.symmetric_difference(p2_props)) >= 2:
+            return True  # Significantly different data models
+
+    # Check 4: Different architectural layers (e.g., "Workflow" vs "Onex")
+    layer_keywords = [
+        "Workflow",
+        "Onex",
+        "Node",
+        "Agent",
+        "Service",
+        "Memory",
+        "Event",
+        "MCP",
+    ]
+    p1_layers = [kw for kw in layer_keywords if kw in p1.name]
+    p2_layers = [kw for kw in layer_keywords if kw in p2.name]
+
+    if p1_layers != p2_layers:
+        return True  # Different architectural layers
+
+    # Check 5: Different domains indicate different contexts
+    if p1.domain != p2.domain and p1.domain != "unknown" and p2.domain != "unknown":
+        return True  # Different domains usually mean different purposes
+
+    # Check 6: Different protocol types indicate different usage patterns
+    if p1.protocol_type != p2.protocol_type:
+        return True  # Different structural patterns
+
+    return False  # Likely true duplicates
+
+
 def _filter_real_duplicates(protocols: list[ProtocolInfo]) -> list[ProtocolInfo]:
     """Filter out false positive duplicates based on enhanced protocol analysis."""
     if not protocols or len(protocols) < 2:
         return protocols
 
+    # First check for semantic differences - if any pair is semantically different, no duplicates
+    for i, p1 in enumerate(protocols):
+        for p2 in protocols[i + 1 :]:
+            if _are_semantically_different(p1, p2):
+                # Found semantic differences, these are not duplicates
+                return []
+
+    # If we get here, no semantic differences were found, proceed with existing logic
     # Group by domain and type - protocols in same domain with same structure are more likely real duplicates
     by_domain_type = defaultdict(list)
     for protocol in protocols:

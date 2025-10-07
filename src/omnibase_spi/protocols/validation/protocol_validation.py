@@ -41,7 +41,7 @@ class ProtocolValidationResult(Protocol):
         error_type: str,
         message: str,
         context: dict[str, ContextValue] | None = None,
-        severity: str = "error",
+        severity: str | None = None,
     ) -> None: ...
 
     def add_warning(
@@ -62,7 +62,7 @@ class ProtocolValidator(Protocol):
 
     async def validate_implementation(
         self, implementation: T, protocol: type[P]
-    ) -> ProtocolValidationResult: ...
+    ) -> "ProtocolValidationResult": ...
 
 
 @runtime_checkable
@@ -70,7 +70,7 @@ class ProtocolValidationDecorator(Protocol):
     """Protocol for validation decorator functionality."""
 
     async def validate_protocol_implementation(
-        self, implementation: T, protocol: type[P], strict: bool = True
-    ) -> ProtocolValidationResult: ...
+        self, implementation: T, protocol: type[P], strict: bool | None = None
+    ) -> "ProtocolValidationResult": ...
 
     def validation_decorator(self, protocol: type[P]) -> object: ...

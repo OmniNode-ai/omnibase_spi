@@ -5,13 +5,14 @@ Defines the interface for tool discovery, instantiation, and registry operations
 for MCP (Model Context Protocol) tool coordination in distributed systems.
 """
 
-from typing import Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
-from omnibase_spi.protocols.types.protocol_core_types import ProtocolMetadata
-from omnibase_spi.protocols.types.protocol_mcp_types import (
-    ProtocolToolClass,
-    ProtocolToolInstance,
-)
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.types.protocol_core_types import ProtocolMetadata
+    from omnibase_spi.protocols.types.protocol_mcp_types import (
+        ProtocolToolClass,
+        ProtocolToolInstance,
+    )
 
 
 @runtime_checkable
@@ -53,21 +54,21 @@ class ProtocolToolDiscoveryService(Protocol):
         ```
     """
 
-    def resolve_tool_from_contract(
-        self, metadata: ProtocolMetadata, registry: object, contract_path: str
-    ) -> ProtocolToolInstance: ...
+    async def resolve_tool_from_contract(
+        self, metadata: "ProtocolMetadata", registry: object, contract_path: str
+    ) -> "ProtocolToolInstance": ...
 
     async def discover_tool_class_from_module(
         self, module_path: str, tool_class_name: str
-    ) -> ProtocolToolClass: ...
+    ) -> "ProtocolToolClass": ...
 
     def instantiate_tool_with_container(
-        self, tool_class: ProtocolToolClass, container: object
-    ) -> ProtocolToolInstance: ...
+        self, tool_class: "ProtocolToolClass", container: object
+    ) -> "ProtocolToolInstance": ...
 
     def resolve_tool_from_registry(
         self, registry: object, tool_class_name: str
-    ) -> ProtocolToolInstance | None: ...
+    ) -> "ProtocolToolInstance | None": ...
 
     async def build_module_path_from_contract(self, contract_path: str) -> str: ...
 

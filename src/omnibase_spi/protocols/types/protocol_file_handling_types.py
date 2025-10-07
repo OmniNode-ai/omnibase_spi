@@ -4,14 +4,16 @@ File handling protocol types for ONEX SPI interfaces.
 Domain: File processing and writing protocols
 """
 
-from typing import Literal, Optional, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Literal, Optional, Protocol, runtime_checkable
 from uuid import UUID
 
-from omnibase_spi.protocols.types.protocol_core_types import (
-    LiteralBaseStatus,
-    ProtocolDateTime,
-    ProtocolSemVer,
-)
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.types.protocol_core_types import (
+        ProtocolDateTime,
+        ProtocolSemVer,
+    )
+
+from omnibase_spi.protocols.types.protocol_core_types import LiteralBaseStatus
 
 LiteralFileOperation = Literal["read", "write", "append", "delete", "move", "copy"]
 LiteralFileStatus = Literal["exists", "missing", "locked", "corrupted", "accessible"]
@@ -140,7 +142,7 @@ class ProtocolHandlerMetadata(Protocol):
     """Protocol for node metadata."""
 
     name: str
-    version: ProtocolSemVer
+    version: "ProtocolSemVer"
     author: str
     description: str
     supported_extensions: list[str]
@@ -167,7 +169,7 @@ class ProtocolSerializedBlock(Protocol):
 
     serialized_data: str
     format: str
-    version: ProtocolSemVer
+    version: "ProtocolSemVer"
     file_metadata: ProtocolFileMetadata
 
 
@@ -189,7 +191,7 @@ class ProtocolOnexResult(Protocol):
     message: str
     result_data: ProtocolResultData | None
     error_code: str | None
-    timestamp: ProtocolDateTime
+    timestamp: "ProtocolDateTime"
 
 
 @runtime_checkable

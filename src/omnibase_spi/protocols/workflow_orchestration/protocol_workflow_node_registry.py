@@ -5,7 +5,7 @@ These protocols extend the base node registry with workflow-specific
 node discovery, capability management, and task scheduling support.
 """
 
-from typing import TYPE_CHECKING, Any, Protocol, Union, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 from uuid import UUID
 
 from omnibase_spi.protocols.types.protocol_core_types import (
@@ -20,7 +20,7 @@ from omnibase_spi.protocols.types.protocol_workflow_orchestration_types import (
 )
 
 if TYPE_CHECKING:
-    from omnibase_spi.protocols.core.protocol_node_registry import ProtocolNodeRegistry
+    from omnibase_spi.protocols.node.protocol_node_registry import ProtocolNodeRegistry
 
 
 @runtime_checkable
@@ -87,7 +87,7 @@ class ProtocolTaskSchedulingCriteria(Protocol):
     resource_requirements: dict[str, ContextValue]
     affinity_rules: dict[str, ContextValue]
     anti_affinity_rules: dict[str, ContextValue]
-    geographic_constraints: Union[dict[str, ContextValue], None]
+    geographic_constraints: dict[str, ContextValue] | None
     priority: LiteralTaskPriority
     timeout_tolerance: int
 
@@ -106,7 +106,7 @@ class ProtocolNodeSchedulingResult(Protocol):
     scheduling_rationale: str
     fallback_nodes: list["ProtocolWorkflowNodeInfo"]
     resource_allocation: dict[str, ContextValue]
-    estimated_completion_time: Union[float, None]
+    estimated_completion_time: float | None
     constraints_satisfied: dict[str, bool]
 
 
@@ -135,19 +135,19 @@ class ProtocolWorkflowNodeRegistry(Protocol):
     async def discover_nodes_by_capability(
         self,
         capability_name: str,
-        capability_version: Union[str, None],
-        min_availability: Union[float, None],
+        capability_version: str | None,
+        min_availability: float | None,
     ) -> list["ProtocolWorkflowNodeInfo"]: ...
 
     async def discover_nodes_for_workflow_type(
         self,
         workflow_type: str,
-        required_node_types: Union[list[LiteralNodeType], None],
+        required_node_types: list[LiteralNodeType] | None,
     ) -> list["ProtocolWorkflowNodeInfo"]: ...
 
     async def get_workflow_node_info(
         self, node_id: str
-    ) -> Union[ProtocolWorkflowNodeInfo, None]: ...
+    ) -> ProtocolWorkflowNodeInfo | None: ...
 
     async def register_workflow_capability(
         self, node_id: str, capability: "ProtocolWorkflowNodeCapability"
@@ -193,7 +193,7 @@ class ProtocolWorkflowNodeRegistry(Protocol):
     async def get_node_performance_history(
         self,
         node_id: str,
-        task_type: Union["LiteralTaskType", None],
+        task_type: "LiteralTaskType | None",
         time_window_seconds: int,
     ) -> dict[str, ContextValue]: ...
 
@@ -201,9 +201,9 @@ class ProtocolWorkflowNodeRegistry(Protocol):
         self,
         node_id: str,
         availability_status: str,
-        metadata: Union[dict[str, ContextValue], None],
+        metadata: dict[str, ContextValue] | None,
     ) -> bool: ...
 
     async def get_cluster_health_summary(
-        self, workflow_type: Union[str, None], node_group: Union[str, None]
+        self, workflow_type: str | None, node_group: str | None
     ) -> dict[str, ContextValue]: ...

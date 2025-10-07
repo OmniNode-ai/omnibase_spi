@@ -101,7 +101,7 @@ class ProtocolMCPDiscovery(Protocol):
     ) -> bool: ...
 
     async def get_network_topology(
-        self, include_health: bool = True
+        self, include_health: bool | None = None
     ) -> dict[str, str | int | float | bool | list[str]]: ...
 
     async def test_service_connectivity(

@@ -85,6 +85,7 @@ class SPIProtocolValidator(ast.NodeVisitor):
         self.in_protocol_class: bool = False
         self.imports: dict[str, str] = {}
         self.current_class_decorators: list[str] = []
+        self.in_type_checking_block: bool = False
 
     def visit_Import(self, node: ast.Import) -> None:
         """Track imports for validation."""
@@ -100,6 +101,29 @@ class SPIProtocolValidator(ast.NodeVisitor):
                 self.imports[alias.asname or alias.name] = full_name
         self.generic_visit(node)
 
+    def visit_If(self, node: ast.If) -> None:
+        """Track TYPE_CHECKING blocks to skip forward references."""
+        # Check if this is a TYPE_CHECKING conditional
+        is_type_checking = False
+        if isinstance(node.test, ast.Name) and node.test.id == "TYPE_CHECKING":
+            is_type_checking = True
+        elif isinstance(node.test, ast.Attribute) and node.test.attr == "TYPE_CHECKING":
+            is_type_checking = True
+
+        if is_type_checking:
+            # Mark that we're entering a TYPE_CHECKING block
+            was_in_type_checking = self.in_type_checking_block
+            self.in_type_checking_block = True
+
+            # Visit children in TYPE_CHECKING context
+            self.generic_visit(node)
+
+            # Restore previous state
+            self.in_type_checking_block = was_in_type_checking
+        else:
+            # Regular if block
+            self.generic_visit(node)
+
     def visit_ClassDef(self, node: ast.ClassDef) -> None:
         """Validate protocol class definitions."""
         # Check if this is a Protocol class
@@ -112,12 +136,14 @@ class SPIProtocolValidator(ast.NodeVisitor):
                 d.id if hasattr(d, "id") else str(d) for d in node.decorator_list
             ]
 
-            # Validate protocol structure
-            self._validate_protocol_class(node)
+            # Skip protocols inside TYPE_CHECKING blocks - they're forward references for type hints only
+            if not self.in_type_checking_block:
+                # Validate protocol structure
+                self._validate_protocol_class(node)
 
-            # Extract protocol information
-            protocol_info = self._extract_protocol_info(node)
-            self.protocols.append(protocol_info)
+                # Extract protocol information
+                protocol_info = self._extract_protocol_info(node)
+                self.protocols.append(protocol_info)
 
             # Visit children
             self.generic_visit(node)
@@ -661,6 +687,7 @@ def validate_protocol_duplicates(
             # Check if these are truly problematic duplicates
             real_duplicates = _filter_real_duplicates(duplicate_protocols, strict_mode)
 
+            # Only report if there are actually multiple duplicates after filtering
             if len(real_duplicates) > 1:
                 for protocol in real_duplicates[1:]:  # Skip first as reference
                     violations.append(

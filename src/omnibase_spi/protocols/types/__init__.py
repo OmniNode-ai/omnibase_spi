@@ -64,7 +64,7 @@ Type Safety Features:
 # Import these directly from omnibase_spi.protocols.core as needed.
 
 # Core types
-from omnibase_spi.protocols.types.protocol_core_types import (
+from omnibase_spi.protocols.types.protocol_core_types import (  # Migrated from omnibase_core
     ContextValue,
     LiteralAnalyticsMetricType,
     LiteralAnalyticsTimeWindow,
@@ -95,7 +95,6 @@ from omnibase_spi.protocols.types.protocol_core_types import (
     ProtocolAnalyticsSummary,
     ProtocolAuditEvent,
     ProtocolCacheStatistics,
-    ProtocolCheckpointData,
     ProtocolCompatibilityCheck,
     ProtocolConfigurable,
     ProtocolConfigValue,
@@ -113,24 +112,32 @@ from omnibase_spi.protocols.types.protocol_core_types import (
     ProtocolErrorInfo,
     ProtocolErrorResult,
     ProtocolExecutable,
+    ProtocolHasModelDump,
     ProtocolHealthCheck,
     ProtocolHealthMetrics,
     ProtocolHealthMonitoring,
     ProtocolIdentifiable,
     ProtocolLogContext,
+    ProtocolLogEmitter,
     ProtocolLogEntry,
     ProtocolMetadata,
     ProtocolMetadataOperations,
     ProtocolMetadataProvider,
     ProtocolMetricsPoint,
+    ProtocolModelJsonSerializable,
+    ProtocolModelValidatable,
     ProtocolNameable,
     ProtocolNodeInfoLike,
     ProtocolNodeMetadata,
     ProtocolNodeMetadataBlock,
     ProtocolNodeResult,
+    ProtocolOnexInputState,
+    ProtocolOnexOutputState,
+    ProtocolPatternChecker,
     ProtocolPerformanceMetric,
     ProtocolPerformanceMetrics,
     ProtocolRecoveryAction,
+    ProtocolRegistryWithBus,
     ProtocolRetryAttempt,
     ProtocolRetryConfig,
     ProtocolRetryPolicy,
@@ -143,11 +150,6 @@ from omnibase_spi.protocols.types.protocol_core_types import (
     ProtocolServiceInstance,
     ProtocolServiceMetadata,
     ProtocolState,
-    ProtocolStorageConfiguration,
-    ProtocolStorageCredentials,
-    ProtocolStorageHealthStatus,
-    ProtocolStorageListResult,
-    ProtocolStorageResult,
     ProtocolSupportedMetadataType,
     ProtocolSupportedPropertyValue,
     ProtocolSystemEvent,
@@ -156,6 +158,16 @@ from omnibase_spi.protocols.types.protocol_core_types import (
     ProtocolTraceSpan,
     ProtocolValidatable,
     ProtocolVersionInfo,
+)
+
+# Storage types
+from omnibase_spi.protocols.types.protocol_storage_types import (
+    ProtocolCheckpointData,
+    ProtocolStorageConfiguration,
+    ProtocolStorageCredentials,
+    ProtocolStorageHealthStatus,
+    ProtocolStorageListResult,
+    ProtocolStorageResult,
 )
 
 # Validation types
@@ -422,6 +434,8 @@ __all__ = [
     "ProtocolNodeMetadata",
     "ProtocolNodeMetadataBlock",
     "ProtocolNodeResult",
+    "ProtocolOnexInputState",
+    "ProtocolOnexOutputState",
     "ProtocolOnexResult",
     "ProtocolPerformanceMetric",
     "ProtocolPerformanceMetrics",
@@ -466,6 +480,13 @@ __all__ = [
     "ProtocolValidatable",
     "ProtocolValidationResult",
     "ProtocolVersionInfo",
+    # Migrated from omnibase_core
+    "ProtocolHasModelDump",
+    "ProtocolRegistryWithBus",
+    "ProtocolLogEmitter",
+    "ProtocolPatternChecker",
+    "ProtocolModelJsonSerializable",
+    "ProtocolModelValidatable",
     "ProtocolWorkflowContext",
     "ProtocolWorkflowDefinition",
     "ProtocolWorkflowEvent",

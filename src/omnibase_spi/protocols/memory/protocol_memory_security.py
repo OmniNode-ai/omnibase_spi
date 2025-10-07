@@ -161,7 +161,7 @@ class ProtocolMemorySecurityNode(Protocol):
     async def detect_pii(
         self,
         content: str,
-        detection_threshold: float = 0.8,
+        detection_threshold: float | None = None,
         correlation_id: UUID | None = None,
     ) -> "ProtocolMemoryMetadata": ...
 

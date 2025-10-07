@@ -263,6 +263,44 @@ class ProtocolSerializationResult(Protocol):
 
 
 @runtime_checkable
+class ProtocolNodeConfigurationData(Protocol):
+    """
+    Protocol for ONEX node configuration data objects.
+
+    Defines the configuration structure for nodes in the ONEX distributed system,
+    including execution parameters, resource limits, and behavioral settings.
+
+    Key Features:
+        - Execution parameters and settings
+        - Resource limits and constraints
+        - Behavioral configuration options
+        - Node-specific configuration metadata
+
+    Usage:
+        config = await node.get_node_config()
+        max_memory = config.resource_limits.get("max_memory_mb")
+        timeout_seconds = config.execution_parameters.get("timeout_seconds")
+    """
+
+    @property
+    def execution_parameters(self) -> dict[str, "ContextValue"]: ...
+    @property
+    def resource_limits(self) -> dict[str, "ContextValue"]:
+        """Resource limits and constraints."""
+        ...
+
+    @property
+    def behavioral_settings(self) -> dict[str, "ContextValue"]:
+        """Behavioral configuration options."""
+        ...
+
+    @property
+    def configuration_metadata(self) -> dict[str, "ContextValue"]:
+        """Configuration-specific metadata."""
+        ...
+
+
+@runtime_checkable
 class ProtocolNodeMetadata(Protocol):
     """
     Protocol for ONEX node metadata objects.
@@ -604,8 +642,8 @@ class ProtocolServiceHealthStatus(Protocol):
 
 
 @runtime_checkable
-class ProtocolCheckpointData(Protocol):
-    """Protocol for checkpoint data."""
+class ProtocolGenericCheckpointData(Protocol):
+    """Protocol for generic checkpoint data."""
 
     checkpoint_id: str
     workflow_id: str
@@ -619,8 +657,8 @@ class ProtocolCheckpointData(Protocol):
 
 
 @runtime_checkable
-class ProtocolStorageCredentials(Protocol):
-    """Protocol for storage credentials."""
+class ProtocolGenericStorageCredentials(Protocol):
+    """Protocol for generic storage credentials."""
 
     credential_type: str
     data: dict[str, "ContextValue"]
@@ -631,8 +669,8 @@ class ProtocolStorageCredentials(Protocol):
 
 
 @runtime_checkable
-class ProtocolStorageConfiguration(Protocol):
-    """Protocol for storage configuration."""
+class ProtocolGenericStorageConfiguration(Protocol):
+    """Protocol for generic storage configuration."""
 
     backend_type: str
     connection_string: str
@@ -645,8 +683,8 @@ class ProtocolStorageConfiguration(Protocol):
 
 
 @runtime_checkable
-class ProtocolStorageResult(Protocol):
-    """Protocol for storage operation results."""
+class ProtocolGenericStorageResult(Protocol):
+    """Protocol for generic storage operation results."""
 
     success: bool
     data: dict[str, "ContextValue"] | None
@@ -659,8 +697,8 @@ class ProtocolStorageResult(Protocol):
 
 
 @runtime_checkable
-class ProtocolStorageListResult(Protocol):
-    """Protocol for storage list operation results."""
+class ProtocolGenericStorageListResult(Protocol):
+    """Protocol for generic storage list operation results."""
 
     success: bool
     items: list[dict[str, "ContextValue"]]
@@ -674,8 +712,8 @@ class ProtocolStorageListResult(Protocol):
 
 
 @runtime_checkable
-class ProtocolStorageHealthStatus(Protocol):
-    """Protocol for storage health status."""
+class ProtocolGenericStorageHealthStatus(Protocol):
+    """Protocol for generic storage health status."""
 
     is_healthy: bool
     status_details: dict[str, "ContextValue"]
@@ -1320,3 +1358,206 @@ class ProtocolValidatable(Protocol):
     async def get_validation_id(self) -> str: ...
 
     ...
+
+
+@runtime_checkable
+class ProtocolOnexInputState(Protocol):
+    """
+    Protocol for ONEX input state objects.
+
+    Used for format conversion and string transformation operations.
+    Distinct from ProtocolWorkflowInputState which handles workflow orchestration.
+    """
+
+    input_string: str
+    source_format: str
+    metadata: dict[str, "ContextValue"]
+
+    async def validate_onex_input(self) -> bool:
+        """
+        Validate ONEX input state for format conversion.
+
+        Returns:
+            True if input string and source format are valid
+        """
+        ...
+
+
+@runtime_checkable
+class ProtocolOnexOutputState(Protocol):
+    """Protocol for ONEX output state objects."""
+
+    output_string: str
+    target_format: str
+    conversion_success: bool
+    metadata: dict[str, "ContextValue"]
+
+    async def validate_output_state(self) -> bool: ...
+
+
+# ==============================================================================
+# Additional Core Protocols (Migrated from omnibase_core)
+# ==============================================================================
+
+
+@runtime_checkable
+class ProtocolHasModelDump(Protocol):
+    """
+    Protocol for objects that support Pydantic model_dump method.
+
+    This protocol ensures compatibility with Pydantic models and other
+    objects that provide dictionary serialization via model_dump.
+    Used for consistent serialization across ONEX services.
+
+    Key Features:
+        - Pydantic model compatibility
+        - Mode-based serialization (json, python)
+        - Consistent serialization interface
+        - Type-safe dictionary output
+
+    Usage:
+        def serialize_object(obj: ProtocolHasModelDump) -> dict[str, "ContextValue"]:
+            return obj.model_dump(mode="json")
+    """
+
+    def model_dump(self, mode: str | None = None) -> dict[str, ContextValue]: ...
+
+
+@runtime_checkable
+class ProtocolRegistryWithBus(Protocol):
+    """
+    Protocol for registry objects that provide an event bus.
+
+    Defines the interface for registries that integrate with the ONEX
+    event bus system. Used for coordinating events across distributed
+    services and nodes.
+
+    Key Features:
+        - Optional event bus integration
+        - Async event bus support
+        - Registry-level event coordination
+        - Distributed messaging compatibility
+
+    Usage:
+        def get_event_bus(registry: ProtocolRegistryWithBus):
+            if registry.event_bus:
+                await registry.event_bus.publish(event)
+    """
+
+    event_bus: object | None  # ProtocolAsyncEventBus type from event_bus module
+
+
+@runtime_checkable
+class ProtocolLogEmitter(Protocol):
+    """
+    Protocol for objects that can emit structured log events.
+
+    Provides standardized logging interface for ONEX services with
+    structured logging support. Enables consistent log emission across
+    all system components.
+
+    Key Features:
+        - Structured logging with log levels
+        - Consistent log data format
+        - Integration with ONEX logging infrastructure
+        - Type-safe log emission
+
+    Usage:
+        def log_operation(emitter: ProtocolLogEmitter, message: str):
+            emitter.emit_log_event(
+                level="INFO",
+                message=message,
+                data=log_data
+            )
+    """
+
+    def emit_log_event(
+        self,
+        level: LiteralLogLevel,
+        message: str,
+        data: object,  # MixinLogData type from mixins
+    ) -> None: ...
+
+
+@runtime_checkable
+class ProtocolPatternChecker(Protocol):
+    """
+    Protocol for AST pattern checker objects.
+
+    Defines the interface for pattern checkers used in code validation
+    and AST analysis. Pattern checkers traverse AST nodes to identify
+    and validate code patterns.
+
+    Key Features:
+        - AST node traversal support
+        - Issue collection and reporting
+        - Pattern validation framework
+        - Code quality checking
+
+    Usage:
+        checker = create_pattern_checker()
+        checker.visit(ast_node)
+        if checker.issues:
+            report_violations(checker.issues)
+    """
+
+    issues: list[str]
+
+    def visit(self, node: object) -> None: ...  # ast.AST type
+
+
+@runtime_checkable
+class ProtocolModelJsonSerializable(Protocol):
+    """
+    Protocol for values that can be JSON serialized.
+
+    Marker protocol for objects that can be safely serialized to JSON.
+    Used throughout ONEX for data interchange and persistence.
+    Built-in types that implement this: str, int, float, bool,
+    list[Any], dict[str, Any], None.
+
+    Key Features:
+        - JSON serialization guarantee
+        - Marker interface pattern
+        - Runtime type checking support
+        - Safe for data interchange
+
+    Usage:
+        def store_json(value: ProtocolModelJsonSerializable):
+            json_data = json.dumps(value)
+            save_to_storage(json_data)
+    """
+
+    __omnibase_json_serializable_marker__: Literal[True]
+
+
+@runtime_checkable
+class ProtocolModelValidatable(Protocol):
+    """
+    Protocol for values that can validate themselves.
+
+    Provides self-validation interface for objects with built-in
+    validation logic. Used across ONEX for data validation before
+    processing or persistence.
+
+    Key Features:
+        - Self-validation capability
+        - Error collection and reporting
+        - Boolean validation result
+        - Detailed error messages
+
+    Usage:
+        def process_data(data: ProtocolModelValidatable):
+            if data.is_valid():
+                process(data)
+            else:
+                log_errors(data.get_errors())
+    """
+
+    def is_valid(self) -> bool:
+        """Check if the value is valid."""
+        ...
+
+    async def get_errors(self) -> list[str]:
+        """Get validation errors."""
+        ...

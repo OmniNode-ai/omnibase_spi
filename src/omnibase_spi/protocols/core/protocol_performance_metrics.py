@@ -6,15 +6,16 @@ and system health monitoring across ONEX services for comprehensive
 performance observability and optimization.
 """
 
-from typing import Any, Callable, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Callable, Protocol, runtime_checkable
 
-from omnibase_spi.protocols.types.protocol_core_types import (
-    LiteralPerformanceCategory,
-    ProtocolContextValue,
-    ProtocolDateTime,
-    ProtocolPerformanceMetric,
-    ProtocolPerformanceMetrics,
-)
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.types.protocol_core_types import (
+        LiteralPerformanceCategory,
+        ProtocolContextValue,
+        ProtocolDateTime,
+        ProtocolPerformanceMetric,
+        ProtocolPerformanceMetrics,
+    )
 
 
 @runtime_checkable

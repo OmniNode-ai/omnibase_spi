@@ -62,7 +62,28 @@ class ProtocolMemoryStoreRequest(ProtocolMemoryRequest, Protocol):
 
 @runtime_checkable
 class ProtocolMemoryRetrieveRequest(ProtocolMemoryRequest, Protocol):
-    """Protocol for memory retrieval requests."""
+    """
+    Protocol for single memory retrieval requests.
+
+    Retrieves one memory record by its unique identifier. For retrieving
+    multiple memories in a single operation, use ProtocolBatchMemoryRetrieveRequest.
+
+    Use Cases:
+        - Direct memory lookup by known ID
+        - Point queries in user interfaces
+        - Individual memory inspection
+
+    Attributes:
+        memory_id: Single memory identifier (UUID)
+        include_related: Whether to include related memory records
+        timeout_seconds: Optional operation timeout
+
+    Properties:
+        related_depth: Depth of related memory graph traversal
+
+    See Also:
+        ProtocolBatchMemoryRetrieveRequest: For multi-memory retrieval
+    """
 
     memory_id: UUID
     include_related: bool
@@ -102,7 +123,35 @@ class ProtocolBatchMemoryStoreRequest(ProtocolMemoryRequest, Protocol):
 
 @runtime_checkable
 class ProtocolBatchMemoryRetrieveRequest(ProtocolMemoryRequest, Protocol):
-    """Protocol for batch memory retrieval requests."""
+    """
+    Protocol for batch memory retrieval requests.
+
+    Retrieves multiple memory records in a single operation with configurable
+    failure semantics. Optimized for bulk operations with rate limiting support.
+
+    Use Cases:
+        - Bulk memory export/synchronization
+        - Related memory graph traversal
+        - Memory consolidation operations
+
+    Performance Considerations:
+        - Supports rate limiting via ProtocolRateLimitConfig
+        - Can return partial results (fail_on_missing=False)
+        - Optimized for multi-record retrieval efficiency
+
+    Attributes:
+        memory_ids: Multiple memory identifiers (list[UUID])
+        include_related: Whether to include related memory records
+        fail_on_missing: Whether to fail if ANY memory is missing
+        timeout_seconds: Optional operation timeout
+
+    Properties:
+        related_depth: Depth of related memory graph traversal
+
+    See Also:
+        ProtocolMemoryRetrieveRequest: For single memory retrieval
+        ProtocolMemoryEffectNode.batch_retrieve_memories: Implementation contract
+    """
 
     memory_ids: list[UUID]
     include_related: bool

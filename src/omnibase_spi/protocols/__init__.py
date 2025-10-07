@@ -52,6 +52,14 @@ Key Protocol Domains:
       * ONEX metadata stamping and validation
       * File type detection and processing
 
+    - llm: Large Language Model integration (4 protocols)
+      * LLM provider interfaces and model routing
+      * Ollama client and tool provider protocols
+
+    - semantic: Semantic processing and retrieval (2 protocols)
+      * Advanced text preprocessing
+      * Hybrid semantic retrieval systems
+
     - types: Consolidated type definitions for all domains
       * Strong typing with Literal types for enums
       * JSON-serializable data structures
@@ -103,6 +111,20 @@ Best Practices:
     - Use dependency injection containers for protocol-based services
 """
 
+# Analytics protocols (1 protocol) - Analytics data collection and reporting
+from omnibase_spi.protocols.analytics import ProtocolAnalyticsDataProvider
+
+# CLI protocols (7 protocols) - Command line interface operations
+from omnibase_spi.protocols.cli import (
+    ProtocolCLI,
+    ProtocolCLIDirFixtureCase,
+    ProtocolCLIDirFixtureRegistry,
+    ProtocolCLIResult,
+    ProtocolCLIToolDiscovery,
+    ProtocolCliWorkflow,
+    ProtocolNodeCliAdapter,
+)
+
 # Import container protocols for dependency injection and service management
 # Container protocols (21 protocols) - Service lifecycle and dependency resolution
 from omnibase_spi.protocols.container import (  # Phase 3 additions
@@ -131,51 +153,25 @@ from omnibase_spi.protocols.container import (  # Phase 3 additions
     ServiceHealthStatus,
 )
 
-# Core protocols (42 protocols) - Fundamental system contracts
-# Includes logging, HTTP/Kafka clients, circuit breakers, storage, and node management
-from omnibase_spi.protocols.core import (  # Phase 1 additions; Phase 3 additions
-    LiteralProtocolCircuitBreakerEvent,
-    LiteralProtocolCircuitBreakerState,
-    ProtocolCacheService,
-    ProtocolCacheServiceProvider,
-    ProtocolCircuitBreaker,
-    ProtocolCircuitBreakerFactory,
-    ProtocolCircuitBreakerMetrics,
-    ProtocolClientConfigProvider,
-    ProtocolConfigurationError,
-    ProtocolConfigurationManager,
-    ProtocolConfigurationManagerFactory,
-    ProtocolContractService,
+# Core protocols (16 protocols) - Fundamental system contracts
+# Includes serialization, logging, health monitoring, and service discovery
+from omnibase_spi.protocols.core import (
+    ProtocolAuditLogger,
+    ProtocolCanonicalSerializer,
+    ProtocolDistributedTracing,
+    ProtocolErrorHandler,
     ProtocolErrorSanitizer,
     ProtocolErrorSanitizerFactory,
-    ProtocolHttpAuthConfig,
-    ProtocolHttpClient,
-    ProtocolHttpClientConfig,
-    ProtocolHttpClientProvider,
-    ProtocolHttpExtendedClient,
-    ProtocolHttpRequestBuilder,
-    ProtocolHttpResponse,
-    ProtocolHttpStreamingResponse,
-    ProtocolKafkaBatchProducer,
-    ProtocolKafkaClient,
-    ProtocolKafkaClientConfig,
-    ProtocolKafkaClientProvider,
-    ProtocolKafkaConsumer,
-    ProtocolKafkaConsumerConfig,
-    ProtocolKafkaExtendedClient,
-    ProtocolKafkaMessage,
-    ProtocolKafkaProducerConfig,
-    ProtocolKafkaTransactionalProducer,
+    ProtocolHealthDetails,
+    ProtocolHealthMonitor,
     ProtocolLogger,
-    ProtocolNodeConfiguration,
-    ProtocolNodeConfigurationProvider,
-    ProtocolNodeRegistry,
-    ProtocolOnexNode,
+    ProtocolMetricsCollector,
+    ProtocolPerformanceMetricsCollector,
+    ProtocolRetryable,
     ProtocolServiceDiscovery,
-    ProtocolStorageBackend,
-    ProtocolStorageBackendFactory,
-    ProtocolUtilsNodeConfiguration,
-    ProtocolWorkflowReducer,
+    ProtocolTimeBasedOperations,
+    ProtocolUriParser,
+    ProtocolVersionManager,
 )
 
 # Discovery protocols (3 protocols) - Node and handler discovery
@@ -183,7 +179,7 @@ from omnibase_spi.protocols.core import (  # Phase 1 additions; Phase 3 addition
 from omnibase_spi.protocols.discovery import (
     ProtocolHandlerDiscovery,
     ProtocolHandlerInfo,
-    ProtocolNodeDiscoveryRegistry,
+    ProtocolHandlerRegistry,
 )
 
 # Event bus protocols (13 protocols) - Distributed messaging infrastructure
@@ -194,21 +190,31 @@ from omnibase_spi.protocols.event_bus import (  # Phase 2 additions
     ProtocolEventBusContextManager,
     ProtocolEventBusHeaders,
     ProtocolEventBusInMemory,
+    ProtocolEventBusLogEmitter,
+    ProtocolEventBusRegistry,
     ProtocolEventBusService,
     ProtocolEventMessage,
     ProtocolKafkaAdapter,
-    ProtocolLogEmitter,
     ProtocolRedpandaAdapter,
-    ProtocolRegistryWithBus,
     ProtocolSyncEventBus,
 )
 
-# File handling protocols (3 protocols) - File processing and ONEX metadata
+# File handling protocols (4 protocols) - File processing and ONEX metadata
 # Handles file type detection, processing, and metadata stamping
 from omnibase_spi.protocols.file_handling import (
-    ProtocolFileTypeHandler,
+    ProtocolFileProcessingTypeHandler,
+    ProtocolFileReader,
     ProtocolStampOptions,
     ProtocolValidationOptions,
+)
+
+# LLM protocols (4 protocols) - Large Language Model integration
+# LLM provider interfaces, model routing, and semantic processing
+from omnibase_spi.protocols.llm import (
+    ProtocolLLMProvider,
+    ProtocolLLMToolProvider,
+    ProtocolModelRouter,
+    ProtocolOllamaClient,
 )
 
 # MCP protocols (15 protocols) - Model Context Protocol integration
@@ -243,6 +249,62 @@ from omnibase_spi.protocols.memory import (
     ProtocolWorkflowManager,
 )
 
+# Networking protocols (6 protocols) - HTTP, Kafka, circuit breaker, and communication protocols
+from omnibase_spi.protocols.networking import (
+    ProtocolCircuitBreaker,
+    ProtocolCommunicationBridge,
+    ProtocolHttpClient,
+    ProtocolHttpExtendedClient,
+    ProtocolKafkaClient,
+    ProtocolKafkaExtendedClient,
+)
+
+# Node protocols (4 protocols) - Node management, configuration, and registry
+from omnibase_spi.protocols.node import (
+    ProtocolNodeConfiguration,
+    ProtocolNodeRegistry,
+    ProtocolNodeRunner,
+    ProtocolUtilsNodeConfiguration,
+)
+
+# ONEX protocols (11 protocols) - ONEX platform specific protocols
+from omnibase_spi.protocols.onex import (
+    ProtocolOnexContractData,
+    ProtocolOnexEnvelope,
+    ProtocolOnexMetadata,
+    ProtocolOnexNode,
+    ProtocolOnexReply,
+    ProtocolOnexSchema,
+    ProtocolOnexSecurityContext,
+    ProtocolOnexValidation,
+    ProtocolOnexValidationReport,
+    ProtocolOnexValidationResult,
+    ProtocolToolToolOnexVersionLoader,
+)
+
+# Schema protocols (2 protocols) - Schema loading and validation
+from omnibase_spi.protocols.schema import (
+    ProtocolSchemaLoader,
+    ProtocolTrustedSchemaLoader,
+)
+
+# Semantic protocols (2 protocols) - Semantic processing and retrieval
+# Advanced text preprocessing and hybrid semantic retrieval systems
+from omnibase_spi.protocols.semantic import (
+    ProtocolAdvancedPreprocessor,
+    ProtocolHybridRetriever,
+)
+
+# Storage protocols (3 protocols) - Data storage and persistence
+from omnibase_spi.protocols.storage import (
+    ProtocolDatabaseConnection,
+    ProtocolStorageBackend,
+    ProtocolStorageBackendFactory,
+)
+
+# Test protocols (2 protocols) - Testing frameworks and testable components
+from omnibase_spi.protocols.test import ProtocolTestable, ProtocolTestableCLI
+
 # Validation protocols (4 protocols) - Input validation and error handling
 # Provides structured validation with error reporting and compliance checking
 from omnibase_spi.protocols.validation import (
@@ -252,9 +314,11 @@ from omnibase_spi.protocols.validation import (
     ProtocolValidator,
 )
 
-# Workflow orchestration protocols (11 protocols) - Event-driven FSM coordination
+# Workflow orchestration protocols (14 protocols) - Event-driven FSM coordination
 # Event sourcing, workflow state management, and distributed task scheduling
 from omnibase_spi.protocols.workflow_orchestration import (
+    LiteralAssignmentStrategy,
+    LiteralWorkQueuePriority,
     ProtocolEventQueryOptions,
     ProtocolEventStore,
     ProtocolEventStoreResult,
@@ -270,9 +334,46 @@ from omnibase_spi.protocols.workflow_orchestration import (
     ProtocolWorkflowNodeCapability,
     ProtocolWorkflowNodeInfo,
     ProtocolWorkflowNodeRegistry,
+    ProtocolWorkQueue,
 )
 
 __all__ = [
+    "ProtocolCLI",
+    "ProtocolCLIResult",
+    "ProtocolCLIDirFixtureCase",
+    "ProtocolCLIDirFixtureRegistry",
+    "ProtocolCLIToolDiscovery",
+    "ProtocolCliWorkflow",
+    "ProtocolLogger",
+    "ProtocolNodeCliAdapter",
+    "ProtocolCommunicationBridge",
+    "ProtocolHttpClient",
+    "ProtocolHttpExtendedClient",
+    "ProtocolKafkaClient",
+    "ProtocolKafkaExtendedClient",
+    "ProtocolNodeConfiguration",
+    "ProtocolUtilsNodeConfiguration",
+    "ProtocolNodeRegistry",
+    "ProtocolNodeRunner",
+    "ProtocolTestable",
+    "ProtocolTestableCLI",
+    "ProtocolAnalyticsDataProvider",
+    "ProtocolOnexContractData",
+    "ProtocolOnexEnvelope",
+    "ProtocolOnexMetadata",
+    "ProtocolOnexNode",
+    "ProtocolOnexReply",
+    "ProtocolOnexSchema",
+    "ProtocolOnexSecurityContext",
+    "ProtocolOnexValidation",
+    "ProtocolOnexValidationReport",
+    "ProtocolOnexValidationResult",
+    "ProtocolToolToolOnexVersionLoader",
+    "ProtocolSchemaLoader",
+    "ProtocolTrustedSchemaLoader",
+    "ProtocolStorageBackend",
+    "ProtocolStorageBackendFactory",
+    "ProtocolDatabaseConnection",
     "InjectionScope",
     "LiteralContainerArtifactType",
     "LiteralInjectionScope",
@@ -319,7 +420,6 @@ __all__ = [
     "ProtocolHandlerDiscovery",
     "ProtocolHandlerInfo",
     "ProtocolHttpAuthConfig",
-    "ProtocolHttpClient",
     "ProtocolHttpClientConfig",
     "ProtocolHttpClientProvider",
     "ProtocolHttpExtendedClient",
@@ -340,8 +440,7 @@ __all__ = [
     "ProtocolKafkaTransactionalProducer",
     "ProtocolKeyValueStore",
     "ProtocolLifecycleManager",
-    "ProtocolLogEmitter",
-    "ProtocolLogger",
+    "ProtocolEventBusLogEmitter",
     "ProtocolMCPDiscovery",
     "ProtocolMCPHealthMonitor",
     "ProtocolMCPMonitor",
@@ -360,12 +459,11 @@ __all__ = [
     "ProtocolMemoryRecord",
     "ProtocolNodeConfiguration",
     "ProtocolNodeConfigurationProvider",
-    "ProtocolNodeDiscoveryRegistry",
+    "ProtocolHandlerRegistry",
     "ProtocolNodeRegistry",
     "ProtocolNodeSchedulingResult",
-    "ProtocolOnexNode",
     "ProtocolRedpandaAdapter",
-    "ProtocolRegistryWithBus",
+    "ProtocolEventBusRegistry",
     "ProtocolServiceDependency",
     "ProtocolServiceDiscovery",
     "ProtocolServiceFactory",
@@ -376,8 +474,6 @@ __all__ = [
     "ProtocolServiceValidator",
     "ProtocolSnapshotStore",
     "ProtocolStampOptions",
-    "ProtocolStorageBackend",
-    "ProtocolStorageBackendFactory",
     "ProtocolSyncEventBus",
     "ProtocolTaskSchedulingCriteria",
     "ProtocolToolDiscoveryService",
@@ -398,17 +494,22 @@ __all__ = [
     "ProtocolLiteralWorkflowStateProjection",
     "ProtocolLiteralWorkflowStateStore",
     "ServiceHealthStatus",
+    # LLM protocols
+    "ProtocolLLMProvider",
+    "ProtocolLLMToolProvider",
+    "ProtocolModelRouter",
+    "ProtocolOllamaClient",
+    # Semantic protocols
+    "ProtocolAdvancedPreprocessor",
+    "ProtocolHybridRetriever",
     # Moved protocols
     "LiteralAssignmentStrategy",
     "LiteralWorkQueuePriority",
     "ProtocolFileReader",
     "ProtocolWorkQueue",
+    # CLI protocol models
+    "ModelDiscoveredTool",
+    "ModelToolImplementation",
+    "ModelToolHealthStatus",
+    "ModelCliDiscoveryStats",
 ]
-
-# Import moved protocols for easy access
-from .file_handling.protocol_file_reader import ProtocolFileReader
-from .workflow_orchestration.protocol_work_queue import (
-    LiteralAssignmentStrategy,
-    LiteralWorkQueuePriority,
-    ProtocolWorkQueue,
-)

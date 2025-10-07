@@ -7,10 +7,11 @@ Handles tool execution routing, load balancing, and result aggregation.
 Domain: MCP tool execution and proxy management
 """
 
-from typing import Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 from uuid import UUID
 
-from omnibase_spi.protocols.types.protocol_core_types import ContextValue
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 from omnibase_spi.protocols.types.protocol_mcp_types import (
     LiteralMCPExecutionStatus,
     ProtocolMCPSubsystemRegistration,
@@ -32,7 +33,7 @@ class ProtocolMCPToolRouter(Protocol):
     async def select_tool_implementation(
         self,
         tool_name: str,
-        parameters: dict[str, ContextValue],
+        parameters: dict[str, "ContextValue"],
         routing_policy: str | None,
     ) -> ProtocolMCPToolDefinition | None: ...
 
@@ -44,7 +45,7 @@ class ProtocolMCPToolRouter(Protocol):
         self, tool_def: "ProtocolMCPToolDefinition"
     ) -> bool: ...
 
-    async def get_routing_statistics(self) -> dict[str, ContextValue]: ...
+    async def get_routing_statistics(self) -> dict[str, "ContextValue"]: ...
 
 
 @runtime_checkable
@@ -60,21 +61,21 @@ class ProtocolMCPToolExecutor(Protocol):
         self,
         tool_def: ProtocolMCPToolDefinition,
         subsystem: ProtocolMCPSubsystemRegistration,
-        parameters: dict[str, ContextValue],
+        parameters: dict[str, "ContextValue"],
         execution_id: str,
         correlation_id: UUID,
         timeout_seconds: int | None,
-    ) -> dict[str, ContextValue]: ...
+    ) -> dict[str, "ContextValue"]: ...
 
     async def execute_with_retry(
         self,
         tool_def: ProtocolMCPToolDefinition,
         subsystem: ProtocolMCPSubsystemRegistration,
-        parameters: dict[str, ContextValue],
+        parameters: dict[str, "ContextValue"],
         execution_id: str,
         correlation_id: UUID,
         max_retries: int | None,
-    ) -> dict[str, ContextValue]: ...
+    ) -> dict[str, "ContextValue"]: ...
 
     async def cancel_execution(self, execution_id: str) -> bool: ...
 
@@ -110,19 +111,19 @@ class ProtocolMCPToolProxy(Protocol):
     async def proxy_tool_execution(
         self,
         tool_name: str,
-        parameters: dict[str, ContextValue],
+        parameters: dict[str, "ContextValue"],
         correlation_id: UUID,
         timeout_seconds: int | None,
         routing_policy: str | None,
         preferred_subsystem: str | None,
-    ) -> dict[str, ContextValue]: ...
+    ) -> dict[str, "ContextValue"]: ...
 
     async def proxy_batch_execution(
         self,
-        requests: list[dict[str, ContextValue]],
+        requests: list[dict[str, "ContextValue"]],
         correlation_id: UUID,
         max_parallel: int,
-    ) -> list[dict[str, ContextValue]]: ...
+    ) -> list[dict[str, "ContextValue"]]: ...
 
     async def get_active_executions(
         self, tool_name: str | None = None
@@ -144,9 +145,9 @@ class ProtocolMCPToolProxy(Protocol):
 
     async def get_execution_metrics(
         self, time_range_hours: int, tool_name: str | None
-    ) -> dict[str, ContextValue]: ...
+    ) -> dict[str, "ContextValue"]: ...
 
-    async def get_load_balancing_stats(self) -> dict[str, ContextValue]: ...
+    async def get_load_balancing_stats(self) -> dict[str, "ContextValue"]: ...
 
     async def configure_caching(
         self, tool_name: str, cache_ttl_seconds: int, cache_key_fields: list[str]
@@ -154,4 +155,4 @@ class ProtocolMCPToolProxy(Protocol):
 
     async def clear_cache(self, tool_name: str | None = None) -> int: ...
 
-    async def validate_proxy_configuration(self) -> dict[str, ContextValue]: ...
+    async def validate_proxy_configuration(self) -> dict[str, "ContextValue"]: ...

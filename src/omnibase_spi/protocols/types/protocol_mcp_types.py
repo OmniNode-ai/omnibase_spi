@@ -269,7 +269,9 @@ class ProtocolToolClass(Protocol):
     __name__: str
     __module__: str
 
-    def __call__(self, *args: object, **kwargs: object) -> "ProtocolToolInstance": ...
+    async def __call__(
+        self, *args: object, **kwargs: object
+    ) -> "ProtocolToolInstance": ...
 
 
 @runtime_checkable
@@ -290,3 +292,115 @@ class ProtocolToolInstance(Protocol):
     ) -> ProtocolMCPValidationResult: ...
 
     async def health_check(self) -> dict[str, ContextValue]: ...
+
+
+# CLI Tool Types for ProtocolTool interface
+@runtime_checkable
+class ProtocolModelResultCLI(Protocol):
+    """Protocol for CLI result models."""
+
+    success: bool
+    message: str
+    data: dict[str, ContextValue] | None
+    exit_code: int
+    execution_time_ms: int | None
+    warnings: list[str]
+    errors: list[str]
+
+
+@runtime_checkable
+class ProtocolModelToolArguments(Protocol):
+    """Protocol for tool arguments model."""
+
+    tool_name: str
+    apply: bool
+    verbose: bool
+    dry_run: bool
+    force: bool
+    interactive: bool
+    config_path: str | None
+    additional_args: dict[str, ContextValue]
+
+
+@runtime_checkable
+class ProtocolModelToolInputData(Protocol):
+    """Protocol for tool input data model."""
+
+    tool_name: str
+    input_type: str
+    data: dict[str, ContextValue]
+    metadata: dict[str, ContextValue]
+    timestamp: ProtocolDateTime
+    correlation_id: UUID | None
+
+
+@runtime_checkable
+class ProtocolModelToolInfo(Protocol):
+    """Protocol for tool information model."""
+
+    tool_name: str
+    tool_path: str
+    contract_path: str
+    description: str
+    version: ProtocolSemVer
+    author: str | None
+    tags: list[str]
+    capabilities: list[str]
+    dependencies: list[str]
+    entrypoint: str
+    runtime_language: str
+    metadata: dict[str, ContextValue]
+    is_active: bool
+    last_updated: ProtocolDateTime
+
+
+@runtime_checkable
+class ProtocolEventBusConfig(Protocol):
+    """Protocol for event bus configuration."""
+
+    bootstrap_servers: list[str]
+    topic_prefix: str
+    replication_factor: int
+    partitions: int
+    retention_ms: int
+    compression_type: str
+    security_protocol: str
+    sasl_mechanism: str | None
+    sasl_username: str | None
+    sasl_password: str | None
+    metadata: dict[str, ContextValue]
+
+
+@runtime_checkable
+class ProtocolEventBusBootstrapResult(Protocol):
+    """Protocol for event bus bootstrap result."""
+
+    success: bool
+    cluster_id: str | None
+    controller_id: int | None
+    topics_created: list[str]
+    errors: list[str]
+    warnings: list[str]
+    execution_time_ms: int
+    bootstrap_config: ProtocolEventBusConfig
+    metadata: dict[str, ContextValue]
+
+
+@runtime_checkable
+class ProtocolKafkaHealthCheckResult(Protocol):
+    """Protocol for Kafka health check result."""
+
+    cluster_healthy: bool
+    cluster_id: str | None
+    controller_id: int | None
+    broker_count: int
+    healthy_brokers: list[int]
+    unhealthy_brokers: list[int]
+    topic_count: int
+    partition_count: int
+    under_replicated_partitions: int
+    offline_partitions: int
+    response_time_ms: int
+    errors: list[str]
+    warnings: list[str]
+    metadata: dict[str, ContextValue]

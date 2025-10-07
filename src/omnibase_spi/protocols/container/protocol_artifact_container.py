@@ -7,9 +7,10 @@ to enable testing and cross-node container access while maintaining proper
 architectural boundaries.
 """
 
-from typing import Literal, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Literal, Protocol, runtime_checkable
 
-from omnibase_spi.protocols.types.protocol_core_types import ProtocolSemVer
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.types.protocol_core_types import ProtocolSemVer
 
 LiteralOnexStatus = Literal["ACTIVE", "INACTIVE", "ERROR", "UNKNOWN"]
 LiteralContainerArtifactType = Literal[
@@ -19,7 +20,33 @@ LiteralContainerArtifactType = Literal[
 
 @runtime_checkable
 class ProtocolArtifactMetadata(Protocol):
-    """Protocol for artifact metadata."""
+    """
+    Protocol for artifact metadata.
+
+    Defines the interface for metadata associated with ONEX artifacts including
+    creation timestamps, authorship, and modification tracking. This protocol
+    enables consistent metadata handling across different artifact types and
+    container implementations.
+
+    Attributes:
+        description: Human-readable description of the artifact purpose and functionality
+        author: Creator or maintainer of the artifact
+        created_at: ISO timestamp of artifact creation
+        last_modified_at: ISO timestamp of last modification
+
+    Example:
+        ```python
+        @runtime_checkable
+        class ArtifactMetadataImpl:
+            description: str | None = "User authentication service"
+            author: str | None = "security-team"
+            created_at: str | None = "2025-01-15T10:30:00Z"
+            last_modified_at: str | None = "2025-01-20T14:45:00Z"
+
+        # Usage with protocol validation
+        metadata: ProtocolArtifactMetadata = ArtifactMetadataImpl()
+        ```
+    """
 
     description: str | None
     author: str | None
@@ -29,7 +56,39 @@ class ProtocolArtifactMetadata(Protocol):
 
 @runtime_checkable
 class ProtocolArtifactInfo(Protocol):
-    """Protocol for artifact information."""
+    """
+    Protocol for artifact information.
+
+    Defines the interface for comprehensive artifact information including versioning,
+    type classification, file system location, and work-in-progress status. This
+    protocol enables consistent artifact identification and management across the
+    ONEX ecosystem.
+
+    Attributes:
+        name: Unique identifier for the artifact within its type
+        version: Semantic version following SemVer specification
+        artifact_type: Classification of artifact (nodes, cli_tools, etc.)
+        path: File system path to artifact definition or implementation
+        metadata: Artifact metadata including authorship and timestamps
+        is_wip: Flag indicating work-in-progress status for development tracking
+
+    Example:
+        ```python
+        @runtime_checkable
+        class ArtifactInfoImpl:
+            name: str | None = None
+            version: "ProtocolSemVer" = "1.2.0"
+            artifact_type: LiteralContainerArtifactType = "nodes"
+            path: str | None = None
+            metadata: ProtocolArtifactMetadata = metadata_impl
+            is_wip: bool | None = None
+
+        # Usage in artifact discovery
+        artifact: ProtocolArtifactInfo = ArtifactInfoImpl()
+        if not artifact.is_wip and artifact.artifact_type == "nodes":
+            process_artifact(artifact)
+        ```
+    """
 
     name: str
     version: "ProtocolSemVer"

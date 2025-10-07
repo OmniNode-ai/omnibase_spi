@@ -70,6 +70,9 @@ from .protocol_validation_orchestrator import (
     ProtocolValidationWorkflow,
 )
 
+# Validation protocols moved from core
+from .protocol_validation_provider import ProtocolValidationProvider
+
 __all__ = [
     "ProtocolArchitectureCompliance",
     "ProtocolComplianceReport",
@@ -89,6 +92,7 @@ __all__ = [
     "ProtocolValidationError",
     "ProtocolValidationMetrics",
     "ProtocolValidationOrchestrator",
+    "ProtocolValidationProvider",
     "ProtocolValidationReport",
     "ProtocolValidationResult",
     "ProtocolValidationScope",

@@ -457,3 +457,95 @@ class ProtocolEventProjection(Protocol):
     async def validate_projection(self) -> bool: ...
 
     def is_up_to_date(self) -> bool: ...
+
+
+@runtime_checkable
+class ProtocolHealthCheckResult(Protocol):
+    """Protocol for health check result objects."""
+
+    node_id: str
+    node_type: "LiteralNodeType"
+    status: Literal["healthy", "unhealthy", "degraded", "unknown"]
+    timestamp: "ProtocolDateTime"
+    response_time_ms: float | None
+    error_message: str | None
+    metadata: dict[str, "ContextValue"]
+
+    async def validate_health_result(self) -> bool: ...
+
+    def is_healthy(self) -> bool: ...
+
+
+@runtime_checkable
+class ProtocolWorkflowExecutionState(Protocol):
+    """Protocol for workflow execution state objects."""
+
+    workflow_type: str
+    instance_id: UUID
+    state: LiteralWorkflowState
+    current_step: int
+    total_steps: int
+    started_at: "ProtocolDateTime"
+    updated_at: "ProtocolDateTime"
+    context: dict[str, "ContextValue"]
+    execution_metadata: dict[str, "ContextValue"]
+
+    async def validate_execution_state(self) -> bool: ...
+
+    def is_completed(self) -> bool: ...
+
+
+@runtime_checkable
+class ProtocolWorkTicket(Protocol):
+    """Protocol for work ticket objects."""
+
+    ticket_id: str
+    work_type: str
+    priority: LiteralTaskPriority
+    status: Literal["pending", "assigned", "in_progress", "completed", "failed"]
+    assigned_to: str | None
+    created_at: "ProtocolDateTime"
+    due_at: "ProtocolDateTime | None"
+    completed_at: "ProtocolDateTime | None"
+    payload: dict[str, "ContextValue"]
+    metadata: dict[str, "ContextValue"]
+
+    async def validate_work_ticket(self) -> bool: ...
+
+    def is_overdue(self) -> bool: ...
+
+
+@runtime_checkable
+class ProtocolWorkflowInputState(Protocol):
+    """
+    Protocol for workflow input state objects.
+
+    Used for workflow orchestration input data and parameters.
+    Distinct from ProtocolOnexInputState which handles format conversion.
+    """
+
+    workflow_type: str
+    input_data: dict[str, "ContextValue"]
+    parameters: dict[str, "ContextValue"]
+    metadata: dict[str, "ContextValue"]
+
+    async def validate_workflow_input(self) -> bool:
+        """
+        Validate workflow input state for orchestration.
+
+        Returns:
+            True if workflow_type, input_data, and parameters are valid
+        """
+        ...
+
+
+@runtime_checkable
+class ProtocolWorkflowParameters(Protocol):
+    """Protocol for workflow parameters objects."""
+
+    parameters: dict[str, "ContextValue"]
+    defaults: dict[str, "ContextValue"]
+    required: list[str]
+    validation_rules: dict[str, "ContextValue"]
+
+    async def validate_parameters(self) -> bool: ...
