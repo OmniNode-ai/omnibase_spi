@@ -45,7 +45,9 @@ def fix_docstring_formatting(file_path):
 if __name__ == "__main__":
     # Use relative paths for portability
     script_dir = Path(__file__).resolve().parent
-    repo_root = script_dir.parent.parent.parent  # Go up from scripts/archive/fixes to repo root
+    repo_root = (
+        script_dir.parent.parent.parent
+    )  # Go up from scripts/archive/fixes to repo root
     target_file = (
         repo_root
         / "src"
