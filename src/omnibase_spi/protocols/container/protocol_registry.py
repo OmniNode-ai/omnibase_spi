@@ -137,11 +137,70 @@ class ProtocolRegistryStatus(Protocol):
 @runtime_checkable
 class ProtocolRegistry(Protocol):
     """
-    Cross-cutting registry protocol.
+    Cross-cutting protocol for ONEX artifact registry operations.
 
-    Provides an interface for registry operations that can be implemented
-    by different registry backends (registry loader node, mock registries, etc.)
-    without exposing implementation-specific details.
+    Provides a unified interface for registry operations that can be implemented
+    by different registry backends (registry loader node, mock registries, file-based
+    registries, etc.) without exposing implementation-specific details. This protocol
+    enables consistent artifact discovery, retrieval, and management across the
+    ONEX ecosystem.
+
+    The registry protocol supports artifact type-based filtering, status monitoring,
+    and validation tracking, enabling comprehensive artifact management for nodes,
+    CLI tools, runtimes, adapters, contracts, and packages.
+
+    Example:
+        ```python
+        registry: "ProtocolRegistry" = get_registry()
+
+        # Get registry status
+        status = await registry.get_status()
+        if status.status == "ready":
+            print(f"Registry loaded {status.artifact_count} artifacts")
+            print(f"Valid: {status.valid_artifact_count}, Invalid: {status.invalid_artifact_count}")
+
+        # Get all artifacts
+        all_artifacts = await registry.get_artifacts()
+        for artifact in all_artifacts:
+            print(f"{artifact.name} ({artifact.artifact_type}): {artifact.version}")
+
+        # Get artifacts by type
+        nodes = await registry.get_artifacts_by_type("nodes")
+        cli_tools = await registry.get_artifacts_by_type("cli_tools")
+
+        # Get specific artifact
+        if await registry.has_artifact("workflow_processor", artifact_type="nodes"):
+            processor = await registry.get_artifact_by_name("workflow_processor", "nodes")
+            print(f"Found processor at: {processor.path}")
+        ```
+
+    Key Features:
+        - Unified artifact access across all artifact types
+        - Type-based filtering for targeted artifact discovery
+        - Registry status monitoring and health checks
+        - Artifact existence checking for validation
+        - Support for multiple registry backends (file, database, remote)
+        - Work-in-progress artifact tracking
+        - Artifact metadata and versioning support
+
+    Artifact Types:
+        - nodes: ONEX processing nodes (compute, effect, orchestrator, reducer)
+        - cli_tools: Command-line tools and utilities
+        - runtimes: Runtime environments and executors
+        - adapters: Protocol adapters and integrations
+        - contracts: Service contracts and interfaces
+        - packages: Distributable artifact packages
+
+    Registry Status:
+        - loading: Registry initialization in progress
+        - ready: Registry fully loaded and operational
+        - error: Registry encountered errors during loading
+        - refreshing: Registry updating artifact list
+
+    See Also:
+        - ProtocolRegistryResolver: Dynamic registry resolution and configuration
+        - ProtocolTestableRegistry: Mock and testing registry implementations
+        - ProtocolArtifactContainer: Artifact storage and lifecycle management
     """
 
     async def get_status(self) -> "ProtocolRegistryStatus":

@@ -37,9 +37,10 @@ def fix_escape_sequences(file_path: Path) -> int:
 
 def main():
     """Process all Memory domain files."""
-    memory_dir = Path(
-        "/Volumes/PRO-G40/Code/omnibase_spi/src/omnibase_spi/protocols/memory"
-    )
+    # Use relative paths for portability
+    script_dir = Path(__file__).resolve().parent
+    repo_root = script_dir.parent
+    memory_dir = repo_root / "src" / "omnibase_spi" / "protocols" / "memory"
 
     total_fixes = 0
 

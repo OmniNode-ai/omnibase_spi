@@ -32,7 +32,16 @@ LiteralTemplateType = Literal["MINIMAL", "STANDARD", "FULL", "CUSTOM"]
 
 @runtime_checkable
 class ProtocolTemplateTypeEnum(Protocol):
-    """Protocol for template type enumeration."""
+    """
+    Protocol for template type enumeration in metadata stamping.
+
+    Defines template types (MINIMAL, STANDARD, FULL, CUSTOM) and their
+    associated configurations for metadata generation.
+
+    Attributes:
+        value: Template type value (e.g., "MINIMAL", "STANDARD")
+        name: Template type name
+    """
 
     value: str
     name: str
@@ -45,12 +54,46 @@ class ProtocolTemplateTypeEnum(Protocol):
 @runtime_checkable
 class ProtocolStamper(Protocol):
     """
-    Protocol for stamping ONEX node metadata with hashes, signatures, or trace data.
+    Protocol for stamping ONEX node metadata with hashes, signatures, and trace data.
+
+    Defines the contract for metadata stamping operations that enrich files with
+    OmniNode metadata blocks, including cryptographic hashes, version information,
+    authorship, and lifecycle tracking. Enables consistent metadata management
+    across the ONEX ecosystem.
 
     Example:
-        class MyStamper:
-            def stamp(self, path: str) -> ProtocolOnexResult:
-                ...
+        ```python
+        from omnibase_spi.protocols.advanced import ProtocolStamper
+        from omnibase_spi.protocols.types import ProtocolOnexResult
+
+        async def stamp_node_file(
+            stamper: ProtocolStamper,
+            file_path: str
+        ) -> ProtocolOnexResult:
+            # Stamp file with default metadata
+            result = await stamper.stamp(file_path)
+
+            if result.success:
+                print(f"Successfully stamped: {file_path}")
+                print(f"Hash: {result.data.get('hash')}")
+            else:
+                print(f"Stamping failed: {result.message}")
+
+            return result
+        ```
+
+    Key Features:
+        - Cryptographic hash generation and verification
+        - Metadata block injection and update
+        - Version tracking and lifecycle management
+        - Authorship and ownership attribution
+        - Template-based metadata customization
+        - File integrity validation
+
+    See Also:
+        - ProtocolStamperEngine: Directory-level stamping operations
+        - ProtocolOutputFormatter: Output formatting for stamped files
+        - ProtocolContractAnalyzer: Contract metadata extraction
     """
 
     async def stamp(self, path: str) -> ProtocolOnexResult:
@@ -62,6 +105,12 @@ class ProtocolStamper(Protocol):
     ) -> ProtocolOnexResult:
         """
         Stamp the file with a metadata block, replacing any existing block.
-        :return: ProtocolOnexResult describing the operation result.
+
+        Args:
+            file_path: Path to file to stamp
+            metadata_block: Metadata dictionary to inject
+
+        Returns:
+            ProtocolOnexResult describing the operation result
         """
         ...

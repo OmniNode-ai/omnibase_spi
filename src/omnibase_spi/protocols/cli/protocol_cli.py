@@ -59,11 +59,57 @@ class ProtocolCLIFlagDescription(Protocol):
 
 @runtime_checkable
 class ProtocolCLI(Protocol):
-    """
-    Protocol for all CLI entrypoints. Provides shared CLI logic: argument parsing,
-    logging setup, exit codes, metadata enforcement.
+    """Protocol for standardized command-line interface operations in ONEX systems.
 
-    Does NOT handle --apply or dry-run; those are handled in subclasses/protocols.
+    Defines the contract for CLI entrypoints providing argument parsing, logging
+    configuration, exit code handling, and metadata enforcement. Enables consistent
+    CLI behavior across all ONEX tools with structured result handling and flag
+    documentation. Serves as the foundation for specialized CLI protocols.
+
+    Example:
+        ```python
+        from omnibase_spi.protocols.cli import ProtocolCLI, ProtocolCLIResult
+
+        async def run_cli_command(
+            cli: ProtocolCLI,
+            command_args: list[str]
+        ) -> ProtocolCLIResult:
+            # Validate arguments before execution
+            if not await cli.validate_arguments(command_args):
+                return ProtocolCLIResult(
+                    success=False,
+                    exit_code=1,
+                    message="Invalid arguments",
+                    data=None,
+                    errors=["Argument validation failed"]
+                )
+
+            # Get available flags for documentation
+            flags = cli.describe_flags(format="json")
+            print(f"Available flags: {len(flags)}")
+
+            # Execute command with validated arguments
+            result = await cli.run(command_args)
+
+            print(f"Execution {'succeeded' if result.success else 'failed'}")
+            print(f"Exit code: {result.exit_code}")
+
+            return result
+        ```
+
+    Key Features:
+        - Argument parser generation and configuration
+        - Command execution with structured results
+        - Argument validation before execution
+        - Flag documentation and introspection
+        - Integrated logging support
+        - Exit code standardization
+        - Metadata enforcement for CLI tools
+
+    See Also:
+        - ProtocolCliWorkflow: Workflow-based CLI operations
+        - ProtocolCLIDirFixtureCase: Test fixture management
+        - ProtocolLogger: Logging integration
     """
 
     description: str

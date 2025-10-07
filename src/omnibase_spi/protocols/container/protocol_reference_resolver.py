@@ -10,11 +10,58 @@ from typing import Protocol, runtime_checkable
 
 @runtime_checkable
 class ProtocolReferenceResolver(Protocol):
-    """Protocol for reference resolution functionality.
+    """
+    Protocol for JSON Schema reference resolution in code generation.
 
-    This protocol defines the interface for resolving JSON Schema
-    $ref references to Python type names, handling both internal
-    and external references.
+    Defines the interface for resolving $ref references in JSON Schema
+    documents to Python type names, handling internal references, external file
+    references, and subcontract references following ONEX contract patterns.
+
+    This protocol enables consistent reference resolution across code generators,
+    validators, and schema processors while maintaining proper type safety and
+    namespace conventions.
+
+    Example:
+        ```python
+        resolver: "ProtocolReferenceResolver" = create_reference_resolver()
+
+        # Internal reference
+        internal_type = await resolver.resolve_ref("#/definitions/UserProfile")
+        # Returns: "UserProfile"
+
+        # External reference
+        external_type = await resolver.resolve_ref("schemas/user.yaml#/definitions/User")
+        # Returns: "User" (with appropriate module prefix)
+
+        # Subcontract reference
+        subcontract_type = await resolver.resolve_ref("contracts/validation.yaml#/ValidationRules")
+        # Returns: "SubcontractValidationRules"
+
+        # Check reference type
+        if resolver.is_internal_ref("#/definitions/Address"):
+            # Handle internal reference
+            type_name = resolver.extract_definition_name("#/definitions/Address")
+        elif resolver.is_subcontract_ref("contracts/auth.yaml#/Token"):
+            # Handle subcontract reference
+            type_name = await resolver.resolve_subcontract_ref("contracts/auth.yaml#/Token")
+        ```
+
+    Key Features:
+        - Internal reference resolution (#/definitions/...)
+        - External file reference resolution (file.yaml#/definitions/...)
+        - Subcontract reference handling with naming conventions
+        - Reference type detection and classification
+        - Component extraction for complex references
+        - Namespace-aware type name generation
+
+    Reference Formats:
+        - Internal: "#/definitions/TypeName" -> "TypeName"
+        - External: "schemas/file.yaml#/definitions/TypeName" -> "TypeName"
+        - Subcontract: "contracts/file.yaml#/TypeName" -> "SubcontractTypeName"
+
+    See Also:
+        - ProtocolRegistryResolver: Registry-based resolution patterns
+        - ProtocolConfigurationManager: Configuration-driven reference handling
     """
 
     async def resolve_ref(self, ref: str) -> str: ...

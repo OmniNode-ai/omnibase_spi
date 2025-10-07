@@ -14,7 +14,47 @@ from omnibase_spi.protocols.memory.protocol_agent_config_interfaces import (
 
 @runtime_checkable
 class ProtocolMemoryAgentInstance(Protocol):
-    """Protocol for agent instance."""
+    """
+    Protocol for runtime agent instance representation.
+
+    Represents a running AI agent instance with its runtime state,
+    health information, and configuration. Provides read-only access
+    to instance metadata for monitoring and management operations.
+
+    Example:
+        ```python
+        async def monitor_agent(instance: ProtocolMemoryAgentInstance) -> dict:
+            # Access instance metadata
+            print(f"Instance: {instance.instance_id}")
+            print(f"Agent: {instance.agent_id}")
+            print(f"Status: {instance.status}")
+            print(f"Health: {instance.health_status}")
+
+            # Access configuration
+            config = instance.configuration
+            print(f"Model: {config.model}")
+            print(f"Capabilities: {config.capabilities}")
+
+            return {
+                "instance_id": instance.instance_id,
+                "status": instance.status,
+                "health": instance.health_status,
+            }
+        ```
+
+    Key Features:
+        - **Unique Identification**: Instance and agent ID tracking
+        - **Runtime Status**: Current execution state monitoring
+        - **Health Monitoring**: Health status visibility
+        - **Configuration Access**: Read-only configuration reference
+        - **Immutable State**: Read-only properties for thread safety
+
+    See Also:
+        - ProtocolAgentConfig: Agent configuration structure
+        - ProtocolAgentManager: Agent lifecycle management
+        - ProtocolAgentStatus: Detailed status information
+        - ProtocolAgentHealthStatus: Health check results
+    """
 
     @property
     def instance_id(self) -> str:

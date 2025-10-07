@@ -25,10 +25,51 @@ class ProtocolProtocolEnumInfo(Protocol):
 
 @runtime_checkable
 class ProtocolEnumGenerator(Protocol):
-    """Protocol for enum generation functionality.
+    """Protocol for automated enum discovery and generation from contract definitions.
 
-    This protocol defines the interface for discovering enums
-    from contracts and generating corresponding enum classes.
+    Defines the contract for discovering enum definitions within contract documents,
+    schemas, and nested type definitions, then generating corresponding Python enum
+    classes with proper naming conventions. Enables intelligent enum extraction
+    during code generation workflows with deduplication and validation support.
+
+    Example:
+        ```python
+        from omnibase_spi.protocols.advanced import ProtocolEnumGenerator
+        from omnibase_spi.protocols.types import ProtocolContractDocument
+
+        async def generate_enums_from_contract(
+            generator: ProtocolEnumGenerator,
+            contract: ProtocolContractDocument
+        ) -> list["Any"]:
+            # Discover all enum definitions in contract
+            enum_infos = await generator.discover_enums_from_contract(contract)
+
+            print(f"Found {len(enum_infos)} enum definitions")
+            for enum_info in enum_infos:
+                print(f"  - {enum_info.name}: {len(enum_info.values)} values")
+
+            # Deduplicate enums with identical values
+            unique_enums = generator.deduplicate_enums(enum_infos)
+            print(f"After deduplication: {len(unique_enums)} unique enums")
+
+            # Generate AST enum class definitions
+            enum_classes = generator.generate_enum_classes(unique_enums)
+
+            return enum_classes
+        ```
+
+    Key Features:
+        - Recursive enum discovery from contracts and schemas
+        - Intelligent enum name generation from values
+        - Duplicate enum detection and deduplication
+        - Schema validation for enum definitions
+        - Python identifier conversion for enum members
+        - AST generation for enum classes
+
+    See Also:
+        - ProtocolASTBuilder: AST construction for generated enums
+        - ProtocolContractAnalyzer: Contract document analysis
+        - ProtocolSchemaDefinition: Schema type definitions
     """
 
     async def discover_enums_from_contract(

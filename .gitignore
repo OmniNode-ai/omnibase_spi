@@ -199,6 +199,7 @@ comprehensive_spi_validation_*.json
 
 # Project-specific
 /backups
+*.backup
 
 # OmniBase / ONEX .gitignore
 

@@ -1557,6 +1557,9 @@ class DuplicateProtocolAnalyzer:
         """Find protocols that are semantically similar but not identical."""
         violations = []
 
+        # Get exclusions from rule configuration
+        exclusions = self._get_rule_exclusions("SPI010")
+
         for semantic_key, similar_protocols in by_semantic.items():
             if len(similar_protocols) > 1:
                 # Check if they're actually different enough to warrant separation
@@ -1566,6 +1569,12 @@ class DuplicateProtocolAnalyzer:
                     primary = similar_protocols[0]
 
                     for similar in similar_protocols[1:]:
+                        # Check if this pair matches any exclusion pattern
+                        if self._matches_exclusion_pattern(
+                            primary.name, similar.name, exclusions
+                        ):
+                            continue  # Skip this violation - it's excluded
+
                         violation = ProtocolViolation(
                             file_path=similar.file_path,
                             line_number=similar.line_number,
@@ -1621,6 +1630,40 @@ class DuplicateProtocolAnalyzer:
                 similarities.append(similarity)
 
         return sum(similarities) / len(similarities) if similarities else 0.0
+
+    def _get_rule_exclusions(self, rule_id: str) -> List[Dict[str, Any]]:
+        """Get exclusion patterns from rule configuration."""
+        if rule_id not in self.config.rules:
+            return []
+
+        rule = self.config.rules[rule_id]
+        config_data = rule.configuration if hasattr(rule, "configuration") else {}
+
+        return config_data.get("exclusions", [])
+
+    def _matches_exclusion_pattern(
+        self, protocol1_name: str, protocol2_name: str, exclusions: List[Dict[str, Any]]
+    ) -> bool:
+        """Check if protocol pair matches any exclusion pattern."""
+        import re
+
+        for exclusion in exclusions:
+            pattern = exclusion.get("pattern", "")
+            if not pattern:
+                continue
+
+            # Try matching both orderings
+            comparison1 = f"{protocol1_name} vs {protocol2_name}"
+            comparison2 = f"{protocol2_name} vs {protocol1_name}"
+
+            try:
+                if re.match(pattern, comparison1) or re.match(pattern, comparison2):
+                    return True
+            except re.error:
+                # Invalid regex pattern, skip
+                continue
+
+        return False
 
 
 # ============================================================================

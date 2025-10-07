@@ -17,19 +17,20 @@ def fix_double_quotes_in_file(file_path: Path) -> int:
 
     # Pattern 1: ""TypeName""  -> "TypeName"
     pattern1 = r'""([A-Z][a-zA-Z0-9_]*?)""'
-    content = re.sub(pattern1, r'"\1"', content)
+    content, count1 = re.subn(pattern1, r'"\1"', content)
 
     # Pattern 2: ""TypeName" -> "TypeName"
     pattern2 = r'""([A-Z][a-zA-Z0-9_]*?)"'
-    content = re.sub(pattern2, r'"\1"', content)
+    content, count2 = re.subn(pattern2, r'"\1"', content)
 
-    file_path.write_text(content)
+    # Calculate total fixes
+    total_fixes = count1 + count2
 
-    # Count fixes
-    fixes = len(re.findall(pattern1, file_path.read_text())) + len(
-        re.findall(pattern2, file_path.read_text())
-    )
-    return fixes
+    # Only write if we made changes
+    if total_fixes > 0:
+        file_path.write_text(content)
+
+    return total_fixes
 
 
 def main():

@@ -38,7 +38,10 @@ class ComprehensiveForwardReferenceFixer:
                         for child in ast.walk(node):
                             if isinstance(child, ast.ImportFrom):
                                 for alias in child.names:
+                                    # Track both original name and alias (if any)
                                     type_checking_imports.add(alias.name)
+                                    if alias.asname:
+                                        type_checking_imports.add(alias.asname)
 
         except SyntaxError:
             # Fallback to regex if AST parsing fails
@@ -67,11 +70,16 @@ class ComprehensiveForwardReferenceFixer:
             import_pattern = r"from\s+[\w.]+\s+import\s+([^\n]+)"
             for import_match in re.finditer(import_pattern, block):
                 import_stmt = import_match.group(1)
-                # Handle "from x import A, B, C"
-                names = [
-                    name.strip().split(" as ")[0] for name in import_stmt.split(",")
-                ]
-                type_checking_imports.update(names)
+                # Handle "from x import A, B, C" and "from x import A as B"
+                for name in import_stmt.split(","):
+                    name = name.strip()
+                    if " as " in name:
+                        # Track both original and alias: "Foo as Bar"
+                        original, alias = name.split(" as ", 1)
+                        type_checking_imports.add(original.strip())
+                        type_checking_imports.add(alias.strip())
+                    else:
+                        type_checking_imports.add(name)
 
         return type_checking_imports
 

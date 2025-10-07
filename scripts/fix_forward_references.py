@@ -86,11 +86,16 @@ class ForwardReferenceFixer:
                         for child in ast.walk(node):
                             if isinstance(child, ast.ImportFrom):
                                 for alias in child.names:
+                                    # Track both original name and alias (if any)
                                     type_checking_imports.add(alias.name)
+                                    if alias.asname:
+                                        type_checking_imports.add(alias.asname)
                             elif isinstance(child, ast.Import):
                                 for alias in child.names:
                                     # Handle "import module" - extract module name
                                     type_checking_imports.add(alias.name.split(".")[-1])
+                                    if alias.asname:
+                                        type_checking_imports.add(alias.asname)
 
         except SyntaxError as e:
             # If AST parsing fails, use regex fallback
@@ -119,11 +124,16 @@ class ForwardReferenceFixer:
             import_pattern = r"from\s+[\w.]+\s+import\s+([^\n]+)"
             for import_match in re.finditer(import_pattern, block):
                 import_stmt = import_match.group(1)
-                # Handle "from x import A, B, C"
-                names = [
-                    name.strip().split(" as ")[0] for name in import_stmt.split(",")
-                ]
-                type_checking_imports.update(names)
+                # Handle "from x import A, B, C" and "from x import A as B"
+                for name in import_stmt.split(","):
+                    name = name.strip()
+                    if " as " in name:
+                        # Track both original and alias: "Foo as Bar"
+                        original, alias = name.split(" as ", 1)
+                        type_checking_imports.add(original.strip())
+                        type_checking_imports.add(alias.strip())
+                    else:
+                        type_checking_imports.add(name)
 
         return type_checking_imports
 
@@ -142,6 +152,11 @@ class ForwardReferenceFixer:
         ):
             return fixes
 
+        # Build updated line incrementally to handle multiple types on same line
+        original_line = line
+        updated_line = line
+        types_fixed = []
+
         for type_name in type_names:
             # Patterns to detect unquoted type usage
             patterns = [
@@ -159,24 +174,29 @@ class ForwardReferenceFixer:
                 (rf"^\s*(\w+)\s*:\s*({type_name})\s*$", rf'\1: "\2"'),
             ]
 
-            for pattern, replacement in patterns:
-                # Check if type is already quoted
-                if f'"{type_name}"' in line or f"'{type_name}'" in line:
-                    continue
+            # Check if type is already quoted in current version of line
+            if f'"{type_name}"' in updated_line or f"'{type_name}'" in updated_line:
+                continue
 
-                match = re.search(pattern, line)
+            for pattern, replacement in patterns:
+                match = re.search(pattern, updated_line)
                 if match:
-                    fixed_line = re.sub(pattern, replacement, line)
-                    fix = ForwardReferenceFix(
-                        file_path=Path(),  # Will be set by caller
-                        line_number=line_number,
-                        original_line=line,
-                        fixed_line=fixed_line,
-                        type_name=type_name,
-                    )
-                    fixes.append(fix)
-                    # Only apply first fix per line to avoid conflicts
+                    # Apply fix to updated_line (not original)
+                    updated_line = re.sub(pattern, replacement, updated_line)
+                    types_fixed.append(type_name)
+                    # Continue to check other patterns for this type
                     break
+
+        # Only create a fix if we actually changed something
+        if updated_line != original_line:
+            fix = ForwardReferenceFix(
+                file_path=Path(),  # Will be set by caller
+                line_number=line_number,
+                original_line=original_line,
+                fixed_line=updated_line,
+                type_name=", ".join(types_fixed),  # Record all types fixed
+            )
+            fixes.append(fix)
 
         return fixes
 

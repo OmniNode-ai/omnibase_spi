@@ -107,14 +107,51 @@ class ProtocolOrchestratorResultModel(Protocol):
 @runtime_checkable
 class ProtocolOrchestrator(Protocol):
     """
-    Protocol for ONEX orchestrator components (workflow/graph execution).
+    Protocol for workflow and graph execution orchestration in ONEX systems.
+
+    Defines the contract for orchestrator components that plan and execute complex
+    workflow graphs with dependency management, parallel execution, and failure
+    handling. Enables distributed workflow coordination across ONEX nodes and services.
 
     Example:
-        class MyOrchestrator:
-            def plan(self, graph: ProtocolGraphModel) -> list[ProtocolPlanModel]:
-                ...
-            def execute(self, plan: list[ProtocolPlanModel]) -> ProtocolOrchestratorResultModel:
-                ...
+        ```python
+        from omnibase_spi.protocols.advanced import ProtocolOrchestrator
+        from omnibase_spi.protocols.types import ProtocolGraphModel
+
+        async def execute_workflow(
+            orchestrator: ProtocolOrchestrator,
+            workflow_graph: ProtocolGraphModel
+        ) -> "ProtocolOrchestratorResultModel":
+            # Plan execution order based on dependencies
+            execution_plans = orchestrator.plan(workflow_graph)
+
+            print(f"Generated {len(execution_plans)} execution plans")
+            for plan in execution_plans:
+                print(f"  - Plan {plan.plan_id}: {len(plan.steps)} steps")
+
+            # Execute plans with dependency coordination
+            result = await orchestrator.execute(execution_plans)
+
+            if result.success:
+                print(f"Workflow completed: {len(result.executed_steps)} steps")
+            else:
+                print(f"Workflow failed: {result.failed_steps}")
+
+            return result
+        ```
+
+    Key Features:
+        - Dependency-aware execution planning
+        - Parallel step execution where possible
+        - Failure detection and handling
+        - Execution time tracking
+        - Step-level result aggregation
+        - Graph validation and optimization
+
+    See Also:
+        - ProtocolWorkflowEventBus: Event-driven workflow coordination
+        - ProtocolNodeRegistry: Node discovery and management
+        - ProtocolDirectKnowledgePipeline: Workflow execution tracking
     """
 
     def plan(self, graph: ProtocolGraphModel) -> list[ProtocolPlanModel]: ...

@@ -15,10 +15,61 @@ if TYPE_CHECKING:
 
 @runtime_checkable
 class ProtocolASTBuilder(Protocol):
-    """Protocol for AST building functionality.
+    """
+    Protocol for Python Abstract Syntax Tree (AST) construction and code generation.
 
-    This protocol defines the interface for generating Python AST
-    nodes from schema definitions, used in code generation tools.
+    Defines the contract for building Python AST nodes from schema definitions,
+    enabling programmatic code generation for Pydantic models, enums, validators,
+    and complete modules. Provides the foundation for contract-driven code generation
+    workflows in the ONEX ecosystem.
+
+    Example:
+        ```python
+        from omnibase_spi.protocols.advanced import ProtocolASTBuilder
+        from omnibase_spi.protocols.types import ProtocolSchemaDefinition
+        import ast
+
+        async def generate_model_code(
+            builder: ProtocolASTBuilder,
+            schema: ProtocolSchemaDefinition
+        ) -> str:
+            # Generate Pydantic model class AST
+            model_ast = builder.generate_model_class(
+                class_name="UserProfile",
+                schema=schema,
+                base_class="BaseModel"
+            )
+
+            # Generate complete module with imports
+            imports = [
+                builder.generate_import_statement(
+                    module="pydantic",
+                    names=["BaseModel", "Field"]
+                )
+            ]
+            module_ast = builder.generate_module(
+                imports=imports,
+                classes=[model_ast],
+                module_docstring="Auto-generated user profile model"
+            )
+
+            # Convert AST to Python code
+            code = ast.unparse(module_ast)
+            return code
+        ```
+
+    Key Features:
+        - Pydantic model class generation from schemas
+        - Enum class generation with proper member handling
+        - Type annotation generation from string specifications
+        - Validator and field default value generation
+        - Complete module assembly with imports and docstrings
+        - AST node creation for all Python constructs
+
+    See Also:
+        - ProtocolContractAnalyzer: Contract analysis for code generation
+        - ProtocolEnumGenerator: Specialized enum discovery and generation
+        - ProtocolOutputFormatter: Code formatting and output handling
     """
 
     def generate_model_class(

@@ -14,21 +14,86 @@ from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 @runtime_checkable
 class ProtocolErrorSanitizer(Protocol):
     """
-    Protocol for error message sanitization implementations.
+    Protocol for comprehensive error message sanitization and sensitive data protection.
 
-    Error sanitizers protect sensitive information by masking or removing
-    confidential data from error messages, logs, and exception details
-    while preserving debugging context.
+    Provides systematic sanitization of error messages, exceptions, structured data,
+    and file paths to prevent sensitive information leakage in logs, error reports,
+    and observability systems. This protocol ensures ONEX security standards are
+    maintained across all error handling scenarios while preserving sufficient
+    debugging context for troubleshooting.
+
+    The sanitizer uses pattern-based detection and replacement to identify and mask
+    sensitive data including credentials, API keys, tokens, PII, and internal paths.
 
     Example:
-        class MyErrorSanitizer:
-            def sanitize_message(self, message: str) -> str:
-                # Remove passwords, API keys, etc.
-                return self._apply_sanitization_patterns(message)
+        ```python
+        sanitizer: "ProtocolErrorSanitizer" = get_error_sanitizer()
 
-            def sanitize_exception(self, exception: Exception) -> Exception:
-                sanitized_message = self.sanitize_message(str(exception))
-                return type(exception)(sanitized_message)
+        # Sanitize error message
+        error_msg = "Connection failed: password=secret123 api_key=sk-abc123"
+        clean_msg = sanitizer.sanitize_message(error_msg)
+        # Returns: "Connection failed: password=<REDACTED> api_key=<REDACTED>"
+
+        # Sanitize exception while preserving type
+        try:
+            authenticate(token="bearer_secret_token_xyz")
+        except Exception as e:
+            sanitized_exception = sanitizer.sanitize_exception(e)
+            # Exception message sanitized but type preserved
+            log_error(sanitized_exception)
+
+        # Sanitize structured data
+        error_context = {
+            "user": "john.doe@example.com",
+            "password": "mysecret",
+            "api_key": "sk-1234567890",
+            "request_id": "req-abc123"
+        }
+        clean_context = sanitizer.sanitize_dict(error_context)
+        # PII and credentials masked, safe identifiers preserved
+
+        # Sanitize file paths (remove user/internal paths)
+        path = "/home/admin/secrets/credentials.yaml"
+        clean_path = sanitizer.sanitize_file_path(path)
+        # Returns relative or redacted path: "credentials.yaml" or "<REDACTED>/credentials.yaml"
+        ```
+
+    Key Features:
+        - Pattern-based sensitive data detection and masking
+        - Exception sanitization with type preservation
+        - Structured data (dict/list) recursive sanitization
+        - File path sanitization to prevent internal exposure
+        - Configurable masking patterns and replacement tokens
+        - Performance-optimized with caching support
+        - Context-aware sanitization (preserve debugging value)
+
+    Sensitive Data Patterns Detected:
+        - Passwords: password=..., pwd=..., passwd=...
+        - API Keys: api_key=..., apikey=..., key=...
+        - Tokens: token=..., bearer=..., jwt=...
+        - Secrets: secret=..., private=..., credential=...
+        - PII: email addresses, phone numbers, SSN patterns
+        - Internal paths: /home/..., /usr/local/..., C:\\Users\\...
+        - Connection strings: Database URLs, service endpoints
+
+    Sanitization Strategies:
+        - Replacement: Replace sensitive values with <REDACTED>
+        - Masking: Show partial data (first/last chars) for debugging
+        - Hashing: Replace with deterministic hash for correlation
+        - Truncation: Limit string length for long sensitive values
+        - Removal: Complete removal of sensitive fields
+
+    Cache Support:
+        The protocol includes cache information retrieval for:
+        - Monitoring sanitization performance impact
+        - Pattern cache hit rates
+        - Frequently sanitized patterns
+        - Cache effectiveness metrics
+
+    See Also:
+        - ProtocolErrorHandler: Error handling with sanitized context
+        - ProtocolLogger: Logging with automatic sanitization
+        - ProtocolObservability: Observability data sanitization
     """
 
     def sanitize_message(self, message: str) -> str: ...

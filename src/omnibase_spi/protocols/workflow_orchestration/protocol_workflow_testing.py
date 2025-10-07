@@ -170,7 +170,64 @@ class ProtocolMockRegistry(Protocol):
 
 @runtime_checkable
 class ProtocolAccommodationManager(Protocol):
-    """Protocol for test accommodation management"""
+    """
+    Protocol for test dependency accommodation management.
+
+    Manages test accommodation strategies for handling unavailable or
+    complex dependencies during workflow testing. Provides mocking,
+    stubbing, and override capabilities to enable testing in isolation
+    without requiring full infrastructure availability.
+
+    Example:
+        ```python
+        def setup_test_accommodations(
+            manager: ProtocolAccommodationManager,
+            dependencies: list[str]
+        ) -> dict:
+            # Define accommodation strategy
+            strategy = "mock"  # or "stub", "real", "proxy"
+
+            # Configure accommodations
+            config = {
+                "mock_mode": "simulated",
+                "response_time": 100,
+                "failure_rate": 0.0
+            }
+
+            # Apply strategy to dependencies
+            results = manager.apply_accommodation_strategy(
+                strategy=strategy,
+                dependencies=dependencies,
+                configuration=config
+            )
+
+            # Create specific overrides
+            for dep in dependencies:
+                override_config = {"mode": "mock", "data": "test_data"}
+                manager.create_accommodation_override(dep, override_config)
+
+            # Validate final configuration
+            errors = manager.validate_accommodation(config)
+            if errors:
+                print(f"Validation errors: {errors}")
+
+            return results
+        ```
+
+    Key Features:
+        - **Strategy Application**: Mock, stub, proxy, or real dependencies
+        - **Dependency Overrides**: Fine-grained per-dependency configuration
+        - **Validation Support**: Configuration correctness checking
+        - **Isolation Testing**: Test workflows without full infrastructure
+        - **Flexible Accommodation**: Multiple accommodation strategies
+        - **Configuration Management**: Centralized accommodation config
+
+    See Also:
+        - ProtocolMockEventBus: Mock event bus for testing
+        - ProtocolMockRegistry: Mock service registry
+        - ProtocolServiceAvailabilityManager: Service availability control
+        - ProtocolWorkflowTestingExecutor: Test execution orchestration
+    """
 
     def apply_accommodation_strategy(
         self,

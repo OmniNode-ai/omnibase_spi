@@ -16,7 +16,46 @@ if TYPE_CHECKING:
 
 @runtime_checkable
 class ProtocolAgentConfig(Protocol):
-    """Protocol for agent configuration data structure."""
+    """
+    Protocol for agent configuration data structure and security operations.
+
+    Defines the complete configuration contract for AI agent instances
+    including identity, capabilities, permissions, resource constraints,
+    and security operations for sensitive data handling.
+
+    Example:
+        ```python
+        async def configure_agent(config: ProtocolAgentConfig) -> bool:
+            # Validate configuration security
+            if not config.is_valid:
+                return False
+
+            # Check security requirements
+            violations = await config.validate_security()
+            if violations:
+                print(f"Security issues: {violations}")
+                return False
+
+            # Encrypt sensitive data before storage
+            encrypted = await config.encrypt_sensitive_data()
+            await save_configuration(encrypted)
+
+            return True
+        ```
+
+    Key Features:
+        - **Identity Management**: Agent ID and naming for tracking
+        - **Capability Control**: Explicit capability declarations
+        - **Permission System**: Fine-grained permission management
+        - **Resource Limits**: CPU, memory, and I/O constraints
+        - **Security Operations**: Built-in encryption/decryption
+        - **Validation Support**: Comprehensive security validation
+
+    See Also:
+        - ProtocolAgentValidationResult: Validation result structure
+        - ProtocolAgentConfiguration: Configuration management operations
+        - ProtocolMemoryAgentInstance: Agent instance runtime state
+    """
 
     agent_id: str
     name: str
@@ -41,7 +80,47 @@ class ProtocolAgentConfig(Protocol):
 
 @runtime_checkable
 class ProtocolAgentValidationResult(Protocol):
-    """Protocol for validation result data structure."""
+    """
+    Protocol for agent configuration validation results.
+
+    Provides comprehensive validation feedback including errors,
+    warnings, recommendations, and a quantitative quality score
+    for agent configuration validation operations.
+
+    Example:
+        ```python
+        async def validate_and_report(
+            config: ProtocolAgentConfig,
+            validator: ProtocolAgentConfiguration
+        ) -> str:
+            result = await validator.validate_configuration(config)
+
+            if result.has_errors:
+                print(f"Validation failed with {len(result.errors)} errors")
+                for error in result.errors:
+                    print(f"  ERROR: {error}")
+                return "failed"
+
+            if result.has_warnings:
+                print(f"Warnings: {len(result.warnings)}")
+
+            print(f"Configuration score: {result.score:.2f}")
+            return "success" if result.is_valid else "warnings"
+        ```
+
+    Key Features:
+        - **Binary Validation**: Clear valid/invalid status
+        - **Error Tracking**: Comprehensive error collection
+        - **Warning System**: Non-blocking warning notifications
+        - **Recommendations**: Actionable improvement suggestions
+        - **Quality Scoring**: Quantitative configuration quality metric
+        - **Incremental Building**: Add errors/warnings dynamically
+
+    See Also:
+        - ProtocolAgentConfig: Configuration data structure
+        - ProtocolAgentConfiguration: Validation operations
+        - ProtocolComplianceValidator: Compliance validation protocol
+    """
 
     is_valid: bool
     errors: list[str]

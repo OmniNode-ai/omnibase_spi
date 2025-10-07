@@ -30,9 +30,53 @@ from omnibase_spi.protocols.types import ProtocolOnexResult
 @runtime_checkable
 class ProtocolStamperEngine(Protocol):
     """
-    Protocol for stamping ONEX node metadata files and processing directories.
-    All arguments must use protocol interfaces and appropriate types.
-    No file I/O or CLI dependencies in the protocol.
+    Protocol for batch metadata stamping operations across files and directories.
+
+    Defines the contract for stamping engines that process individual files and
+    entire directory trees with ONEX metadata blocks. Supports template selection,
+    pattern-based filtering, and comprehensive stamping workflows for large-scale
+    metadata management operations.
+
+    Example:
+        ```python
+        from omnibase_spi.protocols.advanced import ProtocolStamperEngine
+        from omnibase_spi.protocols.types import ProtocolOnexResult
+
+        async def stamp_project(
+            engine: ProtocolStamperEngine,
+            project_dir: str
+        ) -> ProtocolOnexResult:
+            # Stamp all Python files in project recursively
+            result = await engine.process_directory(
+                directory=project_dir,
+                template="STANDARD",
+                recursive=True,
+                include_patterns=["*.py"],
+                exclude_patterns=["__pycache__/*", "*.pyc"],
+                author="OmniNode Team",
+                overwrite=False
+            )
+
+            print(f"Stamped {result.data.get('files_processed')} files")
+            print(f"Skipped: {result.data.get('files_skipped')}")
+            print(f"Errors: {result.data.get('files_failed')}")
+
+            return result
+        ```
+
+    Key Features:
+        - Batch file stamping with template support
+        - Directory tree processing with recursion
+        - Pattern-based file filtering (include/exclude)
+        - Dry-run mode for validation before stamping
+        - Repair mode for fixing corrupt metadata
+        - Force overwrite for existing stamps
+        - Comprehensive operation reporting
+
+    See Also:
+        - ProtocolStamper: Single file stamping operations
+        - ProtocolOutputFormatter: Metadata formatting and rendering
+        - ProtocolFixtureLoader: Fixture-based metadata templates
     """
 
     async def stamp_file(

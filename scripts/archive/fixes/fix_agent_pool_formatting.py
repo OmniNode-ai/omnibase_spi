@@ -4,6 +4,7 @@ Fix docstring formatting issues in protocol_agent_pool.py
 """
 
 import re
+from pathlib import Path
 
 
 def fix_docstring_formatting(file_path):
@@ -42,6 +43,15 @@ def fix_docstring_formatting(file_path):
 
 
 if __name__ == "__main__":
-    fix_docstring_formatting(
-        "/Volumes/PRO-G40/Code/omnibase_spi/src/omnibase_spi/protocols/memory/protocol_agent_pool.py"
+    # Use relative paths for portability
+    script_dir = Path(__file__).resolve().parent
+    repo_root = script_dir.parent.parent.parent  # Go up from scripts/archive/fixes to repo root
+    target_file = (
+        repo_root
+        / "src"
+        / "omnibase_spi"
+        / "protocols"
+        / "memory"
+        / "protocol_agent_pool.py"
     )
+    fix_docstring_formatting(target_file)

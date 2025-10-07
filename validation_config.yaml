@@ -175,6 +175,17 @@ rules:
       similarity_threshold: 0.95
       check_semantic_similarity: true
       ignore_minor_differences: false
+      # Exclusions for known false positives (semantic differences exist)
+      exclusions:
+        # Single vs Batch operation pattern - semantically distinct despite structural similarity
+        - pattern: "Protocol(.+)Request vs ProtocolBatch\\1Request"
+          reason: "Single vs Batch operation pattern - different cardinality and semantics"
+          examples:
+            - "ProtocolMemoryRetrieveRequest vs ProtocolBatchMemoryRetrieveRequest"
+            - "ProtocolMemoryStoreRequest vs ProtocolBatchMemoryStoreRequest"
+        # Streaming vs Non-streaming operation pattern
+        - pattern: "Protocol(.+)Request vs ProtocolStreaming\\1Request"
+          reason: "Streaming vs non-streaming operation pattern - different execution models"
 
   # SPI011: Protocol Name Conflicts
   - rule_id: "SPI011"
