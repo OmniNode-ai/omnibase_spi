@@ -62,15 +62,16 @@ repos:
         args: ['src/']
         stages: [pre-commit]
 
-      # Enhanced protocol duplicate detection with 8-agent insights
+      # Enhanced protocol duplicate detection
       - id: validate-protocol-duplicates
         name: SPI Protocol Duplicate Detection
-        entry: poetry run python scripts/analysis/precommit_duplicate_check.py
+        entry: poetry run python scripts/validation/validate_protocol_duplicates.py
         language: system
         types: [python]
         files: ^src/.*protocol.*\.py$
         exclude: ^(tests/|scripts/).*\.py$
-        pass_filenames: true
+        pass_filenames: false
+        args: ['src/']
         stages: [pre-commit]
 
       # Comprehensive duplicate analysis (backup validation)

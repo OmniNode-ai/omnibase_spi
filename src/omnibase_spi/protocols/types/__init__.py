@@ -160,6 +160,9 @@ from omnibase_spi.protocols.types.protocol_core_types import (  # Migrated from 
     ProtocolVersionInfo,
 )
 
+# Schema value protocol
+from omnibase_spi.protocols.types.protocol_schema_value import ProtocolSchemaValue
+
 # Storage types
 from omnibase_spi.protocols.types.protocol_storage_types import (
     ProtocolCheckpointData,
@@ -451,6 +454,7 @@ __all__ = [
     "ProtocolRetryPolicy",
     "ProtocolRetryResult",
     "ProtocolSchemaObject",
+    "ProtocolSchemaValue",
     "ProtocolSecurityContext",
     "ProtocolSemVer",
     "ProtocolSerializable",
