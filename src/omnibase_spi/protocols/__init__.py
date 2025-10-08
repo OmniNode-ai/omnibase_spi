@@ -302,9 +302,6 @@ from omnibase_spi.protocols.storage import (
     ProtocolStorageBackendFactory,
 )
 
-# Test protocols (2 protocols) - Testing frameworks and testable components
-from omnibase_spi.protocols.test import ProtocolTestable, ProtocolTestableCLI
-
 # Validation protocols (4 protocols) - Input validation and error handling
 # Provides structured validation with error reporting and compliance checking
 from omnibase_spi.protocols.validation import (
@@ -337,6 +334,11 @@ from omnibase_spi.protocols.workflow_orchestration import (
     ProtocolWorkQueue,
 )
 
+# Test protocols (2 protocols) - Testing frameworks and testable components
+# NOTE: Commented out for production builds as test module is excluded from package
+# from omnibase_spi.protocols.test import ProtocolTestable, ProtocolTestableCLI
+
+
 __all__ = [
     "ProtocolCLI",
     "ProtocolCLIResult",
@@ -355,8 +357,8 @@ __all__ = [
     "ProtocolUtilsNodeConfiguration",
     "ProtocolNodeRegistry",
     "ProtocolNodeRunner",
-    "ProtocolTestable",
-    "ProtocolTestableCLI",
+    # "ProtocolTestable",  # Excluded from production builds
+    # "ProtocolTestableCLI",  # Excluded from production builds
     "ProtocolAnalyticsDataProvider",
     "ProtocolOnexContractData",
     "ProtocolOnexEnvelope",
