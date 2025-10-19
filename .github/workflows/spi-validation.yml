@@ -1,0 +1,197 @@
+name: SPI Protocol Validation
+
+on:
+  push:
+    branches: [main, develop, feat/*, fix/*]
+    paths:
+      - 'src/**/*.py'
+      - 'scripts/validation/**'
+      - 'validation_config.yaml'
+      - '.github/workflows/spi-validation.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'src/**/*.py'
+      - 'scripts/validation/**'
+      - 'validation_config.yaml'
+
+  workflow_dispatch:
+    inputs:
+      validation_mode:
+        description: 'Validation mode'
+        required: true
+        default: 'comprehensive'
+        type: choice
+        options:
+          - comprehensive
+          - quick
+          - pre-commit
+
+jobs:
+  spi-validation:
+    name: SPI Protocol Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    strategy:
+      matrix:
+        python-version: ['3.12']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}
+
+      - name: Install dependencies
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: poetry install --no-interaction --no-root
+
+      - name: Install project
+        run: poetry install --no-interaction
+
+      - name: Run SPI validation
+        id: spi-validation
+        run: |
+          echo "Running comprehensive SPI validation checks..."
+
+          # Set validation mode
+          VALIDATION_MODE="${{ github.event.inputs.validation_mode || 'comprehensive' }}"
+          echo "Running validation in $VALIDATION_MODE mode"
+
+          # Run the comprehensive SPI validator
+          if [ "$VALIDATION_MODE" = "pre-commit" ]; then
+            poetry run python scripts/validation/comprehensive_spi_validator.py \
+              --pre-commit \
+              --json-report \
+              --config validation_config.yaml \
+              src/omnibase_spi/protocols
+          else
+            poetry run python scripts/validation/comprehensive_spi_validator.py \
+              --json-report \
+              --config validation_config.yaml \
+              src/omnibase_spi/protocols
+          fi
+
+          echo "SPI validation completed successfully"
+        continue-on-error: true
+
+      - name: Upload validation reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: spi-validation-reports
+          path: |
+            spi_validation_report.json
+            comprehensive_spi_validation_*.json
+            comprehensive_spi_validation_*.html
+          retention-days: 30
+
+      - name: Parse validation results
+        id: parse-results
+        run: |
+          # Find the actual validation report file
+          REPORT_FILE=$(ls comprehensive_spi_validation_*.json 2>/dev/null | head -1)
+
+          if [ -n "$REPORT_FILE" ] && [ -f "$REPORT_FILE" ]; then
+            echo "Found validation report: $REPORT_FILE"
+
+            # Parse the comprehensive validator report
+            ERROR_COUNT=$(python -c "
+          import json
+          with open('$REPORT_FILE') as f:
+              data = json.load(f)
+          violations = data.get('violations', [])
+          errors = [v for v in violations if v.get('severity') == 'error']
+          print(len(errors))
+          ")
+
+            WARNING_COUNT=$(python -c "
+          import json
+          with open('$REPORT_FILE') as f:
+              data = json.load(f)
+          violations = data.get('violations', [])
+          warnings = [v for v in violations if v.get('severity') == 'warning']
+          print(len(warnings))
+          ")
+
+            TOTAL_PROTOCOLS=$(python -c "
+          import json
+          with open('$REPORT_FILE') as f:
+              data = json.load(f)
+          summary = data.get('summary', {})
+          print(summary.get('protocols_analyzed', 0))
+          ")
+
+            echo "error_count=$ERROR_COUNT" >> $GITHUB_OUTPUT
+            echo "warning_count=$WARNING_COUNT" >> $GITHUB_OUTPUT
+            echo "total_protocols=$TOTAL_PROTOCOLS" >> $GITHUB_OUTPUT
+
+            # Create summary based on results
+            if [ "$ERROR_COUNT" -gt 0 ]; then
+              STATUS="❌ **Validation Failed**"
+            elif [ "$WARNING_COUNT" -gt 0 ]; then
+              STATUS="⚠️  **Validation Passed with Warnings**"
+            else
+              STATUS="✅ **Validation Passed**"
+            fi
+
+            cat > validation_summary.md << EOF
+          ## 🔍 SPI Protocol Validation Results
+
+          | Metric | Count |
+          |--------|-------|
+          | Protocols Analyzed | ${TOTAL_PROTOCOLS} |
+          | Errors | ${ERROR_COUNT} |
+          | Warnings | ${WARNING_COUNT} |
+
+          ${STATUS} - SPI protocol compliance check completed
+          EOF
+          else
+            echo "❌ CRITICAL: No validation report found!"
+            echo "The SPI validator should have generated a report but none was found."
+            echo "This indicates a critical failure in the validation pipeline."
+            echo "error_count=999" >> $GITHUB_OUTPUT
+            echo "warning_count=0" >> $GITHUB_OUTPUT
+            echo "total_protocols=0" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+      - name: Validation summary
+        run: |
+          ERROR_COUNT=${{ steps.parse-results.outputs.error_count }}
+          WARNING_COUNT=${{ steps.parse-results.outputs.warning_count }}
+          TOTAL_PROTOCOLS=${{ steps.parse-results.outputs.total_protocols }}
+
+          echo "📊 SPI Validation Summary:"
+          echo "  - Protocols analyzed: $TOTAL_PROTOCOLS"
+          echo "  - Errors found: $ERROR_COUNT"
+          echo "  - Warnings found: $WARNING_COUNT"
+
+          if [ "$ERROR_COUNT" -gt 0 ]; then
+            echo "❌ Validation failed with $ERROR_COUNT errors"
+            exit 1
+          elif [ "$WARNING_COUNT" -gt 0 ]; then
+            echo "⚠️  Validation passed with $WARNING_COUNT warnings"
+          else
+            echo "✅ Validation passed successfully - no issues found!"
+          fi

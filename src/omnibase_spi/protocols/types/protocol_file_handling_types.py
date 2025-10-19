@@ -1,0 +1,220 @@
+"""
+File handling protocol types for ONEX SPI interfaces.
+
+Domain: File processing and writing protocols
+"""
+
+from typing import TYPE_CHECKING, Literal, Optional, Protocol, runtime_checkable
+from uuid import UUID
+
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.types.protocol_core_types import (
+        ProtocolDateTime,
+        ProtocolSemVer,
+    )
+
+from omnibase_spi.protocols.types.protocol_core_types import LiteralBaseStatus
+
+LiteralFileOperation = Literal["read", "write", "append", "delete", "move", "copy"]
+LiteralFileStatus = Literal["exists", "missing", "locked", "corrupted", "accessible"]
+ProcessingStatus = LiteralBaseStatus
+
+
+@runtime_checkable
+class ProtocolFileContent(Protocol):
+    """Protocol for file content values supporting validation and serialization."""
+
+    async def validate_for_file(self) -> bool: ...
+
+    def serialize_for_file(self) -> dict[str, object]: ...
+
+
+@runtime_checkable
+class ProtocolStringFileContent(ProtocolFileContent, Protocol):
+    """Protocol for string-based file content (text files)."""
+
+    value: str
+
+
+@runtime_checkable
+class ProtocolBinaryFileContent(ProtocolFileContent, Protocol):
+    """Protocol for binary file content (binary files)."""
+
+    value: bytes
+
+
+FileContent = ProtocolFileContent
+
+
+@runtime_checkable
+class ProtocolFileMetadata(Protocol):
+    """Protocol for file metadata - attribute-based for data compatibility."""
+
+    size: int
+    mime_type: str
+    encoding: str | None
+    created_at: float
+    modified_at: float
+
+
+@runtime_checkable
+class ProtocolFileInfo(Protocol):
+    """Protocol for file information objects."""
+
+    file_path: str
+    file_size: int
+    file_type: str
+    mime_type: str
+    last_modified: float
+    status: LiteralFileStatus
+
+
+@runtime_checkable
+class ProtocolFileContentObject(Protocol):
+    """Protocol for file content objects."""
+
+    file_path: str
+    content: FileContent
+    encoding: str | None
+    content_hash: str
+    is_binary: bool
+
+
+@runtime_checkable
+class ProtocolProcessingResult(Protocol):
+    """Protocol for file processing results."""
+
+    file_path: str
+    operation: LiteralFileOperation
+    status: ProcessingStatus
+    processing_time: float
+    error_message: str | None
+    file_metadata: ProtocolFileMetadata
+
+
+@runtime_checkable
+class ProtocolFileFilter(Protocol):
+    """Protocol for file filtering criteria."""
+
+    include_extensions: list[str]
+    exclude_extensions: list[str]
+    min_size: int | None
+    max_size: int | None
+    modified_after: float | None
+    modified_before: float | None
+
+
+@runtime_checkable
+class ProtocolFileTypeResult(Protocol):
+    """Protocol for file type detection results."""
+
+    file_path: str
+    detected_type: str
+    confidence: float
+    mime_type: str
+    is_supported: bool
+    error_message: str | None
+
+
+@runtime_checkable
+class ProtocolHandlerMatch(Protocol):
+    """Protocol for node matching results."""
+
+    node_id: UUID
+    node_name: str
+    match_confidence: float
+    can_handle: bool
+    required_capabilities: list[str]
+
+
+@runtime_checkable
+class ProtocolCanHandleResult(Protocol):
+    """Protocol for can handle determination results."""
+
+    can_handle: bool
+    confidence: float
+    reason: str
+    file_metadata: ProtocolFileMetadata
+
+
+@runtime_checkable
+class ProtocolHandlerMetadata(Protocol):
+    """Protocol for node metadata."""
+
+    name: str
+    version: "ProtocolSemVer"
+    author: str
+    description: str
+    supported_extensions: list[str]
+    supported_filenames: list[str]
+    priority: int
+    requires_content_analysis: bool
+
+
+@runtime_checkable
+class ProtocolExtractedBlock(Protocol):
+    """Protocol for extracted block data."""
+
+    content: str
+    file_metadata: ProtocolFileMetadata
+    block_type: str
+    start_line: int | None
+    end_line: int | None
+    path: str
+
+
+@runtime_checkable
+class ProtocolSerializedBlock(Protocol):
+    """Protocol for serialized block data."""
+
+    serialized_data: str
+    format: str
+    version: "ProtocolSemVer"
+    file_metadata: ProtocolFileMetadata
+
+
+@runtime_checkable
+class ProtocolResultData(Protocol):
+    """Protocol for operation result data - attribute-based for data compatibility."""
+
+    output_path: str | None
+    processed_files: list[str]
+    metrics: dict[str, float]
+    warnings: list[str]
+
+
+@runtime_checkable
+class ProtocolOnexResult(Protocol):
+    """Protocol for ONEX operation results."""
+
+    success: bool
+    message: str
+    result_data: ProtocolResultData | None
+    error_code: str | None
+    timestamp: "ProtocolDateTime"
+
+
+@runtime_checkable
+class ProtocolFileMetadataOperations(Protocol):
+    """Protocol for file metadata operations - method-based for services."""
+
+    async def validate_metadata(self, metadata: "ProtocolFileMetadata") -> bool: ...
+
+    async def serialize_metadata(self, metadata: "ProtocolFileMetadata") -> str: ...
+
+    async def compare_metadata(
+        self, meta1: "ProtocolFileMetadata", meta2: "ProtocolFileMetadata"
+    ) -> bool: ...
+
+
+@runtime_checkable
+class ProtocolResultOperations(Protocol):
+    """Protocol for result operations - method-based for services."""
+
+    def format_result(self, result: "ProtocolOnexResult") -> str: ...
+
+    async def merge_results(
+        self, results: list["ProtocolOnexResult"]
+    ) -> ProtocolOnexResult: ...
+
+    async def validate_result(self, result: "ProtocolOnexResult") -> bool: ...

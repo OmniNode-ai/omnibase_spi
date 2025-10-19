@@ -1,0 +1,98 @@
+# Pre-commit configuration for SPI validation
+# This configuration integrates the comprehensive SPI validator with pre-commit hooks
+# Usage: pre-commit install --config .pre-commit-config-spi.yaml
+
+repos:
+  # Comprehensive SPI Protocol Validation
+  - repo: local
+    hooks:
+      - id: spi-protocol-validation
+        name: SPI Protocol Validation
+        entry: python scripts/validation/comprehensive_spi_validator.py
+        language: python
+        files: ^src/.*\.py$
+        args: ["--pre-commit", "--config", "validation_config.yaml"]
+        pass_filenames: false
+        description: "Validate SPI protocol compliance and architectural purity"
+        verbose: true
+
+      - id: spi-quick-check
+        name: SPI Quick Check (Changed Files Only)
+        entry: python scripts/validation/comprehensive_spi_validator.py
+        language: python
+        files: ^src/.*\.py$
+        args: ["--pre-commit", "--config", "validation_config.yaml"]
+        pass_filenames: true
+        description: "Quick SPI validation for changed files only"
+        stages: [pre-push]
+
+  # Standard Python quality checks (run before SPI validation)
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: check-yaml
+      - id: check-toml
+      - id: check-json
+      - id: end-of-file-fixer
+        files: ^src/.*\.py$
+      - id: trailing-whitespace
+        files: ^src/.*\.py$
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: ['--maxkb=1024']
+
+  # Python code formatting (run before validation)
+  - repo: https://github.com/psf/black
+    rev: 23.12.1
+    hooks:
+      - id: black
+        files: ^src/.*\.py$
+        args: [--line-length=88]
+
+  # Import sorting (run before validation)
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        files: ^src/.*\.py$
+        args: [--profile=black, --line-length=88]
+
+  # Fast linting (run in parallel with SPI validation)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.9
+    hooks:
+      - id: ruff
+        files: ^src/.*\.py$
+        args: [--fix, --exit-non-zero-on-fix]
+
+  # Type checking (optional, can be disabled for speed)
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy
+        files: ^src/.*\.py$
+        additional_dependencies: [types-all]
+        args: [--strict, --show-error-codes]
+        exclude: ^tests/
+
+  # Security scanning (optional)
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.5
+    hooks:
+      - id: bandit
+        files: ^src/.*\.py$
+        args: [-c, pyproject.toml]
+        exclude: ^tests/
+
+# Pre-commit CI configuration
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit hooks
+
+    for more information, see https://pre-commit.ci
+  autofix_prs: true
+  autoupdate_branch: ''
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+  autoupdate_schedule: weekly
+  skip: [spi-protocol-validation, mypy] # Skip heavy checks in CI
+  submodules: false

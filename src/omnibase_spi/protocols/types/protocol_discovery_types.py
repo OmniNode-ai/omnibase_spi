@@ -1,0 +1,112 @@
+"""
+Discovery protocol types for ONEX SPI interfaces.
+
+Domain: Service and node discovery protocols
+"""
+
+from typing import TYPE_CHECKING, Literal, Protocol, runtime_checkable
+from uuid import UUID
+
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.types.protocol_core_types import (
+        ContextValue,
+        ProtocolSemVer,
+    )
+
+LiteralDiscoveryStatus = Literal["found", "not_found", "error", "timeout"]
+LiteralHandlerStatus = Literal["available", "busy", "offline", "error"]
+
+
+@runtime_checkable
+class ProtocolCapabilityValue(Protocol):
+    """Protocol for capability data values supporting validation and serialization."""
+
+    async def validate_for_capability(self) -> bool: ...
+
+    def serialize_for_capability(self) -> dict[str, object]: ...
+
+
+@runtime_checkable
+class ProtocolCapabilityStringValue(ProtocolCapabilityValue, Protocol):
+    """Protocol for string-based capability values (names, descriptions, IDs)."""
+
+    value: str
+
+
+@runtime_checkable
+class ProtocolCapabilityNumericValue(ProtocolCapabilityValue, Protocol):
+    """Protocol for numeric capability values (counts, measurements, scores)."""
+
+    value: int | float
+
+
+@runtime_checkable
+class ProtocolCapabilityBooleanValue(ProtocolCapabilityValue, Protocol):
+    """Protocol for boolean capability values (flags, enabled/disabled)."""
+
+    value: bool
+
+
+@runtime_checkable
+class ProtocolCapabilityStringListValue(ProtocolCapabilityValue, Protocol):
+    """Protocol for string list capability values (tags, categories, identifiers)."""
+
+    value: list[str]
+
+
+CapabilityValue = ProtocolCapabilityValue
+
+
+@runtime_checkable
+class ProtocolHandlerCapability(Protocol):
+    """Protocol for node capability objects."""
+
+    capability_name: str
+    capability_value: CapabilityValue
+    is_required: bool
+    version: "ProtocolSemVer"
+
+
+@runtime_checkable
+class ProtocolDiscoveryNodeInfo(Protocol):
+    """Protocol for discovery node information objects with handler status."""
+
+    node_id: UUID
+    node_name: str
+    node_type: str
+    status: LiteralHandlerStatus
+    capabilities: list[str]
+    metadata: dict[str, CapabilityValue]
+
+
+@runtime_checkable
+class ProtocolDiscoveryQuery(Protocol):
+    """Protocol for discovery query objects."""
+
+    query_id: UUID
+    target_type: str
+    required_capabilities: list[str]
+    filters: dict[str, "ContextValue"]
+    timeout_seconds: float
+
+
+@runtime_checkable
+class ProtocolDiscoveryResult(Protocol):
+    """Protocol for discovery result objects."""
+
+    query_id: UUID
+    status: LiteralDiscoveryStatus
+    nodes_found: int
+    discovery_time: float
+    error_message: str | None
+
+
+@runtime_checkable
+class ProtocolHandlerRegistration(Protocol):
+    """Protocol for node registration objects."""
+
+    node_id: UUID
+    registration_data: dict[str, CapabilityValue]
+    registration_time: float
+    expires_at: float | None
+    is_active: bool
