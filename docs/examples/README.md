@@ -4,6 +4,8 @@
 
 Practical examples demonstrating ONEX SPI protocol usage patterns.
 
+> **Note**: Examples use implementation-specific factory functions like `get_service_registry()`, `get_workflow_orchestrator()`, etc. These are not part of the SPI protocols themselves but are provided by concrete implementations to demonstrate usage patterns.
+
 ## Basic Examples
 
 ### Service Registration and Resolution
@@ -13,6 +15,8 @@ from omnibase_spi.protocols.container import ProtocolServiceRegistry
 from omnibase_spi.protocols.core import ProtocolLogger
 
 # Initialize service registry
+# Note: get_service_registry() is an implementation-specific factory function
+# that returns a concrete implementation of ProtocolServiceRegistry
 registry: ProtocolServiceRegistry = get_service_registry()
 
 # Register logger service

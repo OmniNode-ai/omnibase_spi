@@ -148,7 +148,7 @@ The ONEX SPI follows a **protocol-first design** with **165 protocol files** acr
 1. Review [Architecture Overview](architecture/README.md) for design principles and patterns
 2. Study [Protocol Composition Patterns](patterns/protocol-composition-patterns.md) for advanced protocol design
 3. Review [Container Protocols](api-reference/container.md) for dependency injection patterns
-4. Consider [Migration Guide](migration.md) for protocol evolution
+4. Study [Memory Management](api-reference/memory.md) for workflow state persistence
 
 ## 🔑 Key Features
 
