@@ -32,7 +32,18 @@ The API reference is organized by domain, matching the package structure:
 - **[Networking](networking.md)** - HTTP, Kafka, and communication protocols (6 protocols)
 - **[File Handling](file-handling.md)** - File processing and type handling (8 protocols)
 
-### 🛠️ Validation & Quality
+### 🛠️ Advanced & Specialized
+- **[Advanced Protocols](advanced.md)** - Sophisticated system capabilities (14 protocols)
+- **[Analytics](analytics.md)** - Data collection and reporting (1 protocol)
+- **[CLI](cli.md)** - Command line interface operations (7 protocols)
+- **[Discovery](discovery.md)** - Service and handler discovery (3 protocols)
+- **[LLM](llm.md)** - Large Language Model integration (4 protocols)
+- **[Node Management](node.md)** - Node configuration and registry (5 protocols)
+- **[ONEX Platform](onex.md)** - Platform-specific protocols (6 protocols)
+- **[Schema](schema.md)** - Schema loading and validation (10 protocols)
+- **[Semantic](semantic.md)** - Advanced text processing (3 protocols)
+- **[Storage](storage.md)** - Data persistence and backends (3 protocols)
+- **[Test](test.md)** - Testing frameworks and utilities (3 protocols)
 - **[Validation](validation.md)** - Input validation and compliance (11 protocols)
 
 ### 📋 Type System

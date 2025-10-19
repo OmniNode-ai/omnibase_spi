@@ -25,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 - _No changes yet_
 
-## [0.1.0] - 2025-01-30
+## [0.1.0] - 2025-10-19
 
 ### Added
 - **Complete Documentation Rebuild** - Comprehensive API reference with 165 protocols across 22 domains

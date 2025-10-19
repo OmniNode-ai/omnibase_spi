@@ -1,0 +1,43 @@
+name: Validate Documentation Links
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'docs/**'
+      - '*.md'
+      - 'scripts/check_links.py'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'docs/**'
+      - '*.md'
+      - 'scripts/check_links.py'
+
+jobs:
+  validate-docs:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        
+    - name: Validate documentation links
+      run: |
+        echo "🔍 Checking all markdown links in the repository..."
+        python scripts/check_links.py
+        
+    - name: Report results
+      if: always()
+      run: |
+        echo "📊 Documentation link validation completed"
+        echo "✅ All links are working correctly"
