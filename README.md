@@ -1,12 +1,61 @@
 # ONEX Service Provider Interface (omnibase_spi)
 
-> **📦 Package Renamed**: This package has been renamed from `omnibase-spi` to `omnibase_spi` to follow Python naming conventions. See [MIGRATION.md](./MIGRATION.md) for upgrade instructions.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Type checked: mypy](https://img.shields.io/badge/type%20checked-mypy-blue.svg)](https://mypy.readthedocs.io/)
+[![Pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
+[![Protocols](https://img.shields.io/badge/protocols-165-green.svg)](https://github.com/OmniNode-ai/omnibase_spi)
+[![Domains](https://img.shields.io/badge/domains-22-blue.svg)](https://github.com/OmniNode-ai/omnibase_spi)
 
-Pure protocol interfaces for the ONEX framework with zero implementation dependencies.
+> **📦 Package Renamed**: This package has been renamed from `omnibase-spi` to `omnibase_spi` to follow Python naming conventions.
 
-## Overview
+**Pure protocol interfaces for the ONEX framework with zero implementation dependencies.**
+
+## 🚀 Quick Start
+
+```bash
+# Install the package
+pip install omnibase-spi
+
+# Or with poetry
+poetry add omnibase-spi
+```
+
+## 📖 Documentation
+
+- **[Complete Documentation](docs/README.md)** - Comprehensive protocol documentation
+- **[API Reference](docs/api-reference/README.md)** - All 165 protocols across 22 domains
+- **[Quick Start Guide](docs/quick-start.md)** - Get started in minutes
+- **[Developer Guide](docs/developer-guide/README.md)** - Development workflow and best practices
+
+## 🌟 Overview
 
 This repository contains all protocol definitions that define the contracts for ONEX services. These protocols enable duck typing and dependency injection without requiring concrete implementations.
+
+## 🏗️ Architecture
+
+The ONEX SPI follows a **protocol-first design** with **165 protocol files** across **22 specialized domains**:
+
+- **Core System** (16 protocols) - Logging, health monitoring, error handling
+- **Container Management** (21 protocols) - Dependency injection, lifecycle management  
+- **Workflow Orchestration** (14 protocols) - Event-driven FSM coordination
+- **MCP Integration** (15 protocols) - Multi-subsystem tool coordination
+- **Event Bus** (13 protocols) - Distributed messaging infrastructure
+- **Memory Management** (15 protocols) - Workflow state persistence
+- **Networking** (6 protocols) - HTTP, Kafka, circuit breakers
+- **File Handling** (8 protocols) - File processing and type detection
+- **Validation** (11 protocols) - Input validation and compliance
+- **Plus 13 more specialized domains**
+
+## 🔧 Key Features
+
+- **Zero Implementation Dependencies** - Pure protocol contracts only
+- **Runtime Type Safety** - Full `@runtime_checkable` protocol support
+- **Dependency Injection** - Sophisticated service lifecycle management
+- **Event-Driven Architecture** - Event sourcing and workflow orchestration
+- **Multi-Subsystem Coordination** - MCP integration and distributed tooling
+- **Enterprise Features** - Health monitoring, metrics, circuit breakers, and more
 
 ## Architecture Principles
 
@@ -330,3 +379,50 @@ This repository has **zero runtime dependencies** by design. The only dependenci
 - **File Handling Protocols**: File processing and writing contracts
 
 This repository serves as the foundation for the entire ONEX ecosystem's type safety and architectural contracts.
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guide](docs/contributing.md) for development guidelines and validation requirements.
+
+### Development Setup
+```bash
+# Clone the repository
+git clone https://github.com/OmniNode-ai/omnibase_spi.git
+cd omnibase_spi
+
+# Install dependencies
+poetry install
+
+# Run validation
+poetry run pre-commit run --all-files
+```
+
+## 📄 License
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+The MIT License is a permissive open source license that allows you to:
+- ✅ Use the software for any purpose
+- ✅ Modify and distribute the software
+- ✅ Include the software in proprietary applications
+- ✅ Distribute copies of the software
+
+## 🌟 Open Source
+
+This project is **completely open source** and community-driven. We believe in:
+
+- **Transparency** - All development happens in the open
+- **Community** - Contributions from developers worldwide
+- **Quality** - Rigorous testing and validation standards
+- **Innovation** - Cutting-edge protocol design patterns
+
+## 📞 Support
+
+- **Documentation**: [Complete Documentation](docs/README.md)
+- **Issues**: [GitHub Issues](https://github.com/OmniNode-ai/omnibase_spi/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/OmniNode-ai/omnibase_spi/discussions)
+- **Email**: team@omninode.ai
+
+---
+
+**Made with ❤️ by the OmniNode Team**

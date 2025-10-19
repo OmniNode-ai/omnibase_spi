@@ -2,39 +2,135 @@
 
 ## Overview
 
-Welcome to the comprehensive documentation for omnibase-spi, the Service Provider Interface package that provides protocol-based typing for the ONEX distributed orchestration framework. This documentation covers everything you need to know to use, implement, and extend ONEX protocols for event-driven workflow orchestration, MCP integration, and distributed service coordination.
+Welcome to the comprehensive documentation for **omnibase-spi**, the Service Provider Interface package that provides protocol-based typing for the ONEX distributed orchestration framework. This documentation covers everything you need to know to use, implement, and extend ONEX protocols for event-driven workflow orchestration, MCP integration, and distributed service coordination.
 
-## Documentation Structure
+## 🏗️ Architecture Overview
 
-### Getting Started
-- **[Quick Start Guide](quick-start.md)** - Fast onboarding with executable examples
-- **[Developer Guide](developer-guide/README.md)** - Complete setup and development workflow
-- **[Architecture Overview](architecture/README.md)** - Understanding protocols and SPI design principles
+The ONEX SPI follows a **protocol-first design** with **165 protocol files** across **22 specialized domains**. This enterprise-grade architecture provides:
 
-### Developer Resources
-- **[Developer Guide](developer-guide/README.md)** - Complete development workflow and best practices
-- **[Architecture Overview](architecture/README.md)** - Design patterns, principles, and architectural decisions
-- **[Integration Guide](integration/README.md)** - Framework integration patterns and dependency injection
-- **[Testing Guide](testing.md)** - Comprehensive testing strategies for protocol compliance
-- **[Contributing Guide](contributing.md)** - Development workflow and validation requirements
-- **[Migration Guide](migration.md)** - Protocol evolution and version management
+- **Zero Implementation Dependencies**: Pure protocol contracts only
+- **Runtime Type Safety**: Full `@runtime_checkable` protocol support
+- **Dependency Injection**: Sophisticated service lifecycle management
+- **Event-Driven Architecture**: Event sourcing and workflow orchestration
+- **Multi-Subsystem Coordination**: MCP integration and distributed tooling
+- **Enterprise Features**: Health monitoring, metrics, circuit breakers, and more
 
-### API Reference
+## 📚 Documentation Structure
+
+### 🚀 Getting Started
 - **[API Reference Overview](api-reference/README.md)** - Complete protocol and type documentation
-- **[Core Types & Protocols](api-reference/core-types.md)** - Fundamental system types and contracts
-- **[Workflow Orchestration](api-reference/workflow-orchestration.md)** - Event-driven FSM and orchestration protocols  
+- **[Core Protocols](api-reference/core.md)** - System-level contracts and fundamentals
+- **[Container Protocols](api-reference/container.md)** - Dependency injection and service management
+
+### 🔧 Developer Resources
+- **[API Reference Overview](api-reference/README.md)** - Complete protocol and type documentation
+- **[Core Protocols](api-reference/core.md)** - System-level contracts and fundamentals
+- **[Container Protocols](api-reference/container.md)** - Dependency injection and service management
+- **[Workflow Orchestration](api-reference/workflow-orchestration.md)** - Event-driven FSM orchestration
 - **[MCP Integration](api-reference/mcp.md)** - Model Context Protocol multi-subsystem coordination
+- **[Event Bus](api-reference/event-bus.md)** - Distributed messaging and event streaming
+- **[Memory Management](api-reference/memory.md)** - Memory operations and workflow management
+- **[Networking](api-reference/networking.md)** - HTTP, Kafka, and communication protocols
+- **[File Handling](api-reference/file-handling.md)** - File processing and type handling
+- **[Validation](api-reference/validation.md)** - Input validation and schema checking
 
-### Specialized Documentation
-- **[SPI Architecture](architecture/spi-architecture.md)** - Service Provider Interface design principles
-- **[Protocol Composition Patterns](protocol-composition-patterns.md)** - Common protocol design patterns
-- **[Protocol Migration Guide](protocol-migration-guide.md)** - Protocol evolution and upgrade strategies
-- **[Protocol Selection Guide](protocol-selection-guide.md)** - Decision framework for choosing protocols
+### 📖 API Reference
+- **[API Reference Overview](api-reference/README.md)** - Complete protocol and type documentation
+- **[Core Protocols](api-reference/core.md)** - System-level contracts and fundamentals
+- **[Container Protocols](api-reference/container.md)** - Dependency injection and service management
+- **[Workflow Orchestration](api-reference/workflow-orchestration.md)** - Event-driven FSM orchestration
+- **[MCP Integration](api-reference/mcp.md)** - Model Context Protocol multi-subsystem coordination
+- **[Event Bus](api-reference/event-bus.md)** - Distributed messaging and event streaming
+- **[Memory Management](api-reference/memory.md)** - Memory operations and workflow management
+- **[Networking](api-reference/networking.md)** - HTTP, Kafka, and communication protocols
+- **[File Handling](api-reference/file-handling.md)** - File processing and type handling
+- **[Validation](api-reference/validation.md)** - Input validation and schema checking
 
-### Implementation Guides
-- **[Integration Guide](integration/README.md)** - Framework integration patterns and dependency injection
+### 🎯 Specialized Documentation
+- **[Protocol Composition Patterns](patterns/protocol-composition-patterns.md)** - Advanced protocol design patterns
+- **[Protocol Selection Guide](patterns/protocol-selection-guide.md)** - Decision framework for choosing protocols
+- **[Memory Protocols Guide](guides/memory_protocols_guide.md)** - Memory system implementation patterns
+- **[Node Templates](templates/README.md)** - ONEX 4-node architecture templates
 
-## Quick Navigation
+## 🏛️ Protocol Domains
+
+### Core System (16 protocols)
+**Foundation protocols for system operations**
+- Logging, health monitoring, error handling
+- Service discovery, performance metrics
+- Serialization, URI parsing, version management
+
+### Container Management (21 protocols)
+**Enterprise-grade dependency injection**
+- Service registry with lifecycle management
+- Circular dependency detection
+- Health monitoring and metrics collection
+- Factory patterns and injection contexts
+
+### Workflow Orchestration (14 protocols)
+**Event-driven FSM coordination**
+- Event sourcing with sequence numbers
+- Workflow state management and projections
+- Task scheduling and node coordination
+- Distributed workflow execution
+
+### MCP Integration (15 protocols)
+**Model Context Protocol coordination**
+- Multi-subsystem tool registration
+- Load balancing and failover
+- Health monitoring and metrics
+- Tool execution tracking
+
+### Event Bus (13 protocols)
+**Distributed messaging infrastructure**
+- Pluggable backend adapters (Kafka, Redis, in-memory)
+- Async and sync event bus implementations
+- Event message serialization and routing
+- Dead letter queue handling
+
+### Memory Management (15 protocols)
+**Memory operations and workflow management**
+- Key-value store operations
+- Workflow state persistence
+- Memory security and streaming
+- Agent coordination and management
+
+### Networking (6 protocols)
+**Communication and resilience**
+- HTTP client with extended features
+- Kafka client with advanced capabilities
+- Circuit breaker patterns
+- Communication bridges
+
+### File Handling (8 protocols)
+**File processing and metadata**
+- File type detection and processing
+- ONEX metadata stamping
+- Directory traversal and discovery
+- File I/O operations
+
+### Advanced Features (14 protocols)
+**Sophisticated system capabilities**
+- Adaptive chunking and AST building
+- Contract analysis and coverage
+- Multi-vector indexing
+- Output formatting and stamping
+
+### Plus 10+ More Specialized Domains
+- **Analytics**: Data collection and reporting
+- **CLI**: Command line interface operations
+- **Discovery**: Service and handler discovery
+- **LLM**: Large Language Model integration
+- **Node**: Node management and configuration
+- **ONEX**: Platform-specific protocols
+- **Schema**: Schema loading and validation
+- **Semantic**: Advanced text processing
+- **Storage**: Data persistence and backends
+- **Test**: Testing frameworks and utilities
+- **Types**: Comprehensive type definitions
+- **Validation**: Input validation and compliance
+
+## 🚀 Quick Navigation
 
 ### For New Users
 1. Start with the [Quick Start Guide](quick-start.md) for immediate hands-on experience
@@ -50,46 +146,73 @@ Welcome to the comprehensive documentation for omnibase-spi, the Service Provide
 
 ### For Architects
 1. Review [Architecture Overview](architecture/README.md) for design principles and patterns
-2. Study [Protocol Composition Patterns](protocol-composition-patterns.md) for advanced protocol design
-3. Review [SPI Architecture](architecture/spi-architecture.md) for architectural decisions
-4. Consider [Migration Guide](migration.md) for protocol evolution
+2. Study [Protocol Composition Patterns](patterns/protocol-composition-patterns.md) for advanced protocol design
+3. Review [Container Protocols](api-reference/container.md) for dependency injection patterns
+4. Study [Memory Management](api-reference/memory.md) for workflow state persistence
 
-### Key Domains
+## 🔑 Key Features
 
-#### Event-Driven Workflow Orchestration
-- **[Workflow Orchestration API](api-reference/workflow-orchestration.md)** - FSM patterns and event sourcing
+### Event-Driven Workflow Orchestration
 - **FSM States**: `pending` → `running` → `completed` with compensation actions
 - **Event Sourcing**: Sequence numbers, causation tracking, and replay capabilities
 - **Isolation**: `{workflowType, instanceId}` pattern for workflow separation
+- **Projections**: Real-time state derivation from events
 
-#### MCP Integration (Model Context Protocol)
-- **[MCP Integration API](api-reference/mcp.md)** - Multi-subsystem tool coordination
+### MCP Integration (Model Context Protocol)
 - **Tool Registry**: Dynamic discovery and load balancing across subsystems
 - **Health Monitoring**: TTL-based cleanup and subsystem status tracking
 - **Execution Tracking**: Correlation IDs and performance metrics
+- **Multi-Subsystem Coordination**: Seamless tool routing and execution
 
-#### Core Architecture
-- **[Core Types API](api-reference/core-types.md)** - Fundamental system contracts
+### Enterprise Dependency Injection
+- **Lifecycle Management**: Singleton, transient, scoped, pooled patterns
+- **Circular Dependency Detection**: Automatic detection and prevention
+- **Health Monitoring**: Service health tracking and validation
+- **Performance Metrics**: Resolution time tracking and optimization
+- **Scoped Injection**: Request, session, thread-based scoping
+
+### Core Architecture
 - **Protocol Purity**: Zero implementation dependencies, contracts only
 - **Type Safety**: Strong typing with `typing.Protocol` and runtime checking
 - **Namespace Isolation**: Complete separation from implementation packages
+- **Runtime Validation**: `@runtime_checkable` protocols for duck typing
 
-## Contributing
+## 🛠️ Development Workflow
 
-This documentation is maintained alongside the omnibase-spi codebase. See the **[Contributing Guide](contributing.md)** for complete development workflow including:
+### Protocol Compliance
+All protocols in the API reference are designed to be:
 
-- **Development Setup**: Poetry environment and pre-commit hooks
-- **Protocol Design Guidelines**: Standards for creating new protocols
-- **Validation Requirements**: Namespace isolation and SPI purity checking
-- **Testing Standards**: Protocol compliance and type safety verification
-- **Documentation Standards**: Technical writing and code example guidelines
+- **Runtime Checkable**: Use `isinstance(obj, Protocol)` for validation
+- **Type Safe**: Full mypy compatibility with strict checking
+- **Framework Agnostic**: No dependencies on specific implementations
+- **Forward Compatible**: Extensible design for future enhancements
 
-For quick contributions:
-1. **Issues**: Report documentation issues on the main repository
-2. **Pull Requests**: Follow the validation requirements in the contributing guide  
-3. **Quality Gates**: All changes must pass `mypy --strict`, namespace isolation, and protocol compliance tests
+### SPI Purity
+The API reference documents pure protocol definitions that:
 
-## Validation and Quality Assurance
+- Contain no concrete implementations
+- Use only abstract method signatures with `...`
+- Employ type hints for all parameters and return values
+- Follow namespace isolation rules
+- Maintain zero runtime dependencies
+
+### Usage Patterns
+Common patterns documented throughout:
+
+- **Dependency Injection**: Using protocols as service contracts
+- **Event Sourcing**: Building event-driven architectures
+- **Distributed Coordination**: Multi-node service coordination
+- **Type Safety**: Leveraging strong typing for reliability
+
+## 📊 Protocol Statistics
+
+- **Total Protocols**: 165 protocol files
+- **Domain Coverage**: 22 specialized domains
+- **Type Definitions**: 13 comprehensive type modules
+- **Enterprise Features**: Health monitoring, metrics, circuit breakers
+- **Architecture Patterns**: Event sourcing, dependency injection, distributed coordination
+
+## 🔧 Validation and Quality Assurance
 
 The omnibase-spi maintains strict architectural purity through automated validation:
 
@@ -107,13 +230,33 @@ poetry run python scripts/ast_spi_validator.py --check-protocols
 ./scripts/validate-namespace-isolation.sh
 ```
 
-## Version Information
+## 📋 Contributing
 
-- **Package Version**: 0.0.2  
+This documentation is maintained alongside the omnibase-spi codebase. See the **[Contributing Guide](contributing.md)** for complete development workflow including:
+
+- **Development Setup**: Poetry environment and pre-commit hooks
+- **Protocol Design Guidelines**: Standards for creating new protocols
+- **Validation Requirements**: Namespace isolation and SPI purity checking
+- **Testing Standards**: Protocol compliance and type safety verification
+- **Documentation Standards**: Technical writing and code example guidelines
+
+For quick contributions:
+1. **Issues**: Report documentation issues on the main repository
+2. **Pull Requests**: Follow the validation requirements in the contributing guide  
+3. **Quality Gates**: All changes must pass `mypy --strict`, namespace isolation, and protocol compliance tests
+
+## 📄 Version Information
+
+- **Package Version**: 0.1.0
 - **Python Support**: 3.11, 3.12, 3.13
 - **Architecture**: Protocol-first SPI with zero runtime dependencies
-- **Documentation Updated**: 2025-01-26
+- **Documentation Updated**: 2025-01-19
+- **Protocol Count**: 165 protocols across 22 domains
 
-## License
+## 📜 License
 
 This documentation and the omnibase-spi package are provided under the MIT license.
+
+---
+
+*This documentation is automatically generated from protocol definitions and maintained alongside the codebase.*

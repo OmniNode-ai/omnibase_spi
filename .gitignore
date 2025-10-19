@@ -253,15 +253,11 @@ docs_private/
 docs_archived/
 
 # Codanna index files (keep configuration, ignore generated index data)
-.codanna/index/*
+.codanna/
 .serena/
 
 # Claude Code session and runtime files
 sessions/
-.claude/agents/
-.claude/commands/
-.claude/hooks/
-.claude/state/
-.claude/settings.local.json
+.claude/
 
 # Repository renamed to omnibase_spi

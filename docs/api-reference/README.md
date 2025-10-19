@@ -2,28 +2,61 @@
 
 ## Overview
 
-Complete API reference documentation for all protocols, types, and interfaces in the omnibase-spi package. This reference provides detailed documentation for every public interface in the Service Provider Interface layer.
+Complete API reference documentation for all **165 protocols** across **22 specialized domains** in the omnibase-spi package. This reference provides detailed documentation for every public interface in the Service Provider Interface layer.
 
-## Organization
+## 🏗️ Protocol Architecture
+
+The ONEX SPI follows a **protocol-first design** with enterprise-grade features:
+
+- **Zero Implementation Dependencies**: Pure protocol contracts only
+- **Runtime Type Safety**: Full `@runtime_checkable` protocol support  
+- **Dependency Injection**: Sophisticated service lifecycle management
+- **Event-Driven Architecture**: Event sourcing and workflow orchestration
+- **Multi-Subsystem Coordination**: MCP integration and distributed tooling
+
+## 📚 Domain Organization
 
 The API reference is organized by domain, matching the package structure:
 
-### Core Protocols and Types
-- **[Core Types](core-types.md)** - Fundamental type definitions and base protocols  
-- **[Core Protocols](core-protocols.md)** - System-level protocol interfaces
+### 🔧 Core System Protocols
+- **[Core Protocols](core.md)** - System-level contracts and fundamentals (16 protocols)
+- **[Container Protocols](container.md)** - Dependency injection and service management (21 protocols)
+- **[Discovery Protocols](discovery.md)** - Service and handler discovery (3 protocols)
 
-### Domain-Specific Protocols
-- **[Workflow Orchestration](workflow-orchestration.md)** - Event-driven FSM orchestration protocols
-- **[MCP Integration](mcp.md)** - Model Context Protocol integration interfaces
-- **[Event Bus](event-bus.md)** - Event messaging and streaming protocols
-- **[Container](container.md)** - Dependency injection and service location protocols
-- **[Discovery](discovery.md)** - Service discovery and handler discovery protocols
-- **[File Handling](file-handling.md)** - File processing and type handling protocols
-- **[Validation](validation.md)** - Input validation and schema validation protocols
+### 🚀 Workflow & Event Processing
+- **[Workflow Orchestration](workflow-orchestration.md)** - Event-driven FSM orchestration (14 protocols)
+- **[Event Bus](event-bus.md)** - Distributed messaging infrastructure (13 protocols)
+- **[Memory Management](memory.md)** - Memory operations and workflow management (15 protocols)
 
-## Documentation Conventions
+### 🔗 Integration & Communication
+- **[MCP Integration](mcp.md)** - Model Context Protocol coordination (15 protocols)
+- **[Networking](networking.md)** - HTTP, Kafka, and communication protocols (6 protocols)
+- **[File Handling](file-handling.md)** - File processing and type handling (8 protocols)
 
-### Protocol Documentation
+### 🛠️ Advanced & Specialized
+- **[Advanced Protocols](advanced.md)** - Sophisticated system capabilities (14 protocols)
+- **[Analytics](analytics.md)** - Data collection and reporting (1 protocol)
+- **[CLI](cli.md)** - Command line interface operations (7 protocols)
+- **[LLM](llm.md)** - Large Language Model integration (4 protocols)
+- **[Node Management](node.md)** - Node configuration and registry (4 protocols)
+- **[ONEX Platform](onex.md)** - Platform-specific protocols (11 protocols)
+- **[Schema](schema.md)** - Schema loading and validation (10 protocols)
+- **[Semantic](semantic.md)** - Advanced text processing (3 protocols)
+- **[Storage](storage.md)** - Data persistence and backends (3 protocols)
+- **[Test](test.md)** - Testing frameworks and utilities (3 protocols)
+- **[Validation](validation.md)** - Input validation and compliance (11 protocols)
+
+### 📋 Type System
+- **[Core Types](core-types.md)** - Fundamental type definitions
+- **[Container Types](container-types.md)** - Dependency injection types
+- **[Event Bus Types](event-bus-types.md)** - Event messaging types
+- **[MCP Types](mcp-types.md)** - Model Context Protocol types
+- **[Workflow Types](workflow-types.md)** - Workflow orchestration types
+- **[And 8+ more specialized type modules...](types.md)**
+
+## 🔍 Protocol Documentation Standards
+
+### Protocol Documentation Format
 
 Each protocol is documented with:
 
@@ -78,7 +111,7 @@ class ProtocolExample(Protocol):
         ...
 ```
 
-### Type Documentation
+### Type Documentation Format
 
 Type aliases and protocol classes are documented with:
 
@@ -97,31 +130,23 @@ Values:
 """
 ```
 
-### Navigation
-
-Use the sidebar or table of contents to navigate between different protocol domains. Each page includes:
-
-- **Overview** - Domain purpose and key concepts
-- **Types** - Type definitions and aliases
-- **Protocols** - Protocol interface definitions
-- **Usage Examples** - Practical usage patterns
-- **Integration Notes** - Implementation guidance
-
-## Quick Reference
+## 🚀 Quick Reference
 
 ### Core System Interfaces
 | Protocol | Purpose | Usage |
 |----------|---------|-------|
 | `ProtocolLogger` | Structured logging | System-wide logging |
-| `ProtocolNodeRegistry` | Node discovery | Service registration |
+| `ProtocolHealthMonitor` | Health monitoring | Service health tracking |
+| `ProtocolServiceRegistry` | Dependency injection | Service lifecycle management |
 | `ProtocolCacheService` | Caching abstraction | Performance optimization |
 
 ### Workflow Orchestration
 | Protocol | Purpose | Usage |
 |----------|---------|-------|
 | `ProtocolWorkflowEventBus` | Event-driven orchestration | Workflow coordination |
+| `ProtocolWorkflowOrchestrator` | Workflow management | Distributed execution |
+| `ProtocolWorkQueue` | Task scheduling | Work distribution |
 | `ProtocolWorkflowPersistence` | State management | Workflow state storage |
-| `ProtocolWorkflowNodeRegistry` | Node coordination | Distributed execution |
 
 ### MCP Integration
 | Protocol | Purpose | Usage |
@@ -129,14 +154,25 @@ Use the sidebar or table of contents to navigate between different protocol doma
 | `ProtocolMCPRegistry` | Tool coordination | Multi-subsystem management |
 | `ProtocolMCPToolProxy` | Tool execution | Distributed tool calls |
 | `ProtocolMCPMonitor` | Health monitoring | System health tracking |
+| `ProtocolMCPSubsystemClient` | Subsystem communication | Tool routing |
 
 ### Event Processing
 | Protocol | Purpose | Usage |
 |----------|---------|-------|
 | `ProtocolEventBus` | Event messaging | Distributed communication |
 | `ProtocolKafkaAdapter` | Kafka integration | Event streaming |
+| `ProtocolEventOrchestrator` | Event coordination | Event routing |
+| `ProtocolEventPublisher` | Event publishing | Message distribution |
 
-## Implementation Notes
+### Container Management
+| Protocol | Purpose | Usage |
+|----------|---------|-------|
+| `ProtocolServiceRegistry` | Service registration | Dependency injection |
+| `ProtocolServiceFactory` | Service creation | Instance management |
+| `ProtocolDependencyGraph` | Dependency analysis | Circular dependency detection |
+| `ProtocolInjectionContext` | Injection tracking | Context management |
+
+## 🔧 Implementation Notes
 
 ### Protocol Compliance
 
@@ -166,9 +202,27 @@ Common patterns documented throughout:
 - **Distributed Coordination**: Multi-node service coordination
 - **Type Safety**: Leveraging strong typing for reliability
 
-## Version Information
+## 📊 Protocol Statistics
 
-- **API Version**: 0.0.2
+- **Total Protocols**: 165 protocol files
+- **Domain Coverage**: 22 specialized domains
+- **Type Definitions**: 13 comprehensive type modules
+- **Enterprise Features**: Health monitoring, metrics, circuit breakers
+- **Architecture Patterns**: Event sourcing, dependency injection, distributed coordination
+
+## 🔍 Navigation
+
+Use the sidebar or table of contents to navigate between different protocol domains. Each page includes:
+
+- **Overview** - Domain purpose and key concepts
+- **Types** - Type definitions and aliases
+- **Protocols** - Protocol interface definitions
+- **Usage Examples** - Practical usage patterns
+- **Integration Notes** - Implementation guidance
+
+## 📄 Version Information
+
+- **API Version**: 0.1.0
 - **Python Compatibility**: 3.11, 3.12, 3.13
 - **Type Checking**: mypy strict mode compatible
 - **Runtime Checking**: All protocols are `@runtime_checkable`
