@@ -6,6 +6,10 @@ Practical examples demonstrating ONEX SPI protocol usage patterns.
 
 > **Note**: Examples use implementation-specific factory functions like `get_service_registry()`, `get_workflow_orchestrator()`, etc. These are not part of the SPI protocols themselves but are provided by concrete implementations to demonstrate usage patterns.
 
+## Available Examples
+
+- **[Memory Protocols Guide](memory_protocols_guide.md)** - Comprehensive memory system implementation patterns
+
 ## Basic Examples
 
 ### Service Registration and Resolution
@@ -354,13 +358,13 @@ async def process_workflow(workflow_data: dict[str, ContextValue]) -> str:
 
 ## API Reference
 
-- **[Core Protocols](api-reference/core.md)** - System fundamentals
-- **[Container Protocols](api-reference/container.md)** - Dependency injection
-- **[Workflow Orchestration](api-reference/workflow-orchestration.md)** - Event-driven FSM
-- **[MCP Integration](api-reference/mcp.md)** - Multi-subsystem coordination
-- **[Event Bus](api-reference/event-bus.md)** - Distributed messaging
-- **[Memory Management](api-reference/memory.md)** - Memory operations
+- **[Core Protocols](../api-reference/core.md)** - System fundamentals
+- **[Container Protocols](../api-reference/container.md)** - Dependency injection
+- **[Workflow Orchestration](../api-reference/workflow-orchestration.md)** - Event-driven FSM
+- **[MCP Integration](../api-reference/mcp.md)** - Multi-subsystem coordination
+- **[Event Bus](../api-reference/event-bus.md)** - Distributed messaging
+- **[Memory Management](../api-reference/memory.md)** - Memory operations
 
 ---
 
-*For detailed protocol documentation, see the [API Reference](api-reference/README.md).*
+*For detailed protocol documentation, see the [API Reference](../api-reference/README.md).*

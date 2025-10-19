@@ -89,5 +89,5 @@ python src/omnibase/protocols/validation/test_integration.py
 ## Need Help?
 
 - Check the [README.md](./README.md) for detailed documentation
-- Run [examples.py](./examples.py) for comprehensive examples
-- See [test_integration.py](./test_integration.py) for working implementations
+- Example files are not included in the SPI package
+- Integration tests are implementation-specific

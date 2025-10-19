@@ -49,7 +49,7 @@ The ONEX SPI follows a **protocol-first design** with **165 protocol files** acr
 ### 🎯 Specialized Documentation
 - **[Protocol Composition Patterns](patterns/protocol-composition-patterns.md)** - Advanced protocol design patterns
 - **[Protocol Selection Guide](patterns/protocol-selection-guide.md)** - Decision framework for choosing protocols
-- **[Memory Protocols Guide](guides/memory_protocols_guide.md)** - Memory system implementation patterns
+- **[Memory Protocols Guide](examples/memory_protocols_guide.md)** - Memory system implementation patterns
 - **[Node Templates](templates/README.md)** - ONEX 4-node architecture templates
 
 ## 🏛️ Protocol Domains
@@ -130,6 +130,11 @@ The ONEX SPI follows a **protocol-first design** with **165 protocol files** acr
 - **Types**: Comprehensive type definitions
 - **Validation**: Input validation and compliance
 
+## 📋 Project Information
+
+- **[Changelog](../CHANGELOG.md)** - Version history and release notes
+- **[Contributing Guide](contributing.md)** - Development workflow and validation requirements
+
 ## 🚀 Quick Navigation
 
 ### For New Users
@@ -141,8 +146,8 @@ The ONEX SPI follows a **protocol-first design** with **165 protocol files** acr
 ### For Developers
 1. Read the [Developer Guide](developer-guide/README.md) for complete workflow coverage
 2. Check the [API Reference](api-reference/README.md) for detailed protocol documentation
-3. Use the [Integration Guide](integration/README.md) for framework setup patterns
-4. Review the [Testing Guide](testing.md) for protocol compliance strategies
+3. Review the [Testing Guide](testing.md) for protocol compliance strategies
+4. Try the [Examples](examples/README.md) for practical usage patterns
 
 ### For Architects
 1. Review [Architecture Overview](architecture/README.md) for design principles and patterns

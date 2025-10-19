@@ -264,7 +264,7 @@ validator = ProtocolValidator(strict_mode=False)
 
 ## Examples
 
-See [`examples.py`](./examples.py) for comprehensive usage examples including:
+Example files are not included in the SPI package. For usage examples, see:
 
 1. **Basic Validation**: Core protocol validation
 2. **Validation Decorators**: Automatic validation on instantiation

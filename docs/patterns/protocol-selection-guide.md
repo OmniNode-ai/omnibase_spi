@@ -197,16 +197,16 @@ A comprehensive guide for choosing the right protocols for your use case.
 
 ## API Reference
 
-- **[Core Protocols](api-reference/core.md)** - System fundamentals
-- **[Container Protocols](api-reference/container.md)** - Dependency injection
-- **[Workflow Orchestration](api-reference/workflow-orchestration.md)** - Event-driven FSM
-- **[MCP Integration](api-reference/mcp.md)** - Multi-subsystem coordination
-- **[Event Bus](api-reference/event-bus.md)** - Distributed messaging
-- **[Memory Management](api-reference/memory.md)** - Memory operations
-- **[Networking](api-reference/networking.md)** - Communication protocols
-- **[File Handling](api-reference/file-handling.md)** - File operations
-- **[Validation](api-reference/validation.md)** - Input validation
+- **[Core Protocols](../api-reference/core.md)** - System fundamentals
+- **[Container Protocols](../api-reference/container.md)** - Dependency injection
+- **[Workflow Orchestration](../api-reference/workflow-orchestration.md)** - Event-driven FSM
+- **[MCP Integration](../api-reference/mcp.md)** - Multi-subsystem coordination
+- **[Event Bus](../api-reference/event-bus.md)** - Distributed messaging
+- **[Memory Management](../api-reference/memory.md)** - Memory operations
+- **[Networking](../api-reference/networking.md)** - Communication protocols
+- **[File Handling](../api-reference/file-handling.md)** - File operations
+- **[Validation](../api-reference/validation.md)** - Input validation
 
 ---
 
-*For detailed protocol documentation, see the [API Reference](api-reference/README.md).*
+*For detailed protocol documentation, see the [API Reference](../api-reference/README.md).*

@@ -201,11 +201,11 @@ class ProtocolExample(Protocol):
 
 ## API Reference
 
-- **[Core Protocols](api-reference/core.md)** - System fundamentals
-- **[Container Protocols](api-reference/container.md)** - Dependency injection
-- **[Workflow Orchestration](api-reference/workflow-orchestration.md)** - Event-driven FSM
-- **[MCP Integration](api-reference/mcp.md)** - Multi-subsystem coordination
+- **[Core Protocols](../api-reference/core.md)** - System fundamentals
+- **[Container Protocols](../api-reference/container.md)** - Dependency injection
+- **[Workflow Orchestration](../api-reference/workflow-orchestration.md)** - Event-driven FSM
+- **[MCP Integration](../api-reference/mcp.md)** - Multi-subsystem coordination
 
 ---
 
-*For detailed protocol documentation, see the [API Reference](api-reference/README.md).*
+*For detailed protocol documentation, see the [API Reference](../api-reference/README.md).*

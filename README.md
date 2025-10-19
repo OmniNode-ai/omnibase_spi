@@ -28,6 +28,7 @@ poetry add omnibase-spi
 - **[API Reference](docs/api-reference/README.md)** - All 165 protocols across 22 domains
 - **[Quick Start Guide](docs/quick-start.md)** - Get started in minutes
 - **[Developer Guide](docs/developer-guide/README.md)** - Development workflow and best practices
+- **[Changelog](CHANGELOG.md)** - Version history and release notes
 
 ## 🌟 Overview
 

@@ -232,11 +232,11 @@ class ProtocolProcessingPipeline(Protocol):
 
 ## API Reference
 
-- **[Container Protocols](api-reference/container.md)** - Dependency injection patterns
-- **[Workflow Orchestration](api-reference/workflow-orchestration.md)** - Event-driven FSM
-- **[MCP Integration](api-reference/mcp.md)** - Multi-subsystem coordination
-- **[Event Bus](api-reference/event-bus.md)** - Distributed messaging
+- **[Container Protocols](../api-reference/container.md)** - Dependency injection patterns
+- **[Workflow Orchestration](../api-reference/workflow-orchestration.md)** - Event-driven FSM
+- **[MCP Integration](../api-reference/mcp.md)** - Multi-subsystem coordination
+- **[Event Bus](../api-reference/event-bus.md)** - Distributed messaging
 
 ---
 
-*For detailed protocol documentation, see the [API Reference](api-reference/README.md).*
+*For detailed protocol documentation, see the [API Reference](../api-reference/README.md).*
