@@ -202,7 +202,7 @@ Common patterns documented throughout:
 ## 📊 Protocol Statistics
 
 - **Total Protocols**: 165 protocol files
-- **Domain Coverage**: 22 specialized domains
+- **Domain Coverage**: 20 specialized domains
 - **Type Definitions**: Integrated within each protocol domain (standardized naming)
 - **Enterprise Features**: Health monitoring, metrics, circuit breakers
 - **Architecture Patterns**: Event sourcing, dependency injection, distributed coordination

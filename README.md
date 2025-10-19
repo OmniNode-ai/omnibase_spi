@@ -7,7 +7,7 @@
 [![Type checked: mypy](https://img.shields.io/badge/type%20checked-mypy-blue.svg)](https://mypy.readthedocs.io/)
 [![Pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 [![Protocols](https://img.shields.io/badge/protocols-165-green.svg)](https://github.com/OmniNode-ai/omnibase_spi)
-[![Domains](https://img.shields.io/badge/domains-22-blue.svg)](https://github.com/OmniNode-ai/omnibase_spi)
+[![Domains](https://img.shields.io/badge/domains-20-blue.svg)](https://github.com/OmniNode-ai/omnibase_spi)
 
 > **📦 Package Renamed**: This package has been renamed from `omnibase-spi` to `omnibase_spi` to follow Python naming conventions.
 
@@ -37,7 +37,7 @@ This repository contains all protocol definitions that define the contracts for 
 
 ## 🏗️ Architecture
 
-The ONEX SPI follows a **protocol-first design** with **165 protocol files** across **22 specialized domains**:
+The ONEX SPI follows a **protocol-first design** with **165 protocol files** across **20 specialized domains**:
 
 - **Core System** (16 protocols) - Logging, health monitoring, error handling
 - **Container Management** (21 protocols) - Dependency injection, lifecycle management  

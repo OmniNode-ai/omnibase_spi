@@ -276,7 +276,9 @@ Example files are not included in the SPI package. For usage examples, see:
 Run examples:
 
 ```bash
-python -m omnibase_spi.protocols.validation.examples
+# Note: Example files are not included in the SPI package
+# These would be provided by concrete implementations
+python -m your_implementation.validation.examples
 ```
 
 ## Best Practices

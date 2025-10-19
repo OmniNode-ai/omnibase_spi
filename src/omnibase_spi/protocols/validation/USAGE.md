@@ -72,11 +72,12 @@ enable_protocol_validation(False)  # Force disable
 ## Running Tests
 
 ```bash
-# Run examples
-python -m omnibase_spi.protocols.validation.examples
+# Note: Example files are not included in the SPI package
+# These would be provided by concrete implementations
+python -m your_implementation.validation.examples
 
 # Run integration tests  
-python src/omnibase/protocols/validation/test_integration.py
+python src/your_implementation/protocols/validation/test_integration.py
 ```
 
 ## Development Workflow

@@ -32,6 +32,7 @@ jobs:
         python -m pip install --upgrade pip
         
     - name: Validate documentation links
+      id: validate-links
       run: |
         echo "🔍 Checking all markdown links in the repository..."
         python scripts/check_links.py
@@ -40,7 +41,7 @@ jobs:
       if: always()
       run: |
         echo "📊 Documentation link validation completed"
-        if [ $? -eq 0 ]; then
+        if [ "${{ steps.validate-links.outcome }}" == "success" ]; then
           echo "✅ All links are working correctly"
         else
           echo "❌ Some links are broken. See validation output above."
