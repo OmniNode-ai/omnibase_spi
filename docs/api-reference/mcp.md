@@ -1,219 +1,25 @@
-# MCP (Model Context Protocol) API Reference
+# MCP Integration API Reference
 
 ## Overview
 
-Comprehensive protocol interfaces for Model Context Protocol integration, enabling distributed tool coordination, subsystem management, and multi-subsystem orchestration across the ONEX ecosystem.
+The ONEX MCP (Model Context Protocol) integration protocols provide comprehensive multi-subsystem tool coordination, dynamic tool discovery, load balancing, and health monitoring across distributed MCP-enabled subsystems. These protocols enable sophisticated tool management and execution coordination in the ONEX ecosystem.
 
-## Core Concepts
+## 🏗️ Protocol Architecture
 
-### Multi-Subsystem Architecture
-- **Subsystem Registry**: Centralized registration and discovery of MCP subsystems
-- **Tool Coordination**: Distributed tool execution with load balancing
-- **Health Monitoring**: Continuous subsystem health monitoring with TTL cleanup
-- **API Management**: Secure API key authentication and request validation
+The MCP integration domain consists of **15 specialized protocols** that provide complete MCP coordination:
 
-### Tool Execution Patterns
-- **Dynamic Discovery**: Runtime tool discovery with type-based filtering
-- **Load Balancing**: Distribute execution across multiple tool implementations
-- **Execution Tracking**: Correlation IDs and performance metrics
-- **Fault Tolerance**: Automatic failover and retry mechanisms
+### MCP Registry Protocol
 
-### Security and Validation
-- **API Key Authentication**: Secure subsystem authentication
-- **Request Validation**: Parameter validation against tool schemas
-- **Rate Limiting**: Configurable rate limiting per subsystem
-- **Access Control**: Fine-grained permissions and capabilities
-
-## Type Definitions
-
-### Tool Types
-
-#### `MCPToolType`
 ```python
-MCPToolType = Literal[
-    "query", "compute", "transform", "validate",
-    "generate", "analyze", "monitor", "control"
-]
-```
+from omnibase_spi.protocols.mcp import ProtocolMCPRegistry
+from omnibase_spi.protocols.types.protocol_mcp_types import (
+    LiteralMCPSubsystemType,
+    LiteralMCPToolType,
+    ProtocolMCPSubsystemMetadata,
+    ProtocolMCPToolDefinition,
+    ProtocolMCPToolExecution,
+)
 
-Classification of MCP tools by functionality.
-
-**Types:**
-- `query`: Information retrieval and search tools
-- `compute`: Computational processing tools  
-- `transform`: Data transformation tools
-- `validate`: Validation and verification tools
-- `generate`: Content generation tools
-- `analyze`: Analysis and insight tools
-- `monitor`: Monitoring and observability tools
-- `control`: System control and management tools
-
-#### `MCPSubsystemType`
-```python
-MCPSubsystemType = Literal[
-    "rag", "search", "code_analysis", "documentation",
-    "testing", "deployment", "monitoring", "security"
-]
-```
-
-Types of MCP subsystems in the ecosystem.
-
-#### `MCPExecutionStatus`
-```python
-MCPExecutionStatus = Literal[
-    "pending", "running", "completed", "failed",
-    "cancelled", "timeout", "retrying"
-]
-```
-
-Status values for tool execution tracking.
-
-#### `MCPLifecycleState`
-```python
-MCPLifecycleState = Literal[
-    "registering", "active", "degraded", "inactive",
-    "error", "maintenance", "terminating"
-]
-```
-
-Lifecycle states for subsystem management.
-
-### Parameter Types
-
-#### `MCPParameterType`
-```python
-MCPParameterType = Literal[
-    "string", "integer", "number", "boolean",
-    "array", "object", "null"
-]
-```
-
-Supported parameter types for tool definitions.
-
-## Protocol Data Structures
-
-### Tool Definition Protocols
-
-#### `ProtocolMCPToolParameter`
-```python
-class ProtocolMCPToolParameter(Protocol):
-    """Tool parameter definition with validation schema."""
-
-    name: str
-    parameter_type: MCPParameterType
-    description: str
-    required: bool
-    default_value: Optional[ContextValue]
-    validation_schema: Optional[dict[str, Any]]
-    constraints: Optional[dict[str, Any]]
-```
-
-Parameter definition for MCP tools.
-
-**Properties:**
-- `name`: Parameter identifier
-- `parameter_type`: Type of the parameter
-- `description`: Human-readable parameter description
-- `required`: Whether parameter is required
-- `default_value`: Default value if not provided
-- `validation_schema`: JSON schema for validation
-- `constraints`: Additional parameter constraints
-
-#### `ProtocolMCPToolDefinition`
-```python
-class ProtocolMCPToolDefinition(Protocol):
-    """Complete tool definition with metadata and capabilities."""
-
-    name: str
-    tool_type: MCPToolType
-    description: str
-    parameters: list[ProtocolMCPToolParameter]
-    return_schema: Optional[dict[str, Any]]
-    capabilities: list[str]
-    tags: list[str]
-    version: ProtocolSemVer
-    timeout_seconds: int
-    max_retries: int
-    rate_limit: Optional[int]
-    subsystem_id: str
-    metadata: dict[str, ContextValue]
-```
-
-Comprehensive tool definition.
-
-### Subsystem Protocols
-
-#### `ProtocolMCPSubsystemMetadata`
-```python
-class ProtocolMCPSubsystemMetadata(Protocol):
-    """Subsystem identification and metadata."""
-
-    subsystem_id: str
-    subsystem_type: MCPSubsystemType
-    name: str
-    description: str
-    version: ProtocolSemVer
-    capabilities: list[str]
-    supported_tool_types: list[MCPToolType]
-    max_concurrent_executions: int
-    api_endpoint: str
-    health_check_endpoint: str
-    metadata: dict[str, ContextValue]
-```
-
-Subsystem metadata and capabilities.
-
-#### `ProtocolMCPSubsystemRegistration`
-```python
-class ProtocolMCPSubsystemRegistration(Protocol):
-    """Complete subsystem registration information."""
-
-    registration_id: str
-    subsystem_metadata: ProtocolMCPSubsystemMetadata
-    tools: list[ProtocolMCPToolDefinition]
-    registration_time: ProtocolDateTime
-    last_heartbeat: ProtocolDateTime
-    ttl_seconds: int
-    api_key_hash: str
-    status: MCPLifecycleState
-    configuration: dict[str, ContextValue]
-    health_status: HealthStatus
-    metrics: dict[str, float]
-```
-
-Complete registration record.
-
-### Execution Protocols
-
-#### `ProtocolMCPToolExecution`
-```python
-class ProtocolMCPToolExecution(Protocol):
-    """Tool execution record with comprehensive tracking."""
-
-    execution_id: str
-    tool_name: str
-    subsystem_id: str
-    parameters: dict[str, ContextValue]
-    correlation_id: UUID
-    status: MCPExecutionStatus
-    result: Optional[dict[str, Any]]
-    error: Optional[ProtocolErrorInfo]
-    start_time: ProtocolDateTime
-    end_time: Optional[ProtocolDateTime]
-    duration_ms: Optional[int]
-    retry_count: int
-    resource_usage: dict[str, int]
-    metrics: dict[str, float]
-```
-
-Comprehensive execution tracking.
-
-## Core Protocol Interfaces
-
-### Registry Protocols
-
-#### `ProtocolMCPRegistry`
-```python
 @runtime_checkable
 class ProtocolMCPRegistry(Protocol):
     """
@@ -223,780 +29,645 @@ class ProtocolMCPRegistry(Protocol):
     across multiple MCP-enabled subsystems in the ONEX ecosystem.
 
     Key Features:
-        - **Multi-Subsystem Coordination**: Register and coordinate multiple MCP subsystems
-        - **Dynamic Tool Discovery**: Discover and route tools across registered subsystems  
-        - **Load Balancing**: Distribute tool execution across multiple implementations
-        - **Health Monitoring**: Monitor subsystem health and handle failures gracefully
-        - **Execution Tracking**: Track tool execution metrics and performance
-        - **Security**: API key authentication and request validation
-        - **TTL Management**: Automatic cleanup of expired registrations
-
-    Example:
-        ```python
-        async def setup_mcp_subsystem(registry: ProtocolMCPRegistry):
-            # Define tools
-            tools = [
-                ProtocolMCPToolDefinition(
-                    name="semantic_search",
-                    tool_type="query",
-                    description="Search documents semantically",
-                    parameters=[
-                        ProtocolMCPToolParameter(
-                            name="query",
-                            parameter_type="string",
-                            description="Search query",
-                            required=True
-                        )
-                    ],
-                    # ... other fields
-                )
-            ]
-
-            # Register subsystem
-            registration_id = await registry.register_subsystem(
-                subsystem_metadata=subsystem_info,
-                tools=tools,
-                api_key="secure_api_key",
-                configuration={"max_results": 10}
-            )
-
-            # Execute tool
-            result = await registry.execute_tool(
-                tool_name="semantic_search",
-                parameters={"query": "ONEX protocols"},
-                correlation_id=uuid4()
-            )
-        ```
+        - Multi-Subsystem Coordination: Register and coordinate multiple MCP subsystems
+        - Dynamic Tool Discovery: Discover and route tools across registered subsystems
+        - Load Balancing: Distribute tool execution across multiple implementations
+        - Health Monitoring: Monitor subsystem health and handle failures gracefully
+        - Execution Tracking: Track tool execution metrics and performance
+        - Security: API key authentication and request validation
+        - TTL Management: Automatic cleanup of expired registrations
     """
 
     @property
-    def config(self) -> ProtocolMCPRegistryConfig:
-        """Get registry configuration."""
-        ...
+    def config(self) -> ProtocolMCPRegistryConfig: ...
 
-    # Subsystem Management
     async def register_subsystem(
         self,
         subsystem_metadata: ProtocolMCPSubsystemMetadata,
         tools: list[ProtocolMCPToolDefinition],
         api_key: str,
-        configuration: Optional[dict[str, ContextValue]] = None,
-    ) -> str:
-        """
-        Register a new subsystem and its tools with the registry.
+        configuration: dict[str, ContextValue] | None = None,
+    ) -> str: ...
 
-        Args:
-            subsystem_metadata: Subsystem identification and metadata
-            tools: List of tool definitions provided by the subsystem
-            api_key: Authentication key for the subsystem
-            configuration: Optional subsystem-specific configuration
-
-        Returns:
-            Registration ID for the subsystem
-
-        Raises:
-            ValueError: If registration data is invalid or conflicts exist
-        """
-        ...
-
-    async def unregister_subsystem(self, registration_id: str) -> bool:
-        """
-        Unregister a subsystem and remove all its tools.
-
-        Args:
-            registration_id: Subsystem registration ID
-
-        Returns:
-            True if unregistration successful
-        """
-        ...
+    async def unregister_subsystem(self, registration_id: str) -> bool: ...
 
     async def update_subsystem_heartbeat(
         self,
         registration_id: str,
-        health_status: Optional[HealthStatus] = None,
-        metadata: Optional[dict[str, ContextValue]] = None,
-    ) -> bool:
-        """
-        Update subsystem heartbeat and health status.
+        health_status: str | None = None,
+        metadata: dict[str, ContextValue] | None = None,
+    ) -> bool: ...
 
-        Args:
-            registration_id: Subsystem registration ID
-            health_status: Optional health status update
-            metadata: Optional metadata update
+    async def get_subsystem_registration(
+        self, registration_id: str
+    ) -> ProtocolMCPSubsystemRegistration | None: ...
 
-        Returns:
-            True if heartbeat update successful
-        """
-        ...
+    async def get_all_subsystems(
+        self,
+        subsystem_type: LiteralMCPSubsystemType | None,
+        status_filter: LiteralOperationStatus | None,
+    ) -> list[ProtocolMCPSubsystemRegistration]: ...
 
-    # Tool Discovery
     async def discover_tools(
         self,
-        tool_type: Optional[MCPToolType] = None,
-        tags: Optional[list[str]] = None,
-        subsystem_id: Optional[str] = None,
-    ) -> list[ProtocolMCPToolDefinition]:
-        """
-        Discover available tools with optional filtering.
-
-        Args:
-            tool_type: Optional filter by tool type
-            tags: Optional filter by tool tags
-            subsystem_id: Optional filter by subsystem
-
-        Returns:
-            List of matching tool definitions
-        """
-        ...
+        tool_type: LiteralMCPToolType | None,
+        tags: list[str] | None,
+        subsystem_id: str | None,
+    ) -> list[ProtocolMCPToolDefinition]: ...
 
     async def get_tool_definition(
         self, tool_name: str
-    ) -> Optional[ProtocolMCPToolDefinition]:
-        """
-        Get tool definition by name (returns first available implementation).
-
-        Args:
-            tool_name: Name of the tool
-
-        Returns:
-            Tool definition or None if not found
-        """
-        ...
+    ) -> ProtocolMCPToolDefinition | None: ...
 
     async def get_all_tool_implementations(
         self, tool_name: str
-    ) -> list[ProtocolMCPToolDefinition]:
-        """
-        Get all implementations of a tool across subsystems.
+    ) -> list[ProtocolMCPToolDefinition]: ...
 
-        Args:
-            tool_name: Name of the tool
-
-        Returns:
-            List of tool implementations
-        """
-        ...
-
-    # Tool Execution
     async def execute_tool(
         self,
         tool_name: str,
         parameters: dict[str, ContextValue],
         correlation_id: UUID,
-        timeout_seconds: Optional[int] = None,
-        preferred_subsystem: Optional[str] = None,
-    ) -> dict[str, Any]:
-        """
-        Execute a tool with load balancing and error handling.
+        timeout_seconds: int | None,
+        preferred_subsystem: str | None,
+    ) -> dict[str, ContextValue]: ...
 
-        Args:
-            tool_name: Name of the tool to execute
-            parameters: Tool execution parameters
-            correlation_id: Request correlation ID for tracing
-            timeout_seconds: Optional execution timeout override
-            preferred_subsystem: Optional subsystem preference
+    async def get_tool_execution(
+        self, execution_id: str
+    ) -> ProtocolMCPToolExecution | None: ...
 
-        Returns:
-            Tool execution result
-
-        Raises:
-            ValueError: If tool not found or parameters invalid
-            TimeoutError: If execution times out
-            RuntimeError: If execution fails
-        """
-        ...
-
-    # Validation
-    async def validate_tool_parameters(
+    async def get_tool_executions(
         self,
-        tool_name: str,
-        parameters: dict[str, ContextValue],
-    ) -> ProtocolMCPValidationResult:
-        """
-        Validate tool execution parameters.
+        tool_name: str | None,
+        subsystem_id: str | None,
+        correlation_id: UUID | None,
+        limit: int,
+    ) -> list[ProtocolMCPToolExecution]: ...
 
-        Args:
-            tool_name: Name of the tool
-            parameters: Parameters to validate
+    async def cancel_tool_execution(self, execution_id: str) -> bool: ...
 
-        Returns:
-            Validation result
-        """
-        ...
+    async def validate_subsystem_registration(
+        self,
+        subsystem_metadata: ProtocolMCPSubsystemMetadata,
+        tools: list[ProtocolMCPToolDefinition],
+    ) -> ProtocolMCPValidationResult: ...
 
-    # Health and Monitoring
+    async def validate_tool_parameters(
+        self, tool_name: str, parameters: dict[str, ContextValue]
+    ) -> ProtocolValidationResult: ...
+
     async def perform_health_check(
         self, registration_id: str
-    ) -> ProtocolMCPHealthCheck:
-        """
-        Perform health check on a registered subsystem.
+    ) -> ProtocolMCPHealthCheck: ...
 
-        Args:
-            registration_id: Subsystem registration ID
+    async def get_subsystem_health(
+        self, registration_id: str
+    ) -> ProtocolMCPHealthCheck | None: ...
 
-        Returns:
-            Health check result
-        """
-        ...
+    async def cleanup_expired_registrations(self) -> int: ...
 
-    async def get_registry_metrics(self) -> ProtocolMCPRegistryMetrics:
-        """
-        Get detailed registry metrics and statistics.
+    async def update_subsystem_configuration(
+        self, registration_id: str, configuration: dict[str, ContextValue]
+    ) -> bool: ...
 
-        Returns:
-            Registry metrics
-        """
-        ...
+    async def get_registry_status(self) -> ProtocolMCPRegistryStatus: ...
+
+    async def get_registry_metrics(self) -> ProtocolMCPRegistryMetrics: ...
 ```
 
-### Tool Proxy Protocols
+### MCP Registry Admin Protocol
 
-#### `ProtocolMCPToolProxy`
 ```python
-@runtime_checkable  
-class ProtocolMCPToolProxy(Protocol):
+@runtime_checkable
+class ProtocolMCPRegistryAdmin(Protocol):
     """
-    Tool execution proxy for distributed MCP tool calls.
+    Administrative protocol for MCP registry management.
 
-    Handles tool execution routing, parameter marshaling,
-    result handling, and error management across subsystems.
+    Provides privileged operations for registry administration,
+    configuration management, and system maintenance.
+    """
+
+    async def set_maintenance_mode(self, enabled: bool) -> bool: ...
+
+    async def force_subsystem_cleanup(self, registration_id: str) -> bool: ...
+
+    async def update_registry_configuration(
+        self, configuration: dict[str, ContextValue]
+    ) -> bool: ...
+
+    async def export_registry_state(self) -> dict[str, ContextValue]: ...
+
+    async def import_registry_state(
+        self, state_data: dict[str, ContextValue]
+    ) -> bool: ...
+
+    async def get_system_diagnostics(self) -> dict[str, ContextValue]: ...
+```
+
+### MCP Registry Metrics Operations Protocol
+
+```python
+@runtime_checkable
+class ProtocolMCPRegistryMetricsOperations(Protocol):
+    """
+    Protocol for advanced MCP registry metrics and analytics.
+
+    Provides detailed performance metrics, trend analysis,
+    and operational insights for the registry system.
+    """
+
+    async def get_execution_metrics(
+        self, time_range_hours: int, tool_name: str | None, subsystem_id: str | None
+    ) -> dict[str, ContextValue]: ...
+
+    async def get_performance_trends(
+        self, metric_name: str, time_range_hours: int
+    ) -> dict[str, ContextValue]: ...
+
+    async def get_error_analysis(
+        self, time_range_hours: int
+    ) -> dict[str, ContextValue]: ...
+
+    async def get_capacity_metrics(self) -> dict[str, ContextValue]: ...
+```
+
+### MCP Subsystem Client Protocol
+
+```python
+@runtime_checkable
+class ProtocolMCPSubsystemClient(Protocol):
+    """
+    Protocol for MCP subsystem client operations.
+
+    Provides communication with individual MCP subsystems,
+    tool execution, and health monitoring.
 
     Key Features:
-        - **Execution Routing**: Route calls to appropriate subsystems
-        - **Parameter Marshaling**: Convert parameters to subsystem formats
-        - **Result Handling**: Process and normalize tool results
-        - **Error Management**: Handle and translate subsystem errors
-        - **Retry Logic**: Automatic retry with backoff strategies
+        - Tool execution coordination
+        - Health monitoring and status tracking
+        - Configuration management
+        - Performance metrics collection
+        - Error handling and recovery
     """
 
     async def execute_tool(
         self,
-        subsystem_id: str,
-        tool_definition: ProtocolMCPToolDefinition,
+        tool_name: str,
         parameters: dict[str, ContextValue],
-        correlation_id: UUID,
-        timeout_seconds: Optional[int] = None,
-    ) -> dict[str, Any]:
-        """
-        Execute tool on specific subsystem.
+        timeout_seconds: int | None = None,
+    ) -> dict[str, ContextValue]: ...
 
-        Args:
-            subsystem_id: Target subsystem identifier
-            tool_definition: Tool definition to execute
-            parameters: Tool execution parameters
-            correlation_id: Request correlation ID
-            timeout_seconds: Optional timeout override
+    async def get_available_tools(self) -> list[ProtocolMCPToolDefinition]: ...
 
-        Returns:
-            Tool execution result
-        """
-        ...
+    async def get_tool_schema(self, tool_name: str) -> dict[str, Any]: ...
 
-    async def validate_parameters(
-        self,
-        tool_definition: ProtocolMCPToolDefinition,
-        parameters: dict[str, ContextValue],
-    ) -> ProtocolMCPValidationResult:
-        """
-        Validate parameters against tool definition.
+    async def validate_tool_parameters(
+        self, tool_name: str, parameters: dict[str, ContextValue]
+    ) -> ProtocolValidationResult: ...
 
-        Args:
-            tool_definition: Tool definition with parameter schema
-            parameters: Parameters to validate
+    async def get_subsystem_health(self) -> ProtocolMCPHealthCheck: ...
 
-        Returns:
-            Validation result
-        """
-        ...
+    async def get_subsystem_metrics(self) -> ProtocolMCPSubsystemMetrics: ...
 
-    async def marshal_parameters(
-        self,
-        tool_definition: ProtocolMCPToolDefinition,
-        parameters: dict[str, ContextValue],
-    ) -> dict[str, Any]:
-        """
-        Marshal parameters to subsystem format.
+    async def update_configuration(
+        self, configuration: dict[str, ContextValue]
+    ) -> bool: ...
 
-        Args:
-            tool_definition: Tool definition
-            parameters: Raw parameters
-
-        Returns:
-            Marshaled parameters
-        """
-        ...
+    async def get_configuration(self) -> dict[str, ContextValue]: ...
 ```
 
-### Monitoring Protocols
+### MCP Tool Proxy Protocol
 
-#### `ProtocolMCPMonitor`
+```python
+@runtime_checkable
+class ProtocolMCPToolProxy(Protocol):
+    """
+    Protocol for MCP tool proxy operations.
+
+    Provides transparent tool execution through proxy patterns,
+    load balancing, and failover capabilities.
+
+    Key Features:
+        - Transparent tool execution
+        - Load balancing across implementations
+        - Failover and error handling
+        - Performance monitoring
+        - Caching and optimization
+    """
+
+    async def execute_tool(
+        self,
+        tool_name: str,
+        parameters: dict[str, ContextValue],
+        options: ProtocolMCPToolExecutionOptions | None = None,
+    ) -> ProtocolMCPToolExecutionResult: ...
+
+    async def get_tool_implementations(
+        self, tool_name: str
+    ) -> list[ProtocolMCPToolDefinition]: ...
+
+    async def select_best_implementation(
+        self, tool_name: str, parameters: dict[str, ContextValue]
+    ) -> ProtocolMCPToolDefinition: ...
+
+    async def get_execution_history(
+        self, tool_name: str, limit: int = 100
+    ) -> list[ProtocolMCPToolExecution]: ...
+
+    async def get_performance_metrics(
+        self, tool_name: str, time_range_hours: int = 24
+    ) -> ProtocolMCPToolPerformanceMetrics: ...
+```
+
+### MCP Tool Router Protocol
+
+```python
+@runtime_checkable
+class ProtocolMCPToolRouter(Protocol):
+    """
+    Protocol for MCP tool routing and load balancing.
+
+    Provides intelligent tool routing, load balancing strategies,
+    and failover capabilities across MCP subsystems.
+
+    Key Features:
+        - Intelligent tool routing
+        - Load balancing strategies
+        - Failover and recovery
+        - Performance-based routing
+        - Health-aware routing
+    """
+
+    async def route_tool_execution(
+        self,
+        tool_name: str,
+        parameters: dict[str, ContextValue],
+        routing_options: ProtocolMCPRoutingOptions | None = None,
+    ) -> ProtocolMCPRoutingDecision: ...
+
+    async def get_routing_strategy(
+        self, tool_name: str
+    ) -> LiteralMCPRoutingStrategy: ...
+
+    async def update_routing_strategy(
+        self, tool_name: str, strategy: LiteralMCPRoutingStrategy
+    ) -> bool: ...
+
+    async def get_load_balancing_weights(
+        self, tool_name: str
+    ) -> dict[str, float]: ...
+
+    async def update_load_balancing_weights(
+        self, tool_name: str, weights: dict[str, float]
+    ) -> bool: ...
+
+    async def get_routing_metrics(
+        self, tool_name: str | None = None
+    ) -> ProtocolMCPRoutingMetrics: ...
+```
+
+### MCP Monitor Protocol
+
 ```python
 @runtime_checkable
 class ProtocolMCPMonitor(Protocol):
     """
-    MCP subsystem monitoring and health management.
+    Protocol for MCP system monitoring and observability.
 
-    Provides comprehensive monitoring capabilities for MCP subsystems
-    including health checks, performance metrics, and alerting.
+    Provides comprehensive monitoring, alerting, and diagnostics
+    for MCP subsystems and tool execution.
 
     Key Features:
-        - **Health Monitoring**: Continuous health status tracking
-        - **Performance Metrics**: Execution metrics and statistics
-        - **Alerting**: Configurable alerts for health issues
-        - **Diagnostics**: Detailed diagnostic information
+        - System health monitoring
+        - Performance metrics collection
+        - Alert management
+        - Diagnostic capabilities
+        - Trend analysis
     """
 
     async def monitor_subsystem_health(
-        self,
-        registration_id: str,
-        check_interval_seconds: int = 30,
-    ) -> None:
-        """
-        Start monitoring subsystem health.
+        self, subsystem_id: str
+    ) -> ProtocolMCPHealthStatus: ...
 
-        Args:
-            registration_id: Subsystem to monitor
-            check_interval_seconds: Health check interval
-        """
-        ...
+    async def monitor_tool_performance(
+        self, tool_name: str, time_range_hours: int = 24
+    ) -> ProtocolMCPToolPerformanceStatus: ...
 
-    async def get_subsystem_metrics(
-        self,
-        registration_id: str,
-        time_window_seconds: int = 3600,
-    ) -> dict[str, Any]:
-        """
-        Get subsystem performance metrics.
+    async def get_system_overview(self) -> ProtocolMCPSystemOverview: ...
 
-        Args:
-            registration_id: Subsystem identifier
-            time_window_seconds: Metrics time window
+    async def get_alert_summary(self) -> ProtocolMCPAlertSummary: ...
 
-        Returns:
-            Performance metrics
-        """
-        ...
+    async def create_alert_rule(
+        self, rule: ProtocolMCPAlertRule
+    ) -> str: ...
 
-    async def get_tool_execution_metrics(
-        self,
-        tool_name: Optional[str] = None,
-        subsystem_id: Optional[str] = None,
-        time_window_seconds: int = 3600,
-    ) -> dict[str, Any]:
-        """
-        Get tool execution metrics.
+    async def update_alert_rule(
+        self, rule_id: str, rule: ProtocolMCPAlertRule
+    ) -> bool: ...
 
-        Args:
-            tool_name: Optional tool name filter
-            subsystem_id: Optional subsystem filter
-            time_window_seconds: Metrics time window
+    async def delete_alert_rule(self, rule_id: str) -> bool: ...
 
-        Returns:
-            Execution metrics
-        """
-        ...
+    async def get_alert_rules(self) -> list[ProtocolMCPAlertRule]: ...
+
+    async def get_diagnostics(
+        self, subsystem_id: str | None = None
+    ) -> ProtocolMCPDiagnostics: ...
 ```
 
-## Usage Examples
+## 🔧 Type Definitions
+
+### MCP Subsystem Types
+
+```python
+LiteralMCPSubsystemType = Literal[
+    "llm", "code_analysis", "data_processing", "web_scraping", "file_handling", "custom"
+]
+"""
+MCP subsystem types for categorization.
+
+Values:
+    llm: Large Language Model subsystems
+    code_analysis: Code analysis and processing subsystems
+    data_processing: Data processing and transformation subsystems
+    web_scraping: Web scraping and data extraction subsystems
+    file_handling: File processing and management subsystems
+    custom: Custom subsystem implementations
+"""
+
+LiteralMCPToolType = Literal[
+    "function", "query", "analysis", "transformation", "extraction", "validation"
+]
+"""
+MCP tool types for categorization.
+
+Values:
+    function: General purpose function tools
+    query: Data query and retrieval tools
+    analysis: Analysis and processing tools
+    transformation: Data transformation tools
+    extraction: Data extraction tools
+    validation: Data validation tools
+"""
+
+LiteralMCPRoutingStrategy = Literal[
+    "round_robin", "least_connections", "weighted", "health_based", "performance_based"
+]
+"""
+MCP routing strategies for load balancing.
+
+Values:
+    round_robin: Round-robin distribution
+    least_connections: Route to subsystem with least active connections
+    weighted: Weighted distribution based on capacity
+    health_based: Route based on subsystem health
+    performance_based: Route based on performance metrics
+"""
+```
+
+## 🚀 Usage Examples
 
 ### Subsystem Registration
 
 ```python
 from omnibase_spi.protocols.mcp import ProtocolMCPRegistry
-from omnibase_spi.protocols.types.mcp_types import (
-    ProtocolMCPSubsystemMetadata,
-    ProtocolMCPToolDefinition,
-    ProtocolMCPToolParameter
-)
 
-async def register_search_subsystem(registry: ProtocolMCPRegistry) -> str:
-    """Register a search subsystem with tools."""
+# Initialize MCP registry
+mcp_registry: ProtocolMCPRegistry = get_mcp_registry()
 
-    # Define subsystem metadata
-    subsystem_metadata = ProtocolMCPSubsystemMetadata(
-        subsystem_id="semantic-search-v1",
-        subsystem_type="search",
-        name="Semantic Search Service",
-        description="Provides semantic search capabilities",
-        version=ProtocolSemVer(major=1, minor=0, patch=0),
-        capabilities=["vector_search", "semantic_similarity"],
-        supported_tool_types=["query"],
-        max_concurrent_executions=10,
-        api_endpoint="https://search.example.com/api",
-        health_check_endpoint="https://search.example.com/health",
-        metadata={"region": "us-east-1", "tier": "production"}
-    )
-
-    # Define tools
-    tools = [
+# Register subsystem
+registration_id = await mcp_registry.register_subsystem(
+    subsystem_metadata=ProtocolMCPSubsystemMetadata(
+        subsystem_id="llm-subsystem-1",
+        subsystem_type="llm",
+        host="192.168.1.100",
+        port=8080,
+        version="1.2.3"
+    ),
+    tools=[
         ProtocolMCPToolDefinition(
-            name="semantic_search",
-            tool_type="query",
-            description="Search documents using semantic similarity",
-            parameters=[
-                ProtocolMCPToolParameter(
-                    name="query",
-                    parameter_type="string",
-                    description="Search query text",
-                    required=True
-                ),
-                ProtocolMCPToolParameter(
-                    name="limit",
-                    parameter_type="integer",
-                    description="Maximum results to return",
-                    required=False,
-                    default_value=10,
-                    constraints={"minimum": 1, "maximum": 100}
-                )
-            ],
-            return_schema={
-                "type": "object",
-                "properties": {
-                    "results": {"type": "array"},
-                    "total_count": {"type": "integer"}
-                }
-            },
-            capabilities=["vector_search"],
-            tags=["search", "semantic", "nlp"],
-            version=ProtocolSemVer(major=1, minor=0, patch=0),
-            timeout_seconds=30,
-            max_retries=3,
-            subsystem_id="semantic-search-v1",
-            metadata={"cost_per_query": 0.001}
+            tool_name="text_generation",
+            tool_type="function",
+            description="Generate text using LLM",
+            parameters={
+                "prompt": {"type": "string", "required": True},
+                "max_tokens": {"type": "integer", "required": False}
+            }
+        ),
+        ProtocolMCPToolDefinition(
+            tool_name="text_analysis",
+            tool_type="analysis",
+            description="Analyze text content",
+            parameters={
+                "text": {"type": "string", "required": True},
+                "analysis_type": {"type": "string", "required": True}
+            }
         )
-    ]
-
-    # Register subsystem
-    registration_id = await registry.register_subsystem(
-        subsystem_metadata=subsystem_metadata,
-        tools=tools,
-        api_key="secure-api-key-123",
-        configuration={
-            "embedding_model": "sentence-transformers/all-mpnet-base-v2",
-            "vector_dimension": 768
-        }
-    )
-
-    print(f"Registered subsystem: {registration_id}")
-    return registration_id
+    ],
+    api_key="mcp-api-key-12345",
+    configuration={
+        "model": "gpt-4",
+        "max_concurrent_requests": 10,
+        "timeout_seconds": 30
+    }
+)
 ```
 
 ### Tool Discovery and Execution
 
 ```python
-async def search_and_execute_tools(registry: ProtocolMCPRegistry):
-    """Discover and execute MCP tools."""
+# Discover tools
+tools = await mcp_registry.discover_tools(
+    tool_type="function",
+    tags=["llm", "text_generation"],
+    subsystem_id="llm-subsystem-1"
+)
 
-    # Discover available query tools
-    query_tools = await registry.discover_tools(
-        tool_type="query",
-        tags=["search"]
+# Execute tool
+result = await mcp_registry.execute_tool(
+    tool_name="text_generation",
+    parameters={
+        "prompt": "Write a short story about a robot",
+        "max_tokens": 500
+    },
+    correlation_id=UUID("req-abc123"),
+    timeout_seconds=30,
+    preferred_subsystem="llm-subsystem-1"
+)
+
+print(f"Generated text: {result['text']}")
+```
+
+### Load Balancing and Routing
+
+```python
+from omnibase_spi.protocols.mcp import ProtocolMCPToolRouter
+
+# Initialize tool router
+tool_router: ProtocolMCPToolRouter = get_mcp_tool_router()
+
+# Route tool execution
+routing_decision = await tool_router.route_tool_execution(
+    tool_name="text_generation",
+    parameters={"prompt": "Hello world"},
+    routing_options=ProtocolMCPRoutingOptions(
+        preferred_subsystem=None,
+        load_balancing_strategy="health_based",
+        failover_enabled=True
     )
+)
 
-    print(f"Found {len(query_tools)} query tools")
-
-    # Execute semantic search
-    if query_tools:
-        correlation_id = uuid4()
-
-        try:
-            result = await registry.execute_tool(
-                tool_name="semantic_search",
-                parameters={
-                    "query": "ONEX protocol architecture",
-                    "limit": 5
-                },
-                correlation_id=correlation_id,
-                timeout_seconds=30
-            )
-
-            print(f"Search results: {result}")
-
-        except ValueError as e:
-            print(f"Invalid parameters: {e}")
-        except TimeoutError:
-            print("Search timed out")
-        except RuntimeError as e:
-            print(f"Execution failed: {e}")
+print(f"Selected subsystem: {routing_decision.selected_subsystem}")
+print(f"Routing reason: {routing_decision.routing_reason}")
 ```
 
 ### Health Monitoring
 
 ```python
-async def monitor_mcp_subsystems(
-    registry: ProtocolMCPRegistry,
-    monitor: ProtocolMCPMonitor
-):
-    """Monitor MCP subsystem health."""
+from omnibase_spi.protocols.mcp import ProtocolMCPMonitor
 
-    # Get all registered subsystems
-    subsystems = await registry.get_all_subsystems()
+# Initialize MCP monitor
+mcp_monitor: ProtocolMCPMonitor = get_mcp_monitor()
 
-    for subsystem in subsystems:
-        registration_id = subsystem.registration_id
+# Monitor subsystem health
+health_status = await mcp_monitor.monitor_subsystem_health("llm-subsystem-1")
+print(f"Subsystem health: {health_status.overall_status}")
+print(f"Active tools: {health_status.active_tools}")
+print(f"Response time: {health_status.avg_response_time_ms}ms")
 
-        # Perform health check
-        health_check = await registry.perform_health_check(registration_id)
-        print(f"Health check for {registration_id}: {health_check}")
-
-        # Get performance metrics
-        metrics = await monitor.get_subsystem_metrics(
-            registration_id=registration_id,
-            time_window_seconds=3600
-        )
-        print(f"Metrics for {registration_id}: {metrics}")
-
-        # Start continuous monitoring
-        await monitor.monitor_subsystem_health(
-            registration_id=registration_id,
-            check_interval_seconds=60
-        )
+# Monitor tool performance
+tool_performance = await mcp_monitor.monitor_tool_performance(
+    "text_generation",
+    time_range_hours=24
+)
+print(f"Success rate: {tool_performance.success_rate}%")
+print(f"Average execution time: {tool_performance.avg_execution_time_ms}ms")
 ```
 
-### Load Balancing Example
+### Tool Proxy Usage
 
 ```python
-class MCPLoadBalancer:
-    """Example MCP load balancer implementation."""
+from omnibase_spi.protocols.mcp import ProtocolMCPToolProxy
 
-    def __init__(self, registry: ProtocolMCPRegistry):
-        self.registry = registry
-        self.execution_counts: dict[str, int] = {}
+# Initialize tool proxy
+tool_proxy: ProtocolMCPToolProxy = get_mcp_tool_proxy()
 
-    async def execute_with_load_balancing(
-        self,
-        tool_name: str,
-        parameters: dict[str, ContextValue],
-        correlation_id: UUID
-    ) -> dict[str, Any]:
-        """Execute tool with load balancing across implementations."""
+# Execute tool through proxy
+execution_result = await tool_proxy.execute_tool(
+    tool_name="text_analysis",
+    parameters={
+        "text": "This is a sample text for analysis",
+        "analysis_type": "sentiment"
+    },
+    options=ProtocolMCPToolExecutionOptions(
+        timeout_seconds=30,
+        retry_count=3,
+        failover_enabled=True
+    )
+)
 
-        # Get all implementations
-        implementations = await self.registry.get_all_tool_implementations(tool_name)
-
-        if not implementations:
-            raise ValueError(f"No implementations found for tool: {tool_name}")
-
-        # Select implementation with least executions
-        selected_impl = min(
-            implementations,
-            key=lambda impl: self.execution_counts.get(impl.subsystem_id, 0)
-        )
-
-        # Update execution count
-        self.execution_counts[selected_impl.subsystem_id] = (
-            self.execution_counts.get(selected_impl.subsystem_id, 0) + 1
-        )
-
-        # Execute on selected subsystem
-        return await self.registry.execute_tool(
-            tool_name=tool_name,
-            parameters=parameters,
-            correlation_id=correlation_id,
-            preferred_subsystem=selected_impl.subsystem_id
-        )
+print(f"Analysis result: {execution_result.result}")
+print(f"Execution time: {execution_result.execution_time_ms}ms")
+print(f"Subsystem used: {execution_result.subsystem_id}")
 ```
 
-## Integration Notes
+### Advanced Metrics and Analytics
+
+```python
+from omnibase_spi.protocols.mcp import ProtocolMCPRegistryMetricsOperations
+
+# Initialize metrics operations
+metrics_ops: ProtocolMCPRegistryMetricsOperations = get_mcp_metrics_operations()
+
+# Get execution metrics
+execution_metrics = await metrics_ops.get_execution_metrics(
+    time_range_hours=24,
+    tool_name="text_generation",
+    subsystem_id="llm-subsystem-1"
+)
+print(f"Total executions: {execution_metrics['total_executions']}")
+print(f"Success rate: {execution_metrics['success_rate']}%")
+print(f"Average response time: {execution_metrics['avg_response_time_ms']}ms")
+
+# Get performance trends
+performance_trends = await metrics_ops.get_performance_trends(
+    metric_name="response_time",
+    time_range_hours=168  # 1 week
+)
+print(f"Performance trend: {performance_trends['trend_direction']}")
+
+# Get error analysis
+error_analysis = await metrics_ops.get_error_analysis(time_range_hours=24)
+print(f"Error rate: {error_analysis['error_rate']}%")
+print(f"Top errors: {error_analysis['top_errors']}")
+```
+
+## 🔍 Implementation Notes
 
 ### Multi-Subsystem Coordination
 
+The MCP protocols support sophisticated multi-subsystem coordination:
+
 ```python
-class MCPOrchestrator:
-    """Example MCP orchestrator for multi-subsystem workflows."""
+# Register multiple subsystems
+llm_subsystem = await mcp_registry.register_subsystem(llm_metadata, llm_tools, api_key)
+data_subsystem = await mcp_registry.register_subsystem(data_metadata, data_tools, api_key)
 
-    def __init__(self, registry: ProtocolMCPRegistry):
-        self.registry = registry
-
-    async def execute_workflow(self, workflow_steps: list[dict]) -> list[dict]:
-        """Execute multi-step workflow across subsystems."""
-        results = []
-
-        for step in workflow_steps:
-            tool_name = step["tool"]
-            parameters = step["parameters"]
-
-            # Add previous results to context if needed
-            if results and step.get("use_previous_result"):
-                parameters["context"] = results[-1]
-
-            # Execute step
-            result = await self.registry.execute_tool(
-                tool_name=tool_name,
-                parameters=parameters,
-                correlation_id=uuid4()
-            )
-
-            results.append(result)
-
-        return results
+# Discover tools across all subsystems
+all_tools = await mcp_registry.discover_tools(tool_type="function")
+print(f"Found {len(all_tools)} tools across {len(set(t.subsystem_id for t in all_tools))} subsystems")
 ```
 
-### Error Handling and Resilience
+### Load Balancing Strategies
+
+Advanced load balancing and routing:
 
 ```python
-class ResilientMCPClient:
-    """Example resilient MCP client with error handling."""
+# Configure routing strategy
+await tool_router.update_routing_strategy("text_generation", "performance_based")
 
-    def __init__(self, registry: ProtocolMCPRegistry):
-        self.registry = registry
-
-    async def execute_with_retry(
-        self,
-        tool_name: str,
-        parameters: dict[str, ContextValue],
-        max_retries: int = 3,
-        backoff_factor: float = 2.0
-    ) -> dict[str, Any]:
-        """Execute tool with exponential backoff retry."""
-
-        for attempt in range(max_retries + 1):
-            try:
-                return await self.registry.execute_tool(
-                    tool_name=tool_name,
-                    parameters=parameters,
-                    correlation_id=uuid4()
-                )
-            except (TimeoutError, RuntimeError) as e:
-                if attempt == max_retries:
-                    raise
-
-                # Calculate backoff delay
-                delay = (backoff_factor ** attempt) * 1.0
-                await asyncio.sleep(delay)
-
-                print(f"Retrying {tool_name} after {delay}s (attempt {attempt + 1})")
-
-        raise RuntimeError("Max retries exceeded")
-```
-
-## Best Practices
-
-### Tool Definition Design
-
-```python
-# Good - Comprehensive tool definition
-tool_definition = ProtocolMCPToolDefinition(
-    name="document_analyzer",
-    tool_type="analyze",
-    description="Analyze document content for insights and metadata",
-    parameters=[
-        ProtocolMCPToolParameter(
-            name="content",
-            parameter_type="string",
-            description="Document content to analyze",
-            required=True,
-            validation_schema={
-                "minLength": 1,
-                "maxLength": 100000
-            }
-        ),
-        ProtocolMCPToolParameter(
-            name="analysis_type",
-            parameter_type="string",
-            description="Type of analysis to perform",
-            required=False,
-            default_value="comprehensive",
-            constraints={
-                "enum": ["basic", "comprehensive", "sentiment", "entities"]
-            }
-        )
-    ],
-    return_schema={
-        "type": "object",
-        "required": ["summary", "metadata"],
-        "properties": {
-            "summary": {"type": "string"},
-            "metadata": {"type": "object"},
-            "confidence": {"type": "number", "minimum": 0, "maximum": 1}
-        }
-    },
-    capabilities=["nlp", "analysis"],
-    tags=["document", "analysis", "nlp"],
-    version=ProtocolSemVer(major=1, minor=2, patch=0),
-    timeout_seconds=60,
-    max_retries=2,
-    subsystem_id="document-analysis-service",
-    metadata={"cost_model": "per_token", "supported_formats": ["text", "markdown"]}
-)
-
-# Avoid - Minimal tool definition lacking validation
-bad_tool_definition = ProtocolMCPToolDefinition(
-    name="analyzer",
-    tool_type="analyze",
-    description="Analyzes things",  # Too vague
-    parameters=[],  # Missing parameter definitions
-    # Missing return schema, validation, etc.
+# Set load balancing weights
+await tool_router.update_load_balancing_weights(
+    "text_generation",
+    {
+        "llm-subsystem-1": 0.6,
+        "llm-subsystem-2": 0.4
+    }
 )
 ```
 
-### Parameter Validation
+### Health Monitoring and Alerting
+
+Comprehensive monitoring capabilities:
 
 ```python
-async def validate_tool_request(
-    registry: ProtocolMCPRegistry,
-    tool_name: str,
-    parameters: dict[str, ContextValue]
-) -> None:
-    """Validate tool request before execution."""
-
-    # Get tool definition
-    tool_def = await registry.get_tool_definition(tool_name)
-    if not tool_def:
-        raise ValueError(f"Tool not found: {tool_name}")
-
-    # Validate parameters
-    validation_result = await registry.validate_tool_parameters(
-        tool_name=tool_name,
-        parameters=parameters
+# Create alert rule
+alert_rule = await mcp_monitor.create_alert_rule(
+    ProtocolMCPAlertRule(
+        name="High Error Rate",
+        condition="error_rate > 0.1",
+        severity="warning",
+        enabled=True
     )
+)
 
-    if not validation_result.is_valid:
-        errors = ", ".join(validation_result.errors)
-        raise ValueError(f"Parameter validation failed: {errors}")
+# Get system overview
+overview = await mcp_monitor.get_system_overview()
+print(f"Total subsystems: {overview.total_subsystems}")
+print(f"Healthy subsystems: {overview.healthy_subsystems}")
+print(f"Total tools: {overview.total_tools}")
 ```
 
-### Subsystem Health Management
+## 📊 Protocol Statistics
 
-```python
-class SubsystemHealthManager:
-    """Example subsystem health management."""
-
-    def __init__(self, registry: ProtocolMCPRegistry):
-        self.registry = registry
-        self.unhealthy_subsystems: set[str] = set()
-
-    async def health_check_loop(self, check_interval: int = 60):
-        """Continuous health checking loop."""
-        while True:
-            subsystems = await self.registry.get_all_subsystems()
-
-            for subsystem in subsystems:
-                try:
-                    health_check = await self.registry.perform_health_check(
-                        subsystem.registration_id
-                    )
-
-                    if health_check.status == "healthy":
-                        # Remove from unhealthy set if recovered
-                        self.unhealthy_subsystems.discard(subsystem.registration_id)
-                    else:
-                        # Add to unhealthy set
-                        self.unhealthy_subsystems.add(subsystem.registration_id)
-                        print(f"Unhealthy subsystem: {subsystem.registration_id}")
-
-                except Exception as e:
-                    print(f"Health check failed for {subsystem.registration_id}: {e}")
-                    self.unhealthy_subsystems.add(subsystem.registration_id)
-
-            await asyncio.sleep(check_interval)
-
-    def is_subsystem_healthy(self, registration_id: str) -> bool:
-        """Check if subsystem is healthy."""
-        return registration_id not in self.unhealthy_subsystems
-```
+- **Total Protocols**: 15 MCP integration protocols
+- **Multi-Subsystem Coordination**: Dynamic subsystem registration and discovery
+- **Tool Management**: Comprehensive tool definition and execution tracking
+- **Load Balancing**: Advanced routing strategies and failover capabilities
+- **Health Monitoring**: Real-time health tracking and alerting
+- **Performance Analytics**: Detailed metrics and trend analysis
+- **Security**: API key authentication and request validation
+- **TTL Management**: Automatic cleanup of expired registrations
 
 ---
 
-*This documentation covers the complete MCP integration protocol suite. For integration with other domains, see the respective API reference sections.*
+*This API reference is automatically generated from protocol definitions and maintained alongside the codebase.*

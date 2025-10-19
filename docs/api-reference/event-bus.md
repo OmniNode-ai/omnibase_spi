@@ -1,698 +1,661 @@
-# Event Bus Protocols API Reference
+# Event Bus API Reference
 
 ## Overview
 
-The ONEX event bus protocols provide comprehensive, type-safe event messaging and streaming capabilities for distributed systems. This system enables environment isolation, pluggable messaging backends (Kafka/Redpanda), and sophisticated event sourcing patterns with complete audit trails.
+The ONEX event bus protocols provide comprehensive distributed messaging infrastructure with pluggable backend adapters, async/sync implementations, event serialization, and dead letter queue handling. These protocols enable sophisticated event-driven architectures across the ONEX ecosystem.
 
-## Protocol Architecture
+## 🏗️ Protocol Architecture
 
-The event bus domain consists of multiple specialized protocols that work together to provide a complete messaging solution:
+The event bus domain consists of **13 specialized protocols** that provide complete messaging infrastructure:
 
-### Core Event Bus Protocol
+### Event Bus Protocol
 
 ```python
 from omnibase_spi.protocols.event_bus import ProtocolEventBus
-from omnibase_spi.protocols.types.event_bus_types import EventMessage, EventMetadata
+from omnibase_spi.protocols.types.protocol_event_bus_types import (
+    ProtocolEventMessage,
+    ProtocolEventHandler,
+    LiteralEventBusBackend,
+)
 
 @runtime_checkable
 class ProtocolEventBus(Protocol):
     """
     Core event bus protocol for distributed messaging.
 
-    Provides environment isolation, pluggable backends, and
-    comprehensive event streaming capabilities.
+    Provides comprehensive event publishing, subscription management,
+    and message routing across distributed systems.
 
-    Features:
-        - Environment isolation (dev/staging/prod)
-        - Multiple messaging backend support
-        - Consumer group coordination
-        - Event filtering and routing
-        - OpenTelemetry integration
+    Key Features:
+        - Event publishing and subscription
+        - Message serialization and deserialization
+        - Topic management and routing
+        - Dead letter queue handling
+        - Performance monitoring and metrics
+        - Pluggable backend adapters
     """
 
     async def publish_event(
         self,
-        event_message: EventMessage,
-        target_topic: Optional[str] = None
-    ) -> bool:
-        """
-        Publish event to the event bus.
-
-        Args:
-            event_message: Event to publish with metadata
-            target_topic: Optional topic override
-
-        Returns:
-            Success status of publish operation
-
-        Raises:
-            PublishError: If event publishing fails
-            ValidationError: If event message is invalid
-        """
-        ...
+        topic: str,
+        message: ProtocolEventMessage,
+        partition_key: str | None = None,
+    ) -> None: ...
 
     async def subscribe_to_topic(
         self,
         topic: str,
-        group_id: str,
-        handler: Callable[[EventMessage], Awaitable[None]],
-        message_filter: Optional[Callable[[EventMessage], bool]] = None
-    ) -> Callable[[], Awaitable[None]]:
-        """
-        Subscribe to topic with consumer group and optional filtering.
+        handler: ProtocolEventHandler,
+        group_id: str | None = None,
+    ) -> str: ...
 
-        Args:
-            topic: Topic to subscribe to
-            group_id: Consumer group identifier for load balancing
-            handler: Async message handler function
-            message_filter: Optional filter predicate
+    async def unsubscribe_from_topic(self, subscription_id: str) -> None: ...
 
-        Returns:
-            Unsubscribe function to stop consuming
+    async def create_topic(
+        self, topic: str, partition_count: int = 1
+    ) -> bool: ...
 
-        Raises:
-            SubscriptionError: If subscription setup fails
-        """
-        ...
+    async def delete_topic(self, topic: str) -> bool: ...
 
-    async def get_topic_info(self, topic: str) -> Dict[str, Any]:
-        """
-        Get metadata about a specific topic.
+    async def get_topic_info(self, topic: str) -> ProtocolTopicInfo | None: ...
 
-        Returns partition count, consumer groups, and other metadata.
-        """
-        ...
+    async def get_subscription_info(
+        self, subscription_id: str
+    ) -> ProtocolSubscriptionInfo | None: ...
+
+    async def pause_subscription(self, subscription_id: str) -> bool: ...
+
+    async def resume_subscription(self, subscription_id: str) -> bool: ...
+
+    async def get_bus_metrics(self) -> ProtocolEventBusMetrics: ...
+
+    async def get_topic_metrics(self, topic: str) -> ProtocolTopicMetrics: ...
+```
+
+### Event Message Protocol
+
+```python
+@runtime_checkable
+class ProtocolEventMessage(Protocol):
+    """
+    Protocol for event message structure.
+
+    Defines the standard structure for event messages with
+    metadata, headers, and payload information.
+    """
+
+    topic: str
+    key: bytes | None
+    value: bytes
+    headers: dict[str, ContextValue]
+    offset: str | None
+    partition: int | None
+    timestamp: ProtocolDateTime
+    correlation_id: UUID | None
+    causation_id: UUID | None
+    message_id: UUID
+
+    async def serialize(self) -> bytes: ...
+
+    async def deserialize(self, data: bytes) -> None: ...
+
+    async def ack(self) -> None: ...
+
+    async def nack(self, requeue: bool = True) -> None: ...
+```
+
+### Event Handler Protocol
+
+```python
+@runtime_checkable
+class ProtocolEventHandler(Protocol):
+    """
+    Protocol for event handler functions.
+
+    Event handlers process incoming events and perform
+    business logic based on event content.
+    """
+
+    async def __call__(
+        self, message: ProtocolEventMessage, context: dict[str, ContextValue]
+    ) -> None: ...
+```
+
+### Event Bus Service Protocol
+
+```python
+@runtime_checkable
+class ProtocolEventBusService(Protocol):
+    """
+    Protocol for event bus service operations.
+
+    Provides service-level operations for event bus management,
+    configuration, and monitoring.
+    """
+
+    async def start_service(self) -> bool: ...
+
+    async def stop_service(self) -> bool: ...
+
+    async def is_service_running(self) -> bool: ...
+
+    async def get_service_configuration(
+        self,
+    ) -> ProtocolEventBusConfiguration: ...
+
+    async def update_service_configuration(
+        self, configuration: ProtocolEventBusConfiguration
+    ) -> bool: ...
+
+    async def get_service_health(self) -> ProtocolEventBusHealth: ...
+
+    async def get_service_metrics(self) -> ProtocolEventBusServiceMetrics: ...
 ```
 
 ### Kafka Adapter Protocol
 
 ```python
-from omnibase_spi.protocols.event_bus import ProtocolKafkaAdapter
-
 @runtime_checkable
 class ProtocolKafkaAdapter(Protocol):
     """
-    Kafka-specific event bus adapter with advanced features.
+    Protocol for Kafka event bus adapter.
 
-    Provides Kafka-native features like partitioning,
-    consumer groups, and transactional messaging.
+    Provides Kafka-specific implementation for event bus
+    operations with Kafka cluster integration.
 
-    Features:
+    Key Features:
+        - Kafka cluster connectivity
         - Partition management
-        - Transactional messaging
         - Consumer group coordination
         - Offset management
-        - Dead letter queues
+        - Schema registry integration
     """
 
-    async def create_topic(
-        self,
-        topic_name: str,
-        partition_count: int = 3,
-        replication_factor: int = 1,
-        config: Optional[Dict[str, str]] = None
-    ) -> bool:
-        """Create Kafka topic with specified configuration."""
-        ...
+    async def connect_to_cluster(
+        self, bootstrap_servers: list[str]
+    ) -> bool: ...
 
-    async def publish_to_partition(
-        self,
-        topic: str,
-        partition: int,
-        event_message: EventMessage,
-        transaction_id: Optional[str] = None
-    ) -> bool:
-        """Publish event to specific partition with optional transaction."""
-        ...
+    async def disconnect_from_cluster(self) -> bool: ...
 
-    async def consume_from_partition(
-        self,
-        topic: str,
-        partition: int,
-        offset: int,
-        max_messages: int = 100
-    ) -> List[EventMessage]:
-        """Consume messages from specific partition starting at offset."""
-        ...
+    async def create_kafka_topic(
+        self, topic: str, partitions: int, replication_factor: int
+    ) -> bool: ...
+
+    async def delete_kafka_topic(self, topic: str) -> bool: ...
+
+    async def get_kafka_metadata(self) -> ProtocolKafkaMetadata: ...
+
+    async def get_consumer_group_info(
+        self, group_id: str
+    ) -> ProtocolConsumerGroupInfo: ...
+
+    async def reset_consumer_group_offset(
+        self, group_id: str, topic: str, offset: int
+    ) -> bool: ...
 ```
 
 ### Redpanda Adapter Protocol
 
 ```python
-from omnibase_spi.protocols.event_bus import ProtocolRedpandaAdapter
-
 @runtime_checkable
 class ProtocolRedpandaAdapter(Protocol):
     """
-    Redpanda-specific event bus adapter optimized for performance.
+    Protocol for Redpanda event bus adapter.
 
-    Provides Redpanda-native optimizations and features
-    while maintaining Kafka compatibility.
+    Provides Redpanda-specific implementation for event bus
+    operations with Redpanda cluster integration.
 
-    Features:
-        - High-performance streaming
-        - Built-in schema registry
-        - WebAssembly transforms
-        - HTTP proxy support
+    Key Features:
+        - Redpanda cluster connectivity
+        - High-performance messaging
+        - Schema evolution support
+        - Cloud-native integration
+        - Performance optimization
     """
 
-    async def create_materialized_view(
+    async def connect_to_redpanda(
+        self, brokers: list[str]
+    ) -> bool: ...
+
+    async def disconnect_from_redpanda(self) -> bool: ...
+
+    async def create_redpanda_topic(
+        self, topic: str, partitions: int
+    ) -> bool: ...
+
+    async def delete_redpanda_topic(self, topic: str) -> bool: ...
+
+    async def get_redpanda_metrics(self) -> ProtocolRedpandaMetrics: ...
+
+    async def optimize_redpanda_performance(
+        self, topic: str, settings: dict[str, Any]
+    ) -> bool: ...
+```
+
+### In-Memory Event Bus Protocol
+
+```python
+@runtime_checkable
+class ProtocolEventBusInMemory(Protocol):
+    """
+    Protocol for in-memory event bus implementation.
+
+    Provides lightweight in-memory event bus for testing,
+    development, and single-node deployments.
+
+    Key Features:
+        - In-memory message storage
+        - Synchronous and asynchronous processing
+        - Topic-based message routing
+        - Subscription management
+        - Performance monitoring
+    """
+
+    async def initialize_memory_store(self) -> bool: ...
+
+    async def clear_memory_store(self) -> None: ...
+
+    async def get_memory_usage(self) -> ProtocolMemoryUsage: ...
+
+    async def get_message_count(self, topic: str) -> int: ...
+
+    async def get_subscription_count(self, topic: str) -> int: ...
+
+    async def simulate_network_delay(
+        self, delay_ms: int
+    ) -> None: ...
+```
+
+### Event Publisher Protocol
+
+```python
+@runtime_checkable
+class ProtocolEventPublisher(Protocol):
+    """
+    Protocol for event publishing operations.
+
+    Provides specialized event publishing with batching,
+    compression, and performance optimization.
+
+    Key Features:
+        - Batch event publishing
+        - Message compression
+        - Retry mechanisms
+        - Performance optimization
+        - Error handling
+    """
+
+    async def publish_batch(
         self,
-        view_name: str,
-        source_topic: str,
-        transform_function: str
-    ) -> bool:
-        """Create materialized view with WebAssembly transform."""
-        ...
+        topic: str,
+        messages: list[ProtocolEventMessage],
+        compression: LiteralCompressionType | None = None,
+    ) -> ProtocolBatchPublishResult: ...
+
+    async def publish_with_retry(
+        self,
+        topic: str,
+        message: ProtocolEventMessage,
+        max_retries: int = 3,
+        backoff_ms: int = 1000,
+    ) -> bool: ...
+
+    async def publish_compressed(
+        self,
+        topic: str,
+        message: ProtocolEventMessage,
+        compression_type: LiteralCompressionType,
+    ) -> bool: ...
+
+    async def get_publisher_metrics(self) -> ProtocolPublisherMetrics: ...
+```
+
+### Dead Letter Queue Handler Protocol
+
+```python
+@runtime_checkable
+class ProtocolDLQHandler(Protocol):
+    """
+    Protocol for dead letter queue handling.
+
+    Manages failed message processing, retry logic,
+    and dead letter queue operations.
+
+    Key Features:
+        - Failed message handling
+        - Retry logic and backoff
+        - Dead letter queue management
+        - Message analysis and debugging
+        - Recovery operations
+    """
+
+    async def handle_failed_message(
+        self,
+        message: ProtocolEventMessage,
+        error: Exception,
+        retry_count: int,
+    ) -> ProtocolDLQResult: ...
+
+    async def retry_failed_message(
+        self, dlq_message_id: str
+    ) -> bool: ...
+
+    async def get_dlq_messages(
+        self, topic: str, limit: int = 100
+    ) -> list[ProtocolDLQMessage]: ...
+
+    async def clear_dlq_messages(
+        self, topic: str, older_than_hours: int
+    ) -> int: ...
+
+    async def analyze_failure_patterns(
+        self, topic: str, time_range_hours: int
+    ) -> ProtocolFailureAnalysis: ...
+```
+
+### Schema Registry Protocol
+
+```python
+@runtime_checkable
+class ProtocolSchemaRegistry(Protocol):
+    """
+    Protocol for event schema registry operations.
+
+    Manages event schemas, versioning, and compatibility
+    across distributed systems.
+
+    Key Features:
+        - Schema registration and versioning
+        - Schema compatibility checking
+        - Schema evolution support
+        - Serialization/deserialization
+        - Schema discovery
+    """
 
     async def register_schema(
         self,
         subject: str,
-        schema_definition: Dict[str, Any],
-        schema_type: str = "JSON"
-    ) -> int:
-        """Register schema in built-in schema registry."""
-        ...
+        schema: dict[str, Any],
+        schema_type: LiteralSchemaType = "AVRO",
+    ) -> int: ...
+
+    async def get_schema(
+        self, subject: str, version: int | None = None
+    ) -> ProtocolSchemaInfo: ...
+
+    async def check_compatibility(
+        self, subject: str, schema: dict[str, Any]
+    ) -> ProtocolCompatibilityResult: ...
+
+    async def get_schema_versions(
+        self, subject: str
+    ) -> list[int]: ...
+
+    async def delete_schema(
+        self, subject: str, version: int
+    ) -> bool: ...
+
+    async def get_subjects(self) -> list[str]: ...
 ```
 
-## Type Definitions
+## 🔧 Type Definitions
 
-### Core Event Types
+### Event Bus Types
 
 ```python
-from omnibase_spi.protocols.types.event_bus_types import (
-    EventMessage,
-    EventMetadata,
-    SecurityContext,
-    EventType
-)
+LiteralEventBusBackend = Literal["kafka", "redpanda", "redis", "in_memory", "rabbitmq"]
+"""
+Event bus backend implementations.
 
-@dataclass
-class EventMessage:
-    """
-    Core event message with metadata and payload.
+Values:
+    kafka: Apache Kafka cluster
+    redpanda: Redpanda streaming platform
+    redis: Redis pub/sub
+    in_memory: In-memory implementation
+    rabbitmq: RabbitMQ message broker
+"""
 
-    Attributes:
-        event_id: Unique event identifier
-        event_type: Type/category of event
-        payload: Event data as JSON-serializable dict
-        metadata: Event metadata and routing information
-        timestamp: ISO timestamp when event was created
-        security_context: Authentication and authorization context
-    """
-    event_id: str
-    event_type: EventType
-    payload: Dict[str, Any]
-    metadata: EventMetadata
-    timestamp: str
-    security_context: Optional[SecurityContext] = None
+LiteralCompressionType = Literal["none", "gzip", "snappy", "lz4", "zstd"]
+"""
+Message compression types.
 
-@dataclass
-class EventMetadata:
-    """
-    Event metadata for routing and processing.
+Values:
+    none: No compression
+    gzip: GZIP compression
+    snappy: Snappy compression
+    lz4: LZ4 compression
+    zstd: Zstandard compression
+"""
 
-    Attributes:
-        source: Source service/component that produced event
-        correlation_id: Request correlation identifier
-        causation_id: Previous event that caused this event
-        environment: Target environment (dev/staging/prod)
-        priority: Event priority level (0-10, 10=highest)
-        ttl_seconds: Time-to-live for event processing
-        headers: Additional routing headers
-    """
-    source: str
-    correlation_id: str
-    causation_id: Optional[str] = None
-    environment: str = "dev"
-    priority: int = 5
-    ttl_seconds: Optional[int] = None
-    headers: Optional[Dict[str, str]] = None
+LiteralSchemaType = Literal["AVRO", "JSON", "PROTOBUF"]
+"""
+Schema types for event serialization.
+
+Values:
+    AVRO: Apache Avro schema
+    JSON: JSON schema
+    PROTOBUF: Protocol Buffers schema
+"""
 ```
 
-### Event Types
-
-```python
-# Event type definitions for type safety
-EventType = Literal[
-    "system.started", "system.stopped", "system.health_check",
-    "workflow.created", "workflow.started", "workflow.completed",
-    "workflow.failed", "workflow.cancelled", "workflow.paused",
-    "task.scheduled", "task.started", "task.completed", "task.failed",
-    "mcp.tool_registered", "mcp.subsystem_registered", "mcp.health_check",
-    "node.registered", "node.deregistered", "node.health_update",
-    "artifact.created", "artifact.updated", "artifact.deleted",
-    "user.created", "user.updated", "user.deleted",
-    "data.ingested", "data.processed", "data.exported"
-]
-```
-
-### Security Context
-
-```python
-@dataclass
-class SecurityContext:
-    """
-    Security context for event authentication and authorization.
-
-    Attributes:
-        user_id: Authenticated user identifier
-        tenant_id: Multi-tenant isolation identifier
-        permissions: List of granted permissions
-        token: Authentication token (JWT, API key, etc.)
-        ip_address: Source IP address for audit logging
-    """
-    user_id: str
-    tenant_id: str
-    permissions: List[str]
-    token: Optional[str] = None
-    ip_address: Optional[str] = None
-```
-
-## Usage Patterns
+## 🚀 Usage Examples
 
 ### Basic Event Publishing
 
 ```python
 from omnibase_spi.protocols.event_bus import ProtocolEventBus
-from omnibase_spi.protocols.types.event_bus_types import EventMessage, EventMetadata
 
-async def publish_user_created_event(
-    event_bus: ProtocolEventBus,
-    user_id: str,
-    user_data: Dict[str, Any]
-) -> None:
-    """Publish user creation event."""
+# Initialize event bus
+event_bus: ProtocolEventBus = get_event_bus()
 
-    event = EventMessage(
-        event_id=str(uuid4()),
-        event_type="user.created",
-        payload={
-            "user_id": user_id,
-            "email": user_data["email"],
-            "created_at": datetime.utcnow().isoformat()
-        },
-        metadata=EventMetadata(
-            source="user_service",
-            correlation_id=str(uuid4()),
-            environment="prod",
-            priority=7
-        ),
-        timestamp=datetime.utcnow().isoformat()
-    )
-
-    success = await event_bus.publish_event(event, target_topic="user_events")
-    if not success:
-        raise RuntimeError("Failed to publish user created event")
+# Publish event
+await event_bus.publish_event(
+    topic="user-events",
+    message=ProtocolEventMessage(
+        topic="user-events",
+        key=b"user-12345",
+        value=b'{"action": "user_created", "user_id": "12345"}',
+        headers={"event_type": "user_created"},
+        correlation_id=UUID("req-abc123")
+    ),
+    partition_key="user-12345"
+)
 ```
 
-### Event Subscription with Filtering
+### Event Subscription
 
 ```python
-async def setup_workflow_event_processing(
-    event_bus: ProtocolEventBus
+# Subscribe to events
+subscription_id = await event_bus.subscribe_to_topic(
+    topic="user-events",
+    handler=user_event_handler,
+    group_id="user-service"
+)
+
+# Event handler implementation
+async def user_event_handler(
+    message: ProtocolEventMessage, context: dict[str, ContextValue]
 ) -> None:
-    """Set up workflow event processing with filtering."""
-
-    def workflow_filter(event: EventMessage) -> bool:
-        """Only process high-priority workflow events."""
-        return (
-            event.event_type.startswith("workflow.") and
-            event.metadata.priority >= 8
-        )
-
-    async def handle_workflow_event(event: EventMessage) -> None:
-        """Handle high-priority workflow events."""
-        if event.event_type == "workflow.failed":
-            await send_alert_notification(event)
-        elif event.event_type == "workflow.completed":
-            await update_workflow_metrics(event)
-
-    # Subscribe with filtering
-    unsubscribe = await event_bus.subscribe_to_topic(
-        topic="workflow_events",
-        group_id="workflow_processor_group",
-        handler=handle_workflow_event,
-        message_filter=workflow_filter
-    )
-
-    # Store unsubscribe function for cleanup
-    return unsubscribe
+    print(f"Received event: {message.value.decode()}")
+    print(f"Correlation ID: {message.correlation_id}")
+    await message.ack()
 ```
 
-### Multi-Environment Event Routing
+### Kafka Integration
 
 ```python
-async def setup_environment_routing(
-    event_bus: ProtocolEventBus
-) -> None:
-    """Set up environment-specific event routing."""
+from omnibase_spi.protocols.event_bus import ProtocolKafkaAdapter
 
-    async def route_by_environment(event: EventMessage) -> None:
-        """Route events based on environment metadata."""
-        env = event.metadata.environment
+# Initialize Kafka adapter
+kafka_adapter: ProtocolKafkaAdapter = get_kafka_adapter()
 
-        if env == "prod":
-            # Production events go to monitoring systems
-            await forward_to_monitoring(event)
-        elif env == "staging":
-            # Staging events go to test validation
-            await forward_to_validation(event)
-        elif env == "dev":
-            # Dev events go to debugging systems
-            await forward_to_debug_logs(event)
+# Connect to Kafka cluster
+await kafka_adapter.connect_to_cluster([
+    "kafka-1:9092",
+    "kafka-2:9092",
+    "kafka-3:9092"
+])
 
-    # Subscribe to all environments but route differently
-    await event_bus.subscribe_to_topic(
-        topic="system_events",
-        group_id="environment_router",
-        handler=route_by_environment
-    )
+# Create Kafka topic
+await kafka_adapter.create_kafka_topic(
+    topic="user-events",
+    partitions=3,
+    replication_factor=3
+)
+
+# Get Kafka metadata
+metadata = await kafka_adapter.get_kafka_metadata()
+print(f"Kafka cluster: {metadata.cluster_id}")
+print(f"Brokers: {metadata.brokers}")
 ```
 
-## Integration with Other Domains
-
-### Workflow Orchestration Integration
+### Batch Publishing
 
 ```python
-from omnibase_spi.protocols.workflow_orchestration import ProtocolWorkflowEventBus
+from omnibase_spi.protocols.event_bus import ProtocolEventPublisher
 
-# Workflow-specific event bus extends the base event bus
-class WorkflowEventBusIntegration:
-    """Integration pattern for workflow orchestration."""
+# Initialize event publisher
+publisher: ProtocolEventPublisher = get_event_publisher()
 
-    def __init__(
-        self,
-        base_event_bus: ProtocolEventBus,
-        workflow_event_bus: ProtocolWorkflowEventBus
-    ):
-        self.base_event_bus = base_event_bus
-        self.workflow_event_bus = workflow_event_bus
+# Publish batch of events
+messages = [
+    ProtocolEventMessage(topic="orders", value=b'{"order_id": "1"}'),
+    ProtocolEventMessage(topic="orders", value=b'{"order_id": "2"}'),
+    ProtocolEventMessage(topic="orders", value=b'{"order_id": "3"}')
+]
 
-    async def coordinate_workflow_events(self) -> None:
-        """Coordinate between base and workflow event buses."""
+batch_result = await publisher.publish_batch(
+    topic="orders",
+    messages=messages,
+    compression="gzip"
+)
 
-        # Subscribe to base events that affect workflows
-        await self.base_event_bus.subscribe_to_topic(
-            topic="system_events",
-            group_id="workflow_coordinator",
-            handler=self._handle_system_event
-        )
-
-    async def _handle_system_event(self, event: EventMessage) -> None:
-        """Convert system events to workflow events when relevant."""
-        if event.event_type in ["node.deregistered", "system.stopped"]:
-            # Convert to workflow event for orchestration
-            workflow_event = self._convert_to_workflow_event(event)
-            await self.workflow_event_bus.publish_workflow_event(workflow_event)
+print(f"Published {batch_result.success_count} messages")
+print(f"Failed: {batch_result.failure_count}")
 ```
 
-### MCP Integration
+### Dead Letter Queue Handling
 
 ```python
-from omnibase_spi.protocols.mcp import ProtocolMCPRegistry
+from omnibase_spi.protocols.event_bus import ProtocolDLQHandler
 
-async def integrate_mcp_events(
-    event_bus: ProtocolEventBus,
-    mcp_registry: ProtocolMCPRegistry
-) -> None:
-    """Integrate MCP tool events with the event bus."""
+# Initialize DLQ handler
+dlq_handler: ProtocolDLQHandler = get_dlq_handler()
 
-    async def handle_mcp_events(event: EventMessage) -> None:
-        """Handle MCP-related events."""
-        if event.event_type == "mcp.tool_registered":
-            # Notify other services of new tool availability
-            await notify_tool_availability(event)
-        elif event.event_type == "mcp.subsystem_registered":
-            # Update service discovery with new subsystem
-            await update_service_registry(event)
+# Handle failed message
+dlq_result = await dlq_handler.handle_failed_message(
+    message=failed_message,
+    error=ProcessingError("Invalid data format"),
+    retry_count=3
+)
 
-    await event_bus.subscribe_to_topic(
-        topic="mcp_events",
-        group_id="mcp_integration",
-        handler=handle_mcp_events
-    )
+if dlq_result.retry_eligible:
+    print("Message eligible for retry")
+else:
+    print("Message sent to dead letter queue")
+
+# Get DLQ messages for analysis
+dlq_messages = await dlq_handler.get_dlq_messages("user-events", limit=50)
+for dlq_msg in dlq_messages:
+    print(f"Failed message: {dlq_msg.original_message.value}")
+    print(f"Failure reason: {dlq_msg.failure_reason}")
 ```
 
-## Advanced Features
-
-### Event Sourcing and Replay
+### Schema Registry Integration
 
 ```python
-async def implement_event_sourcing(
-    event_bus: ProtocolEventBus
-) -> None:
-    """Implement event sourcing pattern for audit and replay."""
+from omnibase_spi.protocols.event_bus import ProtocolSchemaRegistry
 
-    # All events are stored with sequence numbers for ordering
-    async def store_event_for_sourcing(event: EventMessage) -> None:
-        """Store event in event store with sequence number."""
-        await event_store.append_event(
-            stream_id=event.metadata.correlation_id,
-            event_data=event.payload,
-            event_type=event.event_type,
-            metadata=event.metadata
-        )
+# Initialize schema registry
+schema_registry: ProtocolSchemaRegistry = get_schema_registry()
 
-    # Subscribe to all events for event sourcing
-    await event_bus.subscribe_to_topic(
-        topic="all_events",
-        group_id="event_sourcing",
-        handler=store_event_for_sourcing
-    )
+# Register schema
+schema_version = await schema_registry.register_schema(
+    subject="user-events-value",
+    schema={
+        "type": "record",
+        "name": "UserEvent",
+        "fields": [
+            {"name": "user_id", "type": "string"},
+            {"name": "action", "type": "string"},
+            {"name": "timestamp", "type": "long"}
+        ]
+    },
+    schema_type="AVRO"
+)
 
-async def replay_events(
-    correlation_id: str,
-    from_sequence: int = 0
-) -> List[EventMessage]:
-    """Replay events from event store for recovery or debugging."""
-    stored_events = await event_store.read_stream(
-        stream_id=correlation_id,
-        from_sequence=from_sequence
-    )
+# Check schema compatibility
+compatibility_result = await schema_registry.check_compatibility(
+    subject="user-events-value",
+    schema=new_schema
+)
 
-    return [reconstruct_event_message(stored_event) for stored_event in stored_events]
+if compatibility_result.compatible:
+    print("Schema is compatible")
+else:
+    print(f"Schema incompatible: {compatibility_result.reason}")
+```
+
+## 🔍 Implementation Notes
+
+### Backend Adapter Patterns
+
+The event bus supports multiple backend implementations:
+
+```python
+# Kafka backend
+kafka_bus = KafkaEventBus(servers=["kafka:9092"])
+
+# Redpanda backend
+redpanda_bus = RedpandaEventBus(brokers=["redpanda:9092"])
+
+# In-memory backend (for testing)
+memory_bus = InMemoryEventBus()
+```
+
+### Message Serialization
+
+Comprehensive serialization support:
+
+```python
+# JSON serialization
+message = ProtocolEventMessage(
+    topic="events",
+    value=json.dumps(event_data).encode(),
+    headers={"content_type": "application/json"}
+)
+
+# Avro serialization with schema registry
+avro_message = await serialize_with_avro(
+    data=event_data,
+    schema_id=schema_version
+)
 ```
 
 ### Performance Optimization
 
-```python
-async def optimize_event_performance(
-    event_bus: ProtocolEventBus
-) -> None:
-    """Implement performance optimizations for high-throughput scenarios."""
-
-    # Batch publishing for high-throughput scenarios
-    async def batch_publish_events(
-        events: List[EventMessage],
-        batch_size: int = 100
-    ) -> List[bool]:
-        """Publish events in batches for better performance."""
-        results = []
-
-        for i in range(0, len(events), batch_size):
-            batch = events[i:i + batch_size]
-            batch_results = await asyncio.gather(
-                *[event_bus.publish_event(event) for event in batch],
-                return_exceptions=True
-            )
-            results.extend(batch_results)
-
-        return results
-
-    # Consumer group load balancing
-    async def setup_load_balanced_consumers(
-        topic: str,
-        handler: Callable[[EventMessage], Awaitable[None]],
-        consumer_count: int = 3
-    ) -> List[Callable[[], Awaitable[None]]]:
-        """Set up multiple consumers for load balancing."""
-        unsubscribe_functions = []
-
-        for i in range(consumer_count):
-            unsubscribe = await event_bus.subscribe_to_topic(
-                topic=topic,
-                group_id=f"load_balanced_group",  # Same group for load balancing
-                handler=handler
-            )
-            unsubscribe_functions.append(unsubscribe)
-
-        return unsubscribe_functions
-```
-
-## Error Handling and Resilience
-
-### Retry and Dead Letter Patterns
+Advanced performance features:
 
 ```python
-async def implement_resilient_processing(
-    event_bus: ProtocolEventBus
-) -> None:
-    """Implement resilient event processing with retries and dead letter queues."""
+# Batch publishing for throughput
+await publisher.publish_batch(topic, messages, compression="snappy")
 
-    async def resilient_event_handler(event: EventMessage) -> None:
-        """Event handler with retry logic and dead letter queue."""
-        max_retries = 3
-        retry_count = 0
-
-        while retry_count < max_retries:
-            try:
-                await process_event(event)
-                return  # Success, exit retry loop
-            except RetryableError as e:
-                retry_count += 1
-                if retry_count < max_retries:
-                    await asyncio.sleep(2 ** retry_count)  # Exponential backoff
-                else:
-                    # Max retries exceeded, send to dead letter queue
-                    await send_to_dead_letter_queue(event, str(e))
-            except NonRetryableError as e:
-                # Immediate failure, send to dead letter queue
-                await send_to_dead_letter_queue(event, str(e))
-                return
-
-    await event_bus.subscribe_to_topic(
-        topic="critical_events",
-        group_id="resilient_processor",
-        handler=resilient_event_handler
-    )
-
-async def send_to_dead_letter_queue(
-    event: EventMessage,
-    error_message: str
-) -> None:
-    """Send failed event to dead letter queue for manual investigation."""
-    dead_letter_event = EventMessage(
-        event_id=str(uuid4()),
-        event_type="system.dead_letter",
-        payload={
-            "original_event": event.payload,
-            "error_message": error_message,
-            "failed_at": datetime.utcnow().isoformat()
-        },
-        metadata=EventMetadata(
-            source="error_handler",
-            correlation_id=event.metadata.correlation_id,
-            causation_id=event.event_id
-        ),
-        timestamp=datetime.utcnow().isoformat()
-    )
-
-    await event_bus.publish_event(dead_letter_event, target_topic="dead_letter_queue")
+# Retry with exponential backoff
+await publisher.publish_with_retry(
+    topic, message, max_retries=5, backoff_ms=1000
+)
 ```
 
-## Testing Strategies
+## 📊 Protocol Statistics
 
-### Protocol Compliance Testing
+- **Total Protocols**: 13 event bus protocols
+- **Backend Support**: Kafka, Redpanda, Redis, in-memory, RabbitMQ
+- **Message Features**: Serialization, compression, batching
+- **Reliability**: Dead letter queues, retry logic, error handling
+- **Schema Management**: Avro, JSON, Protobuf schema support
+- **Performance**: High-throughput messaging with optimization
+- **Monitoring**: Comprehensive metrics and health tracking
 
-```python
-from omnibase_spi.protocols.event_bus import ProtocolEventBus
+---
 
-class TestEventBusCompliance:
-    """Test suite for event bus protocol compliance."""
-
-    @pytest.fixture
-    def event_bus(self) -> ProtocolEventBus:
-        """Provide event bus implementation for testing."""
-        return MockEventBusImplementation()
-
-    async def test_publish_event_success(self, event_bus: ProtocolEventBus):
-        """Test successful event publishing."""
-        event = create_test_event()
-        result = await event_bus.publish_event(event)
-        assert result is True
-
-    async def test_subscription_and_delivery(self, event_bus: ProtocolEventBus):
-        """Test event subscription and message delivery."""
-        received_events = []
-
-        async def test_handler(event: EventMessage) -> None:
-            received_events.append(event)
-
-        unsubscribe = await event_bus.subscribe_to_topic(
-            topic="test_topic",
-            group_id="test_group",
-            handler=test_handler
-        )
-
-        # Publish test event
-        test_event = create_test_event()
-        await event_bus.publish_event(test_event, target_topic="test_topic")
-
-        # Wait for delivery
-        await asyncio.sleep(0.1)
-
-        assert len(received_events) == 1
-        assert received_events[0].event_id == test_event.event_id
-
-        await unsubscribe()
-```
-
-## Configuration and Deployment
-
-### Environment Configuration
-
-```python
-@dataclass
-class EventBusConfiguration:
-    """Configuration for event bus deployment."""
-
-    # Backend configuration
-    backend_type: Literal["kafka", "redpanda"] = "kafka"
-    broker_urls: List[str] = field(default_factory=lambda: ["localhost:9092"])
-
-    # Environment settings
-    environment: str = "dev"
-    topic_prefix: str = "onex"
-
-    # Performance settings
-    batch_size: int = 100
-    max_poll_records: int = 500
-    session_timeout_ms: int = 30000
-
-    # Security settings
-    security_protocol: str = "PLAINTEXT"
-    sasl_mechanism: Optional[str] = None
-
-    # Monitoring settings
-    enable_metrics: bool = True
-    metrics_port: int = 8081
-
-async def create_event_bus_from_config(
-    config: EventBusConfiguration
-) -> ProtocolEventBus:
-    """Create event bus implementation from configuration."""
-    if config.backend_type == "kafka":
-        return KafkaEventBusImplementation(
-            broker_urls=config.broker_urls,
-            environment=config.environment,
-            # ... other config
-        )
-    elif config.backend_type == "redpanda":
-        return RedpandaEventBusImplementation(
-            broker_urls=config.broker_urls,
-            environment=config.environment,
-            # ... other config
-        )
-```
-
-## Best Practices
-
-### Protocol Implementation Guidelines
-
-1. **Environment Isolation**: Always include environment metadata in events
-2. **Correlation Tracking**: Use correlation IDs for request tracing
-3. **Event Versioning**: Include schema version in event metadata
-4. **Security Context**: Always validate security context before processing
-5. **Error Handling**: Implement comprehensive retry and dead letter patterns
-6. **Performance**: Use batching for high-throughput scenarios
-7. **Monitoring**: Include OpenTelemetry tracing in all operations
-
-### Type Safety
-
-1. **Strong Typing**: Use specific event types rather than generic messages
-2. **Protocol Compliance**: Always use `@runtime_checkable` protocols
-3. **Validation**: Validate event structure before processing
-4. **Type Hints**: Include comprehensive type hints in all implementations
-
-The event bus protocols provide a robust foundation for distributed messaging in the ONEX ecosystem, supporting complex event-driven architectures while maintaining type safety and architectural purity.
+*This API reference is automatically generated from protocol definitions and maintained alongside the codebase.*
