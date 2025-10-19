@@ -1,6 +1,9 @@
 # SPI Pre-commit Configuration
 # Enhanced validation for Service Provider Interface architectural compliance
 
+# Exclude .git directory and other sensitive files from formatting
+exclude: '^\.git/'
+
 repos:
   # Standard formatting tools
   - repo: https://github.com/psf/black
