@@ -34,22 +34,22 @@ def extract_links_from_file(file_path):
         with open(file_path, "r", encoding="utf-8") as f:
             content = f.read()
 
-        # Find all markdown links [text](url)
+        # Find all markdown links [text](url) with line numbers
         link_pattern = r"\[([^\]]+)\]\(([^)]+)\)"
-        matches = re.findall(link_pattern, content)
 
-        for text, url in matches:
-            # Skip external links (http/https)
-            if not url.startswith(("http://", "https://", "mailto:", "#")):
-                links.append(
-                    {
-                        "file": file_path,
-                        "text": text,
-                        "url": url,
-                        "line": content[: content.find(f"[{text}]({url})")].count("\n")
-                        + 1,
-                    }
-                )
+        for line_num, line in enumerate(content.splitlines(), 1):
+            matches = re.findall(link_pattern, line)
+            for text, url in matches:
+                # Skip external links (http/https)
+                if not url.startswith(("http://", "https://", "mailto:", "#")):
+                    links.append(
+                        {
+                            "file": file_path,
+                            "text": text,
+                            "url": url,
+                            "line": line_num,
+                        }
+                    )
     except Exception as e:
         print(f"Error reading {file_path}: {e}")
 

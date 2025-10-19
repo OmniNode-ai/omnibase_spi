@@ -40,4 +40,8 @@ jobs:
       if: always()
       run: |
         echo "📊 Documentation link validation completed"
-        echo "✅ All links are working correctly"
+        if [ $? -eq 0 ]; then
+          echo "✅ All links are working correctly"
+        else
+          echo "❌ Some links are broken. See validation output above."
+        fi

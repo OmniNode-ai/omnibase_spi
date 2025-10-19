@@ -203,7 +203,7 @@ Common patterns documented throughout:
 
 - **Total Protocols**: 165 protocol files
 - **Domain Coverage**: 22 specialized domains
-- **Type Definitions**: 13 comprehensive type modules
+- **Type Definitions**: Integrated within each protocol domain (standardized naming)
 - **Enterprise Features**: Health monitoring, metrics, circuit breakers
 - **Architecture Patterns**: Event sourcing, dependency injection, distributed coordination
 
