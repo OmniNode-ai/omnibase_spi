@@ -97,12 +97,12 @@ print(f"Result: {result}")
 
 ## API Reference
 
-- **[Related Protocol 1](api-reference/related1.md)** - Description
-- **[Related Protocol 2](api-reference/related2.md)** - Description
+- **[Core Protocols](../api-reference/core.md)** - System fundamentals
+- **[Container Protocols](../api-reference/container.md)** - Dependency injection
 
 ---
 
-*For detailed protocol documentation, see the [API Reference](api-reference/README.md).*
+*For detailed protocol documentation, see the [API Reference](../api-reference/README.md).*
 ```
 
 ## Service Integration Template
@@ -177,12 +177,12 @@ result = await service.perform_operation(data)
 
 ## API Reference
 
-- **[Service Protocol](api-reference/service.md)** - Service protocol documentation
-- **[Related Protocols](api-reference/related.md)** - Related protocol documentation
+- **[Core Protocols](../api-reference/core.md)** - System fundamentals
+- **[Container Protocols](../api-reference/container.md)** - Dependency injection
 
 ---
 
-*For detailed protocol documentation, see the [API Reference](api-reference/README.md).*
+*For detailed protocol documentation, see the [API Reference](../api-reference/README.md).*
 ```
 
 ## Workflow Template
@@ -263,12 +263,12 @@ workflow = await orchestrator.start_workflow(
 
 ## API Reference
 
-- **[Workflow Orchestration](api-reference/workflow-orchestration.md)** - Workflow orchestration protocols
-- **[Event Bus](api-reference/event-bus.md)** - Event bus protocols
+- **[Workflow Orchestration](../api-reference/workflow-orchestration.md)** - Workflow orchestration protocols
+- **[Event Bus](../api-reference/event-bus.md)** - Event bus protocols
 
 ---
 
-*For detailed protocol documentation, see the [API Reference](api-reference/README.md).*
+*For detailed protocol documentation, see the [API Reference](../api-reference/README.md).*
 ```
 
 ## Best Practices
@@ -309,11 +309,11 @@ workflow = await orchestrator.start_workflow(
 
 ## API Reference
 
-- **[Core Protocols](api-reference/core.md)** - System fundamentals
-- **[Container Protocols](api-reference/container.md)** - Dependency injection
-- **[Workflow Orchestration](api-reference/workflow-orchestration.md)** - Event-driven FSM
-- **[MCP Integration](api-reference/mcp.md)** - Multi-subsystem coordination
+- **[Core Protocols](../api-reference/core.md)** - System fundamentals
+- **[Container Protocols](../api-reference/container.md)** - Dependency injection
+- **[Workflow Orchestration](../api-reference/workflow-orchestration.md)** - Event-driven FSM
+- **[MCP Integration](../api-reference/mcp.md)** - Multi-subsystem coordination
 
 ---
 
-*For detailed protocol documentation, see the [API Reference](api-reference/README.md).*
+*For detailed protocol documentation, see the [API Reference](../api-reference/README.md).*

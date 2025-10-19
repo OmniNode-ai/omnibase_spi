@@ -21,7 +21,6 @@ The API reference is organized by domain, matching the package structure:
 ### 🔧 Core System Protocols
 - **[Core Protocols](core.md)** - System-level contracts and fundamentals (16 protocols)
 - **[Container Protocols](container.md)** - Dependency injection and service management (21 protocols)
-- **[Discovery Protocols](discovery.md)** - Service and handler discovery (3 protocols)
 
 ### 🚀 Workflow & Event Processing
 - **[Workflow Orchestration](workflow-orchestration.md)** - Event-driven FSM orchestration (14 protocols)
@@ -33,26 +32,13 @@ The API reference is organized by domain, matching the package structure:
 - **[Networking](networking.md)** - HTTP, Kafka, and communication protocols (6 protocols)
 - **[File Handling](file-handling.md)** - File processing and type handling (8 protocols)
 
-### 🛠️ Advanced & Specialized
-- **[Advanced Protocols](advanced.md)** - Sophisticated system capabilities (14 protocols)
-- **[Analytics](analytics.md)** - Data collection and reporting (1 protocol)
-- **[CLI](cli.md)** - Command line interface operations (7 protocols)
-- **[LLM](llm.md)** - Large Language Model integration (4 protocols)
-- **[Node Management](node.md)** - Node configuration and registry (4 protocols)
-- **[ONEX Platform](onex.md)** - Platform-specific protocols (11 protocols)
-- **[Schema](schema.md)** - Schema loading and validation (10 protocols)
-- **[Semantic](semantic.md)** - Advanced text processing (3 protocols)
-- **[Storage](storage.md)** - Data persistence and backends (3 protocols)
-- **[Test](test.md)** - Testing frameworks and utilities (3 protocols)
+### 🛠️ Validation & Quality
 - **[Validation](validation.md)** - Input validation and compliance (11 protocols)
 
 ### 📋 Type System
-- **[Core Types](core-types.md)** - Fundamental type definitions
-- **[Container Types](container-types.md)** - Dependency injection types
-- **[Event Bus Types](event-bus-types.md)** - Event messaging types
-- **[MCP Types](mcp-types.md)** - Model Context Protocol types
-- **[Workflow Types](workflow-types.md)** - Workflow orchestration types
-- **[And 8+ more specialized type modules...](types.md)**
+- **Type definitions are integrated within each protocol domain**
+- **All types follow consistent naming conventions**
+- **Comprehensive type coverage across all 165 protocols**
 
 ## 🔍 Protocol Documentation Standards
 
