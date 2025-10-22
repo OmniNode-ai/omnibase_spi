@@ -30,6 +30,7 @@ from .protocol_event_bus_service import (
 )
 
 # Phase 1: Event Bus Foundation
+from .protocol_event_envelope import ProtocolEventEnvelope
 from .protocol_event_publisher import ProtocolEventPublisher
 from .protocol_kafka_adapter import ProtocolKafkaAdapter
 from .protocol_redpanda_adapter import ProtocolRedpandaAdapter
@@ -52,6 +53,7 @@ __all__ = [
     "ProtocolRedpandaAdapter",
     "ProtocolSyncEventBus",
     # Phase 1: Event Bus Foundation
+    "ProtocolEventEnvelope",
     "ProtocolEventPublisher",
     "ProtocolSchemaRegistry",
     "ProtocolDLQHandler",
