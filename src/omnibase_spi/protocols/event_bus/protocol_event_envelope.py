@@ -19,7 +19,6 @@ class ProtocolEventEnvelope(Protocol, Generic[T]):
     importing the concrete ModelEventEnvelope class, breaking circular dependencies.
     """
 
-    @property
-    def payload(self) -> T:
-        """The wrapped event payload."""
+    async def get_payload(self) -> T:
+        """Get the wrapped event payload."""
         ...

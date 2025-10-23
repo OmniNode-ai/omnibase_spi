@@ -42,11 +42,11 @@ class ProtocolDLQHandler(Protocol):
         await handler.start()
 
         # Get metrics
-        metrics = handler.get_metrics()
+        metrics = await handler.get_metrics()
         print(f"Total DLQ messages: {metrics['total_dlq_messages']}")
 
         # Get summary
-        summary = handler.get_dlq_summary()
+        summary = await handler.get_dlq_summary()
         print(f"Alert status: {summary['alert_status']}")
 
         # Reprocess messages
@@ -144,7 +144,7 @@ class ProtocolDLQHandler(Protocol):
         """
         ...
 
-    def get_metrics(self) -> Dict[str, Any]:
+    async def get_metrics(self) -> Dict[str, Any]:
         """
         Get DLQ metrics.
 
@@ -160,7 +160,7 @@ class ProtocolDLQHandler(Protocol):
 
         Example:
             ```python
-            metrics = handler.get_metrics()
+            metrics = await handler.get_metrics()
 
             print(f"Total DLQ messages: {metrics['total_dlq_messages']}")
             print(f"Oldest message: {metrics['oldest_message_age_hours']:.1f}h")
@@ -173,7 +173,7 @@ class ProtocolDLQHandler(Protocol):
         """
         ...
 
-    def get_dlq_summary(self) -> Dict[str, Any]:
+    async def get_dlq_summary(self) -> Dict[str, Any]:
         """
         Get summary of DLQ status.
 
@@ -188,7 +188,7 @@ class ProtocolDLQHandler(Protocol):
 
         Example:
             ```python
-            summary = handler.get_dlq_summary()
+            summary = await handler.get_dlq_summary()
 
             print(f"Status: {summary['alert_status']}")
             print(f"Total messages: {summary['total_messages']}")

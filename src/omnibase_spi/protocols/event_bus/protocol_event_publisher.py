@@ -123,7 +123,7 @@ class ProtocolEventPublisher(Protocol):
         """
         ...
 
-    def get_metrics(self) -> Dict[str, Any]:
+    async def get_metrics(self) -> Dict[str, Any]:
         """
         Get publisher metrics.
 
@@ -141,7 +141,7 @@ class ProtocolEventPublisher(Protocol):
 
         Example:
             ```python
-            metrics = publisher.get_metrics()
+            metrics = await publisher.get_metrics()
 
             print(f"Published: {metrics['events_published']}")
             print(f"Failed: {metrics['events_failed']}")
