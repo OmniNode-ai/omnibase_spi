@@ -295,6 +295,13 @@ from omnibase_spi.protocols.semantic import (
     ProtocolHybridRetriever,
 )
 
+# Security protocols (2 protocols) - Security event and detection interfaces
+# Breaking circular import dependencies for security models
+from omnibase_spi.protocols.security import (
+    ProtocolDetectionMatch,
+    ProtocolSecurityEvent,
+)
+
 # Storage protocols (3 protocols) - Data storage and persistence
 from omnibase_spi.protocols.storage import (
     ProtocolDatabaseConnection,
@@ -504,6 +511,9 @@ __all__ = [
     # Semantic protocols
     "ProtocolAdvancedPreprocessor",
     "ProtocolHybridRetriever",
+    # Security protocols
+    "ProtocolDetectionMatch",
+    "ProtocolSecurityEvent",
     # Moved protocols
     "LiteralAssignmentStrategy",
     "LiteralWorkQueuePriority",
