@@ -6,7 +6,7 @@ The ONEX workflow orchestration protocols provide comprehensive event-driven FSM
 
 ## 🏗️ Protocol Architecture
 
-The workflow orchestration domain consists of **14 specialized protocols** that provide complete workflow management:
+The workflow orchestration domain consists of **12 specialized protocols** that provide complete workflow management:
 
 ### Workflow Event Bus Protocol
 
@@ -364,6 +364,206 @@ class ProtocolWorkflowNodeRegistry(Protocol):
     ) -> list[ProtocolWorkflowAssignment]: ...
 ```
 
+## 🧩 ONEX Node Protocols
+
+The ONEX framework defines four specialized node types for distributed workflow execution. Each node type has a specific responsibility in the workflow execution pipeline:
+
+### Effect Node Protocol
+
+```python
+from omnibase_spi.protocols.onex import ProtocolEffectNode
+
+@runtime_checkable
+class ProtocolEffectNode(Protocol):
+    """
+    Protocol for ONEX effect node implementations.
+
+    Effect nodes perform side-effecting operations such as I/O, external API calls,
+    database operations, file system access, and other interactions with external
+    systems. They encapsulate all operations that have observable effects outside
+    the workflow's computational context.
+
+    Key Responsibilities:
+        - External API and service integration
+        - Database read/write operations
+        - File system operations
+        - Message queue publishing
+        - Network requests and responses
+        - Third-party service interactions
+    """
+
+    async def execute_effect(self, contract: Any) -> Any: ...
+
+    @property
+    def node_id(self) -> str: ...
+
+    @property
+    def node_type(self) -> str: ...
+```
+
+### Compute Node Protocol
+
+```python
+from omnibase_spi.protocols.onex import ProtocolComputeNode
+
+@runtime_checkable
+class ProtocolComputeNode(Protocol):
+    """
+    Protocol for ONEX compute node implementations.
+
+    Compute nodes perform pure computational transformations without side effects.
+    They implement algorithms, data transformations, business logic, and
+    computational operations that produce outputs solely based on their inputs.
+
+    Key Responsibilities:
+        - Pure functional transformations
+        - Business logic execution
+        - Data validation and sanitization
+        - Algorithm implementation (sorting, filtering, mapping)
+        - Mathematical and statistical computations
+        - Data format conversions
+    """
+
+    async def execute_compute(self, contract: Any) -> Any: ...
+
+    @property
+    def node_id(self) -> str: ...
+
+    @property
+    def node_type(self) -> str: ...
+```
+
+### Reducer Node Protocol
+
+```python
+from omnibase_spi.protocols.onex import ProtocolReducerNode
+
+@runtime_checkable
+class ProtocolReducerNode(Protocol):
+    """
+    Protocol for ONEX reducer node implementations.
+
+    Reducer nodes aggregate and transform data from multiple sources,
+    implementing reduction operations that combine, summarize, or synthesize
+    outputs from other nodes. They are the final stage in many workflows,
+    producing consolidated results.
+
+    Key Responsibilities:
+        - Data aggregation from multiple node outputs
+        - Result synthesis and transformation
+        - State persistence and snapshot creation
+        - Final workflow result generation
+        - Metrics and summary computation
+    """
+
+    async def execute_reduction(self, contract: Any) -> Any: ...
+
+    @property
+    def node_id(self) -> str: ...
+
+    @property
+    def node_type(self) -> str: ...
+```
+
+### Orchestrator Node Protocol
+
+```python
+from omnibase_spi.protocols.onex import ProtocolOrchestratorNode
+
+@runtime_checkable
+class ProtocolOrchestratorNode(Protocol):
+    """
+    Protocol for ONEX orchestrator node implementations.
+
+    Orchestrator nodes coordinate workflow execution across multiple nodes,
+    managing task distribution, dependency resolution, and workflow state
+    transitions. They implement the orchestration logic that drives complex
+    multi-node workflows.
+
+    Key Responsibilities:
+        - Workflow coordination and task distribution
+        - Dependency resolution and execution ordering
+        - State management across distributed nodes
+        - Error handling and compensation logic
+        - Workflow lifecycle management
+    """
+
+    async def execute_orchestration(self, contract: Any) -> Any: ...
+
+    @property
+    def node_id(self) -> str: ...
+
+    @property
+    def node_type(self) -> str: ...
+```
+
+### Node Type Usage Example
+
+```python
+from omnibase_spi.protocols.onex import (
+    ProtocolEffectNode,
+    ProtocolComputeNode,
+    ProtocolReducerNode,
+    ProtocolOrchestratorNode
+)
+
+# Effect Node: External API call
+class APICallEffect:
+    async def execute_effect(self, contract):
+        response = await http_client.post(contract.url, data=contract.payload)
+        return response
+
+    @property
+    def node_id(self) -> str:
+        return "effect-api-call-1"
+
+    @property
+    def node_type(self) -> str:
+        return "effect"
+
+# Compute Node: Data transformation
+class DataTransformCompute:
+    async def execute_compute(self, contract):
+        return transform_data(contract.input_data)
+
+    @property
+    def node_id(self) -> str:
+        return "compute-transform-1"
+
+    @property
+    def node_type(self) -> str:
+        return "compute"
+
+# Reducer Node: Result aggregation
+class ResultAggregationReducer:
+    async def execute_reduction(self, contract):
+        return aggregate_results(contract.partial_results)
+
+    @property
+    def node_id(self) -> str:
+        return "reducer-aggregation-1"
+
+    @property
+    def node_type(self) -> str:
+        return "reducer"
+
+# Orchestrator Node: Workflow coordination
+class WorkflowOrchestrator:
+    async def execute_orchestration(self, contract):
+        effect_result = await effect_node.execute_effect(contract.effect_contract)
+        compute_result = await compute_node.execute_compute(contract.compute_contract)
+        final_result = await reducer_node.execute_reduction(contract.reduce_contract)
+        return final_result
+
+    @property
+    def node_id(self) -> str:
+        return "orchestrator-workflow-1"
+
+    @property
+    def node_type(self) -> str:
+        return "orchestrator"
+```
+
 ## 🔧 Type Definitions
 
 ### Workflow State Types
@@ -632,7 +832,8 @@ for task in tasks:
 
 ## 📊 Protocol Statistics
 
-- **Total Protocols**: 14 workflow orchestration protocols
+- **Total Protocols**: 12 workflow orchestration protocols
+- **ONEX Node Types**: 4 specialized node protocols (Effect, Compute, Reducer, Orchestrator)
 - **Event Sourcing**: Complete event sourcing with sequence numbers and replay
 - **State Management**: Workflow state persistence and projections
 - **Task Scheduling**: Distributed work queue with priority support

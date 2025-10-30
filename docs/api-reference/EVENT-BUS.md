@@ -72,6 +72,34 @@ class ProtocolEventBus(Protocol):
     async def get_topic_metrics(self, topic: str) -> ProtocolTopicMetrics: ...
 ```
 
+### Event Bus Provider Protocol
+
+```python
+from typing import Protocol, runtime_checkable
+
+@runtime_checkable
+class ProtocolEventBusProvider(Protocol):
+    """
+    Protocol for objects that provide event bus integration.
+
+    Indicates that an object exposes an `event_bus` compatible with the
+    system's async event bus without constraining the concrete type.
+    Enables component-level event coordination across services and nodes.
+    """
+
+    event_bus: object | None
+```
+
+#### Usage
+
+```python
+def maybe_publish(provider: ProtocolEventBusProvider, event: dict) -> None:
+    if provider.event_bus:
+        # In implementations, event_bus conforms to ProtocolAsyncEventBus
+        # and provides an async publish interface.
+        pass
+```
+
 ### Event Message Protocol
 
 ```python

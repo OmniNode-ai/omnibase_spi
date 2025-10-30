@@ -318,10 +318,10 @@ async def test_data():
 
 ## API Reference
 
-- **[Core Protocols](api-reference/core.md)** - System fundamentals
-- **[Container Protocols](api-reference/container.md)** - Dependency injection
-- **[Workflow Orchestration](api-reference/workflow-orchestration.md)** - Event-driven FSM
-- **[Validation](api-reference/validation.md)** - Input validation
+- **[Core Protocols](api-reference/CORE.md)** - System fundamentals
+- **[Container Protocols](api-reference/CONTAINER.md)** - Dependency injection
+- **[Workflow Orchestration](api-reference/WORKFLOW-ORCHESTRATION.md)** - Event-driven FSM
+- **[Validation](api-reference/VALIDATION.md)** - Input validation
 
 ---
 

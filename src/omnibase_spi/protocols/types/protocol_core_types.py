@@ -1424,24 +1424,24 @@ class ProtocolHasModelDump(Protocol):
 
 
 @runtime_checkable
-class ProtocolRegistryWithBus(Protocol):
+class ProtocolEventBusProvider(Protocol):
     """
-    Protocol for registry objects that provide an event bus.
+    Protocol for objects that provide event bus integration.
 
-    Defines the interface for registries that integrate with the ONEX
-    event bus system. Used for coordinating events across distributed
-    services and nodes.
+    This protocol indicates that an object has event bus capabilities,
+    regardless of whether it's a container, node, service, or other component.
+    Used for coordinating events across distributed services and nodes.
 
     Key Features:
         - Optional event bus integration
         - Async event bus support
-        - Registry-level event coordination
+        - Component-level event coordination
         - Distributed messaging compatibility
 
     Usage:
-        def get_event_bus(registry: ProtocolRegistryWithBus):
-            if registry.event_bus:
-                await registry.event_bus.publish(event)
+        def get_event_bus(provider: ProtocolEventBusProvider):
+            if provider.event_bus:
+                await provider.event_bus.publish(event)
     """
 
     event_bus: object | None  # ProtocolAsyncEventBus type from event_bus module

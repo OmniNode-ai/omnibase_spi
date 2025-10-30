@@ -71,9 +71,9 @@ print(f"Tool result: {result}")
 ## Next Steps
 
 1. **Explore the API Reference** - [Complete protocol documentation](api-reference/README.md)
-2. **Container Protocols** - [Dependency injection patterns](api-reference/container.md)
-3. **Workflow Orchestration** - [Event-driven FSM](api-reference/workflow-orchestration.md)
-4. **MCP Integration** - [Multi-subsystem coordination](api-reference/mcp.md)
+2. **Container Protocols** - [Dependency injection patterns](api-reference/CONTAINER.md)
+3. **Workflow Orchestration** - [Event-driven FSM](api-reference/WORKFLOW-ORCHESTRATION.md)
+4. **MCP Integration** - [Multi-subsystem coordination](api-reference/MCP.md)
 
 ---
 

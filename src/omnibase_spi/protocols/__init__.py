@@ -126,7 +126,7 @@ from omnibase_spi.protocols.cli import (
 )
 
 # Import container protocols for dependency injection and service management
-# Container protocols (21 protocols) - Service lifecycle and dependency resolution
+# Container protocols (22 protocols) - Service lifecycle and dependency resolution
 from omnibase_spi.protocols.container import (  # Phase 3 additions
     InjectionScope,
     LiteralContainerArtifactType,
@@ -138,6 +138,7 @@ from omnibase_spi.protocols.container import (  # Phase 3 additions
     ProtocolArtifactContainerStatus,
     ProtocolArtifactInfo,
     ProtocolArtifactMetadata,
+    ProtocolContainer,
     ProtocolContainerService,
     ProtocolDependencyGraph,
     ProtocolDIServiceInstance,
@@ -267,8 +268,10 @@ from omnibase_spi.protocols.node import (
     ProtocolUtilsNodeConfiguration,
 )
 
-# ONEX protocols (11 protocols) - ONEX platform specific protocols
+# ONEX protocols (15 protocols) - ONEX platform specific protocols
 from omnibase_spi.protocols.onex import (
+    ProtocolComputeNode,
+    ProtocolEffectNode,
     ProtocolOnexContractData,
     ProtocolOnexEnvelope,
     ProtocolOnexMetadata,
@@ -279,8 +282,14 @@ from omnibase_spi.protocols.onex import (
     ProtocolOnexValidation,
     ProtocolOnexValidationReport,
     ProtocolOnexValidationResult,
+    ProtocolOrchestratorNode,
+    ProtocolReducerNode,
     ProtocolToolToolOnexVersionLoader,
 )
+
+# Naming consistency alias (Issue #5)
+# ProtocolEnvelope is the canonical name per roadmap specification
+ProtocolEnvelope = ProtocolOnexEnvelope
 
 # Schema protocols (2 protocols) - Schema loading and validation
 from omnibase_spi.protocols.schema import (
@@ -288,18 +297,18 @@ from omnibase_spi.protocols.schema import (
     ProtocolTrustedSchemaLoader,
 )
 
-# Semantic protocols (2 protocols) - Semantic processing and retrieval
-# Advanced text preprocessing and hybrid semantic retrieval systems
-from omnibase_spi.protocols.semantic import (
-    ProtocolAdvancedPreprocessor,
-    ProtocolHybridRetriever,
-)
-
 # Security protocols (2 protocols) - Security event and detection interfaces
 # Breaking circular import dependencies for security models
 from omnibase_spi.protocols.security import (
     ProtocolDetectionMatch,
     ProtocolSecurityEvent,
+)
+
+# Semantic protocols (2 protocols) - Semantic processing and retrieval
+# Advanced text preprocessing and hybrid semantic retrieval systems
+from omnibase_spi.protocols.semantic import (
+    ProtocolAdvancedPreprocessor,
+    ProtocolHybridRetriever,
 )
 
 # Storage protocols (3 protocols) - Data storage and persistence
@@ -367,8 +376,11 @@ __all__ = [
     # "ProtocolTestable",  # Excluded from production builds
     # "ProtocolTestableCLI",  # Excluded from production builds
     "ProtocolAnalyticsDataProvider",
+    "ProtocolComputeNode",
+    "ProtocolEffectNode",
     "ProtocolOnexContractData",
     "ProtocolOnexEnvelope",
+    "ProtocolEnvelope",  # Alias for ProtocolOnexEnvelope (Issue #5)
     "ProtocolOnexMetadata",
     "ProtocolOnexNode",
     "ProtocolOnexReply",
@@ -377,6 +389,8 @@ __all__ = [
     "ProtocolOnexValidation",
     "ProtocolOnexValidationReport",
     "ProtocolOnexValidationResult",
+    "ProtocolOrchestratorNode",
+    "ProtocolReducerNode",
     "ProtocolToolToolOnexVersionLoader",
     "ProtocolSchemaLoader",
     "ProtocolTrustedSchemaLoader",
@@ -406,6 +420,7 @@ __all__ = [
     "ProtocolConfigurationError",
     "ProtocolConfigurationManager",
     "ProtocolConfigurationManagerFactory",
+    "ProtocolContainer",
     "ProtocolContainerService",
     "ProtocolContractService",
     "ProtocolDependencyGraph",

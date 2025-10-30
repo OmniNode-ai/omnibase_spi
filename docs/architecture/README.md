@@ -69,10 +69,10 @@ The API documents pure protocol definitions that:
 
 ## API Reference
 
-- **[Core Protocols](../api-reference/core.md)** - System fundamentals
-- **[Container Protocols](../api-reference/container.md)** - Dependency injection
-- **[Workflow Orchestration](../api-reference/workflow-orchestration.md)** - Event-driven FSM
-- **[MCP Integration](../api-reference/mcp.md)** - Multi-subsystem coordination
+- **[Core Protocols](../api-reference/CORE.md)** - System fundamentals
+- **[Container Protocols](../api-reference/CONTAINER.md)** - Dependency injection
+- **[Workflow Orchestration](../api-reference/WORKFLOW-ORCHESTRATION.md)** - Event-driven FSM
+- **[MCP Integration](../api-reference/MCP.md)** - Multi-subsystem coordination
 
 ---
 

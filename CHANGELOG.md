@@ -25,6 +25,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 - _No changes yet_
 
+## [0.2.0] - 2025-10-30
+
+### Added
+- **ProtocolContainer** - Generic value container protocol with metadata support (Issue #1)
+- **ProtocolServiceResolver** - Service resolution interface for dependency injection
+- **ProtocolContract** - Full contract interface with versioning and serialization (Issue #3)
+- **ProtocolOnexError** - Standardized error object protocol with categories and context (Issue #4)
+- **ProtocolOrchestratorNode** - Node-specific protocol for workflow coordination (Issue #8)
+- **ProtocolReducerNode** - Node-specific protocol for data aggregation (Issue #8)
+- **ProtocolEffectNode** - Node-specific protocol for side-effecting operations (Issue #8)
+- **ProtocolComputeNode** - Node-specific protocol for pure transformations (Issue #8)
+- **ProtocolEnvelope** - Alias for ProtocolOnexEnvelope for naming consistency (Issue #5)
+- **Comprehensive Tests** - 46 tests covering all new protocols (100% pass rate)
+- **Documentation Updates** - API reference documentation for all new protocols
+- **SPI Validation** - All new protocols validated for purity (0 violations)
+
+### Changed
+- **Protocol Count** - Increased from 165 to 176 protocols (+11)
+- **Container Domain** - Updated from 21 to 14 protocols with generic containers
+- **ONEX Domain** - Added 4 node-specific protocols for type-safe node execution
+- **Type Definitions** - Expanded to 14 comprehensive type modules
+
+### Fixed
+- **Protocol Import Consistency** - Standardized to use `typing.Protocol` instead of `typing_extensions`
+- **Type Checking Issues** - Removed unused type ignore comments for mypy compliance
+
 ## [0.1.0] - 2025-01-30
 
 ### Added

@@ -63,6 +63,9 @@ Type Safety Features:
 # are not re-exported here to avoid circular imports.
 # Import these directly from omnibase_spi.protocols.core as needed.
 
+# Contract protocol
+from omnibase_spi.protocols.types.protocol_contract import ProtocolContract
+
 # Core types
 from omnibase_spi.protocols.types.protocol_core_types import (  # Migrated from omnibase_core
     ContextValue,
@@ -111,6 +114,7 @@ from omnibase_spi.protocols.types.protocol_core_types import (  # Migrated from 
     ProtocolErrorContext,
     ProtocolErrorInfo,
     ProtocolErrorResult,
+    ProtocolEventBusProvider,
     ProtocolExecutable,
     ProtocolHasModelDump,
     ProtocolHealthCheck,
@@ -137,7 +141,6 @@ from omnibase_spi.protocols.types.protocol_core_types import (  # Migrated from 
     ProtocolPerformanceMetric,
     ProtocolPerformanceMetrics,
     ProtocolRecoveryAction,
-    ProtocolRegistryWithBus,
     ProtocolRetryAttempt,
     ProtocolRetryConfig,
     ProtocolRetryPolicy,
@@ -159,6 +162,9 @@ from omnibase_spi.protocols.types.protocol_core_types import (  # Migrated from 
     ProtocolValidatable,
     ProtocolVersionInfo,
 )
+
+# ONEX error protocol
+from omnibase_spi.protocols.types.protocol_onex_error import ProtocolOnexError
 
 # Schema value protocol
 from omnibase_spi.protocols.types.protocol_schema_value import ProtocolSchemaValue
@@ -362,6 +368,7 @@ __all__ = [
     "ProtocolConfigurable",
     "ProtocolConfigValue",
     "ProtocolConnectionConfig",
+    "ProtocolContract",
     "ProtocolConnectionStatus",
     "ProtocolContextBooleanValue",
     "ProtocolContextNumericValue",
@@ -437,6 +444,7 @@ __all__ = [
     "ProtocolNodeMetadata",
     "ProtocolNodeMetadataBlock",
     "ProtocolNodeResult",
+    "ProtocolOnexError",
     "ProtocolOnexInputState",
     "ProtocolOnexOutputState",
     "ProtocolOnexResult",
@@ -486,7 +494,7 @@ __all__ = [
     "ProtocolVersionInfo",
     # Migrated from omnibase_core
     "ProtocolHasModelDump",
-    "ProtocolRegistryWithBus",
+    "ProtocolEventBusProvider",
     "ProtocolLogEmitter",
     "ProtocolPatternChecker",
     "ProtocolModelJsonSerializable",
