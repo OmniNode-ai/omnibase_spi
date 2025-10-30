@@ -2,7 +2,7 @@
 
 ## Overview
 
-Complete API reference documentation for all **165 protocols** across **22 specialized domains** in the omnibase-spi package. This reference provides detailed documentation for every public interface in the Service Provider Interface layer.
+Complete API reference documentation for all **176 protocols** across **22 specialized domains** in the omnibase-spi package. This reference provides detailed documentation for every public interface in the Service Provider Interface layer.
 
 ## 🏗️ Protocol Architecture
 
@@ -19,26 +19,28 @@ The ONEX SPI follows a **protocol-first design** with enterprise-grade features:
 The API reference is organized by domain, matching the package structure:
 
 ### 🔧 Core System Protocols
-- **[Core Protocols](core.md)** - System-level contracts and fundamentals (16 protocols)
-- **[Container Protocols](container.md)** - Dependency injection and service management (21 protocols)
+- **[Core Protocols](CORE.md)** - System-level contracts and fundamentals (13 protocols)
+- **[Container Protocols](CONTAINER.md)** - Dependency injection and service management (14 protocols)
 
 ### 🚀 Workflow & Event Processing
-- **[Workflow Orchestration](workflow-orchestration.md)** - Event-driven FSM orchestration (14 protocols)
-- **[Event Bus](event-bus.md)** - Distributed messaging infrastructure (13 protocols)
-- **[Memory Management](memory.md)** - Memory operations and workflow management (15 protocols)
+- **[Workflow Orchestration](WORKFLOW-ORCHESTRATION.md)** - Event-driven FSM orchestration (12 protocols)
+- **[Event Bus](EVENT-BUS.md)** - Distributed messaging infrastructure (14 protocols)
+- **[Memory Management](MEMORY.md)** - Memory operations and workflow management (14 protocols)
 
 ### 🔗 Integration & Communication
-- **[MCP Integration](mcp.md)** - Model Context Protocol coordination (15 protocols)
-- **[Networking](networking.md)** - HTTP, Kafka, and communication protocols (6 protocols)
-- **[File Handling](file-handling.md)** - File processing and type handling (8 protocols)
+- **[MCP Integration](MCP.md)** - Model Context Protocol coordination (14 protocols)
+- **[Networking](NETWORKING.md)** - HTTP, Kafka, and communication protocols (6 protocols)
+- **[File Handling](FILE-HANDLING.md)** - File processing and type handling (8 protocols)
 
 ### 🛠️ Validation & Quality
-- **[Validation](validation.md)** - Input validation and compliance (11 protocols)
+- **[Validation](VALIDATION.md)** - Input validation and compliance (10 protocols)
 
 ### 📋 Type System
 - **Type definitions are integrated within each protocol domain**
 - **All types follow consistent naming conventions**
-- **Comprehensive type coverage across all 165 protocols**
+- **Comprehensive type coverage across all 176 protocols**
+- **Type Protocols (14)**: ProtocolContract, ProtocolOnexError, and domain-specific type definitions
+- **ONEX Node Types (4)**: ProtocolEffectNode, ProtocolComputeNode, ProtocolReducerNode, ProtocolOrchestratorNode
 
 ## 🔍 Protocol Documentation Standards
 
@@ -149,6 +151,7 @@ Values:
 | `ProtocolKafkaAdapter` | Kafka integration | Event streaming |
 | `ProtocolEventOrchestrator` | Event coordination | Event routing |
 | `ProtocolEventPublisher` | Event publishing | Message distribution |
+| `ProtocolEventBusProvider` | Event bus provider | Component-level integration |
 
 ### Container Management
 | Protocol | Purpose | Usage |
@@ -157,6 +160,16 @@ Values:
 | `ProtocolServiceFactory` | Service creation | Instance management |
 | `ProtocolDependencyGraph` | Dependency analysis | Circular dependency detection |
 | `ProtocolInjectionContext` | Injection tracking | Context management |
+| `ProtocolServiceResolver` | Service resolution | Type/name-based lookup |
+| `ProtocolContainer` | Generic value containers | Metadata-aware value wrapping |
+
+### ONEX Node Types
+| Protocol | Purpose | Usage |
+|----------|---------|-------|
+| `ProtocolEffectNode` | Side-effecting operations | I/O, API calls, database operations |
+| `ProtocolComputeNode` | Pure transformations | Business logic, data transformation |
+| `ProtocolReducerNode` | Data aggregation | Result synthesis, state persistence |
+| `ProtocolOrchestratorNode` | Workflow coordination | Task distribution, state management |
 
 ## 🔧 Implementation Notes
 
@@ -190,11 +203,17 @@ Common patterns documented throughout:
 
 ## 📊 Protocol Statistics
 
-- **Total Protocols**: 165 protocol files
+- **Total Protocols**: 176 protocol files
 - **Domain Coverage**: 22 specialized domains
-- **Type Definitions**: 13 comprehensive type modules
+- **Type Definitions**: 14 comprehensive type modules
 - **Enterprise Features**: Health monitoring, metrics, circuit breakers
 - **Architecture Patterns**: Event sourcing, dependency injection, distributed coordination
+- **Latest Additions (v0.1.0)**:
+  - ProtocolContainer - Generic value containers with metadata
+  - ProtocolServiceResolver - Service resolution interface
+  - ProtocolContract - Full contract interface for behavioral agreements
+  - ProtocolOnexError - Standardized error object protocol
+  - ONEX Node Protocols (4) - Effect, Compute, Reducer, Orchestrator node types
 
 ## 🔍 Navigation
 
@@ -208,7 +227,7 @@ Use the sidebar or table of contents to navigate between different protocol doma
 
 ## 📄 Version Information
 
-- **API Version**: 0.1.0
+- **API Version**: 0.2.0
 - **Python Compatibility**: 3.11, 3.12, 3.13
 - **Type Checking**: mypy strict mode compatible
 - **Runtime Checking**: All protocols are `@runtime_checkable`

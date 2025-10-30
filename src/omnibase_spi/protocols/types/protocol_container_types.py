@@ -18,8 +18,13 @@ LiteralDependencyScope = Literal["required", "optional", "lazy", "eager"]
 
 
 @runtime_checkable
-class ProtocolContainer(Protocol):
-    """Protocol for dependency injection containers."""
+class ProtocolDIContainer(Protocol):
+    """Protocol for dependency injection containers.
+
+    Note: Renamed from ProtocolContainer to avoid conflict with
+    ProtocolContainer in container/protocol_container.py which is for
+    generic value containers with metadata.
+    """
 
     def register(
         self, service_key: str, service_instance: Callable[..., Any]
@@ -69,7 +74,7 @@ class ProtocolRegistryWrapper(Protocol):
 class ProtocolContainerResult(Protocol):
     """Protocol for container creation results."""
 
-    container: "ProtocolContainer"
+    container: "ProtocolDIContainer"
     registry: "ProtocolRegistryWrapper"
     status: LiteralContainerStatus
     error_message: str | None
@@ -93,10 +98,10 @@ class ProtocolContainerToolInstance(Protocol):
 class ProtocolContainerFactory(Protocol):
     """Protocol for container factory objects."""
 
-    async def create_container(self) -> ProtocolContainer: ...
+    async def create_container(self) -> ProtocolDIContainer: ...
 
     async def create_registry_wrapper(
-        self, container: "ProtocolContainer"
+        self, container: "ProtocolDIContainer"
     ) -> ProtocolRegistryWrapper: ...
 
 

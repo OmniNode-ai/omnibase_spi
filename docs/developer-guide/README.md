@@ -282,12 +282,12 @@ validation_result = await validator.validate_data(
 
 ## API Reference
 
-- **[Core Protocols](../api-reference/core.md)** - System fundamentals
-- **[Container Protocols](../api-reference/container.md)** - Dependency injection
-- **[Workflow Orchestration](../api-reference/workflow-orchestration.md)** - Event-driven FSM
-- **[MCP Integration](../api-reference/mcp.md)** - Multi-subsystem coordination
-- **[Event Bus](../api-reference/event-bus.md)** - Distributed messaging
-- **[Memory Management](../api-reference/memory.md)** - Memory operations
+- **[Core Protocols](../api-reference/CORE.md)** - System fundamentals
+- **[Container Protocols](../api-reference/CONTAINER.md)** - Dependency injection
+- **[Workflow Orchestration](../api-reference/WORKFLOW-ORCHESTRATION.md)** - Event-driven FSM
+- **[MCP Integration](../api-reference/MCP.md)** - Multi-subsystem coordination
+- **[Event Bus](../api-reference/EVENT-BUS.md)** - Distributed messaging
+- **[Memory Management](../api-reference/MEMORY.md)** - Memory operations
 
 ---
 

@@ -6,7 +6,7 @@ The ONEX core protocols provide fundamental system contracts for logging, health
 
 ## 🏗️ Protocol Architecture
 
-The core domain consists of **16 specialized protocols** that provide essential system capabilities:
+The core domain consists of **13 specialized protocols** that provide essential system capabilities:
 
 ### Health Monitor Protocol
 
@@ -669,9 +669,131 @@ healthy_services = await discovery.discover_services(
 )
 ```
 
+## 🔧 Type Protocols
+
+### Contract Protocol
+
+```python
+from omnibase_spi.protocols.types import ProtocolContract
+
+@runtime_checkable
+class ProtocolContract(Protocol):
+    """
+    Protocol for ONEX contract objects.
+
+    Defines the interface for contract objects in the ONEX distributed system,
+    including identification, versioning, metadata management, and serialization.
+    Contracts define behavioral agreements between system components.
+
+    Key Features:
+        - Unique contract identification
+        - Semantic versioning support
+        - Extensible metadata dictionary
+        - Bidirectional serialization (to/from dict)
+    """
+
+    @property
+    def contract_id(self) -> str: ...
+
+    @property
+    def version(self) -> str: ...
+
+    @property
+    def metadata(self) -> Dict[str, Any]: ...
+
+    def to_dict(self) -> Dict[str, Any]: ...
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "ProtocolContract": ...
+```
+
+#### Usage
+
+```python
+from omnibase_spi.protocols.types import ProtocolContract
+
+# Get contract instance
+contract: ProtocolContract = get_contract()
+
+# Access contract properties
+contract_id = contract.contract_id
+version = contract.version
+metadata = contract.metadata
+
+# Serialization
+contract_dict = contract.to_dict()
+
+# Deserialization
+restored_contract = ContractImpl.from_dict(contract_dict)
+```
+
+### ONEX Error Protocol
+
+```python
+from omnibase_spi.protocols.types import ProtocolOnexError
+
+@runtime_checkable
+class ProtocolOnexError(Protocol):
+    """
+    Protocol for ONEX error objects.
+
+    Provides standardized error representation across ONEX services with
+    categorization, context, and serialization support. Used for consistent
+    error handling and reporting throughout distributed systems.
+
+    Key Features:
+        - Error code classification for programmatic handling
+        - Human-readable error messages for user feedback
+        - Error categorization (validation/execution/configuration)
+        - Optional context for debugging and diagnostics
+        - Dictionary serialization for transmission and logging
+
+    Error Categories:
+        - validation: Input validation failures, schema violations
+        - execution: Runtime errors, processing failures
+        - configuration: Configuration errors, initialization failures
+    """
+
+    @property
+    def error_code(self) -> str: ...
+
+    @property
+    def error_message(self) -> str: ...
+
+    @property
+    def error_category(self) -> str: ...
+
+    @property
+    def context(self) -> dict[str, object] | None: ...
+
+    def to_dict(self) -> dict[str, object]: ...
+```
+
+#### Usage
+
+```python
+from omnibase_spi.protocols.types import ProtocolOnexError
+
+# Create error instance
+error: ProtocolOnexError = create_onex_error(
+    error_code="VALIDATION_FAILED",
+    error_message="Invalid workflow configuration",
+    error_category="validation",
+    context={"field": "timeout", "value": -1}
+)
+
+# Programmatic error handling
+if error.error_code == "VALIDATION_FAILED":
+    handle_validation_error(error)
+
+# Logging and serialization
+logger.error(f"Error: {error.error_message}", extra=error.to_dict())
+```
+
 ## 📊 Protocol Statistics
 
-- **Total Protocols**: 16 core protocols
+- **Total Protocols**: 13 core protocols
+- **Type Protocols**: 14 type definition protocols (including ProtocolContract, ProtocolOnexError)
 - **Health Monitoring**: Multi-level health checks with dependency tracking
 - **Logging**: Structured logging with correlation ID support
 - **Service Discovery**: Dynamic service registration and discovery

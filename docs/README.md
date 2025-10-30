@@ -19,37 +19,37 @@ The ONEX SPI follows a **protocol-first design** with **165 protocol files** acr
 
 ### 🚀 Getting Started
 - **[API Reference Overview](api-reference/README.md)** - Complete protocol and type documentation
-- **[Core Protocols](api-reference/core.md)** - System-level contracts and fundamentals
-- **[Container Protocols](api-reference/container.md)** - Dependency injection and service management
+- **[Core Protocols](api-reference/CORE.md)** - System-level contracts and fundamentals
+- **[Container Protocols](api-reference/CONTAINER.md)** - Dependency injection and service management
 
 ### 🔧 Developer Resources
 - **[API Reference Overview](api-reference/README.md)** - Complete protocol and type documentation
-- **[Core Protocols](api-reference/core.md)** - System-level contracts and fundamentals
-- **[Container Protocols](api-reference/container.md)** - Dependency injection and service management
-- **[Workflow Orchestration](api-reference/workflow-orchestration.md)** - Event-driven FSM orchestration
-- **[MCP Integration](api-reference/mcp.md)** - Model Context Protocol multi-subsystem coordination
-- **[Event Bus](api-reference/event-bus.md)** - Distributed messaging and event streaming
-- **[Memory Management](api-reference/memory.md)** - Memory operations and workflow management
-- **[Networking](api-reference/networking.md)** - HTTP, Kafka, and communication protocols
-- **[File Handling](api-reference/file-handling.md)** - File processing and type handling
-- **[Validation](api-reference/validation.md)** - Input validation and schema checking
+- **[Core Protocols](api-reference/CORE.md)** - System-level contracts and fundamentals
+- **[Container Protocols](api-reference/CONTAINER.md)** - Dependency injection and service management
+- **[Workflow Orchestration](api-reference/WORKFLOW-ORCHESTRATION.md)** - Event-driven FSM orchestration
+- **[MCP Integration](api-reference/MCP.md)** - Model Context Protocol multi-subsystem coordination
+- **[Event Bus](api-reference/EVENT-BUS.md)** - Distributed messaging and event streaming
+- **[Memory Management](api-reference/MEMORY.md)** - Memory operations and workflow management
+- **[Networking](api-reference/NETWORKING.md)** - HTTP, Kafka, and communication protocols
+- **[File Handling](api-reference/FILE-HANDLING.md)** - File processing and type handling
+- **[Validation](api-reference/VALIDATION.md)** - Input validation and schema checking
 
 ### 📖 API Reference
 - **[API Reference Overview](api-reference/README.md)** - Complete protocol and type documentation
-- **[Core Protocols](api-reference/core.md)** - System-level contracts and fundamentals
-- **[Container Protocols](api-reference/container.md)** - Dependency injection and service management
-- **[Workflow Orchestration](api-reference/workflow-orchestration.md)** - Event-driven FSM orchestration
-- **[MCP Integration](api-reference/mcp.md)** - Model Context Protocol multi-subsystem coordination
-- **[Event Bus](api-reference/event-bus.md)** - Distributed messaging and event streaming
-- **[Memory Management](api-reference/memory.md)** - Memory operations and workflow management
-- **[Networking](api-reference/networking.md)** - HTTP, Kafka, and communication protocols
-- **[File Handling](api-reference/file-handling.md)** - File processing and type handling
-- **[Validation](api-reference/validation.md)** - Input validation and schema checking
+- **[Core Protocols](api-reference/CORE.md)** - System-level contracts and fundamentals
+- **[Container Protocols](api-reference/CONTAINER.md)** - Dependency injection and service management
+- **[Workflow Orchestration](api-reference/WORKFLOW-ORCHESTRATION.md)** - Event-driven FSM orchestration
+- **[MCP Integration](api-reference/MCP.md)** - Model Context Protocol multi-subsystem coordination
+- **[Event Bus](api-reference/EVENT-BUS.md)** - Distributed messaging and event streaming
+- **[Memory Management](api-reference/MEMORY.md)** - Memory operations and workflow management
+- **[Networking](api-reference/NETWORKING.md)** - HTTP, Kafka, and communication protocols
+- **[File Handling](api-reference/FILE-HANDLING.md)** - File processing and type handling
+- **[Validation](api-reference/VALIDATION.md)** - Input validation and schema checking
 
 ### 🎯 Specialized Documentation
-- **[Protocol Composition Patterns](patterns/protocol-composition-patterns.md)** - Advanced protocol design patterns
-- **[Protocol Selection Guide](patterns/protocol-selection-guide.md)** - Decision framework for choosing protocols
-- **[Memory Protocols Guide](examples/memory_protocols_guide.md)** - Memory system implementation patterns
+- **[Protocol Composition Patterns](patterns/PROTOCOL-COMPOSITION-PATTERNS.md)** - Advanced protocol design patterns
+- **[Protocol Selection Guide](patterns/PROTOCOL-SELECTION-GUIDE.md)** - Decision framework for choosing protocols
+- **[Memory Protocols Guide](examples/MEMORY_PROTOCOLS_GUIDE.md)** - Memory system implementation patterns
 - **[Node Templates](templates/README.md)** - ONEX 4-node architecture templates
 
 ## 🏛️ Protocol Domains
@@ -133,12 +133,12 @@ The ONEX SPI follows a **protocol-first design** with **165 protocol files** acr
 ## 📋 Project Information
 
 - **[Changelog](../CHANGELOG.md)** - Version history and release notes
-- **[Contributing Guide](contributing.md)** - Development workflow and validation requirements
+- **[Contributing Guide](CONTRIBUTING.md)** - Development workflow and validation requirements
 
 ## 🚀 Quick Navigation
 
 ### For New Users
-1. Start with the [Quick Start Guide](quick-start.md) for immediate hands-on experience
+1. Start with the [Quick Start Guide](QUICK-START.md) for immediate hands-on experience
 2. Read the [Developer Guide](developer-guide/README.md) for setup and workflow
 3. Review the [Architecture Overview](architecture/README.md) to understand SPI design
 4. Try the protocol examples in the API Reference
@@ -146,14 +146,14 @@ The ONEX SPI follows a **protocol-first design** with **165 protocol files** acr
 ### For Developers
 1. Read the [Developer Guide](developer-guide/README.md) for complete workflow coverage
 2. Check the [API Reference](api-reference/README.md) for detailed protocol documentation
-3. Review the [Testing Guide](testing.md) for protocol compliance strategies
+3. Review the [Testing Guide](TESTING.md) for protocol compliance strategies
 4. Try the [Examples](examples/README.md) for practical usage patterns
 
 ### For Architects
 1. Review [Architecture Overview](architecture/README.md) for design principles and patterns
-2. Study [Protocol Composition Patterns](patterns/protocol-composition-patterns.md) for advanced protocol design
-3. Review [Container Protocols](api-reference/container.md) for dependency injection patterns
-4. Study [Memory Management](api-reference/memory.md) for workflow state persistence
+2. Study [Protocol Composition Patterns](patterns/PROTOCOL-COMPOSITION-PATTERNS.md) for advanced protocol design
+3. Review [Container Protocols](api-reference/CONTAINER.md) for dependency injection patterns
+4. Study [Memory Management](api-reference/MEMORY.md) for workflow state persistence
 
 ## 🔑 Key Features
 
@@ -237,7 +237,7 @@ poetry run python scripts/ast_spi_validator.py --check-protocols
 
 ## 📋 Contributing
 
-This documentation is maintained alongside the omnibase-spi codebase. See the **[Contributing Guide](contributing.md)** for complete development workflow including:
+This documentation is maintained alongside the omnibase-spi codebase. See the **[Contributing Guide](CONTRIBUTING.md)** for complete development workflow including:
 
 - **Development Setup**: Poetry environment and pre-commit hooks
 - **Protocol Design Guidelines**: Standards for creating new protocols
@@ -252,11 +252,11 @@ For quick contributions:
 
 ## 📄 Version Information
 
-- **Package Version**: 0.1.0
+- **Package Version**: 0.2.0
 - **Python Support**: 3.11, 3.12, 3.13
 - **Architecture**: Protocol-first SPI with zero runtime dependencies
-- **Documentation Updated**: 2025-01-19
-- **Protocol Count**: 165 protocols across 22 domains
+- **Documentation Updated**: 2025-10-30
+- **Protocol Count**: 176 protocols across 22 domains
 
 ## 📜 License
 

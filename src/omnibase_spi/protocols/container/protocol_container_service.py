@@ -9,10 +9,10 @@ from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types.protocol_container_types import (
-        ProtocolContainer,
         ProtocolContainerResult,
         ProtocolContainerServiceInstance,
         ProtocolDependencySpec,
+        ProtocolDIContainer,
         ProtocolRegistryWrapper,
     )
     from omnibase_spi.protocols.types.protocol_core_types import ProtocolMetadata
@@ -65,11 +65,11 @@ class ProtocolContainerService(Protocol):
     ) -> "ProtocolContainerServiceInstance | None": ...
 
     async def validate_container_dependencies(
-        self, container: "ProtocolContainer"
+        self, container: "ProtocolDIContainer"
     ) -> bool: ...
 
     async def get_registry_wrapper(
-        self, container: "ProtocolContainer", node_ref: object | None = None
+        self, container: "ProtocolDIContainer", node_ref: object | None = None
     ) -> "ProtocolRegistryWrapper": ...
 
     async def update_container_lifecycle(

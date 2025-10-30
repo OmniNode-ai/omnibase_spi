@@ -4,7 +4,7 @@ Pure protocol interface repository defining service contracts for the ONEX distr
 
 ## Architecture
 
-**165 protocols** across **22 specialized domains** providing:
+**176 protocols** across **22 specialized domains** providing:
 
 - **Event-Driven Workflow Orchestration** - FSM states, event sourcing, workflow isolation
 - **MCP Integration** - Multi-subsystem tool coordination, load balancing, health monitoring  
@@ -22,36 +22,37 @@ Pure protocol interface repository defining service contracts for the ONEX distr
 
 ## Protocol Domains
 
-### Core System (16 protocols)
+### Core System (13 protocols)
 - Logging, health monitoring, error handling
 - Service discovery, performance metrics
 - Serialization, URI parsing, version management
 
-### Container Management (21 protocols)
+### Container Management (14 protocols)
 - Service registry with lifecycle management
 - Circular dependency detection
 - Health monitoring and metrics collection
 - Factory patterns and injection contexts
+- Generic value containers and service resolution
 
-### Workflow Orchestration (14 protocols)
+### Workflow Orchestration (12 protocols)
 - Event sourcing with sequence numbers
 - Workflow state management and projections
 - Task scheduling and node coordination
 - Distributed workflow execution
 
-### MCP Integration (15 protocols)
+### MCP Integration (14 protocols)
 - Multi-subsystem tool registration
 - Load balancing and failover
 - Health monitoring and metrics
 - Tool execution tracking
 
-### Event Bus (13 protocols)
+### Event Bus (14 protocols)
 - Pluggable backend adapters (Kafka, Redis, in-memory)
 - Async and sync event bus implementations
 - Event message serialization and routing
 - Dead letter queue handling
 
-### Memory Management (15 protocols)
+### Memory Management (14 protocols)
 - Key-value store operations
 - Workflow state persistence
 - Memory security and streaming
@@ -61,7 +62,19 @@ Pure protocol interface repository defining service contracts for the ONEX distr
 - **Networking** (6 protocols) - HTTP, Kafka, circuit breakers
 - **File Handling** (8 protocols) - File processing, type detection
 - **Advanced** (14 protocols) - Adaptive chunking, AST building, contract analysis
-- **Analytics, CLI, Discovery, LLM, Node, ONEX, Schema, Semantic, Storage, Test, Types, Validation**
+- **Types** (14 protocols) - Core types, contracts, error objects, envelopes
+- **Validation** (10 protocols) - Input validation, schema compliance
+- **Schema** (9 protocols) - Schema management and versioning
+- **ONEX** (9 protocols) - Node types (Effect, Compute, Reducer, Orchestrator), envelopes
+- **Node** (4 protocols) - Node configuration, registry, runtime
+- **CLI** (6 protocols) - Command-line interface abstractions
+- **Discovery** (3 protocols) - Service and resource discovery
+- **LLM** (3 protocols) - Language model interfaces
+- **Semantic** (2 protocols) - Semantic analysis
+- **Security** (2 protocols) - Security protocols
+- **Storage** (2 protocols) - Storage abstractions
+- **Test** (2 protocols) - Testing utilities
+- **Analytics** (1 protocol) - Analytics interfaces
 
 ## Key Features
 
@@ -158,18 +171,24 @@ result = await mcp_registry.execute_tool(
 
 ## Statistics
 
-- **Total Protocols**: 165 protocol files
+- **Total Protocols**: 176 protocol files
 - **Domain Coverage**: 22 specialized domains
-- **Type Definitions**: 13 comprehensive type modules
+- **Type Definitions**: 14 comprehensive type modules
 - **Enterprise Features**: Health monitoring, metrics, circuit breakers
 - **Architecture Patterns**: Event sourcing, dependency injection, distributed coordination
+- **Latest Additions (v0.2.0)**:
+  - ProtocolContainer - Generic value containers
+  - ProtocolServiceResolver - Service resolution interface
+  - ProtocolContract - Full contract interface
+  - ProtocolOnexError - Error object protocol
+  - Node-specific protocols (ProtocolEffectNode, ProtocolComputeNode, ProtocolReducerNode, ProtocolOrchestratorNode)
 
 ## Version Information
 
-- **Package Version**: 0.1.0
+- **Package Version**: 0.2.0
 - **Python Support**: 3.11, 3.12, 3.13
 - **Architecture**: Protocol-first SPI with zero runtime dependencies
-- **Protocol Count**: 165 protocols across 22 domains
+- **Protocol Count**: 176 protocols across 22 domains
 
 ---
 

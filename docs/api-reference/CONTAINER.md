@@ -6,7 +6,7 @@ The ONEX container protocols provide comprehensive dependency injection, service
 
 ## 🏗️ Protocol Architecture
 
-The container domain consists of **21 specialized protocols** that provide complete dependency injection and artifact management:
+The container domain consists of **14 specialized protocols** that provide complete dependency injection and artifact management:
 
 ### Service Registry Protocol
 
@@ -177,6 +177,112 @@ class ProtocolServiceRegistration(Protocol):
     async def validate_registration(self) -> bool: ...
 
     def is_active(self) -> bool: ...
+```
+
+### Service Resolver Protocol
+
+```python
+from typing import Protocol, runtime_checkable, Any, TypeVar
+
+T = TypeVar("T")
+
+@runtime_checkable
+class ProtocolServiceResolver(Protocol):
+    """
+    Protocol for service resolution operations.
+
+    Provides service lookup and resolution capabilities for dependency
+    injection containers, supporting both protocol-based and name-based
+    service resolution patterns.
+
+    Key Features:
+        - Type-safe protocol-based resolution
+        - String-based service name resolution
+        - Support for multiple service implementations
+        - Consistent error handling for missing services
+        - Integration with service registry patterns
+    """
+
+    def get_service(
+        self,
+        protocol_type_or_name: type[T] | str,
+        service_name: str | None = None,
+    ) -> Any: ...
+```
+
+#### Usage
+
+```python
+from omnibase_spi.protocols.container import ProtocolServiceResolver
+
+resolver: ProtocolServiceResolver = get_resolver()
+
+# Protocol type resolution
+event_bus = resolver.get_service(ProtocolEventBus)
+
+# String name resolution
+cache = resolver.get_service("cache_service")
+
+# Hybrid (type + name)
+user_repo = resolver.get_service(ProtocolRepository, "user_repository")
+```
+
+### Container Protocol
+
+```python
+from typing import Protocol, runtime_checkable, Generic, TypeVar, Any
+
+T = TypeVar("T", covariant=True)
+
+@runtime_checkable
+class ProtocolContainer(Protocol, Generic[T]):
+    """
+    Protocol for generic value containers with metadata.
+
+    Defines the interface for containers that wrap values with associated metadata.
+    This protocol enables implementations to provide consistent container behavior
+    across different subsystems while maintaining type safety through generics.
+
+    Key Features:
+        - Generic type support for any wrapped value type
+        - Metadata dictionary for extensible container attributes
+        - Type-safe access to wrapped values and metadata
+        - Framework-agnostic container abstraction
+
+    Use Cases:
+        - Service resolution results with metadata (lifecycle, scope, etc.)
+        - Event payloads with routing and tracing information
+        - Configuration values with source and validation metadata
+        - API responses with headers and status information
+        - Tool execution results with performance metrics
+    """
+
+    @property
+    def value(self) -> T: ...
+
+    @property
+    def metadata(self) -> dict[str, Any]: ...
+
+    def get_metadata(self, key: str, default: Any = None) -> Any: ...
+```
+
+#### Usage
+
+```python
+from omnibase_spi.protocols.container import ProtocolContainer
+
+# Type-safe container usage
+container: ProtocolContainer[str] = create_container(
+    value="example_data",
+    metadata={"source": "api", "timestamp": "2025-01-15T10:30:00Z"}
+)
+
+# Access wrapped value (type-safe)
+data: str = container.value
+
+# Access metadata
+source: str = container.get_metadata("source", "unknown")
+all_metadata = container.metadata
 ```
 
 ### Service Factory Protocol
@@ -491,12 +597,13 @@ print(f"Memory usage: {status.memory_usage_bytes} bytes")
 
 ## 📊 Protocol Statistics
 
-- **Total Protocols**: 21 container protocols
+- **Total Protocols**: 14 container protocols
 - **Service Lifecycle Patterns**: 6 lifecycle types
 - **Injection Scopes**: 6 scope patterns
 - **Health Monitoring**: Comprehensive status tracking
 - **Performance Metrics**: Resolution time and memory usage tracking
 - **Dependency Analysis**: Circular dependency detection and graph analysis
+- **Container Features**: Generic value containers with metadata support
 
 ---
 

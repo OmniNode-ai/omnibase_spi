@@ -62,7 +62,7 @@ def test_workflow_value_protocols():
 
     except Exception as e:
         print(f"❌ Error processing {file_path}: {e}")
-        return False
+        assert False, f"Error processing {file_path}: {e}"
 
     # Check for uniqueness
     unique_signatures = set(signatures.values())
@@ -86,7 +86,9 @@ def test_workflow_value_protocols():
             if len(names) > 1:
                 print(f"   Signature {sig}: {', '.join(names)}")
 
-    return len(signatures) == len(unique_signatures)
+    assert len(signatures) == len(
+        unique_signatures
+    ), "Duplicate signatures detected for workflow value protocols"
 
 
 def test_stamp_validation_options():
@@ -102,7 +104,7 @@ def test_stamp_validation_options():
 
     if "error" in comparison:
         print(f"❌ Error: {comparison['error']}")
-        return False
+        assert False, comparison["error"]
 
     print("\n📋 ProtocolStampOptions:")
     print(f"   Signature Hash: {comparison['protocol1']['signature_hash']}")
@@ -124,7 +126,9 @@ def test_stamp_validation_options():
                 f"   {diff['component']}: {diff['protocol1_value']} vs {diff['protocol2_value']}"
             )
 
-    return not comparison["are_duplicates"]
+    assert not comparison[
+        "are_duplicates"
+    ], "StampOptions and ValidationOptions should not be duplicates"
 
 
 def test_memory_request_protocols():
@@ -143,7 +147,7 @@ def test_memory_request_protocols():
 
     if "error" in comparison:
         print(f"❌ Error: {comparison['error']}")
-        return False
+        assert False, comparison["error"]
 
     print("\n📋 ProtocolMemoryRetrieveRequest:")
     print(f"   Signature Hash: {comparison['protocol1']['signature_hash']}")
@@ -156,7 +160,9 @@ def test_memory_request_protocols():
     print("\n📊 COMPARISON RESULT:")
     print(f"   Are duplicates: {'❌ YES' if comparison['are_duplicates'] else '✅ NO'}")
 
-    return not comparison["are_duplicates"]
+    assert not comparison[
+        "are_duplicates"
+    ], "Memory request protocols should not be duplicates"
 
 
 def test_performance_impact():
@@ -204,7 +210,7 @@ def test_performance_impact():
         f"   Overall performance: {'✅ ACCEPTABLE' if performance_ok else '⚠️ NEEDS OPTIMIZATION'}"
     )
 
-    return performance_ok
+    assert performance_ok, "Enhanced hashing performance outside expected thresholds"
 
 
 def main():

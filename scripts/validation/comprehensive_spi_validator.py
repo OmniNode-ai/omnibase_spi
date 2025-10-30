@@ -1213,6 +1213,21 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
     def _should_be_async_method(self, node: ast.FunctionDef) -> bool:
         """Determine if method should be async based on naming and types."""
         method_name = node.name.lower()
+
+        # Synchronous getter exceptions - these are NOT I/O operations
+        sync_exceptions = [
+            "get_metadata",  # Dictionary lookup, not I/O
+            "get_property",  # Property access
+            "get_attribute", # Attribute access
+            "get_config",    # Configuration getter
+            "get_default",   # Default value getter
+            "get_value",     # Value getter
+        ]
+
+        # Skip if this is a known synchronous method
+        if method_name in sync_exceptions:
+            return False
+
         io_indicators = [
             "read",
             "write",

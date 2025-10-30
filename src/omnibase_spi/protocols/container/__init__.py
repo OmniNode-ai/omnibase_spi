@@ -25,6 +25,7 @@ from .protocol_cache_service import ProtocolCacheService
 from .protocol_client_config import ProtocolClientConfigProvider
 from .protocol_configuration_manager import ProtocolConfigurationManager
 from .protocol_connection_manageable import ProtocolConnectionManageable
+from .protocol_container import ProtocolContainer
 from .protocol_container_service import ProtocolContainerService
 
 # Export DI-specific protocols with clear naming to avoid collision with core types
@@ -54,6 +55,7 @@ from .protocol_service_registry import (
     ProtocolServiceValidator,
     ServiceHealthStatus,
 )
+from .protocol_service_resolver import ProtocolServiceResolver
 
 __all__ = [
     "InjectionScope",
@@ -70,6 +72,7 @@ __all__ = [
     "ProtocolClientConfigProvider",
     "ProtocolConfigurationManager",
     "ProtocolConnectionManageable",
+    "ProtocolContainer",
     "ProtocolContainerService",
     "ProtocolDependencyGraph",
     "ProtocolDIServiceInstance",
@@ -81,6 +84,7 @@ __all__ = [
     "ProtocolServiceRegistry",
     "ProtocolServiceRegistryConfig",
     "ProtocolServiceRegistryStatus",
+    "ProtocolServiceResolver",
     "ProtocolServiceValidator",
     "ServiceHealthStatus",
 ]

@@ -327,9 +327,9 @@ except MemoryError as e:
 
 ## API Reference
 
-- **[Memory Management](../api-reference/memory.md)** - Complete memory protocol documentation
-- **[Container Protocols](../api-reference/container.md)** - Dependency injection patterns
-- **[Workflow Orchestration](../api-reference/workflow-orchestration.md)** - Event-driven FSM
+- **[Memory Management](../api-reference/MEMORY.md)** - Complete memory protocol documentation
+- **[Container Protocols](../api-reference/CONTAINER.md)** - Dependency injection patterns
+- **[Workflow Orchestration](../api-reference/WORKFLOW-ORCHESTRATION.md)** - Event-driven FSM
 
 ---
 

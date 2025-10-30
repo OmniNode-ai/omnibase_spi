@@ -97,8 +97,8 @@ print(f"Result: {result}")
 
 ## API Reference
 
-- **[Core Protocols](../api-reference/core.md)** - System fundamentals
-- **[Container Protocols](../api-reference/container.md)** - Dependency injection
+- **[Core Protocols](../api-reference/CORE.md)** - System fundamentals
+- **[Container Protocols](../api-reference/CONTAINER.md)** - Dependency injection
 
 ---
 
@@ -177,8 +177,8 @@ result = await service.perform_operation(data)
 
 ## API Reference
 
-- **[Core Protocols](../api-reference/core.md)** - System fundamentals
-- **[Container Protocols](../api-reference/container.md)** - Dependency injection
+- **[Core Protocols](../api-reference/CORE.md)** - System fundamentals
+- **[Container Protocols](../api-reference/CONTAINER.md)** - Dependency injection
 
 ---
 
@@ -263,8 +263,8 @@ workflow = await orchestrator.start_workflow(
 
 ## API Reference
 
-- **[Workflow Orchestration](../api-reference/workflow-orchestration.md)** - Workflow orchestration protocols
-- **[Event Bus](../api-reference/event-bus.md)** - Event bus protocols
+- **[Workflow Orchestration](../api-reference/WORKFLOW-ORCHESTRATION.md)** - Workflow orchestration protocols
+- **[Event Bus](../api-reference/EVENT-BUS.md)** - Event bus protocols
 
 ---
 
@@ -309,10 +309,10 @@ workflow = await orchestrator.start_workflow(
 
 ## API Reference
 
-- **[Core Protocols](../api-reference/core.md)** - System fundamentals
-- **[Container Protocols](../api-reference/container.md)** - Dependency injection
-- **[Workflow Orchestration](../api-reference/workflow-orchestration.md)** - Event-driven FSM
-- **[MCP Integration](../api-reference/mcp.md)** - Multi-subsystem coordination
+- **[Core Protocols](../api-reference/CORE.md)** - System fundamentals
+- **[Container Protocols](../api-reference/CONTAINER.md)** - Dependency injection
+- **[Workflow Orchestration](../api-reference/WORKFLOW-ORCHESTRATION.md)** - Event-driven FSM
+- **[MCP Integration](../api-reference/MCP.md)** - Multi-subsystem coordination
 
 ---
 

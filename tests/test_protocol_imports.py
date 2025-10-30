@@ -6,6 +6,7 @@ and follow ONEX SPI design principles.
 """
 
 import importlib
+import os
 import pkgutil
 import subprocess
 import sys
@@ -100,8 +101,18 @@ except Exception as e:
     sys.exit(1)
 """
 
+    env = os.environ.copy()
+    # Ensure subprocess can import from this repo's src directory
+    env["PYTHONPATH"] = str(src_dir) + (
+        os.pathsep + env.get("PYTHONPATH", "") if env.get("PYTHONPATH") else ""
+    )
+
     result = subprocess.run(
-        [sys.executable, "-c", test_script], capture_output=True, text=True, timeout=30
+        [sys.executable, "-c", test_script],
+        capture_output=True,
+        text=True,
+        timeout=30,
+        env=env,
     )
 
     # Check that the subprocess succeeded
