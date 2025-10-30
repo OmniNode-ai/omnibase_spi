@@ -100,7 +100,7 @@ class ProtocolContainer(Protocol, Generic[T]):
         """
         ...
 
-    def get_metadata(self, key: str, default: Any = None) -> Any:
+    async def get_metadata(self, key: str, default: Any = None) -> Any:
         """
         Get specific metadata field.
 

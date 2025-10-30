@@ -69,7 +69,7 @@ class ProtocolServiceResolver(Protocol):
         - ProtocolConfigurationManager: Service configuration
     """
 
-    def get_service(
+    async def get_service(
         self,
         protocol_type_or_name: type[T] | str,
         service_name: str | None = None,
