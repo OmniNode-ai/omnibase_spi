@@ -1,195 +1,146 @@
-# ONEX Service Provider Interface (omnibase-spi)
+# CLAUDE.md
 
-Pure protocol interface repository defining service contracts for the ONEX distributed orchestration framework. Maintains strict architectural purity with zero implementation dependencies.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Architecture
+## Repository Overview
 
-**176 protocols** across **22 specialized domains** providing:
+**omnibase_spi** is the Service Provider Interface (SPI) for the ONEX platform. It defines protocol contracts and exceptions that concrete implementations (in `omnibase_infra`) must satisfy.
 
-- **Event-Driven Workflow Orchestration** - FSM states, event sourcing, workflow isolation
-- **MCP Integration** - Multi-subsystem tool coordination, load balancing, health monitoring  
-- **Enterprise Dependency Injection** - Service registry, lifecycle management, circular dependency detection
-- **Distributed Messaging** - Event bus, Kafka integration, dead letter queue handling
-- **Memory Management** - Workflow state persistence, agent coordination, security
+## Architecture: Dependency Direction
 
-## Core Principles
+```
+Applications (omniagent, omniintelligence)
+       │  use
+       ▼
+omnibase_spi (protocol contracts, adapter interfaces)
+       │  imports at runtime
+       ▼
+omnibase_core (Pydantic models, core runtime contracts)
+       ▲
+       │  used by
+omnibase_infra (handlers, I/O implementations)
+```
 
-1. **Protocol-First Design** - All services defined through Python `Protocol` interfaces
-2. **Namespace Isolation** - Complete separation from implementation packages
-3. **Zero Implementation Dependencies** - Pure contracts only
-4. **Runtime Type Safety** - Full `@runtime_checkable` protocol support
-5. **Event Sourcing** - Sequence numbers, causation tracking, replay capabilities
+**Key Rules**:
+- SPI → Core: **allowed and required** (runtime imports of models and contract types)
+- Core → SPI: **forbidden** (no imports)
+- SPI → Infra: **forbidden** (no imports, even transitively)
+- Infra → SPI + Core: **expected** (implements behavior)
 
-## Protocol Domains
+## What SPI Contains
 
-### Core System (13 protocols)
-- Logging, health monitoring, error handling
-- Service discovery, performance metrics
-- Serialization, URI parsing, version management
+- **Protocol definitions** using Python `typing.Protocol`
+- **Exception hierarchy** (`SPIError` and subclasses)
+- **No Pydantic models** (those live in `omnibase_core`)
+- **No business logic or I/O**
+- **No state machines or workflow implementations**
 
-### Container Management (14 protocols)
-- Service registry with lifecycle management
-- Circular dependency detection
-- Health monitoring and metrics collection
-- Factory patterns and injection contexts
-- Generic value containers and service resolution
+All public protocols must be `@runtime_checkable`.
 
-### Workflow Orchestration (12 protocols)
-- Event sourcing with sequence numbers
-- Workflow state management and projections
-- Task scheduling and node coordination
-- Distributed workflow execution
-
-### MCP Integration (14 protocols)
-- Multi-subsystem tool registration
-- Load balancing and failover
-- Health monitoring and metrics
-- Tool execution tracking
-
-### Event Bus (14 protocols)
-- Pluggable backend adapters (Kafka, Redis, in-memory)
-- Async and sync event bus implementations
-- Event message serialization and routing
-- Dead letter queue handling
-
-### Memory Management (14 protocols)
-- Key-value store operations
-- Workflow state persistence
-- Memory security and streaming
-- Agent coordination and management
-
-### Plus 16 More Specialized Domains
-- **Networking** (6 protocols) - HTTP, Kafka, circuit breakers
-- **File Handling** (8 protocols) - File processing, type detection
-- **Advanced** (14 protocols) - Adaptive chunking, AST building, contract analysis
-- **Types** (14 protocols) - Core types, contracts, error objects, envelopes
-- **Validation** (10 protocols) - Input validation, schema compliance
-- **Schema** (9 protocols) - Schema management and versioning
-- **ONEX** (9 protocols) - Node types (Effect, Compute, Reducer, Orchestrator), envelopes
-- **Node** (4 protocols) - Node configuration, registry, runtime
-- **CLI** (6 protocols) - Command-line interface abstractions
-- **Discovery** (3 protocols) - Service and resource discovery
-- **LLM** (3 protocols) - Language model interfaces
-- **Semantic** (2 protocols) - Semantic analysis
-- **Security** (2 protocols) - Security protocols
-- **Storage** (2 protocols) - Storage abstractions
-- **Test** (2 protocols) - Testing utilities
-- **Analytics** (1 protocol) - Analytics interfaces
-
-## Key Features
-
-### Event-Driven Workflow Orchestration
-- **FSM States**: `pending` → `running` → `completed` with compensation actions
-- **Event Sourcing**: Sequence numbers, causation tracking, replay capabilities
-- **Isolation**: `{workflowType, instanceId}` pattern for workflow separation
-- **Projections**: Real-time state derivation from events
-
-### MCP Integration
-- **Tool Registry**: Dynamic discovery and load balancing across subsystems
-- **Health Monitoring**: TTL-based cleanup and subsystem status tracking
-- **Execution Tracking**: Correlation IDs and performance metrics
-- **Multi-Subsystem Coordination**: Seamless tool routing and execution
-
-### Enterprise Dependency Injection
-- **Lifecycle Management**: Singleton, transient, scoped, pooled patterns
-- **Circular Dependency Detection**: Automatic detection and prevention
-- **Health Monitoring**: Service health tracking and validation
-- **Performance Metrics**: Resolution time tracking and optimization
-- **Scoped Injection**: Request, session, thread-based scoping
-
-## Development Workflow
-
-### Protocol Compliance
-- **Runtime Checkable**: Use `isinstance(obj, Protocol)` for validation
-- **Type Safe**: Full mypy compatibility with strict checking
-- **Framework Agnostic**: No dependencies on specific implementations
-- **Forward Compatible**: Extensible design for future enhancements
-
-### SPI Purity
-- Contain no concrete implementations
-- Use only abstract method signatures with `...`
-- Employ type hints for all parameters and return values
-- Follow namespace isolation rules
-- Maintain zero runtime dependencies
-
-## Validation
+## Development Commands
 
 ```bash
-# Run all validation checks
-poetry run pytest && poetry build
+# Install dependencies
+poetry install
 
-# Type safety validation
-poetry run mypy src/ --strict --no-any-expr
+# Run tests
+poetry run pytest
 
-# Protocol compliance checking
-poetry run python scripts/ast_spi_validator.py --check-protocols
+# Run single test file
+poetry run pytest tests/path/to/test_file.py
 
-# Namespace isolation testing
-./scripts/validate-namespace-isolation.sh
+# Run single test
+poetry run pytest tests/path/to/test_file.py::test_name -v
+
+# Type checking
+poetry run mypy src/
+
+# Strict type checking (target for CI)
+poetry run mypy src/ --strict
+
+# Format code
+poetry run black src/ tests/
+poetry run isort src/ tests/
+
+# Lint
+poetry run ruff check src/ tests/
+
+# Build package
+poetry build
 ```
 
-## Quick Start
+## Directory Structure
+
+```
+src/omnibase_spi/
+├── protocols/
+│   ├── nodes/           # ProtocolNode, ProtocolComputeNode, ProtocolEffectNode, etc.
+│   │   └── legacy/      # Deprecated protocols (removal in v0.5.0)
+│   ├── contracts/       # Contract compiler protocols
+│   ├── handlers/        # ProtocolHandler and domain-specific handlers
+│   ├── registry/        # ProtocolHandlerRegistry
+│   ├── container/       # Service registry, DI protocols
+│   ├── workflow_orchestration/  # Workflow protocols
+│   ├── event_bus/       # Event bus protocols
+│   ├── mcp/             # MCP integration protocols
+│   └── [22 more domains]
+├── exceptions.py        # SPIError hierarchy
+└── py.typed
+```
+
+## Naming Conventions
+
+| Type | Convention | Example |
+|------|------------|---------|
+| Node protocols | `Protocol{Type}Node` | `ProtocolComputeNode` |
+| Compiler protocols | `Protocol{Type}ContractCompiler` | `ProtocolEffectContractCompiler` |
+| Handler protocols | `Protocol{Type}Handler` | `ProtocolHandler` |
+| Exceptions | `{Type}Error` | `SPIError`, `RegistryError` |
+
+## Protocol Requirements
+
+Every protocol must:
+1. Inherit from `typing.Protocol`
+2. Have `@runtime_checkable` decorator
+3. Use `...` (ellipsis) for method bodies
+4. Import Core models for type hints (allowed at runtime)
+5. Have docstrings with Args/Returns/Raises
 
 ```python
-from omnibase_spi.protocols.container import ProtocolServiceRegistry
-from omnibase_spi.protocols.workflow_orchestration import ProtocolWorkflowOrchestrator
-from omnibase_spi.protocols.mcp import ProtocolMCPRegistry
+from typing import Protocol, runtime_checkable
+from omnibase_core.models.compute import ModelComputeInput, ModelComputeOutput
 
-# Service registration
-registry: ProtocolServiceRegistry = get_service_registry()
-await registry.register_service(
-    interface=ProtocolLogger,
-    implementation=ConsoleLogger,
-    lifecycle="singleton",
-    scope="global"
-)
+@runtime_checkable
+class ProtocolComputeNode(Protocol):
+    """Compute node for pure transformations."""
 
-# Workflow orchestration
-orchestrator: ProtocolWorkflowOrchestrator = get_workflow_orchestrator()
-workflow = await orchestrator.start_workflow(
-    workflow_type="order-processing",
-    instance_id=UUID("123e4567-e89b-12d3-a456-426614174000"),
-    initial_data={"order_id": "ORD-12345"}
-)
+    @property
+    def is_deterministic(self) -> bool:
+        """Whether this node produces deterministic output."""
+        ...
 
-# MCP tool execution
-mcp_registry: ProtocolMCPRegistry = get_mcp_registry()
-result = await mcp_registry.execute_tool(
-    tool_name="text_generation",
-    parameters={"prompt": "Hello world"},
-    correlation_id=UUID("req-abc123")
-)
+    async def execute(self, input_data: ModelComputeInput) -> ModelComputeOutput:
+        """Execute the compute operation."""
+        ...
 ```
 
-## Documentation
+## Cross-Repository Contract Rules
 
-- **[API Reference](docs/api-reference/README.md)** - Complete protocol documentation
-- **[Container Protocols](docs/api-reference/container.md)** - Dependency injection patterns
-- **[Workflow Orchestration](docs/api-reference/workflow-orchestration.md)** - Event-driven FSM
-- **[MCP Integration](docs/api-reference/mcp.md)** - Multi-subsystem coordination
-- **[Core Protocols](docs/api-reference/core.md)** - System fundamentals
-
-## Statistics
-
-- **Total Protocols**: 176 protocol files
-- **Domain Coverage**: 22 specialized domains
-- **Type Definitions**: 14 comprehensive type modules
-- **Enterprise Features**: Health monitoring, metrics, circuit breakers
-- **Architecture Patterns**: Event sourcing, dependency injection, distributed coordination
-- **Latest Additions (v0.2.0)**:
-  - ProtocolContainer - Generic value containers
-  - ProtocolServiceResolver - Service resolution interface
-  - ProtocolContract - Full contract interface
-  - ProtocolOnexError - Error object protocol
-  - Node-specific protocols (ProtocolEffectNode, ProtocolComputeNode, ProtocolReducerNode, ProtocolOrchestratorNode)
+| Rule | Enforcement |
+|------|-------------|
+| SPI imports Core | Allowed at runtime |
+| Core MUST NOT import SPI | CI failure |
+| SPI MUST NOT define Pydantic models | All `BaseModel` in Core |
+| SPI MUST NOT import Infra | CI failure |
+| Circular imports | CI failure |
 
 ## Version Information
 
-- **Package Version**: 0.2.0
-- **Python Support**: 3.11, 3.12, 3.13
-- **Architecture**: Protocol-first SPI with zero runtime dependencies
-- **Protocol Count**: 176 protocols across 22 domains
+- **Current Version**: 0.3.0 (in development)
+- **Python Support**: 3.12+
+- **Protocol Count**: 176+ protocols across 22 domains
 
----
+## Key Documentation
 
-*This SPI maintains strict architectural purity through automated validation and comprehensive protocol coverage.*
+- `docs/MVP_PLAN.md` - v0.3.0 work breakdown and architecture
+- `docs/VALIDATION_INTEGRATION_PLAN.md` - Validation integration with omnibase_core

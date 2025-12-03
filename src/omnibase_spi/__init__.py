@@ -65,9 +65,18 @@ Architecture:
 import importlib
 from typing import TYPE_CHECKING, Any, cast
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 __author__ = "OmniNode Team"
 __email__ = "team@omninode.ai"
+
+# Exception hierarchy (not lazy loaded - always available)
+from omnibase_spi.exceptions import (
+    ContractCompilerError,
+    HandlerInitializationError,
+    ProtocolHandlerError,
+    RegistryError,
+    SPIError,
+)
 
 # Lazy loading configuration - defines what protocols are available at root level
 # This eliminates the need to import all protocols upfront, reducing startup time
@@ -202,6 +211,12 @@ __all__ = [
     "__email__",
     # Dynamic protocol count for documentation
     "__protocol_count__",
+    # Exceptions
+    "SPIError",
+    "ProtocolHandlerError",
+    "HandlerInitializationError",
+    "ContractCompilerError",
+    "RegistryError",
     # All lazy-loaded protocols (dynamically generated)
     *sorted(_LAZY_PROTOCOL_MAP.keys()),
 ]
