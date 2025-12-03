@@ -67,6 +67,20 @@ poetry run ruff check src/ tests/
 
 # Build package
 poetry build
+
+# Run standalone validators (stdlib only, no dependencies)
+python scripts/validation/run_all_validations.py
+python scripts/validation/run_all_validations.py --strict --verbose
+
+# Individual validators
+python scripts/validation/validate_naming_patterns.py src/
+python scripts/validation/validate_namespace_isolation.py
+python scripts/validation/validate_architecture.py --verbose
+
+# Pre-commit hooks
+pre-commit run --all-files
+pre-commit run validate-naming-patterns --all-files
+pre-commit run validate-namespace-isolation-new --all-files
 ```
 
 ## Directory Structure
@@ -139,6 +153,19 @@ class ProtocolComputeNode(Protocol):
 - **Current Version**: 0.3.0 (in development)
 - **Python Support**: 3.12+
 - **Protocol Count**: 176+ protocols across 22 domains
+
+## Validation Scripts
+
+Standalone validators (Python stdlib only, no omnibase_core imports):
+
+| Script | Purpose | Pre-commit Stage |
+|--------|---------|------------------|
+| `validate_naming_patterns.py` | Protocol/Error naming, `@runtime_checkable` | `pre-commit` |
+| `validate_namespace_isolation.py` | No Infra imports, no Pydantic models | `pre-commit` |
+| `validate_architecture.py` | One-protocol-per-file rule | `manual` (92 existing violations) |
+| `run_all_validations.py` | Unified runner with JSON output | `manual` |
+
+These validators will be replaced by `omnibase_core.validation` once the circular dependency is resolved.
 
 ## Key Documentation
 
