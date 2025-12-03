@@ -1,7 +1,7 @@
 """
-Tests for INode base protocol.
+Tests for ProtocolNode base protocol.
 
-Validates that INode:
+Validates that ProtocolNode:
 - Is properly runtime checkable
 - Defines required properties (node_id, node_type, version)
 - Properties return str type
@@ -11,11 +11,11 @@ Validates that INode:
 
 import pytest
 
-from omnibase_spi.protocols.nodes.base import INode
+from omnibase_spi.protocols.nodes.base import ProtocolNode
 
 
 class CompliantNode:
-    """A class that fully implements the INode protocol."""
+    """A class that fully implements the ProtocolNode protocol."""
 
     @property
     def node_id(self) -> str:
@@ -34,7 +34,7 @@ class CompliantNode:
 
 
 class PartialNode:
-    """A class that only implements some INode properties."""
+    """A class that only implements some ProtocolNode properties."""
 
     @property
     def node_id(self) -> str:
@@ -43,7 +43,7 @@ class PartialNode:
 
 
 class NonCompliantNode:
-    """A class that implements none of the INode properties."""
+    """A class that implements none of the ProtocolNode properties."""
 
     pass
 
@@ -67,62 +67,62 @@ class WrongTypeNode:
         return "1.0.0"
 
 
-class TestINodeProtocol:
-    """Test suite for INode protocol compliance."""
+class TestProtocolNodeProtocol:
+    """Test suite for ProtocolNode protocol compliance."""
 
     def test_inode_is_runtime_checkable(self) -> None:
-        """INode should be runtime_checkable."""
+        """ProtocolNode should be runtime_checkable."""
         # Python 3.11+ uses _is_runtime_protocol, older versions use __runtime_protocol__
-        assert hasattr(INode, "_is_runtime_protocol") or hasattr(
-            INode, "__runtime_protocol__"
+        assert hasattr(ProtocolNode, "_is_runtime_protocol") or hasattr(
+            ProtocolNode, "__runtime_protocol__"
         )
 
     def test_inode_is_protocol(self) -> None:
-        """INode should be a Protocol class."""
+        """ProtocolNode should be a Protocol class."""
         from typing import Protocol, get_origin
 
-        # Check that INode has Protocol in its bases
+        # Check that ProtocolNode has Protocol in its bases
         assert any(
             base is Protocol or getattr(base, "__name__", "") == "Protocol"
-            for base in INode.__mro__
+            for base in ProtocolNode.__mro__
         )
 
     def test_inode_has_node_id_property(self) -> None:
-        """INode should define node_id property."""
+        """ProtocolNode should define node_id property."""
         # Protocol properties appear in __protocol_attrs__
-        assert "node_id" in dir(INode)
+        assert "node_id" in dir(ProtocolNode)
 
     def test_inode_has_node_type_property(self) -> None:
-        """INode should define node_type property."""
-        assert "node_type" in dir(INode)
+        """ProtocolNode should define node_type property."""
+        assert "node_type" in dir(ProtocolNode)
 
     def test_inode_has_version_property(self) -> None:
-        """INode should define version property."""
-        assert "version" in dir(INode)
+        """ProtocolNode should define version property."""
+        assert "version" in dir(ProtocolNode)
 
     def test_protocol_cannot_be_instantiated(self) -> None:
-        """INode protocol should not be directly instantiable."""
+        """ProtocolNode protocol should not be directly instantiable."""
         with pytest.raises(TypeError):
-            INode()  # type: ignore[call-arg]
+            ProtocolNode()  # type: ignore[call-arg]
 
 
-class TestINodeCompliance:
+class TestProtocolNodeCompliance:
     """Test isinstance checks for protocol compliance."""
 
     def test_compliant_class_passes_isinstance(self) -> None:
-        """A class implementing all INode properties should pass isinstance check."""
+        """A class implementing all ProtocolNode properties should pass isinstance check."""
         node = CompliantNode()
-        assert isinstance(node, INode)
+        assert isinstance(node, ProtocolNode)
 
     def test_partial_implementation_fails_isinstance(self) -> None:
-        """A class missing INode properties should fail isinstance check."""
+        """A class missing ProtocolNode properties should fail isinstance check."""
         node = PartialNode()
-        assert not isinstance(node, INode)
+        assert not isinstance(node, ProtocolNode)
 
     def test_non_compliant_class_fails_isinstance(self) -> None:
-        """A class with no INode properties should fail isinstance check."""
+        """A class with no ProtocolNode properties should fail isinstance check."""
         node = NonCompliantNode()
-        assert not isinstance(node, INode)
+        assert not isinstance(node, ProtocolNode)
 
     def test_wrong_type_still_passes_structural_check(self) -> None:
         """
@@ -133,10 +133,10 @@ class TestINodeCompliance:
         """
         node = WrongTypeNode()
         # Runtime check passes because attributes exist
-        assert isinstance(node, INode)
+        assert isinstance(node, ProtocolNode)
 
 
-class TestINodePropertyValues:
+class TestProtocolNodePropertyValues:
     """Test property values from compliant implementations."""
 
     def test_node_id_returns_string(self) -> None:
@@ -161,49 +161,49 @@ class TestINodePropertyValues:
         assert result == "1.0.0"
 
 
-class TestINodeTypeAnnotations:
-    """Test type annotations on INode protocol."""
+class TestProtocolNodeTypeAnnotations:
+    """Test type annotations on ProtocolNode protocol."""
 
     def test_node_id_annotation(self) -> None:
         """node_id should be annotated as returning str."""
-        annotations = getattr(INode, "__annotations__", {})
+        annotations = getattr(ProtocolNode, "__annotations__", {})
         # For properties, we need to check the fget function
         # But Protocol properties don't expose annotations directly
         # Instead, verify via a compliant implementation
-        node: INode = CompliantNode()
+        node: ProtocolNode = CompliantNode()
         assert isinstance(node.node_id, str)
 
     def test_node_type_annotation(self) -> None:
         """node_type should be annotated as returning str."""
-        node: INode = CompliantNode()
+        node: ProtocolNode = CompliantNode()
         assert isinstance(node.node_type, str)
 
     def test_version_annotation(self) -> None:
         """version should be annotated as returning str."""
-        node: INode = CompliantNode()
+        node: ProtocolNode = CompliantNode()
         assert isinstance(node.version, str)
 
 
-class TestINodeImports:
+class TestProtocolNodeImports:
     """Test protocol imports from different locations."""
 
     def test_import_from_base_module(self) -> None:
         """Test direct import from base module."""
-        from omnibase_spi.protocols.nodes.base import INode as BaseINode
+        from omnibase_spi.protocols.nodes.base import ProtocolNode as BaseProtocolNode
 
         node = CompliantNode()
-        assert isinstance(node, BaseINode)
+        assert isinstance(node, BaseProtocolNode)
 
     def test_import_from_nodes_package(self) -> None:
         """Test import from nodes package."""
-        from omnibase_spi.protocols.nodes import INode as NodesINode
+        from omnibase_spi.protocols.nodes import ProtocolNode as NodesProtocolNode
 
         node = CompliantNode()
-        assert isinstance(node, NodesINode)
+        assert isinstance(node, NodesProtocolNode)
 
     def test_imports_are_identical(self) -> None:
         """Verify imports from different locations are the same class."""
-        from omnibase_spi.protocols.nodes import INode as NodesINode
-        from omnibase_spi.protocols.nodes.base import INode as BaseINode
+        from omnibase_spi.protocols.nodes import ProtocolNode as NodesProtocolNode
+        from omnibase_spi.protocols.nodes.base import ProtocolNode as BaseProtocolNode
 
-        assert NodesINode is BaseINode
+        assert NodesProtocolNode is BaseProtocolNode
