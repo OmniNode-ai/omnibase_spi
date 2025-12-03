@@ -20,7 +20,7 @@ class ProtocolEffectContractCompiler(Protocol):
     API calls, database queries, and message publishing.
     """
 
-    def compile(
+    async def compile(
         self,
         contract_path: Path,
     ) -> "ModelEffectContract":
@@ -39,7 +39,7 @@ class ProtocolEffectContractCompiler(Protocol):
         """
         ...
 
-    def validate(
+    async def validate(
         self,
         contract_path: Path,
     ) -> "ModelContractValidationResult":

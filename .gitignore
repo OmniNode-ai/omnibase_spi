@@ -241,9 +241,9 @@ secrets/
 /reports/
 *_reports/
 
-# Ignore sensitive and legacy files
+# Ignore sensitive files
 .cursor/mcp.json
-legacy/
+# Note: protocols/nodes/legacy/ is intentionally tracked (deprecated interfaces)
 
 #ignore private docs
 docs_private/

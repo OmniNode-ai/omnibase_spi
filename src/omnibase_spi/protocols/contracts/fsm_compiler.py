@@ -20,7 +20,7 @@ class ProtocolFSMContractCompiler(Protocol):
     with states, transitions, guards, and actions.
     """
 
-    def compile(
+    async def compile(
         self,
         contract_path: Path,
     ) -> "ModelFSMContract":
@@ -39,7 +39,7 @@ class ProtocolFSMContractCompiler(Protocol):
         """
         ...
 
-    def validate(
+    async def validate(
         self,
         contract_path: Path,
     ) -> "ModelContractValidationResult":

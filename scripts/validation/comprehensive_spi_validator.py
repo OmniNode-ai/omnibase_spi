@@ -683,16 +683,47 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
         return False
 
     def _is_allowed_import(self, import_name: str) -> bool:
-        """Check if import is allowed under namespace isolation rules."""
+        """Check if import is allowed under namespace isolation rules.
+
+        Per CLAUDE.md architecture:
+        - SPI → Core: allowed and required (runtime imports)
+        - SPI → Infra: forbidden
+        - Standard library: allowed
+        """
         allowed_prefixes = [
+            # Standard library
             "typing",
             "typing_extensions",
-            "omnibase_spi.protocols",
+            "__future__",
+            "collections.abc",
+            "collections",
+            "abc",
             "datetime",
             "uuid",
-            "__future__",
-            "collections.abc",  # Standard library abstract base classes
+            "pathlib",
+            "enum",
+            "dataclasses",
+            "functools",
+            "contextlib",
+            "asyncio",
+            "warnings",
+            "logging",
+            # SPI internal
+            "omnibase_spi.protocols",
+            "omnibase_spi.exceptions",
+            # Core models (allowed per architecture)
+            "omnibase_core.models",
+            "omnibase_core.contracts",
+            "omnibase_core.types",
         ]
+
+        # Forbidden imports
+        forbidden_prefixes = [
+            "omnibase_infra",  # Infra imports are always forbidden
+        ]
+
+        if any(import_name.startswith(prefix) for prefix in forbidden_prefixes):
+            return False
 
         return any(import_name.startswith(prefix) for prefix in allowed_prefixes)
 
@@ -1222,6 +1253,10 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
             "get_config",    # Configuration getter
             "get_default",   # Default value getter
             "get_value",     # Value getter
+            "get",           # Registry lookups, dict access - not network I/O
+            "list_protocols", # In-memory listing
+            "is_registered", # In-memory check
+            "register",      # In-memory registration
         ]
 
         # Skip if this is a known synchronous method
@@ -1542,11 +1577,34 @@ class DuplicateProtocolAnalyzer:
         """Find protocols with same name but different signatures."""
         violations = []
 
+        # Migration paths where duplicate names are intentional (v0.3.0 migration)
+        # New protocols in nodes/, handlers/, registry/, contracts/ replace old ones
+        migration_directories = {
+            "nodes",      # v0.3.0 node protocols replace onex/ protocols
+            "handlers",   # v0.3.0 handler protocols replace discovery/ protocols
+            "registry",   # v0.3.0 registry protocols replace discovery/ protocols
+            "contracts",  # v0.3.0 compiler protocols are new
+        }
+
         for name, conflicting_protocols in by_name.items():
             if len(conflicting_protocols) > 1:
                 unique_signatures = set(p.signature_hash for p in conflicting_protocols)
 
                 if len(unique_signatures) > 1:  # Different signatures
+                    # Check if this is a migration scenario
+                    # (one in migration directory, one in legacy directory)
+                    dirs_involved = set()
+                    for p in conflicting_protocols:
+                        parts = p.file_path.split("/")
+                        if "protocols" in parts:
+                            idx = parts.index("protocols")
+                            if idx + 1 < len(parts):
+                                dirs_involved.add(parts[idx + 1])
+
+                    # If at least one is in a migration directory, allow it
+                    if dirs_involved & migration_directories:
+                        continue  # Skip this conflict - it's intentional migration
+
                     primary = conflicting_protocols[0]
 
                     for conflict in conflicting_protocols[1:]:

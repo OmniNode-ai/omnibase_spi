@@ -20,7 +20,7 @@ class ProtocolWorkflowContractCompiler(Protocol):
     with dependencies, error handling, and compensation.
     """
 
-    def compile(
+    async def compile(
         self,
         contract_path: Path,
     ) -> "ModelWorkflowContract":
@@ -39,7 +39,7 @@ class ProtocolWorkflowContractCompiler(Protocol):
         """
         ...
 
-    def validate(
+    async def validate(
         self,
         contract_path: Path,
     ) -> "ModelContractValidationResult":
