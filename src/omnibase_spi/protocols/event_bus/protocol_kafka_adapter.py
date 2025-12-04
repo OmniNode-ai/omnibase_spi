@@ -117,7 +117,7 @@ class ProtocolKafkaAdapter(Protocol):
 
     See Also:
         - ProtocolKafkaConfig: Configuration parameters
-        - ProtocolEventBus: Generic event bus interface
+        - ProtocolEventBusProvider: ONEX event bus interface
         - ProtocolKafkaClient: Low-level Kafka operations
     """
 

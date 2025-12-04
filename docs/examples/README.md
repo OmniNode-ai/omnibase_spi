@@ -62,10 +62,10 @@ print(f"Workflow state: {state.current_state}")
 ### Event Bus Integration
 
 ```python
-from omnibase_spi.protocols.event_bus import ProtocolEventBus
+from omnibase_spi.protocols.event_bus import ProtocolEventBusProvider
 
 # Initialize event bus
-event_bus: ProtocolEventBus = get_event_bus()
+event_bus: ProtocolEventBusProvider = get_event_bus()
 
 # Subscribe to events
 subscription_id = await event_bus.subscribe_to_topic(
@@ -184,7 +184,7 @@ else:
 ```python
 from omnibase_spi.protocols.container import ProtocolServiceRegistry
 from omnibase_spi.protocols.workflow_orchestration import ProtocolWorkflowOrchestrator
-from omnibase_spi.protocols.event_bus import ProtocolEventBus
+from omnibase_spi.protocols.event_bus import ProtocolEventBusProvider
 from omnibase_spi.protocols.memory import ProtocolMemoryBase
 
 class OrderProcessingService:
@@ -194,7 +194,7 @@ class OrderProcessingService:
         self,
         registry: ProtocolServiceRegistry,
         orchestrator: ProtocolWorkflowOrchestrator,
-        event_bus: ProtocolEventBus,
+        event_bus: ProtocolEventBusProvider,
         memory: ProtocolMemoryBase
     ):
         self.registry = registry

@@ -96,7 +96,7 @@ _LAZY_PROTOCOL_MAP = {
     "ProtocolNodeRegistry": "omnibase_spi.protocols.node.protocol_node_registry",
     "ProtocolWorkflowReducer": "omnibase_spi.protocols.workflow_orchestration.protocol_workflow_reducer",
     # Event bus protocols
-    "ProtocolEventBus": "omnibase_spi.protocols.event_bus.protocol_event_bus",
+    "ProtocolEventBusProvider": "omnibase_spi.protocols.event_bus.protocol_event_bus",
     "ProtocolEventBusAdapter": "omnibase_spi.protocols.event_bus.protocol_event_bus",
     # Workflow orchestration protocols
     "ProtocolWorkflowEventBus": "omnibase_spi.protocols.workflow_orchestration.protocol_workflow_event_bus",
@@ -308,7 +308,9 @@ if TYPE_CHECKING:
         ProtocolServiceRegistry as ProtocolServiceRegistry,
     )
     from omnibase_spi.protocols.core import ProtocolLogger as ProtocolLogger
-    from omnibase_spi.protocols.event_bus import ProtocolEventBus as ProtocolEventBus
+    from omnibase_spi.protocols.event_bus import (
+        ProtocolEventBusProvider as ProtocolEventBusProvider,
+    )
     from omnibase_spi.protocols.mcp import ProtocolMCPRegistry as ProtocolMCPRegistry
     from omnibase_spi.protocols.mcp import (
         ProtocolMCPSubsystemClient as ProtocolMCPSubsystemClient,

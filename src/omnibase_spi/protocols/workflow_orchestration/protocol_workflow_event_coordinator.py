@@ -12,7 +12,9 @@ from uuid import uuid4
 from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 
 if TYPE_CHECKING:
-    from omnibase_spi.protocols.event_bus.protocol_event_bus import ProtocolEventBus
+    from omnibase_spi.protocols.event_bus.protocol_event_bus import (
+        ProtocolEventBusProvider,
+    )
     from omnibase_spi.protocols.node.protocol_node_registry import ProtocolNodeRegistry
     from omnibase_spi.protocols.types.protocol_file_handling_types import (
         ProtocolOnexResult,
@@ -45,7 +47,7 @@ class ProtocolWorkflowEventCoordinator(Protocol):
 
         # Set up registry and event bus
         registry: "ProtocolNodeRegistry" = get_node_registry()
-        event_bus: "ProtocolEventBus" = get_event_bus()
+        event_bus: "ProtocolEventBusProvider" = get_event_bus()
 
         coordinator.set_registry(registry)
         coordinator.set_event_bus(event_bus)
@@ -78,7 +80,7 @@ class ProtocolWorkflowEventCoordinator(Protocol):
         """
         ...
 
-    def set_event_bus(self, event_bus: "ProtocolEventBus") -> None:
+    def set_event_bus(self, event_bus: "ProtocolEventBusProvider") -> None:
         """
         Set the event bus for publishing and subscribing to events.
 

@@ -173,15 +173,22 @@ class ProtocolKafkaEventBusAdapter(Protocol):
 
 
 @runtime_checkable
-class ProtocolEventBus(Protocol):
+class ProtocolEventBusProvider(Protocol):
     """
-    ONEX event bus protocol for distributed messaging infrastructure.
+    ONEX event bus provider protocol for distributed messaging infrastructure.
+
+    This is the SPI extension of the Core ProtocolEventBus protocol, providing
+    additional ONEX-specific capabilities for distributed messaging infrastructure.
 
     Implements the ONEX Messaging Design v0.3:
     - Environment isolation (dev, staging, prod)
     - Node group mini-meshes
     - Kafka/Redpanda adapter pattern
     - Standardized topic naming and headers
+
+    Note: This protocol extends omnibase_core's ProtocolEventBus with additional
+    ONEX platform features. Use this protocol when you need the full ONEX event
+    bus capabilities beyond the core messaging interface.
     """
 
     @property
@@ -218,5 +225,67 @@ class ProtocolEventBus(Protocol):
     async def send_to_group(
         self, command: str, payload: dict[str, "ContextValue"], target_group: str
     ) -> None: ...
+
+    async def get_event_history(
+        self, limit: int = 100
+    ) -> list["ProtocolEventMessage"]:
+        """
+        Retrieve event history for debugging and observability.
+
+        This method is available on ALL event bus implementations (in-memory, Kafka,
+        Redpanda) to provide unified debugging capabilities across the ONEX ecosystem.
+
+        Args:
+            limit: Maximum number of events to return. Defaults to 100.
+                   Use -1 for unlimited (use with caution in production).
+
+        Returns:
+            List of event messages from history buffer or cache, ordered by timestamp
+            (most recent last).
+            - In-memory: returns from memory buffer
+            - Kafka/Redpanda: returns from local cache or recent consumer offsets
+
+        Raises:
+            SPIError: If history retrieval fails.
+        """
+        ...
+
+    async def get_subscriber_count(self, topic: str | None = None) -> int:
+        """
+        Get the number of active subscribers for observability.
+
+        This method is available on ALL event bus implementations (in-memory, Kafka,
+        Redpanda) to provide unified debugging capabilities across the ONEX ecosystem.
+
+        Args:
+            topic: Optional topic to filter subscribers. If None, returns total count
+                   across all topics.
+
+        Returns:
+            Count of active subscribers.
+            - In-memory: count of registered callbacks (per topic or total)
+            - Kafka/Redpanda: count of consumer group members (per topic or total)
+
+        Raises:
+            SPIError: If subscriber count retrieval fails.
+        """
+        ...
+
+    def clear_event_history(self) -> None:
+        """
+        Clear event history buffer/cache for testing and debugging.
+
+        This method is available on ALL event bus implementations (in-memory, Kafka,
+        Redpanda) to provide unified debugging capabilities across the ONEX ecosystem.
+
+        Behavior by implementation:
+            - In-memory: clears memory buffer completely
+            - Kafka/Redpanda: clears local cache (does not affect broker state)
+
+        Note:
+            This is primarily useful for testing scenarios. In production, use with
+            caution as it may affect debugging capabilities.
+        """
+        ...
 
     async def close(self) -> None: ...

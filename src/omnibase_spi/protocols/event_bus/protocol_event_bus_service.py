@@ -10,7 +10,9 @@ from typing import TYPE_CHECKING, Awaitable, Callable, Protocol, runtime_checkab
 from omnibase_spi.protocols.types.protocol_event_bus_types import ProtocolEventMessage
 
 if TYPE_CHECKING:
-    from omnibase_spi.protocols.event_bus.protocol_event_bus import ProtocolEventBus
+    from omnibase_spi.protocols.event_bus.protocol_event_bus import (
+        ProtocolEventBusProvider,
+    )
 
 
 @runtime_checkable
@@ -73,12 +75,12 @@ class ProtocolEventBusService(Protocol):
         - Failover coordination
 
     See Also:
-        - ProtocolEventBus: High-level event bus interface
+        - ProtocolEventBusProvider: High-level event bus interface
         - ProtocolKafkaAdapter: Kafka broker adapter
         - ProtocolRedpandaAdapter: Redpanda broker adapter
     """
 
-    async def get_event_bus(self) -> "ProtocolEventBus":
+    async def get_event_bus(self) -> "ProtocolEventBusProvider":
         """Get the managed event bus instance.
 
         Returns the active event bus for publishing and subscribing to events.

@@ -8,18 +8,20 @@ Abstracts lifecycle management for event bus resources (e.g., Kafka, RedPanda).
 from typing import TYPE_CHECKING, Protocol, TypeVar, runtime_checkable
 
 if TYPE_CHECKING:
-    from omnibase_spi.protocols.event_bus.protocol_event_bus import ProtocolEventBus
+    from omnibase_spi.protocols.event_bus.protocol_event_bus import (
+        ProtocolEventBusProvider,
+    )
 
-TEventBus = TypeVar("TEventBus", bound="ProtocolEventBus", covariant=True)
+TEventBus = TypeVar("TEventBus", bound="ProtocolEventBusProvider", covariant=True)
 
 
 @runtime_checkable
 class ProtocolEventBusContextManager(Protocol):
     """
-    Protocol for async context managers that yield a ProtocolEventBus-compatible object.
+    Protocol for async context managers that yield a ProtocolEventBusProvider-compatible object.
 
     Provides lifecycle management for event bus resources with proper cleanup.
-    Implementations must support async context management and return a ProtocolEventBus on enter.
+    Implementations must support async context management and return a ProtocolEventBusProvider on enter.
 
     Key Features:
         - Async context manager support (__aenter__, __aexit__)
@@ -34,7 +36,7 @@ class ProtocolEventBusContextManager(Protocol):
 
         # Usage with async context manager pattern
         async with context_manager as event_bus:
-            # event_bus is guaranteed to implement ProtocolEventBus
+            # event_bus is guaranteed to implement ProtocolEventBusProvider
             await event_bus.publish(topic="test", key=None, value=b"data", headers={...})
 
             # Context manager handles connection lifecycle automatically
@@ -43,7 +45,7 @@ class ProtocolEventBusContextManager(Protocol):
         ```
     """
 
-    async def __aenter__(self) -> "ProtocolEventBus": ...
+    async def __aenter__(self) -> "ProtocolEventBusProvider": ...
 
     async def __aexit__(
         self,

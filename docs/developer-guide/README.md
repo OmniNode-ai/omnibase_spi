@@ -154,10 +154,10 @@ state = await orchestrator.get_workflow_state(
 #### Event Bus Integration
 
 ```python
-from omnibase_spi.protocols.event_bus import ProtocolEventBus
+from omnibase_spi.protocols.event_bus import ProtocolEventBusProvider
 
 # Initialize event bus
-event_bus: ProtocolEventBus = get_event_bus()
+event_bus: ProtocolEventBusProvider = get_event_bus()
 
 # Publish events
 await event_bus.publish_event(

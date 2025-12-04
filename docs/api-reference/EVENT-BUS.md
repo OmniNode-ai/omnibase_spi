@@ -8,10 +8,10 @@ The ONEX event bus protocols provide comprehensive distributed messaging infrast
 
 The event bus domain consists of **13 specialized protocols** that provide complete messaging infrastructure:
 
-### Event Bus Protocol
+### Event Bus Provider Protocol
 
 ```python
-from omnibase_spi.protocols.event_bus import ProtocolEventBus
+from omnibase_spi.protocols.event_bus import ProtocolEventBusProvider
 from omnibase_spi.protocols.types.protocol_event_bus_types import (
     ProtocolEventMessage,
     ProtocolEventHandler,
@@ -19,9 +19,12 @@ from omnibase_spi.protocols.types.protocol_event_bus_types import (
 )
 
 @runtime_checkable
-class ProtocolEventBus(Protocol):
+class ProtocolEventBusProvider(Protocol):
     """
-    Core event bus protocol for distributed messaging.
+    ONEX event bus provider protocol for distributed messaging infrastructure.
+
+    This is the SPI extension of the Core ProtocolEventBus protocol, providing
+    additional ONEX-specific capabilities for distributed messaging infrastructure.
 
     Provides comprehensive event publishing, subscription management,
     and message routing across distributed systems.
@@ -72,33 +75,6 @@ class ProtocolEventBus(Protocol):
     async def get_topic_metrics(self, topic: str) -> ProtocolTopicMetrics: ...
 ```
 
-### Event Bus Provider Protocol
-
-```python
-from typing import Protocol, runtime_checkable
-
-@runtime_checkable
-class ProtocolEventBusProvider(Protocol):
-    """
-    Protocol for objects that provide event bus integration.
-
-    Indicates that an object exposes an `event_bus` compatible with the
-    system's async event bus without constraining the concrete type.
-    Enables component-level event coordination across services and nodes.
-    """
-
-    event_bus: object | None
-```
-
-#### Usage
-
-```python
-def maybe_publish(provider: ProtocolEventBusProvider, event: dict) -> None:
-    if provider.event_bus:
-        # In implementations, event_bus conforms to ProtocolAsyncEventBus
-        # and provides an async publish interface.
-        pass
-```
 
 ### Event Message Protocol
 
@@ -258,40 +234,6 @@ class ProtocolRedpandaAdapter(Protocol):
     async def optimize_redpanda_performance(
         self, topic: str, settings: dict[str, Any]
     ) -> bool: ...
-```
-
-### In-Memory Event Bus Protocol
-
-```python
-@runtime_checkable
-class ProtocolEventBusInMemory(Protocol):
-    """
-    Protocol for in-memory event bus implementation.
-
-    Provides lightweight in-memory event bus for testing,
-    development, and single-node deployments.
-
-    Key Features:
-        - In-memory message storage
-        - Synchronous and asynchronous processing
-        - Topic-based message routing
-        - Subscription management
-        - Performance monitoring
-    """
-
-    async def initialize_memory_store(self) -> bool: ...
-
-    async def clear_memory_store(self) -> None: ...
-
-    async def get_memory_usage(self) -> ProtocolMemoryUsage: ...
-
-    async def get_message_count(self, topic: str) -> int: ...
-
-    async def get_subscription_count(self, topic: str) -> int: ...
-
-    async def simulate_network_delay(
-        self, delay_ms: int
-    ) -> None: ...
 ```
 
 ### Event Publisher Protocol
@@ -471,10 +413,10 @@ Values:
 ### Basic Event Publishing
 
 ```python
-from omnibase_spi.protocols.event_bus import ProtocolEventBus
+from omnibase_spi.protocols.event_bus import ProtocolEventBusProvider
 
 # Initialize event bus
-event_bus: ProtocolEventBus = get_event_bus()
+event_bus: ProtocolEventBusProvider = get_event_bus()
 
 # Publish event
 await event_bus.publish_event(

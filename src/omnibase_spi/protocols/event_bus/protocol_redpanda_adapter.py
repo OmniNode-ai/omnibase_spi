@@ -109,7 +109,7 @@ class ProtocolRedpandaAdapter(Protocol):
 
     See Also:
         - ProtocolKafkaAdapter: Standard Kafka adapter
-        - ProtocolEventBus: High-level event bus interface
+        - ProtocolEventBusProvider: ONEX event bus interface
         - ProtocolEventMessage: Event message protocol
     """
 

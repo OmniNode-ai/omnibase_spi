@@ -11,12 +11,11 @@ Event-driven messaging protocols supporting the ONEX Messaging Design v0.3:
 from ..types.protocol_event_bus_types import ProtocolEventMessage
 from .protocol_dlq_handler import ProtocolDLQHandler
 from .protocol_event_bus import (
-    ProtocolEventBus,
     ProtocolEventBusHeaders,
+    ProtocolEventBusProvider,
     ProtocolKafkaEventBusAdapter,
 )
 from .protocol_event_bus_context_manager import ProtocolEventBusContextManager
-from .protocol_event_bus_in_memory import ProtocolEventBusInMemory
 from .protocol_event_bus_mixin import (
     ProtocolAsyncEventBus,
     ProtocolEventBusBase,
@@ -38,12 +37,11 @@ from .protocol_schema_registry import ProtocolSchemaRegistry
 
 __all__ = [
     "ProtocolAsyncEventBus",
-    "ProtocolEventBus",
     "ProtocolEventBusBase",
     "ProtocolEventBusContextManager",
     "ProtocolEventBusHeaders",
-    "ProtocolEventBusInMemory",
     "ProtocolEventBusLogEmitter",
+    "ProtocolEventBusProvider",
     "ProtocolEventBusRegistry",
     "ProtocolEventBusService",
     "ProtocolEventMessage",

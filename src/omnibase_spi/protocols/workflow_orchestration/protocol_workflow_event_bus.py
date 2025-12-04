@@ -15,7 +15,9 @@ from omnibase_spi.protocols.types.protocol_workflow_orchestration_types import (
 )
 
 if TYPE_CHECKING:
-    from omnibase_spi.protocols.event_bus.protocol_event_bus import ProtocolEventBus
+    from omnibase_spi.protocols.event_bus.protocol_event_bus import (
+        ProtocolEventBusProvider,
+    )
 
 
 @runtime_checkable
@@ -197,11 +199,11 @@ class ProtocolWorkflowEventBus(Protocol):
     Example:
         ```python
         class WorkflowEventBusImpl:
-            def __init__(self, base_bus: ProtocolEventBus) -> None:
+            def __init__(self, base_bus: ProtocolEventBus) -> None:  # Core's ProtocolEventBus
                 self._base_bus = base_bus
 
             @property
-            def base_event_bus(self) -> ProtocolEventBus:
+            def base_event_bus(self) -> ProtocolEventBus:  # Returns Core's ProtocolEventBus
                 return self._base_bus
 
             async def publish_workflow_event(
@@ -242,11 +244,19 @@ class ProtocolWorkflowEventBus(Protocol):
         ProtocolWorkflowEventMessage: Message format for workflow events.
         ProtocolWorkflowEventHandler: Handler for processing workflow events.
         ProtocolLiteralWorkflowStateProjection: State projection for CQRS.
-        ProtocolEventBus: Base event bus interface.
+        ProtocolEventBus: Base event bus interface (from omnibase_core).
     """
 
     @property
-    def base_event_bus(self) -> "ProtocolEventBus": ...
+    def base_event_bus(self) -> "ProtocolEventBus":
+        """
+        Get the underlying event bus implementation.
+
+        Returns the Core ProtocolEventBus that this workflow event bus wraps.
+        This is the simpler base protocol from omnibase_core, not the ONEX-extended
+        ProtocolEventBusProvider from SPI.
+        """
+        ...
 
     async def publish_workflow_event(
         self,

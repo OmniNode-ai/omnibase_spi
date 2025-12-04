@@ -292,9 +292,9 @@ This repository provides the protocol contracts that `omnibase-core` implements:
 
 ```python
 # In omnibase-core implementations
-from omnibase_spi.protocols.event_bus.protocol_event_bus import ProtocolEventBus
+from omnibase_spi.protocols.event_bus.protocol_event_bus import ProtocolEventBusProvider
 
-class EventBusImplementation(ProtocolEventBus):
+class EventBusImplementation(ProtocolEventBusProvider):
     """Concrete implementation of the protocol."""
     pass
 ```
@@ -354,7 +354,7 @@ pip install -e /path/to/omnibase-spi
 Import protocols in other packages:
 ```python
 from omnibase_spi.protocols.core.protocol_canonical_serializer import ProtocolCanonicalSerializer
-from omnibase_spi.protocols.event_bus.protocol_event_bus import ProtocolEventBus
+from omnibase_spi.protocols.event_bus.protocol_event_bus import ProtocolEventBusProvider
 ```
 
 ## Next Steps
