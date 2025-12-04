@@ -150,7 +150,7 @@ class ProtocolComputeNode(Protocol):
 
 ## Version Information
 
-- **Current Version**: 0.3.0 (in development)
+- **Current Version**: 0.3.0
 - **Python Support**: 3.12+
 - **Protocol Count**: 176+ protocols across 22 domains
 
