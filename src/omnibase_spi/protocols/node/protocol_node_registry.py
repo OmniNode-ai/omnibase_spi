@@ -23,7 +23,37 @@ from omnibase_spi.protocols.types.protocol_core_types import (
 
 @runtime_checkable
 class ProtocolNodeChangeCallback(Protocol):
-    """Protocol for node change callback functions."""
+    """
+    Protocol for node change notification callback functions.
+
+    Defines the callback signature for receiving notifications when
+    node state changes occur in the registry, enabling reactive
+    handling of node additions, removals, and health changes.
+
+    Example:
+        ```python
+        registry: ProtocolNodeRegistry = get_node_registry()
+
+        async def on_node_change(node: ProtocolNodeInfo, change_type: str):
+            if change_type == "added":
+                print(f"New node: {node.node_name}")
+            elif change_type == "unhealthy":
+                print(f"Node unhealthy: {node.node_name}")
+                await handle_node_failure(node)
+            elif change_type == "removed":
+                print(f"Node removed: {node.node_name}")
+
+        handle = await registry.watch_node_changes(
+            callback=on_node_change,
+            node_type="COMPUTE"
+        )
+        ```
+
+    See Also:
+        - ProtocolNodeRegistry: Registry interface with watch methods
+        - ProtocolNodeInfo: Node information passed to callback
+        - ProtocolWatchHandle: Watch subscription handle
+    """
 
     async def __call__(
         self, node_info: "ProtocolNodeInfo", change_type: str
@@ -32,7 +62,37 @@ class ProtocolNodeChangeCallback(Protocol):
 
 @runtime_checkable
 class ProtocolWatchHandle(Protocol):
-    """Protocol for watch handle objects."""
+    """
+    Protocol for node registry watch subscription handle.
+
+    Represents an active subscription to node change events, providing
+    identification and status tracking for subscription management
+    and cleanup.
+
+    Attributes:
+        watch_id: Unique identifier for this watch subscription
+        is_active: Whether the subscription is currently active
+
+    Example:
+        ```python
+        registry: ProtocolNodeRegistry = get_node_registry()
+
+        handle = await registry.watch_node_changes(
+            callback=my_callback,
+            node_type="COMPUTE"
+        )
+
+        print(f"Watch ID: {handle.watch_id}")
+        print(f"Active: {handle.is_active}")
+
+        # Later, stop watching
+        await registry.stop_watch(handle)
+        ```
+
+    See Also:
+        - ProtocolNodeRegistry: Registry with watch methods
+        - ProtocolNodeChangeCallback: Callback for changes
+    """
 
     watch_id: str
     is_active: bool
@@ -40,7 +100,35 @@ class ProtocolWatchHandle(Protocol):
 
 @runtime_checkable
 class ProtocolNodeRegistryConfig(Protocol):
-    """Protocol for node registry configuration."""
+    """
+    Protocol for node registry configuration parameters.
+
+    Defines connection settings and operational parameters for
+    the node registry, typically backed by Consul or similar
+    service discovery systems.
+
+    Attributes:
+        consul_host: Consul server hostname
+        consul_port: Consul server port number
+        consul_token: Optional Consul ACL token for authentication
+        health_check_interval: Interval in seconds between health checks
+        retry_attempts: Number of retry attempts for failed operations
+
+    Example:
+        ```python
+        registry: ProtocolNodeRegistry = get_node_registry()
+        config = registry.config
+
+        if config:
+            print(f"Consul: {config.consul_host}:{config.consul_port}")
+            print(f"Health check interval: {config.health_check_interval}s")
+            print(f"Retry attempts: {config.retry_attempts}")
+        ```
+
+    See Also:
+        - ProtocolNodeRegistry: Registry using this configuration
+        - ProtocolNodeInfo: Registered node information
+    """
 
     consul_host: str
     consul_port: int
@@ -51,7 +139,47 @@ class ProtocolNodeRegistryConfig(Protocol):
 
 @runtime_checkable
 class ProtocolNodeInfo(Protocol):
-    """Protocol for node information objects."""
+    """
+    Protocol for registered node information and metadata.
+
+    Represents a node registered in the ONEX node registry with
+    complete identification, classification, health status, and
+    operational metadata for service discovery and coordination.
+
+    Attributes:
+        node_id: Unique identifier for this node instance
+        node_type: ONEX node type classification
+        node_name: Human-readable node name
+        environment: Deployment environment (dev, staging, prod)
+        group: Node group for mini-mesh organization
+        version: Semantic version of the node
+        health_status: Current health status
+        endpoint: Network endpoint for communication
+        metadata: Additional node metadata and capabilities
+        registered_at: Timestamp of initial registration
+        last_heartbeat: Timestamp of most recent heartbeat
+
+    Example:
+        ```python
+        registry: ProtocolNodeRegistry = get_node_registry()
+        nodes = await registry.discover_nodes(
+            node_type="COMPUTE",
+            environment="prod",
+            health_filter="healthy"
+        )
+
+        for node in nodes:
+            print(f"Node: {node.node_name} ({node.node_id})")
+            print(f"  Type: {node.node_type}")
+            print(f"  Endpoint: {node.endpoint}")
+            print(f"  Health: {node.health_status}")
+            print(f"  Last heartbeat: {node.last_heartbeat}")
+        ```
+
+    See Also:
+        - ProtocolNodeRegistry: Registry for node management
+        - ProtocolNodeChangeCallback: Change notifications
+    """
 
     node_id: str
     node_type: LiteralNodeType

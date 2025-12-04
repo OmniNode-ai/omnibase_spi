@@ -35,7 +35,30 @@ from omnibase_spi.protocols.memory.protocol_memory_security import (
 
 @runtime_checkable
 class ProtocolMemoryOperation(Protocol):
-    """Protocol for memory operations."""
+    """
+    Protocol for memory operations in the ONEX memory subsystem.
+
+    Defines the interface for memory operations that can be tracked,
+    audited, and replayed. Each operation captures the type, data
+    payload, and timestamp for complete operation traceability.
+
+    Attributes:
+        operation_type: Type of memory operation (e.g., "read", "write", "delete").
+        data: Operation payload containing operation-specific data.
+        timestamp: ISO 8601 timestamp when the operation was initiated.
+
+    Example:
+        ```python
+        class WriteOperation:
+            operation_type: str = "write"
+            data: dict[str, Any] = {"key": "user_123", "value": {"name": "Alice"}}
+            timestamp: str = "2024-01-15T10:30:00Z"
+
+        op = WriteOperation()
+        assert isinstance(op, ProtocolMemoryOperation)
+        assert op.operation_type == "write"
+        ```
+    """
 
     @property
     def operation_type(self) -> str:
@@ -55,7 +78,36 @@ class ProtocolMemoryOperation(Protocol):
 
 @runtime_checkable
 class ProtocolMemoryResponseV2(Protocol):
-    """Protocol for memory responses (version 2)."""
+    """
+    Protocol for memory responses (version 2) with enhanced error handling.
+
+    Provides a standardized response structure for memory operations,
+    including success/failure indication, response data, and detailed
+    error messages. Version 2 improves upon the original with better
+    error context and nullable data support.
+
+    Attributes:
+        success: Boolean indicating whether the operation completed successfully.
+        data: Response payload; may be None for operations without return data.
+        error: Detailed error message if the operation failed; None on success.
+
+    Example:
+        ```python
+        class SuccessResponse:
+            success: bool = True
+            data: Any = {"user_id": "123", "status": "active"}
+            error: str | None = None
+
+        class ErrorResponse:
+            success: bool = False
+            data: Any = None
+            error: str | None = "Key not found: user_456"
+
+        resp = SuccessResponse()
+        assert isinstance(resp, ProtocolMemoryResponseV2)
+        assert resp.success and resp.error is None
+        ```
+    """
 
     @property
     def success(self) -> bool:
@@ -75,7 +127,35 @@ class ProtocolMemoryResponseV2(Protocol):
 
 @runtime_checkable
 class ProtocolMemoryStreamingResponse(Protocol):
-    """Protocol for streaming memory responses."""
+    """
+    Protocol for streaming memory responses supporting chunked data transfer.
+
+    Enables efficient streaming of large data sets from memory operations
+    by breaking responses into manageable chunks. Each chunk is uniquely
+    identified and indicates whether it is the final chunk in the stream.
+
+    Attributes:
+        chunk_id: Unique identifier for this chunk within the stream.
+        data: Payload data for this chunk; type depends on operation.
+        is_last: Boolean flag indicating the final chunk in the stream.
+
+    Example:
+        ```python
+        class StreamChunk:
+            chunk_id: str = "chunk_003"
+            data: Any = {"records": [{"id": 1}, {"id": 2}]}
+            is_last: bool = False
+
+        class FinalChunk:
+            chunk_id: str = "chunk_004"
+            data: Any = {"records": [{"id": 3}]}
+            is_last: bool = True
+
+        chunk = StreamChunk()
+        assert isinstance(chunk, ProtocolMemoryStreamingResponse)
+        assert not chunk.is_last
+        ```
+    """
 
     @property
     def chunk_id(self) -> str:
@@ -95,7 +175,34 @@ class ProtocolMemoryStreamingResponse(Protocol):
 
 @runtime_checkable
 class ProtocolMemoryStreamingRequest(Protocol):
-    """Protocol for streaming memory requests."""
+    """
+    Protocol for streaming memory requests enabling chunked data operations.
+
+    Initiates a streaming operation for large-scale memory access, allowing
+    clients to receive data in chunks rather than waiting for complete
+    response. Supports configurable streaming parameters for flow control.
+
+    Attributes:
+        stream_id: Unique identifier for correlating stream chunks.
+        operation: Type of streaming operation (e.g., "scan", "export", "subscribe").
+        parameters: Operation-specific parameters including batch size and filters.
+
+    Example:
+        ```python
+        class ScanStreamRequest:
+            stream_id: str = "stream_abc123"
+            operation: str = "scan"
+            parameters: dict[str, Any] = {
+                "prefix": "user_",
+                "batch_size": 100,
+                "timeout_ms": 30000
+            }
+
+        req = ScanStreamRequest()
+        assert isinstance(req, ProtocolMemoryStreamingRequest)
+        assert req.operation == "scan"
+        ```
+    """
 
     @property
     def stream_id(self) -> str:
@@ -115,7 +222,34 @@ class ProtocolMemoryStreamingRequest(Protocol):
 
 @runtime_checkable
 class ProtocolMemorySecurityPolicy(Protocol):
-    """Protocol for memory security policies."""
+    """
+    Protocol for memory security policies controlling access and operations.
+
+    Defines security policies for memory access including rule-based
+    access control, operation restrictions, and default deny/allow
+    behavior. Policies are evaluated against security contexts to
+    authorize or reject memory operations.
+
+    Attributes:
+        policy_id: Unique identifier for this security policy.
+        rules: List of rule definitions with conditions and actions.
+        default_action: Action when no rules match ("allow" or "deny").
+
+    Example:
+        ```python
+        class RestrictivePolicy:
+            policy_id: str = "policy_prod_001"
+            rules: list[dict[str, Any]] = [
+                {"pattern": "secret_*", "action": "deny", "principals": ["*"]},
+                {"pattern": "user_*", "action": "allow", "principals": ["admin"]}
+            ]
+            default_action: str = "deny"
+
+        policy = RestrictivePolicy()
+        assert isinstance(policy, ProtocolMemorySecurityPolicy)
+        assert policy.default_action == "deny"
+        ```
+    """
 
     @property
     def policy_id(self) -> str:
@@ -135,7 +269,33 @@ class ProtocolMemorySecurityPolicy(Protocol):
 
 @runtime_checkable
 class ProtocolMemoryComposable(Protocol):
-    """Protocol for composable memory operations."""
+    """
+    Protocol for composable memory operations supporting operation chaining.
+
+    Enables composition of multiple memory operations into atomic units,
+    allowing complex workflows to be built from simpler components.
+    Supports transactional semantics and operation dependency tracking.
+
+    Attributes:
+        components: List of component identifiers participating in composition.
+        operations: Ordered list of operations to execute in the composition.
+        metadata: Additional metadata for composition tracking and debugging.
+
+    Example:
+        ```python
+        class TransactionalUpdate:
+            components: list[str] = ["cache_layer", "persistent_store"]
+            operations: list[str] = ["validate", "write_cache", "write_store", "commit"]
+            metadata: dict[str, Any] = {
+                "transaction_id": "tx_789",
+                "isolation_level": "serializable"
+            }
+
+        comp = TransactionalUpdate()
+        assert isinstance(comp, ProtocolMemoryComposable)
+        assert len(comp.operations) == 4
+        ```
+    """
 
     @property
     def components(self) -> list[str]:
@@ -155,7 +315,38 @@ class ProtocolMemoryComposable(Protocol):
 
 @runtime_checkable
 class ProtocolMemoryErrorHandling(Protocol):
-    """Protocol for memory error handling."""
+    """
+    Protocol for memory error handling with recovery strategy specification.
+
+    Provides structured error information for memory operations including
+    error classification, severity levels, and recommended recovery
+    strategies. Enables intelligent error handling and automated recovery
+    in distributed memory systems.
+
+    Attributes:
+        error_type: Classification of the error (e.g., "timeout", "corruption", "quota").
+        severity: Severity level ("critical", "high", "medium", "low").
+        recovery_strategy: Recommended recovery approach (e.g., "retry", "failover", "abort").
+        context: Additional context for debugging and recovery decisions.
+
+    Example:
+        ```python
+        class TimeoutError:
+            error_type: str = "timeout"
+            severity: str = "medium"
+            recovery_strategy: str = "retry_with_backoff"
+            context: dict[str, Any] = {
+                "operation": "read",
+                "key": "user_123",
+                "elapsed_ms": 5000,
+                "retry_count": 2
+            }
+
+        err = TimeoutError()
+        assert isinstance(err, ProtocolMemoryErrorHandling)
+        assert err.recovery_strategy == "retry_with_backoff"
+        ```
+    """
 
     @property
     def error_type(self) -> str:

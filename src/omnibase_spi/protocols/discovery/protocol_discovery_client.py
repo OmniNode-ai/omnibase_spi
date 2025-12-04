@@ -9,7 +9,28 @@ from typing import Any, Protocol, runtime_checkable
 
 @runtime_checkable
 class ProtocolDiscoveredTool(Protocol):
-    """Protocol for discovered tool information."""
+    """
+    Protocol for discovered tool metadata and health information.
+
+    Represents a tool discovered through the event-driven service
+    discovery system, providing identification, classification,
+    metadata, and health status for runtime tool selection.
+
+    Example:
+        ```python
+        client: ProtocolDiscoveryClient = get_discovery_client()
+        tools = await client.discover_healthy_tools()
+
+        for tool in tools:
+            if tool.is_healthy:
+                print(f"Tool: {tool.tool_name} ({tool.tool_type})")
+                print(f"  Metadata: {tool.metadata}")
+        ```
+
+    See Also:
+        - ProtocolDiscoveryClient: Discovery interface
+        - ProtocolCliDiscoveredTool: CLI-specific tool info
+    """
 
     @property
     def tool_name(self) -> str:
@@ -35,10 +56,53 @@ class ProtocolDiscoveredTool(Protocol):
 @runtime_checkable
 class ProtocolDiscoveryClient(Protocol):
     """
-    Protocol interface for discovery client implementations.
+    Protocol interface for event-driven service discovery client.
 
-    Defines the contract for event-driven service discovery with timeout
-    handling, correlation tracking, and response aggregation.
+    Provides the contract for discovering tools and services in an ONEX
+    ecosystem using event-driven patterns with timeout handling,
+    correlation tracking, retry logic, and response aggregation.
+
+    Example:
+        ```python
+        client: ProtocolDiscoveryClient = get_discovery_client()
+
+        try:
+            # Discover all tools with specific filters
+            tools = await client.discover_tools(
+                filters={"capabilities": ["code_generation"]},
+                timeout=30.0,
+                max_results=10,
+                include_metadata=True
+            )
+            print(f"Discovered {len(tools)} tools")
+
+            # Discover by protocol
+            graphql_tools = await client.discover_tools_by_protocol(
+                protocol="graphql",
+                timeout=15.0
+            )
+
+            # Discover by tags
+            validator_tools = await client.discover_tools_by_tags(
+                tags=["validator", "onex"],
+                timeout=15.0
+            )
+
+            # Get only healthy tools
+            healthy_tools = await client.discover_healthy_tools()
+
+            # Check client statistics
+            stats = await client.get_client_stats()
+            print(f"Pending requests: {await client.get_pending_request_count()}")
+
+        finally:
+            await client.close()
+        ```
+
+    See Also:
+        - ProtocolDiscoveredTool: Discovered tool representation
+        - ProtocolNodeRegistry: Node-based discovery
+        - ProtocolEventBus: Event transport for discovery
     """
 
     async def discover_tools(

@@ -12,7 +12,7 @@ Author: ONEX Framework Team
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    from omnibase_spi.protocols.types import ContextValue, ProtocolSemVer
+    from omnibase_spi.protocols.types import ProtocolSemVer
 
 
 @runtime_checkable

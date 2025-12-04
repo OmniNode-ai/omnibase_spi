@@ -126,8 +126,62 @@ class ProtocolKafkaClient(Protocol):
     def bootstrap_servers(self) -> list[str]: ...
 @runtime_checkable
 class ProtocolKafkaClientProvider(Protocol):
-    """Protocol for Kafka client provider."""
+    """
+    Protocol for Kafka client factory and configuration provider.
 
-    async def create_kafka_client(self) -> ProtocolKafkaClient: ...
+    Provides centralized creation of Kafka client instances with
+    consistent configuration, enabling dependency injection and
+    test mocking of Kafka connections.
 
-    async def get_kafka_configuration(self) -> dict[str, str | int | float | bool]: ...
+    Example:
+        ```python
+        provider: ProtocolKafkaClientProvider = get_kafka_provider()
+
+        # Get Kafka configuration
+        config = await provider.get_kafka_configuration()
+        print(f"Bootstrap servers: {config.get('bootstrap_servers')}")
+
+        # Create a new Kafka client
+        client = await provider.create_kafka_client()
+        await client.start()
+
+        try:
+            await client.send_and_wait("events", b'{"type": "test"}')
+        finally:
+            await client.stop()
+        ```
+
+    See Also:
+        - ProtocolKafkaClient: Created client interface
+        - ProtocolKafkaAdapter: Full adapter with subscriptions
+    """
+
+    async def create_kafka_client(self) -> ProtocolKafkaClient:
+        """
+        Create a new Kafka client instance.
+
+        Creates and returns a configured Kafka client ready for use.
+        The client should be started via its start() method before
+        sending messages.
+
+        Returns:
+            A configured ProtocolKafkaClient instance ready to be started.
+
+        Raises:
+            ConfigurationError: If client configuration is invalid.
+            FactoryError: If client instantiation fails.
+        """
+        ...
+
+    async def get_kafka_configuration(self) -> dict[str, str | int | float | bool]:
+        """
+        Retrieve Kafka client configuration parameters.
+
+        Returns:
+            Configuration dictionary with Kafka client settings including
+            bootstrap servers, security settings, and operational parameters.
+
+        Raises:
+            ConfigurationError: If configuration is invalid or unavailable.
+        """
+        ...

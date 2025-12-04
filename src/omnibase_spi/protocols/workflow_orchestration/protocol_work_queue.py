@@ -23,7 +23,48 @@ LiteralAssignmentStrategy = Literal[
 
 @runtime_checkable
 class ProtocolWorkQueue(Protocol):
-    """Protocol for work queue integration and ticket management."""
+    """
+    Protocol for work queue integration with ONEX work ticket system.
+
+    Provides comprehensive work queue management including ticket lifecycle,
+    dependency tracking, assignment strategies, and checkpoint management
+    for coordinated multi-agent work execution.
+
+    Example:
+        ```python
+        queue: ProtocolWorkQueue = get_work_queue()
+
+        # Connect to work system
+        await queue.connect_to_work_system()
+
+        # Fetch and assign tickets
+        tickets = await queue.fetch_pending_tickets(limit=10)
+        for ticket in tickets:
+            await queue.assign_ticket_to_agent(ticket.id, "agent-001")
+
+        # Track progress
+        await queue.update_ticket_progress("ticket-123", 0.5)
+
+        # Handle completion
+        await queue.complete_ticket("ticket-123", {"output": "result"})
+
+        # Or handle failure
+        await queue.fail_ticket("ticket-456", "Processing error")
+
+        # Manage dependencies
+        deps = await queue.get_ticket_dependencies("ticket-789")
+        ready = await queue.get_ready_tickets()
+
+        # Get statistics
+        stats = await queue.get_queue_statistics()
+        print(f"Pending: {stats['pending']}, In-Progress: {stats['in_progress']}")
+        ```
+
+    See Also:
+        - ProtocolWorkCoordinator: High-level coordination
+        - ProtocolWorkTicket: Ticket structure
+        - ProtocolWorkflowEventBus: Event-based coordination
+    """
 
     async def connect_to_work_system(self) -> bool: ...
 

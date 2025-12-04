@@ -202,7 +202,51 @@ class ProtocolONEXStandards(Protocol):
 
 @runtime_checkable
 class ProtocolArchitectureCompliance(Protocol):
-    """Protocol for architectural compliance checking."""
+    """
+    Protocol for architectural compliance checking and layer separation.
+
+    Defines and enforces architectural rules including allowed and forbidden
+    dependencies, required code patterns, and layer separation violations.
+    Ensures ONEX components follow the prescribed architecture with proper
+    dependency direction between SPI, Core, and Infra layers.
+
+    Attributes:
+        allowed_dependencies: List of allowed import patterns (e.g., "omnibase_core.*").
+        forbidden_dependencies: List of forbidden import patterns (e.g., "omnibase_infra.*").
+        required_patterns: List of patterns that must be present in compliant code.
+        layer_violations: Accumulated list of detected layer violations.
+
+    Example:
+        ```python
+        class SPIArchitectureRules:
+            allowed_dependencies: list[str] = [
+                "typing",
+                "omnibase_core.models.*",
+                "omnibase_spi.protocols.*"
+            ]
+            forbidden_dependencies: list[str] = [
+                "omnibase_infra.*",
+                "omniagent.*"
+            ]
+            required_patterns: list[str] = ["@runtime_checkable", "Protocol"]
+            layer_violations: list[str] = []
+
+            async def check_dependency_compliance(self, imports: list[str]) -> list[str]:
+                violations = []
+                for imp in imports:
+                    if any(imp.startswith(f) for f in self.forbidden_dependencies):
+                        violations.append(f"Forbidden import: {imp}")
+                return violations
+
+            async def validate_layer_separation(
+                self, file_path: str, imports: list[str]
+            ) -> list[str]:
+                return await self.check_dependency_compliance(imports)
+
+        rules = SPIArchitectureRules()
+        assert isinstance(rules, ProtocolArchitectureCompliance)
+        ```
+    """
 
     allowed_dependencies: list[str]
     forbidden_dependencies: list[str]
@@ -218,7 +262,48 @@ class ProtocolArchitectureCompliance(Protocol):
 
 @runtime_checkable
 class ProtocolComplianceReport(Protocol):
-    """Protocol for comprehensive compliance report."""
+    """
+    Protocol for comprehensive compliance report with scores and recommendations.
+
+    Aggregates compliance validation results for a single file including
+    all violations, compliance scores for ONEX and architecture rules,
+    overall compliance status, and prioritized fix recommendations.
+    Serves as the primary output artifact from file-level compliance checks.
+
+    Attributes:
+        file_path: Path to the file that was validated.
+        violations: List of all detected compliance violations.
+        onex_compliance_score: ONEX naming and convention compliance (0.0-1.0).
+        architecture_compliance_score: Architecture layer compliance (0.0-1.0).
+        overall_compliance: Boolean indicating overall compliance status.
+        critical_violations: Count of critical-severity violations.
+        recommendations: List of prioritized recommendations for improvement.
+
+    Example:
+        ```python
+        class FileComplianceReport:
+            file_path: str = "/workspace/omnibase_spi/protocols/memory/protocol_example.py"
+            violations: list[ProtocolComplianceViolation] = [violation1, violation2]
+            onex_compliance_score: float = 0.85
+            architecture_compliance_score: float = 1.0
+            overall_compliance: bool = False
+            critical_violations: int = 1
+            recommendations: list[str] = [
+                "Fix critical: Add @runtime_checkable decorator",
+                "Minor: Use Protocol suffix in class name"
+            ]
+
+            async def get_compliance_summary(self) -> str:
+                return f"Compliance: {self.onex_compliance_score:.0%} ONEX, {self.architecture_compliance_score:.0%} Architecture"
+
+            async def get_priority_fixes(self) -> list[ProtocolComplianceViolation]:
+                return sorted(self.violations, key=lambda v: v.severity)
+
+        report = FileComplianceReport()
+        assert isinstance(report, ProtocolComplianceReport)
+        assert report.critical_violations == 1
+        ```
+    """
 
     file_path: str
     violations: list[ProtocolComplianceViolation]

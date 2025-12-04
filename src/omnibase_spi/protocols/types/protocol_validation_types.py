@@ -27,7 +27,41 @@ from omnibase_spi.protocols.types.protocol_base_types import (
 
 @runtime_checkable
 class ProtocolVersionInfo(Protocol):
-    """Protocol for version metadata."""
+    """
+    Protocol for version metadata and compatibility information.
+
+    Provides comprehensive version information for protocols including
+    current version, minimum compatible version, retirement scheduling,
+    and migration guidance. Enables version negotiation and compatibility
+    checking in distributed ONEX systems.
+
+    Attributes:
+        protocol_name: Name of the protocol this version info describes.
+        version: Current semantic version of the protocol.
+        compatibility_version: Minimum compatible version for interoperability.
+        retirement_date: Scheduled retirement date; None if not planned.
+        migration_guide_url: URL to migration documentation; None if not available.
+
+    Example:
+        ```python
+        class MemoryProtocolVersionInfo:
+            protocol_name: str = "ProtocolMemoryOperation"
+            version: ProtocolSemVer = SemVer(2, 1, 0)
+            compatibility_version: ProtocolSemVer = SemVer(2, 0, 0)
+            retirement_date: ProtocolDateTime | None = None
+            migration_guide_url: str | None = "https://docs.onex.ai/migration/memory-v2"
+
+            async def validate_version_info(self) -> bool:
+                return self.version >= self.compatibility_version
+
+            def is_compatible(self) -> bool:
+                return self.retirement_date is None
+
+        info = MemoryProtocolVersionInfo()
+        assert isinstance(info, ProtocolVersionInfo)
+        assert info.is_compatible()
+        ```
+    """
 
     protocol_name: str
     version: "ProtocolSemVer"
@@ -42,7 +76,42 @@ class ProtocolVersionInfo(Protocol):
 
 @runtime_checkable
 class ProtocolCompatibilityCheck(Protocol):
-    """Protocol for compatibility checking results."""
+    """
+    Protocol for compatibility checking results between protocol versions.
+
+    Captures the result of a compatibility check between two protocol
+    versions, including compatibility status, version details, list of
+    breaking changes, and migration requirements. Enables informed
+    decisions about protocol upgrades and interoperability.
+
+    Attributes:
+        is_compatible: Whether the versions are compatible for interoperation.
+        required_version: The version required by the dependent component.
+        current_version: The version currently available or installed.
+        breaking_changes: List of breaking changes between versions.
+        migration_required: Whether data or code migration is necessary.
+
+    Example:
+        ```python
+        class IncompatibleCheckResult:
+            is_compatible: bool = False
+            required_version: ProtocolSemVer = SemVer(3, 0, 0)
+            current_version: ProtocolSemVer = SemVer(2, 5, 0)
+            breaking_changes: list[str] = [
+                "Removed deprecated method 'get_legacy_data'",
+                "Changed return type of 'execute' from dict to Result"
+            ]
+            migration_required: bool = True
+
+            async def validate_compatibility(self) -> bool:
+                return len(self.breaking_changes) == 0 or not self.migration_required
+
+        check = IncompatibleCheckResult()
+        assert isinstance(check, ProtocolCompatibilityCheck)
+        assert not check.is_compatible
+        assert len(check.breaking_changes) == 2
+        ```
+    """
 
     is_compatible: bool
     required_version: "ProtocolSemVer"

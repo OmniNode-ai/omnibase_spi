@@ -83,7 +83,31 @@ class ProtocolCircuitBreakerConfig(Protocol):
 
 @runtime_checkable
 class ProtocolCircuitBreakerMetrics(Protocol):
-    """Real-time circuit breaker metrics."""
+    """
+    Protocol for real-time circuit breaker metrics and statistics.
+
+    Provides comprehensive metrics about circuit breaker operation
+    including request counts, success/failure rates, timing data,
+    and state change history for monitoring and alerting.
+
+    Example:
+        ```python
+        breaker: ProtocolCircuitBreaker = get_circuit_breaker()
+        metrics = await breaker.get_metrics()
+
+        print(f"Total requests: {metrics.total_requests}")
+        print(f"Successes: {metrics.successful_requests}")
+        print(f"Failures: {metrics.failed_requests}")
+        print(f"Current state: {metrics.current_state}")
+
+        failure_rate = await metrics.get_failure_rate()
+        print(f"Failure rate: {failure_rate:.2%}")
+        ```
+
+    See Also:
+        - ProtocolCircuitBreaker: Main circuit breaker interface
+        - ProtocolCircuitBreakerConfig: Configuration parameters
+    """
 
     @property
     def total_requests(self) -> int: ...
@@ -190,10 +214,36 @@ class ProtocolCircuitBreaker(Protocol):
 @runtime_checkable
 class ProtocolCircuitBreakerFactory(Protocol):
     """
-    Protocol for circuit breaker factory implementations.
+    Protocol for circuit breaker factory and instance management.
 
-    Factories manage circuit breaker instances and provide
-    consistent configuration across services.
+    Provides centralized creation, registration, and management of
+    circuit breaker instances with consistent configuration across
+    services and support for dynamic instance lookup.
+
+    Example:
+        ```python
+        factory: ProtocolCircuitBreakerFactory = get_circuit_breaker_factory()
+
+        # Get or create circuit breaker for a service
+        breaker = await factory.get_circuit_breaker(
+            service_name="external-api",
+            create_if_missing=True
+        )
+
+        # Register a custom-configured breaker
+        custom_breaker = create_custom_breaker()
+        await factory.register_circuit_breaker("payment-service", custom_breaker)
+
+        # List all circuit breakers
+        all_breakers = await factory.get_all_circuit_breakers()
+        for name, breaker in all_breakers.items():
+            state = await breaker.get_state()
+            print(f"{name}: {state}")
+        ```
+
+    See Also:
+        - ProtocolCircuitBreaker: Individual breaker interface
+        - ProtocolCircuitBreakerConfig: Configuration protocol
     """
 
     async def get_circuit_breaker(

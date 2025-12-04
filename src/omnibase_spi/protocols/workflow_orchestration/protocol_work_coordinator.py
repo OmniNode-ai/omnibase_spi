@@ -9,9 +9,6 @@ parallel tickets with strict SPI purity compliance.
 from collections.abc import AsyncIterator
 from datetime import datetime
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
-from uuid import UUID
-
-from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types.protocol_workflow_orchestration_types import (

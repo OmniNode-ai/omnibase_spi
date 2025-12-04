@@ -9,10 +9,7 @@ Domain: Validation and Quality Assurance
 Author: ONEX Framework Team
 """
 
-from typing import TYPE_CHECKING, Optional, Protocol, runtime_checkable
-
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.types import ContextValue
+from typing import Optional, Protocol, runtime_checkable
 
 
 @runtime_checkable

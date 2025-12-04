@@ -8,8 +8,6 @@ complex workflows with event-driven coordination and strict SPI purity.
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 from uuid import UUID
 
-from omnibase_spi.protocols.types.protocol_core_types import ContextValue
-
 if TYPE_CHECKING:
     from omnibase_spi.protocols.node.protocol_node_registry import ProtocolNodeRegistry
     from omnibase_spi.protocols.types.protocol_file_handling_types import (

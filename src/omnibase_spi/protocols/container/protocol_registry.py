@@ -13,7 +13,6 @@ if TYPE_CHECKING:
     from omnibase_spi.protocols.container.protocol_artifact_container import (
         ProtocolArtifactMetadata,
     )
-    from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 
 from omnibase_spi.protocols.container.protocol_artifact_container import (
     LiteralContainerArtifactType,

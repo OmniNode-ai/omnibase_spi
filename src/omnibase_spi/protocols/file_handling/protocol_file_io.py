@@ -9,10 +9,7 @@ Domain: File Handling and I/O Operations
 Author: ONEX Framework Team
 """
 
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
-
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.types import ContextValue
+from typing import Any, Protocol, runtime_checkable
 
 
 @runtime_checkable

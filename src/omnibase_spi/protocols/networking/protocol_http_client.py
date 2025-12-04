@@ -11,7 +11,6 @@ Security Note: Implementations must include SSRF protection and validate all tar
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.protocol_core_types import ContextValue
     from omnibase_spi.protocols.types.protocol_event_bus_types import (
         ProtocolEventHeaders,
     )

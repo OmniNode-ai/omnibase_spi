@@ -10,7 +10,39 @@ from typing import Protocol, runtime_checkable
 
 @runtime_checkable
 class ProtocolModelSchema(Protocol):
-    """Protocol for schema models used in type mapping."""
+    """
+    Protocol for schema models used in JSON Schema to Python type mapping.
+
+    Represents a JSON Schema definition with introspection capabilities
+    for determining the schema type, extracting properties, and generating
+    corresponding Python type representations.
+
+    Attributes:
+        type: JSON Schema type (string, number, object, array, etc.)
+        properties: Dictionary of property definitions for object types
+        required: List of required property names
+        items: Schema definition for array item types
+        enum: List of allowed values for enum types
+
+    Example:
+        ```python
+        mapper: ProtocolTypeMapper = get_type_mapper()
+
+        # Given a schema from contract
+        if schema.is_array_type():
+            type_str = await mapper.get_array_type_string(schema)
+        elif schema.is_object_type():
+            type_str = await mapper.get_object_type_string(schema)
+        elif schema.is_enum_type():
+            enum_name = mapper.generate_enum_name_from_values(schema.enum)
+        else:
+            type_str = await schema.get_python_type()
+        ```
+
+    See Also:
+        - ProtocolTypeMapper: Type mapping interface
+        - ProtocolContractModelSchema: Contract schema structure
+    """
 
     type: str
     properties: dict[str, object]
@@ -29,10 +61,38 @@ class ProtocolModelSchema(Protocol):
 
 @runtime_checkable
 class ProtocolTypeMapper(Protocol):
-    """Protocol for type mapping functionality.
+    """
+    Protocol for JSON Schema to Python type mapping functionality.
 
-    This protocol defines the interface for converting JSON Schema
-    definitions to Python type strings used in generated code.
+    Provides the interface for converting JSON Schema definitions to
+    Python type strings for code generation, including complex types,
+    arrays, enums, and import statement generation.
+
+    Example:
+        ```python
+        mapper: ProtocolTypeMapper = get_type_mapper()
+
+        # Map a simple schema
+        type_str = await mapper.get_type_string_from_schema(schema)
+        print(f"Python type: {type_str}")
+
+        # Check if import needed
+        import_stmt = await mapper.get_import_for_type(type_str)
+        if import_stmt:
+            print(f"Required import: {import_stmt}")
+
+        # Check if this is a model type
+        if mapper.is_model_type(type_str):
+            print(f"Model type detected: {type_str}")
+
+        # Generate enum name from values
+        enum_name = mapper.generate_enum_name_from_values(["ACTIVE", "INACTIVE"])
+        print(f"Enum name: {enum_name}")  # e.g., "EnumStatus"
+        ```
+
+    See Also:
+        - ProtocolModelSchema: Schema input for mapping
+        - ProtocolContractAnalyzer: Contract analysis with type mapping
     """
 
     async def get_type_string_from_schema(self, schema: ProtocolModelSchema) -> str:

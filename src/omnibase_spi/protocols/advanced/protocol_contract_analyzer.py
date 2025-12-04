@@ -33,10 +33,18 @@ class ProtocolContractInfo(Protocol):
         enum_count: Number of enum definitions in the contract
 
     Example:
-        >>> contract_info = await analyzer.analyze_contract("path/to/contract.yaml")
-        >>> print(f"Contract {contract_info.node_name} v{contract_info.node_version}")
-        >>> print(f"  Fields: {contract_info.field_count}")
-        >>> print(f"  References: {contract_info.reference_count}")
+        ```python
+        analyzer: ProtocolContractAnalyzer = get_contract_analyzer()
+        contract_info = await analyzer.analyze_contract("path/to/contract.yaml")
+
+        assert isinstance(contract_info, ProtocolContractInfo)
+        print(f"Contract {contract_info.node_name} v{contract_info.node_version}")
+        print(f"  Fields: {contract_info.field_count}")
+        print(f"  References: {contract_info.reference_count}")
+        ```
+
+    See Also:
+        - ProtocolContractAnalyzer: Main analyzer protocol
     """
 
     node_name: str
@@ -52,7 +60,37 @@ class ProtocolContractInfo(Protocol):
 
 @runtime_checkable
 class ProtocolReferenceInfo(Protocol):
-    """Protocol for reference information."""
+    """
+    Protocol for reference information in contract document analysis.
+
+    Captures detailed metadata about $ref references discovered within
+    contract documents, enabling dependency tracking, circular reference
+    detection, and external file resolution for code generation workflows.
+
+    Attributes:
+        ref_string: The raw $ref string as found in the contract
+        ref_type: Reference classification (internal, external, subcontract)
+        resolved_type: The Python type name after reference resolution
+        source_location: Path to where the reference was discovered
+        target_file: External file path if reference points outside contract
+
+    Example:
+        ```python
+        analyzer: ProtocolContractAnalyzer = get_contract_analyzer()
+        contract = await analyzer.load_contract("path/to/contract.yaml")
+        references = await analyzer.discover_all_references(contract)
+
+        for ref in references:
+            if ref.ref_type == "external":
+                print(f"External ref: {ref.ref_string} -> {ref.target_file}")
+            elif ref.ref_type == "internal":
+                print(f"Internal ref: {ref.ref_string} resolves to {ref.resolved_type}")
+        ```
+
+    See Also:
+        - ProtocolContractAnalyzer: Main analyzer protocol
+        - ProtocolModelContractDocument: Contract document structure
+    """
 
     ref_string: str
     ref_type: str  # "internal", "external", "subcontract"
@@ -63,7 +101,38 @@ class ProtocolReferenceInfo(Protocol):
 
 @runtime_checkable
 class ProtocolContractValidationResult(Protocol):
-    """Protocol for contract validation results."""
+    """
+    Protocol for contract validation result reporting.
+
+    Provides structured validation outcome including validity status,
+    categorized messages (errors, warnings, informational), and enables
+    progressive validation workflows with detailed issue tracking.
+
+    Attributes:
+        is_valid: Whether the contract passed validation
+        errors: Critical issues preventing valid contract status
+        warnings: Non-critical issues that should be addressed
+        info: Informational messages about contract analysis
+
+    Example:
+        ```python
+        analyzer: ProtocolContractAnalyzer = get_contract_analyzer()
+        result = await analyzer.validate_contract("path/to/contract.yaml")
+
+        if not result.is_valid:
+            print("Contract validation failed:")
+            for error in result.errors:
+                print(f"  ERROR: {error}")
+            for warning in result.warnings:
+                print(f"  WARNING: {warning}")
+        else:
+            print(f"Contract valid with {len(result.info)} notes")
+        ```
+
+    See Also:
+        - ProtocolContractAnalyzer.validate_contract: Validation method
+        - ProtocolContractInfo: Contract statistics after validation
+    """
 
     is_valid: bool
     errors: list[str]
@@ -73,7 +142,38 @@ class ProtocolContractValidationResult(Protocol):
 
 @runtime_checkable
 class ProtocolContractModelSchema(Protocol):
-    """Protocol for contract schema models."""
+    """
+    Protocol for contract schema model representation.
+
+    Defines the structure of JSON Schema-compliant schema definitions
+    found within ONEX contracts, providing validation and serialization
+    capabilities for schema-driven code generation and data validation.
+
+    Attributes:
+        type: JSON Schema type (object, array, string, etc.)
+        properties: Dictionary of property definitions
+        required: List of required property names
+        additional_properties: Whether additional properties are allowed
+
+    Example:
+        ```python
+        document: ProtocolModelContractDocument = await analyzer.load_contract(path)
+        schema = await document.get_schema("InputState")
+
+        if schema is not None:
+            print(f"Schema type: {schema.type}")
+            print(f"Required fields: {schema.required}")
+
+            # Validate data against schema
+            is_valid = await schema.validate({"field1": "value"})
+            if is_valid:
+                schema_dict = await schema.to_dict()
+        ```
+
+    See Also:
+        - ProtocolModelContractDocument: Container for schemas
+        - ProtocolContractAnalyzer: Schema analysis methods
+    """
 
     type: str
     properties: dict[str, Any]
@@ -87,7 +187,46 @@ class ProtocolContractModelSchema(Protocol):
 
 @runtime_checkable
 class ProtocolModelContractDocument(Protocol):
-    """Protocol for contract document models."""
+    """
+    Protocol for ONEX contract document representation.
+
+    Represents a fully parsed and validated contract.yaml document with
+    access to node metadata, input/output state schemas, type definitions,
+    and validation capabilities for code generation workflows.
+
+    Attributes:
+        node_name: Unique identifier for the node this contract defines
+        node_version: Semantic version of the contract specification
+        node_type: ONEX node type (compute, effect, orchestrator, reducer)
+        description: Human-readable description of the node purpose
+        input_state: JSON Schema for node input data structure
+        output_state: JSON Schema for node output data structure
+        definitions: Shared schema definitions used via $ref
+
+    Example:
+        ```python
+        analyzer: ProtocolContractAnalyzer = get_contract_analyzer()
+        contract = await analyzer.load_contract("node_processor/contract.yaml")
+
+        print(f"Node: {contract.node_name} v{contract.node_version}")
+        print(f"Type: {contract.node_type}")
+        print(f"Description: {contract.description}")
+
+        # Get input schema
+        if contract.input_state:
+            input_schema = await contract.get_schema("InputState")
+            if input_schema and await input_schema.validate(data):
+                print("Input data valid")
+
+        # Serialize contract
+        contract_dict = await contract.to_dict()
+        ```
+
+    See Also:
+        - ProtocolContractAnalyzer: Contract loading and analysis
+        - ProtocolContractModelSchema: Schema representation
+        - ProtocolReferenceInfo: Reference tracking
+    """
 
     node_name: str
     node_version: str
@@ -181,7 +320,23 @@ class ProtocolContractAnalyzer(Protocol):
         """
         ...
 
-    async def get_dependency_graph(self, contract_path: str) -> dict[str, set[str]]: ...
+    async def get_dependency_graph(self, contract_path: str) -> dict[str, set[str]]:
+        """Build a dependency graph for a contract and its references.
+
+        Constructs a directed graph representing all dependencies between
+        contracts, including transitive dependencies from external files.
+
+        Args:
+            contract_path: Path to the root contract.yaml file
+
+        Returns:
+            Dictionary mapping contract paths to sets of their dependencies
+
+        Raises:
+            FileNotFoundError: If contract file cannot be found
+            ValueError: If contract contains invalid references
+        """
+        ...
 
     def check_circular_references(
         self,
