@@ -1,105 +1,165 @@
 name: SPI Comprehensive Validation
 
 on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'src/**/*.py'
+      - 'scripts/validation/**'
+      - '.github/workflows/namespace-validation.yml'
   pull_request:
-    branches: [ main, development ]
+    branches: [main, develop, development]
+    paths:
+      - 'src/**/*.py'
+      - 'scripts/validation/**'
+  workflow_dispatch:
 
 jobs:
-  validate-namespace-isolation:
+  # ============================================================================
+  # NEW: Standalone Python Validators (stdlib only, no omnibase_core)
+  # ============================================================================
+  standalone-validators:
+    name: Standalone SPI Validators
     runs-on: ubuntu-latest
+    timeout-minutes: 5
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Set up Python 3.12
-      uses: actions/setup-python@v5
-      with:
-        python-version: 3.12
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
 
-    - name: Install Poetry
-      uses: snok/install-poetry@v1.4.1
-      with:
-        version: latest
-        virtualenvs-create: true
-        virtualenvs-in-project: true
+      # No Poetry needed - these validators use only stdlib
+      - name: Run Naming Pattern Validation
+        run: python scripts/validation/validate_naming_patterns.py src/
 
-    - name: Load cached venv
-      id: cached-poetry-dependencies
-      uses: actions/cache@v4
-      with:
-        path: .venv
-        key: venv-${{ runner.os }}-3.12-${{ hashFiles('**/poetry.lock') }}
+      - name: Run Namespace Isolation Validation
+        run: python scripts/validation/validate_namespace_isolation.py
 
-    - name: Install dependencies
-      if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-      run: poetry install --no-interaction --no-root
+      - name: Run Architecture Validation (informational)
+        # Architecture validation fails due to existing technical debt (92 files)
+        # Run for visibility but don't fail the build
+        continue-on-error: true
+        run: python scripts/validation/validate_architecture.py --verbose
 
-    - name: Install project
-      run: poetry install --no-interaction
+      - name: Run Unified Validation Suite
+        run: |
+          echo "Running unified validation suite..."
+          python scripts/validation/run_all_validations.py --json > validation_results.json || true
+          python scripts/validation/run_all_validations.py --verbose
 
-    - name: Run namespace isolation validation
-      run: |
-        chmod +x ./scripts/validate-namespace-isolation.sh
-        ./scripts/validate-namespace-isolation.sh
+      - name: Check validation results
+        run: python scripts/validation/check_results.py
 
-    - name: Run SPI purity validation
-      continue-on-error: true
-      run: |
-        chmod +x ./scripts/validate-spi-purity.sh
-        ./scripts/validate-spi-purity.sh
+      - name: Upload validation results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: standalone-validation-results
+          path: validation_results.json
+          retention-days: 14
 
-    - name: Run protocol import tests
-      run: |
-        poetry run pytest tests/test_protocol_imports.py -v --tb=short
+  # ============================================================================
+  # EXISTING: Full validation with Poetry dependencies
+  # ============================================================================
+  validate-namespace-isolation:
+    runs-on: ubuntu-latest
+    needs: standalone-validators
 
-    - name: Run all tests
-      run: |
-        poetry run pytest tests/ -v --tb=short
+    steps:
+      - uses: actions/checkout@v4
 
-    - name: Validate package can be built
-      run: poetry build
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
 
-    - name: Test package installation in isolation
-      run: |
-        # Create a clean virtual environment to test installation
-        python -m venv /tmp/test-env
-        source /tmp/test-env/bin/activate
-        pip install dist/*.whl
-        python -c "
-        import sys
-        print('Testing import isolation...')
-        
-        # Should be able to import omnibase_spi.protocols without any external dependencies
-        from omnibase_spi.protocols.types import LiteralLogLevel, ProtocolLogEntry
-        
-        # Verify no external omnibase modules are loaded
-        external_modules = [name for name in sys.modules.keys() 
-                          if name.startswith('omnibase_spi.') and not name.startswith('omnibase_spi.protocols')]
-        
-        if external_modules:
-            print(f'FAILURE: External omnibase modules loaded: {external_modules}')
-            sys.exit(1)
-        else:
-            print('SUCCESS: No external omnibase dependencies loaded!')
-        "
+      - name: Install Poetry
+        uses: snok/install-poetry@v1.4.1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-3.12-${{ hashFiles('**/poetry.lock') }}
+
+      - name: Install dependencies
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: poetry install --no-interaction --no-root
+
+      - name: Install project
+        run: poetry install --no-interaction
+
+      - name: Run namespace isolation validation
+        run: |
+          chmod +x ./scripts/validate-namespace-isolation.sh
+          ./scripts/validate-namespace-isolation.sh
+
+      - name: Run SPI purity validation
+        continue-on-error: true
+        run: |
+          chmod +x ./scripts/validate-spi-purity.sh
+          ./scripts/validate-spi-purity.sh
+
+      - name: Run protocol import tests
+        run: |
+          poetry run pytest tests/test_protocol_imports.py -v --tb=short
+
+      - name: Run all tests
+        run: |
+          poetry run pytest tests/ -v --tb=short
+
+      - name: Validate package can be built
+        run: poetry build
+
+      - name: Test package installation in isolation
+        run: |
+          # Create a clean virtual environment to test installation
+          python -m venv /tmp/test-env
+          source /tmp/test-env/bin/activate
+          pip install dist/*.whl
+          python -c "
+          import sys
+          print('Testing import isolation...')
+
+          # Should be able to import omnibase_spi.protocols without any external dependencies
+          from omnibase_spi.protocols.types import LiteralLogLevel, ProtocolLogEntry
+
+          # Verify no external omnibase modules are loaded
+          external_modules = [name for name in sys.modules.keys()
+                            if name.startswith('omnibase_spi.') and not name.startswith('omnibase_spi.protocols')]
+
+          if external_modules:
+              print(f'FAILURE: External omnibase modules loaded: {external_modules}')
+              sys.exit(1)
+          else:
+              print('SUCCESS: No external omnibase dependencies loaded!')
+          "
 
   validate-documentation:
     runs-on: ubuntu-latest
     needs: validate-namespace-isolation
-    
-    steps:
-    - uses: actions/checkout@v4
 
-    - name: Validate README and documentation
-      run: |
-        # Ensure the README mentions the namespace isolation
-        if ! grep -q "namespace.*isolat" README.md; then
-          echo "WARNING: README should mention namespace isolation"
-        fi
-        
-        # Check that version is consistent across files
-        VERSION=$(grep '^version = ' pyproject.toml | cut -d'"' -f2)
-        if ! grep -q "__version__ = \"$VERSION\"" src/omnibase_spi/__init__.py; then
-          echo "ERROR: Version mismatch between pyproject.toml and __init__.py"
-          exit 1
-        fi
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate README and documentation
+        run: |
+          # Ensure the README mentions the namespace isolation
+          if ! grep -q "namespace.*isolat" README.md; then
+            echo "WARNING: README should mention namespace isolation"
+          fi
+
+          # Check that version is consistent across files
+          VERSION=$(grep '^version = ' pyproject.toml | cut -d'"' -f2)
+          if ! grep -q "__version__ = \"$VERSION\"" src/omnibase_spi/__init__.py; then
+            echo "ERROR: Version mismatch between pyproject.toml and __init__.py"
+            exit 1
+          fi

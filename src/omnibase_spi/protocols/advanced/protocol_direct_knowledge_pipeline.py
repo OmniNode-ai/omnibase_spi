@@ -6,7 +6,7 @@ and write directly to PostgreSQL for debug logs, velocity tracking, PR descripti
 and agent actions using strong typing throughout.
 """
 
-from typing import TYPE_CHECKING, Any, Dict, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 from uuid import UUID
 
 if TYPE_CHECKING:
@@ -375,7 +375,7 @@ class ProtocolAgentActionTracker(Protocol):
         self,
         agent_id: str,
         action_type: str | None = None,
-    ) -> list[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Get patterns in agent actions for learning.
 

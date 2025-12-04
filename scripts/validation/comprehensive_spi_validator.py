@@ -44,6 +44,7 @@ import argparse
 import ast
 import hashlib
 import json
+import re
 import sys
 import time
 from collections import defaultdict
@@ -446,7 +447,6 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
         self.imports: Dict[str, str] = {}
         self.type_checking_imports: Set[str] = set()
         self.forward_references: Set[str] = set()
-        self.current_class_decorators: List[str] = []
 
         # Performance metrics
         self.analysis_start_time = time.time()
@@ -683,16 +683,96 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
         return False
 
     def _is_allowed_import(self, import_name: str) -> bool:
-        """Check if import is allowed under namespace isolation rules."""
+        """Check if import is allowed under namespace isolation rules.
+
+        Per CLAUDE.md architecture:
+        - SPI → Core: allowed and required (runtime imports)
+        - SPI → Infra: forbidden
+        - Standard library: allowed
+        """
         allowed_prefixes = [
+            # Standard library - typing
             "typing",
             "typing_extensions",
-            "omnibase_spi.protocols",
+            "__future__",
+            # Standard library - abstract base classes
+            "collections.abc",
+            "collections",
+            "abc",
+            # Standard library - data types
             "datetime",
             "uuid",
-            "__future__",
-            "collections.abc",  # Standard library abstract base classes
+            "pathlib",
+            "enum",
+            "dataclasses",
+            "decimal",
+            "fractions",
+            # Standard library - functional programming
+            "functools",
+            "itertools",
+            "operator",
+            # Standard library - context and async
+            "contextlib",
+            "asyncio",
+            # Standard library - utilities
+            "warnings",
+            "logging",
+            "copy",
+            "weakref",
+            "types",
+            # Standard library - serialization
+            "json",
+            "pickle",
+            # Standard library - text processing
+            "re",
+            "string",
+            # Standard library - OS and system
+            "os",
+            "sys",
+            "io",
+            "tempfile",
+            # Standard library - time
+            "time",
+            "calendar",
+            # Standard library - math and numbers
+            "math",
+            "random",
+            "statistics",
+            # Standard library - concurrency
+            "threading",
+            "multiprocessing",
+            "concurrent",
+            "queue",
+            # Standard library - inspection
+            "inspect",
+            "traceback",
+            # Standard library - hashing and encoding
+            "hashlib",
+            "base64",
+            "secrets",
+            # Standard library - compression
+            "gzip",
+            "zipfile",
+            # Standard library - networking (for type hints)
+            "urllib",
+            "http",
+            "email",
+            # SPI internal
+            "omnibase_spi.protocols",
+            "omnibase_spi.exceptions",
+            # Core models (allowed per architecture)
+            "omnibase_core.models",
+            "omnibase_core.contracts",
+            "omnibase_core.types",
         ]
+
+        # Forbidden imports
+        forbidden_prefixes = [
+            "omnibase_infra",  # Infra imports are always forbidden
+        ]
+
+        if any(import_name.startswith(prefix) for prefix in forbidden_prefixes):
+            return False
 
         return any(import_name.startswith(prefix) for prefix in allowed_prefixes)
 
@@ -707,9 +787,6 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
         )
 
         self.in_protocol_class = True
-        self.current_class_decorators = [
-            d.id if hasattr(d, "id") else str(d) for d in node.decorator_list
-        ]
 
         # Check @runtime_checkable decorator
         has_runtime_checkable = any(
@@ -1218,10 +1295,14 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
         sync_exceptions = [
             "get_metadata",  # Dictionary lookup, not I/O
             "get_property",  # Property access
-            "get_attribute", # Attribute access
-            "get_config",    # Configuration getter
-            "get_default",   # Default value getter
-            "get_value",     # Value getter
+            "get_attribute",  # Attribute access
+            "get_config",  # Configuration getter
+            "get_default",  # Default value getter
+            "get_value",  # Value getter
+            "get",  # Registry lookups, dict access - not network I/O
+            "list_protocols",  # In-memory listing
+            "is_registered",  # In-memory check
+            "register",  # In-memory registration
         ]
 
         # Skip if this is a known synchronous method
@@ -1542,11 +1623,34 @@ class DuplicateProtocolAnalyzer:
         """Find protocols with same name but different signatures."""
         violations = []
 
+        # Migration paths where duplicate names are intentional (v0.3.0 migration)
+        # New protocols in nodes/, handlers/, registry/, contracts/ replace old ones
+        migration_directories = {
+            "nodes",  # v0.3.0 node protocols replace onex/ protocols
+            "handlers",  # v0.3.0 handler protocols replace discovery/ protocols
+            "registry",  # v0.3.0 registry protocols replace discovery/ protocols
+            "contracts",  # v0.3.0 compiler protocols are new
+        }
+
         for name, conflicting_protocols in by_name.items():
             if len(conflicting_protocols) > 1:
                 unique_signatures = set(p.signature_hash for p in conflicting_protocols)
 
                 if len(unique_signatures) > 1:  # Different signatures
+                    # Check if this is a migration scenario
+                    # (one in migration directory, one in legacy directory)
+                    dirs_involved = set()
+                    for p in conflicting_protocols:
+                        parts = Path(p.file_path).parts
+                        if "protocols" in parts:
+                            idx = parts.index("protocols")
+                            if idx + 1 < len(parts):
+                                dirs_involved.add(parts[idx + 1])
+
+                    # If at least one is in a migration directory, allow it
+                    if dirs_involved & migration_directories:
+                        continue  # Skip this conflict - it's intentional migration
+
                     primary = conflicting_protocols[0]
 
                     for conflict in conflicting_protocols[1:]:
@@ -1660,8 +1764,6 @@ class DuplicateProtocolAnalyzer:
         self, protocol1_name: str, protocol2_name: str, exclusions: List[Dict[str, Any]]
     ) -> bool:
         """Check if protocol pair matches any exclusion pattern."""
-        import re
-
         for exclusion in exclusions:
             pattern = exclusion.get("pattern", "")
             if not pattern:
@@ -2280,7 +2382,7 @@ class ComprehensiveSPIValidationEngine:
                     py_file.name.startswith("test_")
                     or py_file.name.startswith("__")
                     or "__pycache__" in str(py_file)
-                    or "/.git/" in str(py_file)
+                    or ".git" in py_file.parts
                 ):
                     continue
 

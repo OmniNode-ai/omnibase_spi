@@ -7,7 +7,7 @@ query processing, conversation management, and health monitoring.
 All types follow the zero-dependency principle and use strong typing without Any.
 """
 
-from typing import Any, List, Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 # Enum-like types for LLM operations
 LiteralQueryType = str
@@ -39,7 +39,7 @@ class ProtocolLLMHealthResponse(Protocol):
         ...
 
     @property
-    def available_models(self) -> List[str]:
+    def available_models(self) -> list[str]:
         """List of available models."""
         ...
 

@@ -78,12 +78,12 @@ class ProtocolHandlerDiscovery(Protocol):
 
 
 @runtime_checkable
-class ProtocolHandlerRegistry(Protocol):
+class ProtocolFileHandlerRegistry(Protocol):
     """
-    Protocol for handler registries that support dynamic discovery.
+    Protocol for file handler registries that support dynamic discovery.
 
-    This protocol extends the basic handler registry with discovery capabilities,
-    allowing handlers to be registered from multiple sources without hardcoded imports.
+    This protocol extends the basic file handler registry with discovery capabilities,
+    allowing file type handlers to be registered from multiple sources without hardcoded imports.
     """
 
     async def register_discovery_source(

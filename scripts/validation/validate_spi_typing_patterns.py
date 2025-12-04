@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import argparse
 import ast
+import re
 import sys
 from collections import defaultdict
 from dataclasses import dataclass
@@ -379,8 +380,6 @@ class SPITypingValidator(ast.NodeVisitor):
         Returns:
             True if this is a cross-file reference, False if same-file reference
         """
-        import re
-
         # Extract all Protocol class names from the forward reference string
         # Handle cases like: "ProtocolFoo", "ProtocolFoo | None", "list[ProtocolFoo]"
         protocol_names = re.findall(r"Protocol\w+", type_str)

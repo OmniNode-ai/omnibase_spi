@@ -6,7 +6,7 @@ standards, architectural patterns, and ecosystem requirements for
 NodeComplianceValidatorReducer implementations.
 """
 
-from typing import TYPE_CHECKING, List, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.validation.protocol_validation import (
@@ -188,8 +188,8 @@ class ProtocolONEXStandards(Protocol):
     model_naming_pattern: str
     protocol_naming_pattern: str
     node_naming_pattern: str
-    required_directories: List[str]
-    forbidden_patterns: List[str]
+    required_directories: list[str]
+    forbidden_patterns: list[str]
 
     async def validate_enum_naming(self, name: str) -> bool: ...
 
@@ -204,16 +204,16 @@ class ProtocolONEXStandards(Protocol):
 class ProtocolArchitectureCompliance(Protocol):
     """Protocol for architectural compliance checking."""
 
-    allowed_dependencies: List[str]
-    forbidden_dependencies: List[str]
-    required_patterns: List[str]
-    layer_violations: List[str]
+    allowed_dependencies: list[str]
+    forbidden_dependencies: list[str]
+    required_patterns: list[str]
+    layer_violations: list[str]
 
-    async def check_dependency_compliance(self, imports: List[str]) -> List[str]: ...
+    async def check_dependency_compliance(self, imports: list[str]) -> list[str]: ...
 
     async def validate_layer_separation(
-        self, file_path: str, imports: List[str]
-    ) -> List[str]: ...
+        self, file_path: str, imports: list[str]
+    ) -> list[str]: ...
 
 
 @runtime_checkable
@@ -221,16 +221,16 @@ class ProtocolComplianceReport(Protocol):
     """Protocol for comprehensive compliance report."""
 
     file_path: str
-    violations: List[ProtocolComplianceViolation]
+    violations: list[ProtocolComplianceViolation]
     onex_compliance_score: float
     architecture_compliance_score: float
     overall_compliance: bool
     critical_violations: int
-    recommendations: List[str]
+    recommendations: list[str]
 
     async def get_compliance_summary(self) -> str: ...
 
-    async def get_priority_fixes(self) -> List[ProtocolComplianceViolation]: ...
+    async def get_priority_fixes(self) -> list[ProtocolComplianceViolation]: ...
 
 
 @runtime_checkable
@@ -245,7 +245,7 @@ class ProtocolComplianceValidator(Protocol):
 
     onex_standards: "ProtocolONEXStandards"
     architecture_rules: "ProtocolArchitectureCompliance"
-    custom_rules: List[ProtocolComplianceRule]
+    custom_rules: list[ProtocolComplianceRule]
     strict_mode: bool
 
     async def validate_file_compliance(
@@ -253,27 +253,27 @@ class ProtocolComplianceValidator(Protocol):
     ) -> ProtocolComplianceReport: ...
 
     async def validate_repository_compliance(
-        self, repository_path: str, file_patterns: List[str] | None = None
-    ) -> List[ProtocolComplianceReport]: ...
+        self, repository_path: str, file_patterns: list[str] | None = None
+    ) -> list[ProtocolComplianceReport]: ...
 
     async def validate_onex_naming(
         self, file_path: str, content: str | None = None
-    ) -> List[ProtocolComplianceViolation]: ...
+    ) -> list[ProtocolComplianceViolation]: ...
 
     async def validate_architecture_compliance(
         self, file_path: str, content: str | None = None
-    ) -> List[ProtocolComplianceViolation]: ...
+    ) -> list[ProtocolComplianceViolation]: ...
 
     async def validate_directory_structure(
         self, repository_path: str
-    ) -> List[ProtocolComplianceViolation]: ...
+    ) -> list[ProtocolComplianceViolation]: ...
 
     async def validate_dependency_compliance(
-        self, file_path: str, imports: List[str]
-    ) -> List[ProtocolComplianceViolation]: ...
+        self, file_path: str, imports: list[str]
+    ) -> list[ProtocolComplianceViolation]: ...
 
     async def aggregate_compliance_results(
-        self, reports: List["ProtocolComplianceReport"]
+        self, reports: list["ProtocolComplianceReport"]
     ) -> "ProtocolValidationResult": ...
 
     def add_custom_rule(self, rule: "ProtocolComplianceRule") -> None: ...
@@ -281,5 +281,5 @@ class ProtocolComplianceValidator(Protocol):
     def configure_onex_standards(self, standards: "ProtocolONEXStandards") -> None: ...
 
     async def get_compliance_summary(
-        self, reports: List[ProtocolComplianceReport]
+        self, reports: list[ProtocolComplianceReport]
     ) -> str: ...

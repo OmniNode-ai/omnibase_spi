@@ -4,10 +4,7 @@ Protocol for ONEX contract objects.
 Domain: Core system protocols (contract management)
 """
 
-from typing import TYPE_CHECKING, Any, Dict, Protocol, runtime_checkable
-
-if TYPE_CHECKING:
-    pass
+from typing import Any, Protocol, runtime_checkable
 
 
 @runtime_checkable
@@ -59,7 +56,7 @@ class ProtocolContract(Protocol):
         ...
 
     @property
-    def metadata(self) -> Dict[str, Any]:
+    def metadata(self) -> dict[str, Any]:
         """
         Get contract metadata.
 
@@ -68,7 +65,7 @@ class ProtocolContract(Protocol):
         """
         ...
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """
         Serialize contract to dictionary.
 
@@ -79,7 +76,7 @@ class ProtocolContract(Protocol):
         ...
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "ProtocolContract":
+    def from_dict(cls, data: dict[str, Any]) -> "ProtocolContract":
         """
         Deserialize contract from dictionary.
 

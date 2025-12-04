@@ -8,7 +8,7 @@ Created: 2025-10-18
 Reference: EVENT_BUS_ARCHITECTURE.md Phase 1
 """
 
-from typing import Any, Dict, Optional, Protocol, Tuple, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 
 @runtime_checkable
@@ -72,7 +72,7 @@ class ProtocolSchemaRegistry(Protocol):
     """
 
     async def register_schema(
-        self, subject: str, schema: Dict[str, Any], schema_type: str
+        self, subject: str, schema: dict[str, Any], schema_type: str
     ) -> int:
         """
         Register schema with Schema Registry.
@@ -110,7 +110,7 @@ class ProtocolSchemaRegistry(Protocol):
         """
         ...
 
-    async def get_schema(self, subject: str, version: str) -> Optional[Dict[str, Any]]:
+    async def get_schema(self, subject: str, version: str) -> dict[str, Any] | None:
         """
         Get schema from Schema Registry.
 
@@ -137,8 +137,8 @@ class ProtocolSchemaRegistry(Protocol):
         ...
 
     async def validate_event(
-        self, subject: str, event_data: Dict[str, Any]
-    ) -> Tuple[bool, Optional[str]]:
+        self, subject: str, event_data: dict[str, Any]
+    ) -> tuple[bool, str | None]:
         """
         Validate event data against schema.
 

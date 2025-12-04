@@ -178,9 +178,9 @@ from omnibase_spi.protocols.core import (
 # Discovery protocols (3 protocols) - Node and handler discovery
 # Enables dynamic service discovery and handler registration
 from omnibase_spi.protocols.discovery import (
+    ProtocolFileHandlerRegistry,
     ProtocolHandlerDiscovery,
     ProtocolHandlerInfo,
-    ProtocolHandlerRegistry,
 )
 
 # Event bus protocols (13 protocols) - Distributed messaging infrastructure
@@ -270,8 +270,8 @@ from omnibase_spi.protocols.node import (
 
 # ONEX protocols (15 protocols) - ONEX platform specific protocols
 from omnibase_spi.protocols.onex import (
-    ProtocolComputeNode,
-    ProtocolEffectNode,
+    ProtocolOnexComputeNode,
+    ProtocolOnexEffectNode,
     ProtocolOnexContractData,
     ProtocolOnexEnvelope,
     ProtocolOnexMetadata,
@@ -282,14 +282,45 @@ from omnibase_spi.protocols.onex import (
     ProtocolOnexValidation,
     ProtocolOnexValidationReport,
     ProtocolOnexValidationResult,
-    ProtocolOrchestratorNode,
-    ProtocolReducerNode,
+    ProtocolOnexOrchestratorNode,
+    ProtocolOnexReducerNode,
     ProtocolToolToolOnexVersionLoader,
 )
 
 # Naming consistency alias (Issue #5)
 # ProtocolEnvelope is the canonical name per roadmap specification
 ProtocolEnvelope = ProtocolOnexEnvelope
+
+# v0.3.0 Node protocols (5 protocols) - Standard node interfaces with unified execute()
+from omnibase_spi.protocols.nodes import (
+    ProtocolComputeNode as ProtocolComputeNodeV3,
+    ProtocolEffectNode as ProtocolEffectNodeV3,
+    ProtocolNode,
+    ProtocolOrchestratorNode as ProtocolOrchestratorNodeV3,
+    ProtocolReducerNode as ProtocolReducerNodeV3,
+)
+
+# v0.3.0 Handler protocols (1 protocol) - DI-based protocol handlers
+from omnibase_spi.protocols.handlers import ProtocolHandler as ProtocolHandlerV3
+
+# v0.3.0 Contract compiler protocols (3 protocols) - YAML contract compilation
+from omnibase_spi.protocols.contracts import (
+    ProtocolEffectContractCompiler,
+    ProtocolFSMContractCompiler,
+    ProtocolWorkflowContractCompiler,
+)
+
+# v0.3.0 Registry protocols (1 protocol) - Handler registration
+from omnibase_spi.protocols.registry import ProtocolHandlerRegistry
+
+# v0.3.0 Legacy node protocols (4 protocols) - DEPRECATED: will be removed in v0.5.0
+# Import only when needed to avoid deprecation warnings on module load
+# from omnibase_spi.protocols.nodes.legacy import (
+#     ProtocolComputeNodeLegacy,
+#     ProtocolEffectNodeLegacy,
+#     ProtocolOrchestratorNodeLegacy,
+#     ProtocolReducerNodeLegacy,
+# )
 
 # Schema protocols (2 protocols) - Schema loading and validation
 from omnibase_spi.protocols.schema import (
@@ -376,8 +407,8 @@ __all__ = [
     # "ProtocolTestable",  # Excluded from production builds
     # "ProtocolTestableCLI",  # Excluded from production builds
     "ProtocolAnalyticsDataProvider",
-    "ProtocolComputeNode",
-    "ProtocolEffectNode",
+    "ProtocolOnexComputeNode",
+    "ProtocolOnexEffectNode",
     "ProtocolOnexContractData",
     "ProtocolOnexEnvelope",
     "ProtocolEnvelope",  # Alias for ProtocolOnexEnvelope (Issue #5)
@@ -389,8 +420,8 @@ __all__ = [
     "ProtocolOnexValidation",
     "ProtocolOnexValidationReport",
     "ProtocolOnexValidationResult",
-    "ProtocolOrchestratorNode",
-    "ProtocolReducerNode",
+    "ProtocolOnexOrchestratorNode",
+    "ProtocolOnexReducerNode",
     "ProtocolToolToolOnexVersionLoader",
     "ProtocolSchemaLoader",
     "ProtocolTrustedSchemaLoader",
@@ -441,6 +472,7 @@ __all__ = [
     "ProtocolEventStoreResult",
     "ProtocolEventStoreTransaction",
     "ProtocolFileTypeHandler",
+    "ProtocolFileHandlerRegistry",
     "ProtocolHandlerDiscovery",
     "ProtocolHandlerInfo",
     "ProtocolHttpAuthConfig",
@@ -539,4 +571,18 @@ __all__ = [
     "ModelToolImplementation",
     "ModelToolHealthStatus",
     "ModelCliDiscoveryStats",
+    # v0.3.0 Standard Node protocols
+    "ProtocolNode",
+    "ProtocolComputeNodeV3",
+    "ProtocolEffectNodeV3",
+    "ProtocolReducerNodeV3",
+    "ProtocolOrchestratorNodeV3",
+    # v0.3.0 Handler protocols
+    "ProtocolHandlerV3",
+    # v0.3.0 Contract compiler protocols
+    "ProtocolEffectContractCompiler",
+    "ProtocolWorkflowContractCompiler",
+    "ProtocolFSMContractCompiler",
+    # v0.3.0 Registry protocols
+    "ProtocolHandlerRegistry",
 ]

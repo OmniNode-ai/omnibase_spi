@@ -39,7 +39,7 @@ class ProtocolTestableCLI(Protocol):
 
     Example:
         class MyTestableCLI(ProtocolTestableCLI):
-            def main(self, argv: List[str]) -> "ProtocolModelResultCLI":
+            def main(self, argv: list[str]) -> "ProtocolModelResultCLI":
                 ...
     """
 

@@ -71,10 +71,15 @@ while IFS=: read -r file line content; do
 done < <(grep -rn "dataclasses" src/ --include="*.py" || true)
 
 # Check for __init__ methods in Protocol classes (not allowed in SPI)
+# Note: exceptions.py is excluded because Exception classes legitimately need __init__
 echo "Checking for __init__ methods in Protocol classes..."
 while IFS=: read -r file line content; do
     # Skip test files and validation utilities (not core SPI)
     if [[ $file == *"/test_"* || $file == *"validation"* ]]; then
+        continue
+    fi
+    # Skip exceptions.py - Exception classes legitimately need __init__ methods
+    if [[ $file == *"exceptions.py" ]]; then
         continue
     fi
     if [[ $content =~ def\ __init__ ]]; then
@@ -83,10 +88,15 @@ while IFS=: read -r file line content; do
 done < <(grep -rn "def __init__" src/ --include="*.py" || true)
 
 # Check for hardcoded default values in method signatures (implementation details)
+# Note: exceptions.py is excluded because Exception classes legitimately need defaults
 echo "Checking for hardcoded default values..."
 while IFS=: read -r file line content; do
     # Skip test files and validation utilities (not core SPI)
     if [[ $file == *"/test_"* || $file == *"validation"* ]]; then
+        continue
+    fi
+    # Skip exceptions.py - Exception classes legitimately need default parameter values
+    if [[ $file == *"exceptions.py" ]]; then
         continue
     fi
     if [[ $content =~ :[[:space:]]*str[[:space:]]*=[[:space:]]*[\"\'] || $content =~ :[[:space:]]*int[[:space:]]*=[[:space:]]*[0-9] ]]; then

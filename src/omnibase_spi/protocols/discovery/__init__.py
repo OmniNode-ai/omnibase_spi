@@ -7,13 +7,13 @@ Node discovery and registration protocols:
 """
 
 from .protocol_handler_discovery import (
+    ProtocolFileHandlerRegistry,
     ProtocolHandlerDiscovery,
     ProtocolHandlerInfo,
-    ProtocolHandlerRegistry,
 )
 
 __all__ = [
+    "ProtocolFileHandlerRegistry",
     "ProtocolHandlerDiscovery",
     "ProtocolHandlerInfo",
-    "ProtocolHandlerRegistry",
 ]

@@ -15,7 +15,29 @@ if TYPE_CHECKING:
 
 @runtime_checkable
 class ProtocolContractInfo(Protocol):
-    """Protocol for contract information."""
+    """Protocol for contract information and metadata.
+
+    Provides detailed information about a contract document including
+    structural metadata, versioning, and statistical data about
+    its contents (fields, definitions, references, enums).
+
+    Attributes:
+        node_name: The name of the contract node
+        node_version: The semantic version of the contract
+        has_input_state: Whether the contract defines an input state schema
+        has_output_state: Whether the contract defines an output state schema
+        has_definitions: Whether the contract contains schema definitions
+        definition_count: Number of schema definitions in the contract
+        field_count: Total number of fields across all schemas
+        reference_count: Number of $ref references in the contract
+        enum_count: Number of enum definitions in the contract
+
+    Example:
+        >>> contract_info = await analyzer.analyze_contract("path/to/contract.yaml")
+        >>> print(f"Contract {contract_info.node_name} v{contract_info.node_version}")
+        >>> print(f"  Fields: {contract_info.field_count}")
+        >>> print(f"  References: {contract_info.reference_count}")
+    """
 
     node_name: str
     node_version: str

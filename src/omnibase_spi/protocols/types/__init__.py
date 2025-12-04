@@ -229,6 +229,14 @@ from omnibase_spi.protocols.types.protocol_event_bus_types import (
     ProtocolSecurityContext,
 )
 
+# Event agent types (also re-exported from protocol_event_bus_types for backward compatibility)
+from omnibase_spi.protocols.types.protocol_event_agent_types import (
+    ProtocolAgentEvent,
+    ProtocolEventBusAgentStatus,
+    ProtocolProgressUpdate,
+    ProtocolWorkResult,
+)
+
 # File handling types
 from omnibase_spi.protocols.types.protocol_file_handling_types import (
     FileContent,
@@ -386,8 +394,10 @@ __all__ = [
     "ProtocolErrorInfo",
     "ProtocolErrorResult",
     "MessageKey",
+    "ProtocolAgentEvent",
     "ProtocolCompletionData",
     "ProtocolEvent",
+    "ProtocolEventBusAgentStatus",
     "ProtocolEventBusConnectionCredentials",
     "ProtocolEventData",
     "ProtocolEventHeaders",
@@ -400,6 +410,8 @@ __all__ = [
     "ProtocolEventStream",
     "ProtocolEventSubscription",
     "ProtocolOnexEvent",
+    "ProtocolProgressUpdate",
+    "ProtocolWorkResult",
     "ProtocolExecutable",
     "ProtocolExtractedBlock",
     "ProtocolBinaryFileContent",
