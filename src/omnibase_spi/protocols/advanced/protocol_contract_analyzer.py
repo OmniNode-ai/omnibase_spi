@@ -33,10 +33,18 @@ class ProtocolContractInfo(Protocol):
         enum_count: Number of enum definitions in the contract
 
     Example:
-        >>> contract_info = await analyzer.analyze_contract("path/to/contract.yaml")
-        >>> print(f"Contract {contract_info.node_name} v{contract_info.node_version}")
-        >>> print(f"  Fields: {contract_info.field_count}")
-        >>> print(f"  References: {contract_info.reference_count}")
+        ```python
+        analyzer: ProtocolContractAnalyzer = get_contract_analyzer()
+        contract_info = await analyzer.analyze_contract("path/to/contract.yaml")
+
+        assert isinstance(contract_info, ProtocolContractInfo)
+        print(f"Contract {contract_info.node_name} v{contract_info.node_version}")
+        print(f"  Fields: {contract_info.field_count}")
+        print(f"  References: {contract_info.reference_count}")
+        ```
+
+    See Also:
+        - ProtocolContractAnalyzer: Main analyzer protocol
     """
 
     node_name: str
@@ -312,7 +320,23 @@ class ProtocolContractAnalyzer(Protocol):
         """
         ...
 
-    async def get_dependency_graph(self, contract_path: str) -> dict[str, set[str]]: ...
+    async def get_dependency_graph(self, contract_path: str) -> dict[str, set[str]]:
+        """Build a dependency graph for a contract and its references.
+
+        Constructs a directed graph representing all dependencies between
+        contracts, including transitive dependencies from external files.
+
+        Args:
+            contract_path: Path to the root contract.yaml file
+
+        Returns:
+            Dictionary mapping contract paths to sets of their dependencies
+
+        Raises:
+            FileNotFoundError: If contract file cannot be found
+            ValueError: If contract contains invalid references
+        """
+        ...
 
     def check_circular_references(
         self,
