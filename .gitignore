@@ -261,3 +261,4 @@ sessions/
 .claude/
 
 # Repository renamed to omnibase_spi
+tmp/
