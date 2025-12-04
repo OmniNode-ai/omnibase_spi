@@ -4,11 +4,8 @@ Event bus protocol types for ONEX SPI interfaces.
 Domain: Event-driven architecture protocols
 """
 
-from typing import TYPE_CHECKING, Literal, Protocol, runtime_checkable
+from typing import Literal, Protocol, runtime_checkable
 from uuid import UUID
-
-if TYPE_CHECKING:
-    pass
 
 from omnibase_spi.protocols.types.protocol_core_types import (
     ContextValue,

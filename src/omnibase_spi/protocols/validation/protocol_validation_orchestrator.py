@@ -6,7 +6,7 @@ across multiple validation nodes, providing comprehensive validation
 orchestration for NodeValidationOrchestrator implementations.
 """
 
-from typing import TYPE_CHECKING, List, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.validation.protocol_validation import (
@@ -19,9 +19,9 @@ class ProtocolValidationScope(Protocol):
     """Protocol for defining validation scope."""
 
     repository_path: str
-    validation_types: List[str]
-    file_patterns: List[str]
-    exclusion_patterns: List[str]
+    validation_types: list[str]
+    file_patterns: list[str]
+    exclusion_patterns: list[str]
     validation_depth: str
 
     async def should_validate_file(self, file_path: str) -> bool: ...
@@ -35,12 +35,12 @@ class ProtocolValidationWorkflow(Protocol):
 
     workflow_id: str
     workflow_name: str
-    validation_steps: List[str]
-    dependencies: List[str]
+    validation_steps: list[str]
+    dependencies: list[str]
     parallel_execution: bool
     timeout_seconds: int
 
-    async def get_execution_order(self) -> List[str]: ...
+    async def get_execution_order(self) -> list[str]: ...
 
 
 @runtime_checkable
@@ -78,12 +78,12 @@ class ProtocolValidationReport(Protocol):
     repository_name: str
     scope: "ProtocolValidationScope"
     workflow: "ProtocolValidationWorkflow"
-    results: List["ProtocolValidationResult"]
+    results: list["ProtocolValidationResult"]
     summary: "ProtocolValidationSummary"
     metrics: "ProtocolValidationMetrics"
-    recommendations: List[str]
+    recommendations: list[str]
 
-    async def get_critical_issues(self) -> List["ProtocolValidationResult"]: ...
+    async def get_critical_issues(self) -> list["ProtocolValidationResult"]: ...
 
 
 @runtime_checkable
@@ -107,30 +107,30 @@ class ProtocolValidationOrchestrator(Protocol):
 
     async def validate_imports(
         self, scope: "ProtocolValidationScope"
-    ) -> List["ProtocolValidationResult"]: ...
+    ) -> list["ProtocolValidationResult"]: ...
 
     async def validate_quality(
         self, scope: "ProtocolValidationScope"
-    ) -> List["ProtocolValidationResult"]: ...
+    ) -> list["ProtocolValidationResult"]: ...
 
     async def validate_compliance(
         self, scope: "ProtocolValidationScope"
-    ) -> List["ProtocolValidationResult"]: ...
+    ) -> list["ProtocolValidationResult"]: ...
 
     async def create_validation_workflow(
         self,
         workflow_name: str,
-        validation_steps: List[str],
-        dependencies: List[str],
+        validation_steps: list[str],
+        dependencies: list[str],
         parallel_execution: bool | None = None,
     ) -> ProtocolValidationWorkflow: ...
 
     async def create_validation_scope(
         self,
         repository_path: str,
-        validation_types: List[str] | None = None,
-        file_patterns: List[str] | None = None,
-        exclusion_patterns: List[str] | None = None,
+        validation_types: list[str] | None = None,
+        file_patterns: list[str] | None = None,
+        exclusion_patterns: list[str] | None = None,
     ) -> ProtocolValidationScope: ...
 
     async def get_orchestration_metrics(self) -> ProtocolValidationMetrics: ...

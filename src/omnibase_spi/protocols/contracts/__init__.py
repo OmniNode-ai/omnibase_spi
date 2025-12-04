@@ -5,6 +5,6 @@ from omnibase_spi.protocols.contracts.workflow_compiler import ProtocolWorkflowC
 
 __all__ = [
     "ProtocolEffectContractCompiler",
-    "ProtocolWorkflowContractCompiler",
     "ProtocolFSMContractCompiler",
+    "ProtocolWorkflowContractCompiler",
 ]

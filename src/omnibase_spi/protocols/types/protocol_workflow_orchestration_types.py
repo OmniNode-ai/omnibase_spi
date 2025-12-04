@@ -4,7 +4,7 @@ Workflow orchestration protocol types for ONEX SPI interfaces.
 Domain: Event-driven workflow orchestration with FSM states and event sourcing
 """
 
-from typing import TYPE_CHECKING, Generic, Literal, Protocol, TypeVar, runtime_checkable
+from typing import Generic, Literal, Protocol, TypeVar, runtime_checkable
 from uuid import UUID
 
 from omnibase_spi.protocols.types.protocol_core_types import (
@@ -13,9 +13,6 @@ from omnibase_spi.protocols.types.protocol_core_types import (
     ProtocolDateTime,
     ProtocolSemVer,
 )
-
-if TYPE_CHECKING:
-    pass
 
 
 @runtime_checkable

@@ -7,12 +7,10 @@ assignment, processing, and status synchronization.
 """
 
 from collections.abc import AsyncIterator
-from typing import TYPE_CHECKING, Any, Literal, Protocol, runtime_checkable
+from typing import Any, Literal, Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 
-if TYPE_CHECKING:
-    pass
 LiteralWorkQueuePriority = Literal["urgent", "high", "normal", "low", "deferred"]
 LiteralAssignmentStrategy = Literal[
     "round_robin",

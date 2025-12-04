@@ -17,7 +17,8 @@ Key Features:
 
 Usage Examples:
     # Import specific protocols from their domains (RECOMMENDED - fastest)
-    from omnibase_spi.protocols.core import ProtocolLogger, ProtocolCacheService
+    from omnibase_spi.protocols.core import ProtocolLogger
+    from omnibase_spi.protocols.container import ProtocolCacheService
     from omnibase_spi.protocols.workflow_orchestration import ProtocolWorkflowEventBus
     from omnibase_spi.protocols.mcp import ProtocolMCPRegistry
 
@@ -69,19 +70,27 @@ __version__ = "0.2.0"
 __author__ = "OmniNode Team"
 __email__ = "team@omninode.ai"
 
-# Exception hierarchy (lazy loaded on demand to prevent namespace pollution)
-# Import from omnibase_spi.exceptions directly when needed:
+# Exception hierarchy - exported for convenience
+# Can also import from omnibase_spi.exceptions directly:
 #   from omnibase_spi.exceptions import SPIError, ProtocolHandlerError, ...
-# This ensures protocols namespace remains isolated from exceptions module
+from omnibase_spi.exceptions import (
+    ContractCompilerError,
+    HandlerInitializationError,
+    InvalidProtocolStateError,
+    ProtocolHandlerError,
+    ProtocolNotImplementedError,
+    RegistryError,
+    SPIError,
+)
 
 # Lazy loading configuration - defines what protocols are available at root level
 # This eliminates the need to import all protocols upfront, reducing startup time
 _LAZY_PROTOCOL_MAP = {
     # Core protocols - most frequently used
     "ProtocolLogger": "omnibase_spi.protocols.core.protocol_logger",
-    "ProtocolCacheService": "omnibase_spi.protocols.core.protocol_cache_service",
-    "ProtocolNodeRegistry": "omnibase_spi.protocols.core.protocol_node_registry",
-    "ProtocolWorkflowReducer": "omnibase_spi.protocols.core.protocol_workflow_reducer",
+    "ProtocolCacheService": "omnibase_spi.protocols.container.protocol_cache_service",
+    "ProtocolNodeRegistry": "omnibase_spi.protocols.node.protocol_node_registry",
+    "ProtocolWorkflowReducer": "omnibase_spi.protocols.workflow_orchestration.protocol_workflow_reducer",
     # Event bus protocols
     "ProtocolEventBus": "omnibase_spi.protocols.event_bus.protocol_event_bus",
     "ProtocolEventBusAdapter": "omnibase_spi.protocols.event_bus.protocol_event_bus",
@@ -207,8 +216,14 @@ __all__ = [
     "__email__",
     # Dynamic protocol count for documentation
     "__protocol_count__",
-    # Exceptions - import directly from omnibase_spi.exceptions when needed
-    # (not exported here to maintain protocols namespace isolation)
+    # Exceptions (alphabetically ordered)
+    "ContractCompilerError",
+    "HandlerInitializationError",
+    "InvalidProtocolStateError",
+    "ProtocolHandlerError",
+    "ProtocolNotImplementedError",
+    "RegistryError",
+    "SPIError",
     # All lazy-loaded protocols (dynamically generated)
     *sorted(_LAZY_PROTOCOL_MAP.keys()),
 ]

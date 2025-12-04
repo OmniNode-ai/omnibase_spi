@@ -116,7 +116,6 @@ class ProtocolVisitor(ast.NodeVisitor):
 
     def __init__(self) -> None:
         self.protocols: list[ProtocolDefinition] = []
-        self._decorators: list[str] = []
 
     def visit_ClassDef(self, node: ast.ClassDef) -> None:
         """Visit a class definition and check if it's a Protocol."""

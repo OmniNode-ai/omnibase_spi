@@ -18,9 +18,13 @@ class ProtocolEffectContractCompiler(Protocol):
 
     Effect contracts define side-effecting operations such as
     API calls, database queries, and message publishing.
+
+    Note:
+        This is a build-time tool for CLI usage, not a runtime node.
+        Methods are synchronous as they perform local file I/O only.
     """
 
-    async def compile(
+    def compile(
         self,
         contract_path: Path,
     ) -> "ModelEffectContract":
@@ -39,7 +43,7 @@ class ProtocolEffectContractCompiler(Protocol):
         """
         ...
 
-    async def validate(
+    def validate(
         self,
         contract_path: Path,
     ) -> "ModelContractValidationResult":

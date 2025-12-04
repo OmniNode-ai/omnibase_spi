@@ -7,7 +7,7 @@ retrieval systems, preprocessing, and natural language processing capabilities.
 All types follow the zero-dependency principle and use strong typing without Any.
 """
 
-from typing import Any, Dict, List, Protocol, TypedDict, Union, runtime_checkable
+from typing import Any, Protocol, TypedDict, runtime_checkable
 
 
 @runtime_checkable
@@ -24,12 +24,12 @@ class ProtocolRetrievalInputState(Protocol):
         ...
 
     @property
-    def search_parameters(self) -> Dict[str, Any]:
+    def search_parameters(self) -> dict[str, Any]:
         """Search configuration parameters."""
         ...
 
     @property
-    def filters(self) -> Dict[str, Any] | None:
+    def filters(self) -> dict[str, Any] | None:
         """Optional filters to apply to search results."""
         ...
 
@@ -54,7 +54,7 @@ class ProtocolRetrievalOutputState(Protocol):
     """
 
     @property
-    def results(self) -> List[Dict[str, Any]]:
+    def results(self) -> list[dict[str, Any]]:
         """List of retrieved documents with metadata."""
         ...
 
@@ -68,7 +68,7 @@ class ProtocolRetrievalOutputState(Protocol):
         ...
 
     @property
-    def search_parameters(self) -> Dict[str, Any]:
+    def search_parameters(self) -> dict[str, Any]:
         """Search parameters used."""
         ...
 
@@ -93,7 +93,7 @@ class ProtocolPreprocessingInputState(Protocol):
     """
 
     @property
-    def documents(self) -> List[Dict[str, Any]]:
+    def documents(self) -> list[dict[str, Any]]:
         """List of documents to preprocess."""
         ...
 
@@ -113,7 +113,7 @@ class ProtocolPreprocessingInputState(Protocol):
         ...
 
     @property
-    def preprocessing_options(self) -> Dict[str, Any]:
+    def preprocessing_options(self) -> dict[str, Any]:
         """Additional preprocessing options."""
         ...
 
@@ -128,12 +128,12 @@ class ProtocolPreprocessingOutputState(Protocol):
     """
 
     @property
-    def processed_documents(self) -> List[Dict[str, Any]]:
+    def processed_documents(self) -> list[dict[str, Any]]:
         """List of processed documents."""
         ...
 
     @property
-    def chunks(self) -> List[Dict[str, Any]]:
+    def chunks(self) -> list[dict[str, Any]]:
         """List of document chunks."""
         ...
 
@@ -143,7 +143,7 @@ class ProtocolPreprocessingOutputState(Protocol):
         ...
 
     @property
-    def preprocessing_metadata(self) -> Dict[str, Any]:
+    def preprocessing_metadata(self) -> dict[str, Any]:
         """Metadata about the preprocessing process."""
         ...
 

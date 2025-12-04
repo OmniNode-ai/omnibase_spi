@@ -18,9 +18,13 @@ class ProtocolWorkflowContractCompiler(Protocol):
 
     Workflow contracts define multi-step orchestration flows
     with dependencies, error handling, and compensation.
+
+    Note:
+        This is a build-time tool for CLI usage, not a runtime node.
+        Methods are synchronous as they perform local file I/O only.
     """
 
-    async def compile(
+    def compile(
         self,
         contract_path: Path,
     ) -> "ModelWorkflowContract":
@@ -39,7 +43,7 @@ class ProtocolWorkflowContractCompiler(Protocol):
         """
         ...
 
-    async def validate(
+    def validate(
         self,
         contract_path: Path,
     ) -> "ModelContractValidationResult":

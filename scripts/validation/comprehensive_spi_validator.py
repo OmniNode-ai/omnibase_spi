@@ -44,6 +44,7 @@ import argparse
 import ast
 import hashlib
 import json
+import re
 import sys
 import time
 from collections import defaultdict
@@ -446,7 +447,6 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
         self.imports: Dict[str, str] = {}
         self.type_checking_imports: Set[str] = set()
         self.forward_references: Set[str] = set()
-        self.current_class_decorators: List[str] = []
 
         # Performance metrics
         self.analysis_start_time = time.time()
@@ -691,23 +691,72 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
         - Standard library: allowed
         """
         allowed_prefixes = [
-            # Standard library
+            # Standard library - typing
             "typing",
             "typing_extensions",
             "__future__",
+            # Standard library - abstract base classes
             "collections.abc",
             "collections",
             "abc",
+            # Standard library - data types
             "datetime",
             "uuid",
             "pathlib",
             "enum",
             "dataclasses",
+            "decimal",
+            "fractions",
+            # Standard library - functional programming
             "functools",
+            "itertools",
+            "operator",
+            # Standard library - context and async
             "contextlib",
             "asyncio",
+            # Standard library - utilities
             "warnings",
             "logging",
+            "copy",
+            "weakref",
+            "types",
+            # Standard library - serialization
+            "json",
+            "pickle",
+            # Standard library - text processing
+            "re",
+            "string",
+            # Standard library - OS and system
+            "os",
+            "sys",
+            "io",
+            "tempfile",
+            # Standard library - time
+            "time",
+            "calendar",
+            # Standard library - math and numbers
+            "math",
+            "random",
+            "statistics",
+            # Standard library - concurrency
+            "threading",
+            "multiprocessing",
+            "concurrent",
+            "queue",
+            # Standard library - inspection
+            "inspect",
+            "traceback",
+            # Standard library - hashing and encoding
+            "hashlib",
+            "base64",
+            "secrets",
+            # Standard library - compression
+            "gzip",
+            "zipfile",
+            # Standard library - networking (for type hints)
+            "urllib",
+            "http",
+            "email",
             # SPI internal
             "omnibase_spi.protocols",
             "omnibase_spi.exceptions",
@@ -738,9 +787,6 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
         )
 
         self.in_protocol_class = True
-        self.current_class_decorators = [
-            d.id if hasattr(d, "id") else str(d) for d in node.decorator_list
-        ]
 
         # Check @runtime_checkable decorator
         has_runtime_checkable = any(
@@ -1595,7 +1641,7 @@ class DuplicateProtocolAnalyzer:
                     # (one in migration directory, one in legacy directory)
                     dirs_involved = set()
                     for p in conflicting_protocols:
-                        parts = p.file_path.split("/")
+                        parts = Path(p.file_path).parts
                         if "protocols" in parts:
                             idx = parts.index("protocols")
                             if idx + 1 < len(parts):
@@ -1718,8 +1764,6 @@ class DuplicateProtocolAnalyzer:
         self, protocol1_name: str, protocol2_name: str, exclusions: List[Dict[str, Any]]
     ) -> bool:
         """Check if protocol pair matches any exclusion pattern."""
-        import re
-
         for exclusion in exclusions:
             pattern = exclusion.get("pattern", "")
             if not pattern:
@@ -2338,7 +2382,7 @@ class ComprehensiveSPIValidationEngine:
                     py_file.name.startswith("test_")
                     or py_file.name.startswith("__")
                     or "__pycache__" in str(py_file)
-                    or "/.git/" in str(py_file)
+                    or ".git" in py_file.parts
                 ):
                     continue
 

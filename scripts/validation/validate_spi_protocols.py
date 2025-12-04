@@ -84,7 +84,6 @@ class SPIProtocolValidator(ast.NodeVisitor):
         self.current_protocol: str = ""
         self.in_protocol_class: bool = False
         self.imports: dict[str, str] = {}
-        self.current_class_decorators: list[str] = []
         self.in_type_checking_block: bool = False
 
     def visit_Import(self, node: ast.Import) -> None:
@@ -132,9 +131,6 @@ class SPIProtocolValidator(ast.NodeVisitor):
         if is_protocol:
             self.current_protocol = node.name
             self.in_protocol_class = True
-            self.current_class_decorators = [
-                d.id if hasattr(d, "id") else str(d) for d in node.decorator_list
-            ]
 
             # Skip protocols inside TYPE_CHECKING blocks - they're forward references for type hints only
             if not self.in_type_checking_block:

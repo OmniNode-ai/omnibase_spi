@@ -4,7 +4,7 @@ MCP (Model Context Protocol) types for ONEX SPI interfaces.
 Domain: MCP tool registration and coordination protocols
 """
 
-from typing import TYPE_CHECKING, Any, Literal, Optional, Protocol, runtime_checkable
+from typing import Any, Literal, Optional, Protocol, runtime_checkable
 from uuid import UUID
 
 from omnibase_spi.protocols.types.protocol_core_types import (
@@ -15,8 +15,6 @@ from omnibase_spi.protocols.types.protocol_core_types import (
     ProtocolSemVer,
 )
 
-if TYPE_CHECKING:
-    pass
 LiteralMCPToolType = Literal["function", "resource", "prompt", "sampling", "completion"]
 LiteralMCPParameterType = Literal[
     "string", "number", "integer", "boolean", "array", "object"

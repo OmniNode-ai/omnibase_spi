@@ -5,11 +5,8 @@ Domain: Core system protocols (logging, serialization, validation)
 """
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Literal, Protocol, runtime_checkable
+from typing import Literal, Protocol, runtime_checkable
 from uuid import UUID
-
-if TYPE_CHECKING:
-    pass
 
 
 @runtime_checkable

@@ -5,12 +5,9 @@ Defines the interface for in-memory event bus implementations with
 additional introspection and debugging capabilities.
 """
 
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_event_bus_types import ProtocolEventMessage
-
-if TYPE_CHECKING:
-    pass
 
 
 @runtime_checkable

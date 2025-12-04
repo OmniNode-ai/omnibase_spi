@@ -208,9 +208,8 @@ def run_validator(
     # Build command
     cmd = [sys.executable, str(script_path)] + config.extra_args
 
-    # Add verbose flag if validator supports it and verbose mode is on
-    if verbose and config.name != "architecture":
-        # architecture uses --verbose differently, naming and namespace use -v
+    # Add verbose flag if verbose mode is on (all validators support --verbose)
+    if verbose:
         cmd.append("--verbose")
 
     start_time = time.time()

@@ -8,7 +8,7 @@ Created: 2025-10-18
 Reference: EVENT_BUS_ARCHITECTURE.md Phase 1
 """
 
-from typing import Any, Dict, Optional, Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 if __name__ != "__main__":
     # Avoid circular imports in runtime
@@ -79,11 +79,11 @@ class ProtocolEventPublisher(Protocol):
         self,
         event_type: str,
         payload: Any,
-        correlation_id: Optional[str] = None,
-        causation_id: Optional[str] = None,
-        metadata: Optional[Dict[str, "ContextValue"]] = None,
-        topic: Optional[str] = None,
-        partition_key: Optional[str] = None,
+        correlation_id: str | None = None,
+        causation_id: str | None = None,
+        metadata: dict[str, "ContextValue"] | None = None,
+        topic: str | None = None,
+        partition_key: str | None = None,
     ) -> bool:
         """
         Publish event to Kafka with retry and circuit breaker.
@@ -123,7 +123,7 @@ class ProtocolEventPublisher(Protocol):
         """
         ...
 
-    async def get_metrics(self) -> Dict[str, Any]:
+    async def get_metrics(self) -> dict[str, Any]:
         """
         Get publisher metrics.
 

@@ -18,9 +18,13 @@ class ProtocolFSMContractCompiler(Protocol):
 
     FSM contracts define finite state machine configurations
     with states, transitions, guards, and actions.
+
+    Note:
+        This is a build-time tool for CLI usage, not a runtime node.
+        Methods are synchronous as they perform local file I/O only.
     """
 
-    async def compile(
+    def compile(
         self,
         contract_path: Path,
     ) -> "ModelFSMContract":
@@ -39,7 +43,7 @@ class ProtocolFSMContractCompiler(Protocol):
         """
         ...
 
-    async def validate(
+    def validate(
         self,
         contract_path: Path,
     ) -> "ModelContractValidationResult":

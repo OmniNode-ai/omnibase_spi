@@ -33,6 +33,7 @@ import ast
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import ClassVar
 
 
 @dataclass
@@ -82,14 +83,14 @@ class NamingPatternValidator(ast.NodeVisitor):
     """AST visitor for validating SPI naming conventions and patterns."""
 
     # Naming pattern rules
-    PROTOCOL_PREFIX = "Protocol"
-    ERROR_SUFFIX = "Error"
+    PROTOCOL_PREFIX: ClassVar[str] = "Protocol"
+    ERROR_SUFFIX: ClassVar[str] = "Error"
 
     # Valid exception base classes
-    EXCEPTION_BASES = {"Exception", "BaseException", "SPIError"}
+    EXCEPTION_BASES: ClassVar[set[str]] = {"Exception", "BaseException", "SPIError"}
 
     # Skip patterns for testing/private
-    SKIP_PATTERNS = {"_", "Test", "Mock", "Fixture"}
+    SKIP_PATTERNS: ClassVar[set[str]] = {"_", "Test", "Mock", "Fixture"}
 
     def __init__(self, file_path: str):
         self.file_path = file_path
@@ -172,17 +173,6 @@ class NamingPatternValidator(ast.NodeVisitor):
                 return True
             if isinstance(base, ast.Attribute) and base.attr == "Protocol":
                 return True
-            # Also check for classes that extend other protocols
-            if isinstance(base, ast.Name) and base.id.startswith("Protocol"):
-                # Check if it also has Protocol in bases (mixed inheritance)
-                for other_base in node.bases:
-                    if isinstance(other_base, ast.Name) and other_base.id == "Protocol":
-                        return True
-                    if (
-                        isinstance(other_base, ast.Attribute)
-                        and other_base.attr == "Protocol"
-                    ):
-                        return True
         return False
 
     def _is_exception_class(self, node: ast.ClassDef) -> bool:

@@ -33,7 +33,7 @@ import ast
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Optional, Set, Tuple
+from typing import ClassVar, List, Optional, Set, Tuple
 
 
 # ============================================================================
@@ -100,19 +100,19 @@ class NamespaceIsolationValidator(ast.NodeVisitor):
     """
 
     # Forbidden import prefixes
-    FORBIDDEN_IMPORTS: Set[str] = {
+    FORBIDDEN_IMPORTS: ClassVar[Set[str]] = {
         "omnibase_infra",
     }
 
     # Forbidden base classes (Pydantic models)
-    FORBIDDEN_BASE_CLASSES: Set[str] = {
+    FORBIDDEN_BASE_CLASSES: ClassVar[Set[str]] = {
         "BaseModel",
         "BaseSettings",
         "GenericModel",
     }
 
     # Direct I/O operations that should not be in protocol files
-    FORBIDDEN_IO_CALLS: Set[str] = {
+    FORBIDDEN_IO_CALLS: ClassVar[Set[str]] = {
         "open",
         "read",
         "write",
@@ -306,7 +306,7 @@ def is_protocol_file(file_path: Path) -> bool:
     return "protocols" in path_str and file_path.name.startswith("protocol_")
 
 
-def validate_file(file_path: Path, verbose: bool = False) -> Tuple[List[NamespaceViolation], Optional[str]]:
+def validate_file(file_path: Path) -> Tuple[List[NamespaceViolation], Optional[str]]:
     """
     Validate a single Python file for namespace isolation.
 
@@ -359,7 +359,7 @@ def validate_directory(
         if verbose:
             print(f"  Validating: {py_file}")
 
-        violations, error = validate_file(py_file, verbose)
+        violations, error = validate_file(py_file)
 
         if error:
             report.errors.append(error)
@@ -375,7 +375,12 @@ def validate_directory(
 
 
 def print_report(report: ValidationReport, verbose: bool = False) -> None:
-    """Print validation report."""
+    """Print validation report.
+
+    Args:
+        report: The validation report to print.
+        verbose: If True, show all violations. If False, limit to first 5 per rule.
+    """
     print("\n" + "=" * 80)
     print("NAMESPACE ISOLATION VALIDATION REPORT")
     print("=" * 80)
@@ -405,8 +410,12 @@ def print_report(report: ValidationReport, verbose: bool = False) -> None:
         for rule_id in sorted(by_rule.keys()):
             violations = by_rule[rule_id]
             print(f"\n{rule_id}: {violations[0].violation_type} ({len(violations)} occurrences)")
-            for v in violations:
+            # Limit output unless verbose mode
+            display_violations = violations if verbose else violations[:5]
+            for v in display_violations:
                 print(v.format_message())
+            if not verbose and len(violations) > 5:
+                print(f"    ... and {len(violations) - 5} more violations")
 
     print("\n" + "=" * 80)
     if report.passed:

@@ -79,7 +79,7 @@ class TestProtocolNodeProtocol:
 
     def test_inode_is_protocol(self) -> None:
         """ProtocolNode should be a Protocol class."""
-        from typing import Protocol, get_origin
+        from typing import Protocol
 
         # Check that ProtocolNode has Protocol in its bases
         assert any(
@@ -166,9 +166,7 @@ class TestProtocolNodeTypeAnnotations:
 
     def test_node_id_annotation(self) -> None:
         """node_id should be annotated as returning str."""
-        annotations = getattr(ProtocolNode, "__annotations__", {})
-        # For properties, we need to check the fget function
-        # But Protocol properties don't expose annotations directly
+        # Protocol properties don't expose annotations directly
         # Instead, verify via a compliant implementation
         node: ProtocolNode = CompliantNode()
         assert isinstance(node.node_id, str)
