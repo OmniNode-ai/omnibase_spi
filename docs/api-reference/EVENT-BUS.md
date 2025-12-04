@@ -4,9 +4,37 @@
 
 The ONEX event bus protocols provide comprehensive distributed messaging infrastructure with pluggable backend adapters, async/sync implementations, event serialization, and dead letter queue handling. These protocols enable sophisticated event-driven architectures across the ONEX ecosystem.
 
-## 🏗️ Protocol Architecture
+## Architecture Principles
 
-The event bus domain consists of **13 specialized protocols** that provide complete messaging infrastructure:
+The event bus domain follows a **layered architecture**:
+
+1. **Core Interface Layer** (`omnibase_core`) - Base `ProtocolEventBus` and `ProtocolEventBusHeaders` interfaces
+2. **SPI Provider Layer** (`omnibase_spi`) - Factory protocols, context managers, and ONEX-specific extensions
+3. **Implementation Layer** (`omnibase_infra`) - Concrete implementations (Kafka, Redpanda, in-memory)
+
+This separation ensures:
+- **Clean dependency boundaries** - SPI depends only on Core, never on Infra
+- **Pluggable backends** - Implementations can be swapped without changing application code
+- **Testability** - In-memory implementations for testing, production backends for deployment
+
+## Protocol Architecture
+
+The event bus domain consists of **18+ specialized protocols** organized into these categories:
+
+| Category | Protocols | Purpose |
+|----------|-----------|---------|
+| Provider & Factory | `ProtocolEventBusProvider` | Event bus instance creation and lifecycle |
+| Context Management | `ProtocolEventBusContextManager` | Async context manager for resource lifecycle |
+| Base Interfaces | `ProtocolEventBusBase`, `ProtocolSyncEventBus`, `ProtocolAsyncEventBus` | Core publish/subscribe patterns |
+| Service & Registry | `ProtocolEventBusService`, `ProtocolEventBusRegistry` | Service operations and dependency injection |
+| Event Envelope | `ProtocolEventEnvelope` | Generic envelope for breaking circular dependencies |
+| Pub/Sub | `ProtocolEventPubSub`, `ProtocolEventBusCredentials` | Simple pub/sub and authentication |
+| Backend Adapters | `ProtocolKafkaAdapter`, `ProtocolRedpandaAdapter` | Backend-specific implementations |
+| Publishing | `ProtocolEventPublisher` | Batch publishing and compression |
+| Error Handling | `ProtocolDLQHandler` | Dead letter queue management |
+| Schema Management | `ProtocolSchemaRegistry` | Schema versioning and compatibility |
+| Orchestration | `ProtocolEventOrchestrator` | Distributed workflow coordination |
+| Logging | `ProtocolEventBusLogEmitter` | Structured log emission |
 
 ### Event Bus Provider Protocol
 
@@ -616,16 +644,522 @@ await publisher.publish_with_retry(
 )
 ```
 
-## 📊 Protocol Statistics
+## Context Manager Protocol
 
-- **Total Protocols**: 13 event bus protocols
-- **Backend Support**: Kafka, Redpanda, Redis, in-memory, RabbitMQ
-- **Message Features**: Serialization, compression, batching
-- **Reliability**: Dead letter queues, retry logic, error handling
-- **Schema Management**: Avro, JSON, Protobuf schema support
-- **Performance**: High-throughput messaging with optimization
-- **Monitoring**: Comprehensive metrics and health tracking
+The `ProtocolEventBusContextManager` provides async context management for event bus lifecycle:
+
+```python
+from omnibase_spi.protocols.event_bus import ProtocolEventBusContextManager
+
+@runtime_checkable
+class ProtocolEventBusContextManager(Protocol):
+    """
+    Protocol for async context managers that yield a ProtocolEventBus-compatible object.
+
+    Provides lifecycle management for event bus resources with proper cleanup.
+    Implementations must support async context management and return a ProtocolEventBus on enter.
+
+    Key Features:
+        - Async context manager support (__aenter__, __aexit__)
+        - Configuration-based initialization
+        - Resource lifecycle management
+        - Proper cleanup and error handling
+    """
+
+    async def __aenter__(self) -> "ProtocolEventBus": ...
+
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: object,
+    ) -> None: ...
+```
+
+### Context Manager Usage
+
+```python
+from omnibase_spi.protocols.event_bus import ProtocolEventBusContextManager
+
+# Get context manager from provider
+context_manager: ProtocolEventBusContextManager = get_event_bus_context_manager()
+
+# Usage with async context manager pattern
+async with context_manager as event_bus:
+    # event_bus is guaranteed to implement ProtocolEventBus
+    await event_bus.publish(
+        topic="user-events",
+        key=None,
+        value=b'{"action": "user_created"}',
+        headers={"event_type": "user_created"}
+    )
+
+    # Context manager handles connection lifecycle automatically
+    # - Establishes connection on enter
+    # - Performs cleanup on exit (even if exception occurs)
+```
+
+## Event Envelope Protocol
+
+The `ProtocolEventEnvelope` provides a generic wrapper for event payloads, breaking circular dependencies:
+
+```python
+from omnibase_spi.protocols.event_bus import ProtocolEventEnvelope
+
+@runtime_checkable
+class ProtocolEventEnvelope(Protocol, Generic[T]):
+    """
+    Protocol defining the minimal interface for event envelopes.
+
+    This protocol allows mixins to type-hint envelope parameters without
+    importing the concrete ModelEventEnvelope class, breaking circular dependencies.
+    """
+
+    async def get_payload(self) -> T:
+        """Get the wrapped event payload."""
+        ...
+```
+
+### Envelope Usage Pattern
+
+```python
+from omnibase_spi.protocols.event_bus import ProtocolEventEnvelope
+
+# Handler that works with envelopes
+async def handle_envelope_event(
+    envelope: ProtocolEventEnvelope[UserCreatedPayload]
+) -> None:
+    # Extract payload from envelope
+    payload = await envelope.get_payload()
+    print(f"User created: {payload.user_id}")
+```
+
+## Event Bus Base Protocols
+
+The base protocols define core event publishing patterns:
+
+### ProtocolEventBusBase
+
+```python
+@runtime_checkable
+class ProtocolEventBusBase(Protocol):
+    """
+    Base protocol for event bus operations.
+
+    Defines common event publishing interface that both synchronous
+    and asynchronous event buses must implement.
+    """
+
+    async def publish(self, event: ProtocolEventMessage) -> None: ...
+```
+
+### ProtocolSyncEventBus
+
+```python
+@runtime_checkable
+class ProtocolSyncEventBus(ProtocolEventBusBase, Protocol):
+    """
+    Protocol for synchronous event bus operations.
+    Inherits from ProtocolEventBusBase for unified interface.
+    """
+
+    async def publish_sync(self, event: ProtocolEventMessage) -> None: ...
+```
+
+### ProtocolAsyncEventBus
+
+```python
+@runtime_checkable
+class ProtocolAsyncEventBus(ProtocolEventBusBase, Protocol):
+    """
+    Protocol for asynchronous event bus operations.
+    Inherits from ProtocolEventBusBase for unified interface.
+    """
+
+    async def publish_async(self, event: ProtocolEventMessage) -> None: ...
+```
+
+## Event Bus Registry Protocol
+
+The `ProtocolEventBusRegistry` provides dependency injection for event bus access:
+
+```python
+@runtime_checkable
+class ProtocolEventBusRegistry(Protocol):
+    """
+    Protocol for registry that provides event bus access.
+
+    Defines interface for service registries that provide
+    access to event bus instances for dependency injection.
+    """
+
+    event_bus: ProtocolEventBusBase | None
+
+    async def validate_registry_bus(self) -> bool: ...
+
+    def has_bus_access(self) -> bool: ...
+```
+
+### Registry Integration
+
+```python
+from omnibase_spi.protocols.event_bus import ProtocolEventBusRegistry
+
+# Service that uses registry for event bus access
+class OrderService:
+    def __init__(self, registry: ProtocolEventBusRegistry):
+        self.registry = registry
+
+    async def process_order(self, order_data: dict) -> None:
+        # Check if event bus is available
+        if not self.registry.has_bus_access():
+            raise RuntimeError("Event bus not available")
+
+        # Validate bus before use
+        await self.registry.validate_registry_bus()
+
+        # Use event bus from registry
+        event_bus = self.registry.event_bus
+        if event_bus:
+            await event_bus.publish(create_order_event(order_data))
+```
+
+## Event Bus Log Emitter Protocol
+
+The `ProtocolEventBusLogEmitter` enables structured log emission:
+
+```python
+@runtime_checkable
+class ProtocolEventBusLogEmitter(Protocol):
+    """
+    Protocol for structured log emission.
+
+    Defines interface for components that can emit structured
+    log events with typed data and log levels.
+    """
+
+    def emit_log_event(
+        self,
+        level: LiteralLogLevel,
+        message: str,
+        data: dict[str, str | int | float | bool],
+    ) -> None: ...
+```
+
+### Log Emission Example
+
+```python
+from omnibase_spi.protocols.event_bus import ProtocolEventBusLogEmitter
+
+class EventProcessor:
+    def __init__(self, log_emitter: ProtocolEventBusLogEmitter):
+        self.log_emitter = log_emitter
+
+    async def process_event(self, event: ProtocolEventMessage) -> None:
+        self.log_emitter.emit_log_event(
+            level="INFO",
+            message="Processing event",
+            data={
+                "topic": event.topic,
+                "partition": event.partition or 0,
+                "offset": event.offset or "unknown"
+            }
+        )
+
+        # Process event...
+
+        self.log_emitter.emit_log_event(
+            level="DEBUG",
+            message="Event processed successfully",
+            data={"processing_time_ms": 45}
+        )
+```
+
+## Event Orchestrator Protocol
+
+The `ProtocolEventOrchestrator` provides comprehensive workflow coordination:
+
+```python
+@runtime_checkable
+class ProtocolEventOrchestrator(Protocol):
+    """
+    Protocol for event orchestration and workflow coordination in ONEX systems.
+
+    Key Features:
+        - Agent lifecycle management (spawn, terminate, health monitoring)
+        - Work ticket assignment and load balancing
+        - Event-driven coordination with async patterns
+        - Comprehensive error handling and recovery
+        - Performance metrics and monitoring
+    """
+
+    async def handle_work_ticket_created(self, ticket: "ProtocolWorkTicket") -> bool: ...
+
+    async def assign_work_to_agent(
+        self,
+        ticket: "ProtocolWorkTicket",
+        agent_id: str | None = None,
+    ) -> str: ...
+
+    async def handle_agent_progress_update(
+        self, update: "ProtocolProgressUpdate"
+    ) -> bool: ...
+
+    async def handle_work_completion(self, result: "ProtocolWorkResult") -> bool: ...
+
+    async def handle_agent_error(self, error_event: "ProtocolAgentEvent") -> bool: ...
+
+    async def monitor_agent_health(self) -> dict[str, "ProtocolEventBusAgentStatus"]: ...
+
+    async def rebalance_workload(self) -> bool: ...
+
+    async def handle_agent_spawn_request(self, agent_config_template: str) -> str: ...
+
+    async def handle_agent_termination_request(
+        self, agent_id: str, reason: str
+    ) -> bool: ...
+
+    async def get_workflow_metrics(self) -> dict[str, float]: ...
+
+    async def subscribe_to_orchestration_events(
+        self,
+    ) -> AsyncIterator["ProtocolOnexEvent"]: ...
+
+    # Additional methods for priority, capacity, pause/resume, etc.
+```
+
+### Orchestrator Usage
+
+```python
+from omnibase_spi.protocols.event_bus import ProtocolEventOrchestrator
+
+# Initialize orchestrator
+orchestrator: ProtocolEventOrchestrator = get_orchestrator()
+
+# Handle work ticket creation
+ticket = create_work_ticket(task_type="data_processing")
+success = await orchestrator.handle_work_ticket_created(ticket)
+
+# Monitor agent health
+health_status = await orchestrator.monitor_agent_health()
+for agent_id, status in health_status.items():
+    print(f"Agent {agent_id}: {status}")
+
+# Subscribe to orchestration events
+async for event in orchestrator.subscribe_to_orchestration_events():
+    print(f"Event: {event.event_type}")
+    await process_orchestration_event(event)
+
+# Get workflow metrics
+metrics = await orchestrator.get_workflow_metrics()
+print(f"Throughput: {metrics['throughput_per_second']}")
+print(f"Average latency: {metrics['avg_latency_ms']}ms")
+```
+
+## Event Pub/Sub Protocol
+
+The `ProtocolEventPubSub` provides simple pub/sub operations:
+
+```python
+@runtime_checkable
+class ProtocolEventPubSub(Protocol):
+    """
+    Canonical protocol for simple event pub/sub operations.
+    Supports both synchronous and asynchronous methods for maximum flexibility.
+    All event bus implementations must expose a unique, stable bus_id for diagnostics.
+    """
+
+    @property
+    def credentials(self) -> ProtocolEventBusCredentials | None: ...
+
+    async def publish(self, event: "ProtocolEvent") -> None: ...
+
+    async def publish_async(self, event: "ProtocolEvent") -> None: ...
+
+    async def subscribe(self, callback: Callable[[ProtocolEvent], None]) -> None: ...
+
+    async def subscribe_async(
+        self, callback: Callable[[ProtocolEvent], None]
+    ) -> None: ...
+
+    async def unsubscribe(self, callback: Callable[[ProtocolEvent], None]) -> None: ...
+
+    async def unsubscribe_async(
+        self, callback: Callable[[ProtocolEvent], None]
+    ) -> None: ...
+
+    def clear(self) -> None: ...
+
+    @property
+    def bus_id(self) -> str: ...
+```
+
+### Event Bus Credentials Protocol
+
+```python
+@runtime_checkable
+class ProtocolEventBusCredentials(Protocol):
+    """
+    Canonical credentials protocol for event bus authentication/authorization.
+    Supports token, username/password, and TLS certs for future event bus support.
+    """
+
+    token: str | None
+    username: str | None
+    password: str | None
+    cert: str | None
+    key: str | None
+    ca: str | None
+    extra: dict[str, ContextValue] | None
+
+    async def validate_credentials(self) -> bool: ...
+
+    def is_secure(self) -> bool: ...
+```
+
+## Event Type Protocols
+
+The event bus includes comprehensive type protocols for event data:
+
+### ProtocolEventMessage
+
+```python
+@runtime_checkable
+class ProtocolEventMessage(Protocol):
+    """
+    Protocol for ONEX event bus message objects.
+    Kafka/RedPanda compatible following ONEX Messaging Design.
+    """
+
+    topic: str
+    key: bytes | None
+    value: bytes
+    headers: ProtocolEventHeaders
+    offset: str | None
+    partition: int | None
+
+    async def ack(self) -> None: ...
+```
+
+### ProtocolEventHeaders
+
+```python
+@runtime_checkable
+class ProtocolEventHeaders(Protocol):
+    """
+    Standardized headers for ONEX event bus messages.
+    Includes tracing, routing, and retry configuration.
+    """
+
+    content_type: str
+    correlation_id: UUID
+    message_id: UUID
+    timestamp: ProtocolDateTime
+    source: str
+    event_type: str
+    schema_version: ProtocolSemVer
+    destination: str | None
+    trace_id: str | None
+    span_id: str | None
+    parent_span_id: str | None
+    operation_name: str | None
+    priority: LiteralEventPriority | None
+    routing_key: str | None
+    partition_key: str | None
+    retry_count: int | None
+    max_retries: int | None
+    ttl_seconds: int | None
+
+    async def validate_headers(self) -> bool: ...
+```
+
+### ProtocolOnexEvent
+
+```python
+@runtime_checkable
+class ProtocolOnexEvent(Protocol):
+    """
+    Extended event protocol with full metadata support for ONEX platform events.
+    """
+
+    event_id: UUID
+    event_type: str
+    timestamp: ProtocolDateTime
+    source: str
+    payload: dict[str, ProtocolEventData]
+    correlation_id: UUID
+    metadata: dict[str, ProtocolEventData]
+
+    async def validate_onex_event(self) -> bool: ...
+```
+
+## Protocol Statistics
+
+| Metric | Value |
+|--------|-------|
+| **Total Protocols** | 18+ event bus protocols |
+| **Backend Support** | Kafka, Redpanda, Redis, in-memory, RabbitMQ |
+| **Message Features** | Serialization, compression, batching, envelopes |
+| **Reliability** | Dead letter queues, retry logic, error handling |
+| **Schema Management** | Avro, JSON, Protobuf schema support |
+| **Performance** | High-throughput messaging with optimization |
+| **Monitoring** | Comprehensive metrics and health tracking |
+| **Orchestration** | Agent lifecycle, work distribution, load balancing |
+
+## Import Reference
+
+```python
+# Provider and context management
+from omnibase_spi.protocols.event_bus import (
+    ProtocolEventBusProvider,
+    ProtocolEventBusContextManager,
+)
+
+# Base interfaces
+from omnibase_spi.protocols.event_bus import (
+    ProtocolEventBusBase,
+    ProtocolSyncEventBus,
+    ProtocolAsyncEventBus,
+    ProtocolEventBusRegistry,
+    ProtocolEventBusLogEmitter,
+)
+
+# Service and envelope
+from omnibase_spi.protocols.event_bus import (
+    ProtocolEventBusService,
+    ProtocolEventEnvelope,
+)
+
+# Backend adapters
+from omnibase_spi.protocols.event_bus import (
+    ProtocolKafkaAdapter,
+    ProtocolRedpandaAdapter,
+)
+
+# Publishing and error handling
+from omnibase_spi.protocols.event_bus import (
+    ProtocolEventPublisher,
+    ProtocolDLQHandler,
+    ProtocolSchemaRegistry,
+)
+
+# Event types
+from omnibase_spi.protocols.types.protocol_event_bus_types import (
+    ProtocolEventMessage,
+    ProtocolEventHeaders,
+    ProtocolEvent,
+    ProtocolOnexEvent,
+    ProtocolEventPubSub,
+    ProtocolEventBusCredentials,
+)
+```
+
+## See Also
+
+- **[Workflow Event Bus](WORKFLOW-ORCHESTRATION.md)** - Workflow-specific event bus extensions
+- **[Developer Guide](../developer-guide/README.md)** - Implementation patterns and best practices
+- **[Examples](../examples/README.md)** - Working code examples
 
 ---
 
-*This API reference is automatically generated from protocol definitions and maintained alongside the codebase.*
+*This API reference documents the event bus protocols defined in `omnibase_spi`. For the base `ProtocolEventBus` interface, see `omnibase_core` documentation.*

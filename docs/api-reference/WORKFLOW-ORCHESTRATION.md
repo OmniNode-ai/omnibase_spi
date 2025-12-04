@@ -830,17 +830,126 @@ for task in tasks:
     await work_queue.complete_task(task.task_id, result)
 ```
 
-## 📊 Protocol Statistics
+### Workflow Event Coordinator Protocol
 
-- **Total Protocols**: 12 workflow orchestration protocols
-- **ONEX Node Types**: 4 specialized node protocols (Effect, Compute, Reducer, Orchestrator)
-- **Event Sourcing**: Complete event sourcing with sequence numbers and replay
-- **State Management**: Workflow state persistence and projections
-- **Task Scheduling**: Distributed work queue with priority support
-- **Node Management**: Dynamic node registration and capability discovery
-- **Recovery Support**: Workflow recovery and replay capabilities
-- **Performance Monitoring**: Comprehensive metrics and monitoring
+```python
+from omnibase_spi.protocols.workflow_orchestration import ProtocolWorkflowEventCoordinator
+
+@runtime_checkable
+class ProtocolWorkflowEventCoordinator(Protocol):
+    """
+    Protocol for Workflow event coordinator tools that manage event-driven
+    workflow coordination in ONEX systems.
+
+    These tools handle the coordination of events, triggers, and state
+    transitions within workflow execution with strict SPI purity compliance.
+
+    Key Features:
+        - Event-driven workflow coordination
+        - Event bus integration for publish/subscribe
+        - State transition management
+        - Event status tracking and monitoring
+        - Registry integration for tool access
+    """
+
+    def set_registry(self, registry: "ProtocolNodeRegistry") -> None: ...
+
+    def set_event_bus(self, event_bus: "ProtocolEventBus") -> None: ...
+
+    async def run(self, input_state: dict[str, ContextValue]) -> "ProtocolOnexResult": ...
+
+    async def coordinate_events(
+        self,
+        workflow_events: list["ProtocolWorkflowEvent"],
+        scenario_id: str,
+        correlation_id: str,
+    ) -> "ProtocolOnexResult": ...
+
+    async def publish_workflow_event(
+        self,
+        event: "ProtocolWorkflowEvent",
+        correlation_id: str,
+    ) -> "ProtocolOnexResult": ...
+
+    async def subscribe_to_events(
+        self,
+        event_types: list[str],
+        callback: Callable[..., None],
+        correlation_id: str,
+    ) -> "ProtocolOnexResult": ...
+
+    async def get_event_status(self, event_id: str) -> dict[str, ContextValue] | None: ...
+
+    async def health_check(self) -> dict[str, ContextValue]: ...
+```
+
+### Event Coordinator Usage
+
+```python
+from omnibase_spi.protocols.workflow_orchestration import ProtocolWorkflowEventCoordinator
+
+# Get coordinator
+coordinator: ProtocolWorkflowEventCoordinator = get_workflow_event_coordinator()
+
+# Set up dependencies
+coordinator.set_registry(node_registry)
+coordinator.set_event_bus(event_bus)
+
+# Create and coordinate workflow events
+events = [
+    create_workflow_event(
+        event_type="task.started",
+        workflow_type="order-processing",
+        instance_id=uuid4()
+    ),
+    create_workflow_event(
+        event_type="task.completed",
+        workflow_type="order-processing",
+        instance_id=uuid4()
+    )
+]
+
+result = await coordinator.coordinate_events(
+    workflow_events=events,
+    scenario_id="order-flow-001",
+    correlation_id=str(uuid4())
+)
+
+if result.success:
+    print("Events coordinated successfully")
+else:
+    print(f"Coordination failed: {result.error}")
+
+# Check event status
+status = await coordinator.get_event_status("event-123")
+if status:
+    print(f"Event state: {status['state']}")
+
+# Health check
+health = await coordinator.health_check()
+print(f"Coordinator health: {health['status']}")
+```
+
+## Protocol Statistics
+
+| Metric | Value |
+|--------|-------|
+| **Total Protocols** | 13 workflow orchestration protocols |
+| **ONEX Node Types** | 4 specialized node protocols (Effect, Compute, Reducer, Orchestrator) |
+| **Event Sourcing** | Complete event sourcing with sequence numbers and replay |
+| **State Management** | Workflow state persistence and projections |
+| **Task Scheduling** | Distributed work queue with priority support |
+| **Node Management** | Dynamic node registration and capability discovery |
+| **Recovery Support** | Workflow recovery and replay capabilities |
+| **Event Coordination** | Event-driven workflow coordination with status tracking |
+| **Performance Monitoring** | Comprehensive metrics and monitoring |
+
+## See Also
+
+- **[Event Bus](EVENT-BUS.md)** - Base event bus protocols
+- **[Developer Guide](../developer-guide/README.md)** - Implementation patterns
+- **[Examples](../examples/README.md)** - Working code examples
 
 ---
 
-*This API reference is automatically generated from protocol definitions and maintained alongside the codebase.*
+*This API reference documents the workflow orchestration protocols defined in `omnibase_spi`.*

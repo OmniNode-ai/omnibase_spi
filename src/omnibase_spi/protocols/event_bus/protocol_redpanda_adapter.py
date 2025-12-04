@@ -1,8 +1,53 @@
-"""
-Redpanda Event Bus Adapter Protocol - ONEX SPI Interface.
+"""Redpanda Event Bus Adapter Protocol - ONEX SPI Interface.
 
-Protocol definition for Redpanda backend implementations.
-Redpanda is Kafka API compatible with optimized defaults.
+This module provides protocol definitions for Redpanda backend implementations in the
+ONEX event bus system. Redpanda is a Kafka API compatible streaming platform built
+in C++ with significantly lower latency and higher throughput than Apache Kafka.
+
+The Redpanda adapter extends the Kafka adapter interface with Redpanda-specific
+performance optimizations including reduced memory footprint, improved batch
+processing, and optimized defaults for cloud-native deployments.
+
+Key Features:
+    - Full Kafka protocol compatibility
+    - Redpanda-specific performance optimizations
+    - Lower memory footprint than Kafka
+    - Reduced end-to-end latency (<10ms p99)
+    - Native cloud-native architecture
+    - Built-in tiered storage support
+
+Performance Characteristics:
+    - Latency: <10ms p99 (vs 100ms+ in Kafka)
+    - Throughput: 10GB/s+ per broker
+    - Memory: 60% less than Kafka for same workload
+
+Example:
+    ```python
+    from omnibase_spi.protocols.event_bus import ProtocolRedpandaAdapter
+
+    # Get Redpanda adapter
+    adapter: ProtocolRedpandaAdapter = get_redpanda_adapter()
+
+    # Access Redpanda-specific optimizations
+    optimizations = adapter.redpanda_optimized_defaults
+    print(f"Batch size: {optimizations.get('batch_size')}")
+
+    # Publish event (Kafka-compatible interface)
+    await adapter.publish(
+        topic="events",
+        key=b"user:123",
+        value=b'{"event": "created"}',
+        headers={"correlation_id": "abc123"}
+    )
+
+    # Cleanup
+    await adapter.close()
+    ```
+
+See Also:
+    - ProtocolKafkaAdapter: Standard Kafka adapter protocol.
+    - ProtocolEventBusService: Service layer for event bus operations.
+    - ProtocolEventBusProvider: Factory for obtaining event bus instances.
 """
 
 from typing import TYPE_CHECKING, Any, Awaitable, Callable, Protocol, runtime_checkable

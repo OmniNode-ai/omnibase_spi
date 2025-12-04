@@ -1,8 +1,41 @@
-"""
-Protocol for Event Bus Service
+"""Protocol for Event Bus Service.
 
-Defines the required interface that all event bus service implementations must follow.
-This ensures consistency and prevents runtime errors from missing methods.
+This module defines the required interface that all event bus service implementations
+must follow. It provides lifecycle management, cluster coordination, and service health
+monitoring capabilities for distributed ONEX deployments.
+
+The protocol ensures consistent service behavior including graceful startup/shutdown,
+cluster topology management, and runtime status monitoring for production reliability.
+
+Key Protocols:
+    - ProtocolEventBusService: Main service protocol for lifecycle and cluster management.
+    - ProtocolHttpEventBusAdapter: HTTP-based adapter for lightweight integrations.
+
+Example:
+    ```python
+    from omnibase_spi.protocols.event_bus import ProtocolEventBusService
+
+    # Get service from dependency injection
+    service: ProtocolEventBusService = get_event_bus_service()
+
+    # Access event bus for messaging
+    event_bus = await service.get_event_bus()
+    await event_bus.publish(topic="events", key=None, value=b"data", headers={})
+
+    # Monitor cluster status
+    if service.is_running:
+        node_count = await service.get_node_count()
+        print(f"Cluster has {node_count} active brokers")
+
+    # Graceful shutdown
+    service.shutdown()
+    ```
+
+See Also:
+    - ProtocolEventBus: The event bus interface from omnibase_core.
+    - ProtocolEventBusProvider: Factory for obtaining event bus instances.
+    - ProtocolKafkaAdapter: Kafka-specific adapter protocol.
+    - ProtocolRedpandaAdapter: Redpanda-specific adapter protocol.
 """
 
 from typing import TYPE_CHECKING, Awaitable, Callable, Protocol, runtime_checkable

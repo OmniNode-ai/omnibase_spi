@@ -1,8 +1,54 @@
-"""
-Kafka Event Bus Adapter Protocol - ONEX SPI Interface.
+"""Kafka Event Bus Adapter Protocol - ONEX SPI Interface.
 
-Protocol definition for Kafka backend implementations.
-Defines the contract for Kafka-specific event bus adapters.
+This module provides protocol definitions for Kafka backend implementations in the
+ONEX event bus system. It defines the contract for Kafka-specific event bus adapters
+including configuration, connection management, and core messaging operations.
+
+Key Protocols:
+    - ProtocolKafkaConfig: Configuration parameters for Kafka clients.
+    - ProtocolKafkaAdapter: Kafka-based event bus adapter interface.
+
+The Kafka adapter provides environment-aware topic naming, consumer group coordination,
+and full support for Kafka's publish/subscribe messaging patterns with proper
+partitioning and offset management.
+
+Example:
+    ```python
+    from omnibase_spi.protocols.event_bus import ProtocolKafkaAdapter
+
+    # Get Kafka adapter from dependency injection
+    adapter: ProtocolKafkaAdapter = get_kafka_adapter()
+
+    # Build environment-aware topic name
+    topic = await adapter.build_topic_name("user-events")
+    # Returns: "prod-user-events" if environment is "prod"
+
+    # Publish event
+    await adapter.publish(
+        topic=topic,
+        key=b"user:123",
+        value=b'{"event": "user_created"}',
+        headers={"correlation_id": "abc123"}
+    )
+
+    # Subscribe to events
+    async def handle_message(msg: ProtocolEventMessage) -> None:
+        print(f"Received: {msg}")
+
+    unsubscribe = await adapter.subscribe(
+        topic=topic,
+        group_id="my-consumer-group",
+        on_message=handle_message
+    )
+
+    # Cleanup
+    await adapter.close()
+    ```
+
+See Also:
+    - ProtocolRedpandaAdapter: Redpanda-specific adapter with optimized defaults.
+    - ProtocolEventBusService: Service layer for event bus operations.
+    - ProtocolEventBusProvider: Factory for obtaining event bus instances.
 """
 
 from typing import (
@@ -122,19 +168,49 @@ class ProtocolKafkaAdapter(Protocol):
     """
 
     @property
-    def bootstrap_servers(self) -> str: ...
+    def bootstrap_servers(self) -> str:
+        """Kafka bootstrap servers connection string.
+
+        Returns:
+            Comma-separated list of broker addresses (e.g., "kafka1:9092,kafka2:9092").
+        """
+        ...
 
     @property
-    def environment(self) -> str: ...
+    def environment(self) -> str:
+        """Environment name for topic isolation.
+
+        Returns:
+            Environment identifier (e.g., "dev", "staging", "prod").
+        """
+        ...
 
     @property
-    def group(self) -> str: ...
+    def group(self) -> str:
+        """Consumer group identifier.
+
+        Returns:
+            Group ID for consumer group coordination.
+        """
+        ...
 
     @property
-    def config(self) -> ProtocolKafkaConfig | None: ...
+    def config(self) -> ProtocolKafkaConfig | None:
+        """Optional Kafka configuration overrides.
+
+        Returns:
+            Kafka configuration object or None for defaults.
+        """
+        ...
 
     @property
-    def kafka_config(self) -> ProtocolKafkaConfig: ...
+    def kafka_config(self) -> ProtocolKafkaConfig:
+        """Complete Kafka configuration with all settings.
+
+        Returns:
+            Full Kafka configuration object including security and timeout settings.
+        """
+        ...
 
     async def build_topic_name(self, topic: str) -> str:
         """
@@ -192,4 +268,15 @@ class ProtocolKafkaAdapter(Protocol):
         """
         ...
 
-    async def close(self) -> None: ...
+    async def close(self) -> None:
+        """Close Kafka adapter and release resources.
+
+        Cleanly shuts down producer and consumer connections, flushes
+        pending messages, and releases network resources.
+
+        Example:
+            ```python
+            await adapter.close()
+            ```
+        """
+        ...
