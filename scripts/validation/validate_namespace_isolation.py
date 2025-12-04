@@ -35,7 +35,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import ClassVar, List, Optional, Set, Tuple
 
-
 # ============================================================================
 # Data Structures
 # ============================================================================
@@ -171,9 +170,7 @@ class NamespaceIsolationValidator(ast.NodeVisitor):
         for forbidden in self.FORBIDDEN_IMPORTS:
             if import_name.startswith(forbidden) or import_name == forbidden:
                 context = (
-                    " (inside TYPE_CHECKING)"
-                    if self.in_type_checking_block
-                    else ""
+                    " (inside TYPE_CHECKING)" if self.in_type_checking_block else ""
                 )
                 self.violations.append(
                     NamespaceViolation(
@@ -409,7 +406,9 @@ def print_report(report: ValidationReport, verbose: bool = False) -> None:
 
         for rule_id in sorted(by_rule.keys()):
             violations = by_rule[rule_id]
-            print(f"\n{rule_id}: {violations[0].violation_type} ({len(violations)} occurrences)")
+            print(
+                f"\n{rule_id}: {violations[0].violation_type} ({len(violations)} occurrences)"
+            )
             # Limit output unless verbose mode
             display_violations = violations if verbose else violations[:5]
             for v in display_violations:

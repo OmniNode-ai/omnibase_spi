@@ -1,42 +1,53 @@
 """
-    Memory Response Protocols for OmniMemory ONEX Architecture
+Memory Response Protocols for OmniMemory ONEX Architecture
 
-    This module defines all response protocol interfaces for memory operations.
-    Separated from the main types module to prevent circular imports and
-    improve maintainability.
+This module defines core response protocol interfaces for memory operations.
+Separated from the main types module to prevent circular imports and
+improve maintainability.
 
 Contains:
     - Base response protocols
-    - Effect node response protocols
-    - Compute node response protocols
-    - Reducer node response protocols
-    - Orchestrator node response protocols
-    - Batch operation response protocols
-    - Streaming response protocols
+    - Single-record operation response protocols
+    - Search response protocols
+    - Embedding response protocol
 
-    All types are pure protocols with no implementation dependencies.
+Advanced response protocols (batch, streaming, workflow, metrics) have been
+moved to protocol_memory_advanced_responses.py but are re-exported here for
+backward compatibility.
+
+All types are pure protocols with no implementation dependencies.
 """
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, AsyncIterator, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 from uuid import UUID
 
 from omnibase_spi.protocols.memory.protocol_memory_errors import ProtocolMemoryError
+
+# Re-export from protocol_memory_advanced_responses for backward compatibility
+from omnibase_spi.protocols.memory.protocol_memory_advanced_responses import (
+    ProtocolAgentCoordinationResponse,
+    ProtocolAggregationResponse,
+    ProtocolBatchMemoryRetrieveResponse,
+    ProtocolBatchMemoryStoreResponse,
+    ProtocolBatchOperationResult,
+    ProtocolConsolidationResponse,
+    ProtocolMemoryMetrics,
+    ProtocolMemoryMetricsResponse,
+    ProtocolPaginationResponse,
+    ProtocolPatternAnalysisResponse,
+    ProtocolStreamingMemoryResponse,
+    ProtocolStreamingRetrieveResponse,
+    ProtocolWorkflowExecutionResponse,
+)
 
 if TYPE_CHECKING:
     from datetime import datetime
 
     from omnibase_spi.protocols.memory.protocol_memory_base import (
-        ProtocolAgentResponseMap,
-        ProtocolAgentStatusMap,
-        ProtocolAggregatedData,
-        ProtocolAggregationSummary,
-        ProtocolAnalysisResults,
-        ProtocolCustomMetrics,
         ProtocolMemoryMetadata,
         ProtocolMemoryRecord,
-        ProtocolPageInfo,
         ProtocolSearchResult,
     )
 
@@ -80,43 +91,6 @@ class ProtocolMemoryListResponse(ProtocolMemoryResponse, Protocol):
 
 
 @runtime_checkable
-class ProtocolBatchOperationResult(Protocol):
-    """Protocol for individual batch operation results."""
-
-    operation_index: int
-    success: bool
-    result_id: UUID | None
-    error: "ProtocolMemoryError | None"
-
-    @property
-    def execution_time_ms(self) -> int: ...
-
-
-@runtime_checkable
-class ProtocolBatchMemoryStoreResponse(ProtocolMemoryResponse, Protocol):
-    """Protocol for batch memory storage responses."""
-
-    results: list["ProtocolBatchOperationResult"]
-    total_processed: int
-    successful_count: int
-    failed_count: int
-    batch_execution_time_ms: int
-
-    @property
-    def partial_success(self) -> bool: ...
-
-
-@runtime_checkable
-class ProtocolBatchMemoryRetrieveResponse(ProtocolMemoryResponse, Protocol):
-    """Protocol for batch memory retrieval responses."""
-
-    results: list["ProtocolBatchOperationResult"]
-    memories: list["ProtocolMemoryRecord"]
-    missing_ids: list[UUID]
-    batch_execution_time_ms: int
-
-
-@runtime_checkable
 class ProtocolSemanticSearchResponse(ProtocolMemoryResponse, Protocol):
     """Protocol for semantic search responses."""
 
@@ -128,17 +102,6 @@ class ProtocolSemanticSearchResponse(ProtocolMemoryResponse, Protocol):
 
 
 @runtime_checkable
-class ProtocolPatternAnalysisResponse(ProtocolMemoryResponse, Protocol):
-    """Protocol for pattern analysis responses."""
-
-    patterns_found: int
-    analysis_results: "ProtocolAnalysisResults"
-
-    @property
-    def confidence_scores(self) -> list[float]: ...
-
-
-@runtime_checkable
 class ProtocolEmbeddingResponse(ProtocolMemoryResponse, Protocol):
     """Protocol for embedding generation responses."""
 
@@ -147,102 +110,27 @@ class ProtocolEmbeddingResponse(ProtocolMemoryResponse, Protocol):
     dimensions: int
 
 
-@runtime_checkable
-class ProtocolConsolidationResponse(ProtocolMemoryResponse, Protocol):
-    """Protocol for memory consolidation responses."""
-
-    consolidated_memory_id: UUID
-    source_memory_ids: list[UUID]
-
-
-@runtime_checkable
-class ProtocolAggregationResponse(ProtocolMemoryResponse, Protocol):
-    """Protocol for memory aggregation responses."""
-
-    aggregated_data: "ProtocolAggregatedData"
-    aggregation_metadata: "ProtocolMemoryMetadata"
-
-
-@runtime_checkable
-class ProtocolWorkflowExecutionResponse(ProtocolMemoryResponse, Protocol):
-    """Protocol for workflow execution responses."""
-
-    workflow_id: UUID
-    execution_status: str
-
-    @property
-    def agent_statuses(self) -> "ProtocolAgentStatusMap": ...
-
-
-@runtime_checkable
-class ProtocolAgentCoordinationResponse(ProtocolMemoryResponse, Protocol):
-    """Protocol for agent coordination responses."""
-
-    coordination_id: UUID
-    coordination_status: str
-
-    async def agent_responses(self) -> "ProtocolAgentResponseMap": ...
-
-
-@runtime_checkable
-class ProtocolPaginationResponse(Protocol):
-    """Protocol for paginated response metadata."""
-
-    total_count: int
-    has_next_page: bool
-    has_previous_page: bool
-    next_cursor: str | None
-    previous_cursor: str | None
-
-    @property
-    def page_info(self) -> "ProtocolPageInfo": ...
-
-
-@runtime_checkable
-class ProtocolMemoryMetrics(Protocol):
-    """Protocol for memory system performance metrics."""
-
-    operation_type: str
-    execution_time_ms: int
-    memory_usage_mb: float
-    timestamp: "datetime"
-
-    async def throughput_ops_per_second(self) -> float: ...
-
-    @property
-    def error_rate_percent(self) -> float: ...
-
-    @property
-    def custom_metrics(self) -> "ProtocolCustomMetrics": ...
-
-
-@runtime_checkable
-class ProtocolMemoryMetricsResponse(ProtocolMemoryResponse, Protocol):
-    """Protocol for metrics collection responses."""
-
-    metrics: list["ProtocolMemoryMetrics"]
-    aggregation_summary: "ProtocolAggregationSummary"
-    collection_timestamp: "datetime"
-
-
-@runtime_checkable
-class ProtocolStreamingMemoryResponse(ProtocolMemoryResponse, Protocol):
-    """Protocol for streaming memory operation responses."""
-
-    stream_id: UUID
-    chunk_count: int
-    total_size_bytes: int
-
-    async def stream_content(self) -> AsyncIterator[bytes]: ...
-
-    @property
-    def compression_ratio(self) -> float | None: ...
-
-
-@runtime_checkable
-class ProtocolStreamingRetrieveResponse(ProtocolStreamingMemoryResponse, Protocol):
-    """Protocol for streaming memory retrieval responses."""
-
-    memory_metadata: list["ProtocolMemoryRecord"]
-
-    async def stream_memory_content(self, memory_id: UUID) -> AsyncIterator[bytes]: ...
+# Backward compatibility exports
+__all__ = [
+    # Core protocols (defined here)
+    "ProtocolMemoryResponse",
+    "ProtocolMemoryStoreResponse",
+    "ProtocolMemoryRetrieveResponse",
+    "ProtocolMemoryListResponse",
+    "ProtocolSemanticSearchResponse",
+    "ProtocolEmbeddingResponse",
+    # Re-exported from protocol_memory_advanced_responses
+    "ProtocolBatchOperationResult",
+    "ProtocolBatchMemoryStoreResponse",
+    "ProtocolBatchMemoryRetrieveResponse",
+    "ProtocolPatternAnalysisResponse",
+    "ProtocolConsolidationResponse",
+    "ProtocolAggregationResponse",
+    "ProtocolWorkflowExecutionResponse",
+    "ProtocolAgentCoordinationResponse",
+    "ProtocolPaginationResponse",
+    "ProtocolMemoryMetrics",
+    "ProtocolMemoryMetricsResponse",
+    "ProtocolStreamingMemoryResponse",
+    "ProtocolStreamingRetrieveResponse",
+]

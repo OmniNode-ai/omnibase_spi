@@ -2,8 +2,14 @@
 """
 Architecture Validator for ONEX SPI.
 
-Enforces the ONEX one-model-per-file principle by detecting protocol files
-that contain multiple Protocol class definitions.
+Enforces ONEX domain cohesion principle for protocol files. Instead of strict
+one-protocol-per-file, we allow multiple protocols in a single file if they:
+1. Are in the same domain/bounded context
+2. Have strong cohesion (reference each other)
+3. Are typically imported/used together
+
+Files with more than MAX_PROTOCOLS_PER_FILE are flagged as violations, as they
+likely indicate poor domain separation.
 
 This is a STANDALONE validator using only Python stdlib to avoid circular
 dependencies with omnibase_core.
@@ -12,11 +18,12 @@ Usage:
     python scripts/validation/validate_architecture.py [options]
 
 Options:
-    --path PATH     Path to scan (default: src/omnibase_spi/protocols)
-    --verbose       Show all files checked, not just violations
-    --json          Output results as JSON
-    --strict        Fail on any violation (exit code 1)
-    --exclude-init  Exclude __init__.py files from validation
+    --path PATH       Path to scan (default: src/omnibase_spi/protocols)
+    --verbose         Show all files checked, not just violations
+    --json            Output results as JSON
+    --strict          Fail on any violation (exit code 1)
+    --exclude-init    Exclude __init__.py files from validation
+    --max-protocols N Maximum protocols per file before warning (default: 15)
 
 Exit Codes:
     0 - Success (no violations or --strict not set)
@@ -36,6 +43,10 @@ from typing import TypeAlias
 LineNumber: TypeAlias = int
 ClassName: TypeAlias = str
 
+# Default maximum protocols per file before flagging as a violation
+# This allows domain-cohesive groupings while catching overly large files
+DEFAULT_MAX_PROTOCOLS = 15
+
 
 @dataclass
 class ProtocolDefinition:
@@ -49,10 +60,11 @@ class ProtocolDefinition:
 
 @dataclass
 class FileViolation:
-    """Represents a file that violates the one-protocol-per-file rule."""
+    """Represents a file that violates the domain cohesion rule."""
 
     file_path: Path
     protocols: list[ProtocolDefinition] = field(default_factory=list)
+    max_allowed: int = DEFAULT_MAX_PROTOCOLS
 
     @property
     def protocol_count(self) -> int:
@@ -63,7 +75,8 @@ class FileViolation:
         """Format the violation as a human-readable error message."""
         lines = [
             f"\n{self.file_path}:",
-            f"  VIOLATION: {self.protocol_count} Protocol definitions found (expected 1)",
+            f"  VIOLATION: {self.protocol_count} Protocol definitions (max allowed: {self.max_allowed})",
+            f"  Consider splitting into multiple domain-specific files.",
         ]
         for proto in self.protocols:
             checkable = " [@runtime_checkable]" if proto.is_runtime_checkable else ""
@@ -201,14 +214,22 @@ def validate_directory(
     path: Path,
     exclude_init: bool = False,
     verbose: bool = False,
+    max_protocols: int = DEFAULT_MAX_PROTOCOLS,
 ) -> ValidationResult:
     """
-    Validate all Python files in a directory for one-protocol-per-file compliance.
+    Validate all Python files in a directory for domain cohesion compliance.
+
+    Instead of strict one-protocol-per-file, this allows multiple protocols
+    in a single file as long as they don't exceed the max_protocols threshold.
+    This supports domain-cohesive groupings (e.g., a service registry file
+    containing related protocols like ProtocolServiceRegistry,
+    ProtocolServiceRegistration, ProtocolDependencyGraph, etc.)
 
     Args:
         path: Directory path to scan
         exclude_init: Whether to exclude __init__.py files
         verbose: Whether to print progress information
+        max_protocols: Maximum protocols per file before flagging (default: 15)
 
     Returns:
         ValidationResult containing all findings
@@ -232,21 +253,21 @@ def validate_directory(
             result.files_checked += 1
             result.total_protocols_found += len(protocols)
 
-            if len(protocols) > 1:
-                # Violation: more than one protocol
+            if len(protocols) > max_protocols:
+                # Violation: exceeds max threshold (likely poor domain separation)
                 violation = FileViolation(
                     file_path=file_path,
                     protocols=protocols,
+                    max_allowed=max_protocols,
                 )
                 result.violations.append(violation)
                 result.files_with_violations += 1
-            elif len(protocols) == 1:
-                # Compliant file
+            else:
+                # Compliant file (within threshold)
                 result.compliant_files.append(file_path)
-            # Files with 0 protocols are ignored (might be type definitions, etc.)
 
             if verbose:
-                status = "VIOLATION" if len(protocols) > 1 else "OK"
+                status = "VIOLATION" if len(protocols) > max_protocols else "OK"
                 print(f"  [{status}] {file_path}: {len(protocols)} protocol(s)")
 
         except SyntaxError as e:
@@ -265,7 +286,7 @@ def main() -> int:
         Exit code (0 for success, 1 for violations in strict mode, 2 for errors)
     """
     parser = argparse.ArgumentParser(
-        description="Validate ONEX one-protocol-per-file architecture",
+        description="Validate ONEX domain cohesion for protocol files",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__,
     )
@@ -295,6 +316,12 @@ def main() -> int:
         action="store_true",
         help="Exclude __init__.py files from validation",
     )
+    parser.add_argument(
+        "--max-protocols",
+        type=int,
+        default=DEFAULT_MAX_PROTOCOLS,
+        help=f"Maximum protocols per file before flagging (default: {DEFAULT_MAX_PROTOCOLS})",
+    )
 
     args = parser.parse_args()
 
@@ -315,13 +342,15 @@ def main() -> int:
 
     # Run validation
     if not args.json:
-        print(f"Validating ONEX architecture in: {args.path}")
+        print(f"Validating ONEX domain cohesion in: {args.path}")
+        print(f"Max protocols per file: {args.max_protocols}")
         print("-" * 60)
 
     result = validate_directory(
         path=args.path,
         exclude_init=args.exclude_init,
         verbose=args.verbose,
+        max_protocols=args.max_protocols,
     )
 
     # Output results
@@ -336,20 +365,18 @@ def main() -> int:
 
         if result.violations:
             print("\n" + "=" * 60)
-            print("VIOLATIONS DETECTED:")
+            print("DOMAIN COHESION VIOLATIONS:")
             print("=" * 60)
             for violation in result.violations:
                 print(violation.format_error())
             print()
             print(
-                f"Found {result.files_with_violations} file(s) with multiple "
-                f"Protocol definitions."
+                f"Found {result.files_with_violations} file(s) exceeding "
+                f"max protocols threshold ({args.max_protocols})."
             )
-            print(
-                "Each Protocol should be in its own file per ONEX architecture."
-            )
+            print("Consider splitting large files into domain-specific modules.")
         else:
-            print("\nAll files comply with one-protocol-per-file architecture.")
+            print("\nAll files comply with domain cohesion architecture.")
 
     # Determine exit code
     if result.violations and args.strict:

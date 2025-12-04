@@ -6,7 +6,7 @@ Runs all SPI validation scripts in sequence and provides a summary report.
 This is a STANDALONE script using only Python stdlib (no omnibase_core imports).
 
 Validators Executed:
-    1. Architecture Validation - One-protocol-per-file rule
+    1. Architecture Validation - Domain cohesion rule (max protocols per file)
     2. Naming Pattern Validation - Protocol/Error naming and @runtime_checkable
     3. Namespace Isolation Validation - No Infra imports, no Pydantic models
 
@@ -39,7 +39,6 @@ import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import List, Optional
-
 
 # ============================================================================
 # Data Structures
@@ -143,7 +142,7 @@ VALIDATORS: List[ValidatorConfig] = [
     ValidatorConfig(
         name="architecture",
         script_name="validate_architecture.py",
-        description="One-protocol-per-file rule (ONEX architecture)",
+        description="Domain cohesion rule (max 15 protocols per file)",
         extra_args=["--strict"],
     ),
     ValidatorConfig(
@@ -314,7 +313,9 @@ def print_summary(summary: ValidationSummary, verbose: bool = False) -> None:
             status_icon = "[ERR!]"
 
         duration_str = f"{result.duration_seconds:.2f}s"
-        print(f"  {status_icon} {result.name:<25} {duration_str:>8}  {result.description}")
+        print(
+            f"  {status_icon} {result.name:<25} {duration_str:>8}  {result.description}"
+        )
 
         if result.error:
             print(f"         ERROR: {result.error}")
@@ -360,7 +361,7 @@ def main() -> int:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Validators:
-  1. architecture         One-protocol-per-file rule (ONEX architecture)
+  1. architecture         Domain cohesion rule (max 15 protocols per file)
   2. naming_patterns      Naming conventions and @runtime_checkable
   3. namespace_isolation  No Infra imports, no Pydantic models
 

@@ -29,15 +29,19 @@ from typing import Any
 DEFAULT_RESULTS_FILE = "validation_results.json"
 
 # Validators that must pass for the build to succeed
-CRITICAL_VALIDATORS: frozenset[str] = frozenset({
-    "naming_patterns",
-    "namespace_isolation",
-})
+CRITICAL_VALIDATORS: frozenset[str] = frozenset(
+    {
+        "naming_patterns",
+        "namespace_isolation",
+    }
+)
 
 # Validators that are informational only (known technical debt)
-INFORMATIONAL_VALIDATORS: frozenset[str] = frozenset({
-    "architecture",
-})
+INFORMATIONAL_VALIDATORS: frozenset[str] = frozenset(
+    {
+        "architecture",
+    }
+)
 
 
 def load_results(file_path: Path) -> dict[str, Any]:
@@ -99,7 +103,9 @@ def check_validators(
             print(f"  [{status}] {name}")
 
         if not passed:
-            if name in CRITICAL_VALIDATORS or (strict and name not in INFORMATIONAL_VALIDATORS):
+            if name in CRITICAL_VALIDATORS or (
+                strict and name not in INFORMATIONAL_VALIDATORS
+            ):
                 failures.append(f"{name}: {error}")
             elif name in INFORMATIONAL_VALIDATORS:
                 warnings.append(f"{name}: has existing violations (technical debt)")

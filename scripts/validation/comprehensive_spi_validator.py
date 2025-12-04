@@ -1295,14 +1295,14 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
         sync_exceptions = [
             "get_metadata",  # Dictionary lookup, not I/O
             "get_property",  # Property access
-            "get_attribute", # Attribute access
-            "get_config",    # Configuration getter
-            "get_default",   # Default value getter
-            "get_value",     # Value getter
-            "get",           # Registry lookups, dict access - not network I/O
-            "list_protocols", # In-memory listing
-            "is_registered", # In-memory check
-            "register",      # In-memory registration
+            "get_attribute",  # Attribute access
+            "get_config",  # Configuration getter
+            "get_default",  # Default value getter
+            "get_value",  # Value getter
+            "get",  # Registry lookups, dict access - not network I/O
+            "list_protocols",  # In-memory listing
+            "is_registered",  # In-memory check
+            "register",  # In-memory registration
         ]
 
         # Skip if this is a known synchronous method
@@ -1626,9 +1626,9 @@ class DuplicateProtocolAnalyzer:
         # Migration paths where duplicate names are intentional (v0.3.0 migration)
         # New protocols in nodes/, handlers/, registry/, contracts/ replace old ones
         migration_directories = {
-            "nodes",      # v0.3.0 node protocols replace onex/ protocols
-            "handlers",   # v0.3.0 handler protocols replace discovery/ protocols
-            "registry",   # v0.3.0 registry protocols replace discovery/ protocols
+            "nodes",  # v0.3.0 node protocols replace onex/ protocols
+            "handlers",  # v0.3.0 handler protocols replace discovery/ protocols
+            "registry",  # v0.3.0 registry protocols replace discovery/ protocols
             "contracts",  # v0.3.0 compiler protocols are new
         }
 

@@ -1,23 +1,21 @@
 """
 File handling protocol types for ONEX SPI interfaces.
 
-Domain: File processing and writing protocols
+Domain: File content, metadata, and block protocols
+
+Note: Result and handler protocols have been moved to protocol_file_result_types.py
+and are re-exported here for backward compatibility.
 """
 
-from typing import TYPE_CHECKING, Literal, Optional, Protocol, runtime_checkable
-from uuid import UUID
+from typing import TYPE_CHECKING, Literal, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types.protocol_core_types import (
-        ProtocolDateTime,
         ProtocolSemVer,
     )
 
-from omnibase_spi.protocols.types.protocol_core_types import LiteralBaseStatus
-
 LiteralFileOperation = Literal["read", "write", "append", "delete", "move", "copy"]
 LiteralFileStatus = Literal["exists", "missing", "locked", "corrupted", "accessible"]
-ProcessingStatus = LiteralBaseStatus
 
 
 @runtime_checkable
@@ -81,18 +79,6 @@ class ProtocolFileContentObject(Protocol):
 
 
 @runtime_checkable
-class ProtocolProcessingResult(Protocol):
-    """Protocol for file processing results."""
-
-    file_path: str
-    operation: LiteralFileOperation
-    status: ProcessingStatus
-    processing_time: float
-    error_message: str | None
-    file_metadata: ProtocolFileMetadata
-
-
-@runtime_checkable
 class ProtocolFileFilter(Protocol):
     """Protocol for file filtering criteria."""
 
@@ -102,53 +88,6 @@ class ProtocolFileFilter(Protocol):
     max_size: int | None
     modified_after: float | None
     modified_before: float | None
-
-
-@runtime_checkable
-class ProtocolFileTypeResult(Protocol):
-    """Protocol for file type detection results."""
-
-    file_path: str
-    detected_type: str
-    confidence: float
-    mime_type: str
-    is_supported: bool
-    error_message: str | None
-
-
-@runtime_checkable
-class ProtocolHandlerMatch(Protocol):
-    """Protocol for node matching results."""
-
-    node_id: UUID
-    node_name: str
-    match_confidence: float
-    can_handle: bool
-    required_capabilities: list[str]
-
-
-@runtime_checkable
-class ProtocolCanHandleResult(Protocol):
-    """Protocol for can handle determination results."""
-
-    can_handle: bool
-    confidence: float
-    reason: str
-    file_metadata: ProtocolFileMetadata
-
-
-@runtime_checkable
-class ProtocolHandlerMetadata(Protocol):
-    """Protocol for node metadata."""
-
-    name: str
-    version: "ProtocolSemVer"
-    author: str
-    description: str
-    supported_extensions: list[str]
-    supported_filenames: list[str]
-    priority: int
-    requires_content_analysis: bool
 
 
 @runtime_checkable
@@ -174,27 +113,6 @@ class ProtocolSerializedBlock(Protocol):
 
 
 @runtime_checkable
-class ProtocolResultData(Protocol):
-    """Protocol for operation result data - attribute-based for data compatibility."""
-
-    output_path: str | None
-    processed_files: list[str]
-    metrics: dict[str, float]
-    warnings: list[str]
-
-
-@runtime_checkable
-class ProtocolOnexResult(Protocol):
-    """Protocol for ONEX operation results."""
-
-    success: bool
-    message: str
-    result_data: ProtocolResultData | None
-    error_code: str | None
-    timestamp: "ProtocolDateTime"
-
-
-@runtime_checkable
 class ProtocolFileMetadataOperations(Protocol):
     """Protocol for file metadata operations - method-based for services."""
 
@@ -207,14 +125,15 @@ class ProtocolFileMetadataOperations(Protocol):
     ) -> bool: ...
 
 
-@runtime_checkable
-class ProtocolResultOperations(Protocol):
-    """Protocol for result operations - method-based for services."""
-
-    def format_result(self, result: "ProtocolOnexResult") -> str: ...
-
-    async def merge_results(
-        self, results: list["ProtocolOnexResult"]
-    ) -> ProtocolOnexResult: ...
-
-    async def validate_result(self, result: "ProtocolOnexResult") -> bool: ...
+# Re-export protocols from protocol_file_result_types for backward compatibility
+from omnibase_spi.protocols.types.protocol_file_result_types import (  # noqa: E402
+    ProcessingStatus,
+    ProtocolCanHandleResult,
+    ProtocolFileTypeResult,
+    ProtocolHandlerMatch,
+    ProtocolHandlerMetadata,
+    ProtocolOnexResult,
+    ProtocolProcessingResult,
+    ProtocolResultData,
+    ProtocolResultOperations,
+)

@@ -1,16 +1,20 @@
 """
-    Pure Base Type Definitions for OmniMemory ONEX Architecture
+Pure Base Type Definitions for OmniMemory ONEX Architecture
 
-    This module defines foundational type literals and core memory protocols that
-    serve as the base layer for the memory domain. These types have no dependencies
-    on other memory protocol modules, preventing circular imports.
+This module defines foundational type literals and core memory protocols that
+serve as the base layer for the memory domain. These types have no dependencies
+on other memory protocol modules, preventing circular imports.
 
 Contains:
     - Type literals for constrained values (access levels, analysis types, etc.)
     - Core memory protocols (metadata, records, search filters)
-    - Base data structure protocols
+    - Base key-value store protocols
 
-    All types are pure protocols with no implementation dependencies.
+All types are pure protocols with no implementation dependencies.
+
+Note: Data structure protocols (analysis results, aggregation, agent maps) have
+been moved to protocol_memory_data_types.py but are re-exported here for
+backward compatibility.
 """
 
 from __future__ import annotations
@@ -18,8 +22,23 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Literal, Protocol, runtime_checkable
 from uuid import UUID
 
+# Re-export from protocol_memory_data_types for backward compatibility
+from omnibase_spi.protocols.memory.protocol_memory_data_types import (
+    ProtocolAgentResponseMap,
+    ProtocolAgentStatusMap,
+    ProtocolAggregatedData,
+    ProtocolAggregationSummary,
+    ProtocolAnalysisResults,
+    ProtocolCustomMetrics,
+    ProtocolErrorCategoryMap,
+    ProtocolMemoryErrorContext,
+    ProtocolPageInfo,
+)
+
 if TYPE_CHECKING:
     from datetime import datetime
+
+# Type literals for constrained values
 LiteralMemoryAccessLevel = Literal[
     "public", "private", "internal", "restricted", "confidential"
 ]
@@ -111,80 +130,6 @@ class ProtocolCoordinationMetadata(Protocol):
 
 
 @runtime_checkable
-class ProtocolAnalysisResults(Protocol):
-    """Protocol for analysis result structures."""
-
-    @property
-    def result_keys(self) -> list[str]: ...
-
-    async def get_result_value(self, key: str) -> str | None: ...
-
-    def has_result_key(self, key: str) -> bool: ...
-
-
-@runtime_checkable
-class ProtocolAggregatedData(Protocol):
-    """Protocol for aggregated data structures."""
-
-    @property
-    def data_keys(self) -> list[str]: ...
-
-    async def get_data_value(self, key: str) -> str | None: ...
-
-    async def validate_data(self) -> bool: ...
-
-
-@runtime_checkable
-class ProtocolMemoryErrorContext(Protocol):
-    """Protocol for error context structures."""
-
-    @property
-    def context_keys(self) -> list[str]: ...
-
-    async def get_context_value(self, key: str) -> str | None: ...
-
-    def add_context(self, key: str, value: str) -> None: ...
-
-
-@runtime_checkable
-class ProtocolPageInfo(Protocol):
-    """Protocol for pagination information structures."""
-
-    @property
-    def info_keys(self) -> list[str]: ...
-
-    async def get_info_value(self, key: str) -> str | None: ...
-
-    def has_next_page(self) -> bool: ...
-
-
-@runtime_checkable
-class ProtocolCustomMetrics(Protocol):
-    """Protocol for custom metrics structures."""
-
-    @property
-    def metric_names(self) -> list[str]: ...
-
-    async def get_metric_value(self, name: str) -> float | None: ...
-
-    def has_metric(self, name: str) -> bool: ...
-
-
-@runtime_checkable
-class ProtocolAggregationSummary(Protocol):
-    """Protocol for aggregation summary structures."""
-
-    @property
-    def summary_keys(self) -> list[str]: ...
-
-    async def get_summary_value(self, key: str) -> float | None: ...
-
-    def calculate_total(self) -> float: ...
-
-    async def validate_record_data(self) -> bool: ...
-
-
-@runtime_checkable
 class ProtocolMemoryRecord(Protocol):
     """Protocol for memory record data structure."""
 
@@ -230,48 +175,33 @@ class ProtocolSearchFilters(Protocol):
     def tags(self) -> list[str] | None: ...
 
 
-@runtime_checkable
-class ProtocolAgentStatusMap(Protocol):
-    """Protocol for agent status mapping structures."""
-
-    @property
-    def agent_ids(self) -> list[UUID]: ...
-
-    async def get_agent_status(self, agent_id: UUID) -> str | None: ...
-
-    async def set_agent_status(self, agent_id: UUID, status: str) -> None: ...
-
-    @property
-    def responding_agents(self) -> list[UUID]: ...
-
-    def add_agent_response(self, agent_id: UUID, response: str) -> None: ...
-
-    async def get_all_statuses(self) -> dict[UUID, str]: ...
-
-
-@runtime_checkable
-class ProtocolAgentResponseMap(Protocol):
-    """Protocol for agent response mapping structures."""
-
-    @property
-    def responding_agents(self) -> list[UUID]: ...
-
-    async def get_agent_response(self, agent_id: UUID) -> str | None: ...
-
-    def add_agent_response(self, agent_id: UUID, response: str) -> None: ...
-
-    async def get_all_responses(self) -> dict[UUID, str]: ...
-
-
-@runtime_checkable
-class ProtocolErrorCategoryMap(Protocol):
-    """Protocol for error category counting structures."""
-
-    @property
-    def category_names(self) -> list[str]: ...
-
-    async def get_category_count(self, category: str) -> int: ...
-
-    def increment_category(self, category: str) -> None: ...
-
-    async def get_all_counts(self) -> dict[str, int]: ...
+# Backward compatibility exports
+__all__ = [
+    # Type literals
+    "LiteralMemoryAccessLevel",
+    "LiteralAnalysisType",
+    "LiteralCompressionAlgorithm",
+    "LiteralErrorCategory",
+    "LiteralAgentStatus",
+    "LiteralWorkflowStatus",
+    # Core protocols (defined here)
+    "ProtocolKeyValueStore",
+    "ProtocolMemoryMetadata",
+    "ProtocolWorkflowConfiguration",
+    "ProtocolAnalysisParameters",
+    "ProtocolAggregationCriteria",
+    "ProtocolCoordinationMetadata",
+    "ProtocolMemoryRecord",
+    "ProtocolSearchResult",
+    "ProtocolSearchFilters",
+    # Re-exported from protocol_memory_data_types
+    "ProtocolAnalysisResults",
+    "ProtocolAggregatedData",
+    "ProtocolMemoryErrorContext",
+    "ProtocolPageInfo",
+    "ProtocolCustomMetrics",
+    "ProtocolAggregationSummary",
+    "ProtocolAgentStatusMap",
+    "ProtocolAgentResponseMap",
+    "ProtocolErrorCategoryMap",
+]

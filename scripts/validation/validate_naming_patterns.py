@@ -405,7 +405,11 @@ def validate_file(file_path: Path) -> tuple[list[Violation], int, int]:
         validator = NamingPatternValidator(str(file_path))
         validator.visit(tree)
 
-        return validator.violations, validator.protocols_found, validator.exceptions_found
+        return (
+            validator.violations,
+            validator.protocols_found,
+            validator.exceptions_found,
+        )
 
     except SyntaxError as e:
         violation = Violation(
