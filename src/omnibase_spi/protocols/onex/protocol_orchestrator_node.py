@@ -4,7 +4,7 @@ from typing import Any, Protocol, runtime_checkable
 
 
 @runtime_checkable
-class ProtocolOrchestratorNode(Protocol):
+class ProtocolOnexOrchestratorNode(Protocol):
     """
     Protocol for ONEX orchestrator node implementations.
 

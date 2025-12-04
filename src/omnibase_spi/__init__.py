@@ -69,14 +69,10 @@ __version__ = "0.3.0"
 __author__ = "OmniNode Team"
 __email__ = "team@omninode.ai"
 
-# Exception hierarchy (not lazy loaded - always available)
-from omnibase_spi.exceptions import (
-    ContractCompilerError,
-    HandlerInitializationError,
-    ProtocolHandlerError,
-    RegistryError,
-    SPIError,
-)
+# Exception hierarchy (lazy loaded on demand to prevent namespace pollution)
+# Import from omnibase_spi.exceptions directly when needed:
+#   from omnibase_spi.exceptions import SPIError, ProtocolHandlerError, ...
+# This ensures protocols namespace remains isolated from exceptions module
 
 # Lazy loading configuration - defines what protocols are available at root level
 # This eliminates the need to import all protocols upfront, reducing startup time
@@ -211,12 +207,8 @@ __all__ = [
     "__email__",
     # Dynamic protocol count for documentation
     "__protocol_count__",
-    # Exceptions
-    "SPIError",
-    "ProtocolHandlerError",
-    "HandlerInitializationError",
-    "ContractCompilerError",
-    "RegistryError",
+    # Exceptions - import directly from omnibase_spi.exceptions when needed
+    # (not exported here to maintain protocols namespace isolation)
     # All lazy-loaded protocols (dynamically generated)
     *sorted(_LAZY_PROTOCOL_MAP.keys()),
 ]

@@ -178,9 +178,9 @@ from omnibase_spi.protocols.core import (
 # Discovery protocols (3 protocols) - Node and handler discovery
 # Enables dynamic service discovery and handler registration
 from omnibase_spi.protocols.discovery import (
+    ProtocolFileHandlerRegistry,
     ProtocolHandlerDiscovery,
     ProtocolHandlerInfo,
-    ProtocolHandlerRegistry,
 )
 
 # Event bus protocols (13 protocols) - Distributed messaging infrastructure
@@ -270,8 +270,8 @@ from omnibase_spi.protocols.node import (
 
 # ONEX protocols (15 protocols) - ONEX platform specific protocols
 from omnibase_spi.protocols.onex import (
-    ProtocolComputeNode,
-    ProtocolEffectNode,
+    ProtocolOnexComputeNode,
+    ProtocolOnexEffectNode,
     ProtocolOnexContractData,
     ProtocolOnexEnvelope,
     ProtocolOnexMetadata,
@@ -282,8 +282,8 @@ from omnibase_spi.protocols.onex import (
     ProtocolOnexValidation,
     ProtocolOnexValidationReport,
     ProtocolOnexValidationResult,
-    ProtocolOrchestratorNode,
-    ProtocolReducerNode,
+    ProtocolOnexOrchestratorNode,
+    ProtocolOnexReducerNode,
     ProtocolToolToolOnexVersionLoader,
 )
 
@@ -407,8 +407,8 @@ __all__ = [
     # "ProtocolTestable",  # Excluded from production builds
     # "ProtocolTestableCLI",  # Excluded from production builds
     "ProtocolAnalyticsDataProvider",
-    "ProtocolComputeNode",
-    "ProtocolEffectNode",
+    "ProtocolOnexComputeNode",
+    "ProtocolOnexEffectNode",
     "ProtocolOnexContractData",
     "ProtocolOnexEnvelope",
     "ProtocolEnvelope",  # Alias for ProtocolOnexEnvelope (Issue #5)
@@ -420,8 +420,8 @@ __all__ = [
     "ProtocolOnexValidation",
     "ProtocolOnexValidationReport",
     "ProtocolOnexValidationResult",
-    "ProtocolOrchestratorNode",
-    "ProtocolReducerNode",
+    "ProtocolOnexOrchestratorNode",
+    "ProtocolOnexReducerNode",
     "ProtocolToolToolOnexVersionLoader",
     "ProtocolSchemaLoader",
     "ProtocolTrustedSchemaLoader",
@@ -472,6 +472,7 @@ __all__ = [
     "ProtocolEventStoreResult",
     "ProtocolEventStoreTransaction",
     "ProtocolFileTypeHandler",
+    "ProtocolFileHandlerRegistry",
     "ProtocolHandlerDiscovery",
     "ProtocolHandlerInfo",
     "ProtocolHttpAuthConfig",
