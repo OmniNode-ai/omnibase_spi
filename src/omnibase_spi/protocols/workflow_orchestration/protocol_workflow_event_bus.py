@@ -21,10 +21,42 @@ if TYPE_CHECKING:
 @runtime_checkable
 class ProtocolWorkflowEventMessage(Protocol):
     """
-    Protocol for workflow-specific event messages.
+    Protocol for workflow-specific event messages with orchestration metadata.
 
     Extends the base event message with workflow orchestration metadata
+    including instance tracking, sequence numbers, and idempotency keys
     for proper event sourcing and workflow coordination.
+
+    Attributes:
+        topic: Kafka topic for the message
+        key: Message key for partitioning
+        value: Serialized message payload
+        headers: Message headers with context values
+        offset: Kafka message offset
+        partition: Kafka partition number
+        workflow_type: Type identifier for the workflow
+        instance_id: Unique workflow instance identifier
+        correlation_id: Correlation ID for request tracking
+        sequence_number: Event sequence within workflow
+        event_type: Workflow event classification
+        idempotency_key: Key for duplicate detection
+
+    Example:
+        ```python
+        bus: ProtocolWorkflowEventBus = get_workflow_event_bus()
+
+        async for msg in bus.subscribe_to_workflow_events("data_processing"):
+            print(f"Workflow: {msg.workflow_type}/{msg.instance_id}")
+            print(f"Event: {msg.event_type} (seq: {msg.sequence_number})")
+
+            event = await msg.get_workflow_event()
+            await process_event(event)
+            await msg.ack()
+        ```
+
+    See Also:
+        - ProtocolWorkflowEventBus: Event bus interface
+        - ProtocolWorkflowEvent: Event payload structure
     """
 
     topic: str
@@ -48,10 +80,33 @@ class ProtocolWorkflowEventMessage(Protocol):
 @runtime_checkable
 class ProtocolWorkflowEventHandler(Protocol):
     """
-    Protocol for workflow event handler functions.
+    Protocol for workflow event handler callback functions.
 
-    Event handlers process workflow events and update workflow state
-    according to event sourcing patterns.
+    Defines the interface for handlers that process workflow events
+    and update workflow state according to event sourcing patterns,
+    enabling reactive workflow processing.
+
+    Example:
+        ```python
+        async def handle_task_completed(
+            event: ProtocolWorkflowEvent,
+            context: dict[str, ContextValue]
+        ) -> None:
+            task_id = event.payload.get("task_id")
+            result = event.payload.get("result")
+            await update_workflow_state(task_id, "completed", result)
+
+        bus: ProtocolWorkflowEventBus = get_workflow_event_bus()
+        await bus.subscribe_to_workflow_events(
+            workflow_type="data_processing",
+            event_types=["task_completed"],
+            handler=handle_task_completed
+        )
+        ```
+
+    See Also:
+        - ProtocolWorkflowEventBus: Event subscription
+        - ProtocolWorkflowEvent: Event structure
     """
 
     async def __call__(
@@ -64,8 +119,42 @@ class ProtocolLiteralWorkflowStateProjection(Protocol):
     """
     Protocol for workflow state projection handlers.
 
-    Projections maintain derived state from workflow events
-    for query optimization and real-time monitoring.
+    Projections maintain derived state from workflow events for
+    query optimization and real-time monitoring, enabling CQRS
+    patterns with event-sourced workflows.
+
+    Attributes:
+        projection_name: Unique name for this projection
+
+    Example:
+        ```python
+        class TaskCountProjection:
+            projection_name = "task_counts"
+
+            async def apply_event(
+                self,
+                event: ProtocolWorkflowEvent,
+                current_state: dict[str, ContextValue]
+            ) -> dict[str, ContextValue]:
+                if event.event_type == "task_started":
+                    current_state["pending"] = current_state.get("pending", 0) + 1
+                elif event.event_type == "task_completed":
+                    current_state["pending"] = current_state.get("pending", 1) - 1
+                    current_state["completed"] = current_state.get("completed", 0) + 1
+                return current_state
+
+            async def get_state(
+                self, workflow_type: str, instance_id: UUID
+            ) -> dict[str, ContextValue]:
+                return await load_projection_state(workflow_type, instance_id)
+
+        bus: ProtocolWorkflowEventBus = get_workflow_event_bus()
+        await bus.register_projection(TaskCountProjection())
+        ```
+
+    See Also:
+        - ProtocolWorkflowEventBus: Projection registration
+        - ProtocolWorkflowEvent: Events applied to projection
     """
 
     projection_name: str

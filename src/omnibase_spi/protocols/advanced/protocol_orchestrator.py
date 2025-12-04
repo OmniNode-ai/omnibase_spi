@@ -27,7 +27,38 @@ from typing import Protocol, runtime_checkable
 
 @runtime_checkable
 class ProtocolGraphModel(Protocol):
-    """Protocol for graph models."""
+    """
+    Protocol for directed acyclic graph (DAG) workflow representation.
+
+    Defines the structure for workflow graphs containing nodes (execution units)
+    and edges (dependencies), enabling dependency-aware execution planning and
+    parallel workflow coordination in ONEX orchestration systems.
+
+    Attributes:
+        nodes: List of execution nodes in the graph
+        edges: List of dependency edges connecting nodes
+        metadata: Additional graph-level configuration and metadata
+
+    Example:
+        ```python
+        orchestrator: ProtocolOrchestrator = get_orchestrator()
+        graph: ProtocolGraphModel = build_workflow_graph()
+
+        # Validate graph structure
+        if graph.validate():
+            print(f"Graph has {len(graph.nodes)} nodes, {len(graph.edges)} edges")
+
+            # Plan execution based on dependencies
+            plans = orchestrator.plan(graph)
+            for plan in plans:
+                print(f"Plan {plan.plan_id}: {len(plan.steps)} steps")
+        ```
+
+    See Also:
+        - ProtocolNodeModel: Individual node definitions
+        - ProtocolEdgeModel: Edge/dependency definitions
+        - ProtocolOrchestrator: Graph execution orchestration
+    """
 
     nodes: list["ProtocolNodeModel"]
     edges: list["ProtocolEdgeModel"]
@@ -40,7 +71,36 @@ class ProtocolGraphModel(Protocol):
 
 @runtime_checkable
 class ProtocolNodeModel(Protocol):
-    """Protocol for node models."""
+    """
+    Protocol for individual execution node within a workflow graph.
+
+    Represents a single unit of work in a workflow DAG with unique
+    identification, type classification, configuration parameters, and
+    explicit dependency declarations for orchestration planning.
+
+    Attributes:
+        node_id: Unique identifier within the workflow graph
+        node_type: Classification of node (compute, effect, reducer, etc.)
+        configuration: Node-specific configuration parameters
+        dependencies: List of node IDs this node depends on
+
+    Example:
+        ```python
+        graph: ProtocolGraphModel = get_workflow_graph()
+
+        for node in graph.nodes:
+            if node.validate():
+                deps = await node.get_dependencies()
+                print(f"Node {node.node_id} ({node.node_type})")
+                print(f"  Dependencies: {deps}")
+                print(f"  Config: {node.configuration}")
+        ```
+
+    See Also:
+        - ProtocolGraphModel: Container for workflow nodes
+        - ProtocolEdgeModel: Dependency edge definitions
+        - ProtocolStepModel: Execution step representation
+    """
 
     node_id: str
     node_type: str
@@ -54,7 +114,36 @@ class ProtocolNodeModel(Protocol):
 
 @runtime_checkable
 class ProtocolEdgeModel(Protocol):
-    """Protocol for edge models."""
+    """
+    Protocol for dependency edge between workflow graph nodes.
+
+    Represents a directed edge in the workflow DAG connecting a source
+    node to a target node, indicating that the target depends on the
+    source completing before execution can begin.
+
+    Attributes:
+        source: Node ID of the dependency source (must complete first)
+        target: Node ID of the dependent node (waits for source)
+        edge_type: Classification of dependency (data, control, resource)
+        metadata: Additional edge configuration and annotations
+
+    Example:
+        ```python
+        graph: ProtocolGraphModel = get_workflow_graph()
+
+        for edge in graph.edges:
+            edge_dict = edge.to_dict()
+            print(f"Dependency: {edge.source} -> {edge.target}")
+            print(f"  Type: {edge.edge_type}")
+            if edge.metadata.get("optional"):
+                print("  (Optional dependency)")
+        ```
+
+    See Also:
+        - ProtocolGraphModel: Container for workflow edges
+        - ProtocolNodeModel: Source and target node definitions
+        - ProtocolPlanModel: Execution planning from edges
+    """
 
     source: str
     target: str
@@ -66,7 +155,38 @@ class ProtocolEdgeModel(Protocol):
 
 @runtime_checkable
 class ProtocolPlanModel(Protocol):
-    """Protocol for plan models."""
+    """
+    Protocol for workflow execution plan representation.
+
+    Encapsulates a sequence of execution steps derived from a workflow
+    graph, with dependency mappings and ordered step execution for
+    coordinated workflow orchestration.
+
+    Attributes:
+        plan_id: Unique identifier for this execution plan
+        steps: Ordered list of steps to execute in this plan
+        dependencies: Mapping of step IDs to their prerequisite step IDs
+
+    Example:
+        ```python
+        orchestrator: ProtocolOrchestrator = get_orchestrator()
+        graph: ProtocolGraphModel = build_workflow_graph()
+        plans = orchestrator.plan(graph)
+
+        for plan in plans:
+            if plan.validate():
+                execution_order = await plan.get_execution_order()
+                print(f"Plan {plan.plan_id}:")
+                for step_id in execution_order:
+                    deps = plan.dependencies.get(step_id, [])
+                    print(f"  {step_id} (after: {deps})")
+        ```
+
+    See Also:
+        - ProtocolOrchestrator: Plan generation and execution
+        - ProtocolStepModel: Individual execution steps
+        - ProtocolGraphModel: Source graph for planning
+    """
 
     plan_id: str
     steps: list["ProtocolStepModel"]
@@ -79,7 +199,37 @@ class ProtocolPlanModel(Protocol):
 
 @runtime_checkable
 class ProtocolStepModel(Protocol):
-    """Protocol for step models."""
+    """
+    Protocol for individual execution step within an execution plan.
+
+    Represents a single executable action in a workflow plan, linking
+    to a specific node and operation with parameterized execution
+    for coordinated workflow step processing.
+
+    Attributes:
+        step_id: Unique identifier for this execution step
+        node_id: Reference to the source node being executed
+        operation: Specific operation to perform on the node
+        parameters: Operation-specific parameters and configuration
+
+    Example:
+        ```python
+        plan: ProtocolPlanModel = get_execution_plan()
+
+        for step in plan.steps:
+            print(f"Step {step.step_id}: {step.operation} on {step.node_id}")
+            print(f"  Parameters: {step.parameters}")
+
+            # Execute the step
+            result = await step.execute()
+            print(f"  Result: {result}")
+        ```
+
+    See Also:
+        - ProtocolPlanModel: Container for execution steps
+        - ProtocolNodeModel: Node being executed
+        - ProtocolOrchestratorResultModel: Aggregated step results
+    """
 
     step_id: str
     node_id: str
@@ -91,7 +241,41 @@ class ProtocolStepModel(Protocol):
 
 @runtime_checkable
 class ProtocolOrchestratorResultModel(Protocol):
-    """Protocol for orchestrator result models."""
+    """
+    Protocol for workflow orchestration execution result.
+
+    Captures the complete outcome of workflow execution including
+    success status, step-level results, timing metrics, and aggregated
+    output data for workflow result processing and reporting.
+
+    Attributes:
+        success: Whether the entire workflow completed successfully
+        executed_steps: List of step IDs that completed execution
+        failed_steps: List of step IDs that failed during execution
+        output_data: Aggregated output data from all executed steps
+        execution_time: Total workflow execution time in seconds
+
+    Example:
+        ```python
+        orchestrator: ProtocolOrchestrator = get_orchestrator()
+        plans = orchestrator.plan(graph)
+        result = await orchestrator.execute(plans)
+
+        if result.success:
+            summary = await result.get_summary()
+            print(f"Workflow completed in {result.execution_time:.2f}s")
+            print(f"Executed {len(result.executed_steps)} steps")
+        else:
+            print(f"Workflow failed: {result.failed_steps}")
+            if result.has_failures():
+                print("Critical failures detected")
+        ```
+
+    See Also:
+        - ProtocolOrchestrator: Workflow execution orchestration
+        - ProtocolPlanModel: Execution plans producing results
+        - ProtocolStepModel: Individual step execution
+    """
 
     success: bool
     executed_steps: list[str]

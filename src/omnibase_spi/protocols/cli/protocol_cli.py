@@ -37,7 +37,39 @@ from omnibase_spi.protocols.core import ProtocolLogger
 
 @runtime_checkable
 class ProtocolCLIResult(Protocol):
-    """Protocol for CLI operation results."""
+    """
+    Protocol for CLI command execution result representation.
+
+    Captures the complete outcome of CLI command execution including
+    success status, exit codes, messages, structured data output, and
+    any errors encountered during command processing.
+
+    Attributes:
+        success: Whether command executed successfully
+        exit_code: UNIX-style exit code (0=success, non-zero=failure)
+        message: Human-readable result message
+        data: Optional structured data output from command
+        errors: List of error messages if any occurred
+
+    Example:
+        ```python
+        cli: ProtocolCLI = get_cli_handler()
+        result = await cli.run(["validate", "--strict", "path/to/node"])
+
+        if result.success:
+            print(f"Success: {result.message}")
+            if result.data:
+                print(f"Output: {result.data}")
+        else:
+            print(f"Failed (exit {result.exit_code}): {result.message}")
+            for error in result.errors:
+                print(f"  Error: {error}")
+        ```
+
+    See Also:
+        - ProtocolCLI: Main CLI protocol
+        - ProtocolCliExecutionResult: Extended workflow results
+    """
 
     success: bool
     exit_code: int
@@ -48,7 +80,38 @@ class ProtocolCLIResult(Protocol):
 
 @runtime_checkable
 class ProtocolCLIFlagDescription(Protocol):
-    """Protocol for CLI flag descriptions."""
+    """
+    Protocol for CLI flag/argument metadata description.
+
+    Provides structured information about CLI flags and arguments
+    for documentation generation, help text rendering, and
+    programmatic CLI introspection.
+
+    Attributes:
+        name: Flag name (e.g., "--verbose" or "-v")
+        type: Argument type (string, boolean, integer, etc.)
+        default: Default value if flag not provided
+        help: Human-readable help text describing the flag
+        required: Whether the flag must be provided
+
+    Example:
+        ```python
+        cli: ProtocolCLI = get_cli_handler()
+        flags = cli.describe_flags(format="json")
+
+        for flag in flags:
+            required_marker = "*" if flag.required else ""
+            print(f"{flag.name}{required_marker}: {flag.type}")
+            if flag.help:
+                print(f"  {flag.help}")
+            if flag.default:
+                print(f"  Default: {flag.default}")
+        ```
+
+    See Also:
+        - ProtocolCLI: CLI interface using these flag descriptions
+        - ProtocolCLI.describe_flags: Method returning flag descriptions
+    """
 
     name: str
     type: str

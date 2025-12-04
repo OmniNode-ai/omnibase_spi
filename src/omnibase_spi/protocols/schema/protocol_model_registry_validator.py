@@ -11,7 +11,40 @@ ProtocolModelValidationResult = "ProtocolSchemaValidationResult"
 
 @runtime_checkable
 class ProtocolRegistryHealthReport(Protocol):
-    """Protocol for registry health reports."""
+    """
+    Protocol for model registry health status reporting.
+
+    Provides comprehensive health metrics for model registries
+    including overall status, registry counts, conflict detection,
+    validation errors, and performance measurements.
+
+    Attributes:
+        is_healthy: Overall health status of all registries
+        registry_count: Number of registries under management
+        conflict_count: Number of detected conflicts across registries
+        validation_errors: List of validation error messages
+        performance_metrics: Dictionary of performance measurements
+
+    Example:
+        ```python
+        validator: ProtocolModelRegistryValidator = get_registry_validator()
+        health = await validator.get_registry_health()
+
+        print(f"Healthy: {health.is_healthy}")
+        print(f"Registries: {health.registry_count}")
+        print(f"Conflicts: {health.conflict_count}")
+
+        if not health.is_healthy:
+            for error in health.validation_errors:
+                print(f"  Error: {error}")
+
+        summary = await health.get_summary()
+        ```
+
+    See Also:
+        - ProtocolModelRegistryValidator: Health reporting source
+        - ProtocolSchemaValidationResult: Individual validation results
+    """
 
     is_healthy: bool
     registry_count: int
@@ -24,7 +57,50 @@ class ProtocolRegistryHealthReport(Protocol):
 
 @runtime_checkable
 class ProtocolModelRegistryValidator(Protocol):
-    """Protocol for validating dynamic model registries and detecting conflicts"""
+    """
+    Protocol for comprehensive model registry validation and conflict detection.
+
+    Provides validation operations for dynamic model registries including
+    action registries, event type registries, capability registries, and
+    node reference registries with conflict detection and integrity auditing.
+
+    Example:
+        ```python
+        validator: ProtocolModelRegistryValidator = get_registry_validator()
+
+        # Validate individual registries
+        action_result = await validator.validate_action_registry()
+        event_result = await validator.validate_event_type_registry()
+        capability_result = await validator.validate_capability_registry()
+        node_ref_result = await validator.validate_node_reference_registry()
+
+        # Validate all registries at once
+        all_result = await validator.validate_all_registries()
+
+        # Detect conflicts across registries
+        conflicts = await validator.detect_conflicts()
+        for conflict in conflicts:
+            print(f"Conflict: {conflict}")
+
+        # Verify contract compliance
+        contract_result = await validator.verify_contract_compliance(
+            "/path/to/contract.yaml"
+        )
+
+        # Lock verified models
+        locked_models = validator.lock_verified_models()
+
+        # Get overall registry health
+        health = await validator.get_registry_health()
+
+        # Audit model integrity
+        audit_result = await validator.audit_model_integrity()
+        ```
+
+    See Also:
+        - ProtocolRegistryHealthReport: Health status
+        - ProtocolSchemaValidationResult: Validation results
+    """
 
     async def validate_action_registry(self) -> "ProtocolSchemaValidationResult":
         """Validate action registry for conflicts and compliance"""

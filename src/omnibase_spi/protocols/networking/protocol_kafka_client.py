@@ -126,7 +126,35 @@ class ProtocolKafkaClient(Protocol):
     def bootstrap_servers(self) -> list[str]: ...
 @runtime_checkable
 class ProtocolKafkaClientProvider(Protocol):
-    """Protocol for Kafka client provider."""
+    """
+    Protocol for Kafka client factory and configuration provider.
+
+    Provides centralized creation of Kafka client instances with
+    consistent configuration, enabling dependency injection and
+    test mocking of Kafka connections.
+
+    Example:
+        ```python
+        provider: ProtocolKafkaClientProvider = get_kafka_provider()
+
+        # Get Kafka configuration
+        config = await provider.get_kafka_configuration()
+        print(f"Bootstrap servers: {config.get('bootstrap_servers')}")
+
+        # Create a new Kafka client
+        client = await provider.create_kafka_client()
+        await client.start()
+
+        try:
+            await client.send_and_wait("events", b'{"type": "test"}')
+        finally:
+            await client.stop()
+        ```
+
+    See Also:
+        - ProtocolKafkaClient: Created client interface
+        - ProtocolKafkaAdapter: Full adapter with subscriptions
+    """
 
     async def create_kafka_client(self) -> ProtocolKafkaClient: ...
 

@@ -65,7 +65,42 @@ class ProtocolSerializationResult(Protocol):
 
 @runtime_checkable
 class ProtocolSchemaObject(Protocol):
-    """Protocol for schema data objects."""
+    """
+    Protocol for schema data objects with validation capabilities.
+
+    Represents a schema definition including its data, version, and
+    validation state. Used for schema management, validation, and
+    versioning across ONEX services.
+
+    Attributes:
+        schema_id: Unique identifier for the schema.
+        schema_type: Type classification (e.g., "json-schema", "protobuf").
+        schema_data: The actual schema definition.
+        version: Semantic version of the schema.
+        is_valid: Whether the schema passes validation.
+
+    Example:
+        ```python
+        class JsonSchemaObject:
+            schema_id: str = "user-profile-v1"
+            schema_type: str = "json-schema"
+            schema_data: dict[str, ContextValue] = {
+                "type": "object",
+                "properties": {"name": {"type": "string"}}
+            }
+            version: ProtocolSemVer = semver_impl
+            is_valid: bool = True
+
+            async def validate_schema(self) -> bool:
+                return self.is_valid
+
+            def is_valid_schema(self) -> bool:
+                return self.is_valid
+
+        schema = JsonSchemaObject()
+        assert isinstance(schema, ProtocolSchemaObject)
+        ```
+    """
 
     schema_id: str
     schema_type: str
@@ -169,7 +204,33 @@ class ProtocolSerializable(Protocol):
 
 @runtime_checkable
 class ProtocolIdentifiable(Protocol):
-    """Protocol for objects that have an ID."""
+    """
+    Marker protocol for objects that have a unique identifier.
+
+    Provides a consistent interface for accessing object identifiers
+    across ONEX services. The marker attribute enables runtime type
+    checking for identifiable objects.
+
+    Attributes:
+        __omnibase_identifiable_marker__: Sentinel for runtime checking.
+        id: Property returning the unique identifier string.
+
+    Example:
+        ```python
+        from typing import Literal
+
+        class IdentifiableEntity:
+            __omnibase_identifiable_marker__: Literal[True] = True
+
+            @property
+            def id(self) -> str:
+                return "entity-12345"
+
+        entity = IdentifiableEntity()
+        assert isinstance(entity, ProtocolIdentifiable)
+        assert entity.id == "entity-12345"
+        ```
+    """
 
     __omnibase_identifiable_marker__: Literal[True]
 
@@ -184,7 +245,33 @@ class ProtocolIdentifiable(Protocol):
 
 @runtime_checkable
 class ProtocolNameable(Protocol):
-    """Protocol for objects that have a name."""
+    """
+    Marker protocol for objects that have a human-readable name.
+
+    Provides a consistent interface for accessing object names
+    across ONEX services. Used for display, logging, and user
+    interface purposes.
+
+    Attributes:
+        __omnibase_nameable_marker__: Sentinel for runtime checking.
+        name: Property returning the human-readable name.
+
+    Example:
+        ```python
+        from typing import Literal
+
+        class NamedService:
+            __omnibase_nameable_marker__: Literal[True] = True
+
+            @property
+            def name(self) -> str:
+                return "User Authentication Service"
+
+        service = NamedService()
+        assert isinstance(service, ProtocolNameable)
+        assert service.name == "User Authentication Service"
+        ```
+    """
 
     __omnibase_nameable_marker__: Literal[True]
 
@@ -199,7 +286,34 @@ class ProtocolNameable(Protocol):
 
 @runtime_checkable
 class ProtocolConfigurable(Protocol):
-    """Protocol for objects that can be configured."""
+    """
+    Marker protocol for objects that support runtime configuration.
+
+    Provides a consistent interface for configuring objects at runtime
+    with keyword arguments. Used for dynamic service configuration
+    and parameter injection.
+
+    Attributes:
+        __omnibase_configurable_marker__: Sentinel for runtime checking.
+        configure: Method to apply configuration parameters.
+
+    Example:
+        ```python
+        from typing import Literal
+
+        class ConfigurableProcessor:
+            __omnibase_configurable_marker__: Literal[True] = True
+            timeout: int = 30
+
+            def configure(self, **kwargs: ContextValue) -> None:
+                if "timeout" in kwargs:
+                    self.timeout = int(kwargs["timeout"])
+
+        processor = ConfigurableProcessor()
+        assert isinstance(processor, ProtocolConfigurable)
+        processor.configure(timeout=60)
+        ```
+    """
 
     __omnibase_configurable_marker__: Literal[True]
 
@@ -213,7 +327,33 @@ class ProtocolConfigurable(Protocol):
 
 @runtime_checkable
 class ProtocolExecutable(Protocol):
-    """Protocol for objects that can be executed."""
+    """
+    Marker protocol for objects that can be executed asynchronously.
+
+    Provides a consistent interface for executable operations across
+    ONEX services. The execute method returns the result of the
+    operation as a generic object.
+
+    Attributes:
+        __omnibase_executable_marker__: Sentinel for runtime checking.
+        execute: Async method to perform the execution.
+
+    Example:
+        ```python
+        from typing import Literal
+
+        class ExecutableTask:
+            __omnibase_executable_marker__: Literal[True] = True
+
+            async def execute(self) -> object:
+                # Perform async operation
+                return {"status": "completed", "result": 42}
+
+        task = ExecutableTask()
+        assert isinstance(task, ProtocolExecutable)
+        result = await task.execute()
+        ```
+    """
 
     __omnibase_executable_marker__: Literal[True]
 
@@ -227,7 +367,39 @@ class ProtocolExecutable(Protocol):
 
 @runtime_checkable
 class ProtocolMetadataProvider(Protocol):
-    """Protocol for objects that provide metadata."""
+    """
+    Marker protocol for objects that provide metadata access.
+
+    Provides a consistent interface for retrieving metadata from objects
+    across ONEX services. The metadata is returned as a dictionary with
+    primitive value types for serialization compatibility.
+
+    Attributes:
+        __omnibase_metadata_provider_marker__: Sentinel for runtime checking.
+        get_metadata: Async method to retrieve metadata dictionary.
+
+    Example:
+        ```python
+        from typing import Literal
+
+        class MetadataEnabledNode:
+            __omnibase_metadata_provider_marker__: Literal[True] = True
+            _name: str = "processor-v1"
+            _version: str = "1.0.0"
+
+            async def get_metadata(self) -> dict[str, str | int | bool | float]:
+                return {
+                    "name": self._name,
+                    "version": self._version,
+                    "active": True,
+                    "priority": 100
+                }
+
+        node = MetadataEnabledNode()
+        assert isinstance(node, ProtocolMetadataProvider)
+        metadata = await node.get_metadata()
+        ```
+    """
 
     __omnibase_metadata_provider_marker__: Literal[True]
 

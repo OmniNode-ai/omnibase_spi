@@ -10,7 +10,43 @@ from typing import Any, Protocol, runtime_checkable
 
 @runtime_checkable
 class ProtocolCliExecutionResult(Protocol):
-    """Protocol for CLI execution results."""
+    """
+    Protocol for CLI workflow execution result with full output capture.
+
+    Provides comprehensive execution outcome including stdout/stderr
+    capture, timing metrics, and workflow-specific data output for
+    detailed execution analysis and debugging.
+
+    Attributes:
+        success: Whether workflow executed successfully
+        exit_code: UNIX-style exit code from execution
+        stdout: Captured standard output stream
+        stderr: Captured standard error stream
+        execution_time: Total execution time in seconds
+        workflow_data: Optional structured workflow output data
+
+    Example:
+        ```python
+        workflow: ProtocolCliWorkflow = get_cli_workflow()
+        result = await workflow.execute_workflow(
+            domain="generation",
+            workflow_name="model_generator",
+            parameters={"contract_path": "/path/to/contract.yaml"}
+        )
+
+        if result.success:
+            print(f"Completed in {result.execution_time:.2f}s")
+            if result.workflow_data:
+                print(f"Generated files: {result.workflow_data.get('files')}")
+        else:
+            print(f"Failed (exit {result.exit_code})")
+            print(f"Error output: {result.stderr}")
+        ```
+
+    See Also:
+        - ProtocolCliWorkflow: Workflow execution interface
+        - ProtocolCLIResult: Basic CLI result structure
+    """
 
     success: bool
     exit_code: int
@@ -25,10 +61,42 @@ class ProtocolCliExecutionResult(Protocol):
 @runtime_checkable
 class ProtocolCliWorkflow(Protocol):
     """
-    Protocol interface for CLI workflow operations.
+    Protocol interface for CLI workflow discovery and execution.
 
     Provides abstracted workflow discovery and execution capabilities
-    for the CLI without requiring direct tool imports.
+    for the CLI without requiring direct tool imports, enabling
+    domain-based workflow organization and parameterized execution.
+
+    Example:
+        ```python
+        workflow: ProtocolCliWorkflow = get_cli_workflow()
+
+        # List available domains
+        domains = await workflow.list_domains()
+        print(f"Available domains: {domains.workflow_data}")
+
+        # List workflows in a domain
+        workflows = await workflow.list_workflows(domain="generation")
+        print(f"Generation workflows: {workflows.workflow_data}")
+
+        # Get workflow details
+        info = await workflow.get_workflow_info("generation", "model_generator")
+        print(f"Workflow info: {info.workflow_data}")
+
+        # Execute workflow with parameters
+        result = await workflow.execute_workflow(
+            domain="generation",
+            workflow_name="model_generator",
+            dry_run=True,
+            timeout=300,
+            parameters={"contract_path": "/path/to/contract.yaml"}
+        )
+        ```
+
+    See Also:
+        - ProtocolCliExecutionResult: Workflow execution results
+        - ProtocolCLI: Basic CLI operations
+        - ProtocolCLIToolDiscovery: Tool discovery for workflows
     """
 
     async def list_workflows(

@@ -27,7 +27,39 @@ EventMessage = Any  # Generic event message type
 
 @runtime_checkable
 class ProtocolKafkaConfig(Protocol):
-    """Protocol for Kafka configuration parameters."""
+    """
+    Protocol for Kafka client configuration parameters.
+
+    Defines security, authentication, and operational settings for
+    Kafka connections including SASL/SSL configuration, consumer
+    group behavior, and timeout management.
+
+    Attributes:
+        security_protocol: Security protocol (PLAINTEXT, SSL, SASL_SSL)
+        sasl_mechanism: SASL auth mechanism (PLAIN, SCRAM-SHA-256, etc.)
+        sasl_username: SASL authentication username
+        sasl_password: SASL authentication password
+        ssl_cafile: Path to CA certificate file for SSL
+        auto_offset_reset: Consumer offset reset behavior (earliest, latest)
+        enable_auto_commit: Whether to auto-commit consumer offsets
+        session_timeout_ms: Consumer session timeout in milliseconds
+        request_timeout_ms: Request timeout in milliseconds
+
+    Example:
+        ```python
+        adapter: ProtocolKafkaAdapter = get_kafka_adapter()
+        config = adapter.kafka_config
+
+        print(f"Security: {config.security_protocol}")
+        print(f"SASL: {config.sasl_mechanism}")
+        print(f"Auto-commit: {config.enable_auto_commit}")
+        print(f"Session timeout: {config.session_timeout_ms}ms")
+        ```
+
+    See Also:
+        - ProtocolKafkaAdapter: Kafka adapter using this config
+        - ProtocolKafkaClient: Low-level Kafka client
+    """
 
     security_protocol: str
     sasl_mechanism: str
@@ -43,10 +75,50 @@ class ProtocolKafkaConfig(Protocol):
 @runtime_checkable
 class ProtocolKafkaAdapter(Protocol):
     """
-    Protocol for Kafka event bus adapter implementations.
+    Protocol for Kafka-based event bus adapter implementations.
 
-    Provides Kafka-specific configuration and connection management protocols
-    along with the core event bus adapter interface.
+    Provides Kafka-specific configuration, connection management, and
+    core event bus operations for publishing events and subscribing
+    to topics with environment and group isolation.
+
+    Example:
+        ```python
+        adapter: ProtocolKafkaAdapter = get_kafka_adapter()
+
+        # Access configuration
+        print(f"Servers: {adapter.bootstrap_servers}")
+        print(f"Environment: {adapter.environment}")
+        print(f"Group: {adapter.group}")
+
+        # Build environment-aware topic name
+        topic = await adapter.build_topic_name("user-events")
+
+        # Publish event
+        await adapter.publish(
+            topic=topic,
+            key=b"user:123",
+            value=b'{"event": "user_created"}',
+            headers={"correlation_id": "abc123"}
+        )
+
+        # Subscribe to events
+        async def handle_message(msg: ProtocolEventMessage):
+            print(f"Received: {msg}")
+
+        unsubscribe = await adapter.subscribe(
+            topic=topic,
+            group_id="my-consumer-group",
+            on_message=handle_message
+        )
+
+        # Cleanup
+        await adapter.close()
+        ```
+
+    See Also:
+        - ProtocolKafkaConfig: Configuration parameters
+        - ProtocolEventBus: Generic event bus interface
+        - ProtocolKafkaClient: Low-level Kafka operations
     """
 
     @property

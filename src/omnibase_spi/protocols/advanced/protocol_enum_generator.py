@@ -16,7 +16,34 @@ if TYPE_CHECKING:
 
 @runtime_checkable
 class ProtocolProtocolEnumInfo(Protocol):
-    """Protocol for enum information."""
+    """
+    Protocol for enum discovery and metadata information.
+
+    Captures information about discovered enum definitions within
+    contract schemas, including the generated name, enumeration values,
+    and source location for code generation and deduplication.
+
+    Attributes:
+        name: Generated or explicit enum class name
+        values: List of string values in the enumeration
+        source_location: Path within contract where enum was discovered
+
+    Example:
+        ```python
+        generator: ProtocolEnumGenerator = get_enum_generator()
+        contract = await load_contract("path/to/contract.yaml")
+        enum_infos = await generator.discover_enums_from_contract(contract)
+
+        for info in enum_infos:
+            print(f"Enum: {info.name}")
+            print(f"  Values: {info.values}")
+            print(f"  Found at: {info.source_location}")
+        ```
+
+    See Also:
+        - ProtocolEnumGenerator: Enum discovery and generation
+        - ProtocolContractDocument: Source contract structure
+    """
 
     name: str
     values: list[str]

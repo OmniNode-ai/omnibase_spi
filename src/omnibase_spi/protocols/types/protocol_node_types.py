@@ -111,7 +111,51 @@ class ProtocolNodeMetadata(Protocol):
 
 @runtime_checkable
 class ProtocolNodeMetadataBlock(Protocol):
-    """Protocol for node metadata block objects."""
+    """
+    Protocol for node metadata block objects with full lifecycle tracking.
+
+    Provides comprehensive metadata for ONEX nodes including identification,
+    versioning, namespace organization, lifecycle state, and timestamps.
+    Serves as the standard metadata structure for node discovery, registry,
+    and management operations across the ONEX ecosystem.
+
+    Attributes:
+        uuid: Globally unique identifier for the node.
+        name: Human-readable name of the node.
+        description: Detailed description of the node's purpose and functionality.
+        version: Current semantic version of the node implementation.
+        metadata_version: Version of the metadata schema being used.
+        namespace: Organizational namespace (e.g., "omnibase_spi.protocols").
+        created_at: Timestamp when the node was first created.
+        last_modified_at: Timestamp of the most recent modification.
+        lifecycle: Current lifecycle state ("active", "deprecated", "retired").
+        protocol_version: Version of the protocol the node implements.
+
+    Example:
+        ```python
+        class ComputeNodeMetadata:
+            uuid: str = "550e8400-e29b-41d4-a716-446655440000"
+            name: str = "NodeDataTransformCompute"
+            description: str = "Transforms raw data into structured format"
+            version: ProtocolSemVer = SemVer(1, 2, 0)
+            metadata_version: ProtocolSemVer = SemVer(1, 0, 0)
+            namespace: str = "omnibase_infra.nodes.compute"
+            created_at: ProtocolDateTime = datetime_instance
+            last_modified_at: ProtocolDateTime = datetime_instance
+            lifecycle: str = "active"
+            protocol_version: ProtocolSemVer = SemVer(0, 3, 0)
+
+            async def validate_metadata_block(self) -> bool:
+                return bool(self.uuid and self.name and self.namespace)
+
+            def is_complete(self) -> bool:
+                return all([self.uuid, self.name, self.version, self.namespace])
+
+        metadata = ComputeNodeMetadata()
+        assert isinstance(metadata, ProtocolNodeMetadataBlock)
+        assert metadata.lifecycle == "active"
+        ```
+    """
 
     uuid: str
     name: str

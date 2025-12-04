@@ -84,7 +84,43 @@ class ProtocolMemoryAgentInstance(Protocol):
 
 @runtime_checkable
 class ProtocolAgentHealthStatus(Protocol):
-    """Protocol for agent health status."""
+    """
+    Protocol for agent health status with metrics and check timestamps.
+
+    Provides health information for an agent or agent manager service,
+    including current health status, the timestamp of the last health
+    check, and detailed metrics for monitoring and alerting systems.
+
+    Attributes:
+        status: Health status indicator ("healthy", "degraded", "unhealthy").
+        last_check: ISO 8601 timestamp of the most recent health check.
+        metrics: Dictionary of health metrics (CPU, memory, response time, etc.).
+
+    Example:
+        ```python
+        class AgentHealthResult:
+            @property
+            def status(self) -> str:
+                return "healthy"
+
+            @property
+            def last_check(self) -> str:
+                return "2024-01-15T10:30:00Z"
+
+            @property
+            def metrics(self) -> dict[str, Any]:
+                return {
+                    "cpu_percent": 25.5,
+                    "memory_mb": 512,
+                    "active_connections": 10,
+                    "response_time_ms": 45
+                }
+
+        health = AgentHealthResult()
+        assert isinstance(health, ProtocolAgentHealthStatus)
+        assert health.status == "healthy"
+        ```
+    """
 
     @property
     def status(self) -> str:
@@ -104,7 +140,51 @@ class ProtocolAgentHealthStatus(Protocol):
 
 @runtime_checkable
 class ProtocolAgentStatus(Protocol):
-    """Protocol for agent status."""
+    """
+    Protocol for agent operational status with state and error tracking.
+
+    Provides detailed status information for an individual agent instance,
+    including current operational state, error details if applicable,
+    and activity timestamps for monitoring agent lifecycle.
+
+    Attributes:
+        state: Current operational state ("idle", "busy", "starting", "stopping", "error").
+        error_message: Detailed error message if state is "error"; None otherwise.
+        last_activity: ISO 8601 timestamp of the agent's most recent activity.
+
+    Example:
+        ```python
+        class BusyAgentStatus:
+            @property
+            def state(self) -> str:
+                return "busy"
+
+            @property
+            def error_message(self) -> str | None:
+                return None
+
+            @property
+            def last_activity(self) -> str:
+                return "2024-01-15T10:35:00Z"
+
+        class ErrorAgentStatus:
+            @property
+            def state(self) -> str:
+                return "error"
+
+            @property
+            def error_message(self) -> str | None:
+                return "Connection timeout after 30s"
+
+            @property
+            def last_activity(self) -> str:
+                return "2024-01-15T10:30:00Z"
+
+        status = BusyAgentStatus()
+        assert isinstance(status, ProtocolAgentStatus)
+        assert status.error_message is None
+        ```
+    """
 
     @property
     def state(self) -> str:
