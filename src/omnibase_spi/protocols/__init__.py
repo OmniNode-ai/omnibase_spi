@@ -183,14 +183,15 @@ from omnibase_spi.protocols.discovery import (
     ProtocolHandlerInfo,
 )
 
-# Event bus protocols (13 protocols) - Distributed messaging infrastructure
+# Event bus protocols - Distributed messaging infrastructure
 # Supports multiple backends (Kafka, Redis, in-memory) with async/sync patterns
-from omnibase_spi.protocols.event_bus import (  # Phase 2 additions
+# Note: Interface protocols (ProtocolEventBus, ProtocolEventBusHeaders,
+#       ProtocolKafkaEventBusAdapter) are in omnibase_core
+from omnibase_spi.protocols.event_bus import (
     ProtocolAsyncEventBus,
     ProtocolEventBusContextManager,
-    ProtocolEventBusHeaders,
     ProtocolEventBusLogEmitter,
-    ProtocolEventBusProvider,
+    ProtocolEventBusProvider,  # Factory protocol (SPI)
     ProtocolEventBusRegistry,
     ProtocolEventBusService,
     ProtocolEventMessage,
@@ -461,8 +462,7 @@ __all__ = [
     "ProtocolClusterCoordinator",
     "ProtocolEventBusAdapter",
     "ProtocolEventBusContextManager",
-    "ProtocolEventBusHeaders",
-    "ProtocolEventBusProvider",
+    "ProtocolEventBusProvider",  # Factory protocol (interface protocols in omnibase_core)
     "ProtocolEventBusService",
     "ProtocolEventMessage",
     "ProtocolEventQueryOptions",

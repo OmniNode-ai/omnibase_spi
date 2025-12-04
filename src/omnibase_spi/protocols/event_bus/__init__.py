@@ -2,19 +2,20 @@
 ONEX Event Bus Protocols - SPI Interface Exports.
 
 Event-driven messaging protocols supporting the ONEX Messaging Design v0.3:
-- EventBusAdapter for pluggable Kafka/Redpanda backends
+- EventBusProvider for factory-based event bus instance management
 - Environment isolation and node group mini-meshes
 - Distributed messaging with standardized interfaces
 - Event bus service protocols
+
+Note:
+    Core interface protocols (ProtocolEventBus, ProtocolEventBusHeaders,
+    ProtocolKafkaEventBusAdapter) are imported from omnibase_core.
+    This module exports only SPI-specific factory and service protocols.
 """
 
 from ..types.protocol_event_bus_types import ProtocolEventMessage
 from .protocol_dlq_handler import ProtocolDLQHandler
-from .protocol_event_bus import (
-    ProtocolEventBusHeaders,
-    ProtocolEventBusProvider,
-    ProtocolKafkaEventBusAdapter,
-)
+from .protocol_event_bus_provider import ProtocolEventBusProvider
 from .protocol_event_bus_context_manager import ProtocolEventBusContextManager
 from .protocol_event_bus_mixin import (
     ProtocolAsyncEventBus,
@@ -39,7 +40,6 @@ __all__ = [
     "ProtocolAsyncEventBus",
     "ProtocolEventBusBase",
     "ProtocolEventBusContextManager",
-    "ProtocolEventBusHeaders",
     "ProtocolEventBusLogEmitter",
     "ProtocolEventBusProvider",
     "ProtocolEventBusRegistry",
@@ -47,7 +47,6 @@ __all__ = [
     "ProtocolEventMessage",
     "ProtocolHttpEventBusAdapter",
     "ProtocolKafkaAdapter",
-    "ProtocolKafkaEventBusAdapter",
     "ProtocolRedpandaAdapter",
     "ProtocolSyncEventBus",
     # Phase 1: Event Bus Foundation

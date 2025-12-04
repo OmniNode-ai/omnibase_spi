@@ -15,9 +15,7 @@ from omnibase_spi.protocols.types.protocol_workflow_orchestration_types import (
 )
 
 if TYPE_CHECKING:
-    from omnibase_spi.protocols.event_bus.protocol_event_bus import (
-        ProtocolEventBusProvider,
-    )
+    from omnibase_core.protocols.event_bus import ProtocolEventBus
 
 
 @runtime_checkable
@@ -253,8 +251,7 @@ class ProtocolWorkflowEventBus(Protocol):
         Get the underlying event bus implementation.
 
         Returns the Core ProtocolEventBus that this workflow event bus wraps.
-        This is the simpler base protocol from omnibase_core, not the ONEX-extended
-        ProtocolEventBusProvider from SPI.
+        This is the standard event bus protocol from omnibase_core.
         """
         ...
 
