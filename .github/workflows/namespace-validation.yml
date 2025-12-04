@@ -50,24 +50,8 @@ jobs:
           python scripts/validation/run_all_validations.py --json > validation_results.json || true
           python scripts/validation/run_all_validations.py --verbose
 
-          # Check results (strict mode for naming and namespace, lenient for architecture)
-          python -c "
-          import json
-          with open('validation_results.json') as f:
-              data = json.load(f)
-
-          # Check critical validators
-          for v in data['validators']:
-              if v['name'] in ['naming_patterns', 'namespace_isolation']:
-                  if not v['passed']:
-                      print(f\"FAIL: {v['name']} - {v.get('error', 'validation failed')}\")
-                      exit(1)
-              elif v['name'] == 'architecture':
-                  if not v['passed']:
-                      print(f\"INFO: {v['name']} has existing violations (technical debt)\")
-
-          print('All critical validators passed!')
-          "
+      - name: Check validation results
+        run: python scripts/validation/check_results.py
 
       - name: Upload validation results
         uses: actions/upload-artifact@v4

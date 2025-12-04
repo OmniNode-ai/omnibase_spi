@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Architecture: Dependency Direction
 
-```
+```text
 Applications (omniagent, omniintelligence)
        │  use
        ▼
@@ -85,7 +85,7 @@ pre-commit run validate-namespace-isolation-new --all-files
 
 ## Directory Structure
 
-```
+```text
 src/omnibase_spi/
 ├── protocols/
 │   ├── nodes/           # ProtocolNode, ProtocolComputeNode, ProtocolEffectNode, etc.

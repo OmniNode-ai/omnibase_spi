@@ -43,7 +43,7 @@ is resolved.
 
 **CRITICAL**: The dependency direction is:
 
-```
+```text
 omnibase_spi DEPENDS ON omnibase_core (SPI → Core)
 omnibase_core MUST NOT depend on omnibase_spi
 ```
@@ -388,7 +388,7 @@ Document the validation result models from Core:
 
 ## Implementation Order
 
-```
+```text
 Phase 1: Add Dependency
     └── 1.1: Add omnibase_core 0.3.5 to dependencies
             |
@@ -442,7 +442,7 @@ Phase 6: Documentation
 
 ## Architecture Diagram
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────┐
 │                    Application Layer                         │
 │         (omniagent, omniintelligence, etc.)                 │

@@ -199,13 +199,24 @@ def __dir__() -> list[str]:
     # Get standard module attributes
     standard_attrs = ["__version__", "__author__", "__email__", "__all__"]
 
+    # Add exceptions
+    exception_attrs = [
+        "ContractCompilerError",
+        "HandlerInitializationError",
+        "InvalidProtocolStateError",
+        "ProtocolHandlerError",
+        "ProtocolNotImplementedError",
+        "RegistryError",
+        "SPIError",
+    ]
+
     # Add lazy-loaded protocols
     protocol_attrs = list(_LAZY_PROTOCOL_MAP.keys())
 
     # Add special dynamic attributes
     special_attrs = ["__protocol_count__"]
 
-    return sorted(standard_attrs + protocol_attrs + special_attrs)
+    return sorted(standard_attrs + exception_attrs + protocol_attrs + special_attrs)
 
 
 # Define __all__ dynamically to include all lazy-loaded protocols

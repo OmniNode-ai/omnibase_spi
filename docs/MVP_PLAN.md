@@ -21,7 +21,7 @@
 
 **Dependency Direction**:
 
-```
+```text
 Applications (omniagent, omniintelligence)
        │  use
        ▼
@@ -83,7 +83,7 @@ This document defines the proposed work for the SPI v0.3.0 milestone. It is the 
 
 **Correct Dependency Direction**:
 
-```
+```text
 omnibase_infra  ──implements──►  omnibase_spi  ──imports──►  omnibase_core
 ```
 
@@ -105,7 +105,7 @@ These rules define the behavior contracts for v0.3.0 protocols:
 
 ## 5. Directory Structure
 
-```
+```text
 src/omnibase_spi/
 ├── protocols/
 │   ├── nodes/           # ProtocolNode, ProtocolComputeNode, ProtocolEffectNode, etc.
@@ -707,7 +707,7 @@ All protocol files listed here are implemented and exported.
 
 ## 16. Execution Order
 
-```
+```text
 Phase 0 (Protocol Implementation) [DONE]
     └─ 0.1–0.12
 

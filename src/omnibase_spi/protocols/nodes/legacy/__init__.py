@@ -26,8 +26,8 @@ from omnibase_spi.protocols.nodes.legacy.orchestrator import ProtocolOrchestrato
 from omnibase_spi.protocols.nodes.legacy.reducer import ProtocolReducerNodeLegacy
 
 __all__ = [
-    "ProtocolEffectNodeLegacy",
     "ProtocolComputeNodeLegacy",
-    "ProtocolReducerNodeLegacy",
+    "ProtocolEffectNodeLegacy",
     "ProtocolOrchestratorNodeLegacy",
+    "ProtocolReducerNodeLegacy",
 ]
