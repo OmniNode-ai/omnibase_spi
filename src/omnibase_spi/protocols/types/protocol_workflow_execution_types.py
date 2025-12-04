@@ -160,7 +160,8 @@ class ProtocolReplayStrategy(Protocol):
 
 
 # Forward reference for ProtocolWorkflowEvent
-class _ProtocolWorkflowEventRef(Protocol):
+@runtime_checkable
+class ProtocolWorkflowEventRef(Protocol):
     """Forward reference marker for ProtocolWorkflowEvent."""
 
     event_id: UUID
