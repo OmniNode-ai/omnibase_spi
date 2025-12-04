@@ -82,14 +82,11 @@ class ProtocolSchemaObject(Protocol):
     Example:
         ```python
         class JsonSchemaObject:
-            schema_id: str = "user-profile-v1"
-            schema_type: str = "json-schema"
-            schema_data: dict[str, ContextValue] = {
-                "type": "object",
-                "properties": {"name": {"type": "string"}}
-            }
-            version: ProtocolSemVer = semver_impl
-            is_valid: bool = True
+            schema_id: str
+            schema_type: str
+            schema_data: dict[str, ContextValue]
+            version: ProtocolSemVer
+            is_valid: bool
 
             async def validate_schema(self) -> bool:
                 return self.is_valid
@@ -98,6 +95,13 @@ class ProtocolSchemaObject(Protocol):
                 return self.is_valid
 
         schema = JsonSchemaObject()
+        schema.schema_id = "user-profile-v1"
+        schema.schema_type = "json-schema"
+        schema.schema_data = {
+            "type": "object",
+            "properties": {"name": {"type": "string"}}
+        }
+        schema.is_valid = True
         assert isinstance(schema, ProtocolSchemaObject)
         ```
     """

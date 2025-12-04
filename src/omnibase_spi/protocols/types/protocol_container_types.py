@@ -169,9 +169,8 @@ class ProtocolRegistryWrapper(Protocol):
     Example:
         ```python
         class RegistryWrapperImpl:
-            def __init__(self, container: ProtocolDIContainer):
-                self._container = container
-                self._version = SemVerImpl(1, 0, 0)
+            _container: ProtocolDIContainer = container_impl
+            _version: ProtocolSemVer = semver_impl
 
             async def get_service(self, service_key: str) -> object:
                 return await self._container.get_service(service_key)
@@ -179,7 +178,7 @@ class ProtocolRegistryWrapper(Protocol):
             async def get_node_version(self) -> ProtocolSemVer:
                 return self._version
 
-        wrapper = RegistryWrapperImpl(container)
+        wrapper = RegistryWrapperImpl()
         assert isinstance(wrapper, ProtocolRegistryWrapper)
         ```
     """

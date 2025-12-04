@@ -26,10 +26,7 @@ Defines the protocol interface for CLI operations with strict SPI purity complia
 Provides standardized contract for argument parsing, logging, and CLI result handling.
 """
 
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
-
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.types import ContextValue
+from typing import Any, Protocol, runtime_checkable
 
 # Import core logger protocol to avoid duplication
 from omnibase_spi.protocols.core import ProtocolLogger

@@ -60,6 +60,18 @@ class ProtocolConnectionConfig(Protocol):
         config = DatabaseConnectionConfig()
         assert isinstance(config, ProtocolConnectionConfig)
         ```
+
+    validate_connection_config:
+        Returns:
+            bool: True if connection configuration is valid.
+        Raises:
+            ValueError: If required fields are missing or invalid.
+
+    is_connectable:
+        Returns:
+            bool: True if the host is reachable and connectable.
+        Raises:
+            IOError: If connection test fails.
     """
 
     host: str
@@ -116,6 +128,16 @@ class ProtocolConnectionStatus(Protocol):
         status = ActiveConnectionStatus()
         assert isinstance(status, ProtocolConnectionStatus)
         ```
+
+    validate_connection_status:
+        Returns:
+            bool: True if connection status metrics are valid.
+        Raises:
+            ValueError: If status data is inconsistent.
+
+    is_connected:
+        Returns:
+            bool: True if the connection is currently active.
     """
 
     state: LiteralConnectionState

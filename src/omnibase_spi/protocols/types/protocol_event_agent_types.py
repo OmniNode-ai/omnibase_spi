@@ -91,7 +91,7 @@ class ProtocolAgentEvent(Protocol):
             metadata: dict[str, ContextValue] = {"host": "worker-node-1"}
 
             async def validate_agent_event(self) -> bool:
-                return self.agent_id and self.event_type
+                return bool(self.agent_id) and self.event_type is not None
 
         event = AgentStartedEvent()
         assert isinstance(event, ProtocolAgentEvent)
@@ -138,7 +138,7 @@ class ProtocolEventBusAgentStatus(Protocol):
             }
 
             async def validate_agent_status(self) -> bool:
-                return self.agent_id and self.status
+                return bool(self.agent_id) and self.status is not None
 
         status = AgentStatus()
         assert isinstance(status, ProtocolEventBusAgentStatus)
@@ -240,7 +240,8 @@ class ProtocolWorkResult(Protocol):
             }
 
             async def validate_work_result(self) -> bool:
-                return self.work_ticket_id and self.result_type in ["success", "failure", "timeout", "cancelled"]
+                valid_types = ("success", "failure", "timeout", "cancelled")
+                return bool(self.work_ticket_id) and self.result_type in valid_types
 
         result = SuccessfulWorkResult()
         assert isinstance(result, ProtocolWorkResult)

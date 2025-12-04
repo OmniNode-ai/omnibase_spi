@@ -43,20 +43,28 @@ class ProtocolWorkflowEventMessage(Protocol):
 
     Example:
         ```python
-        bus: ProtocolWorkflowEventBus = get_workflow_event_bus()
-
-        async for msg in bus.subscribe_to_workflow_events("data_processing"):
+        # ProtocolWorkflowEventMessage is received via handler callback
+        async def handle_workflow_message(
+            msg: ProtocolWorkflowEventMessage,
+        ) -> None:
             print(f"Workflow: {msg.workflow_type}/{msg.instance_id}")
             print(f"Event: {msg.event_type} (seq: {msg.sequence_number})")
 
             event = await msg.get_workflow_event()
             await process_event(event)
             await msg.ack()
+
+        # Register handler with the event bus
+        bus: ProtocolWorkflowEventBus = get_workflow_event_bus()
+        subscription_id = await bus.subscribe_to_workflow_events(
+            workflow_type="data_processing",
+            handler=handle_workflow_message,
+        )
         ```
 
     See Also:
-        - ProtocolWorkflowEventBus: Event bus interface
-        - ProtocolWorkflowEvent: Event payload structure
+        ProtocolWorkflowEventBus: Event bus interface for subscription.
+        ProtocolWorkflowEvent: Event payload structure.
     """
 
     topic: str
@@ -171,14 +179,70 @@ class ProtocolLiteralWorkflowStateProjection(Protocol):
 @runtime_checkable
 class ProtocolWorkflowEventBus(Protocol):
     """
-    Protocol for workflow-specific event bus operations.
+    Event bus protocol for workflow-related event publishing and subscription.
 
-    Extends the base event bus with workflow orchestration patterns:
-    - Event sourcing with sequence numbers
-    - Workflow instance isolation
-    - Task coordination messaging
-    - State projection updates
-    - Recovery and replay support
+    This protocol defines the contract for publishing workflow events
+    and subscribing to workflow state changes. Implementations enable
+    decoupled communication between workflow components with support for:
+
+    - Event sourcing with sequence numbers for ordering guarantees
+    - Workflow instance isolation via partition keys
+    - Task coordination messaging between workflow stages
+    - State projection updates for CQRS query optimization
+    - Recovery and replay support for fault tolerance
+
+    Attributes:
+        base_event_bus: Reference to the underlying event bus implementation.
+
+    Example:
+        ```python
+        class WorkflowEventBusImpl:
+            def __init__(self, base_bus: ProtocolEventBus) -> None:
+                self._base_bus = base_bus
+
+            @property
+            def base_event_bus(self) -> ProtocolEventBus:
+                return self._base_bus
+
+            async def publish_workflow_event(
+                self,
+                event: ProtocolWorkflowEvent,
+                target_topic: str | None = None,
+                partition_key: str | None = None,
+            ) -> None:
+                # Publish to workflow-specific topic
+                pass
+
+            async def subscribe_to_workflow_events(
+                self,
+                workflow_type: str,
+                event_types: list[LiteralWorkflowEventType] | None = None,
+                handler: ProtocolWorkflowEventHandler | None = None,
+            ) -> str:
+                # Return subscription ID for later unsubscription
+                return "subscription-123"
+
+            # ... other method implementations
+
+        bus = WorkflowEventBusImpl(base_bus)
+        assert isinstance(bus, ProtocolWorkflowEventBus)
+
+        # Subscribe with handler callback
+        subscription_id = await bus.subscribe_to_workflow_events(
+            workflow_type="data_processing",
+            event_types=["task_started", "task_completed"],
+            handler=my_event_handler,
+        )
+
+        # Later: unsubscribe when done
+        await bus.unsubscribe_from_workflow_events(subscription_id)
+        ```
+
+    See Also:
+        ProtocolWorkflowEventMessage: Message format for workflow events.
+        ProtocolWorkflowEventHandler: Handler for processing workflow events.
+        ProtocolLiteralWorkflowStateProjection: State projection for CQRS.
+        ProtocolEventBus: Base event bus interface.
     """
 
     @property

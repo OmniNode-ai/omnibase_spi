@@ -27,10 +27,7 @@ Protocol for file discovery sources (filesystem, .tree, hybrid, etc.).
 Defines a standardized interface for discovering and validating files for stamping/validation.
 """
 
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
-
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.types import ContextValue
+from typing import Any, Protocol, runtime_checkable
 
 
 @runtime_checkable

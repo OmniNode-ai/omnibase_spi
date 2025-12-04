@@ -5,11 +5,7 @@ Defines the protocol interface for CLI tool discovery and resolution,
 providing duck-typed tool execution without hardcoded import paths.
 """
 
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
-from uuid import UUID
-
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.types import ContextValue
+from typing import Protocol, runtime_checkable
 
 
 @runtime_checkable

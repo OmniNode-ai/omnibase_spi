@@ -156,6 +156,32 @@ class ProtocolKafkaClientProvider(Protocol):
         - ProtocolKafkaAdapter: Full adapter with subscriptions
     """
 
-    async def create_kafka_client(self) -> ProtocolKafkaClient: ...
+    async def create_kafka_client(self) -> ProtocolKafkaClient:
+        """
+        Create a new Kafka client instance.
 
-    async def get_kafka_configuration(self) -> dict[str, str | int | float | bool]: ...
+        Creates and returns a configured Kafka client ready for use.
+        The client should be started via its start() method before
+        sending messages.
+
+        Returns:
+            A configured ProtocolKafkaClient instance ready to be started.
+
+        Raises:
+            ConfigurationError: If client configuration is invalid.
+            FactoryError: If client instantiation fails.
+        """
+        ...
+
+    async def get_kafka_configuration(self) -> dict[str, str | int | float | bool]:
+        """
+        Retrieve Kafka client configuration parameters.
+
+        Returns:
+            Configuration dictionary with Kafka client settings including
+            bootstrap servers, security settings, and operational parameters.
+
+        Raises:
+            ConfigurationError: If configuration is invalid or unavailable.
+        """
+        ...

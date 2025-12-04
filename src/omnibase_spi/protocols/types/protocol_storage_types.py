@@ -47,16 +47,17 @@ class ProtocolScalarValue(Protocol):
         class IntegerScalar:
             '''Integer scalar value implementation.'''
 
-            def __init__(self, value: int):
-                self.value = value
+            value: int = 42
 
             async def to_primitive(self) -> int:
                 return self.value
 
             async def from_primitive(self, value: int) -> "IntegerScalar":
-                return IntegerScalar(value)
+                result = IntegerScalar()
+                result.value = value
+                return result
 
-        scalar = IntegerScalar(42)
+        scalar = IntegerScalar()
         assert isinstance(scalar, ProtocolScalarValue)
         primitive = await scalar.to_primitive()  # Returns 42
         ```

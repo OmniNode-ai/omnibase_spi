@@ -5,10 +5,7 @@ Defines the protocol interface for directory fixture case handling in CLI operat
 providing standardized structure for test fixture management.
 """
 
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
-
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.types import ContextValue
+from typing import Protocol, runtime_checkable
 
 
 @runtime_checkable

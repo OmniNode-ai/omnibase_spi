@@ -136,7 +136,17 @@ class ProtocolKafkaAdapter(Protocol):
     @property
     def kafka_config(self) -> ProtocolKafkaConfig: ...
 
-    async def build_topic_name(self, topic: str) -> str: ...
+    async def build_topic_name(self, topic: str) -> str:
+        """
+        Build environment-aware topic name with prefixes.
+
+        Args:
+            topic: Base topic name.
+
+        Returns:
+            Fully qualified topic name with environment/group prefixes.
+        """
+        ...
 
     # Core event bus adapter interface methods
     async def publish(
@@ -145,13 +155,41 @@ class ProtocolKafkaAdapter(Protocol):
         key: bytes | None,
         value: bytes,
         headers: EventBusHeaders,
-    ) -> None: ...
+    ) -> None:
+        """
+        Publish event message to Kafka topic.
+
+        Args:
+            topic: Target topic name.
+            key: Optional message key for partitioning.
+            value: Message payload as bytes.
+            headers: Event headers/metadata.
+
+        Raises:
+            PublishError: If message publication fails.
+        """
+        ...
 
     async def subscribe(
         self,
         topic: str,
         group_id: str,
         on_message: Callable[["ProtocolEventMessage"], Awaitable[None]],
-    ) -> Callable[[], Awaitable[None]]: ...
+    ) -> Callable[[], Awaitable[None]]:
+        """
+        Subscribe to Kafka topic with consumer group.
+
+        Args:
+            topic: Topic to subscribe to.
+            group_id: Consumer group identifier.
+            on_message: Async callback for message handling.
+
+        Returns:
+            Async callable to unsubscribe from the topic.
+
+        Raises:
+            SubscriptionError: If subscription fails.
+        """
+        ...
 
     async def close(self) -> None: ...

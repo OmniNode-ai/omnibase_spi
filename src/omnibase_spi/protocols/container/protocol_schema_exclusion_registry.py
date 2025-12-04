@@ -6,10 +6,7 @@ the ONEX ecosystem. This protocol enables consistent handling of
 excluded schemas while maintaining proper architectural boundaries.
 """
 
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
-
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.protocol_core_types import ContextValue
+from typing import Protocol, runtime_checkable
 
 
 @runtime_checkable

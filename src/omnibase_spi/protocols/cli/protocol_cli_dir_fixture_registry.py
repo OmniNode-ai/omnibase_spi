@@ -10,7 +10,6 @@ if TYPE_CHECKING:
     from omnibase_spi.protocols.cli.protocol_cli_dir_fixture_case import (
         ProtocolCLIDirFixtureCase,
     )
-    from omnibase_spi.protocols.types import ContextValue
 
 
 @runtime_checkable

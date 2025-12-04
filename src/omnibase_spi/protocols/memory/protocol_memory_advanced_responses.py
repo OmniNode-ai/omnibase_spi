@@ -352,6 +352,10 @@ class ProtocolConsolidationResponse(Protocol):
         success: Whether the consolidation completed successfully.
         consolidated_memory_id: UUID of the newly created consolidated memory.
         source_memory_ids: List of UUIDs of memories that were consolidated.
+        consolidation_strategy_applied: Name of the consolidation strategy used.
+        content_merge_summary: Summary describing how content was merged.
+        error_message: Error details if the operation failed, None otherwise.
+        source_records_archived: Whether the source records were archived after consolidation.
 
     Example:
         ```python
@@ -422,6 +426,10 @@ class ProtocolAggregationResponse(Protocol):
         success: Whether the aggregation completed successfully.
         aggregated_data: The combined/aggregated data result.
         aggregation_metadata: Metadata about the aggregation operation.
+        records_processed: Number of records processed during aggregation.
+        time_window_applied: Time window used for the aggregation operation.
+        error_message: Error details if the operation failed, None otherwise.
+        percentiles_included: Whether percentile calculations are included in the results.
 
     Example:
         ```python
@@ -793,6 +801,10 @@ class ProtocolMemoryMetricsResponse(Protocol):
         metrics: List of individual metric data points.
         aggregation_summary: Aggregated statistics across all metrics.
         collection_timestamp: When the metrics were collected.
+        collection_duration_ms: Duration of metrics collection in milliseconds.
+        metrics_source_nodes: List of node identifiers that provided metrics data.
+        error_message: Error details if the operation failed, None otherwise.
+        has_anomalies: Whether any anomalies were detected in the collected metrics.
 
     Example:
         ```python
