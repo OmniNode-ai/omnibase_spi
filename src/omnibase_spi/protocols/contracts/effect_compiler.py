@@ -21,10 +21,11 @@ class ProtocolEffectContractCompiler(Protocol):
 
     Note:
         This is a build-time tool for CLI usage, not a runtime node.
-        Methods are synchronous as they perform local file I/O only.
+        Methods are async to maintain consistency with SPI patterns
+        and allow for future flexibility in I/O operations.
     """
 
-    def compile(
+    async def compile(
         self,
         contract_path: Path,
     ) -> "ModelEffectContract":
@@ -43,7 +44,7 @@ class ProtocolEffectContractCompiler(Protocol):
         """
         ...
 
-    def validate(
+    async def validate(
         self,
         contract_path: Path,
     ) -> "ModelContractValidationResult":

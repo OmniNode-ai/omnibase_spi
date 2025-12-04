@@ -70,18 +70,22 @@ __version__ = "0.2.0"
 __author__ = "OmniNode Team"
 __email__ = "team@omninode.ai"
 
-# Exception hierarchy - exported for convenience
+# Exception hierarchy - LAZY LOADED for import isolation
 # Can also import from omnibase_spi.exceptions directly:
 #   from omnibase_spi.exceptions import SPIError, ProtocolHandlerError, ...
-from omnibase_spi.exceptions import (
-    ContractCompilerError,
-    HandlerInitializationError,
-    InvalidProtocolStateError,
-    ProtocolHandlerError,
-    ProtocolNotImplementedError,
-    RegistryError,
-    SPIError,
-)
+# Exceptions are loaded on-demand via __getattr__ to prevent loading
+# omnibase_spi.exceptions when importing from omnibase_spi.protocols.*
+
+# Lazy loading configuration for exceptions
+_LAZY_EXCEPTION_MAP = {
+    "ContractCompilerError": "omnibase_spi.exceptions",
+    "HandlerInitializationError": "omnibase_spi.exceptions",
+    "InvalidProtocolStateError": "omnibase_spi.exceptions",
+    "ProtocolHandlerError": "omnibase_spi.exceptions",
+    "ProtocolNotImplementedError": "omnibase_spi.exceptions",
+    "RegistryError": "omnibase_spi.exceptions",
+    "SPIError": "omnibase_spi.exceptions",
+}
 
 # Lazy loading configuration - defines what protocols are available at root level
 # This eliminates the need to import all protocols upfront, reducing startup time
@@ -113,6 +117,9 @@ _LAZY_PROTOCOL_MAP = {
 # Cache for loaded protocols to avoid repeated imports
 _protocol_cache: dict[str, type] = {}
 
+# Cache for loaded exceptions to avoid repeated imports
+_exception_cache: dict[str, type] = {}
+
 
 def _get_protocol_count() -> int:
     """Dynamically count available protocols to avoid documentation drift."""
@@ -122,6 +129,49 @@ def _get_protocol_count() -> int:
 def _clear_protocol_cache() -> None:
     """Clear protocol cache for testing or memory management."""
     _protocol_cache.clear()
+
+
+def _clear_exception_cache() -> None:
+    """Clear exception cache for testing or memory management."""
+    _exception_cache.clear()
+
+
+def _load_exception(exception_name: str) -> type:
+    """
+    Lazy load an exception on first access.
+
+    Args:
+        exception_name: Name of the exception to load (e.g., 'SPIError')
+
+    Returns:
+        The loaded exception class
+
+    Raises:
+        ImportError: If exception cannot be loaded
+        AttributeError: If exception doesn't exist in the module
+    """
+    if exception_name in _exception_cache:
+        return _exception_cache[exception_name]
+
+    if exception_name not in _LAZY_EXCEPTION_MAP:
+        raise AttributeError(f"Exception '{exception_name}' not available at root level")
+
+    module_path = _LAZY_EXCEPTION_MAP[exception_name]
+
+    try:
+        # Import the module containing the exception using importlib
+        module = importlib.import_module(module_path)
+
+        # Get the exception class from the module
+        exception_class = getattr(module, exception_name)
+
+        # Cache for future access
+        _exception_cache[exception_name] = cast(type, exception_class)
+
+        return cast(type, exception_class)
+
+    except (ImportError, AttributeError) as e:
+        raise ImportError(f"Failed to load exception {exception_name}: {e}") from e
 
 
 def _load_protocol(protocol_name: str) -> type:
@@ -164,29 +214,33 @@ def _load_protocol(protocol_name: str) -> type:
 
 def __getattr__(name: str) -> Any:
     """
-    Module-level __getattr__ for lazy loading protocols.
+    Module-level __getattr__ for lazy loading protocols and exceptions.
 
     This function is called when an attribute is not found in the module's namespace.
-    It enables lazy loading of protocols, loading them only when first accessed.
+    It enables lazy loading of protocols and exceptions, loading them only when first accessed.
 
     Args:
         name: Name of the attribute being accessed
 
     Returns:
-        The lazy-loaded protocol or raises AttributeError
+        The lazy-loaded protocol/exception or raises AttributeError
 
     Raises:
-        AttributeError: If the requested attribute is not a valid protocol
+        AttributeError: If the requested attribute is not a valid protocol or exception
     """
     # Check if this is a protocol that should be lazy loaded
     if name in _LAZY_PROTOCOL_MAP:
         return _load_protocol(name)
 
+    # Check if this is an exception that should be lazy loaded
+    if name in _LAZY_EXCEPTION_MAP:
+        return _load_exception(name)
+
     # Handle special attributes that should be dynamic
     if name == "__protocol_count__":
         return _get_protocol_count()
 
-    # Not a lazy-loadable protocol
+    # Not a lazy-loadable protocol or exception
     raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
 
 
