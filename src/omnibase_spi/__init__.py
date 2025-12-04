@@ -65,7 +65,7 @@ Architecture:
 import importlib
 from typing import TYPE_CHECKING, Any, cast
 
-__version__ = "0.3.0"
+__version__ = "0.2.0"
 __author__ = "OmniNode Team"
 __email__ = "team@omninode.ai"
 
