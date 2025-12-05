@@ -16,6 +16,7 @@ Test Categories:
     TestForwardReferenceResolution: Type hint resolution when Core available
     TestProtocolMethodSignatures: Protocol method/attribute presence
     TestModuleReimport: Module reload behavior validation
+    TestProtocolCoverage: Automatic detection of untested protocols
 
 Architecture Context:
     SPI protocols reference Core models (e.g., ModelComputeInput) in type hints.
@@ -27,6 +28,8 @@ from __future__ import annotations
 
 import importlib
 import importlib.util
+import inspect
+from pathlib import Path
 from typing import get_type_hints
 
 import pytest
@@ -738,6 +741,62 @@ class TestForwardReferenceResolution:
         assert hasattr(ProtocolEffectContractCompiler, "compile")
         assert hasattr(ProtocolEffectContractCompiler, "validate")
 
+    def test_get_type_hints_behavior_without_core(self) -> None:
+        """Document get_type_hints() behavior when Core models are unavailable.
+
+        When Core is not installed, get_type_hints() on protocol methods that
+        reference Core models in forward references will raise NameError since
+        the types cannot be resolved. This test documents this expected behavior.
+
+        Architecture Context:
+            SPI protocols use TYPE_CHECKING blocks to import Core models:
+
+                if TYPE_CHECKING:
+                    from omnibase_core.models.compute import ModelComputeInput
+
+            This allows SPI to be imported without Core, but get_type_hints()
+            cannot resolve forward references like 'ModelComputeInput' since
+            the actual types are not available at runtime.
+
+        Behavior Matrix:
+            - Core available: get_type_hints() resolves to actual Core model classes
+            - Core unavailable: get_type_hints() raises NameError for unresolvable types
+            - __annotations__ access: Always works, returns string forward references
+        """
+        from omnibase_spi.protocols.nodes import ProtocolComputeNode
+
+        # __annotations__ always works - returns raw annotation strings/types
+        # This is safe to access regardless of Core availability
+        execute_method = ProtocolComputeNode.execute
+        assert hasattr(execute_method, "__annotations__")
+
+        # Annotations are accessible as raw values (may be strings or resolved types)
+        annotations = execute_method.__annotations__
+        assert "input_data" in annotations
+        assert "return" in annotations
+
+        if CORE_MODELS_AVAILABLE:
+            # When Core is available, get_type_hints() successfully resolves
+            # forward references to actual Core model classes
+            hints = get_type_hints(execute_method)
+            assert "input_data" in hints
+            assert "return" in hints
+            # Verify these are actual types, not strings
+            assert not isinstance(hints["input_data"], str)
+            assert not isinstance(hints["return"], str)
+        else:
+            # When Core is NOT available, get_type_hints() raises NameError
+            # because forward references like 'ModelComputeInput' cannot be
+            # resolved - the Core module is not installed
+            with pytest.raises(NameError) as exc_info:
+                get_type_hints(execute_method)
+
+            # The error should reference one of the Core model types
+            error_message = str(exc_info.value)
+            assert "ModelComputeInput" in error_message or "Model" in error_message, (
+                f"Expected NameError for Core model type, got: {error_message}"
+            )
+
 
 class TestProtocolMethodSignatures:
     """Test protocol method signature correctness.
@@ -1100,3 +1159,818 @@ class TestModuleReimport:
         assert isinstance(
             mock, contracts_module.ProtocolEffectContractCompiler
         ), "isinstance() check failed for ProtocolEffectContractCompiler after reload"
+
+    def test_isinstance_with_prereload_mock_limitation(self) -> None:
+        """Document that isinstance() may fail with pre-reload mocks after module reload.
+
+        When a module is reloaded, the Protocol class gets a new identity. Mocks
+        created before reload were checked against the OLD Protocol class, so
+        isinstance() checks against the NEW Protocol class may behave unexpectedly.
+
+        This is expected Python behavior - class identity matters for isinstance().
+        See: https://docs.python.org/3/library/importlib.html#importlib.reload
+
+        This test explicitly demonstrates the limitation rather than just noting it
+        in a comment, ensuring future developers understand this edge case.
+
+        Note: We must reload the actual module where the protocol is defined
+        (omnibase_spi.protocols.nodes.base), not just the package that re-exports it,
+        to trigger the class identity change.
+        """
+        import omnibase_spi.protocols.nodes.base as base_module
+
+        # Capture the Protocol class BEFORE reload
+        protocol_before_reload = base_module.ProtocolNode
+
+        # Create a compliant mock BEFORE reload
+        class MockNodeBeforeReload:
+            """Mock implementation created before reload."""
+
+            node_id = "pre-reload-mock"
+            node_type = "test"
+            version = "1.0.0"
+
+        mock_before = MockNodeBeforeReload()
+
+        # Verify isinstance works with the protocol BEFORE reload
+        assert isinstance(
+            mock_before, protocol_before_reload
+        ), "Mock should be isinstance of protocol before reload"
+
+        # Also verify it works with the module attribute before reload
+        assert isinstance(
+            mock_before, base_module.ProtocolNode
+        ), "Mock should be isinstance of base_module.ProtocolNode before reload"
+
+        # Now reload the actual module where ProtocolNode is defined
+        # This is crucial: reloading a package that re-exports a class doesn't
+        # change the class identity unless you reload the defining module
+        importlib.reload(base_module)
+
+        # Capture the Protocol class AFTER reload
+        protocol_after_reload = base_module.ProtocolNode
+
+        # Demonstrate that the Protocol classes have DIFFERENT identities
+        # This is the key insight: reload creates a NEW class object
+        assert protocol_before_reload is not protocol_after_reload, (
+            "Protocol class identity should change after reload - "
+            "the old and new Protocol are different objects"
+        )
+
+        # The class names are the same, but the objects are different
+        assert protocol_before_reload.__name__ == protocol_after_reload.__name__, (
+            "Both Protocol classes should have the same __name__"
+        )
+
+        # Demonstrate the limitation: isinstance with the OLD reference still works
+        # because we're checking against the OLD class that MockNodeBeforeReload
+        # was originally designed to match
+        assert isinstance(
+            mock_before, protocol_before_reload
+        ), "Mock should still be isinstance of the OLD protocol reference"
+
+        # However, isinstance with the NEW module attribute behaves as follows:
+        # For structural subtyping (Protocol with @runtime_checkable), Python checks
+        # if the object has the required attributes/methods, not class identity.
+        # So this may actually PASS for simple attribute-based protocols.
+        #
+        # The "limitation" specifically affects cases where:
+        # 1. You cache a protocol reference before reload
+        # 2. You create an instance before reload
+        # 3. After reload, checking against the CACHED old reference vs the
+        #    NEW module.Protocol can yield different results in edge cases
+        #
+        # For runtime_checkable protocols, isinstance() does structural checks,
+        # so the mock will still pass the NEW protocol check (which is good!).
+        # But the class identity difference can matter for:
+        # - issubclass() checks on class definitions
+        # - Type comparisons using `is` or `id()`
+        # - Registration systems that use protocol identity as keys
+        isinstance_after = isinstance(mock_before, base_module.ProtocolNode)
+
+        # Document the actual behavior: for runtime_checkable protocols,
+        # the structural check means pre-reload mocks often still work.
+        # This is because @runtime_checkable does attribute-based checking.
+        if isinstance_after:
+            # This is the common case for simple attribute-based protocols
+            pass  # Mock passes structural check against new protocol
+        else:
+            # This could happen in edge cases with complex protocols
+            pass  # Mock fails against new protocol (class identity issue)
+
+        # =====================================================================
+        # LIMITATION IMPLICATIONS FOR CLASS IDENTITY
+        # =====================================================================
+        # For code that caches protocol references, this class identity change
+        # can cause subtle bugs:
+        #
+        # 1. Registry systems using protocol identity as dictionary keys:
+        #    registry = {protocol_before_reload: some_handler}
+        #    After reload: registry[protocol_after_reload] -> KeyError!
+        #
+        # 2. Type comparisons using `is`:
+        #    if some_protocol is cached_protocol:  # Fails after reload
+        #
+        # 3. Set membership with protocol classes:
+        #    protocols = {protocol_before_reload}
+        #    protocol_after_reload in protocols  # May be False!
+        #
+        # Note: issubclass() is NOT demonstrated here because Python's
+        # runtime_checkable protocols with non-method members (like node_id,
+        # node_type, version) raise TypeError for issubclass() checks.
+        # This is a known Python limitation documented in PEP 544.
+
+        # Their id() values are different, proving they are distinct objects
+        assert id(protocol_before_reload) != id(protocol_after_reload), (
+            "Protocol classes should have different id() after reload"
+        )
+
+        # Demonstrate dictionary key issue - the key limitation
+        registry: dict[type, str] = {protocol_before_reload: "old_handler"}
+        assert protocol_before_reload in registry, "Old protocol should be in registry"
+        assert protocol_after_reload not in registry, (
+            "New protocol should NOT be in registry - this demonstrates the limitation"
+        )
+
+        # Demonstrate set membership issue
+        protocol_set: set[type] = {protocol_before_reload}
+        assert protocol_before_reload in protocol_set, "Old protocol in set"
+        assert protocol_after_reload not in protocol_set, (
+            "New protocol NOT in set - class identity matters for hashing"
+        )
+
+        # =====================================================================
+        # isinstance() BEHAVIOR WITH RUNTIME_CHECKABLE PROTOCOLS
+        # =====================================================================
+        # For @runtime_checkable protocols, isinstance() performs structural
+        # checking (verifying required attributes exist), NOT class hierarchy
+        # checking. This means pre-reload mocks often still pass isinstance()
+        # checks against the NEW protocol - which is generally what we want.
+
+        # isinstance with NEW protocol also works due to structural subtyping
+        isinstance_with_new_protocol = isinstance(mock_before, protocol_after_reload)
+        assert isinstance_with_new_protocol, (
+            "Mock should ALSO pass isinstance with NEW protocol due to "
+            "structural subtyping - @runtime_checkable checks attributes, "
+            "not class identity"
+        )
+
+        # =====================================================================
+        # MITIGATION STRATEGY
+        # =====================================================================
+        # Always use fresh module attribute access (base_module.ProtocolNode)
+        # rather than caching the protocol class in a variable, especially in
+        # long-running applications that might reload modules.
+        #
+        # BAD:  cached_protocol = some_module.Protocol  # Stale after reload
+        # GOOD: some_module.Protocol  # Always fresh reference
+
+
+class TestProtocolCoverage:
+    """Ensure all protocols in src/omnibase_spi/protocols/ have test coverage.
+
+    This test automatically detects new protocols added to the codebase
+    and ensures they are included in the forward reference tests. When new
+    protocols are added, this test will warn about missing coverage.
+
+    The test scans the protocols directory using AST parsing to find all
+    Protocol class definitions and compares them against protocols that
+    have explicit import tests in this file.
+
+    Architecture Notes:
+        - Uses Python AST module for parsing (stdlib only, no dependencies)
+        - Excludes __init__.py files (package exports, not protocol definitions)
+        - Excludes legacy/ directory (deprecated, scheduled for removal in v0.5.0)
+        - Extracts protocols that explicitly inherit from Protocol
+        - Compares against known tested protocols from this test file
+    """
+
+    # Protocols that are explicitly tested in TestNodeProtocolImports,
+    # TestHandlerProtocolImports, TestContractCompilerImports,
+    # TestRegistryProtocolImports, and TestRuntimeCheckableProtocols
+    TESTED_PROTOCOLS: set[str] = {
+        # Node protocols (TestNodeProtocolImports)
+        "ProtocolNode",
+        "ProtocolComputeNode",
+        "ProtocolEffectNode",
+        "ProtocolReducerNode",
+        "ProtocolOrchestratorNode",
+        # Handler protocols (TestHandlerProtocolImports)
+        "ProtocolHandler",
+        # Contract compiler protocols (TestContractCompilerImports)
+        "ProtocolEffectContractCompiler",
+        "ProtocolWorkflowContractCompiler",
+        "ProtocolFSMContractCompiler",
+        # Registry protocols (TestRegistryProtocolImports)
+        "ProtocolHandlerRegistry",
+    }
+
+    # Patterns for directories to exclude from scanning
+    EXCLUDED_DIRS: set[str] = {
+        "legacy",  # Deprecated protocols, removal scheduled in v0.5.0
+        "__pycache__",
+    }
+
+    # Protocols that are intentionally not tested in forward reference tests
+    # (e.g., type aliases, internal protocols, or protocols without Core dependencies)
+    # Add protocol names here if they are intentionally not covered by forward ref tests
+    KNOWN_SKIPPED_PROTOCOLS: set[str] = set()
+
+    @staticmethod
+    def _extract_protocol_classes_from_file(file_path: Path) -> list[str]:
+        """Extract Protocol class names from a Python file using AST.
+
+        Parses the given Python file and finds all class definitions that
+        inherit from Protocol (directly or via @runtime_checkable decorator).
+
+        Args:
+            file_path: Path to the Python file to parse
+
+        Returns:
+            List of protocol class names found in the file
+
+        Note:
+            Uses the convention that Protocol classes inherit from Protocol
+            or have 'Protocol' in their base class names.
+        """
+        import ast
+
+        try:
+            source = file_path.read_text(encoding="utf-8")
+            tree = ast.parse(source, filename=str(file_path))
+        except (SyntaxError, UnicodeDecodeError):
+            # Skip files that can't be parsed
+            return []
+
+        protocols: list[str] = []
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ClassDef):
+                # Check if this class inherits from Protocol
+                for base in node.bases:
+                    base_name = ""
+                    if isinstance(base, ast.Name):
+                        base_name = base.id
+                    elif isinstance(base, ast.Attribute):
+                        base_name = base.attr
+
+                    # Match classes inheriting from Protocol or typing.Protocol
+                    if base_name == "Protocol":
+                        protocols.append(node.name)
+                        break
+
+        return protocols
+
+    @staticmethod
+    def _scan_protocols_directory() -> dict[str, list[str]]:
+        """Scan the protocols directory and extract all Protocol definitions.
+
+        Recursively scans src/omnibase_spi/protocols/ directory, parsing each
+        Python file to find Protocol class definitions.
+
+        Returns:
+            Dictionary mapping file paths (relative to protocols/) to list of
+            protocol names defined in that file.
+        """
+        from pathlib import Path
+
+        protocols_dir = Path("/workspace/omnibase_spi/src/omnibase_spi/protocols")
+        protocols_by_file: dict[str, list[str]] = {}
+
+        for py_file in protocols_dir.rglob("*.py"):
+            # Skip __init__.py files (they re-export, not define protocols)
+            if py_file.name == "__init__.py":
+                continue
+
+            # Skip excluded directories
+            relative_path = py_file.relative_to(protocols_dir)
+            if any(
+                excluded in relative_path.parts
+                for excluded in TestProtocolCoverage.EXCLUDED_DIRS
+            ):
+                continue
+
+            protocols = TestProtocolCoverage._extract_protocol_classes_from_file(
+                py_file
+            )
+            if protocols:
+                # Use relative path for cleaner output
+                protocols_by_file[str(relative_path)] = protocols
+
+        return protocols_by_file
+
+    def test_all_protocols_have_import_tests(self) -> None:
+        """Validate that all Protocol classes in protocols/ have import tests.
+
+        Scans the protocols directory, extracts Protocol class names using AST,
+        and verifies each has corresponding test coverage. Protocols without
+        coverage are reported as warnings.
+
+        This test uses a soft assertion approach - it reports missing coverage
+        but doesn't fail the test suite. This allows new protocols to be added
+        without immediately breaking CI while ensuring visibility of gaps.
+
+        The test output shows:
+        - Total protocols found
+        - Protocols with test coverage
+        - Protocols missing coverage (with file locations)
+        """
+        protocols_by_file = self._scan_protocols_directory()
+
+        # Collect all discovered protocols
+        all_discovered: set[str] = set()
+        protocol_locations: dict[str, str] = {}  # protocol -> file path
+
+        for file_path, protocols in protocols_by_file.items():
+            for protocol in protocols:
+                all_discovered.add(protocol)
+                protocol_locations[protocol] = file_path
+
+        # Determine coverage
+        covered = all_discovered & self.TESTED_PROTOCOLS
+        known_skipped = all_discovered & self.KNOWN_SKIPPED_PROTOCOLS
+        missing_coverage = all_discovered - self.TESTED_PROTOCOLS - known_skipped
+
+        # Build diagnostic message
+        msg_parts: list[str] = [
+            f"\n{'=' * 70}",
+            "PROTOCOL COVERAGE REPORT",
+            f"{'=' * 70}",
+            f"Total protocols discovered: {len(all_discovered)}",
+            f"Protocols with test coverage: {len(covered)}",
+            f"Known skipped protocols: {len(known_skipped)}",
+            f"Protocols missing coverage: {len(missing_coverage)}",
+        ]
+
+        if missing_coverage:
+            msg_parts.append(f"\n{'=' * 70}")
+            msg_parts.append("PROTOCOLS MISSING FORWARD REFERENCE TESTS:")
+            msg_parts.append(f"{'=' * 70}")
+            for protocol in sorted(missing_coverage):
+                location = protocol_locations.get(protocol, "unknown")
+                msg_parts.append(f"  - {protocol} ({location})")
+            msg_parts.append("")
+            msg_parts.append(
+                "To add coverage, include import tests in the appropriate "
+                "TestXxxImports class"
+            )
+            msg_parts.append(
+                "and add the protocol name to TESTED_PROTOCOLS in TestProtocolCoverage."
+            )
+
+        # Output the report
+        report = "\n".join(msg_parts)
+
+        # The test passes with a warning - this is informational
+        # Set warn_only=True for gradual adoption, or set to False for strict mode
+        warn_only = True
+
+        if missing_coverage and not warn_only:
+            pytest.fail(report)
+        elif missing_coverage:
+            # Use pytest.warns or just print - warning is informational
+            print(report)
+            # The test passes but outputs the coverage gap information
+
+        # Assert basic sanity checks always pass
+        assert len(all_discovered) > 0, "No protocols discovered - check scan logic"
+        assert len(covered) >= len(
+            self.TESTED_PROTOCOLS
+        ), "Some tested protocols not found in codebase"
+
+    def test_tested_protocols_exist_in_codebase(self) -> None:
+        """Validate that all protocols in TESTED_PROTOCOLS actually exist.
+
+        Ensures the TESTED_PROTOCOLS set doesn't contain stale entries for
+        protocols that have been removed from the codebase.
+        """
+        protocols_by_file = self._scan_protocols_directory()
+
+        # Collect all discovered protocols
+        all_discovered: set[str] = set()
+        for protocols in protocols_by_file.values():
+            all_discovered.update(protocols)
+
+        # Check for stale entries in TESTED_PROTOCOLS
+        stale_entries = self.TESTED_PROTOCOLS - all_discovered
+
+        if stale_entries:
+            pytest.fail(
+                f"TESTED_PROTOCOLS contains stale entries not found in codebase: "
+                f"{sorted(stale_entries)}"
+            )
+
+    # Known duplicate protocol definitions in the codebase
+    # These are documented here rather than failing the test to allow gradual cleanup
+    KNOWN_DUPLICATE_PROTOCOLS: set[str] = {
+        # ProtocolHandler exists in both discovery/ (generic handle() method) and
+        # handlers/ (initialize/shutdown/execute lifecycle) - different interfaces
+        "ProtocolHandler",
+    }
+
+    def test_no_duplicate_protocol_definitions(self) -> None:
+        """Validate that no protocol is defined in multiple files.
+
+        Ensures protocol naming is unique across the codebase to prevent
+        confusion and import conflicts. Known duplicates are documented and
+        excluded from failure.
+        """
+        protocols_by_file = self._scan_protocols_directory()
+
+        # Track protocol occurrences
+        protocol_occurrences: dict[str, list[str]] = {}
+
+        for file_path, protocols in protocols_by_file.items():
+            for protocol in protocols:
+                if protocol not in protocol_occurrences:
+                    protocol_occurrences[protocol] = []
+                protocol_occurrences[protocol].append(file_path)
+
+        # Find duplicates (excluding known ones)
+        duplicates = {
+            protocol: files
+            for protocol, files in protocol_occurrences.items()
+            if len(files) > 1 and protocol not in self.KNOWN_DUPLICATE_PROTOCOLS
+        }
+
+        # Report known duplicates as informational
+        known_duplicates_found = {
+            protocol: files
+            for protocol, files in protocol_occurrences.items()
+            if len(files) > 1 and protocol in self.KNOWN_DUPLICATE_PROTOCOLS
+        }
+
+        if known_duplicates_found:
+            print("\nKnown duplicate protocols (documented, not failing):")
+            for protocol, files in sorted(known_duplicates_found.items()):
+                print(f"  - {protocol}: {files}")
+
+        if duplicates:
+            msg_parts = ["New duplicate protocol definitions found:"]
+            for protocol, files in sorted(duplicates.items()):
+                msg_parts.append(f"  - {protocol}: {files}")
+            msg_parts.append("")
+            msg_parts.append(
+                "Add to KNOWN_DUPLICATE_PROTOCOLS with justification, or rename protocols."
+            )
+            pytest.fail("\n".join(msg_parts))
+
+    def test_protocol_naming_convention(self) -> None:
+        """Validate that all Protocol classes follow the naming convention.
+
+        All protocol class names should start with 'Protocol' prefix as per
+        the SPI naming conventions documented in CLAUDE.md.
+        """
+        protocols_by_file = self._scan_protocols_directory()
+
+        # Collect violations
+        violations: list[tuple[str, str]] = []
+
+        for file_path, protocols in protocols_by_file.items():
+            for protocol in protocols:
+                if not protocol.startswith("Protocol"):
+                    violations.append((protocol, file_path))
+
+        if violations:
+            msg_parts = [
+                "Protocol naming convention violations found:",
+                "(Protocol classes should start with 'Protocol' prefix)",
+            ]
+            for protocol, file_path in sorted(violations):
+                msg_parts.append(f"  - {protocol} ({file_path})")
+            pytest.fail("\n".join(msg_parts))
+
+
+class TestProtocolSignatureValidation:
+    """Validate protocol method signatures using inspect.signature().
+
+    These tests provide stronger contract verification than hasattr() checks
+    by validating parameter names, default values, and annotations.
+
+    While TestProtocolMethodSignatures verifies method presence using hasattr()
+    and callable(), this class uses inspect.signature() to validate:
+    - Parameter names match expected
+    - Required parameters are present
+    - Default values exist where expected
+    - Return type annotations exist
+
+    This catches contract drift where methods exist but have incorrect signatures.
+    """
+
+    def test_compute_node_execute_signature(self) -> None:
+        """Validate ProtocolComputeNode.execute has correct parameters.
+
+        The execute method must have:
+        - self: implicit first parameter
+        - input_data: required parameter for compute input model
+        """
+        from omnibase_spi.protocols.nodes import ProtocolComputeNode
+
+        sig = inspect.signature(ProtocolComputeNode.execute)
+        params = list(sig.parameters.keys())
+
+        # Verify required parameters exist
+        assert "self" in params, "execute() missing 'self' parameter"
+        assert "input_data" in params, "execute() missing 'input_data' parameter"
+
+        # Verify input_data has no default (is required)
+        input_data_param = sig.parameters["input_data"]
+        assert (
+            input_data_param.default is inspect.Parameter.empty
+        ), "input_data should not have a default value (must be required)"
+
+        # Verify return annotation exists
+        assert (
+            sig.return_annotation is not inspect.Parameter.empty
+        ), "execute() should have a return type annotation"
+
+    def test_handler_execute_signature(self) -> None:
+        """Validate ProtocolHandler.execute has correct parameters.
+
+        The execute method must have:
+        - self: implicit first parameter
+        - request: required parameter for protocol request model
+        - operation_config: required parameter for operation configuration
+        """
+        from omnibase_spi.protocols.handlers import ProtocolHandler
+
+        sig = inspect.signature(ProtocolHandler.execute)
+        params = list(sig.parameters.keys())
+
+        # Verify required parameters exist
+        assert "self" in params, "execute() missing 'self' parameter"
+        assert "request" in params, "execute() missing 'request' parameter"
+        assert (
+            "operation_config" in params
+        ), "execute() missing 'operation_config' parameter"
+
+        # Verify request has no default (is required)
+        request_param = sig.parameters["request"]
+        assert (
+            request_param.default is inspect.Parameter.empty
+        ), "request should not have a default value (must be required)"
+
+        # Verify operation_config has no default (is required)
+        operation_config_param = sig.parameters["operation_config"]
+        assert (
+            operation_config_param.default is inspect.Parameter.empty
+        ), "operation_config should not have a default value (must be required)"
+
+        # Verify return annotation exists
+        assert (
+            sig.return_annotation is not inspect.Parameter.empty
+        ), "execute() should have a return type annotation"
+
+    def test_handler_shutdown_signature(self) -> None:
+        """Validate ProtocolHandler.shutdown has correct parameters with default.
+
+        The shutdown method must have:
+        - self: implicit first parameter
+        - timeout_seconds: parameter with default value of 30.0
+        """
+        from omnibase_spi.protocols.handlers import ProtocolHandler
+
+        sig = inspect.signature(ProtocolHandler.shutdown)
+        params = list(sig.parameters.keys())
+
+        # Verify required parameters exist
+        assert "self" in params, "shutdown() missing 'self' parameter"
+        assert (
+            "timeout_seconds" in params
+        ), "shutdown() missing 'timeout_seconds' parameter"
+
+        # Verify timeout_seconds has a default value
+        timeout_param = sig.parameters["timeout_seconds"]
+        assert (
+            timeout_param.default is not inspect.Parameter.empty
+        ), "timeout_seconds should have a default value"
+        assert (
+            timeout_param.default == 30.0
+        ), f"timeout_seconds default should be 30.0, got {timeout_param.default}"
+
+        # Verify return annotation exists (should be None for shutdown)
+        assert (
+            sig.return_annotation is not inspect.Parameter.empty
+        ), "shutdown() should have a return type annotation"
+
+    def test_handler_initialize_signature(self) -> None:
+        """Validate ProtocolHandler.initialize has correct parameters.
+
+        The initialize method must have:
+        - self: implicit first parameter
+        - config: required parameter for connection configuration
+        """
+        from omnibase_spi.protocols.handlers import ProtocolHandler
+
+        sig = inspect.signature(ProtocolHandler.initialize)
+        params = list(sig.parameters.keys())
+
+        # Verify required parameters exist
+        assert "self" in params, "initialize() missing 'self' parameter"
+        assert "config" in params, "initialize() missing 'config' parameter"
+
+        # Verify config has no default (is required)
+        config_param = sig.parameters["config"]
+        assert (
+            config_param.default is inspect.Parameter.empty
+        ), "config should not have a default value (must be required)"
+
+        # Verify return annotation exists
+        assert (
+            sig.return_annotation is not inspect.Parameter.empty
+        ), "initialize() should have a return type annotation"
+
+    def test_registry_register_signature(self) -> None:
+        """Validate ProtocolHandlerRegistry.register has correct parameters.
+
+        The register method must have:
+        - self: implicit first parameter
+        - protocol_type: required string parameter for protocol identifier
+        - handler_cls: required parameter for handler class type
+        """
+        from omnibase_spi.protocols.registry import ProtocolHandlerRegistry
+
+        sig = inspect.signature(ProtocolHandlerRegistry.register)
+        params = list(sig.parameters.keys())
+
+        # Verify required parameters exist
+        assert "self" in params, "register() missing 'self' parameter"
+        assert "protocol_type" in params, "register() missing 'protocol_type' parameter"
+        assert "handler_cls" in params, "register() missing 'handler_cls' parameter"
+
+        # Verify protocol_type has no default (is required)
+        protocol_type_param = sig.parameters["protocol_type"]
+        assert (
+            protocol_type_param.default is inspect.Parameter.empty
+        ), "protocol_type should not have a default value (must be required)"
+
+        # Verify handler_cls has no default (is required)
+        handler_cls_param = sig.parameters["handler_cls"]
+        assert (
+            handler_cls_param.default is inspect.Parameter.empty
+        ), "handler_cls should not have a default value (must be required)"
+
+        # Verify return annotation exists
+        assert (
+            sig.return_annotation is not inspect.Parameter.empty
+        ), "register() should have a return type annotation"
+
+    def test_registry_get_signature(self) -> None:
+        """Validate ProtocolHandlerRegistry.get has correct parameters.
+
+        The get method must have:
+        - self: implicit first parameter
+        - protocol_type: required string parameter for protocol identifier
+        """
+        from omnibase_spi.protocols.registry import ProtocolHandlerRegistry
+
+        sig = inspect.signature(ProtocolHandlerRegistry.get)
+        params = list(sig.parameters.keys())
+
+        # Verify required parameters exist
+        assert "self" in params, "get() missing 'self' parameter"
+        assert "protocol_type" in params, "get() missing 'protocol_type' parameter"
+
+        # Verify protocol_type has no default (is required)
+        protocol_type_param = sig.parameters["protocol_type"]
+        assert (
+            protocol_type_param.default is inspect.Parameter.empty
+        ), "protocol_type should not have a default value (must be required)"
+
+        # Verify return annotation exists
+        assert (
+            sig.return_annotation is not inspect.Parameter.empty
+        ), "get() should have a return type annotation"
+
+    def test_registry_is_registered_signature(self) -> None:
+        """Validate ProtocolHandlerRegistry.is_registered has correct parameters.
+
+        The is_registered method must have:
+        - self: implicit first parameter
+        - protocol_type: required string parameter for protocol identifier
+        """
+        from omnibase_spi.protocols.registry import ProtocolHandlerRegistry
+
+        sig = inspect.signature(ProtocolHandlerRegistry.is_registered)
+        params = list(sig.parameters.keys())
+
+        # Verify required parameters exist
+        assert "self" in params, "is_registered() missing 'self' parameter"
+        assert (
+            "protocol_type" in params
+        ), "is_registered() missing 'protocol_type' parameter"
+
+        # Verify protocol_type has no default (is required)
+        protocol_type_param = sig.parameters["protocol_type"]
+        assert (
+            protocol_type_param.default is inspect.Parameter.empty
+        ), "protocol_type should not have a default value (must be required)"
+
+        # Verify return annotation exists (should be bool)
+        assert (
+            sig.return_annotation is not inspect.Parameter.empty
+        ), "is_registered() should have a return type annotation"
+
+    def test_registry_list_protocols_signature(self) -> None:
+        """Validate ProtocolHandlerRegistry.list_protocols has correct signature.
+
+        The list_protocols method must have:
+        - self: implicit first parameter
+        - No other required parameters
+        """
+        from omnibase_spi.protocols.registry import ProtocolHandlerRegistry
+
+        sig = inspect.signature(ProtocolHandlerRegistry.list_protocols)
+        params = list(sig.parameters.keys())
+
+        # Verify only self parameter exists
+        assert "self" in params, "list_protocols() missing 'self' parameter"
+        assert (
+            len(params) == 1
+        ), f"list_protocols() should only have 'self', got {params}"
+
+        # Verify return annotation exists (should be list[str])
+        assert (
+            sig.return_annotation is not inspect.Parameter.empty
+        ), "list_protocols() should have a return type annotation"
+
+    def test_effect_node_execute_signature(self) -> None:
+        """Validate ProtocolEffectNode.execute has correct parameters.
+
+        The execute method must have:
+        - self: implicit first parameter
+        - input_data: required parameter for effect input model
+        """
+        from omnibase_spi.protocols.nodes import ProtocolEffectNode
+
+        sig = inspect.signature(ProtocolEffectNode.execute)
+        params = list(sig.parameters.keys())
+
+        # Verify required parameters exist
+        assert "self" in params, "execute() missing 'self' parameter"
+        assert "input_data" in params, "execute() missing 'input_data' parameter"
+
+        # Verify input_data has no default (is required)
+        input_data_param = sig.parameters["input_data"]
+        assert (
+            input_data_param.default is inspect.Parameter.empty
+        ), "input_data should not have a default value (must be required)"
+
+        # Verify return annotation exists
+        assert (
+            sig.return_annotation is not inspect.Parameter.empty
+        ), "execute() should have a return type annotation"
+
+    def test_contract_compiler_compile_signature(self) -> None:
+        """Validate ProtocolEffectContractCompiler.compile has correct parameters.
+
+        The compile method must have:
+        - self: implicit first parameter
+        - contract_path: required parameter for contract file path
+        """
+        from omnibase_spi.protocols.contracts import ProtocolEffectContractCompiler
+
+        sig = inspect.signature(ProtocolEffectContractCompiler.compile)
+        params = list(sig.parameters.keys())
+
+        # Verify required parameters exist
+        assert "self" in params, "compile() missing 'self' parameter"
+        assert "contract_path" in params, "compile() missing 'contract_path' parameter"
+
+        # Verify contract_path has no default (is required)
+        contract_path_param = sig.parameters["contract_path"]
+        assert (
+            contract_path_param.default is inspect.Parameter.empty
+        ), "contract_path should not have a default value (must be required)"
+
+        # Verify return annotation exists
+        assert (
+            sig.return_annotation is not inspect.Parameter.empty
+        ), "compile() should have a return type annotation"
+
+    def test_contract_compiler_validate_signature(self) -> None:
+        """Validate ProtocolEffectContractCompiler.validate has correct parameters.
+
+        The validate method must have:
+        - self: implicit first parameter
+        - contract_path: required parameter for path to contract file to validate
+        """
+        from omnibase_spi.protocols.contracts import ProtocolEffectContractCompiler
+
+        sig = inspect.signature(ProtocolEffectContractCompiler.validate)
+        params = list(sig.parameters.keys())
+
+        # Verify required parameters exist
+        assert "self" in params, "validate() missing 'self' parameter"
+        assert "contract_path" in params, "validate() missing 'contract_path' parameter"
+
+        # Verify contract_path has no default (is required)
+        contract_path_param = sig.parameters["contract_path"]
+        assert (
+            contract_path_param.default is inspect.Parameter.empty
+        ), "contract_path should not have a default value (must be required)"
+
+        # Verify return annotation exists
+        assert (
+            sig.return_annotation is not inspect.Parameter.empty
+        ), "validate() should have a return type annotation"
