@@ -89,8 +89,8 @@ class ProtocolEventBusProvider(Protocol):
             Event bus instance implementing ProtocolEventBusBase.
 
         Raises:
-            ConnectionError: If connection to the event bus backend fails.
-            ConfigurationError: If event bus configuration is invalid.
+            HandlerInitializationError: If connection to the event bus backend fails.
+            InvalidProtocolStateError: If event bus configuration is invalid.
 
         Example:
             ```python
@@ -120,8 +120,8 @@ class ProtocolEventBusProvider(Protocol):
             New event bus instance.
 
         Raises:
-            ConnectionError: If connection to the event bus backend fails.
-            ConfigurationError: If configuration is invalid.
+            HandlerInitializationError: If connection to the event bus backend fails.
+            InvalidProtocolStateError: If configuration is invalid.
             ValueError: If environment or group is empty.
 
         Example:

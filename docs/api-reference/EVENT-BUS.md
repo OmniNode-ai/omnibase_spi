@@ -506,6 +506,12 @@ await registry.register_schema(
 **Note**: Schema type is passed as a string parameter rather than a Literal type
 to maintain flexibility for future schema format additions.
 
+**Versioning Strategy**: When new schema types are added (e.g., "THRIFT", "FLATBUFFERS"):
+1. New schema types are documented in this reference with their version of introduction
+2. Implementations MUST handle unknown schema types gracefully with `InvalidProtocolStateError`
+3. Backward compatibility is maintained - existing schema types are never removed
+4. New types follow semantic versioning: minor version bump for new formats, patch for fixes
+
 ## 🚀 Usage Examples
 
 ### Basic Event Publishing
