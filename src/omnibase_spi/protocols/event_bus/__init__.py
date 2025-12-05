@@ -2,21 +2,21 @@
 ONEX Event Bus Protocols - SPI Interface Exports.
 
 Event-driven messaging protocols supporting the ONEX Messaging Design v0.3:
-- EventBusAdapter for pluggable Kafka/Redpanda backends
+- EventBusProvider for factory-based event bus instance management
 - Environment isolation and node group mini-meshes
 - Distributed messaging with standardized interfaces
 - Event bus service protocols
+
+Note:
+    Core interface protocols (ProtocolEventBus, ProtocolEventBusHeaders,
+    ProtocolKafkaEventBusAdapter) are imported from omnibase_core.
+    This module exports only SPI-specific factory and service protocols.
 """
 
 from ..types.protocol_event_bus_types import ProtocolEventMessage
 from .protocol_dlq_handler import ProtocolDLQHandler
-from .protocol_event_bus import (
-    ProtocolEventBus,
-    ProtocolEventBusHeaders,
-    ProtocolKafkaEventBusAdapter,
-)
+from .protocol_event_bus_provider import ProtocolEventBusProvider
 from .protocol_event_bus_context_manager import ProtocolEventBusContextManager
-from .protocol_event_bus_in_memory import ProtocolEventBusInMemory
 from .protocol_event_bus_mixin import (
     ProtocolAsyncEventBus,
     ProtocolEventBusBase,
@@ -38,23 +38,20 @@ from .protocol_schema_registry import ProtocolSchemaRegistry
 
 __all__ = [
     "ProtocolAsyncEventBus",
-    "ProtocolEventBus",
+    "ProtocolDLQHandler",
     "ProtocolEventBusBase",
     "ProtocolEventBusContextManager",
-    "ProtocolEventBusHeaders",
-    "ProtocolEventBusInMemory",
     "ProtocolEventBusLogEmitter",
+    "ProtocolEventBusProvider",
     "ProtocolEventBusRegistry",
     "ProtocolEventBusService",
-    "ProtocolEventMessage",
-    "ProtocolHttpEventBusAdapter",
-    "ProtocolKafkaAdapter",
-    "ProtocolKafkaEventBusAdapter",
-    "ProtocolRedpandaAdapter",
-    "ProtocolSyncEventBus",
     # Phase 1: Event Bus Foundation
     "ProtocolEventEnvelope",
+    "ProtocolEventMessage",
     "ProtocolEventPublisher",
+    "ProtocolHttpEventBusAdapter",
+    "ProtocolKafkaAdapter",
+    "ProtocolRedpandaAdapter",
     "ProtocolSchemaRegistry",
-    "ProtocolDLQHandler",
+    "ProtocolSyncEventBus",
 ]

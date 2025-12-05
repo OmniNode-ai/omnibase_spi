@@ -67,17 +67,17 @@ __all__ = [
     "ProtocolLiteralWorkflowStateProjection",
     "ProtocolLiteralWorkflowStateStore",
     "ProtocolNodeSchedulingResult",
+    # Type alias for backward compatibility
+    "ProtocolReducer",
     "ProtocolSnapshotStore",
     "ProtocolTaskSchedulingCriteria",
+    "ProtocolWorkQueue",
     "ProtocolWorkflowEventBus",
     "ProtocolWorkflowEventHandler",
     "ProtocolWorkflowEventMessage",
+    "ProtocolWorkflowManageable",
     "ProtocolWorkflowNodeCapability",
     "ProtocolWorkflowNodeInfo",
     "ProtocolWorkflowNodeRegistry",
-    "ProtocolWorkQueue",
-    "ProtocolWorkflowManageable",
     "ProtocolWorkflowReducer",
-    # Type alias for backward compatibility
-    "ProtocolReducer",
 ]

@@ -29,7 +29,7 @@ from omnibase_spi.protocols.llm.protocol_ollama_client import ProtocolOllamaClie
 
 __all__ = [
     "ProtocolLLMProvider",
-    "ProtocolOllamaClient",
-    "ProtocolModelRouter",
     "ProtocolLLMToolProvider",
+    "ProtocolModelRouter",
+    "ProtocolOllamaClient",
 ]

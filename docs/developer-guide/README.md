@@ -153,27 +153,171 @@ state = await orchestrator.get_workflow_state(
 
 #### Event Bus Integration
 
-```python
-from omnibase_spi.protocols.event_bus import ProtocolEventBus
+The event bus follows a layered architecture with Core interfaces, SPI providers, and Infra implementations.
 
-# Initialize event bus
-event_bus: ProtocolEventBus = get_event_bus()
+```python
+from omnibase_spi.protocols.event_bus import (
+    ProtocolEventBusProvider,
+    ProtocolEventBusContextManager,
+)
+from omnibase_spi.protocols.types.protocol_event_bus_types import ProtocolEventMessage
+
+# Option 1: Provider pattern (recommended for production)
+provider: ProtocolEventBusProvider = get_event_bus_provider()
+event_bus = await provider.get_event_bus(environment="prod", group="order-service")
 
 # Publish events
-await event_bus.publish_event(
+await event_bus.publish(
     topic="user-events",
-    message=ProtocolEventMessage(
-        topic="user-events",
-        value=b'{"action": "user_created", "user_id": "12345"}',
-        headers={"event_type": "user_created"}
-    )
+    key=b"user-12345",
+    value=b'{"action": "user_created", "user_id": "12345"}',
+    headers={"event_type": "user_created", "correlation_id": str(uuid4())}
 )
 
-# Subscribe to events
-subscription_id = await event_bus.subscribe_to_topic(
-    topic="user-events",
-    handler=user_event_handler
-)
+# Option 2: Context manager pattern (recommended for scoped operations)
+context_manager: ProtocolEventBusContextManager = get_event_bus_context_manager()
+
+async with context_manager as event_bus:
+    # Connection established on enter
+    await event_bus.publish(
+        topic="order-events",
+        key=None,
+        value=b'{"order_id": "ORD-123"}',
+        headers={"event_type": "order_created"}
+    )
+    # Cleanup handled on exit (even if exception occurs)
+```
+
+#### Event Bus Provider Implementation
+
+When implementing a custom event bus provider:
+
+```python
+from omnibase_spi.protocols.event_bus import ProtocolEventBusProvider
+from omnibase_core.protocols.event_bus import ProtocolEventBus
+
+class KafkaEventBusProvider:
+    """Kafka implementation of the event bus provider."""
+
+    def __init__(self, bootstrap_servers: list[str]):
+        self._servers = bootstrap_servers
+        self._instances: dict[str, ProtocolEventBus] = {}
+        self._default_env = "local"
+        self._default_group = "default"
+
+    async def get_event_bus(
+        self,
+        environment: str | None = None,
+        group: str | None = None,
+    ) -> ProtocolEventBus:
+        env = environment or self._default_env
+        grp = group or self._default_group
+        key = f"{env}:{grp}"
+
+        if key not in self._instances:
+            self._instances[key] = await self.create_event_bus(env, grp)
+        return self._instances[key]
+
+    async def create_event_bus(
+        self,
+        environment: str,
+        group: str,
+        config: dict[str, object] | None = None,
+    ) -> ProtocolEventBus:
+        # Create new Kafka client with configuration
+        return KafkaEventBus(
+            bootstrap_servers=self._servers,
+            group_id=group,
+            environment=environment,
+            **(config or {})
+        )
+
+    async def close_all(self) -> None:
+        for bus in self._instances.values():
+            await bus.close()
+        self._instances.clear()
+
+    @property
+    def default_environment(self) -> str:
+        return self._default_env
+
+    @property
+    def default_group(self) -> str:
+        return self._default_group
+
+# Verify protocol compliance
+provider = KafkaEventBusProvider(["kafka:9092"])
+assert isinstance(provider, ProtocolEventBusProvider)
+```
+
+#### Context Manager Implementation
+
+```python
+from omnibase_spi.protocols.event_bus import ProtocolEventBusContextManager
+from omnibase_core.protocols.event_bus import ProtocolEventBus
+
+class KafkaEventBusContextManager:
+    """Context manager for Kafka event bus lifecycle."""
+
+    def __init__(self, config: dict[str, str]):
+        self._config = config
+        self._event_bus: ProtocolEventBus | None = None
+
+    async def __aenter__(self) -> ProtocolEventBus:
+        # Initialize and connect
+        self._event_bus = KafkaEventBus(
+            bootstrap_servers=self._config["bootstrap_servers"].split(","),
+            group_id=self._config.get("group_id", "default"),
+        )
+        await self._event_bus.connect()
+        return self._event_bus
+
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: object,
+    ) -> None:
+        # Cleanup on exit
+        if self._event_bus:
+            await self._event_bus.close()
+            self._event_bus = None
+
+# Verify protocol compliance
+cm = KafkaEventBusContextManager({"bootstrap_servers": "kafka:9092"})
+assert isinstance(cm, ProtocolEventBusContextManager)
+```
+
+#### Event Envelope Pattern
+
+Use the envelope protocol to break circular dependencies:
+
+```python
+from omnibase_spi.protocols.event_bus import ProtocolEventEnvelope
+from typing import Generic, TypeVar
+
+T = TypeVar("T")
+
+class EventEnvelope(Generic[T]):
+    """Envelope implementation for event payloads."""
+
+    def __init__(self, payload: T, metadata: dict[str, str]):
+        self._payload = payload
+        self._metadata = metadata
+
+    async def get_payload(self) -> T:
+        return self._payload
+
+# Handler that works with any envelope type
+async def process_envelope(
+    envelope: ProtocolEventEnvelope[UserCreatedPayload]
+) -> None:
+    payload = await envelope.get_payload()
+    print(f"Processing user: {payload.user_id}")
+
+# Verify protocol compliance
+envelope = EventEnvelope(user_payload, {"correlation_id": "abc"})
+assert isinstance(envelope, ProtocolEventEnvelope)
 ```
 
 ### MCP Integration
@@ -279,6 +423,76 @@ validation_result = await validator.validate_data(
 - Provide clear error messages
 - Include context information
 - Implement retry mechanisms
+
+#### Event Bus Error Handling
+
+The event bus provides comprehensive error handling through the DLQ (Dead Letter Queue) protocol:
+
+```python
+from omnibase_spi.protocols.event_bus import ProtocolDLQHandler
+
+# Get DLQ handler
+dlq_handler: ProtocolDLQHandler = get_dlq_handler()
+
+async def process_event_with_error_handling(
+    message: ProtocolEventMessage
+) -> None:
+    try:
+        # Process the event
+        await process_business_logic(message)
+        await message.ack()
+
+    except ValidationError as e:
+        # Non-retryable error - send directly to DLQ
+        await dlq_handler.handle_failed_message(
+            message=message,
+            error=e,
+            retry_count=0,  # Skip retries
+        )
+
+    except TransientError as e:
+        # Retryable error - handle with retry logic
+        result = await dlq_handler.handle_failed_message(
+            message=message,
+            error=e,
+            retry_count=message.retry_count or 0,
+        )
+
+        if result.retry_eligible:
+            # Will be retried automatically
+            await message.nack(requeue=True)
+        else:
+            # Max retries exceeded, sent to DLQ
+            await message.ack()
+
+# Analyze failure patterns for monitoring
+failure_analysis = await dlq_handler.analyze_failure_patterns(
+    topic="order-events",
+    time_range_hours=24
+)
+print(f"Top failure reason: {failure_analysis.top_failure_reason}")
+print(f"Failure rate: {failure_analysis.failure_rate}%")
+```
+
+#### Retry with Exponential Backoff
+
+```python
+from omnibase_spi.protocols.event_bus import ProtocolEventPublisher
+
+publisher: ProtocolEventPublisher = get_event_publisher()
+
+# Publish with automatic retry and exponential backoff
+success = await publisher.publish_with_retry(
+    topic="critical-events",
+    message=critical_message,
+    max_retries=5,
+    backoff_ms=1000,  # Initial backoff, doubles each retry
+)
+
+if not success:
+    # All retries exhausted, handle failure
+    await handle_publish_failure(critical_message)
+```
 
 ## API Reference
 

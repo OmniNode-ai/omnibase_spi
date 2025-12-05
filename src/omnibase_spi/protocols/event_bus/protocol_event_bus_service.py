@@ -1,8 +1,41 @@
-"""
-Protocol for Event Bus Service
+"""Protocol for Event Bus Service.
 
-Defines the required interface that all event bus service implementations must follow.
-This ensures consistency and prevents runtime errors from missing methods.
+This module defines the required interface that all event bus service implementations
+must follow. It provides lifecycle management, cluster coordination, and service health
+monitoring capabilities for distributed ONEX deployments.
+
+The protocol ensures consistent service behavior including graceful startup/shutdown,
+cluster topology management, and runtime status monitoring for production reliability.
+
+Key Protocols:
+    - ProtocolEventBusService: Main service protocol for lifecycle and cluster management.
+    - ProtocolHttpEventBusAdapter: HTTP-based adapter for lightweight integrations.
+
+Example:
+    ```python
+    from omnibase_spi.protocols.event_bus import ProtocolEventBusService
+
+    # Get service from dependency injection
+    service: ProtocolEventBusService = get_event_bus_service()
+
+    # Access event bus for messaging
+    event_bus = await service.get_event_bus()
+    await event_bus.publish(topic="events", key=None, value=b"data", headers={})
+
+    # Monitor cluster status
+    if service.is_running:
+        node_count = await service.get_node_count()
+        print(f"Cluster has {node_count} active brokers")
+
+    # Graceful shutdown
+    service.shutdown()
+    ```
+
+See Also:
+    - ProtocolEventBusBase: The base event bus interface from omnibase_spi.
+    - ProtocolEventBusProvider: Factory for obtaining event bus instances.
+    - ProtocolKafkaAdapter: Kafka-specific adapter protocol.
+    - ProtocolRedpandaAdapter: Redpanda-specific adapter protocol.
 """
 
 from typing import TYPE_CHECKING, Awaitable, Callable, Protocol, runtime_checkable
@@ -10,7 +43,9 @@ from typing import TYPE_CHECKING, Awaitable, Callable, Protocol, runtime_checkab
 from omnibase_spi.protocols.types.protocol_event_bus_types import ProtocolEventMessage
 
 if TYPE_CHECKING:
-    from omnibase_spi.protocols.event_bus.protocol_event_bus import ProtocolEventBus
+    from omnibase_spi.protocols.event_bus.protocol_event_bus_mixin import (
+        ProtocolEventBusBase,
+    )
 
 
 @runtime_checkable
@@ -73,12 +108,12 @@ class ProtocolEventBusService(Protocol):
         - Failover coordination
 
     See Also:
-        - ProtocolEventBus: High-level event bus interface
+        - ProtocolEventBusBase: Base event bus interface (from omnibase_spi)
         - ProtocolKafkaAdapter: Kafka broker adapter
         - ProtocolRedpandaAdapter: Redpanda broker adapter
     """
 
-    async def get_event_bus(self) -> "ProtocolEventBus":
+    async def get_event_bus(self) -> "ProtocolEventBusBase":
         """Get the managed event bus instance.
 
         Returns the active event bus for publishing and subscribing to events.
@@ -383,14 +418,25 @@ class ProtocolHttpEventBusAdapter(Protocol):
         """
         ...
 
-    async def close(self) -> None:
+    async def close(self, timeout_seconds: float = 30.0) -> None:
         """Close HTTP event bus adapter and release resources.
 
         Cleanly shuts down HTTP connections and releases resources.
 
+        Args:
+            timeout_seconds: Maximum time to wait for cleanup to complete.
+                Defaults to 30.0 seconds.
+
+        Raises:
+            TimeoutError: If cleanup does not complete within the specified timeout.
+
         Example:
             ```python
+            # Close with default timeout
             await adapter.close()
+
+            # Close with custom timeout
+            await adapter.close(timeout_seconds=60.0)
             ```
         """
         ...

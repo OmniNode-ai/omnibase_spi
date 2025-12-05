@@ -1,4 +1,5 @@
 """Effect node protocol for side-effecting operations."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
@@ -48,12 +49,19 @@ class ProtocolEffectNode(ProtocolNode, Protocol):
         """
         ...
 
-    async def shutdown(self) -> None:
+    async def shutdown(self, timeout_seconds: float = 30.0) -> None:
         """
         Release node-specific resources if needed.
 
         Called during graceful shutdown to close connections,
         flush pending operations, and release resources.
+
+        Args:
+            timeout_seconds: Maximum time to wait for shutdown to complete.
+                Defaults to 30.0 seconds.
+
+        Raises:
+            TimeoutError: If shutdown does not complete within the specified timeout.
         """
         ...
 

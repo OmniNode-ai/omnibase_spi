@@ -15,8 +15,8 @@ from .protocol_stamper import ProtocolStamper
 from .protocol_stamper_engine import ProtocolStamperEngine
 
 __all__ = [
-    "ProtocolAdaptiveChunker",
     "ProtocolASTBuilder",
+    "ProtocolAdaptiveChunker",
     "ProtocolContractAnalyzer",
     "ProtocolCoverageProvider",
     "ProtocolDirectKnowledgePipeline",

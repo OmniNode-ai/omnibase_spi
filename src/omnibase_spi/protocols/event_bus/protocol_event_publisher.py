@@ -151,18 +151,28 @@ class ProtocolEventPublisher(Protocol):
         """
         ...
 
-    async def close(self) -> None:
+    async def close(self, timeout_seconds: float = 30.0) -> None:
         """
         Close publisher and flush pending messages.
 
         Ensures all pending messages are delivered before shutdown.
         Should be called during graceful shutdown to prevent message loss.
 
+        Args:
+            timeout_seconds: Maximum time to wait for cleanup to complete.
+                Defaults to 30.0 seconds.
+
+        Raises:
+            TimeoutError: If cleanup does not complete within the specified timeout.
+
         Example:
             ```python
-            # Graceful shutdown
+            # Graceful shutdown with default timeout
             await publisher.close()
             print("Publisher closed, all messages flushed")
+
+            # Graceful shutdown with custom timeout
+            await publisher.close(timeout_seconds=60.0)
             ```
         """
         ...

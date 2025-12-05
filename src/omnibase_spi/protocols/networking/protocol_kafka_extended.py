@@ -77,7 +77,17 @@ class ProtocolKafkaConsumer(Protocol):
 
     async def get_current_offsets(self) -> dict[str, dict[int, int]]: ...
 
-    async def close_consumer(self) -> None: ...
+    async def close_consumer(self, timeout_seconds: float = 30.0) -> None:
+        """Close the Kafka consumer and release resources.
+
+        Args:
+            timeout_seconds: Maximum time to wait for cleanup to complete.
+                Defaults to 30.0 seconds.
+
+        Raises:
+            TimeoutError: If cleanup does not complete within the specified timeout.
+        """
+        ...
 
 
 @runtime_checkable
@@ -217,4 +227,14 @@ class ProtocolKafkaExtendedClient(Protocol):
 
     async def health_check(self) -> bool: ...
 
-    async def close_client(self) -> None: ...
+    async def close_client(self, timeout_seconds: float = 30.0) -> None:
+        """Close the extended Kafka client and release all resources.
+
+        Args:
+            timeout_seconds: Maximum time to wait for cleanup to complete.
+                Defaults to 30.0 seconds.
+
+        Raises:
+            TimeoutError: If cleanup does not complete within the specified timeout.
+        """
+        ...

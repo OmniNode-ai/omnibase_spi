@@ -1,33 +1,97 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+All notable changes to the ONEX Service Provider Interface (omnibase_spi) will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
 ### Added
-- _No changes yet_
+
+#### Test Infrastructure
+- **Integration Test Structure**: New `tests/integration/` directory with comprehensive fixtures and 21 sample integration tests
+- **Proper Test Doubles**: Replaced `MagicMock` with typed test doubles (`MockEventBus`, `MockEventBusProvider`, `MockComputeNode`) for better type safety
+- **pytest Markers**: Added `integration` and `slow` markers for selective test execution
+
+#### Documentation
+- **IMPLEMENTATION-EXAMPLES.md** (1090 lines): Comprehensive guide showing how to implement protocols in `omnibase_infra`
+  - `ProtocolEventBusProvider` implementation examples (minimal and full with caching)
+  - `ProtocolComputeNode` implementation examples (JSON transform, vectorization)
+  - `ProtocolHandler` implementation examples (HTTP, PostgreSQL with circuit breaker)
+  - Implementation checklist covering protocol compliance, type safety, and testing
+
+#### Protocol Enhancements
+- **Timeout Parameters**: Added `timeout_seconds: float = 30.0` parameter to 20+ async cleanup methods across protocols:
+  - Event bus: `close_all()`, `close()`, `stop()`
+  - Handlers: `shutdown()`
+  - Networking: `close()`, `close_consumer()`, `close_client()`
+  - Container: `close_connection()`, `disconnect()`
+  - Storage: `disconnect()`
 
 ### Changed
-- _No changes yet_
 
-### Deprecated
-- _No changes yet_
-
-### Removed
-- _No changes yet_
+#### Code Quality
+- **Sorted `__all__` Exports**: Alphabetically sorted all `__all__` lists across 27 files for RUF022 compliance
+- **ARG002 Compliance**: Fixed unused argument warnings in test files with underscore prefix pattern
+- **Removed Unused noqa**: Cleaned up unnecessary `noqa: E402` comments
 
 ### Fixed
-- _No changes yet_
 
-### Security
-- _No changes yet_
+#### Protocol Compliance
+- **generate_compliance_report Default**: Fixed default value to `output_format: str = "text"` to match docstring documentation
+- **ClassVar Usage**: Fixed incorrect `ClassVar` usage in test mocks; extracted `MockEffectInput` and `MockEffectOutput` to module level
+
+## [0.3.0] - 2025-12-04
+
+### Added
+
+#### Node Protocol Tests (1,883+ lines)
+- **Comprehensive Test Suite**: 7 new test files covering all core node protocols
+  - `test_compute.py`: Compute node protocol validation (367 lines)
+  - `test_effect.py`: Effect node protocol validation (316 lines)
+  - `test_orchestrator.py`: Orchestrator node protocol validation (361 lines)
+  - `test_reducer.py`: Reducer node protocol validation (298 lines)
+  - `test_protocol_handler.py`: Handler protocol validation (271 lines)
+  - `test_handler_registry.py`: Registry protocol validation (279 lines)
+  - `test_event_bus_provider.py`: Event bus provider validation (355 lines)
+- **Protocol Compliance Patterns**: Tests validate runtime checkability, isinstance checks, method signatures, and inheritance
+
+#### Validation Suite
+- **3 Standalone Validators** (Python stdlib only):
+  - `validate_naming_patterns.py`: Protocol/Error naming, `@runtime_checkable` decorator
+  - `validate_namespace_isolation.py`: No Infra imports, no Pydantic models
+  - `validate_architecture.py`: Domain cohesion (max 15 protocols per file)
+- **Unified Runner**: `run_all_validations.py` with JSON output and CI integration
+- **Pre-commit Integration**: Validators run automatically on commit
+
+#### Documentation
+- **EVENT-BUS.md** (1,464 lines): Comprehensive event bus API reference with 18+ protocol descriptions
+- **WORKFLOW-ORCHESTRATION.md** (1,305 lines): Workflow orchestration API reference
+- **Error Handling Examples**: Extensive coverage of SPI exception hierarchy usage patterns
+
+### Changed
+
+#### Event Bus Layer Separation (Critical Architecture Fix)
+- **Removed Duplicate Protocols**: Deleted `ProtocolEventBus`, `ProtocolEventBusHeaders`, `ProtocolKafkaEventBusAdapter` from SPI (belong in Core)
+- **Renamed Provider**: `ProtocolEventBusInstanceProvider` → `ProtocolEventBusProvider` (factory pattern)
+- **Clean Layer Boundaries**: SPI now correctly depends only on Core, never on Infra
+
+#### Protocol Count
+- **176+ Protocols**: Across 22 domains with proper `@runtime_checkable` decorators
+
+### Fixed
+
+#### Validation Warnings
+- **274 Warnings Fixed** (OMN-375): Resolved all validation warnings across the codebase
+- **Duplicate Protocol**: Removed duplicate `ProtocolEventBusAgentStatus` definition
+- **Namespace Isolation**: Fixed imports to ensure no Infra dependencies
 
 ## [0.2.0] - 2025-10-30
 
 ### Added
+
+#### New Protocols (9 protocols)
 - **ProtocolContainer** - Generic value container protocol with metadata support (Issue #1)
 - **ProtocolServiceResolver** - Service resolution interface for dependency injection
 - **ProtocolContract** - Full contract interface with versioning and serialization (Issue #3)
@@ -37,23 +101,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **ProtocolEffectNode** - Node-specific protocol for side-effecting operations (Issue #8)
 - **ProtocolComputeNode** - Node-specific protocol for pure transformations (Issue #8)
 - **ProtocolEnvelope** - Alias for ProtocolOnexEnvelope for naming consistency (Issue #5)
+- **ProtocolEventEnvelope**: Generic envelope for breaking circular dependencies between Core and SPI
+- **ProtocolSecurityValidator**: Security validation protocol for input/output sanitization
+- **ProtocolSecurityContext**: Security context protocol for authentication/authorization
+- **ProtocolSecurityAuditor**: Security audit logging protocol
+- **ProtocolRateLimiter**: Rate limiting protocol for API protection
+- **ProtocolCircuitBreaker**: Circuit breaker pattern for fault tolerance
+
+#### Testing & Documentation
 - **Comprehensive Tests** - 46 tests covering all new protocols (100% pass rate)
 - **Documentation Updates** - API reference documentation for all new protocols
 - **SPI Validation** - All new protocols validated for purity (0 violations)
 
 ### Changed
+
 - **Protocol Count** - Increased from 165 to 176 protocols (+11)
 - **Container Domain** - Updated from 21 to 14 protocols with generic containers
 - **ONEX Domain** - Added 4 node-specific protocols for type-safe node execution
 - **Type Definitions** - Expanded to 14 comprehensive type modules
+- **Async Compliance**: Made `get_metrics()` and `get_summary()` methods async for SPI compliance
 
 ### Fixed
+
 - **Protocol Import Consistency** - Standardized to use `typing.Protocol` instead of `typing_extensions`
 - **Type Checking Issues** - Removed unused type ignore comments for mypy compliance
 
-## [0.1.0] - 2025-01-30
+## [0.1.1] - 2025-10-23
 
 ### Added
+
+- **Initial Protocol Scaffold**: Core SPI protocols and documentation structure
+- **README Enhancement**: Added badges and open source information
+
+### Fixed
+
+- **Formatter Issues**: Prevented formatter issues with `.git` directory exclusion
+- **Review Feedback**: Addressed Claude bot review feedback
+
+## [0.1.0] - 2025-10-19
+
+### Added
+
 - **Complete Documentation Rebuild** - Comprehensive API reference with 165 protocols across 22 domains
 - **MIT License** - Open source licensing for community use
 - **Badge System** - Repository status indicators for license, Python version, code style, and more
@@ -63,10 +151,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Protocol Composition Patterns** - Advanced protocol design patterns and selection guide
 - **Node Templates** - ONEX 4-node architecture templates
 - **Standards Documentation** - Code quality guidelines and best practices
-- **Changelog** - Version history and release notes following Keep a Changelog format
 - **Link Validation Script** - Automated markdown link checking for documentation integrity
 
 ### Changed
+
 - **Repository Structure** - Complete documentation reorganization and consolidation
 - **Documentation Links** - Fixed all 137 markdown links for perfect navigation
 - **Integration Guide** - Merged into comprehensive developer guide
@@ -74,17 +162,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Pre-commit Configuration** - Added .git directory exclusion to prevent formatter issues
 
 ### Removed
+
 - **Duplicate Documentation** - Consolidated integration guide into developer guide
 - **Empty Directories** - Cleaned up unused guides and integration directories
 - **Broken Links** - Fixed all 77 broken markdown links
 - **Placeholder Content** - Replaced template placeholders with real protocol references
 
 ### Fixed
+
 - **Relative Path Issues** - Added proper `../` prefixes for cross-directory links
 - **Non-existent File References** - Removed links to files that don't exist
 - **Template Placeholders** - Replaced placeholder links with actual protocol references
 - **Validation Directory** - Updated references to non-existent example files
 - **Documentation Navigation** - All 137 links now work perfectly
+
+---
+
+## Protocol Statistics
+
+| Version | Total Protocols | Test Coverage | Validation Status |
+|---------|-----------------|---------------|-------------------|
+| 0.3.0   | 176+            | 268 tests     | All passing       |
+| 0.2.0   | 176             | 210 tests     | All passing       |
+| 0.1.1   | 165             | Basic         | All passing       |
+| 0.1.0   | 165             | Initial       | All passing       |
+
+## Links
+
+- [omnibase_spi on GitHub](https://github.com/OmniNode-ai/omnibase_spi)
+- [omnibase_core](https://github.com/OmniNode-ai/omnibase_core)
+- [ONEX Documentation](https://docs.omninode.ai)
 
 ---
 

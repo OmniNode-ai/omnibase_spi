@@ -189,11 +189,18 @@ class ProtocolDiscoveryClient(Protocol):
         """
         ...
 
-    async def close(self) -> None:
+    async def close(self, timeout_seconds: float = 30.0) -> None:
         """
         Close the discovery client and clean up resources.
 
         Cancels any pending requests and unsubscribes from events.
+
+        Args:
+            timeout_seconds: Maximum time to wait for cleanup to complete.
+                Defaults to 30.0 seconds.
+
+        Raises:
+            TimeoutError: If cleanup does not complete within the specified timeout.
         """
         ...
 

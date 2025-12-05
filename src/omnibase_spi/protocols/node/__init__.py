@@ -9,7 +9,7 @@ from .protocol_node_runner import ProtocolNodeRunner
 
 __all__ = [
     "ProtocolNodeConfiguration",
-    "ProtocolUtilsNodeConfiguration",
     "ProtocolNodeRegistry",
     "ProtocolNodeRunner",
+    "ProtocolUtilsNodeConfiguration",
 ]

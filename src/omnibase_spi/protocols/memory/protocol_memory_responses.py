@@ -46,10 +46,14 @@ if TYPE_CHECKING:
     from datetime import datetime
 
     from omnibase_spi.protocols.memory.protocol_memory_base import (
-        ProtocolMemoryMetadata,
         ProtocolMemoryRecord,
         ProtocolSearchResult,
     )
+
+# Re-export ProtocolMemoryMetadata for backward compatibility
+from omnibase_spi.protocols.memory.protocol_memory_base import (
+    ProtocolMemoryMetadata,
+)
 
 
 @runtime_checkable
@@ -450,25 +454,27 @@ class ProtocolEmbeddingResponse(ProtocolMemoryResponse, Protocol):
 
 # Backward compatibility exports
 __all__ = [
-    # Core protocols (defined here)
-    "ProtocolMemoryResponse",
-    "ProtocolMemoryStoreResponse",
-    "ProtocolMemoryRetrieveResponse",
-    "ProtocolMemoryListResponse",
-    "ProtocolSemanticSearchResponse",
-    "ProtocolEmbeddingResponse",
+    "ProtocolAgentCoordinationResponse",
+    "ProtocolAggregationResponse",
+    "ProtocolBatchMemoryRetrieveResponse",
+    "ProtocolBatchMemoryStoreResponse",
     # Re-exported from protocol_memory_advanced_responses
     "ProtocolBatchOperationResult",
-    "ProtocolBatchMemoryStoreResponse",
-    "ProtocolBatchMemoryRetrieveResponse",
-    "ProtocolPatternAnalysisResponse",
     "ProtocolConsolidationResponse",
-    "ProtocolAggregationResponse",
-    "ProtocolWorkflowExecutionResponse",
-    "ProtocolAgentCoordinationResponse",
-    "ProtocolPaginationResponse",
+    "ProtocolEmbeddingResponse",
+    "ProtocolMemoryListResponse",
+    # Re-exported from protocol_memory_base
+    "ProtocolMemoryMetadata",
     "ProtocolMemoryMetrics",
     "ProtocolMemoryMetricsResponse",
+    # Core protocols (defined here)
+    "ProtocolMemoryResponse",
+    "ProtocolMemoryRetrieveResponse",
+    "ProtocolMemoryStoreResponse",
+    "ProtocolPaginationResponse",
+    "ProtocolPatternAnalysisResponse",
+    "ProtocolSemanticSearchResponse",
     "ProtocolStreamingMemoryResponse",
     "ProtocolStreamingRetrieveResponse",
+    "ProtocolWorkflowExecutionResponse",
 ]

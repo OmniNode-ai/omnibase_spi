@@ -94,7 +94,7 @@ class ProtocolCLIFlagDescription(Protocol):
     Example:
         ```python
         cli: ProtocolCLI = get_cli_handler()
-        flags = cli.describe_flags(format="json")
+        flags = cli.describe_flags(output_format="json")
 
         for flag in flags:
             required_marker = "*" if flag.required else ""
@@ -145,7 +145,7 @@ class ProtocolCLI(Protocol):
                 )
 
             # Get available flags for documentation
-            flags = cli.describe_flags(format="json")
+            flags = cli.describe_flags(output_format="json")
             print(f"Available flags: {len(flags)}")
 
             # Execute command with validated arguments
@@ -175,28 +175,114 @@ class ProtocolCLI(Protocol):
     description: str
     logger: ProtocolLogger
 
-    async def get_parser(self) -> "Any": ...
+    async def get_parser(self) -> "Any":
+        """
+        Get the argument parser for this CLI.
 
-    async def main(self, argv: list[str] | None = None) -> "ProtocolCLIResult": ...
+        Creates and returns the configured argument parser instance used
+        for parsing command-line arguments. The parser includes all
+        registered flags, subcommands, and help text.
 
-    async def run(self, args: list[str]) -> "ProtocolCLIResult": ...
+        Returns:
+            Configured argument parser instance (typically argparse.ArgumentParser
+            or compatible parser implementation).
+
+        Raises:
+            SPIError: If parser configuration fails.
+        """
+        ...
+
+    async def main(self, argv: list[str] | None = None) -> "ProtocolCLIResult":
+        """
+        Main entry point for CLI execution.
+
+        Parses arguments, configures logging, and executes the appropriate
+        command handler. This is the primary method called when the CLI
+        tool is invoked from the command line.
+
+        Args:
+            argv: Command-line arguments to parse. If None, uses sys.argv[1:].
+
+        Returns:
+            CLI result object containing success status, exit code,
+            message, optional data output, and any errors encountered.
+
+        Raises:
+            SPIError: If CLI initialization or execution fails unexpectedly.
+        """
+        ...
+
+    async def run(self, args: list[str]) -> "ProtocolCLIResult":
+        """
+        Execute CLI with pre-parsed arguments.
+
+        Runs the CLI command using the provided argument list without
+        additional parsing. Use this method when arguments have already
+        been validated or when programmatically invoking CLI commands.
+
+        Args:
+            args: List of pre-parsed command-line arguments.
+
+        Returns:
+            CLI result object containing success status, exit code,
+            message, optional data output, and any errors encountered.
+
+        Raises:
+            SPIError: If command execution fails unexpectedly.
+        """
+        ...
 
     def describe_flags(
-        self, format: str | None = None
-    ) -> list["ProtocolCLIFlagDescription"]: ...
+        self, output_format: str | None = None
+    ) -> list["ProtocolCLIFlagDescription"]:
+        """
+        Get descriptions of all available CLI flags and arguments.
+
+        Provides metadata about all registered CLI flags for documentation
+        generation, help text rendering, or programmatic introspection
+        of CLI capabilities.
+
+        Args:
+            output_format: Optional format specifier for flag descriptions.
+                If None, returns flag descriptions in the implementation's
+                default format (typically structured objects). Common values
+                include "json", "yaml", "text", or "markdown" for serialized
+                output.
+
+        Returns:
+            List of flag description objects containing name, type,
+            default value, help text, and required status for each flag.
+
+        Raises:
+            SPIError: If flag introspection fails.
+        """
+        ...
 
     async def execute_command(
         self, command: str, args: list[str]
     ) -> "ProtocolCLIResult":
         """
-        Execute a CLI command with the given arguments.
+        Execute a specific CLI command with the given arguments.
+
+        Dispatches to the appropriate command handler based on the command
+        name and passes the provided arguments. This method is typically
+        called after argument validation has been performed.
 
         Args:
-            command: The command to execute
-            args: List of arguments for the command
+            command: The command name to execute (e.g., "validate", "build",
+                "run"). Must be a registered command in this CLI instance.
+            args: List of arguments to pass to the command handler. These
+                are the arguments specific to the command, not including
+                the command name itself.
 
         Returns:
-            CLI result object with execution status and output
+            CLI result object containing success status, exit code,
+            message, optional data output, and any errors encountered
+            during command execution.
+
+        Raises:
+            SPIError: If command execution fails unexpectedly.
+            RegistryError: If the command is not registered or recognized.
         """
         ...
 
@@ -204,10 +290,22 @@ class ProtocolCLI(Protocol):
         """
         Validate CLI arguments before execution.
 
+        Performs validation of the provided arguments against the CLI's
+        registered flags and argument specifications. This should be
+        called before execute_command or run to ensure arguments are
+        well-formed and meet requirements.
+
         Args:
-            args: List of arguments to validate
+            args: List of command-line arguments to validate. Should
+                include all arguments as they would be passed to the CLI,
+                potentially including the command name and all flags/values.
 
         Returns:
-            True if arguments are valid, False otherwise
+            True if all arguments are valid and the command can be executed
+            safely. False if any arguments are invalid, missing required
+            values, or have incorrect types.
+
+        Raises:
+            SPIError: If validation cannot be performed due to internal error.
         """
         ...

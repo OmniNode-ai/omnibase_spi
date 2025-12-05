@@ -134,6 +134,9 @@ def test_stamp_validation_options():
 def test_memory_request_protocols():
     """Test memory request protocols that were previously duplicates."""
     file_path = "src/omnibase_spi/protocols/memory/protocol_memory_requests.py"
+    advanced_file_path = (
+        "src/omnibase_spi/protocols/memory/protocol_memory_advanced_requests.py"
+    )
 
     print("\n🔍 Testing Memory Request protocols:")
     print("=" * 60)
@@ -141,7 +144,7 @@ def test_memory_request_protocols():
     comparison = compare_protocol_signatures(
         file_path,
         "ProtocolMemoryRetrieveRequest",
-        file_path,
+        advanced_file_path,
         "ProtocolBatchMemoryRetrieveRequest",
     )
 

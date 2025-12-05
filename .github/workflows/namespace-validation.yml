@@ -47,11 +47,19 @@ jobs:
       - name: Run Unified Validation Suite
         run: |
           echo "Running unified validation suite..."
+          # Generate JSON report for artifact upload (allow failure to capture results)
           python scripts/validation/run_all_validations.py --json > validation_results.json || true
+          # Run with verbose output for CI logs
           python scripts/validation/run_all_validations.py --verbose
 
-      - name: Check validation results
-        run: python scripts/validation/check_results.py
+      - name: Run SPI Validations
+        run: |
+          # Validate critical SPI requirements
+          # This step uses check_results.py which distinguishes:
+          # - CRITICAL validators (naming_patterns, namespace_isolation) - must pass
+          # - INFORMATIONAL validators (architecture) - known technical debt, reported only
+          # Build fails if any critical validator fails
+          python scripts/validation/check_results.py
 
       - name: Upload validation results
         uses: actions/upload-artifact@v4

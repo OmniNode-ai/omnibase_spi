@@ -18,8 +18,8 @@ __all__ = [
     "ProtocolModelRegistryValidator",
     "ProtocolNamingConvention",
     "ProtocolNamingConventions",
-    "ProtocolSchemaReferenceResolver",
     "ProtocolSchemaLoader",
+    "ProtocolSchemaReferenceResolver",
     "ProtocolTrustedSchemaLoader",
     "ProtocolTypeMapper",
 ]

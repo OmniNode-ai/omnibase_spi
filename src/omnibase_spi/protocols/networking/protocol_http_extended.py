@@ -274,4 +274,14 @@ class ProtocolHttpExtendedClient(Protocol):
 
     async def health_check(self) -> bool: ...
 
-    async def close(self) -> None: ...
+    async def close(self, timeout_seconds: float = 30.0) -> None:
+        """Close the extended HTTP client and release resources.
+
+        Args:
+            timeout_seconds: Maximum time to wait for cleanup to complete.
+                Defaults to 30.0 seconds.
+
+        Raises:
+            TimeoutError: If cleanup does not complete within the specified timeout.
+        """
+        ...

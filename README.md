@@ -288,15 +288,21 @@ from omnibase_spi.model.core.model_node_metadata import NodeMetadataBlock
 
 ## Integration with omnibase-core
 
-This repository provides the protocol contracts that `omnibase-core` implements:
+This repository provides the protocol contracts that `omnibase-infra` implements:
 
 ```python
-# In omnibase-core implementations
-from omnibase_spi.protocols.event_bus.protocol_event_bus import ProtocolEventBus
+# In omnibase-infra implementations
+from omnibase_core.protocols.event_bus import ProtocolEventBus
+from omnibase_spi.protocols.event_bus import ProtocolEventBusProvider
 
 class EventBusImplementation(ProtocolEventBus):
-    """Concrete implementation of the protocol."""
+    """Concrete implementation of the event bus interface (defined in Core)."""
     pass
+
+class EventBusProviderImplementation(ProtocolEventBusProvider):
+    """Factory for creating event bus instances (defined in SPI)."""
+    async def get_event_bus(self, environment=None, group=None) -> ProtocolEventBus:
+        return EventBusImplementation()
 ```
 
 ## Pre-commit Validation Hooks
@@ -353,8 +359,14 @@ pip install -e /path/to/omnibase-spi
 
 Import protocols in other packages:
 ```python
+# Interface protocols from Core
+from omnibase_core.protocols.event_bus import ProtocolEventBus, ProtocolEventBusHeaders
+
+# Factory protocols from SPI
+from omnibase_spi.protocols.event_bus import ProtocolEventBusProvider
+
+# Other SPI protocols
 from omnibase_spi.protocols.core.protocol_canonical_serializer import ProtocolCanonicalSerializer
-from omnibase_spi.protocols.event_bus.protocol_event_bus import ProtocolEventBus
 ```
 
 ## Next Steps

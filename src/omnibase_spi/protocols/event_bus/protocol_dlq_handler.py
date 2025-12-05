@@ -97,16 +97,27 @@ class ProtocolDLQHandler(Protocol):
         """
         ...
 
-    async def stop(self) -> None:
+    async def stop(self, timeout_seconds: float = 30.0) -> None:
         """
         Stop DLQ handler gracefully.
 
         Stops consumer loop, commits offsets, and closes connections.
 
+        Args:
+            timeout_seconds: Maximum time to wait for shutdown to complete.
+                Defaults to 30.0 seconds.
+
+        Raises:
+            TimeoutError: If shutdown does not complete within the specified timeout.
+
         Example:
             ```python
+            # Stop with default timeout
             await handler.stop()
             print("DLQ handler stopped")
+
+            # Stop with custom timeout
+            await handler.stop(timeout_seconds=60.0)
             ```
         """
         ...

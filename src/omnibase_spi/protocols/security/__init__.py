@@ -10,6 +10,6 @@ from .protocol_detection_match import ProtocolDetectionMatch
 from .protocol_security_event import ProtocolSecurityEvent
 
 __all__ = [
-    "ProtocolSecurityEvent",
     "ProtocolDetectionMatch",
+    "ProtocolSecurityEvent",
 ]

@@ -44,11 +44,18 @@ class ProtocolHandler(Protocol):
         """
         ...
 
-    async def shutdown(self) -> None:
+    async def shutdown(self, timeout_seconds: float = 30.0) -> None:
         """
         Release resources and close connections.
 
         Should flush pending operations and release all resources gracefully.
+
+        Args:
+            timeout_seconds: Maximum time to wait for shutdown to complete.
+                Defaults to 30.0 seconds.
+
+        Raises:
+            TimeoutError: If shutdown does not complete within the specified timeout.
         """
         ...
 
