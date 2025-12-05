@@ -37,7 +37,7 @@ class ProtocolDatabaseConnection(Protocol):
             def connection(self) -> Any | None: ...
 
             async def connect(self) -> bool: ...
-            async def disconnect(self) -> None: ...
+            async def disconnect(self, timeout_seconds: float = 30.0) -> None: ...
             async def execute_query(
                 self, query: str, parameters: tuple[Any, ...] | None
             ) -> ProtocolQueryResult: ...
@@ -52,9 +52,16 @@ class ProtocolDatabaseConnection(Protocol):
         """
         ...
 
-    async def disconnect(self) -> None:
+    async def disconnect(self, timeout_seconds: float = 30.0) -> None:
         """
         Close database connection and clean up resources.
+
+        Args:
+            timeout_seconds: Maximum time to wait for disconnect to complete.
+                Defaults to 30.0 seconds.
+
+        Raises:
+            TimeoutError: If disconnect does not complete within the specified timeout.
         """
         ...
 

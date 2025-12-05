@@ -145,8 +145,18 @@ class ProtocolServiceDiscovery(Protocol):
         """
         ...
 
-    async def close(self) -> None:
+    async def close(self, timeout_seconds: float = 30.0) -> None:
         """
         Clean up resources and close connections.
+
+        Should be called during graceful shutdown to release all resources
+        and close any open connections to the service discovery system.
+
+        Args:
+            timeout_seconds: Maximum time to wait for cleanup to complete.
+                Defaults to 30.0 seconds.
+
+        Raises:
+            TimeoutError: If cleanup does not complete within the specified timeout.
         """
         ...

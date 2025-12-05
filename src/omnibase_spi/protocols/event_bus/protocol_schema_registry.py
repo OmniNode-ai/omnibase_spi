@@ -172,16 +172,27 @@ class ProtocolSchemaRegistry(Protocol):
         """
         ...
 
-    async def close(self) -> None:
+    async def close(self, timeout_seconds: float = 30.0) -> None:
         """
         Close schema registry client and release resources.
 
         Should be called during graceful shutdown.
 
+        Args:
+            timeout_seconds: Maximum time to wait for cleanup to complete.
+                Defaults to 30.0 seconds.
+
+        Raises:
+            TimeoutError: If cleanup does not complete within the specified timeout.
+
         Example:
             ```python
+            # Close with default timeout
             await registry.close()
             print("Schema registry client closed")
+
+            # Close with custom timeout
+            await registry.close(timeout_seconds=60.0)
             ```
         """
         ...

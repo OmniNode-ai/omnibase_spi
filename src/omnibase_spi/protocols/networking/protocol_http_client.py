@@ -88,11 +88,18 @@ class ProtocolHttpClient(Protocol):
         """
         ...
 
-    async def close(self) -> None:
+    async def close(self, timeout_seconds: float = 30.0) -> None:
         """
         Clean up and close the HTTP client.
 
         This method should be called when the client is no longer needed
         to properly release resources and close connections.
+
+        Args:
+            timeout_seconds: Maximum time to wait for cleanup to complete.
+                Defaults to 30.0 seconds.
+
+        Raises:
+            TimeoutError: If cleanup does not complete within the specified timeout.
         """
         ...

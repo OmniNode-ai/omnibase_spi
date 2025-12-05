@@ -10,19 +10,48 @@ Validates that ProtocolEventBusProvider:
 - Works correctly with isinstance checks for compliant/non-compliant classes
 """
 
-from typing import TYPE_CHECKING
-from unittest.mock import MagicMock
-
 import pytest
 
+from omnibase_spi.protocols.event_bus.protocol_event_bus_mixin import (
+    ProtocolEventBusBase,
+)
 from omnibase_spi.protocols.event_bus.protocol_event_bus_provider import (
     ProtocolEventBusProvider,
 )
+from omnibase_spi.protocols.types.protocol_event_bus_types import ProtocolEventMessage
 
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.event_bus.protocol_event_bus_mixin import (
-        ProtocolEventBusBase,
-    )
+
+class MockEventBus:
+    """Test double implementing ProtocolEventBusBase for testing purposes.
+
+    Provides a minimal implementation of the event bus protocol that can be
+    used as a return value from provider methods without requiring MagicMock.
+    """
+
+    def __init__(self) -> None:
+        """Initialize the mock event bus with empty state."""
+        self._published_events: list[ProtocolEventMessage] = []
+
+    async def publish(self, event: ProtocolEventMessage) -> None:
+        """Record published events for test verification.
+
+        Args:
+            event: The event message to publish.
+        """
+        self._published_events.append(event)
+
+    @property
+    def published_events(self) -> list[ProtocolEventMessage]:
+        """Access recorded events for test assertions.
+
+        Returns:
+            List of events that were published to this bus.
+        """
+        return self._published_events
+
+
+# Verify MockEventBus satisfies the protocol
+assert isinstance(MockEventBus(), ProtocolEventBusBase)
 
 
 class CompliantProvider:
@@ -32,18 +61,18 @@ class CompliantProvider:
         self,
         environment: str | None = None,  # noqa: ARG002
         group: str | None = None,  # noqa: ARG002
-    ) -> "ProtocolEventBusBase":
+    ) -> ProtocolEventBusBase:
         """Get or create an event bus instance."""
-        return MagicMock()
+        return MockEventBus()
 
     async def create_event_bus(
         self,
         environment: str,  # noqa: ARG002
         group: str,  # noqa: ARG002
         config: dict[str, object] | None = None,  # noqa: ARG002
-    ) -> "ProtocolEventBusBase":
+    ) -> ProtocolEventBusBase:
         """Create a new event bus instance."""
-        return MagicMock()
+        return MockEventBus()
 
     async def close_all(self) -> None:
         """Close all managed event bus instances."""
@@ -67,9 +96,9 @@ class PartialProvider:
         self,
         _environment: str | None = None,
         _group: str | None = None,
-    ) -> "ProtocolEventBusBase":
+    ) -> ProtocolEventBusBase:
         """Get or create an event bus instance."""
-        return MagicMock()
+        return MockEventBus()
 
 
 class NonCompliantProvider:
@@ -85,18 +114,18 @@ class MissingPropertiesProvider:
         self,
         _environment: str | None = None,
         _group: str | None = None,
-    ) -> "ProtocolEventBusBase":
+    ) -> ProtocolEventBusBase:
         """Get or create an event bus instance."""
-        return MagicMock()
+        return MockEventBus()
 
     async def create_event_bus(
         self,
         _environment: str,
         _group: str,
         _config: dict[str, object] | None = None,
-    ) -> "ProtocolEventBusBase":
+    ) -> ProtocolEventBusBase:
         """Create a new event bus instance."""
-        return MagicMock()
+        return MockEventBus()
 
     async def close_all(self) -> None:
         """Close all managed event bus instances."""
@@ -350,6 +379,7 @@ class TestProtocolEventBusProviderContextManagerLifecycle:
         bus2 = await provider.create_event_bus(environment="test", group="consumer-2")
 
         # create_event_bus should return different instances
-        # (Note: our mock always returns MagicMock(), but real impl would differ)
+        # (Note: MockEventBus always returns new instances, matching expected behavior)
         assert bus1 is not None
         assert bus2 is not None
+        assert bus1 is not bus2  # Verify different instances returned

@@ -8,6 +8,7 @@ Practical examples demonstrating ONEX SPI protocol usage patterns.
 
 ## Available Examples
 
+- **[Implementation Examples](IMPLEMENTATION-EXAMPLES.md)** - How to implement SPI protocols in omnibase_infra
 - **[Memory Protocols Guide](MEMORY_PROTOCOLS_GUIDE.md)** - Comprehensive memory system implementation patterns
 
 ## Basic Examples

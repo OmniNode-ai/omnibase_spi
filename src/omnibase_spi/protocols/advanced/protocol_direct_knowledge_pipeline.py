@@ -242,12 +242,19 @@ class ProtocolDirectKnowledgePipeline(Protocol):
         """
         ...
 
-    async def shutdown(self) -> None:
+    async def shutdown(self, timeout_seconds: float = 30.0) -> None:
         """
         Gracefully shutdown the knowledge pipeline service.
 
+        Closes all database connections and releases any held resources.
+
+        Args:
+            timeout_seconds: Maximum time to wait for shutdown to complete.
+                Defaults to 30.0 seconds.
+
         Raises:
-            Exception: If shutdown fails
+            TimeoutError: If shutdown does not complete within the specified timeout.
+            Exception: If shutdown fails for other reasons.
         """
         ...
 

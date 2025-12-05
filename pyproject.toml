@@ -59,3 +59,14 @@ line_length = 88
 exclude = [
     "tests/protocols/memory/test_memory_edge_cases.py",
 ]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+markers = [
+    "integration: mark test as integration test (deselect with '-m \"not integration\"')",
+    "slow: mark test as slow (deselect with '-m \"not slow\"')",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]

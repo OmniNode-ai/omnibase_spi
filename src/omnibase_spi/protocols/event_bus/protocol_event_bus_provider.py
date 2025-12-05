@@ -136,7 +136,7 @@ class ProtocolEventBusProvider(Protocol):
         """
         ...
 
-    async def close_all(self) -> None:
+    async def close_all(self, timeout_seconds: float = 30.0) -> None:
         """Close all managed event bus instances.
 
         Gracefully shuts down all event buses created by this provider.
@@ -148,13 +148,20 @@ class ProtocolEventBusProvider(Protocol):
         - Releases network resources
         - Clears internal instance cache
 
+        Args:
+            timeout_seconds: Maximum time to wait for cleanup to complete.
+                Defaults to 30.0 seconds.
+
         Raises:
-            TimeoutError: If shutdown does not complete within timeout.
+            TimeoutError: If shutdown does not complete within the specified timeout.
 
         Example:
             ```python
-            # During application shutdown
+            # During application shutdown with default timeout
             await provider.close_all()
+
+            # With custom timeout for slower environments
+            await provider.close_all(timeout_seconds=60.0)
             ```
         """
         ...

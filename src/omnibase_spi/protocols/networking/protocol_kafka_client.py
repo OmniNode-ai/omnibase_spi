@@ -85,15 +85,20 @@ class ProtocolKafkaClient(Protocol):
         """
         ...
 
-    async def stop(self) -> None:
+    async def stop(self, timeout_seconds: float = 30.0) -> None:
         """
         Stop the Kafka client and clean up resources.
 
         Gracefully shuts down the client, closes connections,
         and releases any allocated resources.
 
+        Args:
+            timeout_seconds: Maximum time to wait for shutdown to complete.
+                Defaults to 30.0 seconds.
+
         Raises:
-            ShutdownError: If shutdown process fails
+            ShutdownError: If shutdown process fails.
+            TimeoutError: If shutdown does not complete within the specified timeout.
         """
         ...
 
