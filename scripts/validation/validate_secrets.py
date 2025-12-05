@@ -39,39 +39,7 @@ import sys
 from pathlib import Path
 from typing import Final, NamedTuple
 
-
-class BypassChecker:
-    """Unified bypass comment detection for security validators.
-
-    Provides consistent bypass checking across all security validation tools.
-    Supports both file-level bypasses (anywhere in file) and line-level
-    bypasses (inline with specific violations).
-    """
-
-    @staticmethod
-    def check_line_bypass(line: str, bypass_patterns: list[str]) -> bool:
-        """Check if a specific line has an inline bypass comment."""
-        return any(pattern in line for pattern in bypass_patterns)
-
-    @staticmethod
-    def check_file_bypass(
-        content_lines: list[str], bypass_patterns: list[str], max_lines: int = 10
-    ) -> bool:
-        """Check if file has a bypass comment in the header."""
-        for line in content_lines[:max_lines]:
-            stripped = line.strip()
-            if stripped.startswith("#"):
-                if any(pattern in line for pattern in bypass_patterns):
-                    return True
-        return False
-
-    @staticmethod
-    def extract_bypass_reason(line: str) -> str:
-        """Extract the reason/justification from a bypass comment."""
-        if "#" not in line:
-            return ""
-        comment_start = line.index("#")
-        return line[comment_start:].strip()
+from shared_utils import BypassChecker
 
 
 class SecretViolation(NamedTuple):
@@ -277,7 +245,7 @@ class PythonSecretValidator(ast.NodeVisitor):
             return False
 
         line = self.file_lines[line_number - 1]
-        is_bypass = BypassChecker.check_line_bypass(line, BYPASS_PATTERNS)
+        is_bypass: bool = BypassChecker.check_line_bypass(line, BYPASS_PATTERNS)
 
         if is_bypass:
             reason = BypassChecker.extract_bypass_reason(line)
@@ -433,22 +401,28 @@ class SecretValidator:
         try:
             tree = ast.parse(content, filename=str(python_path))
             ast_validator.visit(tree)
-
-            self.violations.extend(ast_validator.violations)
-            self.bypass_usage.extend(ast_validator.bypass_usage)
-
         except SyntaxError:
             # Skip files with syntax errors - they'll be caught by other tools
+            # (black, ruff, mypy all report syntax errors)
             pass
-        except (OSError, RecursionError) as e:
-            # Handle specific AST/file errors that might occur during validation
-            print(f"Warning: Error during AST validation of {python_path}: {e}")
+        except RecursionError as e:
+            # RecursionError can occur with deeply nested AST structures
+            print(
+                f"Warning: Recursion limit hit during AST validation of {python_path}: {e}"
+            )
+        else:
+            # Only extend violations if parsing succeeded without errors
+            self.violations.extend(ast_validator.violations)
+            self.bypass_usage.extend(ast_validator.bypass_usage)
 
         return len(ast_validator.violations) == 0
 
     def _has_bypass_comment(self, content_lines: list[str]) -> bool:
         """Check if file has a bypass comment at the top."""
-        return BypassChecker.check_file_bypass(content_lines, BYPASS_PATTERNS)
+        result: bool = BypassChecker.check_file_bypass_from_lines(
+            content_lines, BYPASS_PATTERNS
+        )
+        return result
 
     def print_results(self) -> None:
         """Print validation results."""

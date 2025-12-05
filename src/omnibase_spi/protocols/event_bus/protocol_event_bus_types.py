@@ -1,10 +1,7 @@
-from typing import TYPE_CHECKING, Callable, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Awaitable, Callable, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types import ContextValue, ProtocolEvent
-else:
-    ContextValue = "ContextValue"
-    ProtocolEvent = "ProtocolEvent"
 
 
 @runtime_checkable
@@ -71,10 +68,16 @@ class ProtocolEventPubSub(Protocol):
         ...
 
     async def publish(self, event: "ProtocolEvent") -> None:
-        """Publish an event to the bus synchronously.
+        """Publish an event to the bus.
+
+        This is an async method that publishes an event and waits for
+        confirmation that it was received by the bus infrastructure.
 
         Args:
             event: The event to publish.
+
+        Returns:
+            None when the event has been successfully published.
 
         Raises:
             ConnectionError: If the bus is not connected.
@@ -82,43 +85,69 @@ class ProtocolEventPubSub(Protocol):
         ...
 
     async def publish_async(self, event: "ProtocolEvent") -> None:
-        """Publish an event to the bus asynchronously.
+        """Publish an event to the bus with fire-and-forget semantics.
+
+        This method queues the event for publication without waiting for
+        confirmation. Use this for high-throughput scenarios where delivery
+        guarantees are handled at a higher level.
 
         Args:
             event: The event to publish.
 
-        Raises:
-            ConnectionError: If the bus is not connected.
-        """
-        ...
-
-    async def subscribe(self, callback: Callable[[ProtocolEvent], None]) -> None:
-        """Subscribe to events with a callback.
-
-        Args:
-            callback: Function to call when events are received.
+        Returns:
+            None when the event has been queued for publication.
 
         Raises:
             ConnectionError: If the bus is not connected.
         """
         ...
 
-    async def subscribe_async(self, callback: Callable[[ProtocolEvent], None]) -> None:
-        """Subscribe to events with an async callback.
+    async def subscribe(self, callback: Callable[["ProtocolEvent"], None]) -> None:
+        """Subscribe to events with a synchronous callback.
+
+        The callback will be invoked synchronously when events are received.
+        For async callbacks, use subscribe_async instead.
 
         Args:
-            callback: Function to call when events are received.
+            callback: Synchronous function to call when events are received.
+                Must accept a ProtocolEvent and return None.
+
+        Returns:
+            None when the subscription is registered.
 
         Raises:
             ConnectionError: If the bus is not connected.
         """
         ...
 
-    async def unsubscribe(self, callback: Callable[[ProtocolEvent], None]) -> None:
-        """Unsubscribe a callback from events.
+    async def subscribe_async(
+        self, callback: Callable[["ProtocolEvent"], Awaitable[None]]
+    ) -> None:
+        """Subscribe to events with an asynchronous callback.
+
+        The callback will be awaited when events are received.
+        For synchronous callbacks, use subscribe instead.
 
         Args:
-            callback: The callback to unsubscribe.
+            callback: Async function to call when events are received.
+                Must accept a ProtocolEvent and return an Awaitable[None].
+
+        Returns:
+            None when the subscription is registered.
+
+        Raises:
+            ConnectionError: If the bus is not connected.
+        """
+        ...
+
+    async def unsubscribe(self, callback: Callable[["ProtocolEvent"], None]) -> None:
+        """Unsubscribe a synchronous callback from events.
+
+        Args:
+            callback: The synchronous callback to unsubscribe.
+
+        Returns:
+            None when the callback has been unsubscribed.
 
         Raises:
             ValueError: If the callback was not subscribed.
@@ -126,12 +155,15 @@ class ProtocolEventPubSub(Protocol):
         ...
 
     async def unsubscribe_async(
-        self, callback: Callable[[ProtocolEvent], None]
+        self, callback: Callable[["ProtocolEvent"], Awaitable[None]]
     ) -> None:
-        """Unsubscribe an async callback from events.
+        """Unsubscribe an asynchronous callback from events.
 
         Args:
-            callback: The callback to unsubscribe.
+            callback: The async callback to unsubscribe.
+
+        Returns:
+            None when the callback has been unsubscribed.
 
         Raises:
             ValueError: If the callback was not subscribed.
@@ -142,6 +174,10 @@ class ProtocolEventPubSub(Protocol):
         """Clear all subscriptions.
 
         Useful for test cleanup and lifecycle management.
+        Removes both synchronous and asynchronous subscriptions.
+
+        Returns:
+            None when all subscriptions have been cleared.
         """
         ...
 

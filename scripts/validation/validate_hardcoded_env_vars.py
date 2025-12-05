@@ -16,7 +16,19 @@ Common anti-patterns detected:
 Convention: Variable names in UPPER_CASE are assumed to be environment variables
 and should not have hardcoded values.
 
-Uses AST parsing for reliable detection of environment variable patterns.
+Detection methodology:
+- Uses AST parsing for reliable detection of environment variable patterns
+- Identifies env vars by **variable name patterns only** (UPPER_CASE convention):
+  - Common prefixes: DATABASE_, DB_, REDIS_, KAFKA_, API_, AWS_, etc.
+  - Common suffixes: _URL, _URI, _KEY, _TOKEN, _SECRET, _PASSWORD, etc.
+  - Exact matches: DEBUG, ENVIRONMENT, PORT, HOST, etc.
+- Enum class assignments are automatically excluded (legitimate constants)
+- Legitimate constant definitions (HTTP_OK, MAX_RETRIES, etc.) are excluded
+- Does NOT scan string values for embedded env var references
+
+Bypass patterns:
+- File-level: Add "# env-var-ok:" anywhere in file to skip entire file
+- Designed for configuration files that intentionally define defaults
 
 Adapted from omnibase_core/scripts/validation/validate-hardcoded-env-vars.py
 """
@@ -30,27 +42,7 @@ import sys
 from pathlib import Path
 from typing import Final, NamedTuple
 
-
-class BypassChecker:
-    """Unified bypass comment detection for security validators."""
-
-    @staticmethod
-    def check_line_bypass(line: str, bypass_patterns: list[str]) -> bool:
-        """Check if a specific line has an inline bypass comment."""
-        return any(pattern in line for pattern in bypass_patterns)
-
-    @staticmethod
-    def check_file_bypass(content: str, bypass_patterns: list[str]) -> bool:
-        """Check if file has a bypass comment anywhere."""
-        return any(pattern in content for pattern in bypass_patterns)
-
-    @staticmethod
-    def extract_bypass_reason(line: str) -> str:
-        """Extract the reason/justification from a bypass comment."""
-        if "#" not in line:
-            return ""
-        comment_start = line.index("#")
-        return line[comment_start:].strip()
+from shared_utils import BypassChecker
 
 
 class EnvVarViolation(NamedTuple):
@@ -394,7 +386,7 @@ class HardcodedEnvVarValidator:
         if not content.strip():
             return True
 
-        if BypassChecker.check_file_bypass(content, BYPASS_PATTERNS):
+        if BypassChecker.check_file_bypass_from_content(content, BYPASS_PATTERNS):
             return True
 
         self.checked_files += 1
@@ -403,16 +395,19 @@ class HardcodedEnvVarValidator:
         try:
             tree = ast.parse(content, filename=str(python_path))
             ast_validator.visit(tree)
-
-            self.violations.extend(ast_validator.violations)
-            self.bypass_usage.extend(ast_validator.bypass_usage)
-
         except SyntaxError:
             # Skip files with syntax errors - they'll be caught by other tools
+            # (black, ruff, mypy all report syntax errors)
             pass
-        except (OSError, RecursionError) as e:
-            # Handle specific AST/file errors that might occur during validation
-            print(f"Warning: Error during AST validation of {python_path}: {e}")
+        except RecursionError as e:
+            # RecursionError can occur with deeply nested AST structures
+            print(
+                f"Warning: Recursion limit hit during AST validation of {python_path}: {e}"
+            )
+        else:
+            # Only extend violations if parsing succeeded without errors
+            self.violations.extend(ast_validator.violations)
+            self.bypass_usage.extend(ast_validator.bypass_usage)
 
         return len(ast_validator.violations) == 0
 
