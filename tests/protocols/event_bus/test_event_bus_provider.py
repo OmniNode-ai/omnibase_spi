@@ -30,17 +30,17 @@ class CompliantProvider:
 
     async def get_event_bus(
         self,
-        environment: str | None = None,
-        group: str | None = None,
+        environment: str | None = None,  # noqa: ARG002
+        group: str | None = None,  # noqa: ARG002
     ) -> "ProtocolEventBusBase":
         """Get or create an event bus instance."""
         return MagicMock()
 
     async def create_event_bus(
         self,
-        environment: str,
-        group: str,
-        config: dict[str, object] | None = None,
+        environment: str,  # noqa: ARG002
+        group: str,  # noqa: ARG002
+        config: dict[str, object] | None = None,  # noqa: ARG002
     ) -> "ProtocolEventBusBase":
         """Create a new event bus instance."""
         return MagicMock()
@@ -65,8 +65,8 @@ class PartialProvider:
 
     async def get_event_bus(
         self,
-        environment: str | None = None,
-        group: str | None = None,
+        _environment: str | None = None,
+        _group: str | None = None,
     ) -> "ProtocolEventBusBase":
         """Get or create an event bus instance."""
         return MagicMock()
@@ -83,17 +83,17 @@ class MissingPropertiesProvider:
 
     async def get_event_bus(
         self,
-        environment: str | None = None,
-        group: str | None = None,
+        _environment: str | None = None,
+        _group: str | None = None,
     ) -> "ProtocolEventBusBase":
         """Get or create an event bus instance."""
         return MagicMock()
 
     async def create_event_bus(
         self,
-        environment: str,
-        group: str,
-        config: dict[str, object] | None = None,
+        _environment: str,
+        _group: str,
+        _config: dict[str, object] | None = None,
     ) -> "ProtocolEventBusBase":
         """Create a new event bus instance."""
         return MagicMock()

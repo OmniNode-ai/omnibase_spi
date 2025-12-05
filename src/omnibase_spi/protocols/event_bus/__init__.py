@@ -38,20 +38,20 @@ from .protocol_schema_registry import ProtocolSchemaRegistry
 
 __all__ = [
     "ProtocolAsyncEventBus",
+    "ProtocolDLQHandler",
     "ProtocolEventBusBase",
     "ProtocolEventBusContextManager",
     "ProtocolEventBusLogEmitter",
     "ProtocolEventBusProvider",
     "ProtocolEventBusRegistry",
     "ProtocolEventBusService",
+    # Phase 1: Event Bus Foundation
+    "ProtocolEventEnvelope",
     "ProtocolEventMessage",
+    "ProtocolEventPublisher",
     "ProtocolHttpEventBusAdapter",
     "ProtocolKafkaAdapter",
     "ProtocolRedpandaAdapter",
-    "ProtocolSyncEventBus",
-    # Phase 1: Event Bus Foundation
-    "ProtocolEventEnvelope",
-    "ProtocolEventPublisher",
     "ProtocolSchemaRegistry",
-    "ProtocolDLQHandler",
+    "ProtocolSyncEventBus",
 ]

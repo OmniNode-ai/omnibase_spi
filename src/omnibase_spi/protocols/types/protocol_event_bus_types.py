@@ -545,7 +545,11 @@ __all__ = [
     "LiteralAuthStatus",
     "LiteralEventPriority",
     "MessageKey",
+    # Agent types (re-exported from protocol_event_agent_types)
+    "ProtocolAgentEvent",
+    "ProtocolCompletionData",
     "ProtocolEvent",
+    "ProtocolEventBusAgentStatus",
     "ProtocolEventBusConnectionCredentials",
     "ProtocolEventData",
     "ProtocolEventHeaders",
@@ -556,11 +560,7 @@ __all__ = [
     "ProtocolEventStringListData",
     "ProtocolEventSubscription",
     "ProtocolOnexEvent",
-    "ProtocolSecurityContext",
-    # Agent types (re-exported from protocol_event_agent_types)
-    "ProtocolAgentEvent",
-    "ProtocolCompletionData",
-    "ProtocolEventBusAgentStatus",
     "ProtocolProgressUpdate",
+    "ProtocolSecurityContext",
     "ProtocolWorkResult",
 ]

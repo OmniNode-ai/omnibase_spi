@@ -74,7 +74,7 @@ def test_protocol_service_resolver_mock_implementation() -> None:
         """Mock implementation for testing protocol compliance."""
 
         def get_service(
-            self, protocol_type_or_name: type | str, service_name: str | None = None
+            self, protocol_type_or_name: type | str, _service_name: str | None = None
         ) -> Any:
             """Mock get_service implementation."""
             if isinstance(protocol_type_or_name, str):

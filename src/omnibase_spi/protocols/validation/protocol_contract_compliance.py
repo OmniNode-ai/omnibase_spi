@@ -175,7 +175,7 @@ class ProtocolContractCompliance(Protocol):
         ...
 
     def generate_compliance_report(
-        self, results: list["ProtocolValidationResult"], output_format: str | None = None
+        self, results: list["ProtocolValidationResult"], output_format: str = "text"
     ) -> str:
         """Generate a formatted compliance report.
 

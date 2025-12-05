@@ -160,12 +160,12 @@ PreprocessingInputState = ProtocolPreprocessingInputState
 PreprocessingOutputState = ProtocolPreprocessingOutputState
 
 __all__ = [
-    "ProtocolRetrievalInputState",
-    "ProtocolRetrievalOutputState",
-    "ProtocolPreprocessingInputState",
-    "ProtocolPreprocessingOutputState",
-    "RetrievalInputState",
-    "RetrievalOutputState",
     "PreprocessingInputState",
     "PreprocessingOutputState",
+    "ProtocolPreprocessingInputState",
+    "ProtocolPreprocessingOutputState",
+    "ProtocolRetrievalInputState",
+    "ProtocolRetrievalOutputState",
+    "RetrievalInputState",
+    "RetrievalOutputState",
 ]

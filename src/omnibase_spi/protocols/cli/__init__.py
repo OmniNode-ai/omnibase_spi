@@ -14,11 +14,11 @@ from .protocol_node_cli_adapter import ProtocolNodeCliAdapter
 
 __all__ = [
     "ProtocolCLI",
-    "ProtocolCLIResult",
     "ProtocolCLIDirFixtureCase",
     "ProtocolCLIDirFixtureRegistry",
-    "ProtocolCliDiscoveredTool",
+    "ProtocolCLIResult",
     "ProtocolCLIToolDiscovery",
+    "ProtocolCliDiscoveredTool",
     "ProtocolCliWorkflow",
     "ProtocolNodeCliAdapter",
 ]

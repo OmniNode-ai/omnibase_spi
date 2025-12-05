@@ -520,23 +520,23 @@ class ProtocolPaginationRequest(Protocol):
 
 # Backward compatibility exports
 __all__ = [
-    # Core protocols (defined here)
-    "ProtocolMemoryRequest",
-    "ProtocolMemoryStoreRequest",
-    "ProtocolMemoryRetrieveRequest",
-    "ProtocolMemoryListRequest",
-    "ProtocolSemanticSearchRequest",
-    "ProtocolEmbeddingRequest",
-    "ProtocolPaginationRequest",
+    "ProtocolAgentCoordinationRequest",
+    "ProtocolAggregationRequest",
+    "ProtocolBatchMemoryRetrieveRequest",
     # Re-exported from protocol_memory_advanced_requests
     "ProtocolBatchMemoryStoreRequest",
-    "ProtocolBatchMemoryRetrieveRequest",
-    "ProtocolPatternAnalysisRequest",
     "ProtocolConsolidationRequest",
-    "ProtocolAggregationRequest",
-    "ProtocolWorkflowExecutionRequest",
-    "ProtocolAgentCoordinationRequest",
+    "ProtocolEmbeddingRequest",
+    "ProtocolMemoryListRequest",
     "ProtocolMemoryMetricsRequest",
+    # Core protocols (defined here)
+    "ProtocolMemoryRequest",
+    "ProtocolMemoryRetrieveRequest",
+    "ProtocolMemoryStoreRequest",
+    "ProtocolPaginationRequest",
+    "ProtocolPatternAnalysisRequest",
+    "ProtocolSemanticSearchRequest",
     "ProtocolStreamingMemoryRequest",
     "ProtocolStreamingRetrieveRequest",
+    "ProtocolWorkflowExecutionRequest",
 ]

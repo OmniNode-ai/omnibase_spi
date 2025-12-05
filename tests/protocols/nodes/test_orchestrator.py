@@ -103,7 +103,7 @@ class WrongSignatureOrchestratorNode:
         """Return semantic version."""
         return "1.0.0"
 
-    async def execute(self, data: dict) -> dict:  # type: ignore[override]
+    async def execute(self, _data: dict) -> dict:  # type: ignore[override]
         """Execute with wrong signature."""
         return {}
 

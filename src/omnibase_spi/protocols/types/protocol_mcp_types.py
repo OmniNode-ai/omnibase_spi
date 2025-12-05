@@ -599,37 +599,37 @@ class ProtocolMCPValidationResult(Protocol):
 
 
 __all__ = [
+    "LiteralMCPConnectionStatus",
+    "LiteralMCPExecutionStatus",
+    "LiteralMCPLifecycleState",
+    "LiteralMCPParameterType",
     # Literal types (local)
     "LiteralMCPSubsystemType",
-    "LiteralMCPLifecycleState",
-    "LiteralMCPConnectionStatus",
-    # Subsystem protocols
-    "ProtocolMCPSubsystemMetadata",
-    "ProtocolMCPSubsystemRegistration",
+    # Re-exported from protocol_mcp_tool_types for backward compatibility
+    "LiteralMCPToolType",
+    "ProtocolEventBusBootstrapResult",
+    "ProtocolEventBusConfig",
+    "ProtocolKafkaHealthCheckResult",
+    "ProtocolMCPDiscoveryInfo",
+    # Health and discovery protocols
+    "ProtocolMCPHealthCheck",
+    "ProtocolMCPRegistryConfig",
     # Registry protocols
     "ProtocolMCPRegistryMetrics",
     "ProtocolMCPRegistryStatus",
-    "ProtocolMCPRegistryConfig",
-    # Health and discovery protocols
-    "ProtocolMCPHealthCheck",
-    "ProtocolMCPDiscoveryInfo",
+    # Subsystem protocols
+    "ProtocolMCPSubsystemMetadata",
+    "ProtocolMCPSubsystemRegistration",
+    "ProtocolMCPToolDefinition",
+    "ProtocolMCPToolExecution",
+    "ProtocolMCPToolParameter",
     # Validation protocols
     "ProtocolMCPValidationError",
     "ProtocolMCPValidationResult",
-    # Re-exported from protocol_mcp_tool_types for backward compatibility
-    "LiteralMCPToolType",
-    "LiteralMCPParameterType",
-    "LiteralMCPExecutionStatus",
-    "ProtocolMCPToolParameter",
-    "ProtocolMCPToolDefinition",
-    "ProtocolMCPToolExecution",
-    "ProtocolToolClass",
-    "ProtocolToolInstance",
     "ProtocolModelResultCLI",
     "ProtocolModelToolArguments",
-    "ProtocolModelToolInputData",
     "ProtocolModelToolInfo",
-    "ProtocolEventBusConfig",
-    "ProtocolEventBusBootstrapResult",
-    "ProtocolKafkaHealthCheckResult",
+    "ProtocolModelToolInputData",
+    "ProtocolToolClass",
+    "ProtocolToolInstance",
 ]
