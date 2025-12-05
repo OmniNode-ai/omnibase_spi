@@ -229,70 +229,55 @@ class TestRuntimeCheckableProtocols:
     enabling isinstance() checks at runtime. This is essential for dependency
     injection and handler validation in omnibase_infra.
 
-    The test checks for either _is_runtime_protocol (Python 3.8+) or
-    __protocol_attrs__ (Protocol marker) attributes as evidence of runtime
-    checkability.
+    The test uses the canonical _is_runtime_protocol attribute to verify
+    that protocols are properly decorated with @runtime_checkable.
     """
 
     def test_protocol_node_is_runtime_checkable(self) -> None:
         """Validate ProtocolNode has @runtime_checkable decorator.
 
-        Checks for _is_runtime_protocol or __protocol_attrs__ attributes.
+        Uses _is_runtime_protocol attribute which is the canonical marker.
         """
         from omnibase_spi.protocols.nodes import ProtocolNode
 
         # Verify the protocol has the runtime checkable marker
-        assert hasattr(ProtocolNode, "_is_runtime_protocol") or hasattr(
-            ProtocolNode, "__protocol_attrs__"
-        )
+        assert getattr(ProtocolNode, "_is_runtime_protocol", False) is True
 
     def test_protocol_compute_node_is_runtime_checkable(self) -> None:
         """Validate ProtocolComputeNode has @runtime_checkable decorator."""
         from omnibase_spi.protocols.nodes import ProtocolComputeNode
 
-        assert hasattr(ProtocolComputeNode, "_is_runtime_protocol") or hasattr(
-            ProtocolComputeNode, "__protocol_attrs__"
-        )
+        assert getattr(ProtocolComputeNode, "_is_runtime_protocol", False) is True
 
     def test_protocol_effect_node_is_runtime_checkable(self) -> None:
         """Validate ProtocolEffectNode has @runtime_checkable decorator."""
         from omnibase_spi.protocols.nodes import ProtocolEffectNode
 
-        assert hasattr(ProtocolEffectNode, "_is_runtime_protocol") or hasattr(
-            ProtocolEffectNode, "__protocol_attrs__"
-        )
+        assert getattr(ProtocolEffectNode, "_is_runtime_protocol", False) is True
 
     def test_protocol_reducer_node_is_runtime_checkable(self) -> None:
         """Validate ProtocolReducerNode has @runtime_checkable decorator."""
         from omnibase_spi.protocols.nodes import ProtocolReducerNode
 
-        assert hasattr(ProtocolReducerNode, "_is_runtime_protocol") or hasattr(
-            ProtocolReducerNode, "__protocol_attrs__"
-        )
+        assert getattr(ProtocolReducerNode, "_is_runtime_protocol", False) is True
 
     def test_protocol_orchestrator_node_is_runtime_checkable(self) -> None:
         """Validate ProtocolOrchestratorNode has @runtime_checkable decorator."""
         from omnibase_spi.protocols.nodes import ProtocolOrchestratorNode
 
-        assert hasattr(ProtocolOrchestratorNode, "_is_runtime_protocol") or hasattr(
-            ProtocolOrchestratorNode, "__protocol_attrs__"
-        )
+        assert getattr(ProtocolOrchestratorNode, "_is_runtime_protocol", False) is True
 
     def test_protocol_handler_is_runtime_checkable(self) -> None:
         """Validate ProtocolHandler has @runtime_checkable decorator."""
         from omnibase_spi.protocols.handlers import ProtocolHandler
 
-        assert hasattr(ProtocolHandler, "_is_runtime_protocol") or hasattr(
-            ProtocolHandler, "__protocol_attrs__"
-        )
+        assert getattr(ProtocolHandler, "_is_runtime_protocol", False) is True
 
     def test_protocol_handler_registry_is_runtime_checkable(self) -> None:
         """Validate ProtocolHandlerRegistry has @runtime_checkable decorator."""
         from omnibase_spi.protocols.registry import ProtocolHandlerRegistry
 
-        assert hasattr(ProtocolHandlerRegistry, "_is_runtime_protocol") or hasattr(
-            ProtocolHandlerRegistry, "__protocol_attrs__"
-        )
+        assert getattr(ProtocolHandlerRegistry, "_is_runtime_protocol", False) is True
 
     def test_contract_compilers_are_runtime_checkable(self) -> None:
         """Validate all contract compiler protocols have @runtime_checkable."""
@@ -307,8 +292,8 @@ class TestRuntimeCheckableProtocols:
             ProtocolWorkflowContractCompiler,
             ProtocolFSMContractCompiler,
         ]:
-            assert hasattr(protocol, "_is_runtime_protocol") or hasattr(
-                protocol, "__protocol_attrs__"
+            assert (
+                getattr(protocol, "_is_runtime_protocol", False) is True
             ), f"{protocol.__name__} is not runtime_checkable"
 
 
@@ -430,14 +415,19 @@ class TestForwardReferenceResolution:
         """Validate ProtocolComputeNode type hints resolve to Core models.
 
         Uses get_type_hints() to resolve forward references in execute() method,
-        verifying that ModelComputeInput and ModelComputeOutput are resolved.
+        verifying that ModelComputeInput and ModelComputeOutput are resolved
+        to the actual Core model classes.
         """
+        from omnibase_core.models.compute import ModelComputeInput, ModelComputeOutput
+
         from omnibase_spi.protocols.nodes.compute import ProtocolComputeNode
 
         # get_type_hints should resolve forward references when Core is available
         hints = get_type_hints(ProtocolComputeNode.execute)
         assert "input_data" in hints
+        assert hints["input_data"] is ModelComputeInput
         assert "return" in hints
+        assert hints["return"] is ModelComputeOutput
 
     @pytest.mark.skipif(
         not CORE_MODELS_AVAILABLE, reason="omnibase_core models not available"
@@ -446,13 +436,18 @@ class TestForwardReferenceResolution:
         """Validate ProtocolEffectNode type hints resolve to Core models.
 
         Uses get_type_hints() to resolve forward references in execute() method,
-        verifying that ModelEffectInput and ModelEffectOutput are resolved.
+        verifying that ModelEffectInput and ModelEffectOutput are resolved
+        to the actual Core model classes.
         """
+        from omnibase_core.models.effect import ModelEffectInput, ModelEffectOutput
+
         from omnibase_spi.protocols.nodes.effect import ProtocolEffectNode
 
         hints = get_type_hints(ProtocolEffectNode.execute)
         assert "input_data" in hints
+        assert hints["input_data"] is ModelEffectInput
         assert "return" in hints
+        assert hints["return"] is ModelEffectOutput
 
     @pytest.mark.skipif(
         not CORE_MODELS_AVAILABLE, reason="omnibase_core models not available"
@@ -461,14 +456,24 @@ class TestForwardReferenceResolution:
         """Validate ProtocolHandler type hints resolve to Core models.
 
         Uses get_type_hints() to resolve forward references in execute() method,
-        verifying request/response model references are resolved.
+        verifying request/response model references are resolved to the actual
+        Core model classes.
         """
+        from omnibase_core.models.protocol import (
+            ModelOperationConfig,
+            ModelProtocolRequest,
+            ModelProtocolResponse,
+        )
+
         from omnibase_spi.protocols.handlers.protocol_handler import ProtocolHandler
 
         hints = get_type_hints(ProtocolHandler.execute)
         assert "request" in hints
+        assert hints["request"] is ModelProtocolRequest
         assert "operation_config" in hints
+        assert hints["operation_config"] is ModelOperationConfig
         assert "return" in hints
+        assert hints["return"] is ModelProtocolResponse
 
     @pytest.mark.skipif(
         not CORE_MODELS_AVAILABLE, reason="omnibase_core models not available"
@@ -476,15 +481,23 @@ class TestForwardReferenceResolution:
     def test_contract_compiler_type_hints_resolve(self) -> None:
         """Validate contract compiler type hints resolve to Core models.
 
-        Uses get_type_hints() to resolve forward references in compile() method.
+        Uses get_type_hints() to resolve forward references in compile() method,
+        verifying contract_path and return types are resolved to the actual
+        Core model classes.
         """
+        from pathlib import Path
+
+        from omnibase_core.models.contract import ModelEffectContract
+
         from omnibase_spi.protocols.contracts.effect_compiler import (
             ProtocolEffectContractCompiler,
         )
 
         hints = get_type_hints(ProtocolEffectContractCompiler.compile)
         assert "contract_path" in hints
+        assert hints["contract_path"] is Path
         assert "return" in hints
+        assert hints["return"] is ModelEffectContract
 
     def test_forward_references_without_core(self) -> None:
         """Validate protocols remain functional without Core installed.
