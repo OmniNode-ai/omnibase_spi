@@ -1,11 +1,26 @@
 """
 Tests for forward reference validation in TYPE_CHECKING blocks.
 
-Validates that:
-- All protocol imports work without errors
-- Forward references in TYPE_CHECKING blocks resolve correctly
-- @runtime_checkable protocols support isinstance() checks
-- Protocol type hints are correctly formed even without Core
+This module validates the forward reference handling in SPI protocols when
+omnibase_core models are used as type hints. The SPI layer uses TYPE_CHECKING
+blocks to conditionally import Core models, allowing the SPI to remain
+importable even when Core is not installed.
+
+Test Categories:
+    TestNodeProtocolImports: Node protocol import validation
+    TestHandlerProtocolImports: Handler protocol import validation
+    TestContractCompilerImports: Contract compiler import validation
+    TestRegistryProtocolImports: Registry protocol import validation
+    TestRuntimeCheckableProtocols: @runtime_checkable decorator validation
+    TestIsinstanceChecks: isinstance() behavior with mock implementations
+    TestForwardReferenceResolution: Type hint resolution when Core available
+    TestProtocolMethodSignatures: Protocol method/attribute presence
+    TestModuleReimport: Module reload behavior validation
+
+Architecture Context:
+    SPI protocols reference Core models (e.g., ModelComputeInput) in type hints.
+    These imports are guarded by TYPE_CHECKING blocks to avoid circular imports
+    and to allow SPI to be used standalone for interface definitions.
 """
 
 from __future__ import annotations
@@ -27,10 +42,19 @@ CORE_MODELS_AVAILABLE = (
 
 
 class TestNodeProtocolImports:
-    """Tests for node protocol imports."""
+    """Test node protocol imports without forward reference errors.
+
+    Validates that all node protocol types can be imported from
+    omnibase_spi.protocols.nodes without triggering import errors
+    from forward references to Core models.
+    """
 
     def test_protocol_node_import(self) -> None:
-        """Test that ProtocolNode can be imported without errors."""
+        """Validate ProtocolNode import succeeds without forward reference errors.
+
+        The base node protocol should be importable and recognized as a Protocol
+        type with the standard __protocol_attrs__ attribute.
+        """
         from omnibase_spi.protocols.nodes import ProtocolNode
 
         assert ProtocolNode is not None
@@ -39,31 +63,49 @@ class TestNodeProtocolImports:
         )
 
     def test_protocol_compute_node_import(self) -> None:
-        """Test that ProtocolComputeNode can be imported without errors."""
+        """Validate ProtocolComputeNode import succeeds.
+
+        Compute nodes define pure transformation operations and reference
+        ModelComputeInput/ModelComputeOutput from Core in their type hints.
+        """
         from omnibase_spi.protocols.nodes import ProtocolComputeNode
 
         assert ProtocolComputeNode is not None
 
     def test_protocol_effect_node_import(self) -> None:
-        """Test that ProtocolEffectNode can be imported without errors."""
+        """Validate ProtocolEffectNode import succeeds.
+
+        Effect nodes handle external I/O operations and reference
+        ModelEffectInput/ModelEffectOutput from Core in their type hints.
+        """
         from omnibase_spi.protocols.nodes import ProtocolEffectNode
 
         assert ProtocolEffectNode is not None
 
     def test_protocol_reducer_node_import(self) -> None:
-        """Test that ProtocolReducerNode can be imported without errors."""
+        """Validate ProtocolReducerNode import succeeds.
+
+        Reducer nodes handle aggregation and persistence operations.
+        """
         from omnibase_spi.protocols.nodes import ProtocolReducerNode
 
         assert ProtocolReducerNode is not None
 
     def test_protocol_orchestrator_node_import(self) -> None:
-        """Test that ProtocolOrchestratorNode can be imported without errors."""
+        """Validate ProtocolOrchestratorNode import succeeds.
+
+        Orchestrator nodes coordinate workflow execution across other node types.
+        """
         from omnibase_spi.protocols.nodes import ProtocolOrchestratorNode
 
         assert ProtocolOrchestratorNode is not None
 
     def test_all_node_protocols_in_module_all(self) -> None:
-        """Test that all node protocols are exported in __all__."""
+        """Validate all node protocols are properly exported in __all__.
+
+        Ensures consumers can use 'from omnibase_spi.protocols.nodes import *'
+        and get all expected protocol types.
+        """
         from omnibase_spi.protocols import nodes
 
         expected = [
@@ -79,16 +121,25 @@ class TestNodeProtocolImports:
 
 
 class TestHandlerProtocolImports:
-    """Tests for handler protocol imports."""
+    """Test handler protocol imports without forward reference errors.
+
+    Validates that ProtocolHandler can be imported from
+    omnibase_spi.protocols.handlers without triggering import errors
+    from forward references to Core models used in execute() signatures.
+    """
 
     def test_protocol_handler_import(self) -> None:
-        """Test that ProtocolHandler can be imported without errors."""
+        """Validate ProtocolHandler import succeeds.
+
+        Handlers define the execute/initialize/shutdown lifecycle and reference
+        Core request/response models in their type hints.
+        """
         from omnibase_spi.protocols.handlers import ProtocolHandler
 
         assert ProtocolHandler is not None
 
     def test_protocol_handler_in_module_all(self) -> None:
-        """Test that ProtocolHandler is exported in __all__."""
+        """Validate ProtocolHandler is properly exported in __all__."""
         from omnibase_spi.protocols import handlers
 
         assert "ProtocolHandler" in handlers.__all__
@@ -96,28 +147,45 @@ class TestHandlerProtocolImports:
 
 
 class TestContractCompilerImports:
-    """Tests for contract compiler protocol imports."""
+    """Test contract compiler protocol imports without forward reference errors.
+
+    Validates that all contract compiler protocols can be imported from
+    omnibase_spi.protocols.contracts without forward reference errors.
+    """
 
     def test_effect_contract_compiler_import(self) -> None:
-        """Test that ProtocolEffectContractCompiler can be imported without errors."""
+        """Validate ProtocolEffectContractCompiler import succeeds.
+
+        Effect compilers transform contract definitions into executable effect nodes.
+        """
         from omnibase_spi.protocols.contracts import ProtocolEffectContractCompiler
 
         assert ProtocolEffectContractCompiler is not None
 
     def test_workflow_contract_compiler_import(self) -> None:
-        """Test that ProtocolWorkflowContractCompiler can be imported without errors."""
+        """Validate ProtocolWorkflowContractCompiler import succeeds.
+
+        Workflow compilers handle multi-step workflow contract compilation.
+        """
         from omnibase_spi.protocols.contracts import ProtocolWorkflowContractCompiler
 
         assert ProtocolWorkflowContractCompiler is not None
 
     def test_fsm_contract_compiler_import(self) -> None:
-        """Test that ProtocolFSMContractCompiler can be imported without errors."""
+        """Validate ProtocolFSMContractCompiler import succeeds.
+
+        FSM compilers handle finite state machine contract compilation.
+        """
         from omnibase_spi.protocols.contracts import ProtocolFSMContractCompiler
 
         assert ProtocolFSMContractCompiler is not None
 
     def test_all_contract_compilers_in_module_all(self) -> None:
-        """Test that all contract compilers are exported in __all__."""
+        """Validate all contract compilers are properly exported in __all__.
+
+        Ensures consumers can access all compiler protocols through the
+        contracts module's public API.
+        """
         from omnibase_spi.protocols import contracts
 
         expected = [
@@ -131,16 +199,23 @@ class TestContractCompilerImports:
 
 
 class TestRegistryProtocolImports:
-    """Tests for registry protocol imports."""
+    """Test registry protocol imports without forward reference errors.
+
+    Validates that ProtocolHandlerRegistry can be imported from
+    omnibase_spi.protocols.registry without forward reference errors.
+    """
 
     def test_protocol_handler_registry_import(self) -> None:
-        """Test that ProtocolHandlerRegistry can be imported without errors."""
+        """Validate ProtocolHandlerRegistry import succeeds.
+
+        The registry protocol defines handler registration and lookup operations.
+        """
         from omnibase_spi.protocols.registry import ProtocolHandlerRegistry
 
         assert ProtocolHandlerRegistry is not None
 
     def test_registry_in_module_all(self) -> None:
-        """Test that ProtocolHandlerRegistry is exported in __all__."""
+        """Validate ProtocolHandlerRegistry is properly exported in __all__."""
         from omnibase_spi.protocols import registry
 
         assert "ProtocolHandlerRegistry" in registry.__all__
@@ -148,10 +223,22 @@ class TestRegistryProtocolImports:
 
 
 class TestRuntimeCheckableProtocols:
-    """Tests for @runtime_checkable protocol support."""
+    """Test @runtime_checkable protocol decorator support.
+
+    Validates that all SPI protocols have the @runtime_checkable decorator,
+    enabling isinstance() checks at runtime. This is essential for dependency
+    injection and handler validation in omnibase_infra.
+
+    The test checks for either _is_runtime_protocol (Python 3.8+) or
+    __protocol_attrs__ (Protocol marker) attributes as evidence of runtime
+    checkability.
+    """
 
     def test_protocol_node_is_runtime_checkable(self) -> None:
-        """Test that ProtocolNode supports isinstance() checks."""
+        """Validate ProtocolNode has @runtime_checkable decorator.
+
+        Checks for _is_runtime_protocol or __protocol_attrs__ attributes.
+        """
         from omnibase_spi.protocols.nodes import ProtocolNode
 
         # Verify the protocol has the runtime checkable marker
@@ -160,7 +247,7 @@ class TestRuntimeCheckableProtocols:
         )
 
     def test_protocol_compute_node_is_runtime_checkable(self) -> None:
-        """Test that ProtocolComputeNode supports isinstance() checks."""
+        """Validate ProtocolComputeNode has @runtime_checkable decorator."""
         from omnibase_spi.protocols.nodes import ProtocolComputeNode
 
         assert hasattr(ProtocolComputeNode, "_is_runtime_protocol") or hasattr(
@@ -168,7 +255,7 @@ class TestRuntimeCheckableProtocols:
         )
 
     def test_protocol_effect_node_is_runtime_checkable(self) -> None:
-        """Test that ProtocolEffectNode supports isinstance() checks."""
+        """Validate ProtocolEffectNode has @runtime_checkable decorator."""
         from omnibase_spi.protocols.nodes import ProtocolEffectNode
 
         assert hasattr(ProtocolEffectNode, "_is_runtime_protocol") or hasattr(
@@ -176,7 +263,7 @@ class TestRuntimeCheckableProtocols:
         )
 
     def test_protocol_reducer_node_is_runtime_checkable(self) -> None:
-        """Test that ProtocolReducerNode supports isinstance() checks."""
+        """Validate ProtocolReducerNode has @runtime_checkable decorator."""
         from omnibase_spi.protocols.nodes import ProtocolReducerNode
 
         assert hasattr(ProtocolReducerNode, "_is_runtime_protocol") or hasattr(
@@ -184,7 +271,7 @@ class TestRuntimeCheckableProtocols:
         )
 
     def test_protocol_orchestrator_node_is_runtime_checkable(self) -> None:
-        """Test that ProtocolOrchestratorNode supports isinstance() checks."""
+        """Validate ProtocolOrchestratorNode has @runtime_checkable decorator."""
         from omnibase_spi.protocols.nodes import ProtocolOrchestratorNode
 
         assert hasattr(ProtocolOrchestratorNode, "_is_runtime_protocol") or hasattr(
@@ -192,7 +279,7 @@ class TestRuntimeCheckableProtocols:
         )
 
     def test_protocol_handler_is_runtime_checkable(self) -> None:
-        """Test that ProtocolHandler supports isinstance() checks."""
+        """Validate ProtocolHandler has @runtime_checkable decorator."""
         from omnibase_spi.protocols.handlers import ProtocolHandler
 
         assert hasattr(ProtocolHandler, "_is_runtime_protocol") or hasattr(
@@ -200,7 +287,7 @@ class TestRuntimeCheckableProtocols:
         )
 
     def test_protocol_handler_registry_is_runtime_checkable(self) -> None:
-        """Test that ProtocolHandlerRegistry supports isinstance() checks."""
+        """Validate ProtocolHandlerRegistry has @runtime_checkable decorator."""
         from omnibase_spi.protocols.registry import ProtocolHandlerRegistry
 
         assert hasattr(ProtocolHandlerRegistry, "_is_runtime_protocol") or hasattr(
@@ -208,7 +295,7 @@ class TestRuntimeCheckableProtocols:
         )
 
     def test_contract_compilers_are_runtime_checkable(self) -> None:
-        """Test that contract compilers support isinstance() checks."""
+        """Validate all contract compiler protocols have @runtime_checkable."""
         from omnibase_spi.protocols.contracts import (
             ProtocolEffectContractCompiler,
             ProtocolFSMContractCompiler,
@@ -226,10 +313,20 @@ class TestRuntimeCheckableProtocols:
 
 
 class TestIsinstanceChecks:
-    """Tests for isinstance() checks with mock implementations."""
+    """Test isinstance() checks with mock implementations.
+
+    Validates that @runtime_checkable protocols correctly identify compliant
+    implementations via isinstance(). This is the practical test of runtime
+    checkability - protocols should return True for objects that implement
+    the required methods/attributes, and False for non-compliant objects.
+    """
 
     def test_isinstance_with_mock_compute_node(self) -> None:
-        """Test isinstance() works with a mock ProtocolComputeNode implementation."""
+        """Validate isinstance() returns True for compliant ProtocolComputeNode.
+
+        Creates a mock class with all required attributes and methods,
+        then verifies isinstance() correctly identifies it as a ProtocolComputeNode.
+        """
         from omnibase_spi.protocols.nodes import ProtocolComputeNode
 
         class MockComputeNode:
@@ -248,7 +345,11 @@ class TestIsinstanceChecks:
         assert isinstance(mock, ProtocolComputeNode)
 
     def test_isinstance_with_mock_handler(self) -> None:
-        """Test isinstance() works with a mock ProtocolHandler implementation."""
+        """Validate isinstance() returns True for compliant ProtocolHandler.
+
+        Creates a mock class with initialize/shutdown/execute methods,
+        then verifies isinstance() correctly identifies it as a ProtocolHandler.
+        """
         from omnibase_spi.protocols.handlers import ProtocolHandler
 
         class MockHandler:
@@ -269,7 +370,11 @@ class TestIsinstanceChecks:
         assert isinstance(mock, ProtocolHandler)
 
     def test_isinstance_with_mock_registry(self) -> None:
-        """Test isinstance() works with a mock ProtocolHandlerRegistry implementation."""
+        """Validate isinstance() returns True for compliant ProtocolHandlerRegistry.
+
+        Creates a mock class with register/get/list_protocols/is_registered methods,
+        then verifies isinstance() correctly identifies it.
+        """
         from omnibase_spi.protocols.registry import ProtocolHandlerRegistry
 
         class MockRegistry:
@@ -291,7 +396,11 @@ class TestIsinstanceChecks:
         assert isinstance(mock, ProtocolHandlerRegistry)
 
     def test_isinstance_negative_case(self) -> None:
-        """Test isinstance() returns False for non-compliant objects."""
+        """Validate isinstance() returns False for non-compliant objects.
+
+        Ensures that objects missing required protocol methods are correctly
+        rejected by isinstance() checks, preventing false positives.
+        """
         from omnibase_spi.protocols.handlers import ProtocolHandler
 
         class NotAHandler:
@@ -305,13 +414,24 @@ class TestIsinstanceChecks:
 
 
 class TestForwardReferenceResolution:
-    """Tests for forward reference resolution when Core is available."""
+    """Test forward reference resolution when Core is available.
+
+    These tests verify that forward references in TYPE_CHECKING blocks can be
+    resolved to actual types when omnibase_core is installed. Uses get_type_hints()
+    from the typing module to trigger forward reference resolution.
+
+    Tests are skipped when Core is not available (standalone SPI installation).
+    """
 
     @pytest.mark.skipif(
         not CORE_MODELS_AVAILABLE, reason="omnibase_core models not available"
     )
     def test_compute_node_type_hints_resolve(self) -> None:
-        """Test that ProtocolComputeNode type hints resolve with Core."""
+        """Validate ProtocolComputeNode type hints resolve to Core models.
+
+        Uses get_type_hints() to resolve forward references in execute() method,
+        verifying that ModelComputeInput and ModelComputeOutput are resolved.
+        """
         from omnibase_spi.protocols.nodes.compute import ProtocolComputeNode
 
         # get_type_hints should resolve forward references when Core is available
@@ -323,7 +443,11 @@ class TestForwardReferenceResolution:
         not CORE_MODELS_AVAILABLE, reason="omnibase_core models not available"
     )
     def test_effect_node_type_hints_resolve(self) -> None:
-        """Test that ProtocolEffectNode type hints resolve with Core."""
+        """Validate ProtocolEffectNode type hints resolve to Core models.
+
+        Uses get_type_hints() to resolve forward references in execute() method,
+        verifying that ModelEffectInput and ModelEffectOutput are resolved.
+        """
         from omnibase_spi.protocols.nodes.effect import ProtocolEffectNode
 
         hints = get_type_hints(ProtocolEffectNode.execute)
@@ -334,7 +458,11 @@ class TestForwardReferenceResolution:
         not CORE_MODELS_AVAILABLE, reason="omnibase_core models not available"
     )
     def test_handler_type_hints_resolve(self) -> None:
-        """Test that ProtocolHandler type hints resolve with Core."""
+        """Validate ProtocolHandler type hints resolve to Core models.
+
+        Uses get_type_hints() to resolve forward references in execute() method,
+        verifying request/response model references are resolved.
+        """
         from omnibase_spi.protocols.handlers.protocol_handler import ProtocolHandler
 
         hints = get_type_hints(ProtocolHandler.execute)
@@ -346,7 +474,10 @@ class TestForwardReferenceResolution:
         not CORE_MODELS_AVAILABLE, reason="omnibase_core models not available"
     )
     def test_contract_compiler_type_hints_resolve(self) -> None:
-        """Test that contract compiler type hints resolve with Core."""
+        """Validate contract compiler type hints resolve to Core models.
+
+        Uses get_type_hints() to resolve forward references in compile() method.
+        """
         from omnibase_spi.protocols.contracts.effect_compiler import (
             ProtocolEffectContractCompiler,
         )
@@ -356,10 +487,11 @@ class TestForwardReferenceResolution:
         assert "return" in hints
 
     def test_forward_references_without_core(self) -> None:
-        """Test that protocols work even without Core installed.
+        """Validate protocols remain functional without Core installed.
 
-        Forward references should remain as strings when Core is not available,
-        but imports should still work.
+        Forward references stay as strings when Core is unavailable, but
+        protocol imports and method access should still work correctly.
+        This ensures SPI can be used for interface definitions standalone.
         """
         # These imports should work regardless of Core availability
         from omnibase_spi.protocols.contracts import ProtocolEffectContractCompiler
@@ -381,10 +513,18 @@ class TestForwardReferenceResolution:
 
 
 class TestProtocolMethodSignatures:
-    """Tests for protocol method signature correctness."""
+    """Test protocol method signature correctness.
+
+    Validates that all protocols define the expected methods and attributes.
+    This ensures the protocol contracts are complete and implementations
+    in omnibase_infra can satisfy the interface requirements.
+    """
 
     def test_compute_node_has_execute_method(self) -> None:
-        """Test ProtocolComputeNode has execute method."""
+        """Validate ProtocolComputeNode defines callable execute() method.
+
+        The execute method is the core contract for compute nodes.
+        """
         from omnibase_spi.protocols.nodes import ProtocolComputeNode
 
         assert hasattr(ProtocolComputeNode, "execute")
@@ -392,13 +532,21 @@ class TestProtocolMethodSignatures:
         assert callable(getattr(ProtocolComputeNode, "execute", None))
 
     def test_compute_node_has_is_deterministic_property(self) -> None:
-        """Test ProtocolComputeNode has is_deterministic property."""
+        """Validate ProtocolComputeNode defines is_deterministic attribute.
+
+        This property indicates whether the compute operation produces
+        deterministic output for the same input.
+        """
         from omnibase_spi.protocols.nodes import ProtocolComputeNode
 
         assert hasattr(ProtocolComputeNode, "is_deterministic")
 
     def test_effect_node_has_lifecycle_methods(self) -> None:
-        """Test ProtocolEffectNode has initialize and shutdown methods."""
+        """Validate ProtocolEffectNode defines lifecycle methods.
+
+        Effect nodes require initialize/shutdown for resource management
+        and execute for the actual I/O operation.
+        """
         from omnibase_spi.protocols.nodes import ProtocolEffectNode
 
         assert hasattr(ProtocolEffectNode, "initialize")
@@ -406,7 +554,11 @@ class TestProtocolMethodSignatures:
         assert hasattr(ProtocolEffectNode, "execute")
 
     def test_handler_has_lifecycle_methods(self) -> None:
-        """Test ProtocolHandler has lifecycle methods."""
+        """Validate ProtocolHandler defines lifecycle methods.
+
+        Handlers require initialize/shutdown for setup/teardown and
+        execute for request processing.
+        """
         from omnibase_spi.protocols.handlers import ProtocolHandler
 
         assert hasattr(ProtocolHandler, "initialize")
@@ -414,7 +566,11 @@ class TestProtocolMethodSignatures:
         assert hasattr(ProtocolHandler, "execute")
 
     def test_registry_has_crud_methods(self) -> None:
-        """Test ProtocolHandlerRegistry has CRUD methods."""
+        """Validate ProtocolHandlerRegistry defines CRUD operations.
+
+        Registries must support register, get, list_protocols, and
+        is_registered operations for handler management.
+        """
         from omnibase_spi.protocols.registry import ProtocolHandlerRegistry
 
         assert hasattr(ProtocolHandlerRegistry, "register")
@@ -423,7 +579,10 @@ class TestProtocolMethodSignatures:
         assert hasattr(ProtocolHandlerRegistry, "is_registered")
 
     def test_contract_compilers_have_compile_and_validate(self) -> None:
-        """Test contract compilers have compile and validate methods."""
+        """Validate contract compilers define compile() and validate() methods.
+
+        All compiler protocols must support contract compilation and validation.
+        """
         from omnibase_spi.protocols.contracts import (
             ProtocolEffectContractCompiler,
             ProtocolFSMContractCompiler,
@@ -442,10 +601,18 @@ class TestProtocolMethodSignatures:
 
 
 class TestModuleReimport:
-    """Tests for module reimport behavior."""
+    """Test module reimport behavior.
+
+    Validates that protocol modules can survive importlib.reload() cycles
+    without forward reference errors or lost exports. This is important for
+    development workflows and hot-reloading scenarios.
+    """
 
     def test_reimport_nodes_module(self) -> None:
-        """Test that nodes module can be reimported without errors."""
+        """Validate nodes module survives reload without errors.
+
+        After reload, all node protocols should remain accessible.
+        """
         import omnibase_spi.protocols.nodes as nodes_module
 
         # Reimport should work
@@ -456,21 +623,30 @@ class TestModuleReimport:
         assert hasattr(nodes_module, "ProtocolComputeNode")
 
     def test_reimport_handlers_module(self) -> None:
-        """Test that handlers module can be reimported without errors."""
+        """Validate handlers module survives reload without errors.
+
+        After reload, ProtocolHandler should remain accessible.
+        """
         import omnibase_spi.protocols.handlers as handlers_module
 
         importlib.reload(handlers_module)
         assert hasattr(handlers_module, "ProtocolHandler")
 
     def test_reimport_contracts_module(self) -> None:
-        """Test that contracts module can be reimported without errors."""
+        """Validate contracts module survives reload without errors.
+
+        After reload, all contract compiler protocols should remain accessible.
+        """
         import omnibase_spi.protocols.contracts as contracts_module
 
         importlib.reload(contracts_module)
         assert hasattr(contracts_module, "ProtocolEffectContractCompiler")
 
     def test_reimport_registry_module(self) -> None:
-        """Test that registry module can be reimported without errors."""
+        """Validate registry module survives reload without errors.
+
+        After reload, ProtocolHandlerRegistry should remain accessible.
+        """
         import omnibase_spi.protocols.registry as registry_module
 
         importlib.reload(registry_module)
