@@ -403,3 +403,31 @@ from omnibase_spi.protocols.types.protocol_file_result_types import (  # noqa: E
     ProtocolResultData,
     ProtocolResultOperations,
 )
+
+__all__ = [
+    # Literals
+    "LiteralFileOperation",
+    "LiteralFileStatus",
+    # Protocols defined in this module
+    "ProtocolFileContent",
+    "ProtocolStringFileContent",
+    "ProtocolBinaryFileContent",
+    "FileContent",
+    "ProtocolFileMetadata",
+    "ProtocolFileInfo",
+    "ProtocolFileContentObject",
+    "ProtocolFileFilter",
+    "ProtocolExtractedBlock",
+    "ProtocolSerializedBlock",
+    "ProtocolFileMetadataOperations",
+    # Re-exported from protocol_file_result_types
+    "ProcessingStatus",
+    "ProtocolProcessingResult",
+    "ProtocolFileTypeResult",
+    "ProtocolHandlerMatch",
+    "ProtocolCanHandleResult",
+    "ProtocolHandlerMetadata",
+    "ProtocolResultData",
+    "ProtocolOnexResult",
+    "ProtocolResultOperations",
+]

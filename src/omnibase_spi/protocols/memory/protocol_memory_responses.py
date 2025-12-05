@@ -46,10 +46,14 @@ if TYPE_CHECKING:
     from datetime import datetime
 
     from omnibase_spi.protocols.memory.protocol_memory_base import (
-        ProtocolMemoryMetadata,
         ProtocolMemoryRecord,
         ProtocolSearchResult,
     )
+
+# Re-export ProtocolMemoryMetadata for backward compatibility
+from omnibase_spi.protocols.memory.protocol_memory_base import (  # noqa: E402
+    ProtocolMemoryMetadata,
+)
 
 
 @runtime_checkable
@@ -457,6 +461,8 @@ __all__ = [
     "ProtocolMemoryListResponse",
     "ProtocolSemanticSearchResponse",
     "ProtocolEmbeddingResponse",
+    # Re-exported from protocol_memory_base
+    "ProtocolMemoryMetadata",
     # Re-exported from protocol_memory_advanced_responses
     "ProtocolBatchOperationResult",
     "ProtocolBatchMemoryStoreResponse",

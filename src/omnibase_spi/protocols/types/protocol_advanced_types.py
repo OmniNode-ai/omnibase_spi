@@ -810,3 +810,30 @@ LiteralOutputFormat = str  # Would be a Literal in full implementation
 LiteralDocumentType = str  # Would be a Literal in full implementation
 LiteralFixtureType = str  # Would be a Literal in full implementation
 LiteralContractType = str  # Would be a Literal in full implementation
+
+__all__ = [
+    # Re-exported from protocol_agent_ai_types
+    "LiteralActionType",
+    "ProtocolAgentAction",
+    "ProtocolAgentDebugIntelligence",
+    "ProtocolAIExecutionMetrics",
+    "ProtocolIntelligenceResult",
+    "ProtocolPRTicket",
+    "ProtocolVelocityLog",
+    # Protocols defined in this module
+    "ProtocolOutputFormat",
+    "ProtocolOutputData",
+    "ProtocolMultiVectorDocument",
+    "ProtocolInputDocument",
+    "ProtocolFixtureData",
+    "ProtocolSchemaDefinition",
+    "ProtocolContractDocument",
+    "ProtocolIndexingConfiguration",
+    "ProtocolAdaptiveChunk",
+    "ProtocolChunkingQualityMetrics",
+    # Type aliases
+    "LiteralOutputFormat",
+    "LiteralDocumentType",
+    "LiteralFixtureType",
+    "LiteralContractType",
+]
