@@ -38,7 +38,7 @@ class CompliantComputeNode:
         """Return whether node is deterministic."""
         return True
 
-    async def execute(self, input_data: object) -> object:
+    async def execute(self, _input_data: object) -> object:
         """Execute compute operation."""
         return {"result": "computed"}
 
@@ -88,7 +88,7 @@ class WrongTypeComputeNode:
         """Return whether node is deterministic (wrong type)."""
         return 1
 
-    async def execute(self, input_data: object) -> object:
+    async def execute(self, _input_data: object) -> object:
         """Execute compute operation."""
         return {"result": "computed"}
 
@@ -111,7 +111,7 @@ class MissingDeterministicProperty:
         """Return semantic version."""
         return "1.0.0"
 
-    async def execute(self, input_data: object) -> object:
+    async def execute(self, _input_data: object) -> object:
         """Execute compute operation."""
         return {"result": "computed"}
 

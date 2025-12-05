@@ -33,7 +33,7 @@ class CompliantReducerNode:
         """Return semantic version."""
         return "1.0.0"
 
-    async def execute(self, input_data: object) -> object:
+    async def execute(self, _input_data: object) -> object:
         """Execute state reduction."""
         # In real implementation, would use ModelReductionInput/Output
         return object()
@@ -188,15 +188,15 @@ class TestProtocolReducerNodeMethodSignatures:
     async def test_execute_accepts_input_data(self) -> None:
         """execute method should accept input_data parameter."""
         node = CompliantReducerNode()
-        # Test that method accepts input_data argument
-        result = await node.execute(input_data=object())
+        # Test that method accepts input_data argument (positional)
+        result = await node.execute(object())
         assert result is not None
 
     @pytest.mark.asyncio
     async def test_execute_returns_object(self) -> None:
         """execute method should return an object."""
         node = CompliantReducerNode()
-        result = await node.execute(input_data=object())
+        result = await node.execute(object())
         # In real implementation, would be ModelReductionOutput
         assert isinstance(result, object)
 

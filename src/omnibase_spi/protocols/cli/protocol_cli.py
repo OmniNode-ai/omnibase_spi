@@ -175,15 +175,86 @@ class ProtocolCLI(Protocol):
     description: str
     logger: ProtocolLogger
 
-    async def get_parser(self) -> "Any": ...
+    async def get_parser(self) -> "Any":
+        """
+        Get the argument parser for this CLI.
 
-    async def main(self, argv: list[str] | None = None) -> "ProtocolCLIResult": ...
+        Creates and returns the configured argument parser instance used
+        for parsing command-line arguments. The parser includes all
+        registered flags, subcommands, and help text.
 
-    async def run(self, args: list[str]) -> "ProtocolCLIResult": ...
+        Returns:
+            Configured argument parser instance (typically argparse.ArgumentParser
+            or compatible parser implementation).
+
+        Raises:
+            SPIError: If parser configuration fails.
+        """
+        ...
+
+    async def main(self, argv: list[str] | None = None) -> "ProtocolCLIResult":
+        """
+        Main entry point for CLI execution.
+
+        Parses arguments, configures logging, and executes the appropriate
+        command handler. This is the primary method called when the CLI
+        tool is invoked from the command line.
+
+        Args:
+            argv: Command-line arguments to parse. If None, uses sys.argv[1:].
+
+        Returns:
+            CLI result object containing success status, exit code,
+            message, optional data output, and any errors encountered.
+
+        Raises:
+            SPIError: If CLI initialization or execution fails unexpectedly.
+        """
+        ...
+
+    async def run(self, args: list[str]) -> "ProtocolCLIResult":
+        """
+        Execute CLI with pre-parsed arguments.
+
+        Runs the CLI command using the provided argument list without
+        additional parsing. Use this method when arguments have already
+        been validated or when programmatically invoking CLI commands.
+
+        Args:
+            args: List of pre-parsed command-line arguments.
+
+        Returns:
+            CLI result object containing success status, exit code,
+            message, optional data output, and any errors encountered.
+
+        Raises:
+            SPIError: If command execution fails unexpectedly.
+        """
+        ...
 
     def describe_flags(
         self, output_format: str | None = None
-    ) -> list["ProtocolCLIFlagDescription"]: ...
+    ) -> list["ProtocolCLIFlagDescription"]:
+        """
+        Get descriptions of all available CLI flags and arguments.
+
+        Provides metadata about all registered CLI flags for documentation
+        generation, help text rendering, or programmatic introspection
+        of CLI capabilities.
+
+        Args:
+            output_format: Optional format specifier for flag descriptions.
+                If None, uses the default format. Common values include
+                "json", "yaml", "text", or "markdown".
+
+        Returns:
+            List of flag description objects containing name, type,
+            default value, help text, and required status for each flag.
+
+        Raises:
+            SPIError: If flag introspection fails.
+        """
+        ...
 
     async def execute_command(
         self, command: str, args: list[str]

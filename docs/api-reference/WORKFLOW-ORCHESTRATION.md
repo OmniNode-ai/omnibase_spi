@@ -31,7 +31,7 @@ class ProtocolWorkflowEventBus(Protocol):
     """
 
     @property
-    def base_event_bus(self) -> ProtocolEventBus: ...
+    def base_event_bus(self) -> ProtocolEventBusBase: ...
 
     async def publish_workflow_event(
         self,

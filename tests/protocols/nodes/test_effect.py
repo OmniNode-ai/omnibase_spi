@@ -42,7 +42,7 @@ class CompliantEffectNode:
         """Release node-specific resources."""
         pass
 
-    async def execute(self, input_data: object) -> object:  # type: ignore[override]
+    async def execute(self, _input_data: object) -> object:  # type: ignore[override]
         """Execute effect operation."""
         # Mock implementation for testing
         class MockEffectOutput:
@@ -111,7 +111,7 @@ class WrongSignatureEffectNode:
         """Release node-specific resources."""
         pass
 
-    async def execute(self, wrong_param: str) -> str:  # type: ignore[override]
+    async def execute(self, _wrong_param: str) -> str:  # type: ignore[override]
         """Execute with wrong signature."""
         return "wrong"
 

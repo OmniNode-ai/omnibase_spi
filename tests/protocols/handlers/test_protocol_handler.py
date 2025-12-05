@@ -13,11 +13,19 @@ import pytest
 
 from omnibase_spi.protocols.handlers.protocol_handler import ProtocolHandler
 
+# Type aliases for forward references used in test mocks
+# These represent omnibase_core models that implementations would use
+# Using 'object' as a placeholder since SPI tests should not import from core
+ModelConnectionConfig = object
+ModelProtocolRequest = object
+ModelOperationConfig = object
+ModelProtocolResponse = object
+
 
 class CompliantHandler:
     """A class that fully implements the ProtocolHandler protocol."""
 
-    async def initialize(self, config: "ModelConnectionConfig") -> None:
+    async def initialize(self, _config: "ModelConnectionConfig") -> None:
         """Initialize the handler."""
         pass
 
@@ -27,8 +35,8 @@ class CompliantHandler:
 
     async def execute(
         self,
-        request: "ModelProtocolRequest",
-        operation_config: "ModelOperationConfig",
+        _request: "ModelProtocolRequest",
+        _operation_config: "ModelOperationConfig",
     ) -> "ModelProtocolResponse":
         """Execute a protocol operation."""
         # Return a mock response
@@ -40,7 +48,7 @@ class CompliantHandler:
 class PartialHandler:
     """A class that only implements some ProtocolHandler methods."""
 
-    async def initialize(self, config: "ModelConnectionConfig") -> None:
+    async def initialize(self, _config: "ModelConnectionConfig") -> None:
         """Initialize the handler."""
         pass
 
@@ -64,8 +72,8 @@ class WrongSignatureHandler:
 
     async def execute(
         self,
-        request: "ModelProtocolRequest",
-        operation_config: "ModelOperationConfig",
+        _request: "ModelProtocolRequest",
+        _operation_config: "ModelOperationConfig",
     ) -> "ModelProtocolResponse":
         """Execute a protocol operation."""
         from unittest.mock import MagicMock
