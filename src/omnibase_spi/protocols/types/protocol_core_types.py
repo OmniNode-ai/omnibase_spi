@@ -1,29 +1,25 @@
 """
-Core protocol types for ONEX SPI interfaces.
+Core protocol types re-exported for convenience.
 
-This module re-exports all core protocol types from domain-specific modules
-for backward compatibility. New code should import directly from the
-specific domain modules:
+This module re-exports commonly used types from domain-specific modules.
+While new code should prefer importing directly from specific domain modules,
+these re-exports are maintained for backward compatibility.
 
-- protocol_base_types: Base types, context values, Literal definitions
-- protocol_logging_types: Logging protocols
-- protocol_error_types: Error handling protocols
-- protocol_health_types: Health and metrics protocols
-- protocol_service_types: Service protocols
-- protocol_node_types: Node protocols
-- protocol_state_types: State and action protocols
-- protocol_retry_types: Retry and timeout protocols
-- protocol_analytics_types: Analytics and performance protocols
+Domain modules for direct imports:
+- protocol_analytics_types: Analytics and metrics protocols
+- protocol_base_types: Base types, Literals, context values (canonical source)
 - protocol_connection_types: Connection protocols
-- protocol_marker_types: Marker and base protocols
-- protocol_validation_types: Validation and compatibility protocols
+- protocol_error_types: Error handling protocols
+- protocol_health_types: Health and monitoring protocols
+- protocol_logging_types: Logging protocols
+- protocol_marker_types: Marker and interface protocols
+- protocol_node_types: Node metadata protocols
+- protocol_retry_types: Retry and timeout protocols
+- protocol_service_types: Service protocols
+- protocol_state_types: State and action protocols
+- protocol_storage_types: Storage and checkpoint protocols
+- protocol_validation_types: Validation protocols
 """
-
-# Legacy storage types that may still be referenced
-# (these duplicate protocols in protocol_storage_types.py but with "Generic" prefix)
-# Keeping for backward compatibility - deprecated in favor of protocol_storage_types.py
-from typing import Protocol, runtime_checkable
-from uuid import UUID
 
 # Re-export from analytics types
 from omnibase_spi.protocols.types.protocol_analytics_types import (
@@ -167,84 +163,6 @@ from omnibase_spi.protocols.types.protocol_validation_types import (
 )
 
 
-@runtime_checkable
-class ProtocolGenericCheckpointData(Protocol):
-    """Protocol for generic checkpoint data. Deprecated: use ProtocolCheckpointData."""
-
-    checkpoint_id: UUID
-    workflow_id: UUID
-    data: dict[str, "ContextValue"]
-    timestamp: "ProtocolDateTime"
-    metadata: dict[str, "ContextValue"]
-
-    async def validate_checkpoint(self) -> bool: ...
-    def is_restorable(self) -> bool: ...
-
-
-@runtime_checkable
-class ProtocolGenericStorageCredentials(Protocol):
-    """Protocol for generic storage credentials. Deprecated: use ProtocolStorageCredentials."""
-
-    credential_type: str
-    data: dict[str, "ContextValue"]
-
-    async def validate_credentials(self) -> bool: ...
-    def is_secure(self) -> bool: ...
-
-
-@runtime_checkable
-class ProtocolGenericStorageConfiguration(Protocol):
-    """Protocol for generic storage configuration. Deprecated: use ProtocolStorageConfiguration."""
-
-    backend_type: str
-    connection_string: str
-    options: dict[str, "ContextValue"]
-    timeout_seconds: int
-
-    async def validate_configuration(self) -> bool: ...
-    async def is_connectable(self) -> bool: ...
-
-
-@runtime_checkable
-class ProtocolGenericStorageResult(Protocol):
-    """Protocol for generic storage results. Deprecated: use ProtocolStorageResult."""
-
-    success: bool
-    data: dict[str, "ContextValue"] | None
-    error_message: str | None
-    operation_id: UUID
-
-    async def validate_storage_result(self) -> bool: ...
-    def is_successful(self) -> bool: ...
-
-
-@runtime_checkable
-class ProtocolGenericStorageListResult(Protocol):
-    """Protocol for generic storage list results. Deprecated: use ProtocolStorageListResult."""
-
-    success: bool
-    items: list[dict[str, "ContextValue"]]
-    total_count: int
-    has_more: bool
-    error_message: str | None
-
-    async def validate_list_result(self) -> bool: ...
-    def has_items(self) -> bool: ...
-
-
-@runtime_checkable
-class ProtocolGenericStorageHealthStatus(Protocol):
-    """Protocol for generic storage health. Deprecated: use ProtocolStorageHealthStatus."""
-
-    is_healthy: bool
-    status_details: dict[str, "ContextValue"]
-    capacity_info: dict[str, int] | None
-    last_check: "ProtocolDateTime"
-
-    async def validate_health_status(self) -> bool: ...
-    def is_available(self) -> bool: ...
-
-
 # Export all for wildcard imports
 __all__ = [
     # Base types
@@ -303,13 +221,6 @@ __all__ = [
     "ProtocolErrorInfo",
     "ProtocolErrorResult",
     "ProtocolExecutable",
-    # Legacy storage (deprecated)
-    "ProtocolGenericCheckpointData",
-    "ProtocolGenericStorageConfiguration",
-    "ProtocolGenericStorageCredentials",
-    "ProtocolGenericStorageHealthStatus",
-    "ProtocolGenericStorageListResult",
-    "ProtocolGenericStorageResult",
     "ProtocolHasModelDump",
     "ProtocolHealthCheck",
     "ProtocolHealthMetrics",

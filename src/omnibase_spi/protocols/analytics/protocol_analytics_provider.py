@@ -7,13 +7,15 @@ across all ONEX services with consistent patterns and metrics.
 
 from typing import Protocol, runtime_checkable
 
-from omnibase_spi.protocols.types.protocol_core_types import (
-    ContextValue,
-    LiteralAnalyticsMetricType,
-    LiteralAnalyticsTimeWindow,
+from omnibase_spi.protocols.types.protocol_analytics_types import (
     ProtocolAnalyticsMetric,
     ProtocolAnalyticsProvider,
     ProtocolAnalyticsSummary,
+)
+from omnibase_spi.protocols.types.protocol_base_types import (
+    ContextValue,
+    LiteralAnalyticsMetricType,
+    LiteralAnalyticsTimeWindow,
     ProtocolDateTime,
 )
 

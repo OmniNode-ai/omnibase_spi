@@ -13,13 +13,25 @@ Key Design Principles:
     - Runtime checkable protocols for dynamic validation
 
 Domain Organization:
-    - protocol_core_types: System-wide types (logging, validation, health, metadata)
+    - protocol_base_types: Base types, Literals, context values (canonical source)
+    - protocol_analytics_types: Analytics and performance protocols
+    - protocol_connection_types: Connection protocols
+    - protocol_container_types: Dependency injection and service location types
     - protocol_discovery_types: Node and service discovery contracts
+    - protocol_error_types: Error handling protocols
     - protocol_event_bus_types: Event messaging and subscription types
     - protocol_file_handling_types: File processing and metadata types
+    - protocol_health_types: Health and metrics protocols
+    - protocol_logging_types: Logging protocols
+    - protocol_marker_types: Marker and base protocols
     - protocol_mcp_types: Model Context Protocol integration types
+    - protocol_node_types: Node protocols
+    - protocol_retry_types: Retry and timeout protocols
+    - protocol_service_types: Service protocols
+    - protocol_state_types: State and action protocols
+    - protocol_storage_types: Storage and checkpoint types
+    - protocol_validation_types: Validation and compatibility protocols
     - protocol_workflow_orchestration_types: Event-driven workflow and FSM types
-    - protocol_container_types: Dependency injection and service location types
 
 Usage Examples:
     # Basic type imports
@@ -66,8 +78,8 @@ Type Safety Features:
 # Contract protocol
 from omnibase_spi.protocols.types.protocol_contract import ProtocolContract
 
-# Core types
-from omnibase_spi.protocols.types.protocol_core_types import (  # Migrated from omnibase_core
+# Base types (canonical source) - import directly from protocol_base_types
+from omnibase_spi.protocols.types.protocol_base_types import (
     ContextValue,
     LiteralAnalyticsMetricType,
     LiteralAnalyticsTimeWindow,
@@ -91,18 +103,7 @@ from omnibase_spi.protocols.types.protocol_core_types import (  # Migrated from 
     LiteralValidationLevel,
     LiteralValidationMode,
     LiteralValidationSeverity,
-    ProtocolAction,
-    ProtocolActionPayload,
-    ProtocolAnalyticsMetric,
-    ProtocolAnalyticsProvider,
-    ProtocolAnalyticsSummary,
-    ProtocolAuditEvent,
-    ProtocolCacheStatistics,
-    ProtocolCompatibilityCheck,
-    ProtocolConfigurable,
     ProtocolConfigValue,
-    ProtocolConnectionConfig,
-    ProtocolConnectionStatus,
     ProtocolContextBooleanValue,
     ProtocolContextNumericValue,
     ProtocolContextStringDictValue,
@@ -110,54 +111,110 @@ from omnibase_spi.protocols.types.protocol_core_types import (  # Migrated from 
     ProtocolContextStringValue,
     ProtocolContextValue,
     ProtocolDateTime,
-    ProtocolDuration,
+    ProtocolSemVer,
+    ProtocolSupportedMetadataType,
+)
+
+# Analytics types
+from omnibase_spi.protocols.types.protocol_analytics_types import (
+    ProtocolAnalyticsMetric,
+    ProtocolAnalyticsProvider,
+    ProtocolAnalyticsSummary,
+    ProtocolPerformanceMetric,
+    ProtocolPerformanceMetrics,
+)
+
+# Connection types
+from omnibase_spi.protocols.types.protocol_connection_types import (
+    ProtocolConnectionConfig,
+    ProtocolConnectionStatus,
+)
+
+# Error types
+from omnibase_spi.protocols.types.protocol_error_types import (
     ProtocolErrorContext,
     ProtocolErrorInfo,
     ProtocolErrorResult,
-    ProtocolExecutable,
-    ProtocolHasModelDump,
+    ProtocolRecoveryAction,
+)
+
+# Health types
+from omnibase_spi.protocols.types.protocol_health_types import (
+    ProtocolAuditEvent,
+    ProtocolCacheStatistics,
     ProtocolHealthCheck,
     ProtocolHealthMetrics,
     ProtocolHealthMonitoring,
-    ProtocolIdentifiable,
+    ProtocolMetricsPoint,
+    ProtocolTraceSpan,
+)
+
+# Logging types
+from omnibase_spi.protocols.types.protocol_logging_types import (
     ProtocolLogContext,
     ProtocolLogEmitter,
     ProtocolLogEntry,
-    ProtocolMetadata,
-    ProtocolMetadataOperations,
+)
+
+# Marker types
+from omnibase_spi.protocols.types.protocol_marker_types import (
+    ProtocolConfigurable,
+    ProtocolExecutable,
+    ProtocolIdentifiable,
     ProtocolMetadataProvider,
-    ProtocolMetricsPoint,
-    ProtocolModelJsonSerializable,
-    ProtocolModelValidatable,
     ProtocolNameable,
+    ProtocolSchemaObject,
+    ProtocolSerializable,
+    ProtocolSerializationResult,
+    ProtocolSupportedPropertyValue,
+)
+
+# Node types
+from omnibase_spi.protocols.types.protocol_node_types import (
+    ProtocolNodeConfigurationData,
     ProtocolNodeInfoLike,
     ProtocolNodeMetadata,
     ProtocolNodeMetadataBlock,
     ProtocolNodeResult,
-    ProtocolOnexInputState,
-    ProtocolOnexOutputState,
-    ProtocolPatternChecker,
-    ProtocolPerformanceMetric,
-    ProtocolPerformanceMetrics,
-    ProtocolRecoveryAction,
+)
+
+# Retry types
+from omnibase_spi.protocols.types.protocol_retry_types import (
+    ProtocolDuration,
     ProtocolRetryAttempt,
     ProtocolRetryConfig,
     ProtocolRetryPolicy,
     ProtocolRetryResult,
-    ProtocolSchemaObject,
-    ProtocolSemVer,
-    ProtocolSerializable,
-    ProtocolSerializationResult,
+    ProtocolTimeBased,
+    ProtocolTimeout,
+)
+
+# Service types
+from omnibase_spi.protocols.types.protocol_service_types import (
     ProtocolServiceHealthStatus,
     ProtocolServiceInstance,
     ProtocolServiceMetadata,
+)
+
+# State types
+from omnibase_spi.protocols.types.protocol_state_types import (
+    ProtocolAction,
+    ProtocolActionPayload,
+    ProtocolMetadata,
+    ProtocolMetadataOperations,
+    ProtocolOnexInputState,
+    ProtocolOnexOutputState,
     ProtocolState,
-    ProtocolSupportedMetadataType,
-    ProtocolSupportedPropertyValue,
     ProtocolSystemEvent,
-    ProtocolTimeBased,
-    ProtocolTimeout,
-    ProtocolTraceSpan,
+)
+
+# Validation types
+from omnibase_spi.protocols.types.protocol_validation_types import (
+    ProtocolCompatibilityCheck,
+    ProtocolHasModelDump,
+    ProtocolModelJsonSerializable,
+    ProtocolModelValidatable,
+    ProtocolPatternChecker,
     ProtocolValidatable,
     ProtocolVersionInfo,
 )
@@ -178,7 +235,7 @@ from omnibase_spi.protocols.types.protocol_storage_types import (
     ProtocolStorageResult,
 )
 
-# Validation types
+# Validation types (from validation domain)
 from omnibase_spi.protocols.validation.protocol_validation import (
     ProtocolValidationResult,
 )
@@ -324,6 +381,8 @@ from omnibase_spi.protocols.types.protocol_workflow_orchestration_types import (
 __all__ = [
     "CapabilityValue",
     "ContextValue",
+    "EventStatus",
+    "FileContent",
     "LiteralAnalyticsMetricType",
     "LiteralAnalyticsTimeWindow",
     "LiteralAuthStatus",
@@ -358,6 +417,7 @@ __all__ = [
     "LiteralRetryBackoffStrategy",
     "LiteralRetryCondition",
     "LiteralRetryPolicy",
+    "LiteralServiceLifecycle",
     "LiteralTaskPriority",
     "LiteralTaskState",
     "LiteralTaskType",
@@ -432,7 +492,6 @@ __all__ = [
     "ProtocolHandlerMatch",
     "ProtocolHandlerMetadata",
     "ProtocolHandlerRegistration",
-    # Migrated from omnibase_core
     "ProtocolHasModelDump",
     "ProtocolHealthCheck",
     "ProtocolHealthMetrics",
@@ -461,6 +520,7 @@ __all__ = [
     "ProtocolModelValidatable",
     "ProtocolNameable",
     "ProtocolNodeCapability",
+    "ProtocolNodeConfigurationData",
     "ProtocolNodeInfoLike",
     "ProtocolNodeMetadata",
     "ProtocolNodeMetadataBlock",
