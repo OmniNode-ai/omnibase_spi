@@ -7,7 +7,7 @@ Supports distributed tool registration, execution routing, and subsystem coordin
 Domain: MCP infrastructure and service coordination
 """
 
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 from uuid import UUID
 
 from omnibase_spi.protocols.types.protocol_core_types import LiteralOperationStatus

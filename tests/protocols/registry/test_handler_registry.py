@@ -9,8 +9,9 @@ Validates that ProtocolHandlerRegistry:
 - Works correctly with isinstance checks for compliant/non-compliant classes
 """
 
-import pytest
 from typing import Type
+
+import pytest
 
 from omnibase_spi.protocols.registry.handler_registry import ProtocolHandlerRegistry
 
@@ -113,8 +114,7 @@ class TestProtocolHandlerRegistryProtocol:
         """ProtocolHandlerRegistry should be a Protocol class."""
         # Check that ProtocolHandlerRegistry has Protocol in its bases
         assert any(
-            base.__name__ == "Protocol"
-            for base in ProtocolHandlerRegistry.__mro__
+            base.__name__ == "Protocol" for base in ProtocolHandlerRegistry.__mro__
         )
 
     def test_protocol_has_register_method(self) -> None:

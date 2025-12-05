@@ -1,4 +1,5 @@
 """Orchestrator node protocol for workflow coordination."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Protocol, runtime_checkable

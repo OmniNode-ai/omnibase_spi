@@ -76,7 +76,7 @@ class FileViolation:
         lines = [
             f"\n{self.file_path}:",
             f"  VIOLATION: {self.protocol_count} Protocol definitions (max allowed: {self.max_allowed})",
-            f"  Consider splitting into multiple domain-specific files.",
+            "  Consider splitting into multiple domain-specific files.",
         ]
         for proto in self.protocols:
             checkable = " [@runtime_checkable]" if proto.is_runtime_checkable else ""

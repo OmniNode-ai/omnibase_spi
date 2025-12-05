@@ -10,9 +10,7 @@ and are re-exported here for backward compatibility.
 from typing import TYPE_CHECKING, Literal, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.protocol_core_types import (
-        ProtocolSemVer,
-    )
+    from omnibase_spi.protocols.types.protocol_core_types import ProtocolSemVer
 
 LiteralFileOperation = Literal["read", "write", "append", "delete", "move", "copy"]
 LiteralFileStatus = Literal["exists", "missing", "locked", "corrupted", "accessible"]

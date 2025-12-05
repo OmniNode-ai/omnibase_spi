@@ -1,4 +1,5 @@
 """Handler registry protocol for protocol handler management."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Protocol, Type, runtime_checkable

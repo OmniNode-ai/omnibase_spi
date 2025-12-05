@@ -10,7 +10,6 @@ Validates that ProtocolContract:
 
 from typing import Any, Dict
 
-import pytest
 
 from omnibase_spi.protocols.types import ProtocolContract
 

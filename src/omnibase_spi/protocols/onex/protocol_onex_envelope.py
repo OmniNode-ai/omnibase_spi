@@ -6,7 +6,7 @@ Defines the contract for request envelopes with metadata, correlation IDs, and s
 """
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Optional, Protocol, TypeVar, runtime_checkable
+from typing import Protocol, TypeVar, runtime_checkable
 from uuid import UUID
 
 from omnibase_spi.protocols.onex.protocol_onex_validation import (

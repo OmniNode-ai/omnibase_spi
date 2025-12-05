@@ -154,7 +154,9 @@ def _load_exception(exception_name: str) -> type:
         return _exception_cache[exception_name]
 
     if exception_name not in _LAZY_EXCEPTION_MAP:
-        raise AttributeError(f"Exception '{exception_name}' not available at root level")
+        raise AttributeError(
+            f"Exception '{exception_name}' not available at root level"
+        )
 
     module_path = _LAZY_EXCEPTION_MAP[exception_name]
 

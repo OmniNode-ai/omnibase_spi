@@ -7,7 +7,7 @@ retrieval systems, preprocessing, and natural language processing capabilities.
 All types follow the zero-dependency principle and use strong typing without Any.
 """
 
-from typing import Any, Protocol, TypedDict, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 
 @runtime_checkable

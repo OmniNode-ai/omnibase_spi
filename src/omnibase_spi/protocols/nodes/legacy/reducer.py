@@ -4,6 +4,7 @@
     Use :class:`omnibase_spi.protocols.nodes.ProtocolReducerNode` instead.
     This module will be removed in v0.5.0.
 """
+
 from __future__ import annotations
 
 from typing import Any, Protocol, runtime_checkable

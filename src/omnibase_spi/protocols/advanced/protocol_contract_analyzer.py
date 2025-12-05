@@ -8,9 +8,7 @@ contract documents for code generation.
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.protocol_advanced_types import (
-        ProtocolSchemaDefinition,
-    )
+    pass
 
 
 @runtime_checkable

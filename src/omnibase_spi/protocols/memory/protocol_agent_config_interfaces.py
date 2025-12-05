@@ -8,7 +8,6 @@ replacing concrete model dependencies with protocol abstractions.
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
-from uuid import UUID
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types import ContextValue

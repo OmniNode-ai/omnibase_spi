@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Iterator, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Iterator, Protocol, runtime_checkable
 
 """
 Protocol interface for Ollama client operations.

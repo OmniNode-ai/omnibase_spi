@@ -54,7 +54,7 @@ See Also:
     - ProtocolWorkflowEventCoordinator: Coordinator for event-driven workflows.
 """
 
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 from uuid import UUID
 
 from omnibase_spi.protocols.types.protocol_core_types import ContextValue

@@ -29,8 +29,7 @@ This module defines the minimal interface for fixture loaders that can
 discover and load test fixtures from various sources (central, node-local).
 """
 
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
-from uuid import UUID
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types.protocol_advanced_types import ProtocolFixtureData

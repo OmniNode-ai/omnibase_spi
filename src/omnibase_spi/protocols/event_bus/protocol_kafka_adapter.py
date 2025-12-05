@@ -56,7 +56,6 @@ from typing import (
     Any,
     Awaitable,
     Callable,
-    Optional,
     Protocol,
     runtime_checkable,
 )

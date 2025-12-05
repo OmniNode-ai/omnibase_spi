@@ -27,7 +27,7 @@ Protocol for file discovery sources (filesystem, .tree, hybrid, etc.).
 Defines a standardized interface for discovering and validating files for stamping/validation.
 """
 
-from typing import Any, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 
 @runtime_checkable

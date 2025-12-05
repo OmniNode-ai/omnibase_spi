@@ -1,4 +1,5 @@
 """FSM contract compiler protocol."""
+
 from __future__ import annotations
 
 from pathlib import Path

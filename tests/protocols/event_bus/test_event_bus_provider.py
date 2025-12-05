@@ -237,9 +237,7 @@ class TestProtocolEventBusProviderMethodSignatures:
     async def test_create_event_bus_accepts_required_params(self) -> None:
         """create_event_bus should require environment and group."""
         provider = CompliantProvider()
-        bus = await provider.create_event_bus(
-            environment="test", group="test-consumer"
-        )
+        bus = await provider.create_event_bus(environment="test", group="test-consumer")
         assert bus is not None
 
     @pytest.mark.asyncio

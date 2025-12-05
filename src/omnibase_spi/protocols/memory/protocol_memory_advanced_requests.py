@@ -32,9 +32,6 @@ if TYPE_CHECKING:
     from omnibase_spi.protocols.memory.protocol_memory_data_types import (
         ProtocolAggregatedData,
     )
-    from omnibase_spi.protocols.memory.protocol_memory_requests import (
-        ProtocolMemoryRequest,
-    )
 
 
 @runtime_checkable

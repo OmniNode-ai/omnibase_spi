@@ -42,9 +42,11 @@ class CompliantEffectNode:
 
     async def execute(self, _input_data: object) -> object:  # type: ignore[override]
         """Execute effect operation."""
+
         # Mock implementation for testing
         class MockEffectOutput:
             """Mock effect output for testing."""
+
             node_id: str = "test-effect-node-v1"
             status: str = "success"
             result: dict[str, bool] = {"processed": True}  # noqa: RUF012
@@ -210,9 +212,11 @@ class TestProtocolEffectNodeMethodSignatures:
     async def test_execute_is_async(self) -> None:
         """execute method should be async."""
         node = CompliantEffectNode()
+
         # Use mock input data instead of omnibase_core model
         class MockEffectInput:
             """Mock effect input for testing."""
+
             node_id: str = "test-effect-node-v1"
             operation: str = "test_operation"
             parameters: dict[str, str] = {"key": "value"}  # noqa: RUF012
@@ -225,9 +229,11 @@ class TestProtocolEffectNodeMethodSignatures:
     async def test_execute_accepts_effect_input(self) -> None:
         """execute method should accept effect input."""
         node = CompliantEffectNode()
+
         # Use mock input data instead of omnibase_core model
         class MockEffectInput:
             """Mock effect input for testing."""
+
             node_id: str = "test-effect-node-v1"
             operation: str = "test_operation"
             parameters: dict[str, str] = {"key": "value"}  # noqa: RUF012
@@ -240,9 +246,11 @@ class TestProtocolEffectNodeMethodSignatures:
     async def test_execute_returns_effect_output(self) -> None:
         """execute method should return effect output."""
         node = CompliantEffectNode()
+
         # Use mock input data instead of omnibase_core model
         class MockEffectInput:
             """Mock effect input for testing."""
+
             node_id: str = "test-effect-node-v1"
             operation: str = "test_operation"
             parameters: dict[str, str] = {"key": "value"}  # noqa: RUF012
@@ -251,9 +259,9 @@ class TestProtocolEffectNodeMethodSignatures:
         result = await node.execute(input_data)
         # Verify we get an object back (mock output)
         assert result is not None
-        assert hasattr(result, 'node_id')
-        assert hasattr(result, 'status')
-        assert hasattr(result, 'result')
+        assert hasattr(result, "node_id")
+        assert hasattr(result, "status")
+        assert hasattr(result, "result")
 
 
 class TestProtocolEffectNodeInheritance:

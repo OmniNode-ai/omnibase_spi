@@ -4,6 +4,7 @@ SPI Exception Hierarchy for omnibase_spi v0.3.0.
 This module defines the base exception types for all SPI-related errors.
 These are abstract error types that implementations should use or subclass.
 """
+
 from __future__ import annotations
 
 from typing import Any
@@ -46,7 +47,9 @@ class SPIError(Exception):
         )
     """
 
-    def __init__(self, message: str = "", context: dict[str, Any] | None = None) -> None:
+    def __init__(
+        self, message: str = "", context: dict[str, Any] | None = None
+    ) -> None:
         """
         Initialize SPIError with message and optional context.
 

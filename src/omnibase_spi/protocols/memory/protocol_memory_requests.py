@@ -25,8 +25,8 @@ from uuid import UUID
 
 # Re-export from protocol_memory_advanced_requests for backward compatibility
 from omnibase_spi.protocols.memory.protocol_memory_advanced_requests import (
-    ProtocolAggregationRequest,
     ProtocolAgentCoordinationRequest,
+    ProtocolAggregationRequest,
     ProtocolBatchMemoryRetrieveRequest,
     ProtocolBatchMemoryStoreRequest,
     ProtocolConsolidationRequest,
@@ -41,8 +41,6 @@ if TYPE_CHECKING:
     from datetime import datetime
 
     from omnibase_spi.protocols.memory.protocol_memory_base import (
-        LiteralAnalysisType,
-        ProtocolAnalysisParameters,
         ProtocolMemoryMetadata,
         ProtocolSearchFilters,
     )

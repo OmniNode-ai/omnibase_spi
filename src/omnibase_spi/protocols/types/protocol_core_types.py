@@ -19,6 +19,26 @@ specific domain modules:
 - protocol_validation_types: Validation and compatibility protocols
 """
 
+# Legacy storage types that may still be referenced
+# (these duplicate protocols in protocol_storage_types.py but with "Generic" prefix)
+# Keeping for backward compatibility - deprecated in favor of protocol_storage_types.py
+from typing import Protocol, runtime_checkable
+from uuid import UUID
+
+# Re-export from event_bus module (canonical location for provider protocol)
+from omnibase_spi.protocols.event_bus.protocol_event_bus_provider import (
+    ProtocolEventBusProvider,
+)
+
+# Re-export from analytics types
+from omnibase_spi.protocols.types.protocol_analytics_types import (
+    ProtocolAnalyticsMetric,
+    ProtocolAnalyticsProvider,
+    ProtocolAnalyticsSummary,
+    ProtocolPerformanceMetric,
+    ProtocolPerformanceMetrics,
+)
+
 # Re-export all from base types (Literals, ProtocolSemVer, Context values)
 from omnibase_spi.protocols.types.protocol_base_types import (
     ContextValue,
@@ -56,11 +76,10 @@ from omnibase_spi.protocols.types.protocol_base_types import (
     ProtocolSupportedMetadataType,
 )
 
-# Re-export from logging types
-from omnibase_spi.protocols.types.protocol_logging_types import (
-    ProtocolLogContext,
-    ProtocolLogEmitter,
-    ProtocolLogEntry,
+# Re-export from connection types
+from omnibase_spi.protocols.types.protocol_connection_types import (
+    ProtocolConnectionConfig,
+    ProtocolConnectionStatus,
 )
 
 # Re-export from error types
@@ -82,58 +101,11 @@ from omnibase_spi.protocols.types.protocol_health_types import (
     ProtocolTraceSpan,
 )
 
-# Re-export from service types
-from omnibase_spi.protocols.types.protocol_service_types import (
-    ProtocolServiceHealthStatus,
-    ProtocolServiceInstance,
-    ProtocolServiceMetadata,
-)
-
-# Re-export from node types
-from omnibase_spi.protocols.types.protocol_node_types import (
-    ProtocolNodeConfigurationData,
-    ProtocolNodeInfoLike,
-    ProtocolNodeMetadata,
-    ProtocolNodeMetadataBlock,
-    ProtocolNodeResult,
-)
-
-# Re-export from state types
-from omnibase_spi.protocols.types.protocol_state_types import (
-    ProtocolAction,
-    ProtocolActionPayload,
-    ProtocolMetadata,
-    ProtocolMetadataOperations,
-    ProtocolOnexInputState,
-    ProtocolOnexOutputState,
-    ProtocolState,
-    ProtocolSystemEvent,
-)
-
-# Re-export from retry types
-from omnibase_spi.protocols.types.protocol_retry_types import (
-    ProtocolDuration,
-    ProtocolRetryAttempt,
-    ProtocolRetryConfig,
-    ProtocolRetryPolicy,
-    ProtocolRetryResult,
-    ProtocolTimeBased,
-    ProtocolTimeout,
-)
-
-# Re-export from analytics types
-from omnibase_spi.protocols.types.protocol_analytics_types import (
-    ProtocolAnalyticsMetric,
-    ProtocolAnalyticsProvider,
-    ProtocolAnalyticsSummary,
-    ProtocolPerformanceMetric,
-    ProtocolPerformanceMetrics,
-)
-
-# Re-export from connection types
-from omnibase_spi.protocols.types.protocol_connection_types import (
-    ProtocolConnectionConfig,
-    ProtocolConnectionStatus,
+# Re-export from logging types
+from omnibase_spi.protocols.types.protocol_logging_types import (
+    ProtocolLogContext,
+    ProtocolLogEmitter,
+    ProtocolLogEntry,
 )
 
 # Re-export from marker types
@@ -149,6 +121,45 @@ from omnibase_spi.protocols.types.protocol_marker_types import (
     ProtocolSupportedPropertyValue,
 )
 
+# Re-export from node types
+from omnibase_spi.protocols.types.protocol_node_types import (
+    ProtocolNodeConfigurationData,
+    ProtocolNodeInfoLike,
+    ProtocolNodeMetadata,
+    ProtocolNodeMetadataBlock,
+    ProtocolNodeResult,
+)
+
+# Re-export from retry types
+from omnibase_spi.protocols.types.protocol_retry_types import (
+    ProtocolDuration,
+    ProtocolRetryAttempt,
+    ProtocolRetryConfig,
+    ProtocolRetryPolicy,
+    ProtocolRetryResult,
+    ProtocolTimeBased,
+    ProtocolTimeout,
+)
+
+# Re-export from service types
+from omnibase_spi.protocols.types.protocol_service_types import (
+    ProtocolServiceHealthStatus,
+    ProtocolServiceInstance,
+    ProtocolServiceMetadata,
+)
+
+# Re-export from state types
+from omnibase_spi.protocols.types.protocol_state_types import (
+    ProtocolAction,
+    ProtocolActionPayload,
+    ProtocolMetadata,
+    ProtocolMetadataOperations,
+    ProtocolOnexInputState,
+    ProtocolOnexOutputState,
+    ProtocolState,
+    ProtocolSystemEvent,
+)
+
 # Re-export from validation types
 from omnibase_spi.protocols.types.protocol_validation_types import (
     ProtocolCompatibilityCheck,
@@ -159,17 +170,6 @@ from omnibase_spi.protocols.types.protocol_validation_types import (
     ProtocolValidatable,
     ProtocolVersionInfo,
 )
-
-# Re-export from event_bus module (canonical location for provider protocol)
-from omnibase_spi.protocols.event_bus.protocol_event_bus_provider import (
-    ProtocolEventBusProvider,
-)
-
-# Legacy storage types that may still be referenced
-# (these duplicate protocols in protocol_storage_types.py but with "Generic" prefix)
-# Keeping for backward compatibility - deprecated in favor of protocol_storage_types.py
-from typing import Protocol, runtime_checkable
-from uuid import UUID
 
 
 @runtime_checkable

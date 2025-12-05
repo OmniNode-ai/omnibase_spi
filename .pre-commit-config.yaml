@@ -1,34 +1,21 @@
 # SPI Pre-commit Configuration
 # Enhanced validation for Service Provider Interface architectural compliance
-
-# Exclude .git directory and other sensitive files from formatting
-exclude: '^\.git/'
+#
+# PERFORMANCE OPTIMIZATION NOTES:
+# - Uses local hooks for black/isort/mypy (aligned with omnibase_core patterns)
+# - Order: black -> isort -> ruff -> mypy (formatting before linting before type checking)
+# - Use `pre-commit run --all-files` to test all hooks before pushing
 
 repos:
-  # Standard formatting tools
-  - repo: https://github.com/psf/black
-    rev: 24.8.0
-    hooks:
-      - id: black
-        name: Black Python Formatter
-        args: [--line-length, "88", --target-version, py311]
-
-  - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
-    hooks:
-      - id: isort
-        name: isort Import Sorter
-        args: [--profile, black, --line-length, "88"]
-
-  # YAML formatting
+  # YAML formatting (standard across ecosystem)
   - repo: https://github.com/google/yamlfmt
     rev: v0.17.2
     hooks:
       - id: yamlfmt
         args: [--formatter, retain_line_breaks=true]
-        exclude: ^(tests/fixtures/validation/invalid/|\.github/workflows/)
+        exclude: ^(tests/fixtures/validation/|\.github/workflows/)
 
-  # Basic file quality checks
+  # Essential file formatting (standard across ecosystem)
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
@@ -36,21 +23,62 @@ repos:
         args: [--markdown-linebreak-ext=md]
         exclude: ^\.github/workflows/
       - id: end-of-file-fixer
-        exclude: ^\.github/workflows/
+        exclude: ^(\.github/workflows/|\.mcp\.json$)
       - id: check-merge-conflict
       - id: check-added-large-files
         args: [--maxkb=1000]
 
-  # Type checking
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.11.2
+  # SPI Python Development Hooks (aligned with omnibase_core patterns)
+  # Order: black -> isort -> ruff -> mypy (formatting before linting before type checking)
+  - repo: local
     hooks:
-      - id: mypy
-        name: MyPy Type Checking
-        args: [--strict, --ignore-missing-imports, --show-error-codes]
-        exclude: ^(tests/|scripts/|.*_analysis\.py$|analyze_protocols\.py$|fix_remaining_protocols\.py$)
+      - id: black-format
+        name: black (auto-format)
+        entry: poetry run black
+        language: system
+        types: [python]
+        args: [--line-length, "88", --target-version, py311]
+        exclude: ^(tests/fixtures/validation/|\.github/workflows/).*$
+        stages: [pre-commit]
 
-  # SPI-specific validation hooks
+      - id: isort-format
+        name: isort (auto-sort imports)
+        entry: poetry run isort
+        language: system
+        types: [python]
+        args: [--filter-files, --profile, black, --line-length, "88"]
+        exclude: ^(tests/fixtures/validation/|\.github/workflows/)
+        stages: [pre-commit]
+
+      - id: ruff-fix
+        name: ruff (auto-fix linting issues)
+        entry: poetry run ruff check --fix
+        language: system
+        types: [python]
+        exclude: ^(tests/fixtures/validation/|\.github/workflows/).*$
+        stages: [pre-commit]
+
+      - id: mypy-type-check
+        name: mypy (type checking - strict)
+        entry: poetry run mypy
+        language: system
+        types: [python]
+        args: [--strict, --ignore-missing-imports, --show-error-codes, --no-error-summary]
+        files: ^src/omnibase_spi/.*\.py$
+        exclude: ^(tests/|scripts/).*\.py$
+        stages: [pre-commit]
+
+      # Cleanup: Clear tmp/ directory before commits
+      # Prevents accumulation of temporary files from custom commands
+      - id: clean-tmp-directory
+        name: Clean tmp directory
+        entry: bash -c "rm -rf tmp/* 2>/dev/null || true"
+        language: system
+        always_run: true
+        pass_filenames: false
+        stages: [pre-commit]
+
+  # SPI Framework Validation Hooks
   - repo: local
     hooks:
       # Core SPI architecture validation
@@ -107,8 +135,6 @@ repos:
         pass_filenames: false
         stages: [pre-commit]
 
-      # Note: Protocol __init__ and runtime_checkable validation are now handled by validate_spi_protocols.py
-
       # Enhanced SPI typing pattern validation (adapted from omnibase_core)
       - id: validate-spi-typing-patterns
         name: SPI Typing Pattern Validation
@@ -134,7 +160,7 @@ repos:
         stages: [pre-commit]
 
       # ======================================================================
-      # NEW STANDALONE VALIDATORS (Temporary - stdlib only, no omnibase_core)
+      # STANDALONE VALIDATORS (Temporary - stdlib only, no omnibase_core)
       # Will be replaced by omnibase_core.validation when circular dep resolved
       # ======================================================================
 
@@ -147,7 +173,7 @@ repos:
         files: ^src/omnibase_spi/protocols/.*\.py$
         exclude: ^(tests/|scripts/).*\.py$
         pass_filenames: false
-        stages: [manual]  # Manual: 92 files have existing violations (technical debt)
+        stages: [manual] # Manual: 92 files have existing violations (technical debt)
 
       # Naming patterns - Protocol/Error naming and @runtime_checkable
       - id: validate-naming-patterns
@@ -178,9 +204,50 @@ repos:
         language: system
         always_run: true
         pass_filenames: false
-        stages: [manual]  # Manual: Use for CI or explicit validation runs
+        stages: [manual] # Manual: Use for CI or explicit validation runs
+
+      # ======================================================================
+      # SECURITY VALIDATION HOOKS (aligned with omnibase_core)
+      # ======================================================================
+
+      # Security: Secret Detection (prevents hardcoded secrets)
+      - id: validate-secrets
+        name: SPI Secret Detection
+        entry: poetry run python scripts/validation/validate_secrets.py
+        language: system
+        pass_filenames: true
+        files: ^src/.*\.py$
+        exclude: ^(tests/|scripts/validation/).*\.py$
+        stages: [pre-commit]
+
+      # Security: Hardcoded Environment Variable Prevention
+      - id: validate-hardcoded-env-vars
+        name: SPI Hardcoded Environment Variable Prevention
+        entry: poetry run python scripts/validation/validate_hardcoded_env_vars.py
+        language: system
+        pass_filenames: true
+        files: ^src/.*\.py$
+        exclude: ^(tests/|scripts/validation/).*\.py$
+        stages: [pre-commit]
+
+      # ======================================================================
+      # STRUCTURE VALIDATION HOOKS (aligned with omnibase_core)
+      # ======================================================================
+
+      # Empty Directory Prevention
+      - id: validate-no-empty-directories
+        name: SPI Empty Directory Prevention
+        entry: poetry run python scripts/validation/validate_no_empty_directories.py
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
 
 # Configuration
+default_install_hook_types: [pre-commit]
+default_stages: [pre-commit]
+fail_fast: false
+
 ci:
   autofix_commit_msg: |
     [pre-commit.ci] auto fixes for omnibase_spi

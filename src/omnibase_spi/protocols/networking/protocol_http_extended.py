@@ -5,7 +5,7 @@ Provides enhanced HTTP client protocols with support for query parameters,
 form data, file uploads, streaming responses, and advanced authentication.
 """
 
-from typing import TYPE_CHECKING, Optional, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 from omnibase_spi.protocols.networking.protocol_http_client import ProtocolHttpResponse
 

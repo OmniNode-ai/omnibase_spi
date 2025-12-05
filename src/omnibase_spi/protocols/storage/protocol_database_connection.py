@@ -6,14 +6,12 @@ Provides a clean interface for database operations with proper fallback
 strategies and connection management.
 """
 
-from datetime import datetime
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_storage_types import (
     ProtocolConnectionInfo,
     ProtocolLockResult,
     ProtocolQueryResult,
-    ProtocolScalarValue,
     ProtocolServiceHealth,
     ProtocolTransactionResult,
 )

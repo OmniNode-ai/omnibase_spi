@@ -3,8 +3,7 @@ Storage Backend Protocol for ONEX Checkpoint Storage.
 Defines the interface for pluggable storage backends at the root level.
 """
 
-from datetime import datetime
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 # Import SPI-internal protocol types
 from omnibase_spi.protocols.types.protocol_storage_types import (
