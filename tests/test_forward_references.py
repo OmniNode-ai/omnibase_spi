@@ -77,6 +77,13 @@ class TestNodeProtocolImports:
         from omnibase_spi.protocols.nodes import ProtocolComputeNode
 
         assert ProtocolComputeNode is not None
+        # Verify ProtocolComputeNode is a proper Protocol with @runtime_checkable
+        assert getattr(ProtocolComputeNode, "_is_runtime_protocol", False) is True, (
+            "ProtocolComputeNode must be decorated with @runtime_checkable"
+        )
+        assert hasattr(ProtocolComputeNode, "__protocol_attrs__"), (
+            "ProtocolComputeNode must be a typing.Protocol with __protocol_attrs__"
+        )
 
     def test_protocol_effect_node_import(self) -> None:
         """Validate ProtocolEffectNode import succeeds.
@@ -87,6 +94,13 @@ class TestNodeProtocolImports:
         from omnibase_spi.protocols.nodes import ProtocolEffectNode
 
         assert ProtocolEffectNode is not None
+        # Verify ProtocolEffectNode is a proper Protocol with @runtime_checkable
+        assert getattr(ProtocolEffectNode, "_is_runtime_protocol", False) is True, (
+            "ProtocolEffectNode must be decorated with @runtime_checkable"
+        )
+        assert hasattr(ProtocolEffectNode, "__protocol_attrs__"), (
+            "ProtocolEffectNode must be a typing.Protocol with __protocol_attrs__"
+        )
 
     def test_protocol_reducer_node_import(self) -> None:
         """Validate ProtocolReducerNode import succeeds.
@@ -96,6 +110,13 @@ class TestNodeProtocolImports:
         from omnibase_spi.protocols.nodes import ProtocolReducerNode
 
         assert ProtocolReducerNode is not None
+        # Verify ProtocolReducerNode is a proper Protocol with @runtime_checkable
+        assert getattr(ProtocolReducerNode, "_is_runtime_protocol", False) is True, (
+            "ProtocolReducerNode must be decorated with @runtime_checkable"
+        )
+        assert hasattr(ProtocolReducerNode, "__protocol_attrs__"), (
+            "ProtocolReducerNode must be a typing.Protocol with __protocol_attrs__"
+        )
 
     def test_protocol_orchestrator_node_import(self) -> None:
         """Validate ProtocolOrchestratorNode import succeeds.
@@ -105,6 +126,13 @@ class TestNodeProtocolImports:
         from omnibase_spi.protocols.nodes import ProtocolOrchestratorNode
 
         assert ProtocolOrchestratorNode is not None
+        # Verify ProtocolOrchestratorNode is a proper Protocol with @runtime_checkable
+        assert getattr(ProtocolOrchestratorNode, "_is_runtime_protocol", False) is True, (
+            "ProtocolOrchestratorNode must be decorated with @runtime_checkable"
+        )
+        assert hasattr(ProtocolOrchestratorNode, "__protocol_attrs__"), (
+            "ProtocolOrchestratorNode must be a typing.Protocol with __protocol_attrs__"
+        )
 
     def test_all_node_protocols_in_module_all(self) -> None:
         """Validate all node protocols are properly exported in __all__.
@@ -156,6 +184,13 @@ class TestHandlerProtocolImports:
         from omnibase_spi.protocols.handlers import ProtocolHandler
 
         assert ProtocolHandler is not None
+        # Verify ProtocolHandler is a proper Protocol with @runtime_checkable
+        assert getattr(ProtocolHandler, "_is_runtime_protocol", False) is True, (
+            "ProtocolHandler must be decorated with @runtime_checkable"
+        )
+        assert hasattr(ProtocolHandler, "__protocol_attrs__"), (
+            "ProtocolHandler must be a typing.Protocol with __protocol_attrs__"
+        )
 
     def test_protocol_handler_in_module_all(self) -> None:
         """Validate ProtocolHandler is properly exported in __all__."""
@@ -193,6 +228,13 @@ class TestContractCompilerImports:
         from omnibase_spi.protocols.contracts import ProtocolEffectContractCompiler
 
         assert ProtocolEffectContractCompiler is not None
+        # Verify protocol is properly decorated with @runtime_checkable
+        assert getattr(ProtocolEffectContractCompiler, "_is_runtime_protocol", False) is True, (
+            "ProtocolEffectContractCompiler must be decorated with @runtime_checkable"
+        )
+        assert hasattr(ProtocolEffectContractCompiler, "__protocol_attrs__"), (
+            "ProtocolEffectContractCompiler must be a typing.Protocol with __protocol_attrs__"
+        )
 
     def test_workflow_contract_compiler_import(self) -> None:
         """Validate ProtocolWorkflowContractCompiler import succeeds.
@@ -202,6 +244,13 @@ class TestContractCompilerImports:
         from omnibase_spi.protocols.contracts import ProtocolWorkflowContractCompiler
 
         assert ProtocolWorkflowContractCompiler is not None
+        # Verify protocol is properly decorated with @runtime_checkable
+        assert getattr(ProtocolWorkflowContractCompiler, "_is_runtime_protocol", False) is True, (
+            "ProtocolWorkflowContractCompiler must be decorated with @runtime_checkable"
+        )
+        assert hasattr(ProtocolWorkflowContractCompiler, "__protocol_attrs__"), (
+            "ProtocolWorkflowContractCompiler must be a typing.Protocol with __protocol_attrs__"
+        )
 
     def test_fsm_contract_compiler_import(self) -> None:
         """Validate ProtocolFSMContractCompiler import succeeds.
@@ -211,6 +260,13 @@ class TestContractCompilerImports:
         from omnibase_spi.protocols.contracts import ProtocolFSMContractCompiler
 
         assert ProtocolFSMContractCompiler is not None
+        # Verify protocol is properly decorated with @runtime_checkable
+        assert getattr(ProtocolFSMContractCompiler, "_is_runtime_protocol", False) is True, (
+            "ProtocolFSMContractCompiler must be decorated with @runtime_checkable"
+        )
+        assert hasattr(ProtocolFSMContractCompiler, "__protocol_attrs__"), (
+            "ProtocolFSMContractCompiler must be a typing.Protocol with __protocol_attrs__"
+        )
 
     def test_all_contract_compilers_in_module_all(self) -> None:
         """Validate all contract compilers are properly exported in __all__.
@@ -258,6 +314,13 @@ class TestRegistryProtocolImports:
         from omnibase_spi.protocols.registry import ProtocolHandlerRegistry
 
         assert ProtocolHandlerRegistry is not None
+        # Verify ProtocolHandlerRegistry is a proper Protocol with @runtime_checkable
+        assert getattr(ProtocolHandlerRegistry, "_is_runtime_protocol", False) is True, (
+            "ProtocolHandlerRegistry must be decorated with @runtime_checkable"
+        )
+        assert hasattr(ProtocolHandlerRegistry, "__protocol_attrs__"), (
+            "ProtocolHandlerRegistry must be a typing.Protocol with __protocol_attrs__"
+        )
 
     def test_registry_in_module_all(self) -> None:
         """Validate ProtocolHandlerRegistry is properly exported in __all__."""
@@ -299,43 +362,57 @@ class TestRuntimeCheckableProtocols:
         from omnibase_spi.protocols.nodes import ProtocolNode
 
         # Verify the protocol has the runtime checkable marker
-        assert getattr(ProtocolNode, "_is_runtime_protocol", False) is True
+        assert getattr(ProtocolNode, "_is_runtime_protocol", False) is True, (
+            "ProtocolNode must be decorated with @runtime_checkable"
+        )
 
     def test_protocol_compute_node_is_runtime_checkable(self) -> None:
         """Validate ProtocolComputeNode has @runtime_checkable decorator."""
         from omnibase_spi.protocols.nodes import ProtocolComputeNode
 
-        assert getattr(ProtocolComputeNode, "_is_runtime_protocol", False) is True
+        assert getattr(ProtocolComputeNode, "_is_runtime_protocol", False) is True, (
+            "ProtocolComputeNode must be decorated with @runtime_checkable"
+        )
 
     def test_protocol_effect_node_is_runtime_checkable(self) -> None:
         """Validate ProtocolEffectNode has @runtime_checkable decorator."""
         from omnibase_spi.protocols.nodes import ProtocolEffectNode
 
-        assert getattr(ProtocolEffectNode, "_is_runtime_protocol", False) is True
+        assert getattr(ProtocolEffectNode, "_is_runtime_protocol", False) is True, (
+            "ProtocolEffectNode must be decorated with @runtime_checkable"
+        )
 
     def test_protocol_reducer_node_is_runtime_checkable(self) -> None:
         """Validate ProtocolReducerNode has @runtime_checkable decorator."""
         from omnibase_spi.protocols.nodes import ProtocolReducerNode
 
-        assert getattr(ProtocolReducerNode, "_is_runtime_protocol", False) is True
+        assert getattr(ProtocolReducerNode, "_is_runtime_protocol", False) is True, (
+            "ProtocolReducerNode must be decorated with @runtime_checkable"
+        )
 
     def test_protocol_orchestrator_node_is_runtime_checkable(self) -> None:
         """Validate ProtocolOrchestratorNode has @runtime_checkable decorator."""
         from omnibase_spi.protocols.nodes import ProtocolOrchestratorNode
 
-        assert getattr(ProtocolOrchestratorNode, "_is_runtime_protocol", False) is True
+        assert getattr(ProtocolOrchestratorNode, "_is_runtime_protocol", False) is True, (
+            "ProtocolOrchestratorNode must be decorated with @runtime_checkable"
+        )
 
     def test_protocol_handler_is_runtime_checkable(self) -> None:
         """Validate ProtocolHandler has @runtime_checkable decorator."""
         from omnibase_spi.protocols.handlers import ProtocolHandler
 
-        assert getattr(ProtocolHandler, "_is_runtime_protocol", False) is True
+        assert getattr(ProtocolHandler, "_is_runtime_protocol", False) is True, (
+            "ProtocolHandler must be decorated with @runtime_checkable"
+        )
 
     def test_protocol_handler_registry_is_runtime_checkable(self) -> None:
         """Validate ProtocolHandlerRegistry has @runtime_checkable decorator."""
         from omnibase_spi.protocols.registry import ProtocolHandlerRegistry
 
-        assert getattr(ProtocolHandlerRegistry, "_is_runtime_protocol", False) is True
+        assert getattr(ProtocolHandlerRegistry, "_is_runtime_protocol", False) is True, (
+            "ProtocolHandlerRegistry must be decorated with @runtime_checkable"
+        )
 
     def test_contract_compilers_are_runtime_checkable(self) -> None:
         """Validate all contract compiler protocols have @runtime_checkable."""
