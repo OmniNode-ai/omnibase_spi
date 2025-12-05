@@ -60,13 +60,13 @@ class TestNodeProtocolImports:
         assert ProtocolNode is not None
         # Verify ProtocolNode is a proper Protocol with @runtime_checkable decorator
         # _is_runtime_protocol is the canonical marker set by @runtime_checkable
-        assert getattr(ProtocolNode, "_is_runtime_protocol", False) is True, (
-            "ProtocolNode must be decorated with @runtime_checkable"
-        )
+        assert (
+            getattr(ProtocolNode, "_is_runtime_protocol", False) is True
+        ), "ProtocolNode must be decorated with @runtime_checkable"
         # Verify __protocol_attrs__ exists (standard Protocol attribute)
-        assert hasattr(ProtocolNode, "__protocol_attrs__"), (
-            "ProtocolNode must be a typing.Protocol with __protocol_attrs__"
-        )
+        assert hasattr(
+            ProtocolNode, "__protocol_attrs__"
+        ), "ProtocolNode must be a typing.Protocol with __protocol_attrs__"
 
     def test_protocol_compute_node_import(self) -> None:
         """Validate ProtocolComputeNode import succeeds.
@@ -78,12 +78,12 @@ class TestNodeProtocolImports:
 
         assert ProtocolComputeNode is not None
         # Verify ProtocolComputeNode is a proper Protocol with @runtime_checkable
-        assert getattr(ProtocolComputeNode, "_is_runtime_protocol", False) is True, (
-            "ProtocolComputeNode must be decorated with @runtime_checkable"
-        )
-        assert hasattr(ProtocolComputeNode, "__protocol_attrs__"), (
-            "ProtocolComputeNode must be a typing.Protocol with __protocol_attrs__"
-        )
+        assert (
+            getattr(ProtocolComputeNode, "_is_runtime_protocol", False) is True
+        ), "ProtocolComputeNode must be decorated with @runtime_checkable"
+        assert hasattr(
+            ProtocolComputeNode, "__protocol_attrs__"
+        ), "ProtocolComputeNode must be a typing.Protocol with __protocol_attrs__"
 
     def test_protocol_effect_node_import(self) -> None:
         """Validate ProtocolEffectNode import succeeds.
@@ -95,12 +95,12 @@ class TestNodeProtocolImports:
 
         assert ProtocolEffectNode is not None
         # Verify ProtocolEffectNode is a proper Protocol with @runtime_checkable
-        assert getattr(ProtocolEffectNode, "_is_runtime_protocol", False) is True, (
-            "ProtocolEffectNode must be decorated with @runtime_checkable"
-        )
-        assert hasattr(ProtocolEffectNode, "__protocol_attrs__"), (
-            "ProtocolEffectNode must be a typing.Protocol with __protocol_attrs__"
-        )
+        assert (
+            getattr(ProtocolEffectNode, "_is_runtime_protocol", False) is True
+        ), "ProtocolEffectNode must be decorated with @runtime_checkable"
+        assert hasattr(
+            ProtocolEffectNode, "__protocol_attrs__"
+        ), "ProtocolEffectNode must be a typing.Protocol with __protocol_attrs__"
 
     def test_protocol_reducer_node_import(self) -> None:
         """Validate ProtocolReducerNode import succeeds.
@@ -111,12 +111,12 @@ class TestNodeProtocolImports:
 
         assert ProtocolReducerNode is not None
         # Verify ProtocolReducerNode is a proper Protocol with @runtime_checkable
-        assert getattr(ProtocolReducerNode, "_is_runtime_protocol", False) is True, (
-            "ProtocolReducerNode must be decorated with @runtime_checkable"
-        )
-        assert hasattr(ProtocolReducerNode, "__protocol_attrs__"), (
-            "ProtocolReducerNode must be a typing.Protocol with __protocol_attrs__"
-        )
+        assert (
+            getattr(ProtocolReducerNode, "_is_runtime_protocol", False) is True
+        ), "ProtocolReducerNode must be decorated with @runtime_checkable"
+        assert hasattr(
+            ProtocolReducerNode, "__protocol_attrs__"
+        ), "ProtocolReducerNode must be a typing.Protocol with __protocol_attrs__"
 
     def test_protocol_orchestrator_node_import(self) -> None:
         """Validate ProtocolOrchestratorNode import succeeds.
@@ -127,31 +127,39 @@ class TestNodeProtocolImports:
 
         assert ProtocolOrchestratorNode is not None
         # Verify ProtocolOrchestratorNode is a proper Protocol with @runtime_checkable
-        assert getattr(ProtocolOrchestratorNode, "_is_runtime_protocol", False) is True, (
-            "ProtocolOrchestratorNode must be decorated with @runtime_checkable"
-        )
-        assert hasattr(ProtocolOrchestratorNode, "__protocol_attrs__"), (
-            "ProtocolOrchestratorNode must be a typing.Protocol with __protocol_attrs__"
-        )
+        assert (
+            getattr(ProtocolOrchestratorNode, "_is_runtime_protocol", False) is True
+        ), "ProtocolOrchestratorNode must be decorated with @runtime_checkable"
+        assert hasattr(
+            ProtocolOrchestratorNode, "__protocol_attrs__"
+        ), "ProtocolOrchestratorNode must be a typing.Protocol with __protocol_attrs__"
 
     def test_all_node_protocols_in_module_all(self) -> None:
         """Validate all node protocols are properly exported in __all__.
 
         Ensures consumers can use 'from omnibase_spi.protocols.nodes import *'
-        and get all expected protocol types.
+        and get all expected protocol types. This uses an explicit expected list
+        to catch any missing exports when new protocols are added.
         """
         from omnibase_spi.protocols import nodes
 
-        expected = [
+        expected = {
             "ProtocolNode",
             "ProtocolComputeNode",
             "ProtocolEffectNode",
             "ProtocolReducerNode",
             "ProtocolOrchestratorNode",
-        ]
+        }
         for protocol_name in expected:
             assert protocol_name in nodes.__all__, f"{protocol_name} not in __all__"
             assert hasattr(nodes, protocol_name), f"{protocol_name} not accessible"
+
+        # Verify expected list is complete (catches case where __all__ has more than expected)
+        actual = set(nodes.__all__)
+        extra = actual - expected
+        missing = expected - actual
+        assert not extra, f"Unexpected items in __all__: {extra}"
+        assert not missing, f"Missing items from __all__: {missing}"
 
     def test_all_node_exports_are_importable(self) -> None:
         """Validate all items in nodes.__all__ are actually importable.
@@ -185,19 +193,35 @@ class TestHandlerProtocolImports:
 
         assert ProtocolHandler is not None
         # Verify ProtocolHandler is a proper Protocol with @runtime_checkable
-        assert getattr(ProtocolHandler, "_is_runtime_protocol", False) is True, (
-            "ProtocolHandler must be decorated with @runtime_checkable"
-        )
-        assert hasattr(ProtocolHandler, "__protocol_attrs__"), (
-            "ProtocolHandler must be a typing.Protocol with __protocol_attrs__"
-        )
+        assert (
+            getattr(ProtocolHandler, "_is_runtime_protocol", False) is True
+        ), "ProtocolHandler must be decorated with @runtime_checkable"
+        assert hasattr(
+            ProtocolHandler, "__protocol_attrs__"
+        ), "ProtocolHandler must be a typing.Protocol with __protocol_attrs__"
 
-    def test_protocol_handler_in_module_all(self) -> None:
-        """Validate ProtocolHandler is properly exported in __all__."""
+    def test_all_handler_protocols_in_module_all(self) -> None:
+        """Validate all handler protocols are properly exported in __all__.
+
+        Ensures consumers can use 'from omnibase_spi.protocols.handlers import *'
+        and get all expected protocol types. This uses an explicit expected list
+        to catch any missing exports when new protocols are added.
+        """
         from omnibase_spi.protocols import handlers
 
-        assert "ProtocolHandler" in handlers.__all__
-        assert hasattr(handlers, "ProtocolHandler")
+        expected = {
+            "ProtocolHandler",
+        }
+        for protocol_name in expected:
+            assert protocol_name in handlers.__all__, f"{protocol_name} not in __all__"
+            assert hasattr(handlers, protocol_name), f"{protocol_name} not accessible"
+
+        # Verify expected list is complete (catches case where __all__ has more than expected)
+        actual = set(handlers.__all__)
+        extra = actual - expected
+        missing = expected - actual
+        assert not extra, f"Unexpected items in __all__: {extra}"
+        assert not missing, f"Missing items from __all__: {missing}"
 
     def test_all_handler_exports_are_importable(self) -> None:
         """Validate all items in handlers.__all__ are actually importable.
@@ -229,12 +253,13 @@ class TestContractCompilerImports:
 
         assert ProtocolEffectContractCompiler is not None
         # Verify protocol is properly decorated with @runtime_checkable
-        assert getattr(ProtocolEffectContractCompiler, "_is_runtime_protocol", False) is True, (
-            "ProtocolEffectContractCompiler must be decorated with @runtime_checkable"
-        )
-        assert hasattr(ProtocolEffectContractCompiler, "__protocol_attrs__"), (
-            "ProtocolEffectContractCompiler must be a typing.Protocol with __protocol_attrs__"
-        )
+        assert (
+            getattr(ProtocolEffectContractCompiler, "_is_runtime_protocol", False)
+            is True
+        ), "ProtocolEffectContractCompiler must be decorated with @runtime_checkable"
+        assert hasattr(
+            ProtocolEffectContractCompiler, "__protocol_attrs__"
+        ), "ProtocolEffectContractCompiler must be a typing.Protocol with __protocol_attrs__"
 
     def test_workflow_contract_compiler_import(self) -> None:
         """Validate ProtocolWorkflowContractCompiler import succeeds.
@@ -245,12 +270,13 @@ class TestContractCompilerImports:
 
         assert ProtocolWorkflowContractCompiler is not None
         # Verify protocol is properly decorated with @runtime_checkable
-        assert getattr(ProtocolWorkflowContractCompiler, "_is_runtime_protocol", False) is True, (
-            "ProtocolWorkflowContractCompiler must be decorated with @runtime_checkable"
-        )
-        assert hasattr(ProtocolWorkflowContractCompiler, "__protocol_attrs__"), (
-            "ProtocolWorkflowContractCompiler must be a typing.Protocol with __protocol_attrs__"
-        )
+        assert (
+            getattr(ProtocolWorkflowContractCompiler, "_is_runtime_protocol", False)
+            is True
+        ), "ProtocolWorkflowContractCompiler must be decorated with @runtime_checkable"
+        assert hasattr(
+            ProtocolWorkflowContractCompiler, "__protocol_attrs__"
+        ), "ProtocolWorkflowContractCompiler must be a typing.Protocol with __protocol_attrs__"
 
     def test_fsm_contract_compiler_import(self) -> None:
         """Validate ProtocolFSMContractCompiler import succeeds.
@@ -261,29 +287,37 @@ class TestContractCompilerImports:
 
         assert ProtocolFSMContractCompiler is not None
         # Verify protocol is properly decorated with @runtime_checkable
-        assert getattr(ProtocolFSMContractCompiler, "_is_runtime_protocol", False) is True, (
-            "ProtocolFSMContractCompiler must be decorated with @runtime_checkable"
-        )
-        assert hasattr(ProtocolFSMContractCompiler, "__protocol_attrs__"), (
-            "ProtocolFSMContractCompiler must be a typing.Protocol with __protocol_attrs__"
-        )
+        assert (
+            getattr(ProtocolFSMContractCompiler, "_is_runtime_protocol", False) is True
+        ), "ProtocolFSMContractCompiler must be decorated with @runtime_checkable"
+        assert hasattr(
+            ProtocolFSMContractCompiler, "__protocol_attrs__"
+        ), "ProtocolFSMContractCompiler must be a typing.Protocol with __protocol_attrs__"
 
     def test_all_contract_compilers_in_module_all(self) -> None:
         """Validate all contract compilers are properly exported in __all__.
 
         Ensures consumers can access all compiler protocols through the
-        contracts module's public API.
+        contracts module's public API. This uses an explicit expected list
+        to catch any missing exports when new protocols are added.
         """
         from omnibase_spi.protocols import contracts
 
-        expected = [
+        expected = {
             "ProtocolEffectContractCompiler",
             "ProtocolWorkflowContractCompiler",
             "ProtocolFSMContractCompiler",
-        ]
+        }
         for protocol_name in expected:
             assert protocol_name in contracts.__all__, f"{protocol_name} not in __all__"
             assert hasattr(contracts, protocol_name), f"{protocol_name} not accessible"
+
+        # Verify expected list is complete (catches case where __all__ has more than expected)
+        actual = set(contracts.__all__)
+        extra = actual - expected
+        missing = expected - actual
+        assert not extra, f"Unexpected items in __all__: {extra}"
+        assert not missing, f"Missing items from __all__: {missing}"
 
     def test_all_contract_exports_are_importable(self) -> None:
         """Validate all items in contracts.__all__ are actually importable.
@@ -315,19 +349,35 @@ class TestRegistryProtocolImports:
 
         assert ProtocolHandlerRegistry is not None
         # Verify ProtocolHandlerRegistry is a proper Protocol with @runtime_checkable
-        assert getattr(ProtocolHandlerRegistry, "_is_runtime_protocol", False) is True, (
-            "ProtocolHandlerRegistry must be decorated with @runtime_checkable"
-        )
-        assert hasattr(ProtocolHandlerRegistry, "__protocol_attrs__"), (
-            "ProtocolHandlerRegistry must be a typing.Protocol with __protocol_attrs__"
-        )
+        assert (
+            getattr(ProtocolHandlerRegistry, "_is_runtime_protocol", False) is True
+        ), "ProtocolHandlerRegistry must be decorated with @runtime_checkable"
+        assert hasattr(
+            ProtocolHandlerRegistry, "__protocol_attrs__"
+        ), "ProtocolHandlerRegistry must be a typing.Protocol with __protocol_attrs__"
 
-    def test_registry_in_module_all(self) -> None:
-        """Validate ProtocolHandlerRegistry is properly exported in __all__."""
+    def test_all_registry_protocols_in_module_all(self) -> None:
+        """Validate all registry protocols are properly exported in __all__.
+
+        Ensures consumers can use 'from omnibase_spi.protocols.registry import *'
+        and get all expected protocol types. This uses an explicit expected list
+        to catch any missing exports when new protocols are added.
+        """
         from omnibase_spi.protocols import registry
 
-        assert "ProtocolHandlerRegistry" in registry.__all__
-        assert hasattr(registry, "ProtocolHandlerRegistry")
+        expected = {
+            "ProtocolHandlerRegistry",
+        }
+        for protocol_name in expected:
+            assert protocol_name in registry.__all__, f"{protocol_name} not in __all__"
+            assert hasattr(registry, protocol_name), f"{protocol_name} not accessible"
+
+        # Verify expected list is complete (catches case where __all__ has more than expected)
+        actual = set(registry.__all__)
+        extra = actual - expected
+        missing = expected - actual
+        assert not extra, f"Unexpected items in __all__: {extra}"
+        assert not missing, f"Missing items from __all__: {missing}"
 
     def test_all_registry_exports_are_importable(self) -> None:
         """Validate all items in registry.__all__ are actually importable.
@@ -344,14 +394,30 @@ class TestRegistryProtocolImports:
 
 
 class TestRuntimeCheckableProtocols:
-    """Test @runtime_checkable protocol decorator support.
+    """Focused regression suite for @runtime_checkable protocol decorator support.
 
-    Validates that all SPI protocols have the @runtime_checkable decorator,
-    enabling isinstance() checks at runtime. This is essential for dependency
-    injection and handler validation in omnibase_infra.
+    This test class is intentionally parallel to the runtime checkability assertions
+    in the import test classes (TestNodeProtocolImports, TestHandlerProtocolImports,
+    TestContractCompilerImports, TestRegistryProtocolImports). While those classes
+    validate runtime checkability as part of comprehensive import validation, this
+    class provides:
 
-    The test uses the canonical _is_runtime_protocol attribute to verify
-    that protocols are properly decorated with @runtime_checkable.
+    1. **Single-Purpose Focus**: A dedicated location for verifying that ALL SPI
+       protocols are decorated with @runtime_checkable, making it easy to extend
+       when new protocols are added.
+
+    2. **Regression Prevention**: If someone accidentally removes @runtime_checkable
+       from a protocol, this suite will catch it with a clear, specific test name
+       (e.g., test_protocol_compute_node_is_runtime_checkable).
+
+    3. **Documentation**: Serves as executable documentation of the architectural
+       requirement that all SPI protocols MUST be runtime checkable for isinstance()
+       support in dependency injection and handler validation.
+
+    Note: The import test classes also check _is_runtime_protocol (with additional
+    __protocol_attrs__ validation). This redundancy is intentional - the import
+    tests verify protocols work correctly when imported, while this suite ensures
+    the runtime checkability invariant is maintained as a first-class concern.
     """
 
     def test_protocol_node_is_runtime_checkable(self) -> None:
@@ -362,57 +428,57 @@ class TestRuntimeCheckableProtocols:
         from omnibase_spi.protocols.nodes import ProtocolNode
 
         # Verify the protocol has the runtime checkable marker
-        assert getattr(ProtocolNode, "_is_runtime_protocol", False) is True, (
-            "ProtocolNode must be decorated with @runtime_checkable"
-        )
+        assert (
+            getattr(ProtocolNode, "_is_runtime_protocol", False) is True
+        ), "ProtocolNode must be decorated with @runtime_checkable"
 
     def test_protocol_compute_node_is_runtime_checkable(self) -> None:
         """Validate ProtocolComputeNode has @runtime_checkable decorator."""
         from omnibase_spi.protocols.nodes import ProtocolComputeNode
 
-        assert getattr(ProtocolComputeNode, "_is_runtime_protocol", False) is True, (
-            "ProtocolComputeNode must be decorated with @runtime_checkable"
-        )
+        assert (
+            getattr(ProtocolComputeNode, "_is_runtime_protocol", False) is True
+        ), "ProtocolComputeNode must be decorated with @runtime_checkable"
 
     def test_protocol_effect_node_is_runtime_checkable(self) -> None:
         """Validate ProtocolEffectNode has @runtime_checkable decorator."""
         from omnibase_spi.protocols.nodes import ProtocolEffectNode
 
-        assert getattr(ProtocolEffectNode, "_is_runtime_protocol", False) is True, (
-            "ProtocolEffectNode must be decorated with @runtime_checkable"
-        )
+        assert (
+            getattr(ProtocolEffectNode, "_is_runtime_protocol", False) is True
+        ), "ProtocolEffectNode must be decorated with @runtime_checkable"
 
     def test_protocol_reducer_node_is_runtime_checkable(self) -> None:
         """Validate ProtocolReducerNode has @runtime_checkable decorator."""
         from omnibase_spi.protocols.nodes import ProtocolReducerNode
 
-        assert getattr(ProtocolReducerNode, "_is_runtime_protocol", False) is True, (
-            "ProtocolReducerNode must be decorated with @runtime_checkable"
-        )
+        assert (
+            getattr(ProtocolReducerNode, "_is_runtime_protocol", False) is True
+        ), "ProtocolReducerNode must be decorated with @runtime_checkable"
 
     def test_protocol_orchestrator_node_is_runtime_checkable(self) -> None:
         """Validate ProtocolOrchestratorNode has @runtime_checkable decorator."""
         from omnibase_spi.protocols.nodes import ProtocolOrchestratorNode
 
-        assert getattr(ProtocolOrchestratorNode, "_is_runtime_protocol", False) is True, (
-            "ProtocolOrchestratorNode must be decorated with @runtime_checkable"
-        )
+        assert (
+            getattr(ProtocolOrchestratorNode, "_is_runtime_protocol", False) is True
+        ), "ProtocolOrchestratorNode must be decorated with @runtime_checkable"
 
     def test_protocol_handler_is_runtime_checkable(self) -> None:
         """Validate ProtocolHandler has @runtime_checkable decorator."""
         from omnibase_spi.protocols.handlers import ProtocolHandler
 
-        assert getattr(ProtocolHandler, "_is_runtime_protocol", False) is True, (
-            "ProtocolHandler must be decorated with @runtime_checkable"
-        )
+        assert (
+            getattr(ProtocolHandler, "_is_runtime_protocol", False) is True
+        ), "ProtocolHandler must be decorated with @runtime_checkable"
 
     def test_protocol_handler_registry_is_runtime_checkable(self) -> None:
         """Validate ProtocolHandlerRegistry has @runtime_checkable decorator."""
         from omnibase_spi.protocols.registry import ProtocolHandlerRegistry
 
-        assert getattr(ProtocolHandlerRegistry, "_is_runtime_protocol", False) is True, (
-            "ProtocolHandlerRegistry must be decorated with @runtime_checkable"
-        )
+        assert (
+            getattr(ProtocolHandlerRegistry, "_is_runtime_protocol", False) is True
+        ), "ProtocolHandlerRegistry must be decorated with @runtime_checkable"
 
     def test_contract_compilers_are_runtime_checkable(self) -> None:
         """Validate all contract compiler protocols have @runtime_checkable."""
@@ -564,6 +630,7 @@ class TestForwardReferenceResolution:
         # to the actual class object, not a copy or similarly-named type
         assert hints["input_data"] is ModelComputeInput
         assert "return" in hints
+        # Use 'is' for type identity: verifies forward reference resolved to exact class
         assert hints["return"] is ModelComputeOutput
 
     @pytest.mark.skipif(
@@ -586,6 +653,7 @@ class TestForwardReferenceResolution:
         # to the actual class object, not a copy or similarly-named type
         assert hints["input_data"] is ModelEffectInput
         assert "return" in hints
+        # Use 'is' for type identity: verifies forward reference resolved to exact class
         assert hints["return"] is ModelEffectOutput
 
     @pytest.mark.skipif(
@@ -612,8 +680,10 @@ class TestForwardReferenceResolution:
         # to the actual class object, not a copy or similarly-named type
         assert hints["request"] is ModelProtocolRequest
         assert "operation_config" in hints
+        # Use 'is' for type identity: verifies forward reference resolved to exact class
         assert hints["operation_config"] is ModelOperationConfig
         assert "return" in hints
+        # Use 'is' for type identity: verifies forward reference resolved to exact class
         assert hints["return"] is ModelProtocolResponse
 
     @pytest.mark.skipif(
@@ -640,6 +710,7 @@ class TestForwardReferenceResolution:
         # to the actual class object, not a copy or similarly-named type
         assert hints["contract_path"] is Path
         assert "return" in hints
+        # Use 'is' for type identity: verifies forward reference resolved to exact class
         assert hints["return"] is ModelEffectContract
 
     def test_forward_references_without_core(self) -> None:
@@ -848,14 +919,14 @@ class TestModuleReimport:
         importlib.reload(nodes_module)
 
         # Verify protocol is still runtime checkable after reload
-        assert getattr(nodes_module.ProtocolNode, "_is_runtime_protocol", False) is True, (
-            "ProtocolNode lost _is_runtime_protocol marker after reload"
-        )
+        assert (
+            getattr(nodes_module.ProtocolNode, "_is_runtime_protocol", False) is True
+        ), "ProtocolNode lost _is_runtime_protocol marker after reload"
 
         # Verify __protocol_attrs__ still exists (standard Protocol attribute)
-        assert hasattr(nodes_module.ProtocolNode, "__protocol_attrs__"), (
-            "ProtocolNode lost __protocol_attrs__ after reload"
-        )
+        assert hasattr(
+            nodes_module.ProtocolNode, "__protocol_attrs__"
+        ), "ProtocolNode lost __protocol_attrs__ after reload"
 
         # Note: isinstance with pre-reload mock may not work due to class identity
         # changes after reload, but the protocol should still function with new
@@ -868,9 +939,9 @@ class TestModuleReimport:
             version = "1.0.0"
 
         mock_after = MockNodeAfterReload()
-        assert isinstance(mock_after, nodes_module.ProtocolNode), (
-            "isinstance() check failed with new mock after reload"
-        )
+        assert isinstance(
+            mock_after, nodes_module.ProtocolNode
+        ), "isinstance() check failed with new mock after reload"
 
     def test_reimport_preserves_isinstance_for_compute_node(self) -> None:
         """Validate ProtocolComputeNode isinstance checks work after reload.
@@ -884,9 +955,10 @@ class TestModuleReimport:
         importlib.reload(nodes_module)
 
         # Verify runtime checkable marker preserved
-        assert getattr(
-            nodes_module.ProtocolComputeNode, "_is_runtime_protocol", False
-        ) is True, "ProtocolComputeNode lost _is_runtime_protocol after reload"
+        assert (
+            getattr(nodes_module.ProtocolComputeNode, "_is_runtime_protocol", False)
+            is True
+        ), "ProtocolComputeNode lost _is_runtime_protocol after reload"
 
         # Create compliant mock after reload
         class MockComputeNodeAfterReload:
@@ -901,9 +973,9 @@ class TestModuleReimport:
                 return input_data
 
         mock = MockComputeNodeAfterReload()
-        assert isinstance(mock, nodes_module.ProtocolComputeNode), (
-            "isinstance() check failed for ProtocolComputeNode after reload"
-        )
+        assert isinstance(
+            mock, nodes_module.ProtocolComputeNode
+        ), "isinstance() check failed for ProtocolComputeNode after reload"
 
     def test_reimport_preserves_isinstance_for_handler(self) -> None:
         """Validate ProtocolHandler isinstance checks work after reload.
@@ -917,9 +989,10 @@ class TestModuleReimport:
         importlib.reload(handlers_module)
 
         # Verify runtime checkable marker preserved
-        assert getattr(
-            handlers_module.ProtocolHandler, "_is_runtime_protocol", False
-        ) is True, "ProtocolHandler lost _is_runtime_protocol after reload"
+        assert (
+            getattr(handlers_module.ProtocolHandler, "_is_runtime_protocol", False)
+            is True
+        ), "ProtocolHandler lost _is_runtime_protocol after reload"
 
         # Create compliant mock after reload
         class MockHandlerAfterReload:
@@ -937,9 +1010,9 @@ class TestModuleReimport:
                 return {}
 
         mock = MockHandlerAfterReload()
-        assert isinstance(mock, handlers_module.ProtocolHandler), (
-            "isinstance() check failed for ProtocolHandler after reload"
-        )
+        assert isinstance(
+            mock, handlers_module.ProtocolHandler
+        ), "isinstance() check failed for ProtocolHandler after reload"
 
     def test_reimport_preserves_isinstance_for_registry(self) -> None:
         """Validate ProtocolHandlerRegistry isinstance checks work after reload.
@@ -953,9 +1026,12 @@ class TestModuleReimport:
         importlib.reload(registry_module)
 
         # Verify runtime checkable marker preserved
-        assert getattr(
-            registry_module.ProtocolHandlerRegistry, "_is_runtime_protocol", False
-        ) is True, "ProtocolHandlerRegistry lost _is_runtime_protocol after reload"
+        assert (
+            getattr(
+                registry_module.ProtocolHandlerRegistry, "_is_runtime_protocol", False
+            )
+            is True
+        ), "ProtocolHandlerRegistry lost _is_runtime_protocol after reload"
 
         # Create compliant mock after reload
         class MockRegistryAfterReload:
@@ -974,9 +1050,9 @@ class TestModuleReimport:
                 return False
 
         mock = MockRegistryAfterReload()
-        assert isinstance(mock, registry_module.ProtocolHandlerRegistry), (
-            "isinstance() check failed for ProtocolHandlerRegistry after reload"
-        )
+        assert isinstance(
+            mock, registry_module.ProtocolHandlerRegistry
+        ), "isinstance() check failed for ProtocolHandlerRegistry after reload"
 
     def test_reimport_preserves_isinstance_for_contract_compilers(self) -> None:
         """Validate contract compiler isinstance checks work after reload.
@@ -991,15 +1067,24 @@ class TestModuleReimport:
 
         # Verify runtime checkable markers preserved for all compilers
         compilers = [
-            ("ProtocolEffectContractCompiler", contracts_module.ProtocolEffectContractCompiler),
-            ("ProtocolWorkflowContractCompiler", contracts_module.ProtocolWorkflowContractCompiler),
-            ("ProtocolFSMContractCompiler", contracts_module.ProtocolFSMContractCompiler),
+            (
+                "ProtocolEffectContractCompiler",
+                contracts_module.ProtocolEffectContractCompiler,
+            ),
+            (
+                "ProtocolWorkflowContractCompiler",
+                contracts_module.ProtocolWorkflowContractCompiler,
+            ),
+            (
+                "ProtocolFSMContractCompiler",
+                contracts_module.ProtocolFSMContractCompiler,
+            ),
         ]
 
         for name, compiler in compilers:
-            assert getattr(compiler, "_is_runtime_protocol", False) is True, (
-                f"{name} lost _is_runtime_protocol after reload"
-            )
+            assert (
+                getattr(compiler, "_is_runtime_protocol", False) is True
+            ), f"{name} lost _is_runtime_protocol after reload"
 
         # Create compliant mock for ProtocolEffectContractCompiler after reload
         class MockEffectCompilerAfterReload:
@@ -1012,6 +1097,6 @@ class TestModuleReimport:
                 return True
 
         mock = MockEffectCompilerAfterReload()
-        assert isinstance(mock, contracts_module.ProtocolEffectContractCompiler), (
-            "isinstance() check failed for ProtocolEffectContractCompiler after reload"
-        )
+        assert isinstance(
+            mock, contracts_module.ProtocolEffectContractCompiler
+        ), "isinstance() check failed for ProtocolEffectContractCompiler after reload"
