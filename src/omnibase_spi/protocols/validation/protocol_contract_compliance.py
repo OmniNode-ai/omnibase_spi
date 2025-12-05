@@ -32,7 +32,7 @@ Example:
         print("SPI purity validation passed")
     else:
         violations = await validator.get_violations(results)
-        report = validator.generate_compliance_report(results, format="markdown")
+        report = validator.generate_compliance_report(results, output_format="markdown")
         print(report)
     ```
 
@@ -140,6 +140,9 @@ class ProtocolContractCompliance(Protocol):
         Returns:
             True if all results pass, False if any violations exist.
 
+        Raises:
+            TypeError: If results is not a valid list of validation results.
+
         Example:
             ```python
             if validator.is_compliant(results):
@@ -159,6 +162,9 @@ class ProtocolContractCompliance(Protocol):
         Returns:
             List of validation results that represent violations.
 
+        Raises:
+            TypeError: If results is not a valid list of validation results.
+
         Example:
             ```python
             violations = await validator.get_violations(results)
@@ -169,7 +175,7 @@ class ProtocolContractCompliance(Protocol):
         ...
 
     def generate_compliance_report(
-        self, results: list["ProtocolValidationResult"], format: str | None = None
+        self, results: list["ProtocolValidationResult"], output_format: str | None = None
     ) -> str:
         """Generate a formatted compliance report.
 
@@ -178,14 +184,18 @@ class ProtocolContractCompliance(Protocol):
 
         Args:
             results: List of validation results to include in report.
-            format: Output format ("text", "markdown", "json"). Defaults to "text".
+            output_format: Output format ("text", "markdown", "json"). Defaults to "text".
 
         Returns:
             Formatted report string.
 
+        Raises:
+            TypeError: If results is not a valid list of validation results.
+            ValueError: If output_format is not a supported format.
+
         Example:
             ```python
-            report = validator.generate_compliance_report(results, format="markdown")
+            report = validator.generate_compliance_report(results, output_format="markdown")
             print(report)
             ```
         """

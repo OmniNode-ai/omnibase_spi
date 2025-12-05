@@ -115,7 +115,7 @@ class TestProtocolHandlerRegistryProtocol:
 
         # Check that ProtocolHandlerRegistry has Protocol in its bases
         assert any(
-            getattr(base, "__name__", "") == "Protocol"
+            base.__name__ == "Protocol"
             for base in ProtocolHandlerRegistry.__mro__
         )
 

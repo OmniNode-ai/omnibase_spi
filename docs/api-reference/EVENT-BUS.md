@@ -654,10 +654,10 @@ from omnibase_spi.protocols.event_bus import ProtocolEventBusContextManager
 @runtime_checkable
 class ProtocolEventBusContextManager(Protocol):
     """
-    Protocol for async context managers that yield a ProtocolEventBus-compatible object.
+    Protocol for async context managers that yield a ProtocolEventBusBase-compatible object.
 
     Provides lifecycle management for event bus resources with proper cleanup.
-    Implementations must support async context management and return a ProtocolEventBus on enter.
+    Implementations must support async context management and return a ProtocolEventBusBase on enter.
 
     Key Features:
         - Async context manager support (__aenter__, __aexit__)
@@ -666,7 +666,7 @@ class ProtocolEventBusContextManager(Protocol):
         - Proper cleanup and error handling
     """
 
-    async def __aenter__(self) -> "ProtocolEventBus": ...
+    async def __aenter__(self) -> "ProtocolEventBusBase": ...
 
     async def __aexit__(
         self,
@@ -686,7 +686,7 @@ context_manager: ProtocolEventBusContextManager = get_event_bus_context_manager(
 
 # Usage with async context manager pattern
 async with context_manager as event_bus:
-    # event_bus is guaranteed to implement ProtocolEventBus
+    # event_bus is guaranteed to implement ProtocolEventBusBase
     await event_bus.publish(
         topic="user-events",
         key=None,

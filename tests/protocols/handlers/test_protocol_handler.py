@@ -89,7 +89,7 @@ class TestProtocolHandlerProtocol:
 
         # Check that ProtocolHandler has Protocol in its bases
         assert any(
-            base is Protocol or getattr(base, "__name__", "") == "Protocol"
+            base is Protocol or base.__name__ == "Protocol"
             for base in ProtocolHandler.__mro__
         )
 
@@ -108,7 +108,7 @@ class TestProtocolHandlerProtocol:
     def test_protocol_cannot_be_instantiated(self) -> None:
         """ProtocolHandler protocol should not be directly instantiable."""
         with pytest.raises(TypeError):
-            ProtocolHandler()  # type: ignore[call-arg]
+            ProtocolHandler()  # type: ignore[misc]
 
 
 class TestProtocolHandlerCompliance:

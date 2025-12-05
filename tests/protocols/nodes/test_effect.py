@@ -109,7 +109,7 @@ class WrongSignatureEffectNode:
         """Release node-specific resources."""
         pass
 
-    async def execute(self, wrong_param: str) -> str:  # type: ignore[misc]
+    async def execute(self, wrong_param: str) -> str:  # type: ignore[override]
         """Execute with wrong signature."""
         return "wrong"
 
@@ -130,7 +130,7 @@ class TestProtocolEffectNodeProtocol:
 
         # Check that ProtocolEffectNode has Protocol in its bases
         assert any(
-            base is Protocol or getattr(base, "__name__", "") == "Protocol"
+            base is Protocol or base.__name__ == "Protocol"
             for base in ProtocolEffectNode.__mro__
         )
 
@@ -156,7 +156,7 @@ class TestProtocolEffectNodeProtocol:
     def test_protocol_cannot_be_instantiated(self) -> None:
         """ProtocolEffectNode protocol should not be directly instantiable."""
         with pytest.raises(TypeError):
-            ProtocolEffectNode()  # type: ignore[call-arg]
+            ProtocolEffectNode()  # type: ignore[misc]
 
 
 class TestProtocolEffectNodeCompliance:

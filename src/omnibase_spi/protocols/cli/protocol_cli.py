@@ -94,7 +94,7 @@ class ProtocolCLIFlagDescription(Protocol):
     Example:
         ```python
         cli: ProtocolCLI = get_cli_handler()
-        flags = cli.describe_flags(format="json")
+        flags = cli.describe_flags(output_format="json")
 
         for flag in flags:
             required_marker = "*" if flag.required else ""
@@ -145,7 +145,7 @@ class ProtocolCLI(Protocol):
                 )
 
             # Get available flags for documentation
-            flags = cli.describe_flags(format="json")
+            flags = cli.describe_flags(output_format="json")
             print(f"Available flags: {len(flags)}")
 
             # Execute command with validated arguments
@@ -182,7 +182,7 @@ class ProtocolCLI(Protocol):
     async def run(self, args: list[str]) -> "ProtocolCLIResult": ...
 
     def describe_flags(
-        self, format: str | None = None
+        self, output_format: str | None = None
     ) -> list["ProtocolCLIFlagDescription"]: ...
 
     async def execute_command(

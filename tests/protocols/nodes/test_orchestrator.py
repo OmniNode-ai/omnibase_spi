@@ -154,7 +154,7 @@ class TestProtocolOrchestratorNodeProtocol:
 
         # Check that ProtocolOrchestratorNode has Protocol in its bases
         assert any(
-            base is Protocol or getattr(base, "__name__", "") == "Protocol"
+            base is Protocol or base.__name__ == "Protocol"
             for base in ProtocolOrchestratorNode.__mro__
         )
 
@@ -184,7 +184,7 @@ class TestProtocolOrchestratorNodeProtocol:
     def test_protocol_cannot_be_instantiated(self) -> None:
         """ProtocolOrchestratorNode protocol should not be directly instantiable."""
         with pytest.raises(TypeError):
-            ProtocolOrchestratorNode()  # type: ignore[call-arg]
+            ProtocolOrchestratorNode()  # type: ignore[misc]
 
 
 class TestProtocolOrchestratorNodeCompliance:

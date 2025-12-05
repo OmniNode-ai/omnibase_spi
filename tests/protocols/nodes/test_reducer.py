@@ -103,7 +103,7 @@ class TestProtocolReducerNodeProtocol:
 
         # Check that ProtocolReducerNode has Protocol in its bases
         assert any(
-            base is Protocol or getattr(base, "__name__", "") == "Protocol"
+            base is Protocol or base.__name__ == "Protocol"
             for base in ProtocolReducerNode.__mro__
         )
 
@@ -133,7 +133,7 @@ class TestProtocolReducerNodeProtocol:
     def test_protocol_cannot_be_instantiated(self) -> None:
         """ProtocolReducerNode protocol should not be directly instantiable."""
         with pytest.raises(TypeError):
-            ProtocolReducerNode()  # type: ignore[call-arg]
+            ProtocolReducerNode()  # type: ignore[misc]
 
 
 class TestProtocolReducerNodeCompliance:

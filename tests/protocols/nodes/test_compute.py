@@ -143,48 +143,48 @@ class MissingExecuteMethod:
 class TestProtocolComputeNodeProtocol:
     """Test suite for ProtocolComputeNode protocol compliance."""
 
-    def test_icomputenode_is_runtime_checkable(self) -> None:
+    def test_protocol_compute_node_is_runtime_checkable(self) -> None:
         """ProtocolComputeNode should be runtime_checkable."""
         # Python 3.11+ uses _is_runtime_protocol, older versions use __runtime_protocol__
         assert hasattr(ProtocolComputeNode, "_is_runtime_protocol") or hasattr(
             ProtocolComputeNode, "__runtime_protocol__"
         )
 
-    def test_icomputenode_is_protocol(self) -> None:
+    def test_protocol_compute_node_is_protocol(self) -> None:
         """ProtocolComputeNode should be a Protocol class."""
         from typing import Protocol
 
         # Check that ProtocolComputeNode has Protocol in its bases
         assert any(
-            base is Protocol or getattr(base, "__name__", "") == "Protocol"
+            base is Protocol or base.__name__ == "Protocol"
             for base in ProtocolComputeNode.__mro__
         )
 
-    def test_icomputenode_has_node_id_property(self) -> None:
+    def test_protocol_compute_node_has_node_id_property(self) -> None:
         """ProtocolComputeNode should define node_id property (from ProtocolNode)."""
         # Protocol properties appear in __protocol_attrs__
         assert "node_id" in dir(ProtocolComputeNode)
 
-    def test_icomputenode_has_node_type_property(self) -> None:
+    def test_protocol_compute_node_has_node_type_property(self) -> None:
         """ProtocolComputeNode should define node_type property (from ProtocolNode)."""
         assert "node_type" in dir(ProtocolComputeNode)
 
-    def test_icomputenode_has_version_property(self) -> None:
+    def test_protocol_compute_node_has_version_property(self) -> None:
         """ProtocolComputeNode should define version property (from ProtocolNode)."""
         assert "version" in dir(ProtocolComputeNode)
 
-    def test_icomputenode_has_is_deterministic_property(self) -> None:
+    def test_protocol_compute_node_has_is_deterministic_property(self) -> None:
         """ProtocolComputeNode should define is_deterministic property."""
         assert "is_deterministic" in dir(ProtocolComputeNode)
 
-    def test_icomputenode_has_execute_method(self) -> None:
+    def test_protocol_compute_node_has_execute_method(self) -> None:
         """ProtocolComputeNode should define execute method."""
         assert "execute" in dir(ProtocolComputeNode)
 
     def test_protocol_cannot_be_instantiated(self) -> None:
         """ProtocolComputeNode protocol should not be directly instantiable."""
         with pytest.raises(TypeError):
-            ProtocolComputeNode()  # type: ignore[call-arg]
+            ProtocolComputeNode()  # type: ignore[misc]
 
 
 class TestProtocolComputeNodeCompliance:
