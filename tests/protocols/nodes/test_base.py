@@ -70,14 +70,14 @@ class WrongTypeNode:
 class TestProtocolNodeProtocol:
     """Test suite for ProtocolNode protocol compliance."""
 
-    def test_inode_is_runtime_checkable(self) -> None:
+    def test_protocol_node_is_runtime_checkable(self) -> None:
         """ProtocolNode should be runtime_checkable."""
         # Python 3.11+ uses _is_runtime_protocol, older versions use __runtime_protocol__
         assert hasattr(ProtocolNode, "_is_runtime_protocol") or hasattr(
             ProtocolNode, "__runtime_protocol__"
         )
 
-    def test_inode_is_protocol(self) -> None:
+    def test_protocol_node_is_protocol(self) -> None:
         """ProtocolNode should be a Protocol class."""
         from typing import Protocol
 
@@ -87,16 +87,16 @@ class TestProtocolNodeProtocol:
             for base in ProtocolNode.__mro__
         )
 
-    def test_inode_has_node_id_property(self) -> None:
+    def test_protocol_node_has_node_id_property(self) -> None:
         """ProtocolNode should define node_id property."""
         # Protocol properties appear in __protocol_attrs__
         assert "node_id" in dir(ProtocolNode)
 
-    def test_inode_has_node_type_property(self) -> None:
+    def test_protocol_node_has_node_type_property(self) -> None:
         """ProtocolNode should define node_type property."""
         assert "node_type" in dir(ProtocolNode)
 
-    def test_inode_has_version_property(self) -> None:
+    def test_protocol_node_has_version_property(self) -> None:
         """ProtocolNode should define version property."""
         assert "version" in dir(ProtocolNode)
 

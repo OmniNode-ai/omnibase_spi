@@ -564,52 +564,154 @@ class WorkflowOrchestrator:
         return "orchestrator"
 ```
 
-## 🔧 Type Definitions
+## Type Definitions
+
+The workflow orchestration protocols use several type aliases defined in `omnibase_spi.protocols.types.protocol_workflow_orchestration_types`:
 
 ### Workflow State Types
 
 ```python
+from omnibase_spi.protocols.types.protocol_workflow_orchestration_types import (
+    LiteralWorkflowState,
+    LiteralWorkflowEventType,
+    LiteralTaskState,
+    LiteralTaskType,
+    LiteralTaskPriority,
+)
+
 LiteralWorkflowState = Literal[
-    "pending", "running", "completed", "failed", "cancelled", "paused"
+    "pending", "initializing", "running", "paused", "completed",
+    "failed", "cancelled", "timeout", "retrying",
+    "waiting_for_dependency", "compensating", "compensated"
 ]
 """
 Workflow execution states.
 
 Values:
     pending: Workflow is waiting to start
+    initializing: Workflow is being initialized
     running: Workflow is currently executing
+    paused: Workflow is temporarily paused
     completed: Workflow finished successfully
     failed: Workflow encountered an error
     cancelled: Workflow was cancelled
-    paused: Workflow is temporarily paused
+    timeout: Workflow exceeded time limit
+    retrying: Workflow is retrying after failure
+    waiting_for_dependency: Waiting for dependent workflow
+    compensating: Running compensation logic
+    compensated: Compensation completed
 """
 
 LiteralWorkflowEventType = Literal[
-    "started", "completed", "failed", "cancelled", "paused", "resumed", "task_assigned", "task_completed"
+    "workflow.created", "workflow.started", "workflow.paused", "workflow.resumed",
+    "workflow.completed", "workflow.failed", "workflow.cancelled", "workflow.timeout",
+    "task.scheduled", "task.started", "task.completed", "task.failed", "task.retry",
+    "dependency.resolved", "dependency.failed",
+    "state.transitioned", "compensation.started", "compensation.completed"
 ]
 """
 Workflow event types for event sourcing.
 
 Values:
-    started: Workflow execution started
-    completed: Workflow execution completed
-    failed: Workflow execution failed
-    cancelled: Workflow execution cancelled
-    paused: Workflow execution paused
-    resumed: Workflow execution resumed
-    task_assigned: Task assigned to node
-    task_completed: Task completed by node
+    workflow.created: Workflow instance created
+    workflow.started: Workflow execution started
+    workflow.paused: Workflow execution paused
+    workflow.resumed: Workflow execution resumed
+    workflow.completed: Workflow execution completed
+    workflow.failed: Workflow execution failed
+    workflow.cancelled: Workflow execution cancelled
+    workflow.timeout: Workflow timed out
+    task.scheduled: Task scheduled for execution
+    task.started: Task execution started
+    task.completed: Task completed successfully
+    task.failed: Task failed
+    task.retry: Task is being retried
+    dependency.resolved: Dependency resolved
+    dependency.failed: Dependency failed
+    state.transitioned: State transition occurred
+    compensation.started: Compensation started
+    compensation.completed: Compensation completed
 """
 
-LiteralWorkQueuePriority = Literal["low", "normal", "high", "critical"]
+LiteralTaskState = Literal[
+    "pending", "scheduled", "running", "completed", "failed",
+    "cancelled", "timeout", "retrying", "skipped",
+    "waiting_for_input", "blocked"
+]
+"""
+Task execution states.
+
+Values:
+    pending: Task waiting to be scheduled
+    scheduled: Task scheduled for execution
+    running: Task is executing
+    completed: Task completed successfully
+    failed: Task failed
+    cancelled: Task was cancelled
+    timeout: Task exceeded time limit
+    retrying: Task is being retried
+    skipped: Task was skipped
+    waiting_for_input: Task waiting for input
+    blocked: Task is blocked by dependency
+"""
+
+LiteralTaskType = Literal["compute", "effect", "orchestrator", "reducer"]
+"""
+ONEX node types for task execution.
+
+Values:
+    compute: Pure computational transformation
+    effect: Side-effecting operation (I/O, API calls)
+    orchestrator: Workflow coordination
+    reducer: Data aggregation and reduction
+"""
+
+LiteralTaskPriority = Literal["low", "normal", "high", "critical", "urgent"]
+"""
+Task priority levels for scheduling.
+
+Values:
+    low: Low priority - process when resources available
+    normal: Normal priority - standard processing order
+    high: High priority - process before normal priority
+    critical: Critical priority - immediate processing required
+    urgent: Urgent priority - highest priority processing
+"""
+```
+
+### Work Queue Types
+
+```python
+from omnibase_spi.protocols.workflow_orchestration import (
+    LiteralWorkQueuePriority,
+    LiteralAssignmentStrategy,
+)
+
+LiteralWorkQueuePriority = Literal["urgent", "high", "normal", "low", "deferred"]
 """
 Work queue priority levels.
 
 Values:
-    low: Low priority tasks
-    normal: Normal priority tasks
-    high: High priority tasks
-    critical: Critical priority tasks
+    urgent: Process immediately with highest priority
+    high: High priority - process before normal
+    normal: Standard processing order
+    low: Low priority - process when resources available
+    deferred: Deferred processing - process during low load
+"""
+
+LiteralAssignmentStrategy = Literal[
+    "round_robin", "least_loaded", "capability_based",
+    "priority_weighted", "dependency_optimized"
+]
+"""
+Work ticket assignment strategies.
+
+Values:
+    round_robin: Distribute work evenly across agents
+    least_loaded: Assign to agent with lowest current load
+    capability_based: Match work to agent capabilities
+    priority_weighted: Weight assignment by priority levels
+    dependency_optimized: Optimize based on dependencies
 """
 ```
 
@@ -678,27 +780,47 @@ from omnibase_spi.protocols.workflow_orchestration import ProtocolWorkQueue
 # Initialize work queue
 work_queue: ProtocolWorkQueue = get_work_queue()
 
-# Enqueue task
-task_id = await work_queue.enqueue_task(
-    task=ProtocolWorkTask(
-        task_type="payment_processing",
-        data={"order_id": "ORD-12345", "amount": 99.99}
-    ),
-    priority="high",
-    delay_seconds=0
+# Connect to work system
+await work_queue.connect_to_work_system()
+
+# Fetch pending tickets
+tickets = await work_queue.fetch_pending_tickets(limit=10)
+
+# Assign ticket to agent
+for ticket in tickets:
+    await work_queue.assign_ticket_to_agent(
+        ticket_id=ticket.id,
+        agent_id="agent-001"
+    )
+
+# Update ticket progress
+await work_queue.update_ticket_progress(
+    ticket_id="ticket-123",
+    progress_percent=0.5
 )
 
-# Dequeue tasks for worker
-tasks = await work_queue.dequeue_task(
-    worker_id="worker-node-1",
-    max_tasks=5
+# Complete ticket with result data
+await work_queue.complete_ticket(
+    ticket_id="ticket-123",
+    result_data={"status": "success", "output": "processed"}
 )
 
-# Complete task
-await work_queue.complete_task(
-    task_id=task_id,
-    result={"status": "success", "transaction_id": "TXN-789"}
+# Or fail ticket if error occurs
+await work_queue.fail_ticket(
+    ticket_id="ticket-456",
+    error_message="Processing error: invalid input format"
 )
+
+# Get queue statistics
+stats = await work_queue.get_queue_statistics()
+print(f"Pending: {stats['pending']}, In-Progress: {stats['in_progress']}")
+
+# Manage ticket dependencies
+deps = await work_queue.get_ticket_dependencies("ticket-789")
+ready_tickets = await work_queue.get_ready_tickets()
+
+# Set assignment strategy
+await work_queue.set_assignment_strategy("capability_based")
 ```
 
 ### State Projections
@@ -781,7 +903,333 @@ await node_registry.assign_workflow_to_node(
 )
 ```
 
-## 🔍 Implementation Notes
+## Error Handling
+
+The workflow orchestration protocols use the SPI exception hierarchy for error handling. Proper error handling is essential for reliable workflow execution.
+
+### Exception Types
+
+| Exception | Description | Common Causes |
+|-----------|-------------|---------------|
+| `SPIError` | Base exception for all SPI errors | Any protocol-related error |
+| `ProtocolHandlerError` | Handler execution errors | Node execution failure, event processing errors |
+| `HandlerInitializationError` | Connection and setup errors | Database unavailable, broker connection failed |
+| `RegistryError` | Registry lookup errors | Unknown workflow type, missing node registration |
+| `InvalidProtocolStateError` | Lifecycle state violations | Resuming cancelled workflow, executing uninitialized node |
+
+### Workflow Lifecycle Error Handling
+
+```python
+from omnibase_spi.protocols.workflow_orchestration import ProtocolWorkflowOrchestrator
+from omnibase_spi.exceptions import (
+    SPIError,
+    ProtocolHandlerError,
+    InvalidProtocolStateError,
+    RegistryError,
+)
+import logging
+
+logger = logging.getLogger(__name__)
+
+async def start_workflow_safely(
+    orchestrator: ProtocolWorkflowOrchestrator,
+    workflow_type: str,
+    instance_id: UUID,
+    initial_data: dict[str, ContextValue],
+) -> ProtocolWorkflowInstance | None:
+    """Start workflow with comprehensive error handling."""
+    try:
+        workflow = await orchestrator.start_workflow(
+            workflow_type=workflow_type,
+            instance_id=instance_id,
+            initial_data=initial_data,
+            correlation_id=uuid4(),
+        )
+        logger.info(f"Started workflow {workflow_type}:{instance_id}")
+        return workflow
+
+    except RegistryError as e:
+        # Workflow type not registered
+        logger.error(
+            f"Unknown workflow type '{workflow_type}': {e}",
+            extra={"context": e.context}
+        )
+        return None
+
+    except InvalidProtocolStateError as e:
+        # Workflow instance already exists or in invalid state
+        logger.error(
+            f"Cannot start workflow - invalid state: {e}",
+            extra={
+                "workflow_type": workflow_type,
+                "instance_id": str(instance_id),
+                "context": e.context,
+            }
+        )
+        return None
+
+    except ProtocolHandlerError as e:
+        # Initialization or first task failed
+        logger.error(
+            f"Workflow start failed: {e}",
+            extra={"context": e.context}
+        )
+        raise
+```
+
+### Workflow State Transition Errors
+
+```python
+async def manage_workflow_state(
+    orchestrator: ProtocolWorkflowOrchestrator,
+    workflow_type: str,
+    instance_id: UUID,
+    action: str,
+) -> bool:
+    """Manage workflow state transitions with error handling."""
+    try:
+        if action == "pause":
+            result = await orchestrator.pause_workflow(workflow_type, instance_id)
+        elif action == "resume":
+            result = await orchestrator.resume_workflow(workflow_type, instance_id)
+        elif action == "cancel":
+            result = await orchestrator.cancel_workflow(
+                workflow_type, instance_id, reason="User requested cancellation"
+            )
+        else:
+            raise ValueError(f"Unknown action: {action}")
+
+        if result:
+            logger.info(f"Workflow {instance_id} {action} succeeded")
+        else:
+            logger.warning(f"Workflow {instance_id} {action} returned False")
+        return result
+
+    except InvalidProtocolStateError as e:
+        # Invalid state transition (e.g., resuming a cancelled workflow)
+        logger.error(
+            f"Invalid state transition for {action}: {e}",
+            extra={
+                "current_state": e.context.get("current_state"),
+                "required_state": e.context.get("required_state"),
+            }
+        )
+        return False
+
+    except SPIError as e:
+        # Other SPI errors
+        logger.error(f"Workflow {action} failed: {e}")
+        raise
+```
+
+### Work Queue Error Handling
+
+```python
+from omnibase_spi.protocols.workflow_orchestration import ProtocolWorkQueue
+from omnibase_spi.exceptions import ProtocolHandlerError
+
+async def process_task_safely(
+    work_queue: ProtocolWorkQueue,
+    worker_id: str,
+    process_func: Callable,
+) -> None:
+    """Process tasks from work queue with error handling."""
+    try:
+        tasks = await work_queue.dequeue_task(worker_id, max_tasks=1)
+
+        for task in tasks:
+            try:
+                result = await process_func(task)
+                await work_queue.complete_task(task.task_id, result)
+                logger.info(f"Task {task.task_id} completed successfully")
+
+            except Exception as task_error:
+                # Task processing failed
+                logger.error(
+                    f"Task {task.task_id} failed: {task_error}",
+                    exc_info=True
+                )
+                await work_queue.fail_task(
+                    task_id=task.task_id,
+                    error=str(task_error),
+                    retry_count=task.retry_count + 1 if hasattr(task, 'retry_count') else 1,
+                )
+
+    except ProtocolHandlerError as e:
+        # Queue access failed
+        logger.error(
+            f"Failed to dequeue tasks for worker {worker_id}: {e}",
+            extra={"context": e.context}
+        )
+        raise
+
+    except TimeoutError:
+        # Dequeue timed out - normal when queue is empty
+        logger.debug(f"No tasks available for worker {worker_id}")
+```
+
+### Node Execution Error Handling
+
+```python
+from omnibase_spi.protocols.nodes import ProtocolEffectNode, ProtocolComputeNode
+from omnibase_spi.exceptions import (
+    ProtocolHandlerError,
+    InvalidProtocolStateError,
+)
+
+async def execute_node_safely(
+    node: ProtocolEffectNode | ProtocolComputeNode,
+    contract: Any,
+) -> Any:
+    """Execute a node with comprehensive error handling."""
+    node_id = node.node_id
+    node_type = node.node_type
+
+    try:
+        if node_type == "effect":
+            result = await node.execute_effect(contract)
+        elif node_type == "compute":
+            result = await node.execute_compute(contract)
+        else:
+            raise ValueError(f"Unknown node type: {node_type}")
+
+        logger.debug(f"Node {node_id} executed successfully")
+        return result
+
+    except InvalidProtocolStateError as e:
+        # Node not initialized or already shutdown
+        logger.error(
+            f"Node {node_id} in invalid state: {e}",
+            extra={
+                "node_type": node_type,
+                "current_state": e.context.get("current_state"),
+            }
+        )
+        raise
+
+    except ProtocolHandlerError as e:
+        # Node execution failed (I/O error, external service failure)
+        logger.error(
+            f"Node {node_id} execution failed: {e}",
+            extra={
+                "node_type": node_type,
+                "context": e.context,
+            }
+        )
+        raise
+
+    except TimeoutError as e:
+        # Node execution timed out
+        logger.error(f"Node {node_id} timed out: {e}")
+        raise ProtocolHandlerError(
+            f"Node execution timed out",
+            context={
+                "node_id": node_id,
+                "node_type": node_type,
+                "timeout": "exceeded",
+            }
+        )
+```
+
+### Event Replay Error Handling
+
+```python
+from omnibase_spi.protocols.workflow_orchestration import ProtocolWorkflowEventBus
+
+async def replay_workflow_safely(
+    event_bus: ProtocolWorkflowEventBus,
+    workflow_type: str,
+    instance_id: UUID,
+    from_sequence: int = 0,
+) -> list[ProtocolWorkflowEvent]:
+    """Replay workflow events with error handling for recovery scenarios."""
+    try:
+        events = await event_bus.replay_workflow_events(
+            workflow_type=workflow_type,
+            instance_id=instance_id,
+            from_sequence=from_sequence,
+            to_sequence=None,  # Replay all events
+        )
+        logger.info(
+            f"Replayed {len(events)} events for workflow {instance_id}"
+        )
+        return events
+
+    except RegistryError as e:
+        # Workflow type or instance not found
+        logger.error(
+            f"Cannot replay - workflow not found: {e}",
+            extra={"context": e.context}
+        )
+        return []
+
+    except ProtocolHandlerError as e:
+        # Event store access failed
+        logger.error(
+            f"Event replay failed: {e}",
+            extra={
+                "workflow_type": workflow_type,
+                "instance_id": str(instance_id),
+                "from_sequence": from_sequence,
+                "context": e.context,
+            }
+        )
+        raise
+
+    except SPIError as e:
+        # Other SPI errors during replay
+        logger.error(f"Unexpected error during replay: {e}")
+        raise
+```
+
+### Workflow Persistence Error Handling
+
+```python
+from omnibase_spi.protocols.workflow_orchestration import ProtocolWorkflowPersistence
+from omnibase_spi.exceptions import HandlerInitializationError
+
+async def save_workflow_with_retry(
+    persistence: ProtocolWorkflowPersistence,
+    workflow_type: str,
+    instance_id: UUID,
+    state: ProtocolWorkflowState,
+    max_retries: int = 3,
+) -> bool:
+    """Save workflow state with retry logic for transient failures."""
+    for attempt in range(max_retries):
+        try:
+            success = await persistence.save_workflow_state(
+                workflow_type=workflow_type,
+                instance_id=instance_id,
+                state=state,
+            )
+            if success:
+                logger.debug(f"Workflow state saved: {instance_id}")
+            return success
+
+        except HandlerInitializationError as e:
+            # Database connection lost
+            logger.warning(
+                f"Persistence connection failed (attempt {attempt + 1}): {e}"
+            )
+            if attempt < max_retries - 1:
+                await asyncio.sleep(2 ** attempt)  # Exponential backoff
+            else:
+                logger.error("Failed to save workflow state after retries")
+                raise
+
+        except ProtocolHandlerError as e:
+            # Write operation failed
+            logger.error(
+                f"Failed to save workflow state: {e}",
+                extra={"context": e.context}
+            )
+            raise
+
+    return False
+```
+
+## Implementation Notes
 
 ### Event Sourcing Patterns
 

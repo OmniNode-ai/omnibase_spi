@@ -290,8 +290,8 @@ class TestProtocolReducerNodeDocumentation:
         """execute method should have a docstring."""
         # Access the method from the protocol's namespace
         assert hasattr(ProtocolReducerNode, "execute")
-        # Protocol methods store docstrings
-        method = getattr(ProtocolReducerNode, "execute")
+        # Protocol methods store docstrings - use direct attribute access
+        method = ProtocolReducerNode.execute
         assert method.__doc__ is not None
         assert "Args:" in method.__doc__
         assert "Returns:" in method.__doc__

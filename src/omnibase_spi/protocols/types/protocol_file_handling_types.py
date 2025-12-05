@@ -322,7 +322,7 @@ class ProtocolSerializedBlock(Protocol):
 
     Attributes:
         serialized_data: The serialized string representation of the block.
-        format: Serialization format (e.g., "json", "yaml", "msgpack").
+        serialization_format: Serialization format (e.g., "json", "yaml", "msgpack").
         version: Semantic version of the serialization schema.
         file_metadata: Metadata of the original source file.
 
@@ -330,7 +330,7 @@ class ProtocolSerializedBlock(Protocol):
         ```python
         class JsonSerializedBlock:
             serialized_data: str = '{"type": "function", "name": "example"}'
-            format: str = "json"
+            serialization_format: str = "json"
             version: ProtocolSemVer = semver_impl
             file_metadata: ProtocolFileMetadata = file_meta_impl
 
@@ -340,7 +340,7 @@ class ProtocolSerializedBlock(Protocol):
     """
 
     serialized_data: str
-    format: str
+    serialization_format: str
     version: "ProtocolSemVer"
     file_metadata: ProtocolFileMetadata
 
