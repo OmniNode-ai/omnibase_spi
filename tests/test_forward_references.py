@@ -125,6 +125,19 @@ class TestNodeProtocolImports:
             assert protocol_name in nodes.__all__, f"{protocol_name} not in __all__"
             assert hasattr(nodes, protocol_name), f"{protocol_name} not accessible"
 
+    def test_all_node_exports_are_importable(self) -> None:
+        """Validate all items in nodes.__all__ are actually importable.
+
+        Ensures no stale or missing exports exist in the module's public API.
+        This catches cases where __all__ references a name that doesn't exist
+        or has been removed from the module.
+        """
+        from omnibase_spi.protocols import nodes
+
+        for name in nodes.__all__:
+            obj = getattr(nodes, name, None)
+            assert obj is not None, f"{name} in __all__ but not importable"
+
 
 class TestHandlerProtocolImports:
     """Test handler protocol imports without forward reference errors.
@@ -150,6 +163,19 @@ class TestHandlerProtocolImports:
 
         assert "ProtocolHandler" in handlers.__all__
         assert hasattr(handlers, "ProtocolHandler")
+
+    def test_all_handler_exports_are_importable(self) -> None:
+        """Validate all items in handlers.__all__ are actually importable.
+
+        Ensures no stale or missing exports exist in the module's public API.
+        This catches cases where __all__ references a name that doesn't exist
+        or has been removed from the module.
+        """
+        from omnibase_spi.protocols import handlers
+
+        for name in handlers.__all__:
+            obj = getattr(handlers, name, None)
+            assert obj is not None, f"{name} in __all__ but not importable"
 
 
 class TestContractCompilerImports:
@@ -203,6 +229,19 @@ class TestContractCompilerImports:
             assert protocol_name in contracts.__all__, f"{protocol_name} not in __all__"
             assert hasattr(contracts, protocol_name), f"{protocol_name} not accessible"
 
+    def test_all_contract_exports_are_importable(self) -> None:
+        """Validate all items in contracts.__all__ are actually importable.
+
+        Ensures no stale or missing exports exist in the module's public API.
+        This catches cases where __all__ references a name that doesn't exist
+        or has been removed from the module.
+        """
+        from omnibase_spi.protocols import contracts
+
+        for name in contracts.__all__:
+            obj = getattr(contracts, name, None)
+            assert obj is not None, f"{name} in __all__ but not importable"
+
 
 class TestRegistryProtocolImports:
     """Test registry protocol imports without forward reference errors.
@@ -226,6 +265,19 @@ class TestRegistryProtocolImports:
 
         assert "ProtocolHandlerRegistry" in registry.__all__
         assert hasattr(registry, "ProtocolHandlerRegistry")
+
+    def test_all_registry_exports_are_importable(self) -> None:
+        """Validate all items in registry.__all__ are actually importable.
+
+        Ensures no stale or missing exports exist in the module's public API.
+        This catches cases where __all__ references a name that doesn't exist
+        or has been removed from the module.
+        """
+        from omnibase_spi.protocols import registry
+
+        for name in registry.__all__:
+            obj = getattr(registry, name, None)
+            assert obj is not None, f"{name} in __all__ but not importable"
 
 
 class TestRuntimeCheckableProtocols:
@@ -690,3 +742,199 @@ class TestModuleReimport:
 
         importlib.reload(registry_module)
         assert hasattr(registry_module, "ProtocolHandlerRegistry")
+
+    def test_reimport_preserves_runtime_checkable_behavior(self) -> None:
+        """Validate protocols remain runtime checkable after module reload.
+
+        After reload, protocols should still have _is_runtime_protocol marker
+        and isinstance() checks should still work with compliant implementations.
+        This addresses PR #34 review feedback requesting stronger post-reload
+        validation beyond simple hasattr() checks.
+        """
+        import omnibase_spi.protocols.nodes as nodes_module
+
+        # Verify protocol is runtime checkable before reload
+        assert getattr(nodes_module.ProtocolNode, "_is_runtime_protocol", False) is True
+
+        # Create mock and verify isinstance works before reload
+        class MockNodeBeforeReload:
+            """Mock implementation before reload."""
+
+            node_id = "test-before"
+            node_type = "test"
+            version = "1.0.0"
+
+        mock_before = MockNodeBeforeReload()
+        assert isinstance(mock_before, nodes_module.ProtocolNode)
+
+        # Reload the module
+        importlib.reload(nodes_module)
+
+        # Verify protocol is still runtime checkable after reload
+        assert getattr(nodes_module.ProtocolNode, "_is_runtime_protocol", False) is True, (
+            "ProtocolNode lost _is_runtime_protocol marker after reload"
+        )
+
+        # Verify __protocol_attrs__ still exists (standard Protocol attribute)
+        assert hasattr(nodes_module.ProtocolNode, "__protocol_attrs__"), (
+            "ProtocolNode lost __protocol_attrs__ after reload"
+        )
+
+        # Note: isinstance with pre-reload mock may not work due to class identity
+        # changes after reload, but the protocol should still function with new
+        # mock instances created after reload
+        class MockNodeAfterReload:
+            """Mock implementation created after reload."""
+
+            node_id = "test-after"
+            node_type = "test"
+            version = "1.0.0"
+
+        mock_after = MockNodeAfterReload()
+        assert isinstance(mock_after, nodes_module.ProtocolNode), (
+            "isinstance() check failed with new mock after reload"
+        )
+
+    def test_reimport_preserves_isinstance_for_compute_node(self) -> None:
+        """Validate ProtocolComputeNode isinstance checks work after reload.
+
+        Ensures compute node protocol maintains runtime checkable behavior
+        through module reload cycles with full method signature compliance.
+        """
+        import omnibase_spi.protocols.nodes as nodes_module
+
+        # Reload the module
+        importlib.reload(nodes_module)
+
+        # Verify runtime checkable marker preserved
+        assert getattr(
+            nodes_module.ProtocolComputeNode, "_is_runtime_protocol", False
+        ) is True, "ProtocolComputeNode lost _is_runtime_protocol after reload"
+
+        # Create compliant mock after reload
+        class MockComputeNodeAfterReload:
+            """Compliant compute node mock created after reload."""
+
+            node_id = "compute-test"
+            node_type = "compute"
+            version = "1.0.0"
+            is_deterministic = True
+
+            async def execute(self, input_data: object) -> object:
+                return input_data
+
+        mock = MockComputeNodeAfterReload()
+        assert isinstance(mock, nodes_module.ProtocolComputeNode), (
+            "isinstance() check failed for ProtocolComputeNode after reload"
+        )
+
+    def test_reimport_preserves_isinstance_for_handler(self) -> None:
+        """Validate ProtocolHandler isinstance checks work after reload.
+
+        Ensures handler protocol maintains runtime checkable behavior
+        through module reload cycles with lifecycle method compliance.
+        """
+        import omnibase_spi.protocols.handlers as handlers_module
+
+        # Reload the module
+        importlib.reload(handlers_module)
+
+        # Verify runtime checkable marker preserved
+        assert getattr(
+            handlers_module.ProtocolHandler, "_is_runtime_protocol", False
+        ) is True, "ProtocolHandler lost _is_runtime_protocol after reload"
+
+        # Create compliant mock after reload
+        class MockHandlerAfterReload:
+            """Compliant handler mock created after reload."""
+
+            async def initialize(self, config: object) -> None:
+                pass
+
+            async def shutdown(self, timeout_seconds: float = 30.0) -> None:
+                pass
+
+            async def execute(
+                self, request: object, operation_config: object
+            ) -> object:
+                return {}
+
+        mock = MockHandlerAfterReload()
+        assert isinstance(mock, handlers_module.ProtocolHandler), (
+            "isinstance() check failed for ProtocolHandler after reload"
+        )
+
+    def test_reimport_preserves_isinstance_for_registry(self) -> None:
+        """Validate ProtocolHandlerRegistry isinstance checks work after reload.
+
+        Ensures registry protocol maintains runtime checkable behavior
+        through module reload cycles with CRUD method compliance.
+        """
+        import omnibase_spi.protocols.registry as registry_module
+
+        # Reload the module
+        importlib.reload(registry_module)
+
+        # Verify runtime checkable marker preserved
+        assert getattr(
+            registry_module.ProtocolHandlerRegistry, "_is_runtime_protocol", False
+        ) is True, "ProtocolHandlerRegistry lost _is_runtime_protocol after reload"
+
+        # Create compliant mock after reload
+        class MockRegistryAfterReload:
+            """Compliant registry mock created after reload."""
+
+            def register(self, protocol_type: str, handler_cls: type) -> None:
+                pass
+
+            def get(self, protocol_type: str) -> type:
+                return type
+
+            def list_protocols(self) -> list[str]:
+                return []
+
+            def is_registered(self, protocol_type: str) -> bool:
+                return False
+
+        mock = MockRegistryAfterReload()
+        assert isinstance(mock, registry_module.ProtocolHandlerRegistry), (
+            "isinstance() check failed for ProtocolHandlerRegistry after reload"
+        )
+
+    def test_reimport_preserves_isinstance_for_contract_compilers(self) -> None:
+        """Validate contract compiler isinstance checks work after reload.
+
+        Ensures all contract compiler protocols maintain runtime checkable
+        behavior through module reload cycles.
+        """
+        import omnibase_spi.protocols.contracts as contracts_module
+
+        # Reload the module
+        importlib.reload(contracts_module)
+
+        # Verify runtime checkable markers preserved for all compilers
+        compilers = [
+            ("ProtocolEffectContractCompiler", contracts_module.ProtocolEffectContractCompiler),
+            ("ProtocolWorkflowContractCompiler", contracts_module.ProtocolWorkflowContractCompiler),
+            ("ProtocolFSMContractCompiler", contracts_module.ProtocolFSMContractCompiler),
+        ]
+
+        for name, compiler in compilers:
+            assert getattr(compiler, "_is_runtime_protocol", False) is True, (
+                f"{name} lost _is_runtime_protocol after reload"
+            )
+
+        # Create compliant mock for ProtocolEffectContractCompiler after reload
+        class MockEffectCompilerAfterReload:
+            """Compliant effect compiler mock created after reload."""
+
+            def compile(self, contract_path: object) -> object:
+                return None
+
+            def validate(self, contract: object) -> bool:
+                return True
+
+        mock = MockEffectCompilerAfterReload()
+        assert isinstance(mock, contracts_module.ProtocolEffectContractCompiler), (
+            "isinstance() check failed for ProtocolEffectContractCompiler after reload"
+        )
