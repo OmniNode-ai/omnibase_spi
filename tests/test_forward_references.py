@@ -58,8 +58,14 @@ class TestNodeProtocolImports:
         from omnibase_spi.protocols.nodes import ProtocolNode
 
         assert ProtocolNode is not None
-        assert hasattr(ProtocolNode, "__protocol_attrs__") or isinstance(
-            ProtocolNode, type
+        # Verify ProtocolNode is a proper Protocol with @runtime_checkable decorator
+        # _is_runtime_protocol is the canonical marker set by @runtime_checkable
+        assert getattr(ProtocolNode, "_is_runtime_protocol", False) is True, (
+            "ProtocolNode must be decorated with @runtime_checkable"
+        )
+        # Verify __protocol_attrs__ exists (standard Protocol attribute)
+        assert hasattr(ProtocolNode, "__protocol_attrs__"), (
+            "ProtocolNode must be a typing.Protocol with __protocol_attrs__"
         )
 
     def test_protocol_compute_node_import(self) -> None:
@@ -425,6 +431,8 @@ class TestForwardReferenceResolution:
         # get_type_hints should resolve forward references when Core is available
         hints = get_type_hints(ProtocolComputeNode.execute)
         assert "input_data" in hints
+        # Use 'is' for type identity verification: ensures forward reference resolved
+        # to the actual class object, not a copy or similarly-named type
         assert hints["input_data"] is ModelComputeInput
         assert "return" in hints
         assert hints["return"] is ModelComputeOutput
@@ -445,6 +453,8 @@ class TestForwardReferenceResolution:
 
         hints = get_type_hints(ProtocolEffectNode.execute)
         assert "input_data" in hints
+        # Use 'is' for type identity verification: ensures forward reference resolved
+        # to the actual class object, not a copy or similarly-named type
         assert hints["input_data"] is ModelEffectInput
         assert "return" in hints
         assert hints["return"] is ModelEffectOutput
@@ -469,6 +479,8 @@ class TestForwardReferenceResolution:
 
         hints = get_type_hints(ProtocolHandler.execute)
         assert "request" in hints
+        # Use 'is' for type identity verification: ensures forward reference resolved
+        # to the actual class object, not a copy or similarly-named type
         assert hints["request"] is ModelProtocolRequest
         assert "operation_config" in hints
         assert hints["operation_config"] is ModelOperationConfig
@@ -495,6 +507,8 @@ class TestForwardReferenceResolution:
 
         hints = get_type_hints(ProtocolEffectContractCompiler.compile)
         assert "contract_path" in hints
+        # Use 'is' for type identity verification: ensures forward reference resolved
+        # to the actual class object, not a copy or similarly-named type
         assert hints["contract_path"] is Path
         assert "return" in hints
         assert hints["return"] is ModelEffectContract
@@ -611,6 +625,18 @@ class TestProtocolMethodSignatures:
             assert hasattr(
                 compiler, "validate"
             ), f"{compiler.__name__} missing validate"
+
+    def test_protocol_node_has_required_attributes(self) -> None:
+        """Validate ProtocolNode defines required identity attributes.
+
+        The base node protocol requires node_id, node_type, and version
+        properties for node identification and classification.
+        """
+        from omnibase_spi.protocols.nodes import ProtocolNode
+
+        assert hasattr(ProtocolNode, "node_id"), "ProtocolNode missing node_id"
+        assert hasattr(ProtocolNode, "node_type"), "ProtocolNode missing node_type"
+        assert hasattr(ProtocolNode, "version"), "ProtocolNode missing version"
 
 
 class TestModuleReimport:
