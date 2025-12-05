@@ -244,8 +244,10 @@ class ProtocolCLI(Protocol):
 
         Args:
             output_format: Optional format specifier for flag descriptions.
-                If None, uses the default format. Common values include
-                "json", "yaml", "text", or "markdown".
+                If None, returns flag descriptions in the implementation's
+                default format (typically structured objects). Common values
+                include "json", "yaml", "text", or "markdown" for serialized
+                output.
 
         Returns:
             List of flag description objects containing name, type,
@@ -260,14 +262,27 @@ class ProtocolCLI(Protocol):
         self, command: str, args: list[str]
     ) -> "ProtocolCLIResult":
         """
-        Execute a CLI command with the given arguments.
+        Execute a specific CLI command with the given arguments.
+
+        Dispatches to the appropriate command handler based on the command
+        name and passes the provided arguments. This method is typically
+        called after argument validation has been performed.
 
         Args:
-            command: The command to execute
-            args: List of arguments for the command
+            command: The command name to execute (e.g., "validate", "build",
+                "run"). Must be a registered command in this CLI instance.
+            args: List of arguments to pass to the command handler. These
+                are the arguments specific to the command, not including
+                the command name itself.
 
         Returns:
-            CLI result object with execution status and output
+            CLI result object containing success status, exit code,
+            message, optional data output, and any errors encountered
+            during command execution.
+
+        Raises:
+            SPIError: If command execution fails unexpectedly.
+            RegistryError: If the command is not registered or recognized.
         """
         ...
 
@@ -275,10 +290,22 @@ class ProtocolCLI(Protocol):
         """
         Validate CLI arguments before execution.
 
+        Performs validation of the provided arguments against the CLI's
+        registered flags and argument specifications. This should be
+        called before execute_command or run to ensure arguments are
+        well-formed and meet requirements.
+
         Args:
-            args: List of arguments to validate
+            args: List of command-line arguments to validate. Should
+                include all arguments as they would be passed to the CLI,
+                potentially including the command name and all flags/values.
 
         Returns:
-            True if arguments are valid, False otherwise
+            True if all arguments are valid and the command can be executed
+            safely. False if any arguments are invalid, missing required
+            values, or have incorrect types.
+
+        Raises:
+            SPIError: If validation cannot be performed due to internal error.
         """
         ...

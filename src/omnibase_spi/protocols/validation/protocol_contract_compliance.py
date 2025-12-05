@@ -117,8 +117,8 @@ class ProtocolContractCompliance(Protocol):
             List of validation results, one per target/rule combination.
 
         Raises:
-            ValidationError: If validation cannot be performed.
-            FileNotFoundError: If target paths do not exist.
+            SPIError: If validation cannot be performed due to internal error.
+            InvalidProtocolStateError: If validator is not properly configured.
 
         Example:
             ```python
@@ -141,7 +141,7 @@ class ProtocolContractCompliance(Protocol):
             True if all results pass, False if any violations exist.
 
         Raises:
-            TypeError: If results is not a valid list of validation results.
+            SPIError: If compliance check cannot be performed.
 
         Example:
             ```python
@@ -163,7 +163,7 @@ class ProtocolContractCompliance(Protocol):
             List of validation results that represent violations.
 
         Raises:
-            TypeError: If results is not a valid list of validation results.
+            SPIError: If violation filtering cannot be performed.
 
         Example:
             ```python
@@ -190,8 +190,8 @@ class ProtocolContractCompliance(Protocol):
             Formatted report string.
 
         Raises:
-            TypeError: If results is not a valid list of validation results.
-            ValueError: If output_format is not a supported format.
+            SPIError: If report generation fails.
+            InvalidProtocolStateError: If output_format is not a supported format.
 
         Example:
             ```python
@@ -216,7 +216,8 @@ class ProtocolContractCompliance(Protocol):
             True if configuration was applied successfully.
 
         Raises:
-            ConfigurationError: If configuration is invalid.
+            SPIError: If configuration cannot be applied.
+            InvalidProtocolStateError: If configuration values are invalid.
 
         Example:
             ```python

@@ -59,15 +59,15 @@ class PartialRegistry:
 
     def register(
         self,
-        protocol_type: str,
-        handler_cls: Type[object],
+        _protocol_type: str,
+        _handler_cls: Type[object],
     ) -> None:
         """Register a protocol handler."""
         pass
 
     def get(
         self,
-        protocol_type: str,
+        _protocol_type: str,
     ) -> Type[object]:
         """Get handler class for protocol type."""
         return MockHandler
@@ -82,11 +82,11 @@ class NonCompliantRegistry:
 class WrongSignatureRegistry:
     """A class that implements methods with wrong signatures."""
 
-    def register(self, protocol_type: str) -> None:  # Missing handler_cls parameter
+    def register(self, _protocol_type: str) -> None:  # Missing handler_cls parameter
         """Register a protocol handler."""
         pass
 
-    def get(self, protocol_type: str) -> Type[object]:
+    def get(self, _protocol_type: str) -> Type[object]:
         """Get handler class for protocol type."""
         return MockHandler
 
@@ -94,7 +94,7 @@ class WrongSignatureRegistry:
         """List registered protocol types."""
         return []
 
-    def is_registered(self, protocol_type: str) -> bool:
+    def is_registered(self, _protocol_type: str) -> bool:
         """Check if protocol type is registered."""
         return False
 
@@ -111,8 +111,6 @@ class TestProtocolHandlerRegistryProtocol:
 
     def test_protocol_is_protocol(self) -> None:
         """ProtocolHandlerRegistry should be a Protocol class."""
-        from typing import Protocol
-
         # Check that ProtocolHandlerRegistry has Protocol in its bases
         assert any(
             base.__name__ == "Protocol"

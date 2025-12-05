@@ -9,8 +9,6 @@ Validates that ProtocolEffectNode:
 - Works correctly with isinstance checks for compliant/non-compliant classes
 """
 
-from typing import ClassVar
-
 import pytest
 
 from omnibase_spi.protocols.nodes.effect import ProtocolEffectNode
@@ -49,7 +47,7 @@ class CompliantEffectNode:
             """Mock effect output for testing."""
             node_id: str = "test-effect-node-v1"
             status: str = "success"
-            result: ClassVar[dict[str, bool]] = {"processed": True}
+            result: dict[str, bool] = {"processed": True}  # noqa: RUF012
 
         return MockEffectOutput()
 
@@ -217,7 +215,7 @@ class TestProtocolEffectNodeMethodSignatures:
             """Mock effect input for testing."""
             node_id: str = "test-effect-node-v1"
             operation: str = "test_operation"
-            parameters: ClassVar[dict[str, str]] = {"key": "value"}
+            parameters: dict[str, str] = {"key": "value"}  # noqa: RUF012
 
         input_data = MockEffectInput()
         result = await node.execute(input_data)
@@ -232,7 +230,7 @@ class TestProtocolEffectNodeMethodSignatures:
             """Mock effect input for testing."""
             node_id: str = "test-effect-node-v1"
             operation: str = "test_operation"
-            parameters: ClassVar[dict[str, str]] = {"key": "value"}
+            parameters: dict[str, str] = {"key": "value"}  # noqa: RUF012
 
         input_data = MockEffectInput()
         # Should not raise
@@ -247,7 +245,7 @@ class TestProtocolEffectNodeMethodSignatures:
             """Mock effect input for testing."""
             node_id: str = "test-effect-node-v1"
             operation: str = "test_operation"
-            parameters: ClassVar[dict[str, str]] = {"key": "value"}
+            parameters: dict[str, str] = {"key": "value"}  # noqa: RUF012
 
         input_data = MockEffectInput()
         result = await node.execute(input_data)
