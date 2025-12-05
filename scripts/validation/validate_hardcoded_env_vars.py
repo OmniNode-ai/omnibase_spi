@@ -408,8 +408,10 @@ class HardcodedEnvVarValidator:
             self.bypass_usage.extend(ast_validator.bypass_usage)
 
         except SyntaxError:
+            # Skip files with syntax errors - they'll be caught by other tools
             pass
-        except Exception as e:
+        except (OSError, RecursionError) as e:
+            # Handle specific AST/file errors that might occur during validation
             print(f"Warning: Error during AST validation of {python_path}: {e}")
 
         return len(ast_validator.violations) == 0
@@ -485,8 +487,8 @@ def main() -> int:
     except KeyboardInterrupt:
         print("\nError: Validation interrupted by user")
         return 1
-    except Exception as e:
-        print(f"Error: Unexpected error in main function: {e}")
+    except (OSError, SystemError) as e:
+        print(f"Error: System error in main function: {e}")
         return 1
 
 

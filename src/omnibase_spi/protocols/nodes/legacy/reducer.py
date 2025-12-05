@@ -31,10 +31,23 @@ class ProtocolReducerNodeLegacy(Protocol):
         Execute reduction (legacy signature).
 
         DEPRECATED: Use ProtocolReducerNode.execute() instead.
+
+        Args:
+            contract: The reduction contract specifying the operation.
+
+        Returns:
+            The result of the reduction operation.
+
+        Raises:
+            NotImplementedError: When not implemented by concrete class.
         """
         ...
 
     @property
     def node_id(self) -> str:
-        """Unique node identifier."""
+        """Unique node identifier.
+
+        Returns:
+            The unique identifier string for this node.
+        """
         ...

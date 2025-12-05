@@ -15,7 +15,17 @@ Common secret patterns detected:
 - AWS credentials (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
 - Generic secrets (secret, SECRET)
 
-Uses AST parsing for reliable detection of secret patterns and their values.
+Detection methodology:
+- Uses AST parsing for reliable detection of secret patterns
+- Matches patterns against **variable names only** (not values by default)
+- Supports both simple assignments (api_key = "...") and attribute
+  assignments (self.api_key = "...")
+- For AWS keys, also matches value patterns (AKIA prefix) via regex
+
+Value-based matching notes:
+- AWS Access Key IDs are detected by their AKIA[0-9A-Z]{16} pattern
+- Other secret values are detected by their association with secret-named variables
+- Consider enabling value-based scanning for additional patterns if needed
 
 Adapted from omnibase_core/scripts/validation/validate-secrets.py
 """
@@ -203,10 +213,20 @@ class PythonSecretValidator(ast.NodeVisitor):
         self.class_stack.pop()
 
     def visit_Assign(self, node: ast.Assign) -> None:
-        """Visit assignments to detect hardcoded secrets."""
+        """Visit assignments to detect hardcoded secrets.
+
+        Handles both simple assignments (api_key = "...") and attribute
+        assignments (self.api_key = "...").
+        """
         for target in node.targets:
             if isinstance(target, ast.Name):
                 field_name = target.id
+                self._check_secret_assignment(
+                    field_name, node.value, node.lineno, node.col_offset
+                )
+            elif isinstance(target, ast.Attribute):
+                # Handle attribute assignments like self.api_key = "..."
+                field_name = target.attr
                 self._check_secret_assignment(
                     field_name, node.value, node.lineno, node.col_offset
                 )
@@ -418,8 +438,10 @@ class SecretValidator:
             self.bypass_usage.extend(ast_validator.bypass_usage)
 
         except SyntaxError:
+            # Skip files with syntax errors - they'll be caught by other tools
             pass
-        except Exception as e:
+        except (OSError, RecursionError) as e:
+            # Handle specific AST/file errors that might occur during validation
             print(f"Warning: Error during AST validation of {python_path}: {e}")
 
         return len(ast_validator.violations) == 0
@@ -501,8 +523,8 @@ def main() -> int:
     except KeyboardInterrupt:
         print("\nError: Validation interrupted by user")
         return 1
-    except Exception as e:
-        print(f"Error: Unexpected error in main function: {e}")
+    except (OSError, SystemError) as e:
+        print(f"Error: System error in main function: {e}")
         return 1
 
 

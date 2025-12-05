@@ -208,9 +208,14 @@ repos:
 
       # ======================================================================
       # SECURITY VALIDATION HOOKS (aligned with omnibase_core)
+      # These hooks prevent common security vulnerabilities in the codebase
       # ======================================================================
 
       # Security: Secret Detection (prevents hardcoded secrets)
+      # Scans Python files for hardcoded API keys, passwords, tokens, and other secrets.
+      # Uses AST parsing for reliable detection of secret patterns in variable names
+      # and attribute assignments (e.g., self.api_key = "...").
+      # Bypass: Add inline comment "# secret-ok: <reason>" for test fixtures.
       - id: validate-secrets
         name: SPI Secret Detection
         entry: poetry run python scripts/validation/validate_secrets.py
@@ -221,6 +226,9 @@ repos:
         stages: [pre-commit]
 
       # Security: Hardcoded Environment Variable Prevention
+      # Ensures environment variables (UPPER_CASE names) use os.getenv() or similar.
+      # Prevents accidental hardcoding of DATABASE_URL, API_KEY, PORT, etc.
+      # Bypass: Add inline comment "# env-var-ok: <reason>" for constants.
       - id: validate-hardcoded-env-vars
         name: SPI Hardcoded Environment Variable Prevention
         entry: poetry run python scripts/validation/validate_hardcoded_env_vars.py
@@ -232,9 +240,13 @@ repos:
 
       # ======================================================================
       # STRUCTURE VALIDATION HOOKS (aligned with omnibase_core)
+      # These hooks maintain clean directory structure
       # ======================================================================
 
       # Empty Directory Prevention
+      # Detects directories that are empty or only contain __init__.py.
+      # Helps identify incomplete refactoring or placeholder modules.
+      # Skips symlinks to prevent directory traversal attacks.
       - id: validate-no-empty-directories
         name: SPI Empty Directory Prevention
         entry: poetry run python scripts/validation/validate_no_empty_directories.py

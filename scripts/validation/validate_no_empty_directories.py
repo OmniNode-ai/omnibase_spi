@@ -112,9 +112,21 @@ class EmptyDirectoryValidator:
         return False
 
     def _scan_directories(self, base_path: Path) -> None:
-        """Recursively scan directories for empty or init-only violations."""
+        """Recursively scan directories for empty or init-only violations.
+
+        Args:
+            base_path: Directory path to scan recursively.
+
+        Note:
+            Symlinks are explicitly skipped to prevent directory traversal attacks
+            and infinite loops from circular symlinks.
+        """
         for item in base_path.iterdir():
             if not item.is_dir():
+                continue
+
+            # Skip symlinks to prevent directory traversal and circular references
+            if item.is_symlink():
                 continue
 
             if self._should_exclude(item):
