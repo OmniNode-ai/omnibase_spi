@@ -76,7 +76,7 @@ class FileViolation:
         lines = [
             f"\n{self.file_path}:",
             f"  VIOLATION: {self.protocol_count} Protocol definitions (max allowed: {self.max_allowed})",
-            f"  Consider splitting into multiple domain-specific files.",
+            "  Consider splitting into multiple domain-specific files.",
         ]
         for proto in self.protocols:
             checkable = " [@runtime_checkable]" if proto.is_runtime_checkable else ""
@@ -236,8 +236,8 @@ def validate_directory(
     """
     result = ValidationResult()
 
-    # Find all Python files
-    python_files = sorted(path.rglob("*.py"))
+    # Find all Python files (excluding symlinks for security)
+    python_files = sorted(f for f in path.rglob("*.py") if not f.is_symlink())
 
     for file_path in python_files:
         # Skip __init__.py if requested

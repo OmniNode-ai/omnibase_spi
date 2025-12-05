@@ -15,7 +15,6 @@ Note:
 
 from ..types.protocol_event_bus_types import ProtocolEventMessage
 from .protocol_dlq_handler import ProtocolDLQHandler
-from .protocol_event_bus_provider import ProtocolEventBusProvider
 from .protocol_event_bus_context_manager import ProtocolEventBusContextManager
 from .protocol_event_bus_mixin import (
     ProtocolAsyncEventBus,
@@ -24,6 +23,7 @@ from .protocol_event_bus_mixin import (
     ProtocolEventBusRegistry,
     ProtocolSyncEventBus,
 )
+from .protocol_event_bus_provider import ProtocolEventBusProvider
 from .protocol_event_bus_service import (
     ProtocolEventBusService,
     ProtocolHttpEventBusAdapter,

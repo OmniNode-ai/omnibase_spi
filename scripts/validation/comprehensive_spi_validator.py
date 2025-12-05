@@ -1907,7 +1907,6 @@ class AutoFixEngine:
             method_start = target_line
 
             # Find the method body
-            indent_level = None
             body_start = method_start + 1
 
             # Skip docstring if present

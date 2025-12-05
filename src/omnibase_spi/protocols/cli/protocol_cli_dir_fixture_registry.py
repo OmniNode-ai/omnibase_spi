@@ -4,7 +4,7 @@ Protocol for CLI Directory Fixture Registry functionality.
 Defines the interface for managing and accessing CLI directory test fixtures.
 """
 
-from typing import TYPE_CHECKING, Any, Callable, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Callable, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.cli.protocol_cli_dir_fixture_case import (

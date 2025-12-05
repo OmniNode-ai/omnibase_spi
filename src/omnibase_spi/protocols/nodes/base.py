@@ -1,4 +1,5 @@
 """Base node protocol for all ONEX nodes."""
+
 from __future__ import annotations
 
 from typing import Protocol, runtime_checkable

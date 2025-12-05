@@ -10,7 +10,6 @@ from uuid import UUID
 from omnibase_spi.protocols.types.protocol_core_types import (
     ContextValue,
     LiteralHealthStatus,
-    LiteralOperationStatus,
     ProtocolDateTime,
     ProtocolSemVer,
 )

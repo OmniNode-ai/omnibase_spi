@@ -4,6 +4,7 @@
     Use :class:`omnibase_spi.protocols.nodes.ProtocolOrchestratorNode` instead.
     This module will be removed in v0.5.0.
 """
+
 from __future__ import annotations
 
 from typing import Any, Protocol, runtime_checkable
@@ -30,10 +31,23 @@ class ProtocolOrchestratorNodeLegacy(Protocol):
         Execute orchestration (legacy signature).
 
         DEPRECATED: Use ProtocolOrchestratorNode.execute() instead.
+
+        Args:
+            contract: The orchestration contract specifying the workflow.
+
+        Returns:
+            The result of the orchestration operation.
+
+        Raises:
+            NotImplementedError: When not implemented by concrete class.
         """
         ...
 
     @property
     def node_id(self) -> str:
-        """Unique node identifier."""
+        """Unique node identifier.
+
+        Returns:
+            The unique identifier string for this node.
+        """
         ...

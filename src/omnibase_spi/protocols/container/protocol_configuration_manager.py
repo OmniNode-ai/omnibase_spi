@@ -6,7 +6,7 @@ loading, validation, merging, and runtime updates of configuration data
 across multiple sources following ONEX infrastructure standards.
 """
 
-from typing import Any, Literal, Protocol, runtime_checkable
+from typing import Literal, Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 

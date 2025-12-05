@@ -327,8 +327,9 @@ def validate_file(file_path: Path) -> Tuple[List[NamespaceViolation], Optional[s
         return [], f"Syntax error in {file_path}: {e}"
     except (OSError, IOError) as e:
         return [], f"Failed to read {file_path}: {e}"
-    except Exception as e:
-        return [], f"Unexpected error validating {file_path}: {e}"
+    except RecursionError as e:
+        # Deeply nested AST structures can hit Python's recursion limit
+        return [], f"AST recursion limit in {file_path}: {e}"
 
 
 def validate_directory(
@@ -398,7 +399,7 @@ def print_report(report: ValidationReport, verbose: bool = False) -> None:
         print("-" * 80)
 
         # Group by rule
-        by_rule: dict = {}
+        by_rule: dict[str, list[NamespaceViolation]] = {}
         for v in report.violations:
             if v.rule_id not in by_rule:
                 by_rule[v.rule_id] = []

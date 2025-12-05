@@ -8,7 +8,6 @@ Defines the contract for response replies with status, data, and error informati
 from typing import (
     TYPE_CHECKING,
     Literal,
-    Optional,
     Protocol,
     TypeVar,
     runtime_checkable,

@@ -5,7 +5,7 @@ This protocol defines the interface for string conversion utilities that ensure
 consistent naming across all code generation tools.
 """
 
-from typing import Any, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types import ProtocolOnexInputState, ProtocolOnexOutputState
 

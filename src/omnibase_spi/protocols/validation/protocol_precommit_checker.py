@@ -9,7 +9,7 @@ Domain: Validation and Quality Assurance
 Author: ONEX Framework Team
 """
 
-from typing import Optional, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 
 @runtime_checkable

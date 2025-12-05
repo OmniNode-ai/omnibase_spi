@@ -20,7 +20,6 @@ from omnibase_spi.protocols.types.protocol_base_types import (
     ProtocolSemVer,
 )
 
-
 # ==============================================================================
 # Serialization Result Protocol
 # ==============================================================================

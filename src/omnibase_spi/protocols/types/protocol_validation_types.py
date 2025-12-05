@@ -18,7 +18,6 @@ from omnibase_spi.protocols.types.protocol_base_types import (
     ProtocolSemVer,
 )
 
-
 # ==============================================================================
 # Version and Compatibility Protocols
 # ==============================================================================
@@ -273,5 +272,3 @@ class ProtocolPatternChecker(Protocol):
     issues: list[str]
 
     def visit(self, node: object) -> None: ...  # ast.AST type
-
-

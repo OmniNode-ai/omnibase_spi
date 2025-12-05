@@ -7,7 +7,6 @@ Checks all markdown files for broken internal links
 import os
 import re
 import sys
-from pathlib import Path
 
 
 def find_markdown_files(root_dir):
@@ -104,7 +103,7 @@ def main():
                 print()
 
     print("=" * 60)
-    print(f"Summary:")
+    print("Summary:")
     print(f"  Total links checked: {total_links}")
     print(f"  Broken links: {len(broken_links)}")
     print(f"  Working links: {total_links - len(broken_links)}")

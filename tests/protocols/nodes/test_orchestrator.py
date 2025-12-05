@@ -13,9 +13,11 @@ import pytest
 
 from omnibase_spi.protocols.nodes.orchestrator import ProtocolOrchestratorNode
 
+
 # Mock classes for testing (no omnibase_core dependency)
 class MockOrchestrationInput:
     """Mock orchestration input for testing."""
+
     def __init__(self, workflow_id: str, steps: list):
         self.workflow_id = workflow_id
         self.steps = steps
@@ -23,6 +25,7 @@ class MockOrchestrationInput:
 
 class MockOrchestrationOutput:
     """Mock orchestration output for testing."""
+
     def __init__(self, workflow_id: str, status: str, results: dict):
         self.workflow_id = workflow_id
         self.status = status
@@ -250,9 +253,9 @@ class TestProtocolOrchestratorNodeMethodSignatures:
 
         result = await node.execute(input_data)
         # Verify result has expected attributes
-        assert hasattr(result, 'workflow_id')
-        assert hasattr(result, 'status')
-        assert hasattr(result, 'results')
+        assert hasattr(result, "workflow_id")
+        assert hasattr(result, "status")
+        assert hasattr(result, "results")
 
     @pytest.mark.asyncio
     async def test_execute_returns_orchestration_output(self) -> None:
@@ -265,8 +268,8 @@ class TestProtocolOrchestratorNodeMethodSignatures:
 
         result = await node.execute(input_data)
         # Verify result has expected structure
-        assert hasattr(result, 'workflow_id')
-        assert hasattr(result, 'status')
+        assert hasattr(result, "workflow_id")
+        assert hasattr(result, "status")
         assert result.workflow_id == "test-workflow-456"
         assert result.status == "completed"
 

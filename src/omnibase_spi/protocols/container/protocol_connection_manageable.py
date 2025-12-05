@@ -6,7 +6,7 @@ and recovery strategies across all ONEX services with consistent patterns
 and resilient connection handling.
 """
 
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import (
     ContextValue,

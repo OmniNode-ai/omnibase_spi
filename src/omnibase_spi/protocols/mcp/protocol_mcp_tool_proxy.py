@@ -7,7 +7,7 @@ Handles tool execution routing, load balancing, and result aggregation.
 Domain: MCP tool execution and proxy management
 """
 
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 from uuid import UUID
 
 if TYPE_CHECKING:

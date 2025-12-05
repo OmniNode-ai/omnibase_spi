@@ -4,6 +4,7 @@
     Use :class:`omnibase_spi.protocols.nodes.ProtocolComputeNode` instead.
     This module will be removed in v0.5.0.
 """
+
 from __future__ import annotations
 
 from typing import Any, Protocol, runtime_checkable
@@ -31,10 +32,23 @@ class ProtocolComputeNodeLegacy(Protocol):
         Execute computation (legacy signature).
 
         DEPRECATED: Use ProtocolComputeNode.execute() instead.
+
+        Args:
+            contract: The compute contract specifying the operation.
+
+        Returns:
+            The result of the computation.
+
+        Raises:
+            NotImplementedError: When not implemented by concrete class.
         """
         ...
 
     @property
     def node_id(self) -> str:
-        """Unique node identifier."""
+        """Unique node identifier.
+
+        Returns:
+            The unique identifier string for this node.
+        """
         ...

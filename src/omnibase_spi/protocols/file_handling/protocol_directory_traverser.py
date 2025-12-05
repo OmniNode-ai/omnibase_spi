@@ -27,7 +27,6 @@ Protocol for directory traversal operations.
 Defines a standardized interface for discovering and filtering files in directories.
 """
 
-from collections.abc import Callable as CallableABC
 from typing import TYPE_CHECKING, Callable, Protocol, TypeVar, runtime_checkable
 
 if TYPE_CHECKING:

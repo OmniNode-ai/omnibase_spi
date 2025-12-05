@@ -7,7 +7,7 @@ Provides comprehensive validation for registrations, tool definitions, and execu
 Domain: MCP validation and quality assurance
 """
 
-from typing import Any, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 from omnibase_spi.protocols.types.protocol_mcp_types import (

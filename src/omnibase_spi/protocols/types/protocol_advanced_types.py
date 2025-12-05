@@ -11,8 +11,6 @@ Agent and AI-related types have been moved to protocol_agent_ai_types.py.
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 from uuid import UUID
 
-from omnibase_spi.protocols.types.protocol_core_types import ContextValue
-
 # Re-export agent/AI types for backward compatibility
 from omnibase_spi.protocols.types.protocol_agent_ai_types import (
     LiteralActionType,
@@ -23,9 +21,10 @@ from omnibase_spi.protocols.types.protocol_agent_ai_types import (
     ProtocolPRTicket,
     ProtocolVelocityLog,
 )
+from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 
 if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.protocol_core_types import LiteralHealthStatus
+    pass
 
 
 @runtime_checkable

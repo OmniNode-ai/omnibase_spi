@@ -423,14 +423,28 @@ def validate_file(file_path: Path) -> tuple[list[Violation], int, int]:
         )
         return [violation], 0, 0
 
-    except Exception as e:
+    except (OSError, IOError) as e:
+        # File access errors (permissions, missing files, encoding issues)
         violation = Violation(
             file_path=str(file_path),
             line_number=1,
-            name="<validation_error>",
-            violation_type="validation_error",
+            name="<file_error>",
+            violation_type="file_error",
             violation_code="SPI-NP000",
-            message=f"Validation error: {e}",
+            message=f"File access error: {e}",
+            severity="error",
+        )
+        return [violation], 0, 0
+
+    except RecursionError as e:
+        # Deeply nested AST structures can hit Python's recursion limit
+        violation = Violation(
+            file_path=str(file_path),
+            line_number=1,
+            name="<recursion_error>",
+            violation_type="recursion_error",
+            violation_code="SPI-NP000",
+            message=f"AST recursion limit: {e}",
             severity="error",
         )
         return [violation], 0, 0

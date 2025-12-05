@@ -23,8 +23,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 from uuid import UUID
 
-from omnibase_spi.protocols.memory.protocol_memory_errors import ProtocolMemoryError
-
 # Re-export from protocol_memory_advanced_responses for backward compatibility
 from omnibase_spi.protocols.memory.protocol_memory_advanced_responses import (
     ProtocolAgentCoordinationResponse,
@@ -51,9 +49,7 @@ if TYPE_CHECKING:
     )
 
 # Re-export ProtocolMemoryMetadata for backward compatibility
-from omnibase_spi.protocols.memory.protocol_memory_base import (
-    ProtocolMemoryMetadata,
-)
+from omnibase_spi.protocols.memory.protocol_memory_base import ProtocolMemoryMetadata
 
 
 @runtime_checkable

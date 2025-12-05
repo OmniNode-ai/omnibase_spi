@@ -259,18 +259,14 @@ class TestProtocolReducerNodeImports:
 
     def test_import_from_nodes_package(self) -> None:
         """Test import from nodes package."""
-        from omnibase_spi.protocols.nodes import (
-            ProtocolReducerNode as NodesReducerNode,
-        )
+        from omnibase_spi.protocols.nodes import ProtocolReducerNode as NodesReducerNode
 
         node = CompliantReducerNode()
         assert isinstance(node, NodesReducerNode)
 
     def test_imports_are_identical(self) -> None:
         """Verify imports from different locations are the same class."""
-        from omnibase_spi.protocols.nodes import (
-            ProtocolReducerNode as NodesReducerNode,
-        )
+        from omnibase_spi.protocols.nodes import ProtocolReducerNode as NodesReducerNode
         from omnibase_spi.protocols.nodes.reducer import (
             ProtocolReducerNode as DirectReducerNode,
         )

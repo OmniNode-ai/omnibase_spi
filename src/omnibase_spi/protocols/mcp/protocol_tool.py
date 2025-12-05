@@ -22,7 +22,7 @@
 # === /OmniNode:Metadata ===
 
 
-from typing import Any, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_mcp_types import (
     ProtocolModelResultCLI,

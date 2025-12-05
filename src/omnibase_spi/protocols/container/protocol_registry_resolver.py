@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.container.protocol_registry import ProtocolRegistry

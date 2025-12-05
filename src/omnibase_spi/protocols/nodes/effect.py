@@ -7,10 +7,7 @@ from typing import TYPE_CHECKING, Protocol, runtime_checkable
 from omnibase_spi.protocols.nodes.base import ProtocolNode
 
 if TYPE_CHECKING:
-    from omnibase_core.models.effect import (
-        ModelEffectInput,
-        ModelEffectOutput,
-    )
+    from omnibase_core.models.effect import ModelEffectInput, ModelEffectOutput
 
 
 @runtime_checkable

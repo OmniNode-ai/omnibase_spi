@@ -14,20 +14,6 @@ from omnibase_spi.protocols.types.protocol_core_types import (
     ProtocolSemVer,
 )
 
-# Re-export value types for backward compatibility
-from omnibase_spi.protocols.types.protocol_workflow_value_types import (  # noqa: F401
-    LiteralRetryPolicy,
-    ProtocolRetryConfiguration,
-    ProtocolTypedWorkflowData,
-    ProtocolWorkflowNumericValue,
-    ProtocolWorkflowStringDictValue,
-    ProtocolWorkflowStringListValue,
-    ProtocolWorkflowStringValue,
-    ProtocolWorkflowStructuredValue,
-    ProtocolWorkflowValue,
-    T_WorkflowValue,
-)
-
 # Re-export execution types for backward compatibility
 from omnibase_spi.protocols.types.protocol_workflow_execution_types import (  # noqa: F401
     ProtocolCompensationAction,
@@ -40,6 +26,20 @@ from omnibase_spi.protocols.types.protocol_workflow_execution_types import (  # 
     ProtocolWorkflowDefinition,
     ProtocolWorkflowExecutionState,
     ProtocolWorkflowServiceInstance,
+)
+
+# Re-export value types for backward compatibility
+from omnibase_spi.protocols.types.protocol_workflow_value_types import (  # noqa: F401
+    LiteralRetryPolicy,
+    ProtocolRetryConfiguration,
+    ProtocolTypedWorkflowData,
+    ProtocolWorkflowNumericValue,
+    ProtocolWorkflowStringDictValue,
+    ProtocolWorkflowStringListValue,
+    ProtocolWorkflowStringValue,
+    ProtocolWorkflowStructuredValue,
+    ProtocolWorkflowValue,
+    T_WorkflowValue,
 )
 
 # Explicit re-exports for backward compatibility

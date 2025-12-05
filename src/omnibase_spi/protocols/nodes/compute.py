@@ -1,4 +1,5 @@
 """Compute node protocol for pure transformations."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
@@ -6,10 +7,7 @@ from typing import TYPE_CHECKING, Protocol, runtime_checkable
 from omnibase_spi.protocols.nodes.base import ProtocolNode
 
 if TYPE_CHECKING:
-    from omnibase_core.models.compute import (
-        ModelComputeInput,
-        ModelComputeOutput,
-    )
+    from omnibase_core.models.compute import ModelComputeInput, ModelComputeOutput
 
 
 @runtime_checkable

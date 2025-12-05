@@ -1,6 +1,5 @@
 from typing import Any, Protocol, runtime_checkable
 
-from omnibase_spi.protocols.types import ProtocolOnexResult
 
 
 @runtime_checkable

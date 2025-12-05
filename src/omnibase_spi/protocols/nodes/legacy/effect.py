@@ -4,6 +4,7 @@
     Use :class:`omnibase_spi.protocols.nodes.ProtocolEffectNode` instead.
     This module will be removed in v0.5.0.
 """
+
 from __future__ import annotations
 
 from typing import Any, Protocol, runtime_checkable
@@ -31,10 +32,23 @@ class ProtocolEffectNodeLegacy(Protocol):
         Execute effect operation (legacy signature).
 
         DEPRECATED: Use ProtocolEffectNode.execute() instead.
+
+        Args:
+            contract: The effect contract specifying the operation.
+
+        Returns:
+            The result of the effect operation.
+
+        Raises:
+            NotImplementedError: When not implemented by concrete class.
         """
         ...
 
     @property
     def node_id(self) -> str:
-        """Unique node identifier."""
+        """Unique node identifier.
+
+        Returns:
+            The unique identifier string for this node.
+        """
         ...

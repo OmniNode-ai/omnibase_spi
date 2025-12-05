@@ -10,6 +10,7 @@ Migration:
     - ProtocolReducerNodeLegacy -> ProtocolReducerNode
     - ProtocolOrchestratorNodeLegacy -> ProtocolOrchestratorNode
 """
+
 import warnings
 
 warnings.warn(
@@ -22,7 +23,9 @@ warnings.warn(
 
 from omnibase_spi.protocols.nodes.legacy.compute import ProtocolComputeNodeLegacy
 from omnibase_spi.protocols.nodes.legacy.effect import ProtocolEffectNodeLegacy
-from omnibase_spi.protocols.nodes.legacy.orchestrator import ProtocolOrchestratorNodeLegacy
+from omnibase_spi.protocols.nodes.legacy.orchestrator import (
+    ProtocolOrchestratorNodeLegacy,
+)
 from omnibase_spi.protocols.nodes.legacy.reducer import ProtocolReducerNodeLegacy
 
 __all__ = [

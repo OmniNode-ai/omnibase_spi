@@ -6,7 +6,7 @@ removing sensitive information from logs and error reports following
 ONEX security standards.
 """
 
-from typing import Any, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 

@@ -50,7 +50,6 @@ See Also:
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    from omnibase_spi.protocols.file_handling.protocol_file_io import ProtocolFileIO
     from omnibase_spi.protocols.types import ContextValue, ProtocolValidationResult
 
 
