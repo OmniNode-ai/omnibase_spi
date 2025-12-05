@@ -152,13 +152,17 @@ from omnibase_spi.protocols.types.protocol_marker_types import (
 # Re-export from validation types
 from omnibase_spi.protocols.types.protocol_validation_types import (
     ProtocolCompatibilityCheck,
-    ProtocolEventBusProvider,
     ProtocolHasModelDump,
     ProtocolModelJsonSerializable,
     ProtocolModelValidatable,
     ProtocolPatternChecker,
     ProtocolValidatable,
     ProtocolVersionInfo,
+)
+
+# Re-export from event_bus module (canonical location for provider protocol)
+from omnibase_spi.protocols.event_bus.protocol_event_bus_provider import (
+    ProtocolEventBusProvider,
 )
 
 # Legacy storage types that may still be referenced

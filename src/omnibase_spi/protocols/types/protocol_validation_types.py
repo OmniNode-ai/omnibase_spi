@@ -8,7 +8,6 @@ This module contains protocols for:
 - Version compatibility (ProtocolVersionInfo, ProtocolCompatibilityCheck)
 - Model serialization (ProtocolHasModelDump, ProtocolModelJsonSerializable)
 - Code pattern checking (ProtocolPatternChecker)
-- Event bus integration (ProtocolEventBusProvider)
 """
 
 from typing import Literal, Protocol, runtime_checkable
@@ -276,30 +275,3 @@ class ProtocolPatternChecker(Protocol):
     def visit(self, node: object) -> None: ...  # ast.AST type
 
 
-# ==============================================================================
-# Event Bus Integration Protocol
-# ==============================================================================
-
-
-@runtime_checkable
-class ProtocolEventBusProvider(Protocol):
-    """
-    Protocol for objects that provide event bus integration.
-
-    This protocol indicates that an object has event bus capabilities,
-    regardless of whether it's a container, node, service, or other component.
-    Used for coordinating events across distributed services and nodes.
-
-    Key Features:
-        - Optional event bus integration
-        - Async event bus support
-        - Component-level event coordination
-        - Distributed messaging compatibility
-
-    Usage:
-        def get_event_bus(provider: ProtocolEventBusProvider):
-            if provider.event_bus:
-                await provider.event_bus.publish(event)
-    """
-
-    event_bus: object | None  # ProtocolAsyncEventBus type from event_bus module

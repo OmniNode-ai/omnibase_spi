@@ -32,7 +32,7 @@ Example:
     ```
 
 See Also:
-    - ProtocolEventBus: The event bus interface from omnibase_core.
+    - ProtocolEventBusBase: The base event bus interface from omnibase_spi.
     - ProtocolEventBusProvider: Factory for obtaining event bus instances.
     - ProtocolKafkaAdapter: Kafka-specific adapter protocol.
     - ProtocolRedpandaAdapter: Redpanda-specific adapter protocol.
@@ -43,7 +43,9 @@ from typing import TYPE_CHECKING, Awaitable, Callable, Protocol, runtime_checkab
 from omnibase_spi.protocols.types.protocol_event_bus_types import ProtocolEventMessage
 
 if TYPE_CHECKING:
-    from omnibase_core.protocols.event_bus import ProtocolEventBus
+    from omnibase_spi.protocols.event_bus.protocol_event_bus_mixin import (
+        ProtocolEventBusBase,
+    )
 
 
 @runtime_checkable
@@ -106,12 +108,12 @@ class ProtocolEventBusService(Protocol):
         - Failover coordination
 
     See Also:
-        - ProtocolEventBus: High-level event bus interface (from omnibase_core)
+        - ProtocolEventBusBase: Base event bus interface (from omnibase_spi)
         - ProtocolKafkaAdapter: Kafka broker adapter
         - ProtocolRedpandaAdapter: Redpanda broker adapter
     """
 
-    async def get_event_bus(self) -> "ProtocolEventBus":
+    async def get_event_bus(self) -> "ProtocolEventBusBase":
         """Get the managed event bus instance.
 
         Returns the active event bus for publishing and subscribing to events.

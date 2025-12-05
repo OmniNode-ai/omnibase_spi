@@ -56,7 +56,9 @@ from uuid import uuid4
 from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 
 if TYPE_CHECKING:
-    from omnibase_core.protocols.event_bus import ProtocolEventBus
+    from omnibase_spi.protocols.event_bus.protocol_event_bus_mixin import (
+        ProtocolEventBusBase,
+    )
     from omnibase_spi.protocols.node.protocol_node_registry import ProtocolNodeRegistry
     from omnibase_spi.protocols.types.protocol_file_handling_types import (
         ProtocolOnexResult,
@@ -124,7 +126,7 @@ class ProtocolWorkflowEventCoordinator(Protocol):
         """
         ...
 
-    def set_event_bus(self, event_bus: "ProtocolEventBus") -> None:
+    def set_event_bus(self, event_bus: "ProtocolEventBusBase") -> None:
         """Set the event bus for publishing and subscribing to events.
 
         Args:

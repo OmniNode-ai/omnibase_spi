@@ -1,7 +1,7 @@
 """Event Bus Provider Protocol for ONEX SPI.
 
 This module defines the provider/factory interface for obtaining event bus instances.
-The actual ProtocolEventBus interface is defined in omnibase_core, while this protocol
+The ProtocolEventBusBase interface is defined in omnibase_spi, while this protocol
 defines the factory pattern for creating and managing event bus instances.
 
 The provider pattern enables dependency injection of different event bus implementations
@@ -26,7 +26,7 @@ Example:
     ```
 
 See Also:
-    - ProtocolEventBus: The event bus interface from omnibase_core.
+    - ProtocolEventBusBase: The base event bus interface from omnibase_spi.
     - ProtocolEventBusContextManager: Context manager for event bus lifecycle.
     - ProtocolEventBusService: Service layer for event bus operations.
 """
@@ -36,7 +36,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    from omnibase_core.protocols.event_bus import ProtocolEventBus
+    from omnibase_spi.protocols.event_bus.protocol_event_bus_mixin import (
+        ProtocolEventBusBase,
+    )
 
 
 @runtime_checkable
@@ -47,9 +49,9 @@ class ProtocolEventBusProvider(Protocol):
     management. Allows dependency injection of different event bus
     implementations (in-memory, Kafka, Redpanda) based on configuration.
 
-    This is the SPI factory protocol for event bus instances. It is distinct
-    from omnibase_core's ProtocolEventBus which defines the event bus interface
-    itself. This protocol defines the factory/provider pattern for managing
+    This is the SPI factory protocol for event bus instances. It uses the
+    ProtocolEventBusBase interface from omnibase_spi to define the event bus
+    contract. This protocol defines the factory/provider pattern for managing
     event bus instances.
 
     Usage:
@@ -71,7 +73,7 @@ class ProtocolEventBusProvider(Protocol):
         self,
         environment: str | None = None,
         group: str | None = None,
-    ) -> "ProtocolEventBus":
+    ) -> "ProtocolEventBusBase":
         """Get or create an event bus instance.
 
         May return a cached instance if one exists for the given
@@ -84,7 +86,7 @@ class ProtocolEventBusProvider(Protocol):
                    If None, uses provider default.
 
         Returns:
-            Event bus instance implementing ProtocolEventBus.
+            Event bus instance implementing ProtocolEventBusBase.
 
         Raises:
             ConnectionError: If connection to the event bus backend fails.
@@ -103,7 +105,7 @@ class ProtocolEventBusProvider(Protocol):
         environment: str,
         group: str,
         config: dict[str, object] | None = None,
-    ) -> "ProtocolEventBus":
+    ) -> "ProtocolEventBusBase":
         """Create a new event bus instance (no caching).
 
         Always creates a new instance, useful when you need

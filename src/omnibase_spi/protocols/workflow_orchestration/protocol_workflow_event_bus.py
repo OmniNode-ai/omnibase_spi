@@ -50,7 +50,7 @@ Example:
     ```
 
 See Also:
-    - ProtocolEventBus: Base event bus interface from omnibase_core.
+    - ProtocolEventBusBase: Base event bus interface from omnibase_spi.
     - ProtocolWorkflowEventCoordinator: Coordinator for event-driven workflows.
 """
 
@@ -64,7 +64,9 @@ from omnibase_spi.protocols.types.protocol_workflow_orchestration_types import (
 )
 
 if TYPE_CHECKING:
-    from omnibase_core.protocols.event_bus import ProtocolEventBus
+    from omnibase_spi.protocols.event_bus.protocol_event_bus_mixin import (
+        ProtocolEventBusBase,
+    )
 
 
 @runtime_checkable
@@ -300,11 +302,11 @@ class ProtocolWorkflowEventBus(Protocol):
     Example:
         ```python
         class WorkflowEventBusImpl:
-            def __init__(self, base_bus: ProtocolEventBus) -> None:  # Core's ProtocolEventBus
+            def __init__(self, base_bus: ProtocolEventBusBase) -> None:
                 self._base_bus = base_bus
 
             @property
-            def base_event_bus(self) -> ProtocolEventBus:  # Returns Core's ProtocolEventBus
+            def base_event_bus(self) -> ProtocolEventBusBase:
                 return self._base_bus
 
             async def publish_workflow_event(
@@ -345,16 +347,16 @@ class ProtocolWorkflowEventBus(Protocol):
         ProtocolWorkflowEventMessage: Message format for workflow events.
         ProtocolWorkflowEventHandler: Handler for processing workflow events.
         ProtocolLiteralWorkflowStateProjection: State projection for CQRS.
-        ProtocolEventBus: Base event bus interface (from omnibase_core).
+        ProtocolEventBusBase: Base event bus interface (from omnibase_spi).
     """
 
     @property
-    def base_event_bus(self) -> "ProtocolEventBus":
+    def base_event_bus(self) -> "ProtocolEventBusBase":
         """
         Get the underlying event bus implementation.
 
-        Returns the Core ProtocolEventBus that this workflow event bus wraps.
-        This is the standard event bus protocol from omnibase_core.
+        Returns the ProtocolEventBusBase that this workflow event bus wraps.
+        This is the standard event bus protocol from omnibase_spi.
         """
         ...
 
