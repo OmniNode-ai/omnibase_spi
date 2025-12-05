@@ -25,11 +25,6 @@ specific domain modules:
 from typing import Protocol, runtime_checkable
 from uuid import UUID
 
-# Re-export from event_bus module (canonical location for provider protocol)
-from omnibase_spi.protocols.event_bus.protocol_event_bus_provider import (
-    ProtocolEventBusProvider,
-)
-
 # Re-export from analytics types
 from omnibase_spi.protocols.types.protocol_analytics_types import (
     ProtocolAnalyticsMetric,
@@ -307,7 +302,6 @@ __all__ = [
     "ProtocolErrorContext",
     "ProtocolErrorInfo",
     "ProtocolErrorResult",
-    "ProtocolEventBusProvider",
     "ProtocolExecutable",
     # Legacy storage (deprecated)
     "ProtocolGenericCheckpointData",
