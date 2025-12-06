@@ -510,7 +510,12 @@ class TestIsinstanceChecks:
         from omnibase_spi.protocols.nodes import ProtocolComputeNode
 
         class MockComputeNode:
-            """Mock implementation of ProtocolComputeNode."""
+            """Mock implementation of ProtocolComputeNode.
+
+            Note: Uses 'object' type hints instead of actual omnibase_core models
+            to avoid circular import issues in tests. Once omnibase_core exports
+            proper types, these can be updated to use TypedDict or model types.
+            """
 
             # Mock attributes - see class docstring for value conventions
             node_id = "test-node"  # Arbitrary test identifier
@@ -535,7 +540,12 @@ class TestIsinstanceChecks:
         from omnibase_spi.protocols.handlers import ProtocolHandler
 
         class MockHandler:
-            """Mock implementation of ProtocolHandler lifecycle methods."""
+            """Mock implementation of ProtocolHandler lifecycle methods.
+
+            Note: Uses 'object' type hints instead of actual omnibase_core models
+            to avoid circular import issues in tests. Once omnibase_core exports
+            proper types, these can be updated to use TypedDict or model types.
+            """
 
             @property
             def handler_type(self) -> object:

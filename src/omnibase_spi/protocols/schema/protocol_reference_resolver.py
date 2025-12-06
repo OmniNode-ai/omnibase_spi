@@ -7,21 +7,7 @@ to Python type names for code generation.
 
 from __future__ import annotations
 
-from typing import Protocol, TypedDict, runtime_checkable
-
-
-class RefParts(TypedDict):
-    """TypedDict for reference component parts.
-
-    Attributes:
-        file: The file path component of the reference, or None for internal refs
-        path: The JSON path component within the schema
-        name: The definition/type name extracted from the reference
-    """
-
-    file: str | None
-    path: str | None
-    name: str | None
+from typing import Protocol, runtime_checkable
 
 
 @runtime_checkable
@@ -110,13 +96,13 @@ class ProtocolSchemaReferenceResolver(Protocol):
         """
         ...
 
-    async def get_ref_parts(self, ref: str) -> RefParts:
+    async def get_ref_parts(self, ref: str) -> dict[str, str | None]:
         """Parse reference into component parts.
 
         Args:
             ref: Reference to parse
 
         Returns:
-            RefParts TypedDict with 'file', 'path', and 'name' components
+            Dict with 'file', 'path', and 'name' components
         """
         ...

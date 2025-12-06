@@ -18,10 +18,10 @@ from omnibase_spi.protocols.container.protocol_artifact_container import (
     LiteralContainerArtifactType,
 )
 
-# Type alias for backward compatibility
+# Type alias for registry artifact classification
 RegistryArtifactType: TypeAlias = LiteralContainerArtifactType
 
-# Registry artifact type constants (deprecated - use LiteralContainerArtifactType)
+# Registry artifact type constants for convenience
 ARTIFACT_TYPE_NODES = "nodes"
 ARTIFACT_TYPE_CLI_TOOLS = "cli_tools"
 ARTIFACT_TYPE_RUNTIMES = "runtimes"
