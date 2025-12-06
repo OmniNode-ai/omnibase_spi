@@ -303,7 +303,9 @@ from omnibase_spi.protocols.contracts import (
 # v0.3.0 Handler protocols (1 protocol) - DI-based protocol handlers
 from omnibase_spi.protocols.handlers import ProtocolHandler
 
-# Alias for versioned naming convention (ProtocolHandlerV3 is the same as ProtocolHandler)
+# Backwards-compatible alias for versioned naming convention.
+# DEPRECATED: ProtocolHandlerV3 will be removed in v0.5.0.
+# Use ProtocolHandler directly instead.
 ProtocolHandlerV3 = ProtocolHandler
 
 # v0.3.0 Node protocols (5 protocols) - Standard node interfaces with unified execute()

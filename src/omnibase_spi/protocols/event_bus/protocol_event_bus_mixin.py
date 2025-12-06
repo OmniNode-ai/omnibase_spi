@@ -21,7 +21,7 @@ This module supports two messaging patterns:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Awaitable, Callable, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Awaitable, Callable, Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import LiteralLogLevel
 from omnibase_spi.protocols.types.protocol_event_bus_types import ProtocolEventMessage
@@ -119,30 +119,66 @@ class ProtocolEventBusBase(Protocol):
         """
         ...
 
-    async def start_consuming(self) -> None:
+    async def start_consuming(self, timeout_seconds: float | None = None) -> None:
         """
         Start consuming messages from all subscribed topics.
 
         Activates the consumer loop to begin processing incoming envelopes.
         This method should be called after all subscribe() registrations
-        are complete. Typically runs until stop() is called or the
-        event bus is shut down.
+        are complete.
+
+        Args:
+            timeout_seconds: Maximum time to consume messages before returning.
+                If None (default), runs indefinitely until stop() is called or
+                the event bus is shut down. Useful for testing scenarios where
+                bounded consumption is needed.
+
+        Example:
+            ```python
+            # Run indefinitely (production usage)
+            await bus.start_consuming()
+
+            # Run for 30 seconds (testing usage)
+            await bus.start_consuming(timeout_seconds=30.0)
+            ```
 
         Raises:
             SPIError: If consumer initialization fails.
         """
         ...
 
-    async def health_check(self) -> bool:
+    async def health_check(self) -> dict[str, Any]:
         """
         Check the health status of the event bus connection.
 
         Verifies connectivity to the underlying message broker (e.g., Kafka)
-        and returns operational readiness status.
+        and returns operational readiness status with diagnostic details.
 
         Returns:
-            True if the event bus is healthy and ready for operations,
-            False if connectivity issues or degraded state detected.
+            Dictionary containing health status:
+                - healthy: Boolean indicating overall health
+                - latency_ms: Response time in milliseconds (optional)
+                - details: Additional diagnostic information (optional)
+                - last_error: Most recent error message if unhealthy (optional)
+
+        Caching:
+            Implementations SHOULD cache health check results for 5-30 seconds
+            to avoid overwhelming the message broker with repeated health probes.
+            Consider using a TTL cache for production deployments.
+
+        Security:
+            The `last_error` field may contain sensitive information from exception
+            messages. Implementations SHOULD sanitize error messages by removing
+            credentials, connection strings, and internal paths.
+
+        Example:
+            ```python
+            health = await bus.health_check()
+            if health['healthy']:
+                print(f"Bus healthy, latency: {health.get('latency_ms', 'N/A')}ms")
+            else:
+                print(f"Bus unhealthy: {health.get('last_error', 'Unknown')}")
+            ```
 
         Raises:
             SPIError: If health check cannot be performed.

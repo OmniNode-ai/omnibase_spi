@@ -36,6 +36,22 @@ class ProtocolHandler(Protocol):
         - BoltHandler: Neo4j Cypher queries
         - PostgresHandler: SQL queries via asyncpg
         - KafkaHandler: Message publishing
+
+    Migration:
+        ProtocolHandlerV3 was the versioned name during the protocol evolution.
+        As of v0.3.0, ProtocolHandler is the canonical name. ProtocolHandlerV3
+        is provided as a backwards-compatible alias but will be removed in v0.5.0.
+
+        To migrate::
+
+            # Old (deprecated)
+            from omnibase_spi.protocols import ProtocolHandlerV3
+
+            # New (recommended)
+            from omnibase_spi.protocols import ProtocolHandler
+
+        The protocols are identical - no code changes are needed beyond updating
+        the import statement.
     """
 
     @property
@@ -122,6 +138,31 @@ class ProtocolHandler(Protocol):
             print(f"Handler: {metadata['handler_type']}")
             print(f"Capabilities: {metadata['capabilities']}")
             ```
+
+        Security:
+            NEVER include in output:
+                - Credentials (passwords, API keys, tokens, secrets)
+                - Full connection strings with authentication details
+                - Internal file paths or system configuration details
+                - PII or sensitive business data
+
+            Safe example::
+
+                {
+                    "handler_type": "postgresql",
+                    "host": "db.example.com",
+                    "port": 5432,
+                    "database": "myapp",
+                    "capabilities": ["read", "write", "transactions"]
+                }
+
+            UNSAFE example (DO NOT DO THIS)::
+
+                {
+                    "handler_type": "postgresql",
+                    "connection_string": "postgresql://admin:secret123@db.example.com:5432/mydb",
+                    "api_key": "sk-1234567890abcdef"
+                }
         """
         ...
 
@@ -147,5 +188,23 @@ class ProtocolHandler(Protocol):
             else:
                 print(f"Handler unhealthy: {health.get('last_error', 'Unknown')}")
             ```
+
+        Security:
+            The ``last_error`` field may contain sensitive information from
+            exception messages. Implementations SHOULD sanitize error messages
+            before including them by:
+
+                - Removing credentials from connection error text
+                - Redacting internal file paths and system details
+                - Using generic error categories when possible
+                  (e.g., "Connection failed" instead of full stack trace)
+
+            Example of sanitized error::
+
+                {"healthy": False, "last_error": "Connection timeout to database"}
+
+            Instead of::
+
+                {"healthy": False, "last_error": "Connection to postgresql://user:pass@host failed"}
         """
         ...
