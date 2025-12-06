@@ -30,8 +30,6 @@ omnibase_core = ">=0.3.6"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.13.0"
-black = "^24.10.0"
-isort = "^5.13.0"
 pre-commit = "^4.0.0"
 pytest = "^8.4.1"
 pytest-asyncio = "^0.24.0"
@@ -46,15 +44,40 @@ pytest-cov = "^7.0.0"
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.black]
+[tool.ruff]
 line-length = 88
-target-version = ['py312']
-include = '\.pyi?$'
+target-version = "py312"
+exclude = [
+    "tests/fixtures/validation/",
+    ".github/workflows/",
+]
 
-[tool.isort]
-profile = "black"
-multi_line_output = 3
-line_length = 88
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort (import sorting)
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "UP",     # pyupgrade
+    "ARG",    # flake8-unused-arguments
+    "SIM",    # flake8-simplify
+]
+ignore = [
+    "E501",   # line too long (handled by formatter)
+    "B008",   # do not perform function calls in argument defaults
+    "C901",   # too complex
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["omnibase_spi", "omnibase_core"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
 
 [tool.mypy]
 exclude = [

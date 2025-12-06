@@ -12,6 +12,7 @@ Usage:
     python scripts/validation/validate_protocol_duplicates.py src/
     python scripts/validation/validate_protocol_duplicates.py --generate-report src/
 """
+
 from __future__ import annotations
 
 import argparse
@@ -366,7 +367,7 @@ def find_all_protocols(base_path: Path) -> list[ProtocolInfo]:
 
                 # Only check files that are likely to contain protocols
                 try:
-                    with open(py_file, "r", encoding="utf-8") as f:
+                    with open(py_file, encoding="utf-8") as f:
                         content = f.read()
 
                     # Quick check if file contains Protocol definitions

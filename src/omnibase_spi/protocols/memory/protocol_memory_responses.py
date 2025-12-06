@@ -113,7 +113,7 @@ class ProtocolMemoryResponse(Protocol):
     """
 
     correlation_id: UUID | None
-    response_timestamp: "datetime"
+    response_timestamp: datetime
     success: bool
     response_source: str
 
@@ -246,10 +246,10 @@ class ProtocolMemoryRetrieveResponse(ProtocolMemoryResponse, Protocol):
         - ProtocolBatchMemoryRetrieveResponse: For batch retrieval responses.
     """
 
-    memory: "ProtocolMemoryRecord | None"
+    memory: ProtocolMemoryRecord | None
 
     @property
-    def related_memories(self) -> list["ProtocolMemoryRecord"]: ...
+    def related_memories(self) -> list[ProtocolMemoryRecord]: ...
 
 
 @runtime_checkable
@@ -309,8 +309,8 @@ class ProtocolMemoryListResponse(ProtocolMemoryResponse, Protocol):
         - ProtocolPaginationResponse: For pagination metadata structure.
     """
 
-    memories: list["ProtocolMemoryRecord"]
-    pagination: "ProtocolPaginationResponse"
+    memories: list[ProtocolMemoryRecord]
+    pagination: ProtocolPaginationResponse
 
 
 @runtime_checkable
@@ -377,7 +377,7 @@ class ProtocolSemanticSearchResponse(ProtocolMemoryResponse, Protocol):
         - ProtocolSearchResult: For individual search result structure.
     """
 
-    results: list["ProtocolSearchResult"]
+    results: list[ProtocolSearchResult]
     total_matches: int
     search_time_ms: int
 

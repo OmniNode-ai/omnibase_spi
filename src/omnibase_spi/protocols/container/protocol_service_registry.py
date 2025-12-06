@@ -12,7 +12,6 @@ from typing import (
     Any,
     Literal,
     Protocol,
-    Type,
     TypeVar,
     runtime_checkable,
 )
@@ -506,7 +505,7 @@ class ProtocolServiceValidator(Protocol):
     """
 
     async def validate_service(
-        self, service: Any, interface: Type[Any]
+        self, service: Any, interface: type[Any]
     ) -> "ProtocolValidationResult": ...
 
     async def validate_dependencies(
@@ -583,7 +582,7 @@ class ProtocolServiceFactory(Protocol):
     """
 
     async def create_instance(
-        self, interface: Type[T], context: dict[str, "ContextValue"]
+        self, interface: type[T], context: dict[str, "ContextValue"]
     ) -> T: ...
 
     async def dispose_instance(self, instance: Any) -> None: ...
@@ -690,8 +689,8 @@ class ProtocolServiceRegistry(Protocol):
 
     async def register_service(
         self,
-        interface: Type[TInterface],
-        implementation: Type[TImplementation],
+        interface: type[TInterface],
+        implementation: type[TImplementation],
         lifecycle: LiteralServiceLifecycle,
         scope: LiteralInjectionScope,
         configuration: dict[str, "ContextValue"] | None = None,
@@ -699,7 +698,7 @@ class ProtocolServiceRegistry(Protocol):
 
     async def register_instance(
         self,
-        interface: Type[TInterface],
+        interface: type[TInterface],
         instance: TInterface,
         scope: "LiteralInjectionScope" = "global",
         metadata: dict[str, "ContextValue"] | None = None,
@@ -707,7 +706,7 @@ class ProtocolServiceRegistry(Protocol):
 
     async def register_factory(
         self,
-        interface: Type[TInterface],
+        interface: type[TInterface],
         factory: "ProtocolServiceFactory",
         lifecycle: "LiteralServiceLifecycle" = "transient",
         scope: "LiteralInjectionScope" = "global",
@@ -717,24 +716,24 @@ class ProtocolServiceRegistry(Protocol):
 
     async def resolve_service(
         self,
-        interface: Type[TInterface],
+        interface: type[TInterface],
         scope: "LiteralInjectionScope | None" = None,
         context: dict[str, "ContextValue"] | None = None,
     ) -> TInterface: ...
 
     async def resolve_named_service(
         self,
-        interface: Type[TInterface],
+        interface: type[TInterface],
         name: str,
         scope: "LiteralInjectionScope | None" = None,
     ) -> TInterface: ...
 
     async def resolve_all_services(
-        self, interface: Type[TInterface], scope: "LiteralInjectionScope | None" = None
+        self, interface: type[TInterface], scope: "LiteralInjectionScope | None" = None
     ) -> list[TInterface]: ...
 
     async def try_resolve_service(
-        self, interface: Type[TInterface], scope: "LiteralInjectionScope | None" = None
+        self, interface: type[TInterface], scope: "LiteralInjectionScope | None" = None
     ) -> TInterface | None: ...
 
     async def get_registration(
@@ -742,7 +741,7 @@ class ProtocolServiceRegistry(Protocol):
     ) -> ProtocolServiceRegistration | None: ...
 
     async def get_registrations_by_interface(
-        self, interface: Type[T]
+        self, interface: type[T]
     ) -> list["ProtocolServiceRegistration"]: ...
 
     async def get_all_registrations(self) -> list["ProtocolServiceRegistration"]: ...

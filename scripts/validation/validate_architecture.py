@@ -272,7 +272,7 @@ def validate_directory(
 
         except SyntaxError as e:
             print(f"  [SYNTAX ERROR] {file_path}: {e}", file=sys.stderr)
-        except IOError as e:
+        except OSError as e:
             print(f"  [IO ERROR] {file_path}: {e}", file=sys.stderr)
 
     return result

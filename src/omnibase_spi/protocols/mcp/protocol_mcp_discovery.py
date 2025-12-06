@@ -7,7 +7,8 @@ Enables dynamic discovery of MCP services and subsystems across the network.
 Domain: MCP service discovery and network coordination
 """
 
-from typing import Callable, Protocol, runtime_checkable
+from collections.abc import Callable
+from typing import Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import (
     ContextValue,

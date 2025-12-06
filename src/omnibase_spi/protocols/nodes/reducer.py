@@ -33,8 +33,8 @@ class ProtocolReducerNode(ProtocolNode, Protocol):
 
     async def execute(
         self,
-        input_data: "ModelReductionInput",
-    ) -> "ModelReductionOutput":
+        input_data: ModelReductionInput,
+    ) -> ModelReductionOutput:
         """
         Execute state reduction.
 

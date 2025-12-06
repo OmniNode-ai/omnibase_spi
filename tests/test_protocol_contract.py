@@ -8,8 +8,7 @@ Validates that ProtocolContract:
 - Has all required methods and properties
 """
 
-from typing import Any, Dict
-
+from typing import Any
 
 from omnibase_spi.protocols.types import ProtocolContract
 
@@ -21,7 +20,7 @@ class ConcreteContract:
         self,
         contract_id: str = "test-contract-001",
         version: str = "1.0.0",
-        metadata: Dict[str, Any] | None = None,
+        metadata: dict[str, Any] | None = None,
     ):
         self._contract_id = contract_id
         self._version = version
@@ -36,10 +35,10 @@ class ConcreteContract:
         return self._version
 
     @property
-    def metadata(self) -> Dict[str, Any]:
+    def metadata(self) -> dict[str, Any]:
         return self._metadata
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "contract_id": self.contract_id,
             "version": self.version,
@@ -47,7 +46,7 @@ class ConcreteContract:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "ConcreteContract":
+    def from_dict(cls, data: dict[str, Any]) -> "ConcreteContract":
         return cls(
             contract_id=data.get("contract_id", "unknown"),
             version=data.get("version", "0.0.0"),

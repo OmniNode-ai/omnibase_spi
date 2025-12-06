@@ -162,7 +162,6 @@ from omnibase_spi.protocols.types.protocol_validation_types import (
     ProtocolVersionInfo,
 )
 
-
 # Export all for wildcard imports
 __all__ = [
     # Base types

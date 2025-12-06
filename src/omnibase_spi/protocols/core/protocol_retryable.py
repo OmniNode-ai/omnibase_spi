@@ -5,7 +5,8 @@ Defines interfaces for retry logic, backoff strategies, and retry policy
 management across all ONEX services with consistent patterns.
 """
 
-from typing import TYPE_CHECKING, Any, Callable, Protocol, runtime_checkable
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types.protocol_core_types import (

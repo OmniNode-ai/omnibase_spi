@@ -15,6 +15,7 @@ Usage:
     python scripts/validation/validate_spi_protocols.py src/
     python scripts/validation/validate_spi_protocols.py --fix-issues src/
 """
+
 from __future__ import annotations
 
 import argparse
@@ -104,9 +105,12 @@ class SPIProtocolValidator(ast.NodeVisitor):
         """Track TYPE_CHECKING blocks to skip forward references."""
         # Check if this is a TYPE_CHECKING conditional
         is_type_checking = False
-        if isinstance(node.test, ast.Name) and node.test.id == "TYPE_CHECKING":
-            is_type_checking = True
-        elif isinstance(node.test, ast.Attribute) and node.test.attr == "TYPE_CHECKING":
+        if (
+            isinstance(node.test, ast.Name)
+            and node.test.id == "TYPE_CHECKING"
+            or isinstance(node.test, ast.Attribute)
+            and node.test.attr == "TYPE_CHECKING"
+        ):
             is_type_checking = True
 
         if is_type_checking:
@@ -595,7 +599,7 @@ class ContextValueValidator:
     def validate_file(self, file_path: str) -> list[ProtocolViolation]:
         """Validate ContextValue usage in a file."""
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             tree = ast.parse(content)
@@ -814,7 +818,7 @@ def validate_file(
 ) -> tuple[list[ProtocolViolation], list[ProtocolInfo]]:
     """Validate a single Python file."""
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
 
         tree = ast.parse(content)

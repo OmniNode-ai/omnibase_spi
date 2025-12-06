@@ -2,8 +2,8 @@
 # Enhanced validation for Service Provider Interface architectural compliance
 #
 # PERFORMANCE OPTIMIZATION NOTES:
-# - Uses local hooks for black/isort/mypy (aligned with omnibase_core patterns)
-# - Order: black -> isort -> ruff -> mypy (formatting before linting before type checking)
+# - Uses ruff for formatting, import sorting, and linting (replaces black + isort)
+# - Order: ruff format -> ruff check -> mypy (formatting before linting before type checking)
 # - Use `pre-commit run --all-files` to test all hooks before pushing
 
 repos:
@@ -28,30 +28,21 @@ repos:
       - id: check-added-large-files
         args: [--maxkb=1000]
 
-  # SPI Python Development Hooks (aligned with omnibase_core patterns)
-  # Order: black -> isort -> ruff -> mypy (formatting before linting before type checking)
+  # SPI Python Development Hooks
+  # Order: ruff format -> ruff check (with import sorting) -> mypy
+  # Ruff replaces both black and isort for faster, unified tooling
   - repo: local
     hooks:
-      - id: black-format
-        name: black (auto-format)
-        entry: poetry run black
+      - id: ruff-format
+        name: ruff format (auto-format)
+        entry: poetry run ruff format
         language: system
         types: [python]
-        args: [--line-length, "88", --target-version, py311]
         exclude: ^(tests/fixtures/validation/|\.github/workflows/).*$
         stages: [pre-commit]
 
-      - id: isort-format
-        name: isort (auto-sort imports)
-        entry: poetry run isort
-        language: system
-        types: [python]
-        args: [--filter-files, --profile, black, --line-length, "88"]
-        exclude: ^(tests/fixtures/validation/|\.github/workflows/)
-        stages: [pre-commit]
-
       - id: ruff-fix
-        name: ruff (auto-fix linting issues)
+        name: ruff check (lint + import sort)
         entry: poetry run ruff check --fix
         language: system
         types: [python]

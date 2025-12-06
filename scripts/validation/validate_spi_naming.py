@@ -11,6 +11,7 @@ This script validates naming conventions specific to omnibase_spi:
 
 Adapted from omnibase_core naming validation for SPI architectural compliance.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -368,7 +369,7 @@ class SPINamingValidator(ast.NodeVisitor):
 def validate_file(file_path: Path) -> list[NamingViolation]:
     """Validate naming conventions in a single Python file."""
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
 
         tree = ast.parse(content)

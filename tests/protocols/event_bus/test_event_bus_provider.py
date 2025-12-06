@@ -10,6 +10,8 @@ Validates that ProtocolEventBusProvider:
 - Works correctly with isinstance checks for compliant/non-compliant classes
 """
 
+from typing import Any
+
 import pytest
 
 from omnibase_spi.protocols.event_bus.protocol_event_bus_mixin import (
@@ -31,6 +33,8 @@ class MockEventBus:
     def __init__(self) -> None:
         """Initialize the mock event bus with empty state."""
         self._published_events: list[ProtocolEventMessage] = []
+        self._handlers: dict[str, list[object]] = {}
+        self._consuming: bool = False
 
     async def publish(self, event: ProtocolEventMessage) -> None:
         """Record published events for test verification.
@@ -39,6 +43,56 @@ class MockEventBus:
             event: The event message to publish.
         """
         self._published_events.append(event)
+
+    async def publish_envelope(self, envelope: object, topic: str) -> None:
+        """Publish an envelope to a topic (mock implementation).
+
+        Args:
+            envelope: The envelope to publish.
+            topic: The topic to publish to.
+        """
+        pass
+
+    async def subscribe(
+        self,
+        topic: str,
+        handler: object,
+    ) -> None:
+        """Subscribe to a topic with a handler (mock implementation).
+
+        Args:
+            topic: The topic to subscribe to.
+            handler: The handler function.
+        """
+        if topic not in self._handlers:
+            self._handlers[topic] = []
+        self._handlers[topic].append(handler)
+
+    async def start_consuming(self, timeout_seconds: float | None = None) -> None:
+        """Start consuming messages (mock implementation).
+
+        Args:
+            timeout_seconds: Optional timeout (ignored in mock).
+        """
+        _ = timeout_seconds  # Unused in mock
+        self._consuming = True
+
+    async def stop_consuming(self, timeout_seconds: float = 30.0) -> None:
+        """Stop consuming messages (mock implementation).
+
+        Args:
+            timeout_seconds: Timeout for graceful shutdown (ignored in mock).
+        """
+        _ = timeout_seconds  # Unused in mock
+        self._consuming = False
+
+    async def health_check(self) -> dict[str, Any]:
+        """Check health status (mock implementation).
+
+        Returns:
+            Health status dictionary with healthy=True.
+        """
+        return {"healthy": True}
 
     @property
     def published_events(self) -> list[ProtocolEventMessage]:
@@ -381,3 +435,134 @@ class TestProtocolEventBusProviderContextManagerLifecycle:
         assert bus1 is not None
         assert bus2 is not None
         assert bus1 is not bus2  # Verify different instances returned
+
+
+class TestProtocolEventBusBaseHealthCheckReturnContract:
+    """Test return value contracts for ProtocolEventBusBase.health_check() method.
+
+    The health_check() method was changed from returning bool to dict[str, Any]
+    to provide richer diagnostic information.
+    """
+
+    @pytest.mark.asyncio
+    async def test_health_check_returns_dict(self) -> None:
+        """health_check() must return dict[str, Any] (not bool)."""
+        bus = MockEventBus()
+        result = await bus.health_check()
+
+        assert isinstance(result, dict), (
+            f"health_check() should return dict, got {type(result)}. "
+            "Note: Return type was changed from bool to dict[str, Any]"
+        )
+
+    @pytest.mark.asyncio
+    async def test_health_check_contains_healthy_key(self) -> None:
+        """health_check() must contain 'healthy' key."""
+        bus = MockEventBus()
+        result = await bus.health_check()
+
+        assert "healthy" in result, "health_check() must return dict with 'healthy' key"
+
+    @pytest.mark.asyncio
+    async def test_health_check_healthy_is_boolean(self) -> None:
+        """health_check() 'healthy' value must be boolean."""
+        bus = MockEventBus()
+        result = await bus.health_check()
+
+        assert isinstance(
+            result["healthy"], bool
+        ), f"'healthy' should be bool, got {type(result['healthy'])}"
+
+    @pytest.mark.asyncio
+    async def test_health_check_latency_ms_is_numeric_when_present(self) -> None:
+        """health_check() 'latency_ms' should be numeric when present."""
+        bus = MockEventBus()
+        result = await bus.health_check()
+
+        if "latency_ms" in result:
+            assert isinstance(
+                result["latency_ms"], (int, float)
+            ), f"latency_ms should be numeric, got {type(result['latency_ms'])}"
+
+    @pytest.mark.asyncio
+    async def test_health_check_last_error_is_string_when_present(self) -> None:
+        """health_check() 'last_error' should be string when present."""
+        bus = MockEventBus()
+        result = await bus.health_check()
+
+        if "last_error" in result:
+            assert isinstance(
+                result["last_error"], str
+            ), f"last_error should be string, got {type(result['last_error'])}"
+
+    @pytest.mark.asyncio
+    async def test_health_check_details_is_dict_when_present(self) -> None:
+        """health_check() 'details' should be dict when present."""
+        bus = MockEventBus()
+        result = await bus.health_check()
+
+        if "details" in result:
+            assert isinstance(
+                result["details"], dict
+            ), f"details should be dict, got {type(result['details'])}"
+
+
+class UnhealthyMockEventBus(MockEventBus):
+    """Event bus implementation that returns unhealthy status for testing."""
+
+    async def health_check(self) -> dict[str, Any]:
+        """Return unhealthy status with error details."""
+        return {
+            "healthy": False,
+            "latency_ms": 5000.0,
+            "last_error": "Connection to Kafka broker failed",
+            "details": {
+                "broker": "kafka:9092",
+                "retry_count": 3,
+            },
+        }
+
+
+class TestProtocolEventBusBaseHealthCheckUnhealthyContract:
+    """Test return value contracts for unhealthy event bus scenarios."""
+
+    @pytest.mark.asyncio
+    async def test_unhealthy_bus_returns_false_healthy(self) -> None:
+        """Unhealthy event bus should return healthy=False."""
+        bus = UnhealthyMockEventBus()
+        result = await bus.health_check()
+
+        assert result["healthy"] is False
+
+    @pytest.mark.asyncio
+    async def test_unhealthy_bus_includes_last_error(self) -> None:
+        """Unhealthy event bus should include last_error string."""
+        bus = UnhealthyMockEventBus()
+        result = await bus.health_check()
+
+        assert "last_error" in result
+        assert isinstance(result["last_error"], str)
+        assert len(result["last_error"]) > 0
+
+    @pytest.mark.asyncio
+    async def test_unhealthy_bus_error_is_sanitized(self) -> None:
+        """Unhealthy event bus last_error should not contain credentials."""
+        bus = UnhealthyMockEventBus()
+        result = await bus.health_check()
+
+        error_msg = result.get("last_error", "")
+        # Check that error message doesn't contain typical credential patterns
+        forbidden_patterns = ["password=", "api_key=", "secret=", "token=", "://user:"]
+        for pattern in forbidden_patterns:
+            assert (
+                pattern.lower() not in error_msg.lower()
+            ), f"Credential pattern '{pattern}' found in error message"
+
+    @pytest.mark.asyncio
+    async def test_unhealthy_bus_includes_latency_ms(self) -> None:
+        """Unhealthy event bus should include latency_ms for diagnostics."""
+        bus = UnhealthyMockEventBus()
+        result = await bus.health_check()
+
+        assert "latency_ms" in result
+        assert isinstance(result["latency_ms"], (int, float))

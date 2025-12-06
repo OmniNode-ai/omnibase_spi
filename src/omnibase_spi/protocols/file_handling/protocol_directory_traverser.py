@@ -27,7 +27,8 @@ Protocol for directory traversal operations.
 Defines a standardized interface for discovering and filtering files in directories.
 """
 
-from typing import TYPE_CHECKING, Callable, Protocol, TypeVar, runtime_checkable
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Protocol, TypeVar, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types import ContextValue

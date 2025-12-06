@@ -8,7 +8,8 @@ ONEX and external agent systems.
 Domain: Networking - External communication protocols
 """
 
-from typing import TYPE_CHECKING, AsyncIterator, Protocol, runtime_checkable
+from collections.abc import AsyncIterator
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types.protocol_core_types import ContextValue

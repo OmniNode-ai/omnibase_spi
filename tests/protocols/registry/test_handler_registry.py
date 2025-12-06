@@ -9,8 +9,6 @@ Validates that ProtocolHandlerRegistry:
 - Works correctly with isinstance checks for compliant/non-compliant classes
 """
 
-from typing import Type
-
 import pytest
 
 from omnibase_spi.protocols.registry.handler_registry import ProtocolHandlerRegistry
@@ -29,12 +27,12 @@ class CompliantRegistry:
 
     def __init__(self) -> None:
         """Initialize registry with empty storage."""
-        self._handlers: dict[str, Type[object]] = {}
+        self._handlers: dict[str, type[object]] = {}
 
     def register(
         self,
         protocol_type: str,
-        handler_cls: Type[object],
+        handler_cls: type[object],
     ) -> None:
         """Register a protocol handler."""
         self._handlers[protocol_type] = handler_cls
@@ -42,7 +40,7 @@ class CompliantRegistry:
     def get(
         self,
         protocol_type: str,
-    ) -> Type[object]:
+    ) -> type[object]:
         """Get handler class for protocol type."""
         return self._handlers[protocol_type]
 
@@ -61,7 +59,7 @@ class PartialRegistry:
     def register(
         self,
         _protocol_type: str,
-        _handler_cls: Type[object],
+        _handler_cls: type[object],
     ) -> None:
         """Register a protocol handler."""
         pass
@@ -69,7 +67,7 @@ class PartialRegistry:
     def get(
         self,
         _protocol_type: str,
-    ) -> Type[object]:
+    ) -> type[object]:
         """Get handler class for protocol type."""
         return MockHandler
 
@@ -87,7 +85,7 @@ class WrongSignatureRegistry:
         """Register a protocol handler."""
         pass
 
-    def get(self, _protocol_type: str) -> Type[object]:
+    def get(self, _protocol_type: str) -> type[object]:
         """Get handler class for protocol type."""
         return MockHandler
 

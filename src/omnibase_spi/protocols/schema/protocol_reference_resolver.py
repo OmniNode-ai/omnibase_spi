@@ -5,6 +5,8 @@ Defines the interface for resolving $ref references in JSON Schema
 to Python type names for code generation.
 """
 
+from __future__ import annotations
+
 from typing import Protocol, runtime_checkable
 
 

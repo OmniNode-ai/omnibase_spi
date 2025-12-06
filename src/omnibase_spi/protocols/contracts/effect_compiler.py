@@ -29,7 +29,7 @@ class ProtocolEffectContractCompiler(Protocol):
     async def compile(
         self,
         contract_path: Path,
-    ) -> "ModelEffectContract":
+    ) -> ModelEffectContract:
         """
         Compile effect contract from YAML file.
 
@@ -48,7 +48,7 @@ class ProtocolEffectContractCompiler(Protocol):
     async def validate(
         self,
         contract_path: Path,
-    ) -> "ModelContractValidationResult":
+    ) -> ModelContractValidationResult:
         """
         Validate contract without compiling.
 

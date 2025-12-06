@@ -510,7 +510,12 @@ class TestIsinstanceChecks:
         from omnibase_spi.protocols.nodes import ProtocolComputeNode
 
         class MockComputeNode:
-            """Mock implementation of ProtocolComputeNode."""
+            """Mock implementation of ProtocolComputeNode.
+
+            Note: Uses 'object' type hints instead of actual omnibase_core models
+            to avoid circular import issues in tests. Once omnibase_core exports
+            proper types, these can be updated to use TypedDict or model types.
+            """
 
             # Mock attributes - see class docstring for value conventions
             node_id = "test-node"  # Arbitrary test identifier
@@ -535,7 +540,17 @@ class TestIsinstanceChecks:
         from omnibase_spi.protocols.handlers import ProtocolHandler
 
         class MockHandler:
-            """Mock implementation of ProtocolHandler lifecycle methods."""
+            """Mock implementation of ProtocolHandler lifecycle methods.
+
+            Note: Uses 'object' type hints instead of actual omnibase_core models
+            to avoid circular import issues in tests. Once omnibase_core exports
+            proper types, these can be updated to use TypedDict or model types.
+            """
+
+            @property
+            def handler_type(self) -> object:
+                """Returns mock handler type."""
+                return "HTTP"
 
             async def initialize(self, config: object) -> None:
                 """No-op initialization for testing."""
@@ -550,6 +565,14 @@ class TestIsinstanceChecks:
             ) -> object:
                 """Returns empty dict as placeholder response."""
                 return {}
+
+            def describe(self) -> dict[str, object]:
+                """Returns mock handler description."""
+                return {"type": "mock", "capabilities": []}
+
+            async def health_check(self) -> dict[str, object]:
+                """Returns mock health check result."""
+                return {"healthy": True, "latency_ms": 0.0}
 
         mock = MockHandler()
         assert isinstance(mock, ProtocolHandler)
@@ -624,7 +647,6 @@ class TestForwardReferenceResolution:
         to the actual Core model classes.
         """
         from omnibase_core.models.compute import ModelComputeInput, ModelComputeOutput
-
         from omnibase_spi.protocols.nodes.compute import ProtocolComputeNode
 
         # get_type_hints should resolve forward references when Core is available
@@ -648,7 +670,6 @@ class TestForwardReferenceResolution:
         to the actual Core model classes.
         """
         from omnibase_core.models.effect import ModelEffectInput, ModelEffectOutput
-
         from omnibase_spi.protocols.nodes.effect import ProtocolEffectNode
 
         hints = get_type_hints(ProtocolEffectNode.execute)
@@ -675,7 +696,6 @@ class TestForwardReferenceResolution:
             ModelProtocolRequest,
             ModelProtocolResponse,
         )
-
         from omnibase_spi.protocols.handlers.protocol_handler import ProtocolHandler
 
         hints = get_type_hints(ProtocolHandler.execute)
@@ -703,7 +723,6 @@ class TestForwardReferenceResolution:
         from pathlib import Path
 
         from omnibase_core.models.contract import ModelEffectContract
-
         from omnibase_spi.protocols.contracts.effect_compiler import (
             ProtocolEffectContractCompiler,
         )
@@ -794,9 +813,9 @@ class TestForwardReferenceResolution:
 
             # The error should reference one of the Core model types
             error_message = str(exc_info.value)
-            assert "ModelComputeInput" in error_message or "Model" in error_message, (
-                f"Expected NameError for Core model type, got: {error_message}"
-            )
+            assert (
+                "ModelComputeInput" in error_message or "Model" in error_message
+            ), f"Expected NameError for Core model type, got: {error_message}"
 
 
 class TestProtocolMethodSignatures:
@@ -971,6 +990,11 @@ class TestModuleReimport:
         class MockHandlerAfterReload:
             """Mock implementation created after reload."""
 
+            @property
+            def handler_type(self) -> object:
+                """Returns mock handler type."""
+                return "HTTP"
+
             async def initialize(self, config: object) -> None:
                 pass
 
@@ -981,6 +1005,14 @@ class TestModuleReimport:
                 self, request: object, operation_config: object
             ) -> object:
                 return {}
+
+            def describe(self) -> dict[str, object]:
+                """Returns mock handler description."""
+                return {"type": "mock", "capabilities": []}
+
+            async def health_check(self) -> dict[str, object]:
+                """Returns mock health check result."""
+                return {"healthy": True, "latency_ms": 0.0}
 
         mock = MockHandlerAfterReload()
         assert isinstance(
@@ -1187,6 +1219,11 @@ class TestModuleReimport:
         class MockHandlerAfterReload:
             """Mock ProtocolHandler created after reload for verification."""
 
+            @property
+            def handler_type(self) -> object:
+                """Returns mock handler type."""
+                return "HTTP"
+
             async def initialize(self, config: object) -> None:
                 """No-op initialization for testing."""
                 pass
@@ -1200,6 +1237,14 @@ class TestModuleReimport:
             ) -> object:
                 """Returns empty dict as placeholder response."""
                 return {}
+
+            def describe(self) -> dict[str, object]:
+                """Returns mock handler description."""
+                return {"type": "mock", "capabilities": []}
+
+            async def health_check(self) -> dict[str, object]:
+                """Returns mock health check result."""
+                return {"healthy": True, "latency_ms": 0.0}
 
         mock = MockHandlerAfterReload()
         assert isinstance(
@@ -1334,14 +1379,14 @@ class TestModuleReimport:
         )
 
         # The class names are the same, but the objects are different
-        assert protocol_before_reload.__name__ == protocol_after_reload.__name__, (
-            "Both Protocol classes should have the same __name__"
-        )
+        assert (
+            protocol_before_reload.__name__ == protocol_after_reload.__name__
+        ), "Both Protocol classes should have the same __name__"
 
         # Their id() values are different, proving they are distinct objects
-        assert id(protocol_before_reload) != id(protocol_after_reload), (
-            "Protocol classes should have different id() after reload"
-        )
+        assert id(protocol_before_reload) != id(
+            protocol_after_reload
+        ), "Protocol classes should have different id() after reload"
 
     def test_dict_key_limitation_after_reload(self) -> None:
         """Demonstrate dictionary key limitation when protocol identity changes.
@@ -1370,9 +1415,9 @@ class TestModuleReimport:
         # Demonstrate dictionary key issue - the key limitation
         registry: dict[type, str] = {protocol_before_reload: "old_handler"}
         assert protocol_before_reload in registry, "Old protocol should be in registry"
-        assert protocol_after_reload not in registry, (
-            "New protocol should NOT be in registry - this demonstrates the limitation"
-        )
+        assert (
+            protocol_after_reload not in registry
+        ), "New protocol should NOT be in registry - this demonstrates the limitation"
 
         # Note: issubclass() is NOT demonstrated here because Python's
         # runtime_checkable protocols with non-method members (like node_id,
@@ -1407,9 +1452,9 @@ class TestModuleReimport:
         # Demonstrate set membership issue
         protocol_set: set[type] = {protocol_before_reload}
         assert protocol_before_reload in protocol_set, "Old protocol in set"
-        assert protocol_after_reload not in protocol_set, (
-            "New protocol NOT in set - class identity matters for hashing"
-        )
+        assert (
+            protocol_after_reload not in protocol_set
+        ), "New protocol NOT in set - class identity matters for hashing"
 
         # Mitigation: Always use fresh module attribute access
         # BAD:  cached_protocol = some_module.Protocol  # Stale after reload
@@ -1479,9 +1524,9 @@ class TestModuleReimport:
 
         # Also verify using fresh module attribute access
         isinstance_with_module_attr = isinstance(mock_before, base_module.ProtocolNode)
-        assert isinstance_with_module_attr, (
-            "Mock should pass isinstance with fresh module.ProtocolNode access"
-        )
+        assert (
+            isinstance_with_module_attr
+        ), "Mock should pass isinstance with fresh module.ProtocolNode access"
 
 
 class TestProtocolCoverage:
@@ -2211,9 +2256,9 @@ class TestProtocolInheritanceChains:
         ), "ProtocolComputeNode missing inherited version"
 
         # Verify ProtocolNode is in the MRO (method resolution order)
-        assert ProtocolNode in ProtocolComputeNode.__mro__, (
-            "ProtocolNode should be in ProtocolComputeNode's MRO"
-        )
+        assert (
+            ProtocolNode in ProtocolComputeNode.__mro__
+        ), "ProtocolNode should be in ProtocolComputeNode's MRO"
 
         # Verify compute-specific attributes also exist
         assert hasattr(
@@ -2243,9 +2288,9 @@ class TestProtocolInheritanceChains:
         ), "ProtocolEffectNode missing inherited version"
 
         # Verify ProtocolNode is in the MRO
-        assert ProtocolNode in ProtocolEffectNode.__mro__, (
-            "ProtocolNode should be in ProtocolEffectNode's MRO"
-        )
+        assert (
+            ProtocolNode in ProtocolEffectNode.__mro__
+        ), "ProtocolNode should be in ProtocolEffectNode's MRO"
 
         # Verify effect-specific lifecycle methods exist
         assert hasattr(
@@ -2278,9 +2323,9 @@ class TestProtocolInheritanceChains:
         ), "ProtocolReducerNode missing inherited version"
 
         # Verify ProtocolNode is in the MRO
-        assert ProtocolNode in ProtocolReducerNode.__mro__, (
-            "ProtocolNode should be in ProtocolReducerNode's MRO"
-        )
+        assert (
+            ProtocolNode in ProtocolReducerNode.__mro__
+        ), "ProtocolNode should be in ProtocolReducerNode's MRO"
 
         # Verify reducer-specific execute method exists
         assert hasattr(
@@ -2307,9 +2352,9 @@ class TestProtocolInheritanceChains:
         ), "ProtocolOrchestratorNode missing inherited version"
 
         # Verify ProtocolNode is in the MRO
-        assert ProtocolNode in ProtocolOrchestratorNode.__mro__, (
-            "ProtocolNode should be in ProtocolOrchestratorNode's MRO"
-        )
+        assert (
+            ProtocolNode in ProtocolOrchestratorNode.__mro__
+        ), "ProtocolNode should be in ProtocolOrchestratorNode's MRO"
 
         # Verify orchestrator-specific execute method exists
         assert hasattr(
@@ -2342,14 +2387,14 @@ class TestProtocolInheritanceChains:
         mock = MockComputeNode()
 
         # Should satisfy ProtocolComputeNode
-        assert isinstance(mock, ProtocolComputeNode), (
-            "Mock should be isinstance of ProtocolComputeNode"
-        )
+        assert isinstance(
+            mock, ProtocolComputeNode
+        ), "Mock should be isinstance of ProtocolComputeNode"
 
         # Should also satisfy ProtocolNode due to inheritance
-        assert isinstance(mock, ProtocolNode), (
-            "Mock satisfying ProtocolComputeNode should also satisfy ProtocolNode"
-        )
+        assert isinstance(
+            mock, ProtocolNode
+        ), "Mock satisfying ProtocolComputeNode should also satisfy ProtocolNode"
 
     def test_isinstance_inheritance_chain_effect_node(self) -> None:
         """Validate isinstance() works correctly for ProtocolEffectNode hierarchy.
@@ -2382,14 +2427,14 @@ class TestProtocolInheritanceChains:
         mock = MockEffectNode()
 
         # Should satisfy ProtocolEffectNode
-        assert isinstance(mock, ProtocolEffectNode), (
-            "Mock should be isinstance of ProtocolEffectNode"
-        )
+        assert isinstance(
+            mock, ProtocolEffectNode
+        ), "Mock should be isinstance of ProtocolEffectNode"
 
         # Should also satisfy ProtocolNode due to inheritance
-        assert isinstance(mock, ProtocolNode), (
-            "Mock satisfying ProtocolEffectNode should also satisfy ProtocolNode"
-        )
+        assert isinstance(
+            mock, ProtocolNode
+        ), "Mock satisfying ProtocolEffectNode should also satisfy ProtocolNode"
 
     def test_all_node_protocols_share_base_attributes(self) -> None:
         """Validate all node protocol variants share ProtocolNode base attributes.
@@ -2418,9 +2463,9 @@ class TestProtocolInheritanceChains:
 
         for name, protocol in node_protocols:
             for attr in base_attributes:
-                assert hasattr(protocol, attr), (
-                    f"{name} missing base attribute '{attr}' from ProtocolNode"
-                )
+                assert hasattr(
+                    protocol, attr
+                ), f"{name} missing base attribute '{attr}' from ProtocolNode"
 
     def test_protocol_hierarchy_mro_consistency(self) -> None:
         """Validate MRO (Method Resolution Order) is consistent across node protocols.
@@ -2444,6 +2489,6 @@ class TestProtocolInheritanceChains:
         ]
 
         for name, protocol in child_protocols:
-            assert ProtocolNode in protocol.__mro__, (
-                f"{name} should have ProtocolNode in its MRO for proper inheritance"
-            )
+            assert (
+                ProtocolNode in protocol.__mro__
+            ), f"{name} should have ProtocolNode in its MRO for proper inheritance"

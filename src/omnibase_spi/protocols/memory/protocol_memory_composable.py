@@ -40,38 +40,38 @@ class ProtocolWorkflowManager(Protocol):
 
     async def execute_workflow(
         self,
-        request: "ProtocolWorkflowExecutionRequest",
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        request: ProtocolWorkflowExecutionRequest,
+        security_context: ProtocolMemorySecurityContext | None = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolWorkflowExecutionResponse": ...
+    ) -> ProtocolWorkflowExecutionResponse: ...
 
     async def pause_workflow(
         self,
         workflow_id: UUID,
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        security_context: ProtocolMemorySecurityContext | None = None,
         correlation_id: UUID | None = None,
-    ) -> "ProtocolMemoryResponse": ...
+    ) -> ProtocolMemoryResponse: ...
 
     async def resume_workflow(
         self,
         workflow_id: UUID,
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        security_context: ProtocolMemorySecurityContext | None = None,
         correlation_id: UUID | None = None,
-    ) -> "ProtocolMemoryResponse": ...
+    ) -> ProtocolMemoryResponse: ...
 
     async def cancel_workflow(
         self,
         workflow_id: UUID,
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        security_context: ProtocolMemorySecurityContext | None = None,
         correlation_id: UUID | None = None,
-    ) -> "ProtocolMemoryResponse": ...
+    ) -> ProtocolMemoryResponse: ...
 
     async def get_workflow_status(
         self,
         workflow_id: UUID,
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        security_context: ProtocolMemorySecurityContext | None = None,
         correlation_id: UUID | None = None,
-    ) -> "ProtocolMemoryResponse": ...
+    ) -> ProtocolMemoryResponse: ...
 
 
 @runtime_checkable
@@ -85,40 +85,40 @@ class ProtocolAgentCoordinator(Protocol):
 
     async def coordinate_agents(
         self,
-        request: "ProtocolAgentCoordinationRequest",
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        request: ProtocolAgentCoordinationRequest,
+        security_context: ProtocolMemorySecurityContext | None = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolAgentCoordinationResponse": ...
+    ) -> ProtocolAgentCoordinationResponse: ...
 
     async def register_agent(
         self,
         agent_id: UUID,
         agent_capabilities: list[str],
-        agent_metadata: "ProtocolMemoryMetadata",
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        agent_metadata: ProtocolMemoryMetadata,
+        security_context: ProtocolMemorySecurityContext | None = None,
         correlation_id: UUID | None = None,
-    ) -> "ProtocolMemoryResponse": ...
+    ) -> ProtocolMemoryResponse: ...
 
     async def unregister_agent(
         self,
         agent_id: UUID,
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        security_context: ProtocolMemorySecurityContext | None = None,
         correlation_id: UUID | None = None,
-    ) -> "ProtocolMemoryResponse": ...
+    ) -> ProtocolMemoryResponse: ...
 
     async def get_agent_status(
         self,
         agent_id: UUID,
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        security_context: ProtocolMemorySecurityContext | None = None,
         correlation_id: UUID | None = None,
-    ) -> "ProtocolMemoryResponse": ...
+    ) -> ProtocolMemoryResponse: ...
 
     async def list_available_agents(
         self,
         capability_filter: list[str] | None = None,
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        security_context: ProtocolMemorySecurityContext | None = None,
         correlation_id: UUID | None = None,
-    ) -> "ProtocolMemoryResponse": ...
+    ) -> ProtocolMemoryResponse: ...
 
 
 @runtime_checkable
@@ -133,36 +133,36 @@ class ProtocolClusterCoordinator(Protocol):
     async def broadcast_update(
         self,
         update_type: str,
-        update_data: "ProtocolMemoryMetadata",
+        update_data: ProtocolMemoryMetadata,
         target_nodes: list[UUID] | None = None,
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        security_context: ProtocolMemorySecurityContext | None = None,
         correlation_id: UUID | None = None,
-    ) -> "ProtocolMemoryResponse": ...
+    ) -> ProtocolMemoryResponse: ...
 
     async def synchronize_state(
         self,
         node_ids: list[UUID],
-        synchronization_scope: "ProtocolMemoryMetadata",
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        synchronization_scope: ProtocolMemoryMetadata,
+        security_context: ProtocolMemorySecurityContext | None = None,
         correlation_id: UUID | None = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryResponse": ...
+    ) -> ProtocolMemoryResponse: ...
 
     async def get_cluster_status(
         self,
         include_node_details: bool | None = None,
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        security_context: ProtocolMemorySecurityContext | None = None,
         correlation_id: UUID | None = None,
-    ) -> "ProtocolMemoryResponse": ...
+    ) -> ProtocolMemoryResponse: ...
 
     async def perform_cluster_maintenance(
         self,
         maintenance_type: str,
-        maintenance_parameters: "ProtocolMemoryMetadata",
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        maintenance_parameters: ProtocolMemoryMetadata,
+        security_context: ProtocolMemorySecurityContext | None = None,
         correlation_id: UUID | None = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryResponse": ...
+    ) -> ProtocolMemoryResponse: ...
 
 
 @runtime_checkable
@@ -176,40 +176,40 @@ class ProtocolLifecycleManager(Protocol):
 
     async def apply_retention_policies(
         self,
-        policy_scope: "ProtocolMemoryMetadata",
+        policy_scope: ProtocolMemoryMetadata,
         dry_run: bool | None = None,
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        security_context: ProtocolMemorySecurityContext | None = None,
         correlation_id: UUID | None = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryResponse": ...
+    ) -> ProtocolMemoryResponse: ...
 
     async def archive_memories(
         self,
         memory_ids: list[UUID],
         archive_destination: str,
         archive_format: str,
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        security_context: ProtocolMemorySecurityContext | None = None,
         correlation_id: UUID | None = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryResponse": ...
+    ) -> ProtocolMemoryResponse: ...
 
     async def cleanup_expired_memories(
         self,
-        cleanup_scope: "ProtocolMemoryMetadata",
+        cleanup_scope: ProtocolMemoryMetadata,
         safety_threshold_hours: int,
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        security_context: ProtocolMemorySecurityContext | None = None,
         correlation_id: UUID | None = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryResponse": ...
+    ) -> ProtocolMemoryResponse: ...
 
     async def restore_archived_memories(
         self,
         archive_reference: str,
         restore_destination: str | None = None,
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        security_context: ProtocolMemorySecurityContext | None = None,
         correlation_id: UUID | None = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryResponse": ...
+    ) -> ProtocolMemoryResponse: ...
 
 
 @runtime_checkable
@@ -221,17 +221,17 @@ class ProtocolMemoryOrchestrator(Protocol):
     interfaces above, or implemented directly for comprehensive orchestration.
     """
 
-    workflow_manager: "ProtocolWorkflowManager"
-    agent_coordinator: "ProtocolAgentCoordinator"
-    cluster_coordinator: "ProtocolClusterCoordinator"
-    lifecycle_manager: "ProtocolLifecycleManager"
+    workflow_manager: ProtocolWorkflowManager
+    agent_coordinator: ProtocolAgentCoordinator
+    cluster_coordinator: ProtocolClusterCoordinator
+    lifecycle_manager: ProtocolLifecycleManager
 
     async def health_check(
         self,
         check_scope: str,
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        security_context: ProtocolMemorySecurityContext | None = None,
         correlation_id: UUID | None = None,
-    ) -> "ProtocolMemoryResponse": ...
+    ) -> ProtocolMemoryResponse: ...
 
 
 @runtime_checkable
@@ -246,23 +246,23 @@ class ProtocolComputeNodeComposite(Protocol):
     async def process_semantics(
         self,
         content: str,
-        processing_options: "ProtocolMemoryMetadata",
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        processing_options: ProtocolMemoryMetadata,
+        security_context: ProtocolMemorySecurityContext | None = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryResponse": ...
+    ) -> ProtocolMemoryResponse: ...
 
     async def analyze_patterns(
         self,
-        data_source: "ProtocolMemoryMetadata",
+        data_source: ProtocolMemoryMetadata,
         analysis_type: str,
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        security_context: ProtocolMemorySecurityContext | None = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryResponse": ...
+    ) -> ProtocolMemoryResponse: ...
 
     async def generate_embeddings(
         self,
         content_items: list[str],
         embedding_model: str | None = None,
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        security_context: ProtocolMemorySecurityContext | None = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryResponse": ...
+    ) -> ProtocolMemoryResponse: ...

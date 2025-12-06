@@ -26,6 +26,7 @@ Exit Codes:
 Author: ONEX Framework
 Version: 1.0.0 (Temporary - until Core removes SPI dependency)
 """
+
 from __future__ import annotations
 
 import argparse
@@ -33,7 +34,7 @@ import ast
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import ClassVar, List, Optional, Set, Tuple
+from typing import ClassVar
 
 # ============================================================================
 # Data Structures
@@ -66,9 +67,9 @@ class NamespaceViolation:
 class ValidationReport:
     """Validation results report."""
 
-    violations: List[NamespaceViolation] = field(default_factory=list)
+    violations: list[NamespaceViolation] = field(default_factory=list)
     files_scanned: int = 0
-    errors: List[str] = field(default_factory=list)
+    errors: list[str] = field(default_factory=list)
 
     @property
     def error_count(self) -> int:
@@ -99,19 +100,19 @@ class NamespaceIsolationValidator(ast.NodeVisitor):
     """
 
     # Forbidden import prefixes
-    FORBIDDEN_IMPORTS: ClassVar[Set[str]] = {
+    FORBIDDEN_IMPORTS: ClassVar[set[str]] = {
         "omnibase_infra",
     }
 
     # Forbidden base classes (Pydantic models)
-    FORBIDDEN_BASE_CLASSES: ClassVar[Set[str]] = {
+    FORBIDDEN_BASE_CLASSES: ClassVar[set[str]] = {
         "BaseModel",
         "BaseSettings",
         "GenericModel",
     }
 
     # Direct I/O operations that should not be in protocol files
-    FORBIDDEN_IO_CALLS: ClassVar[Set[str]] = {
+    FORBIDDEN_IO_CALLS: ClassVar[set[str]] = {
         "open",
         "read",
         "write",
@@ -130,18 +131,21 @@ class NamespaceIsolationValidator(ast.NodeVisitor):
     def __init__(self, file_path: str, is_protocol_file: bool = False):
         self.file_path = file_path
         self.is_protocol_file = is_protocol_file
-        self.violations: List[NamespaceViolation] = []
+        self.violations: list[NamespaceViolation] = []
         self.in_type_checking_block = False
         self.in_class_definition = False
-        self.current_class_name: Optional[str] = None
-        self.current_class_bases: List[str] = []
+        self.current_class_name: str | None = None
+        self.current_class_bases: list[str] = []
 
     def visit_If(self, node: ast.If) -> None:
         """Track TYPE_CHECKING blocks."""
         is_type_checking = False
-        if isinstance(node.test, ast.Name) and node.test.id == "TYPE_CHECKING":
-            is_type_checking = True
-        elif isinstance(node.test, ast.Attribute) and node.test.attr == "TYPE_CHECKING":
+        if (
+            isinstance(node.test, ast.Name)
+            and node.test.id == "TYPE_CHECKING"
+            or isinstance(node.test, ast.Attribute)
+            and node.test.attr == "TYPE_CHECKING"
+        ):
             is_type_checking = True
 
         if is_type_checking:
@@ -208,7 +212,7 @@ class NamespaceIsolationValidator(ast.NodeVisitor):
         self.current_class_name = None
         self.current_class_bases = []
 
-    def _get_base_class_name(self, base: ast.AST) -> Optional[str]:
+    def _get_base_class_name(self, base: ast.AST) -> str | None:
         """Extract base class name from AST node."""
         if isinstance(base, ast.Name):
             return base.id
@@ -275,7 +279,7 @@ class NamespaceIsolationValidator(ast.NodeVisitor):
 # ============================================================================
 
 
-def discover_python_files(base_path: Path) -> List[Path]:
+def discover_python_files(base_path: Path) -> list[Path]:
     """Discover Python files in the given path."""
     python_files = []
 
@@ -303,7 +307,7 @@ def is_protocol_file(file_path: Path) -> bool:
     return "protocols" in path_str and file_path.name.startswith("protocol_")
 
 
-def validate_file(file_path: Path) -> Tuple[List[NamespaceViolation], Optional[str]]:
+def validate_file(file_path: Path) -> tuple[list[NamespaceViolation], str | None]:
     """
     Validate a single Python file for namespace isolation.
 
@@ -311,7 +315,7 @@ def validate_file(file_path: Path) -> Tuple[List[NamespaceViolation], Optional[s
         Tuple of (violations list, error message or None)
     """
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
 
         tree = ast.parse(content)
@@ -325,7 +329,7 @@ def validate_file(file_path: Path) -> Tuple[List[NamespaceViolation], Optional[s
 
     except SyntaxError as e:
         return [], f"Syntax error in {file_path}: {e}"
-    except (OSError, IOError) as e:
+    except OSError as e:
         return [], f"Failed to read {file_path}: {e}"
     except RecursionError as e:
         # Deeply nested AST structures can hit Python's recursion limit

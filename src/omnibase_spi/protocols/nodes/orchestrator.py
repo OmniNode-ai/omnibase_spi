@@ -36,8 +36,8 @@ class ProtocolOrchestratorNode(ProtocolNode, Protocol):
 
     async def execute(
         self,
-        input_data: "ModelOrchestrationInput",
-    ) -> "ModelOrchestrationOutput":
+        input_data: ModelOrchestrationInput,
+    ) -> ModelOrchestrationOutput:
         """
         Execute orchestration.
 

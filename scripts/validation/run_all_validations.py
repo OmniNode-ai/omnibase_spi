@@ -29,6 +29,7 @@ Exit Codes:
 Author: OmniNode Team
 Version: 1.0.0 (Temporary - standalone until Core removes SPI dependency)
 """
+
 from __future__ import annotations
 
 import argparse
@@ -38,7 +39,6 @@ import sys
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Optional
 
 # ============================================================================
 # Data Structures
@@ -55,7 +55,7 @@ class ValidatorResult:
     duration_seconds: float
     stdout: str = ""
     stderr: str = ""
-    error: Optional[str] = None
+    error: str | None = None
 
     @property
     def passed(self) -> bool:
@@ -86,7 +86,7 @@ class ValidatorResult:
 class ValidationSummary:
     """Summary of all validation results."""
 
-    results: List[ValidatorResult] = field(default_factory=list)
+    results: list[ValidatorResult] = field(default_factory=list)
     total_duration_seconds: float = 0.0
 
     @property
@@ -134,11 +134,11 @@ class ValidatorConfig:
     name: str
     script_name: str
     description: str
-    extra_args: List[str] = field(default_factory=list)
+    extra_args: list[str] = field(default_factory=list)
 
 
 # Define all validators to run
-VALIDATORS: List[ValidatorConfig] = [
+VALIDATORS: list[ValidatorConfig] = [
     ValidatorConfig(
         name="architecture",
         script_name="validate_architecture.py",

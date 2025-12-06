@@ -13,6 +13,7 @@ Provides comprehensive protocol signature hashing that considers:
 This eliminates false positive duplicate detection while maintaining
 accurate identification of true duplicates.
 """
+
 from __future__ import annotations
 
 import ast
@@ -381,7 +382,7 @@ def compare_protocol_signatures(
     # Parse both files and find the protocols
     def find_protocol_node(file_path: str, protocol_name: str) -> ast.ClassDef | None:
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
             tree = ast.parse(content)
 

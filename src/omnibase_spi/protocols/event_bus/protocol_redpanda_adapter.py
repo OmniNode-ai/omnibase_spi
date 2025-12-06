@@ -50,7 +50,8 @@ See Also:
     - ProtocolEventBusProvider: Factory for obtaining event bus instances.
 """
 
-from typing import TYPE_CHECKING, Any, Awaitable, Callable, Protocol, runtime_checkable
+from collections.abc import Awaitable, Callable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 

@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Type checked: mypy](https://img.shields.io/badge/type%20checked-mypy-blue.svg)](https://mypy.readthedocs.io/)
 [![Pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 [![Protocols](https://img.shields.io/badge/protocols-165-green.svg)](https://github.com/OmniNode-ai/omnibase_spi)
@@ -26,6 +26,7 @@ poetry add omnibase-spi
 
 - **[Complete Documentation](docs/README.md)** - Comprehensive protocol documentation
 - **[API Reference](docs/api-reference/README.md)** - All 165 protocols across 22 domains
+- **[Protocol Sequence Diagrams](docs/PROTOCOL_SEQUENCE_DIAGRAMS.md)** - Interaction patterns for Handler and EventBus protocols
 - **[Quick Start Guide](docs/quick-start.md)** - Get started in minutes
 - **[Developer Guide](docs/developer-guide/README.md)** - Development workflow and best practices
 - **[Changelog](CHANGELOG.md)** - Version history and release notes
@@ -100,7 +101,7 @@ git commit -m "Initial commit: ONEX protocol interfaces"
 ### 2. Python Packaging with Poetry
 The project uses Poetry for dependency management. The `pyproject.toml` is already configured with:
 - Runtime dependencies: `typing-extensions`
-- Development dependencies: `mypy`, `black`, `isort`, `pre-commit`
+- Development dependencies: `mypy`, `ruff`, `pre-commit`
 - Package configuration for publishing
 
 ### 3. Create Package Structure
@@ -148,14 +149,18 @@ disallow_untyped_defs = True
 Create `.pre-commit-config.yaml`:
 ```yaml
 repos:
-  - repo: https://github.com/psf/black
-    rev: 23.3.0
+  - repo: local
     hooks:
-      - id: black
-  - repo: https://github.com/pycqa/isort
-    rev: 5.12.0
-    hooks:
-      - id: isort
+      - id: ruff-format
+        name: ruff format
+        entry: poetry run ruff format
+        language: system
+        types: [python]
+      - id: ruff-fix
+        name: ruff check
+        entry: poetry run ruff check --fix
+        language: system
+        types: [python]
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.0.0
     hooks:
@@ -342,8 +347,8 @@ poetry run python scripts/validation/validate_spi_naming.py src/
 ### Testing Protocols
 Protocols should be validated through:
 1. **Type checking**: `poetry run mypy src/`
-2. **Code formatting**: `poetry run black src/`
-3. **Import sorting**: `poetry run isort src/`
+2. **Code formatting**: `poetry run ruff format src/`
+3. **Linting & import sorting**: `poetry run ruff check --fix src/`
 4. **Import testing**: Ensure no circular dependencies
 5. **Contract validation**: Verify protocol completeness
 
@@ -381,7 +386,7 @@ from omnibase_spi.protocols.core.protocol_canonical_serializer import ProtocolCa
 
 This repository has **zero runtime dependencies** by design. The only dependencies are:
 - `typing-extensions` for modern typing features
-- Development tools (mypy, black, isort) for code quality
+- Development tools (mypy, ruff) for code quality
 
 ## Protocol Categories
 

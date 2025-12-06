@@ -129,6 +129,8 @@ class ProtocolKafkaClient(Protocol):
         ...
 
     def bootstrap_servers(self) -> list[str]: ...
+
+
 @runtime_checkable
 class ProtocolKafkaClientProvider(Protocol):
     """

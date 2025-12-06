@@ -5,7 +5,8 @@ Defines interfaces for standardized input validation, sanitization,
 and security-focused data validation across ONEX services.
 """
 
-from typing import Callable, Protocol, runtime_checkable
+from collections.abc import Callable
+from typing import Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import (
     ContextValue,

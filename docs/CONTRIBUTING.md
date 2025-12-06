@@ -192,7 +192,7 @@ poetry run python scripts/ast_spi_validator.py --check-protocols
 ### Code Style
 
 1. **Formatting**
-   - Use black for code formatting
+   - Use ruff for code formatting and linting
    - Follow PEP 8 style guidelines
    - Maintain consistent indentation
 

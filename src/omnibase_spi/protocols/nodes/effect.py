@@ -64,8 +64,8 @@ class ProtocolEffectNode(ProtocolNode, Protocol):
 
     async def execute(
         self,
-        input_data: "ModelEffectInput",
-    ) -> "ModelEffectOutput":
+        input_data: ModelEffectInput,
+    ) -> ModelEffectOutput:
         """
         Execute effect operation.
 

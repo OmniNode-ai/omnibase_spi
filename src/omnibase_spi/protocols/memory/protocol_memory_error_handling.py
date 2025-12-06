@@ -1,13 +1,14 @@
 """
-    Enhanced error handling protocol definitions for OmniMemory operations.
+Enhanced error handling protocol definitions for OmniMemory operations.
 
-    Defines error categorization, retry policies, compensation/rollback patterns,
-    and comprehensive error recovery for memory operations.
+Defines error categorization, retry policies, compensation/rollback patterns,
+and comprehensive error recovery for memory operations.
 """
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable, Protocol, runtime_checkable
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 from uuid import UUID
 
 if TYPE_CHECKING:
@@ -100,7 +101,7 @@ class ProtocolMemoryCompensationAction(Protocol):
 
     async def validate_compensation(self) -> bool: ...
 
-    async def get_compensation_metadata(self) -> "ProtocolMemoryMetadata": ...
+    async def get_compensation_metadata(self) -> ProtocolMemoryMetadata: ...
 
 
 @runtime_checkable
@@ -119,7 +120,7 @@ class ProtocolOperationContext(Protocol):
     def operation_type(self) -> str: ...
 
     @property
-    def start_time(self) -> "datetime": ...
+    def start_time(self) -> datetime: ...
 
     @property
     def timeout_ms(self) -> int: ...
@@ -152,39 +153,37 @@ class ProtocolMemoryErrorHandler(Protocol):
     """
 
     @property
-    def error_categories(self) -> list["ProtocolErrorCategory"]: ...
+    def error_categories(self) -> list[ProtocolErrorCategory]: ...
 
     @property
-    def retry_policies(self) -> dict[str, "ProtocolMemoryRetryPolicy"]: ...
+    def retry_policies(self) -> dict[str, ProtocolMemoryRetryPolicy]: ...
 
     @property
-    def compensation_actions(self) -> list["ProtocolMemoryCompensationAction"]: ...
+    def compensation_actions(self) -> list[ProtocolMemoryCompensationAction]: ...
 
     async def handle_error(
-        self, error: Exception, context: "ProtocolOperationContext"
+        self, error: Exception, context: ProtocolOperationContext
     ) -> bool: ...
 
-    async def classify_error(self, error: Exception) -> "ProtocolErrorCategory": ...
+    async def classify_error(self, error: Exception) -> ProtocolErrorCategory: ...
 
     async def should_retry_operation(
-        self, error: Exception, context: "ProtocolOperationContext"
+        self, error: Exception, context: ProtocolOperationContext
     ) -> bool: ...
 
     async def execute_retry(
         self,
         operation_func: Callable[..., Any],
-        context: "ProtocolOperationContext",
-        retry_policy: "ProtocolMemoryRetryPolicy",
+        context: ProtocolOperationContext,
+        retry_policy: ProtocolMemoryRetryPolicy,
     ) -> Any: ...
 
-    async def execute_compensation(
-        self, context: "ProtocolOperationContext"
-    ) -> bool: ...
+    async def execute_compensation(self, context: ProtocolOperationContext) -> bool: ...
 
     async def log_error(
         self,
         error: Exception,
-        context: "ProtocolOperationContext",
+        context: ProtocolOperationContext,
         recovery_action: str,
     ) -> None: ...
 

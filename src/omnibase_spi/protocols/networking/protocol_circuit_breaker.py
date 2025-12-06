@@ -5,7 +5,8 @@ This protocol defines the interface for circuit breaker implementations
 following ONEX standards for external dependency resilience.
 """
 
-from typing import Awaitable, Callable, Literal, Protocol, TypeVar, runtime_checkable
+from collections.abc import Awaitable, Callable
+from typing import Literal, Protocol, TypeVar, runtime_checkable
 
 T = TypeVar("T")
 LiteralProtocolCircuitBreakerState = Literal["closed", "open", "half_open"]

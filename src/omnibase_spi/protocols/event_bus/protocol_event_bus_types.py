@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING, Awaitable, Callable, Protocol, runtime_checkable
+from collections.abc import Awaitable, Callable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types import ContextValue, ProtocolEvent
