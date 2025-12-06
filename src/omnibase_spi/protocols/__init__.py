@@ -200,6 +200,13 @@ from omnibase_spi.protocols.event_bus import (
     ProtocolSyncEventBus,
 )
 
+# Effects protocols (1 protocol) - Primitive effect execution for kernel
+from omnibase_spi.protocols.effects import (
+    LiteralEffectCategory,
+    LiteralEffectId,
+    ProtocolPrimitiveEffectExecutor,
+)
+
 # File handling protocols (4 protocols) - File processing and ONEX metadata
 # Handles file type detection, processing, and metadata stamping
 from omnibase_spi.protocols.file_handling import (
@@ -397,6 +404,9 @@ __all__ = [
     # Moved protocols
     "LiteralAssignmentStrategy",
     "LiteralContainerArtifactType",
+    # Effects Literal types
+    "LiteralEffectCategory",
+    "LiteralEffectId",
     "LiteralInjectionScope",
     "LiteralOnexStatus",
     "LiteralProtocolCircuitBreakerEvent",
@@ -551,6 +561,8 @@ __all__ = [
     "ProtocolOnexValidationReport",
     "ProtocolOnexValidationResult",
     "ProtocolOrchestratorNodeV3",
+    # Effects protocols
+    "ProtocolPrimitiveEffectExecutor",
     "ProtocolRedpandaAdapter",
     "ProtocolReducerNodeV3",
     "ProtocolSchemaLoader",

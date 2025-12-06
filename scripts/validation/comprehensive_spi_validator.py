@@ -1297,6 +1297,7 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
             "get_default",  # Default value getter
             "get_value",  # Value getter
             "get",  # Registry lookups, dict access - not network I/O
+            "get_supported_effects",  # Returns list of supported effect IDs
             "list_protocols",  # In-memory listing
             "is_registered",  # In-memory check
             "register",  # In-memory registration
