@@ -32,8 +32,8 @@ class ProtocolComputeNode(ProtocolNode, Protocol):
 
     async def execute(
         self,
-        input_data: "ModelComputeInput",
-    ) -> "ModelComputeOutput":
+        input_data: ModelComputeInput,
+    ) -> ModelComputeOutput:
         """
         Execute pure computation.
 

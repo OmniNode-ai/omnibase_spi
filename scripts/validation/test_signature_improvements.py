@@ -5,6 +5,7 @@ Test script to verify that the enhanced signature hashing eliminates false posit
 This script specifically tests protocols that were previously considered duplicates
 to verify they now have unique signatures.
 """
+
 from __future__ import annotations
 
 import ast
@@ -42,7 +43,7 @@ def test_workflow_value_protocols():
 
     # Parse the file and extract protocols
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
         tree = ast.parse(content)
 

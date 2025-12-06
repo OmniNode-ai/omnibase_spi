@@ -49,7 +49,8 @@ See Also:
     - ProtocolNodeRegistry: Registry for accessing tools.
 """
 
-from typing import TYPE_CHECKING, Callable, Protocol, runtime_checkable
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 

@@ -66,57 +66,57 @@ class ProtocolMemoryEffectNode(Protocol):
 
     async def store_memory(
         self,
-        request: "ProtocolMemoryStoreRequest",
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        request: ProtocolMemoryStoreRequest,
+        security_context: ProtocolMemorySecurityContext | None = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryStoreResponse": ...
+    ) -> ProtocolMemoryStoreResponse: ...
 
     async def retrieve_memory(
         self,
-        request: "ProtocolMemoryRetrieveRequest",
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        request: ProtocolMemoryRetrieveRequest,
+        security_context: ProtocolMemorySecurityContext | None = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryRetrieveResponse": ...
+    ) -> ProtocolMemoryRetrieveResponse: ...
 
     async def update_memory(
         self,
         memory_id: UUID,
-        updates: "ProtocolMemoryMetadata",
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        updates: ProtocolMemoryMetadata,
+        security_context: ProtocolMemorySecurityContext | None = None,
         correlation_id: UUID | None = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryResponse": ...
+    ) -> ProtocolMemoryResponse: ...
 
     async def delete_memory(
         self,
         memory_id: UUID,
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        security_context: ProtocolMemorySecurityContext | None = None,
         correlation_id: UUID | None = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryResponse": ...
+    ) -> ProtocolMemoryResponse: ...
 
     async def list_memories(
         self,
-        request: "ProtocolMemoryListRequest",
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        request: ProtocolMemoryListRequest,
+        security_context: ProtocolMemorySecurityContext | None = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryListResponse": ...
+    ) -> ProtocolMemoryListResponse: ...
 
     async def batch_store_memories(
         self,
-        request: "ProtocolBatchMemoryStoreRequest",
-        security_context: "ProtocolMemorySecurityContext | None" = None,
-        rate_limit_config: "ProtocolRateLimitConfig | None" = None,
+        request: ProtocolBatchMemoryStoreRequest,
+        security_context: ProtocolMemorySecurityContext | None = None,
+        rate_limit_config: ProtocolRateLimitConfig | None = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolBatchMemoryStoreResponse": ...
+    ) -> ProtocolBatchMemoryStoreResponse: ...
 
     async def batch_retrieve_memories(
         self,
-        request: "ProtocolBatchMemoryRetrieveRequest",
-        security_context: "ProtocolMemorySecurityContext | None" = None,
-        rate_limit_config: "ProtocolRateLimitConfig | None" = None,
+        request: ProtocolBatchMemoryRetrieveRequest,
+        security_context: ProtocolMemorySecurityContext | None = None,
+        rate_limit_config: ProtocolRateLimitConfig | None = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolBatchMemoryRetrieveResponse": ...
+    ) -> ProtocolBatchMemoryRetrieveResponse: ...
 
 
 @runtime_checkable
@@ -129,8 +129,8 @@ class ProtocolMemoryComputeNode(Protocol):
     """
 
     async def semantic_search(
-        self, request: "ProtocolSemanticSearchRequest"
-    ) -> "ProtocolSemanticSearchResponse": ...
+        self, request: ProtocolSemanticSearchRequest
+    ) -> ProtocolSemanticSearchResponse: ...
 
     async def generate_embedding(
         self,
@@ -138,21 +138,21 @@ class ProtocolMemoryComputeNode(Protocol):
         model: str | None = None,
         correlation_id: UUID | None = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryResponse": ...
+    ) -> ProtocolMemoryResponse: ...
 
     async def analyze_patterns(
         self,
-        request: "ProtocolPatternAnalysisRequest",
+        request: ProtocolPatternAnalysisRequest,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolPatternAnalysisResponse": ...
+    ) -> ProtocolPatternAnalysisResponse: ...
 
     async def extract_insights(
         self,
         memory_ids: list[UUID],
-        analysis_type: "LiteralAnalysisType" = "standard",
+        analysis_type: LiteralAnalysisType = "standard",
         correlation_id: UUID | None = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryResponse": ...
+    ) -> ProtocolMemoryResponse: ...
 
     async def compare_semantics(
         self,
@@ -160,7 +160,7 @@ class ProtocolMemoryComputeNode(Protocol):
         content_b: str,
         correlation_id: UUID | None = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryResponse": ...
+    ) -> ProtocolMemoryResponse: ...
 
 
 @runtime_checkable
@@ -174,42 +174,42 @@ class ProtocolMemoryReducerNode(Protocol):
 
     async def consolidate_memories(
         self,
-        request: "ProtocolConsolidationRequest",
+        request: ProtocolConsolidationRequest,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolConsolidationResponse": ...
+    ) -> ProtocolConsolidationResponse: ...
 
     async def deduplicate_memories(
         self,
-        memory_scope: "ProtocolMemoryMetadata",
+        memory_scope: ProtocolMemoryMetadata,
         similarity_threshold: float | None = None,
         correlation_id: UUID | None = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryResponse": ...
+    ) -> ProtocolMemoryResponse: ...
 
     async def aggregate_data(
         self,
-        aggregation_criteria: "ProtocolAggregationCriteria",
+        aggregation_criteria: ProtocolAggregationCriteria,
         time_window_start: str | None = None,
         time_window_end: str | None = None,
         correlation_id: UUID | None = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryResponse": ...
+    ) -> ProtocolMemoryResponse: ...
 
     async def compress_memories(
         self,
         memory_ids: list[UUID],
-        compression_algorithm: "LiteralCompressionAlgorithm",
+        compression_algorithm: LiteralCompressionAlgorithm,
         quality_threshold: float | None = None,
         correlation_id: UUID | None = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryResponse": ...
+    ) -> ProtocolMemoryResponse: ...
 
     async def optimize_storage(
         self,
         optimization_strategy: str,
         correlation_id: UUID | None = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryResponse": ...
+    ) -> ProtocolMemoryResponse: ...
 
 
 @runtime_checkable
@@ -223,39 +223,39 @@ class ProtocolMemoryOrchestratorNode(Protocol):
 
     async def execute_workflow(
         self,
-        request: "ProtocolWorkflowExecutionRequest",
+        request: ProtocolWorkflowExecutionRequest,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolWorkflowExecutionResponse": ...
+    ) -> ProtocolWorkflowExecutionResponse: ...
 
     async def coordinate_agents(
         self,
-        request: "ProtocolAgentCoordinationRequest",
+        request: ProtocolAgentCoordinationRequest,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolAgentCoordinationResponse": ...
+    ) -> ProtocolAgentCoordinationResponse: ...
 
     async def broadcast_update(
         self,
         update_type: str,
-        update_data: "ProtocolMemoryMetadata",
+        update_data: ProtocolMemoryMetadata,
         target_agents: list[UUID] | None = None,
         correlation_id: UUID | None = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryResponse": ...
+    ) -> ProtocolMemoryResponse: ...
 
     async def synchronize_state(
         self,
         agent_ids: list[UUID],
-        synchronization_scope: "ProtocolMemoryMetadata",
+        synchronization_scope: ProtocolMemoryMetadata,
         correlation_id: UUID | None = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryResponse": ...
+    ) -> ProtocolMemoryResponse: ...
 
     async def manage_lifecycle(
         self,
-        lifecycle_policies: "ProtocolMemoryMetadata",
+        lifecycle_policies: ProtocolMemoryMetadata,
         correlation_id: UUID | None = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryResponse": ...
+    ) -> ProtocolMemoryResponse: ...
 
 
 @runtime_checkable
@@ -269,12 +269,12 @@ class ProtocolMemoryHealthNode(Protocol):
 
     async def check_health(
         self, correlation_id: UUID | None = None
-    ) -> "ProtocolMemoryResponse": ...
+    ) -> ProtocolMemoryResponse: ...
 
     async def collect_metrics(
-        self, request: "ProtocolMemoryMetricsRequest"
-    ) -> "ProtocolMemoryMetricsResponse": ...
+        self, request: ProtocolMemoryMetricsRequest
+    ) -> ProtocolMemoryMetricsResponse: ...
 
     async def get_status(
         self, include_detailed: bool | None = None, correlation_id: UUID | None = None
-    ) -> "ProtocolMemoryResponse": ...
+    ) -> ProtocolMemoryResponse: ...

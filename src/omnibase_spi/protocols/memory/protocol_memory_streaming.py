@@ -7,7 +7,8 @@ and cursor-based pagination following ONEX performance optimization patterns.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, AsyncGenerator, Protocol, runtime_checkable
+from collections.abc import AsyncGenerator
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 from uuid import UUID
 
 if TYPE_CHECKING:
@@ -55,7 +56,7 @@ class ProtocolStreamingChunk(Protocol):
     @property
     def compression_type(self) -> str | None: ...
 
-    async def chunk_metadata(self) -> "ProtocolMemoryMetadata": ...
+    async def chunk_metadata(self) -> ProtocolMemoryMetadata: ...
 
 
 @runtime_checkable
@@ -116,7 +117,7 @@ class ProtocolCursorPagination(Protocol):
     @property
     def sort_direction(self) -> str: ...
 
-    async def filters(self) -> "ProtocolMemoryMetadata": ...
+    async def filters(self) -> ProtocolMemoryMetadata: ...
 
     @property
     def include_total_count(self) -> bool: ...
@@ -134,69 +135,69 @@ class ProtocolStreamingMemoryNode(Protocol):
     async def stream_memory_content(
         self,
         memory_id: UUID,
-        streaming_config: "ProtocolStreamingConfig",
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        streaming_config: ProtocolStreamingConfig,
+        security_context: ProtocolMemorySecurityContext | None = None,
         timeout_seconds: float | None = None,
-    ) -> AsyncGenerator["ProtocolStreamingChunk", None]: ...
+    ) -> AsyncGenerator[ProtocolStreamingChunk, None]: ...
 
     async def upload_memory_stream(
         self,
-        content_stream: AsyncGenerator["ProtocolStreamingChunk", None],
+        content_stream: AsyncGenerator[ProtocolStreamingChunk, None],
         target_memory_id: UUID,
-        streaming_config: "ProtocolStreamingConfig",
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        streaming_config: ProtocolStreamingConfig,
+        security_context: ProtocolMemorySecurityContext | None = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryMetadata": ...
+    ) -> ProtocolMemoryMetadata: ...
 
     async def paginate_memories_cursor(
         self,
-        pagination_config: "ProtocolCursorPagination",
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        pagination_config: ProtocolCursorPagination,
+        security_context: ProtocolMemorySecurityContext | None = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryMetadata": ...
+    ) -> ProtocolMemoryMetadata: ...
 
     async def stream_search_results(
         self,
         search_query: str,
-        streaming_config: "ProtocolStreamingConfig",
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        streaming_config: ProtocolStreamingConfig,
+        security_context: ProtocolMemorySecurityContext | None = None,
         timeout_seconds: float | None = None,
-    ) -> AsyncGenerator["ProtocolMemoryMetadata", None]: ...
+    ) -> AsyncGenerator[ProtocolMemoryMetadata, None]: ...
 
     async def compress_memory_content(
         self,
         memory_id: UUID,
         compression_algorithm: str,
         compression_level: int,
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        security_context: ProtocolMemorySecurityContext | None = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryMetadata": ...
+    ) -> ProtocolMemoryMetadata: ...
 
     async def decompress_memory_content(
         self,
         memory_id: UUID,
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        security_context: ProtocolMemorySecurityContext | None = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryMetadata": ...
+    ) -> ProtocolMemoryMetadata: ...
 
     async def stream_embedding_vectors(
         self,
         memory_ids: list[UUID],
         vector_chunk_size: int,
         compression_enabled: bool,
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        security_context: ProtocolMemorySecurityContext | None = None,
         timeout_seconds: float | None = None,
-    ) -> AsyncGenerator["ProtocolStreamingChunk", None]: ...
+    ) -> AsyncGenerator[ProtocolStreamingChunk, None]: ...
 
     async def batch_upload_embedding_vectors(
         self,
-        vector_stream: AsyncGenerator["ProtocolStreamingChunk", None],
+        vector_stream: AsyncGenerator[ProtocolStreamingChunk, None],
         target_memory_ids: list[UUID],
         vector_dimensions: int,
-        streaming_config: "ProtocolStreamingConfig",
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        streaming_config: ProtocolStreamingConfig,
+        security_context: ProtocolMemorySecurityContext | None = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryMetadata": ...
+    ) -> ProtocolMemoryMetadata: ...
 
 
 @runtime_checkable
@@ -213,29 +214,29 @@ class ProtocolMemoryCache(Protocol):
         memory_id: UUID,
         cache_ttl_seconds: int,
         cache_level: str,
-        security_context: "ProtocolMemorySecurityContext | None" = None,
-    ) -> "ProtocolMemoryMetadata": ...
+        security_context: ProtocolMemorySecurityContext | None = None,
+    ) -> ProtocolMemoryMetadata: ...
 
     async def invalidate_cache(
         self,
         memory_id: UUID,
         invalidation_scope: str,
-        security_context: "ProtocolMemorySecurityContext | None" = None,
-    ) -> "ProtocolMemoryMetadata": ...
+        security_context: ProtocolMemorySecurityContext | None = None,
+    ) -> ProtocolMemoryMetadata: ...
 
     async def warm_cache(
         self,
         memory_ids: list[UUID],
         warming_strategy: str,
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        security_context: ProtocolMemorySecurityContext | None = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryMetadata": ...
+    ) -> ProtocolMemoryMetadata: ...
 
     async def get_cache_stats(
         self,
         cache_scope: str,
-        security_context: "ProtocolMemorySecurityContext | None" = None,
-    ) -> "ProtocolMemoryMetadata": ...
+        security_context: ProtocolMemorySecurityContext | None = None,
+    ) -> ProtocolMemoryMetadata: ...
 
 
 @runtime_checkable
@@ -251,22 +252,22 @@ class ProtocolPerformanceOptimization(Protocol):
         self,
         operation_types: list[str],
         time_window_hours: int,
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        security_context: ProtocolMemorySecurityContext | None = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryMetadata": ...
+    ) -> ProtocolMemoryMetadata: ...
 
     async def optimize_memory_access_patterns(
         self,
         memory_ids: list[UUID],
         optimization_strategy: str,
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        security_context: ProtocolMemorySecurityContext | None = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryMetadata": ...
+    ) -> ProtocolMemoryMetadata: ...
 
     async def create_performance_baseline(
         self,
         operation_type: str,
         baseline_duration_hours: int,
-        security_context: "ProtocolMemorySecurityContext | None" = None,
+        security_context: ProtocolMemorySecurityContext | None = None,
         timeout_seconds: float | None = None,
-    ) -> "ProtocolMemoryMetadata": ...
+    ) -> ProtocolMemoryMetadata: ...

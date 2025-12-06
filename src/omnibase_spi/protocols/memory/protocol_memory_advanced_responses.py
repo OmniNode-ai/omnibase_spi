@@ -16,7 +16,8 @@ All types are pure protocols with no implementation dependencies.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, AsyncIterator, Protocol, runtime_checkable
+from collections.abc import AsyncIterator
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 from uuid import UUID
 
 if TYPE_CHECKING:
@@ -100,7 +101,7 @@ class ProtocolBatchOperationResult(Protocol):
     operation_index: int
     success: bool
     result_id: UUID | None
-    error: "ProtocolMemoryError | None"
+    error: ProtocolMemoryError | None
 
     @property
     def execution_time_ms(self) -> int: ...
@@ -173,9 +174,9 @@ class ProtocolBatchMemoryStoreResponse(Protocol):
     """
 
     correlation_id: UUID | None
-    response_timestamp: "datetime"
+    response_timestamp: datetime
     success: bool
-    results: list["ProtocolBatchOperationResult"]
+    results: list[ProtocolBatchOperationResult]
     total_processed: int
     successful_count: int
     failed_count: int
@@ -249,10 +250,10 @@ class ProtocolBatchMemoryRetrieveResponse(Protocol):
     """
 
     correlation_id: UUID | None
-    response_timestamp: "datetime"
+    response_timestamp: datetime
     success: bool
-    results: list["ProtocolBatchOperationResult"]
-    memories: list["ProtocolMemoryRecord"]
+    results: list[ProtocolBatchOperationResult]
+    memories: list[ProtocolMemoryRecord]
     missing_ids: list[UUID]
     batch_execution_time_ms: int
 
@@ -322,10 +323,10 @@ class ProtocolPatternAnalysisResponse(Protocol):
     """
 
     correlation_id: UUID | None
-    response_timestamp: "datetime"
+    response_timestamp: datetime
     success: bool
     patterns_found: int
-    analysis_results: "ProtocolAnalysisResults"
+    analysis_results: ProtocolAnalysisResults
 
     @property
     def error_message(self) -> str | None: ...
@@ -394,7 +395,7 @@ class ProtocolConsolidationResponse(Protocol):
     """
 
     correlation_id: UUID | None
-    response_timestamp: "datetime"
+    response_timestamp: datetime
     success: bool
     consolidated_memory_id: UUID
     source_memory_ids: list[UUID]
@@ -467,10 +468,10 @@ class ProtocolAggregationResponse(Protocol):
     """
 
     correlation_id: UUID | None
-    response_timestamp: "datetime"
+    response_timestamp: datetime
     success: bool
-    aggregated_data: "ProtocolAggregatedData"
-    aggregation_metadata: "ProtocolMemoryMetadata"
+    aggregated_data: ProtocolAggregatedData
+    aggregation_metadata: ProtocolMemoryMetadata
     records_processed: int
     time_window_applied: str
 
@@ -545,7 +546,7 @@ class ProtocolWorkflowExecutionResponse(Protocol):
     """
 
     correlation_id: UUID | None
-    response_timestamp: "datetime"
+    response_timestamp: datetime
     success: bool
     workflow_id: UUID
     execution_status: str
@@ -554,7 +555,7 @@ class ProtocolWorkflowExecutionResponse(Protocol):
     def error_message(self) -> str | None: ...
 
     @property
-    def agent_statuses(self) -> "ProtocolAgentStatusMap": ...
+    def agent_statuses(self) -> ProtocolAgentStatusMap: ...
 
 
 @runtime_checkable
@@ -620,7 +621,7 @@ class ProtocolAgentCoordinationResponse(Protocol):
     """
 
     correlation_id: UUID | None
-    response_timestamp: "datetime"
+    response_timestamp: datetime
     success: bool
     coordination_id: UUID
     coordination_status: str
@@ -628,7 +629,7 @@ class ProtocolAgentCoordinationResponse(Protocol):
     @property
     def error_message(self) -> str | None: ...
 
-    async def agent_responses(self) -> "ProtocolAgentResponseMap": ...
+    async def agent_responses(self) -> ProtocolAgentResponseMap: ...
 
 
 @runtime_checkable
@@ -695,7 +696,7 @@ class ProtocolPaginationResponse(Protocol):
     previous_cursor: str | None
 
     @property
-    def page_info(self) -> "ProtocolPageInfo": ...
+    def page_info(self) -> ProtocolPageInfo: ...
 
 
 @runtime_checkable
@@ -771,7 +772,7 @@ class ProtocolMemoryMetrics(Protocol):
     operation_type: str
     execution_time_ms: int
     memory_usage_mb: float
-    timestamp: "datetime"
+    timestamp: datetime
 
     async def throughput_ops_per_second(self) -> float: ...
 
@@ -779,7 +780,7 @@ class ProtocolMemoryMetrics(Protocol):
     def error_rate_percent(self) -> float: ...
 
     @property
-    def custom_metrics(self) -> "ProtocolCustomMetrics": ...
+    def custom_metrics(self) -> ProtocolCustomMetrics: ...
 
 
 @runtime_checkable
@@ -845,11 +846,11 @@ class ProtocolMemoryMetricsResponse(Protocol):
     """
 
     correlation_id: UUID | None
-    response_timestamp: "datetime"
+    response_timestamp: datetime
     success: bool
-    metrics: list["ProtocolMemoryMetrics"]
-    aggregation_summary: "ProtocolAggregationSummary"
-    collection_timestamp: "datetime"
+    metrics: list[ProtocolMemoryMetrics]
+    aggregation_summary: ProtocolAggregationSummary
+    collection_timestamp: datetime
     collection_duration_ms: int
     metrics_source_nodes: list[str]
 
@@ -928,7 +929,7 @@ class ProtocolStreamingMemoryResponse(Protocol):
     """
 
     correlation_id: UUID | None
-    response_timestamp: "datetime"
+    response_timestamp: datetime
     success: bool
     stream_id: UUID
     chunk_count: int
@@ -1018,12 +1019,12 @@ class ProtocolStreamingRetrieveResponse(Protocol):
     """
 
     correlation_id: UUID | None
-    response_timestamp: "datetime"
+    response_timestamp: datetime
     success: bool
     stream_id: UUID
     chunk_count: int
     total_size_bytes: int
-    memory_metadata: list["ProtocolMemoryRecord"]
+    memory_metadata: list[ProtocolMemoryRecord]
 
     @property
     def error_message(self) -> str | None: ...

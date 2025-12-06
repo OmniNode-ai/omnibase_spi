@@ -54,9 +54,7 @@ class ProtocolNodeChangeCallback(Protocol):
         - ProtocolWatchHandle: Watch subscription handle
     """
 
-    async def __call__(
-        self, node_info: "ProtocolNodeInfo", change_type: str
-    ) -> None: ...
+    async def __call__(self, node_info: ProtocolNodeInfo, change_type: str) -> None: ...
 
 
 @runtime_checkable
@@ -185,12 +183,12 @@ class ProtocolNodeInfo(Protocol):
     node_name: str
     environment: str
     group: str
-    version: "ProtocolSemVer"
-    health_status: "LiteralHealthStatus"
+    version: ProtocolSemVer
+    health_status: LiteralHealthStatus
     endpoint: str
-    metadata: dict[str, "ContextValue"]
-    registered_at: "ProtocolDateTime"
-    last_heartbeat: "ProtocolDateTime"
+    metadata: dict[str, ContextValue]
+    registered_at: ProtocolDateTime
+    last_heartbeat: ProtocolDateTime
 
 
 @runtime_checkable
@@ -280,7 +278,7 @@ class ProtocolNodeRegistry(Protocol):
     def config(self) -> ProtocolNodeRegistryConfig | None: ...
 
     async def register_node(
-        self, node_info: "ProtocolNodeInfo", ttl_seconds: int
+        self, node_info: ProtocolNodeInfo, ttl_seconds: int
     ) -> bool: ...
 
     async def unregister_node(self, node_id: str) -> bool: ...
@@ -288,31 +286,31 @@ class ProtocolNodeRegistry(Protocol):
     async def update_node_health(
         self,
         node_id: str,
-        health_status: "LiteralHealthStatus",
-        metadata: dict[str, "ContextValue"],
+        health_status: LiteralHealthStatus,
+        metadata: dict[str, ContextValue],
     ) -> bool: ...
 
     async def heartbeat(self, node_id: str) -> bool: ...
 
     async def discover_nodes(
         self,
-        node_type: "LiteralNodeType | None" = None,
+        node_type: LiteralNodeType | None = None,
         environment: str | None = None,
         group: str | None = None,
-        health_filter: "LiteralHealthStatus | None" = None,
-    ) -> list["ProtocolNodeInfo"]: ...
+        health_filter: LiteralHealthStatus | None = None,
+    ) -> list[ProtocolNodeInfo]: ...
 
     async def get_node(self, node_id: str) -> ProtocolNodeInfo | None: ...
 
-    async def get_nodes_by_group(self, group: str) -> list["ProtocolNodeInfo"]: ...
+    async def get_nodes_by_group(self, group: str) -> list[ProtocolNodeInfo]: ...
 
     async def get_gateway_for_group(self, group: str) -> ProtocolNodeInfo | None: ...
 
     async def watch_node_changes(
         self,
-        callback: "ProtocolNodeChangeCallback",
-        node_type: "LiteralNodeType | None" = None,
+        callback: ProtocolNodeChangeCallback,
+        node_type: LiteralNodeType | None = None,
         group: str | None = None,
     ) -> ProtocolWatchHandle: ...
 
-    async def stop_watch(self, watch_handle: "ProtocolWatchHandle") -> None: ...
+    async def stop_watch(self, watch_handle: ProtocolWatchHandle) -> None: ...

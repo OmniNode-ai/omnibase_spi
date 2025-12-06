@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Protocol, Type, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.handlers.protocol_handler import ProtocolHandler
@@ -20,7 +20,7 @@ class ProtocolHandlerRegistry(Protocol):
     def register(
         self,
         protocol_type: str,
-        handler_cls: Type["ProtocolHandler"],
+        handler_cls: type[ProtocolHandler],
     ) -> None:
         """
         Register a protocol handler.
@@ -37,7 +37,7 @@ class ProtocolHandlerRegistry(Protocol):
     def get(
         self,
         protocol_type: str,
-    ) -> Type["ProtocolHandler"]:
+    ) -> type[ProtocolHandler]:
         """
         Get handler class for protocol type.
 

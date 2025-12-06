@@ -30,7 +30,7 @@ def extract_links_from_file(file_path):
     """Extract all markdown links from a file"""
     links = []
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
 
         # Find all markdown links [text](url)

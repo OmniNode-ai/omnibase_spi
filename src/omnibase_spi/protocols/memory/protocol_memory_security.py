@@ -71,7 +71,7 @@ class ProtocolAuditTrail(Protocol):
     def user_id(self) -> UUID | None: ...
 
     @property
-    def timestamp(self) -> "datetime": ...
+    def timestamp(self) -> datetime: ...
 
     @property
     def source_ip(self) -> str | None: ...
@@ -79,7 +79,7 @@ class ProtocolAuditTrail(Protocol):
     @property
     def user_agent(self) -> str | None: ...
 
-    async def operation_metadata(self) -> "ProtocolMemoryMetadata": ...
+    async def operation_metadata(self) -> ProtocolMemoryMetadata: ...
 
     @property
     def compliance_tags(self) -> list[str]: ...
@@ -152,54 +152,54 @@ class ProtocolMemorySecurityNode(Protocol):
 
     async def validate_access(
         self,
-        security_context: "ProtocolMemorySecurityContext",
+        security_context: ProtocolMemorySecurityContext,
         operation_type: str,
         resource_id: UUID | None = None,
         correlation_id: UUID | None = None,
-    ) -> "ProtocolMemoryMetadata": ...
+    ) -> ProtocolMemoryMetadata: ...
 
     async def detect_pii(
         self,
         content: str,
         detection_threshold: float | None = None,
         correlation_id: UUID | None = None,
-    ) -> "ProtocolMemoryMetadata": ...
+    ) -> ProtocolMemoryMetadata: ...
 
     async def validate_input(
         self,
-        input_data: "ProtocolMemoryMetadata",
-        validation_config: "ProtocolInputValidation",
+        input_data: ProtocolMemoryMetadata,
+        validation_config: ProtocolInputValidation,
         correlation_id: UUID | None = None,
-    ) -> "ProtocolMemoryMetadata": ...
+    ) -> ProtocolMemoryMetadata: ...
 
     async def check_rate_limits(
         self,
-        security_context: "ProtocolMemorySecurityContext",
+        security_context: ProtocolMemorySecurityContext,
         operation_type: str,
-        rate_limit_config: "ProtocolRateLimitConfig",
+        rate_limit_config: ProtocolRateLimitConfig,
         correlation_id: UUID | None = None,
-    ) -> "ProtocolMemoryMetadata": ...
+    ) -> ProtocolMemoryMetadata: ...
 
     async def create_audit_trail(
         self,
-        audit_info: "ProtocolAuditTrail",
-        security_context: "ProtocolMemorySecurityContext",
+        audit_info: ProtocolAuditTrail,
+        security_context: ProtocolMemorySecurityContext,
         correlation_id: UUID | None = None,
-    ) -> "ProtocolMemoryMetadata": ...
+    ) -> ProtocolMemoryMetadata: ...
 
     async def encrypt_sensitive_data(
         self,
-        data: "ProtocolMemoryMetadata",
+        data: ProtocolMemoryMetadata,
         encryption_level: str,
         correlation_id: UUID | None = None,
-    ) -> "ProtocolMemoryMetadata": ...
+    ) -> ProtocolMemoryMetadata: ...
 
     async def decrypt_sensitive_data(
         self,
-        encrypted_data: "ProtocolMemoryMetadata",
-        security_context: "ProtocolMemorySecurityContext",
+        encrypted_data: ProtocolMemoryMetadata,
+        security_context: ProtocolMemorySecurityContext,
         correlation_id: UUID | None = None,
-    ) -> "ProtocolMemoryMetadata": ...
+    ) -> ProtocolMemoryMetadata: ...
 
 
 @runtime_checkable
@@ -217,7 +217,7 @@ class ProtocolMemoryComplianceNode(Protocol):
         data_subject_id: UUID | None,
         legal_basis: str,
         correlation_id: UUID | None = None,
-    ) -> "ProtocolMemoryMetadata": ...
+    ) -> ProtocolMemoryMetadata: ...
 
     async def validate_hipaa_compliance(
         self,
@@ -225,21 +225,21 @@ class ProtocolMemoryComplianceNode(Protocol):
         phi_categories: list[str],
         covered_entity_id: UUID,
         correlation_id: UUID | None = None,
-    ) -> "ProtocolMemoryMetadata": ...
+    ) -> ProtocolMemoryMetadata: ...
 
     async def generate_compliance_report(
         self,
         report_type: str,
-        time_period_start: "datetime",
-        time_period_end: "datetime",
+        time_period_start: datetime,
+        time_period_end: datetime,
         compliance_frameworks: list[str],
         correlation_id: UUID | None = None,
-    ) -> "ProtocolMemoryMetadata": ...
+    ) -> ProtocolMemoryMetadata: ...
 
     async def handle_data_subject_request(
         self,
         request_type: str,
         data_subject_id: UUID,
-        request_details: "ProtocolMemoryMetadata",
+        request_details: ProtocolMemoryMetadata,
         correlation_id: UUID | None = None,
-    ) -> "ProtocolMemoryMetadata": ...
+    ) -> ProtocolMemoryMetadata: ...

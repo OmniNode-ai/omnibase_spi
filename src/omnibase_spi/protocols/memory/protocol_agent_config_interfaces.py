@@ -62,7 +62,7 @@ class ProtocolAgentConfig(Protocol):
     capabilities: list[str]
     permissions: list[str]
     resource_limits: dict[str, int]
-    configuration: dict[str, "ContextValue"]
+    configuration: dict[str, ContextValue]
 
     @property
     def is_valid(self) -> bool: ...
@@ -147,7 +147,7 @@ class ProtocolAgentConfiguration(Protocol):
     async def validate_configuration(
         self,
         config: ProtocolAgentConfig,
-    ) -> "ProtocolAgentValidationResult":
+    ) -> ProtocolAgentValidationResult:
         """
         Validate agent configuration for correctness and security.
 
@@ -220,7 +220,7 @@ class ProtocolAgentConfiguration(Protocol):
     async def update_configuration(
         self,
         agent_id: str,
-        updates: dict[str, "ContextValue"],
+        updates: dict[str, ContextValue],
     ) -> ProtocolAgentConfig:
         """
         Update specific fields in an agent configuration.
@@ -262,7 +262,7 @@ class ProtocolAgentConfiguration(Protocol):
         self,
         agent_id: str,
         template_name: str,
-        overrides: dict[str, "ContextValue"] | None = None,
+        overrides: dict[str, ContextValue] | None = None,
     ) -> ProtocolAgentConfig:
         """
         Apply a configuration template to create agent configuration.

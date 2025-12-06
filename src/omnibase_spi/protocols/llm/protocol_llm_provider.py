@@ -1,8 +1,7 @@
+from collections.abc import AsyncGenerator, Iterator
 from typing import (
     TYPE_CHECKING,
     Any,
-    AsyncGenerator,
-    Iterator,
     Protocol,
     runtime_checkable,
 )

@@ -12,6 +12,7 @@ This script validates typing patterns specific to omnibase_spi protocols:
 
 Adapted from omnibase_core validation patterns for SPI architectural compliance.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -436,7 +437,7 @@ class SPITypingValidator(ast.NodeVisitor):
 def validate_file(file_path: Path) -> list[TypingViolation]:
     """Validate typing patterns in a single Python file."""
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
 
         tree = ast.parse(content)

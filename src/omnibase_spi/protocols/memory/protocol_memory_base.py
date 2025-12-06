@@ -485,11 +485,11 @@ class ProtocolMemoryRecord(Protocol):
     memory_id: UUID
     content: str
     content_type: str
-    created_at: "datetime"
-    updated_at: "datetime"
+    created_at: datetime
+    updated_at: datetime
     access_level: LiteralMemoryAccessLevel
     source_agent: str
-    expires_at: "datetime | None"
+    expires_at: datetime | None
 
     @property
     def embedding(self) -> list[float] | None: ...
@@ -550,7 +550,7 @@ class ProtocolSearchResult(Protocol):
         - ProtocolMemoryRecord: The wrapped memory record type.
     """
 
-    memory_record: "ProtocolMemoryRecord"
+    memory_record: ProtocolMemoryRecord
     relevance_score: float
     match_type: str
 
@@ -614,8 +614,8 @@ class ProtocolSearchFilters(Protocol):
     content_types: list[str] | None
     access_levels: list[str] | None
     source_agents: list[str] | None
-    date_range_start: "datetime | None"
-    date_range_end: "datetime | None"
+    date_range_start: datetime | None
+    date_range_end: datetime | None
 
     @property
     def tags(self) -> list[str] | None: ...

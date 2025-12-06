@@ -98,7 +98,7 @@ class ProtocolMemoryRequest(Protocol):
     """
 
     correlation_id: UUID | None
-    request_timestamp: "datetime"
+    request_timestamp: datetime
     request_source: str
 
     @property
@@ -177,9 +177,9 @@ class ProtocolMemoryStoreRequest(ProtocolMemoryRequest, Protocol):
     content_type: str
     access_level: str
     source_agent: str
-    expires_at: "datetime | None"
+    expires_at: datetime | None
 
-    async def metadata(self) -> "ProtocolMemoryMetadata | None": ...
+    async def metadata(self) -> ProtocolMemoryMetadata | None: ...
 
 
 @runtime_checkable
@@ -309,8 +309,8 @@ class ProtocolMemoryListRequest(ProtocolMemoryRequest, Protocol):
         - ProtocolPaginationRequest: For pagination parameters.
     """
 
-    pagination: "ProtocolPaginationRequest"
-    filters: "ProtocolSearchFilters | None"
+    pagination: ProtocolPaginationRequest
+    filters: ProtocolSearchFilters | None
     timeout_seconds: float | None
 
     @property
@@ -385,7 +385,7 @@ class ProtocolSemanticSearchRequest(ProtocolMemoryRequest, Protocol):
     query: str
     limit: int
     similarity_threshold: float
-    filters: "ProtocolSearchFilters | None"
+    filters: ProtocolSearchFilters | None
     timeout_seconds: float | None
 
     @property

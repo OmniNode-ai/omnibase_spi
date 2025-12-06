@@ -29,7 +29,7 @@ class ProtocolFSMContractCompiler(Protocol):
     async def compile(
         self,
         contract_path: Path,
-    ) -> "ModelFSMContract":
+    ) -> ModelFSMContract:
         """
         Compile FSM contract from YAML file.
 
@@ -48,7 +48,7 @@ class ProtocolFSMContractCompiler(Protocol):
     async def validate(
         self,
         contract_path: Path,
-    ) -> "ModelContractValidationResult":
+    ) -> ModelContractValidationResult:
         """
         Validate contract without compiling.
 

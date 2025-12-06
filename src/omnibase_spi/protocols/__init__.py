@@ -188,12 +188,10 @@ from omnibase_spi.protocols.discovery import (
 # Note: Interface protocols (ProtocolEventBus, ProtocolEventBusHeaders,
 #       ProtocolKafkaEventBusAdapter) are in omnibase_core
 from omnibase_spi.protocols.event_bus import (
-    ProtocolEventBusProvider,  # Factory protocol (SPI)
-)
-from omnibase_spi.protocols.event_bus import (
     ProtocolAsyncEventBus,
     ProtocolEventBusContextManager,
     ProtocolEventBusLogEmitter,
+    ProtocolEventBusProvider,  # Factory protocol (SPI)
     ProtocolEventBusRegistry,
     ProtocolEventBusService,
     ProtocolEventMessage,

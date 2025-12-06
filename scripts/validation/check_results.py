@@ -17,6 +17,7 @@ Exit codes:
     0 - Success (all critical validators passed)
     1 - Failure (critical validators failed or file error)
 """
+
 from __future__ import annotations
 
 import argparse
@@ -61,7 +62,7 @@ def load_results(file_path: Path) -> dict[str, Any]:
     if not file_path.exists():
         raise FileNotFoundError(f"Results file not found: {file_path}")
 
-    with open(file_path, "r", encoding="utf-8") as f:
+    with open(file_path, encoding="utf-8") as f:
         return json.load(f)
 
 

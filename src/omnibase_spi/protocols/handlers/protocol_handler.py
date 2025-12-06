@@ -62,17 +62,22 @@ class ProtocolHandler(Protocol):
         Implementations should return a consistent, lowercase string identifier
         that matches the corresponding EnumHandlerType values in omnibase_core.
 
+        Note:
+            The return type is ``str`` (not ``EnumHandlerType``) by design to
+            maintain SPI/Core decoupling. Implementations may use
+            ``EnumHandlerType.value`` or return the string directly.
+
         Common values: "http", "kafka", "postgresql", "neo4j", "redis",
         "grpc", "websocket", "file", "memory", etc.
 
         Returns:
-            String identifier for the handler type.
+            String identifier for the handler type (e.g., ``"http"``, ``"kafka"``).
         """
         ...
 
     async def initialize(
         self,
-        config: "ModelConnectionConfig",
+        config: ModelConnectionConfig,
     ) -> None:
         """
         Initialize any clients or connection pools.
@@ -102,9 +107,9 @@ class ProtocolHandler(Protocol):
 
     async def execute(
         self,
-        request: "ModelProtocolRequest",
-        operation_config: "ModelOperationConfig",
-    ) -> "ModelProtocolResponse":
+        request: ModelProtocolRequest,
+        operation_config: ModelOperationConfig,
+    ) -> ModelProtocolResponse:
         """
         Execute a protocol-specific operation.
 
@@ -164,8 +169,11 @@ class ProtocolHandler(Protocol):
                 {
                     "handler_type": "postgresql",
                     "connection_string": "postgresql://admin:secret123@db.example.com:5432/mydb",
-                    "api_key": "sk-1234567890abcdef"
+                    "api_key": "[REDACTED]"  # Never include actual keys
                 }
+
+        Raises:
+            HandlerNotInitializedError: If called before initialize().
         """
         ...
 
@@ -214,5 +222,8 @@ class ProtocolHandler(Protocol):
             Instead of::
 
                 {"healthy": False, "last_error": "Connection to postgresql://user:pass@host failed"}
+
+        Raises:
+            HandlerNotInitializedError: If called before initialize().
         """
         ...

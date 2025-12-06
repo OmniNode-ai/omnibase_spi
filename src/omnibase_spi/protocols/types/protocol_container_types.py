@@ -4,7 +4,8 @@ Container protocol types for ONEX SPI interfaces.
 Domain: Dependency injection and service container protocols
 """
 
-from typing import TYPE_CHECKING, Any, Callable, Literal, Protocol, runtime_checkable
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any, Literal, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types.protocol_core_types import (

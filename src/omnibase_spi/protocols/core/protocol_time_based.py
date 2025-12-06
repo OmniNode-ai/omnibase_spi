@@ -1,8 +1,8 @@
 """
-    Protocol for Time-Based Operations and Measurements.
+Protocol for Time-Based Operations and Measurements.
 
-    Defines interfaces for duration tracking, timeout management, and time-based
-    scheduling across all ONEX services with consistent patterns.
+Defines interfaces for duration tracking, timeout management, and time-based
+scheduling across all ONEX services with consistent patterns.
 """
 
 from typing import TYPE_CHECKING, Protocol, runtime_checkable

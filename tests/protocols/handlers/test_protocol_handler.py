@@ -504,6 +504,53 @@ class UnhealthyHandler(CompliantHandler):
         }
 
 
+class UnsanitizedHandler(CompliantHandler):
+    """Handler that returns unsanitized error for negative testing.
+
+    This handler intentionally includes sensitive credential patterns
+    in its error response to verify that sanitization tests correctly
+    detect such violations.
+    """
+
+    async def health_check(self) -> dict[str, Any]:
+        """Return unhealthy status with unsanitized credentials in error."""
+        return {
+            "healthy": False,
+            "latency_ms": 100.0,
+            "last_error": "Connection to postgresql://admin:password=secret@host:5432/db failed",
+            "details": {
+                "connection_string": "redis://user:token=abc123@cache:6379",
+                "api_endpoint": "https://api.example.com?api_key=sk-12345",
+            },
+        }
+
+
+class UnsanitizedStackTraceHandler(CompliantHandler):
+    """Handler that returns error with stack trace and system info.
+
+    This handler demonstrates another common sanitization violation:
+    exposing internal file paths and stack traces that reveal system structure.
+    """
+
+    async def health_check(self) -> dict[str, Any]:
+        """Return unhealthy status with system paths and stack trace."""
+        return {
+            "healthy": False,
+            "latency_ms": 50.0,
+            "last_error": (
+                "Error at /home/user/.config/secrets/db.json:42 - "
+                "File /etc/passwd referenced in config"
+            ),
+            "details": {
+                "stack_trace": (
+                    "at process_request (/app/src/handlers/auth.py:128)\n"
+                    "at validate_token (/app/src/auth/jwt_secret.py:45)"
+                ),
+                "config_path": "/opt/app/config/credentials.yaml",
+            },
+        }
+
+
 class TestProtocolHandlerHealthCheckUnhealthyContract:
     """Test return value contracts for unhealthy handler scenarios."""
 
@@ -538,3 +585,221 @@ class TestProtocolHandlerHealthCheckUnhealthyContract:
             assert (
                 pattern.lower() not in error_msg.lower()
             ), f"Credential pattern '{pattern}' found in error message"
+
+
+class TestProtocolHandlerSanitizationDetection:
+    """Test suite for sanitization detection in health_check responses.
+
+    These tests verify that our sanitization checks correctly identify
+    credential patterns, connection strings, and sensitive system information
+    in handler responses. This includes negative tests to ensure the detection
+    logic actually works.
+    """
+
+    # Common forbidden patterns for credential detection
+    CREDENTIAL_PATTERNS = [
+        "password=",
+        "api_key=",
+        "secret=",
+        "token=",
+        "://user:",
+        "://admin:",
+        "auth_token=",
+        "private_key=",
+        "access_key=",
+        "secret_key=",
+    ]
+
+    # Patterns for sensitive file paths
+    SENSITIVE_PATH_PATTERNS = [
+        "/etc/passwd",
+        "/etc/shadow",
+        ".ssh/",
+        "credentials.",
+        "secrets/",
+        ".config/secrets",
+    ]
+
+    def _check_for_credential_patterns(self, text: str) -> list[str]:
+        """Check text for credential patterns and return any found."""
+        found: list[str] = []
+        text_lower = text.lower()
+        for pattern in self.CREDENTIAL_PATTERNS:
+            if pattern.lower() in text_lower:
+                found.append(pattern)
+        return found
+
+    def _check_for_sensitive_paths(self, text: str) -> list[str]:
+        """Check text for sensitive path patterns and return any found."""
+        found: list[str] = []
+        text_lower = text.lower()
+        for pattern in self.SENSITIVE_PATH_PATTERNS:
+            if pattern.lower() in text_lower:
+                found.append(pattern)
+        return found
+
+    @pytest.mark.asyncio
+    async def test_unsanitized_error_is_detected(self) -> None:
+        """Verify test correctly identifies unsanitized credential patterns.
+
+        This is a negative test that ensures our detection logic works by
+        using a handler that intentionally contains forbidden patterns.
+        """
+        handler = UnsanitizedHandler()
+        result = await handler.health_check()
+
+        error_msg = result.get("last_error", "")
+        # This handler intentionally has unsanitized data - verify detection works
+        found_patterns = self._check_for_credential_patterns(error_msg)
+        assert len(found_patterns) > 0, (
+            "Test setup error: UnsanitizedHandler should contain forbidden patterns. "
+            f"Error message was: {error_msg}"
+        )
+
+    @pytest.mark.asyncio
+    async def test_sanitized_handler_passes_all_checks(self) -> None:
+        """Verify properly sanitized handler passes all credential checks."""
+        handler = UnhealthyHandler()
+        result = await handler.health_check()
+
+        error_msg = result.get("last_error", "")
+        found_patterns = self._check_for_credential_patterns(error_msg)
+        assert len(found_patterns) == 0, (
+            f"Sanitized handler should not contain credential patterns. "
+            f"Found: {found_patterns}"
+        )
+
+    @pytest.mark.asyncio
+    async def test_connection_string_credentials_detected(self) -> None:
+        """Verify connection strings with embedded credentials are detected.
+
+        Connection strings like postgresql://user:pass@host are a common
+        source of credential leaks in error messages.
+        """
+        handler = UnsanitizedHandler()
+        result = await handler.health_check()
+
+        error_msg = result.get("last_error", "")
+        # Check for common connection string credential patterns
+        connection_patterns = ["://admin:", "://user:"]
+        detected = any(pattern in error_msg.lower() for pattern in connection_patterns)
+
+        # Also check the details for nested credential exposure
+        details = result.get("details", {})
+        details_str = str(details).lower()
+        details_detected = any(
+            pattern in details_str for pattern in connection_patterns
+        )
+
+        assert (
+            detected or details_detected
+        ), "UnsanitizedHandler should contain connection string credentials"
+
+    @pytest.mark.asyncio
+    async def test_api_key_in_url_detected(self) -> None:
+        """Verify API keys in URL query parameters are detected."""
+        handler = UnsanitizedHandler()
+        result = await handler.health_check()
+
+        details = result.get("details", {})
+        details_str = str(details).lower()
+
+        assert (
+            "api_key=" in details_str
+        ), "UnsanitizedHandler details should contain api_key pattern"
+
+    @pytest.mark.asyncio
+    async def test_sensitive_file_paths_detected(self) -> None:
+        """Verify sensitive file paths in error messages are detected."""
+        handler = UnsanitizedStackTraceHandler()
+        result = await handler.health_check()
+
+        error_msg = result.get("last_error", "")
+        found_paths = self._check_for_sensitive_paths(error_msg)
+
+        assert len(found_paths) > 0, (
+            f"UnsanitizedStackTraceHandler should contain sensitive paths. "
+            f"Error message was: {error_msg}"
+        )
+
+    @pytest.mark.asyncio
+    async def test_stack_trace_with_paths_detected(self) -> None:
+        """Verify stack traces with internal paths are detected."""
+        handler = UnsanitizedStackTraceHandler()
+        result = await handler.health_check()
+
+        details = result.get("details", {})
+        stack_trace = details.get("stack_trace", "")
+
+        # Stack traces should not expose internal application structure
+        internal_path_indicators = ["/app/src/", "/opt/app/", ".py:"]
+        detected = any(
+            indicator in stack_trace for indicator in internal_path_indicators
+        )
+
+        assert (
+            detected
+        ), "UnsanitizedStackTraceHandler should contain internal paths in stack trace"
+
+    @pytest.mark.asyncio
+    async def test_config_path_exposure_detected(self) -> None:
+        """Verify config file paths are detected in details."""
+        handler = UnsanitizedStackTraceHandler()
+        result = await handler.health_check()
+
+        details = result.get("details", {})
+        config_path = details.get("config_path", "")
+
+        # Config paths should not expose credential file locations
+        credential_file_indicators = ["credentials", "secrets", "config"]
+        detected = any(
+            indicator in config_path.lower() for indicator in credential_file_indicators
+        )
+
+        assert detected, "UnsanitizedStackTraceHandler should expose config paths"
+
+    @pytest.mark.asyncio
+    async def test_healthy_handler_is_clean(self) -> None:
+        """Verify healthy handler has no sensitive data exposure."""
+        handler = CompliantHandler()
+        result = await handler.health_check()
+
+        # Healthy handlers typically have minimal output
+        assert result.get("healthy") is True
+        assert "last_error" not in result or result.get("last_error") == ""
+
+    @pytest.mark.asyncio
+    async def test_multiple_credential_types_detected(self) -> None:
+        """Verify detection works for multiple credential types in same response."""
+        handler = UnsanitizedHandler()
+        result = await handler.health_check()
+
+        # Collect all text from the response
+        all_text = str(result).lower()
+
+        # Count how many different credential patterns are present
+        patterns_found = self._check_for_credential_patterns(all_text)
+
+        # UnsanitizedHandler should have multiple credential patterns
+        assert (
+            len(patterns_found) >= 2
+        ), f"Expected multiple credential patterns, found: {patterns_found}"
+
+    @pytest.mark.asyncio
+    async def test_nested_details_are_checked(self) -> None:
+        """Verify sanitization checks work on nested details dictionaries."""
+        handler = UnsanitizedHandler()
+        result = await handler.health_check()
+
+        details = result.get("details", {})
+        assert isinstance(details, dict)
+
+        # Check each value in details for credential patterns
+        for key, value in details.items():
+            value_str = str(value).lower()
+            for pattern in self.CREDENTIAL_PATTERNS:
+                if pattern.lower() in value_str:
+                    # Found a credential pattern in nested details - test passes
+                    return
+
+        pytest.fail("UnsanitizedHandler details should contain credential patterns")

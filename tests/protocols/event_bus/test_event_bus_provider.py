@@ -77,6 +77,15 @@ class MockEventBus:
         _ = timeout_seconds  # Unused in mock
         self._consuming = True
 
+    async def stop_consuming(self, timeout_seconds: float = 30.0) -> None:
+        """Stop consuming messages (mock implementation).
+
+        Args:
+            timeout_seconds: Timeout for graceful shutdown (ignored in mock).
+        """
+        _ = timeout_seconds  # Unused in mock
+        self._consuming = False
+
     async def health_check(self) -> dict[str, Any]:
         """Check health status (mock implementation).
 

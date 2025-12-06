@@ -637,7 +637,6 @@ class TestForwardReferenceResolution:
         to the actual Core model classes.
         """
         from omnibase_core.models.compute import ModelComputeInput, ModelComputeOutput
-
         from omnibase_spi.protocols.nodes.compute import ProtocolComputeNode
 
         # get_type_hints should resolve forward references when Core is available
@@ -661,7 +660,6 @@ class TestForwardReferenceResolution:
         to the actual Core model classes.
         """
         from omnibase_core.models.effect import ModelEffectInput, ModelEffectOutput
-
         from omnibase_spi.protocols.nodes.effect import ProtocolEffectNode
 
         hints = get_type_hints(ProtocolEffectNode.execute)
@@ -688,7 +686,6 @@ class TestForwardReferenceResolution:
             ModelProtocolRequest,
             ModelProtocolResponse,
         )
-
         from omnibase_spi.protocols.handlers.protocol_handler import ProtocolHandler
 
         hints = get_type_hints(ProtocolHandler.execute)
@@ -716,7 +713,6 @@ class TestForwardReferenceResolution:
         from pathlib import Path
 
         from omnibase_core.models.contract import ModelEffectContract
-
         from omnibase_spi.protocols.contracts.effect_compiler import (
             ProtocolEffectContractCompiler,
         )

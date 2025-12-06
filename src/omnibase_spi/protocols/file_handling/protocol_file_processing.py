@@ -513,6 +513,8 @@ class ProtocolRateLimiter(Protocol):
         ...
 
     async def get_limit(self, resource: str) -> int: ...
+
+
 @runtime_checkable
 class ProtocolFileMetricsCollector(Protocol):
     """

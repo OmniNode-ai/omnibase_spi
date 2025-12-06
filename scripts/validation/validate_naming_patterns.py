@@ -26,6 +26,7 @@ Exit codes:
     0 - Success (no violations)
     1 - Failure (violations found)
 """
+
 from __future__ import annotations
 
 import argparse
@@ -104,9 +105,12 @@ class NamingPatternValidator(ast.NodeVisitor):
     def visit_If(self, node: ast.If) -> None:
         """Track TYPE_CHECKING blocks to skip forward references."""
         is_type_checking = False
-        if isinstance(node.test, ast.Name) and node.test.id == "TYPE_CHECKING":
-            is_type_checking = True
-        elif isinstance(node.test, ast.Attribute) and node.test.attr == "TYPE_CHECKING":
+        if (
+            isinstance(node.test, ast.Name)
+            and node.test.id == "TYPE_CHECKING"
+            or isinstance(node.test, ast.Attribute)
+            and node.test.attr == "TYPE_CHECKING"
+        ):
             is_type_checking = True
 
         if is_type_checking:
@@ -398,7 +402,7 @@ def validate_file(file_path: Path) -> tuple[list[Violation], int, int]:
         Tuple of (violations, protocols_found, exceptions_found)
     """
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
 
         tree = ast.parse(content)
@@ -423,7 +427,7 @@ def validate_file(file_path: Path) -> tuple[list[Violation], int, int]:
         )
         return [violation], 0, 0
 
-    except (OSError, IOError) as e:
+    except OSError as e:
         # File access errors (permissions, missing files, encoding issues)
         violation = Violation(
             file_path=str(file_path),

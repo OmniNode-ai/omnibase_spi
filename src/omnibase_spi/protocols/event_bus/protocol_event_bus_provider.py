@@ -73,7 +73,7 @@ class ProtocolEventBusProvider(Protocol):
         self,
         environment: str | None = None,
         group: str | None = None,
-    ) -> "ProtocolEventBusBase":
+    ) -> ProtocolEventBusBase:
         """Get or create an event bus instance.
 
         May return a cached instance if one exists for the given
@@ -105,7 +105,7 @@ class ProtocolEventBusProvider(Protocol):
         environment: str,
         group: str,
         config: dict[str, object] | None = None,
-    ) -> "ProtocolEventBusBase":
+    ) -> ProtocolEventBusBase:
         """Create a new event bus instance (no caching).
 
         Always creates a new instance, useful when you need

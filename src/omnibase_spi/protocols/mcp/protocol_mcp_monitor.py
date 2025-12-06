@@ -7,7 +7,8 @@ Provides comprehensive monitoring, alerting, and health management for MCP syste
 Domain: MCP monitoring, health checks, and observability
 """
 
-from typing import Any, Callable, Protocol, runtime_checkable
+from collections.abc import Callable
+from typing import Any, Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 from omnibase_spi.protocols.types.protocol_mcp_types import (

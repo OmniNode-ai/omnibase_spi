@@ -29,7 +29,7 @@ class ProtocolWorkflowContractCompiler(Protocol):
     async def compile(
         self,
         contract_path: Path,
-    ) -> "ModelWorkflowContract":
+    ) -> ModelWorkflowContract:
         """
         Compile workflow contract from YAML file.
 
@@ -48,7 +48,7 @@ class ProtocolWorkflowContractCompiler(Protocol):
     async def validate(
         self,
         contract_path: Path,
-    ) -> "ModelContractValidationResult":
+    ) -> ModelContractValidationResult:
         """
         Validate contract without compiling.
 

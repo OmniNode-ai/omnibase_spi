@@ -99,8 +99,8 @@ class ProtocolBatchMemoryStoreRequest(Protocol):
     """
 
     correlation_id: UUID | None
-    request_timestamp: "datetime"
-    memory_records: list["ProtocolAggregatedData"]
+    request_timestamp: datetime
+    memory_records: list[ProtocolAggregatedData]
     batch_size: int
     fail_on_first_error: bool
     timeout_seconds: float | None
@@ -181,7 +181,7 @@ class ProtocolBatchMemoryRetrieveRequest(Protocol):
     """
 
     correlation_id: UUID | None
-    request_timestamp: "datetime"
+    request_timestamp: datetime
     memory_ids: list[UUID]
     include_related: bool
     fail_on_missing: bool
@@ -252,16 +252,16 @@ class ProtocolPatternAnalysisRequest(Protocol):
     """
 
     correlation_id: UUID | None
-    request_timestamp: "datetime"
+    request_timestamp: datetime
     data_source: str
-    analysis_type: "LiteralAnalysisType"
+    analysis_type: LiteralAnalysisType
     timeout_seconds: float | None
 
     @property
     def operation_type(self) -> str: ...
 
     @property
-    def analysis_parameters(self) -> "ProtocolAnalysisParameters": ...
+    def analysis_parameters(self) -> ProtocolAnalysisParameters: ...
 
 
 @runtime_checkable
@@ -327,7 +327,7 @@ class ProtocolConsolidationRequest(Protocol):
     """
 
     correlation_id: UUID | None
-    request_timestamp: "datetime"
+    request_timestamp: datetime
     memory_ids: list[UUID]
     consolidation_strategy: str
     timeout_seconds: float | None
@@ -405,10 +405,10 @@ class ProtocolAggregationRequest(Protocol):
     """
 
     correlation_id: UUID | None
-    request_timestamp: "datetime"
-    aggregation_criteria: "ProtocolAggregationCriteria"
-    time_window_start: "datetime | None"
-    time_window_end: "datetime | None"
+    request_timestamp: datetime
+    aggregation_criteria: ProtocolAggregationCriteria
+    time_window_start: datetime | None
+    time_window_end: datetime | None
     timeout_seconds: float | None
     group_by_fields: list[str]
 
@@ -478,9 +478,9 @@ class ProtocolWorkflowExecutionRequest(Protocol):
     """
 
     correlation_id: UUID | None
-    request_timestamp: "datetime"
+    request_timestamp: datetime
     workflow_type: str
-    workflow_configuration: "ProtocolWorkflowConfiguration"
+    workflow_configuration: ProtocolWorkflowConfiguration
     timeout_seconds: float | None
 
     @property
@@ -546,7 +546,7 @@ class ProtocolAgentCoordinationRequest(Protocol):
     """
 
     correlation_id: UUID | None
-    request_timestamp: "datetime"
+    request_timestamp: datetime
     agent_ids: list[UUID]
     coordination_task: str
     timeout_seconds: float | None
@@ -554,7 +554,7 @@ class ProtocolAgentCoordinationRequest(Protocol):
     @property
     def operation_type(self) -> str: ...
 
-    async def coordination_metadata(self) -> "ProtocolCoordinationMetadata": ...
+    async def coordination_metadata(self) -> ProtocolCoordinationMetadata: ...
 
 
 @runtime_checkable
@@ -618,10 +618,10 @@ class ProtocolMemoryMetricsRequest(Protocol):
     """
 
     correlation_id: UUID | None
-    request_timestamp: "datetime"
+    request_timestamp: datetime
     metric_types: list[str]
-    time_window_start: "datetime | None"
-    time_window_end: "datetime | None"
+    time_window_start: datetime | None
+    time_window_end: datetime | None
     aggregation_level: str
     timeout_seconds: float | None
 
@@ -692,7 +692,7 @@ class ProtocolStreamingMemoryRequest(Protocol):
     """
 
     correlation_id: UUID | None
-    request_timestamp: "datetime"
+    request_timestamp: datetime
     stream_type: str
     chunk_size: int
     timeout_seconds: float | None
@@ -771,7 +771,7 @@ class ProtocolStreamingRetrieveRequest(Protocol):
     """
 
     correlation_id: UUID | None
-    request_timestamp: "datetime"
+    request_timestamp: datetime
     stream_type: str
     chunk_size: int
     timeout_seconds: float | None

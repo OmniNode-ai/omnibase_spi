@@ -38,6 +38,7 @@ Usage:
 Author: Claude Code Agent (ONEX Framework)
 Version: 2.0.0
 """
+
 from __future__ import annotations
 
 import argparse
@@ -50,7 +51,7 @@ import time
 from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from typing import Any
 
 # Import existing timeout utilities
 import timeout_utils
@@ -74,8 +75,8 @@ class ValidationRule:
     auto_fixable: bool = False
     category: str = "general"
     priority: int = 1
-    dependencies: List[str] = field(default_factory=list)
-    configuration: Dict[str, Any] = field(default_factory=dict)
+    dependencies: list[str] = field(default_factory=list)
+    configuration: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -91,12 +92,12 @@ class ProtocolViolation:
     severity: str
     suggestion: str = ""
     auto_fix_available: bool = False
-    context_lines: List[str] = field(default_factory=list)
-    related_violations: List[str] = field(default_factory=list)
-    tags: List[str] = field(default_factory=list)
+    context_lines: list[str] = field(default_factory=list)
+    related_violations: list[str] = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)
     performance_impact: str = "none"  # 'none', 'low', 'medium', 'high'
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
         return {
             "file_path": self.file_path,
@@ -123,21 +124,21 @@ class ProtocolInfo:
     file_path: str
     module_path: str
     line_number: int
-    methods: List[str] = field(default_factory=list)
-    properties: List[str] = field(default_factory=list)
+    methods: list[str] = field(default_factory=list)
+    properties: list[str] = field(default_factory=list)
     signature_hash: str = ""
     is_runtime_checkable: bool = False
     has_init: bool = False
-    async_methods: List[str] = field(default_factory=list)
-    sync_io_methods: List[str] = field(default_factory=list)
-    imports: List[str] = field(default_factory=list)
-    forward_references: List[str] = field(default_factory=list)
-    protocol_dependencies: List[str] = field(default_factory=list)
+    async_methods: list[str] = field(default_factory=list)
+    sync_io_methods: list[str] = field(default_factory=list)
+    imports: list[str] = field(default_factory=list)
+    forward_references: list[str] = field(default_factory=list)
+    protocol_dependencies: list[str] = field(default_factory=list)
     domain: str = "unknown"
     complexity_score: int = 0
     line_count: int = 0
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
         return {
             "name": self.name,
@@ -166,13 +167,13 @@ class ValidationReport:
 
     total_files: int = 0
     total_protocols: int = 0
-    violations: List[ProtocolViolation] = field(default_factory=list)
-    protocols: List[ProtocolInfo] = field(default_factory=list)
+    violations: list[ProtocolViolation] = field(default_factory=list)
+    protocols: list[ProtocolInfo] = field(default_factory=list)
     execution_time: float = 0.0
     validation_rules_applied: int = 0
     auto_fixes_applied: int = 0
-    performance_metrics: Dict[str, Any] = field(default_factory=dict)
-    recommendations: List[str] = field(default_factory=list)
+    performance_metrics: dict[str, Any] = field(default_factory=dict)
+    recommendations: list[str] = field(default_factory=list)
 
     @property
     def error_count(self) -> int:
@@ -189,7 +190,7 @@ class ValidationReport:
         """Count of info-level violations."""
         return sum(1 for v in self.violations if v.severity == "info")
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
         return {
             "summary": {
@@ -217,9 +218,9 @@ class ValidationReport:
 class ValidationConfig:
     """Configuration manager for validation rules and settings."""
 
-    def __init__(self, config_file: Optional[str] = None):
-        self.rules: Dict[str, ValidationRule] = {}
-        self.global_settings: Dict[str, Any] = {}
+    def __init__(self, config_file: str | None = None):
+        self.rules: dict[str, ValidationRule] = {}
+        self.global_settings: dict[str, Any] = {}
         self._load_default_config()
 
         if config_file and Path(config_file).exists():
@@ -391,7 +392,7 @@ class ValidationConfig:
     def _load_config_file(self, config_file: str) -> None:
         """Load configuration from YAML file."""
         try:
-            with open(config_file, "r") as f:
+            with open(config_file) as f:
                 config_data = yaml.safe_load(f)
 
             # Update global settings
@@ -412,12 +413,12 @@ class ValidationConfig:
         except Exception as e:
             print(f"Warning: Failed to load config file {config_file}: {e}")
 
-    def get_enabled_rules(self) -> List[ValidationRule]:
+    def get_enabled_rules(self) -> list[ValidationRule]:
         """Get all enabled validation rules sorted by priority."""
         enabled_rules = [rule for rule in self.rules.values() if rule.enabled]
         return sorted(enabled_rules, key=lambda r: (r.priority, r.rule_id))
 
-    def get_rule(self, rule_id: str) -> Optional[ValidationRule]:
+    def get_rule(self, rule_id: str) -> ValidationRule | None:
         """Get a specific validation rule by ID."""
         return self.rules.get(rule_id)
 
@@ -438,33 +439,33 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
     def __init__(self, file_path: str, config: ValidationConfig):
         self.file_path = file_path
         self.config = config
-        self.violations: List[ProtocolViolation] = []
-        self.protocols: List[ProtocolInfo] = []
+        self.violations: list[ProtocolViolation] = []
+        self.protocols: list[ProtocolInfo] = []
 
         # Analysis state
-        self.current_protocol: Optional[ProtocolInfo] = None
+        self.current_protocol: ProtocolInfo | None = None
         self.in_protocol_class: bool = False
-        self.imports: Dict[str, str] = {}
-        self.type_checking_imports: Set[str] = set()
-        self.forward_references: Set[str] = set()
+        self.imports: dict[str, str] = {}
+        self.type_checking_imports: set[str] = set()
+        self.forward_references: set[str] = set()
 
         # Performance metrics
         self.analysis_start_time = time.time()
         self.node_count = 0
 
         # Context tracking
-        self.source_lines: List[str] = []
+        self.source_lines: list[str] = []
         self._load_source_lines()
 
     def _load_source_lines(self) -> None:
         """Load source file lines for context extraction."""
         try:
-            with open(self.file_path, "r", encoding="utf-8") as f:
+            with open(self.file_path, encoding="utf-8") as f:
                 self.source_lines = f.readlines()
         except Exception:
             self.source_lines = []
 
-    def _get_context_lines(self, line_number: int, context_size: int = 2) -> List[str]:
+    def _get_context_lines(self, line_number: int, context_size: int = 2) -> list[str]:
         """Get context lines around the specified line number."""
         start = max(0, line_number - context_size - 1)
         end = min(len(self.source_lines), line_number + context_size)
@@ -476,7 +477,7 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
         rule_id: str,
         message: str,
         suggestion: str = "",
-        tags: Optional[List[str]] = None,
+        tags: list[str] | None = None,
         performance_impact: str = "none",
     ) -> None:
         """Add a validation violation with enhanced context."""
@@ -558,7 +559,6 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
             and node.test.id == "TYPE_CHECKING"
             and "TYPE_CHECKING" in self.type_checking_imports
         ):
-
             # Inside TYPE_CHECKING block - track imports
             for child in ast.walk(node):
                 if isinstance(child, ast.ImportFrom) and child.module:
@@ -941,7 +941,6 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
             and node.name not in ["main"]
             and not self._is_utility_function(node)
         ):
-
             self._add_violation(
                 node,
                 "SPI008",
@@ -1001,9 +1000,7 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
         # Use SHA256 for better collision resistance and longer hash
         return hashlib.sha256(combined.encode()).hexdigest()[:16]
 
-    def _has_ellipsis_body(
-        self, node: Union[ast.FunctionDef, ast.AsyncFunctionDef]
-    ) -> bool:
+    def _has_ellipsis_body(self, node: ast.FunctionDef | ast.AsyncFunctionDef) -> bool:
         """Check if method body contains only ellipsis (...) or docstring + ellipsis."""
         if not node.body:
             return False
@@ -1455,7 +1452,7 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
 
         return "unknown"
 
-    def get_analysis_metrics(self) -> Dict[str, Any]:
+    def get_analysis_metrics(self) -> dict[str, Any]:
         """Get performance and analysis metrics."""
         analysis_time = time.time() - self.analysis_start_time
 
@@ -1497,8 +1494,8 @@ class DuplicateProtocolAnalyzer:
         self.config = config
 
     def analyze_duplicates(
-        self, protocols: List[ProtocolInfo]
-    ) -> List[ProtocolViolation]:
+        self, protocols: list[ProtocolInfo]
+    ) -> list[ProtocolViolation]:
         """Comprehensive duplicate analysis with multiple detection strategies."""
         violations = []
 
@@ -1527,8 +1524,8 @@ class DuplicateProtocolAnalyzer:
         return violations
 
     def _find_exact_duplicates(
-        self, by_signature: Dict[str, List[ProtocolInfo]]
-    ) -> List[ProtocolViolation]:
+        self, by_signature: dict[str, list[ProtocolInfo]]
+    ) -> list[ProtocolViolation]:
         """Find protocols with identical signatures."""
         violations = []
 
@@ -1569,8 +1566,8 @@ class DuplicateProtocolAnalyzer:
         return violations
 
     def _group_truly_identical_protocols(
-        self, protocols: List[ProtocolInfo]
-    ) -> List[List[ProtocolInfo]]:
+        self, protocols: list[ProtocolInfo]
+    ) -> list[list[ProtocolInfo]]:
         """Group protocols that are truly identical, not just hash collisions."""
         groups = []
         processed = set()
@@ -1618,8 +1615,8 @@ class DuplicateProtocolAnalyzer:
         return True
 
     def _find_name_conflicts(
-        self, by_name: Dict[str, List[ProtocolInfo]]
-    ) -> List[ProtocolViolation]:
+        self, by_name: dict[str, list[ProtocolInfo]]
+    ) -> list[ProtocolViolation]:
         """Find protocols with same name but different signatures."""
         violations = []
 
@@ -1671,8 +1668,8 @@ class DuplicateProtocolAnalyzer:
         return violations
 
     def _find_semantic_duplicates(
-        self, by_semantic: Dict[str, List[ProtocolInfo]]
-    ) -> List[ProtocolViolation]:
+        self, by_semantic: dict[str, list[ProtocolInfo]]
+    ) -> list[ProtocolViolation]:
         """Find protocols that are semantically similar but not identical."""
         violations = []
 
@@ -1725,7 +1722,7 @@ class DuplicateProtocolAnalyzer:
         method_patterns.sort()
         return f"{domain_key}:{':'.join(method_patterns[:5])}"  # First 5 methods
 
-    def _calculate_similarity_score(self, protocols: List[ProtocolInfo]) -> float:
+    def _calculate_similarity_score(self, protocols: list[ProtocolInfo]) -> float:
         """Calculate semantic similarity score between protocols."""
         if len(protocols) < 2:
             return 0.0
@@ -1750,7 +1747,7 @@ class DuplicateProtocolAnalyzer:
 
         return sum(similarities) / len(similarities) if similarities else 0.0
 
-    def _get_rule_exclusions(self, rule_id: str) -> List[Dict[str, Any]]:
+    def _get_rule_exclusions(self, rule_id: str) -> list[dict[str, Any]]:
         """Get exclusion patterns from rule configuration."""
         if rule_id not in self.config.rules:
             return []
@@ -1761,7 +1758,7 @@ class DuplicateProtocolAnalyzer:
         return config_data.get("exclusions", [])
 
     def _matches_exclusion_pattern(
-        self, protocol1_name: str, protocol2_name: str, exclusions: List[Dict[str, Any]]
+        self, protocol1_name: str, protocol2_name: str, exclusions: list[dict[str, Any]]
     ) -> bool:
         """Check if protocol pair matches any exclusion pattern."""
         for exclusion in exclusions:
@@ -1796,8 +1793,8 @@ class AutoFixEngine:
         self.fixes_applied = 0
 
     def apply_auto_fixes(
-        self, violations: List[ProtocolViolation]
-    ) -> Tuple[List[ProtocolViolation], int]:
+        self, violations: list[ProtocolViolation]
+    ) -> tuple[list[ProtocolViolation], int]:
         """Apply automatic fixes to supported violations."""
         fixed_violations = []
         fixes_applied = 0
@@ -1832,11 +1829,11 @@ class AutoFixEngine:
         return fixed_violations, fixes_applied
 
     def _apply_file_fixes(
-        self, file_path: str, violations: List[ProtocolViolation]
+        self, file_path: str, violations: list[ProtocolViolation]
     ) -> int:
         """Apply fixes to a specific file."""
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             original_content = content
@@ -1877,7 +1874,7 @@ class AutoFixEngine:
 
     def _fix_missing_runtime_checkable(
         self, content: str, violation: ProtocolViolation
-    ) -> Tuple[str, bool]:
+    ) -> tuple[str, bool]:
         """Fix missing @runtime_checkable decorator."""
         lines = content.split("\n")
         target_line = violation.line_number - 1  # Convert to 0-based
@@ -1897,7 +1894,7 @@ class AutoFixEngine:
 
     def _fix_concrete_implementation(
         self, content: str, violation: ProtocolViolation
-    ) -> Tuple[str, bool]:
+    ) -> tuple[str, bool]:
         """Fix concrete method implementation to use ellipsis."""
         lines = content.split("\n")
         target_line = violation.line_number - 1
@@ -1949,7 +1946,7 @@ class AutoFixEngine:
 
     def _fix_sync_to_async(
         self, content: str, violation: ProtocolViolation
-    ) -> Tuple[str, bool]:
+    ) -> tuple[str, bool]:
         """Fix synchronous method to async."""
         lines = content.split("\n")
         target_line = violation.line_number - 1
@@ -2370,7 +2367,7 @@ class ComprehensiveSPIValidationEngine:
 
         return report
 
-    def _discover_protocol_files(self, directory: Path) -> List[Path]:
+    def _discover_protocol_files(self, directory: Path) -> list[Path]:
         """Discover Python protocol files to validate."""
         protocol_files = []
 
@@ -2387,7 +2384,7 @@ class ComprehensiveSPIValidationEngine:
 
                 # Check if file contains protocol definitions
                 try:
-                    with open(py_file, "r", encoding="utf-8") as f:
+                    with open(py_file, encoding="utf-8") as f:
                         content = f.read(2048)  # Read first 2KB
 
                     if self._looks_like_protocol_file(content):
@@ -2414,10 +2411,10 @@ class ComprehensiveSPIValidationEngine:
 
     def _validate_file(
         self, file_path: Path
-    ) -> Tuple[List[ProtocolViolation], List[ProtocolInfo]]:
+    ) -> tuple[list[ProtocolViolation], list[ProtocolInfo]]:
         """Validate a single file comprehensively."""
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             # Check file size limits
@@ -2470,7 +2467,7 @@ class ComprehensiveSPIValidationEngine:
                 )
             ], []
 
-    def _generate_performance_metrics(self, report: ValidationReport) -> Dict[str, Any]:
+    def _generate_performance_metrics(self, report: ValidationReport) -> dict[str, Any]:
         """Generate performance analysis metrics."""
         metrics = {
             "files_per_second": (
@@ -2497,7 +2494,7 @@ class ComprehensiveSPIValidationEngine:
 
         return metrics
 
-    def _generate_recommendations(self, report: ValidationReport) -> List[str]:
+    def _generate_recommendations(self, report: ValidationReport) -> list[str]:
         """Generate actionable recommendations based on validation results."""
         recommendations = []
 

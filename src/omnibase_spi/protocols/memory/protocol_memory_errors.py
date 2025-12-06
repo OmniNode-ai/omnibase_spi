@@ -97,12 +97,12 @@ class ProtocolMemoryError(Protocol):
 
     error_code: str
     error_message: str
-    error_timestamp: "datetime"
+    error_timestamp: datetime
     correlation_id: UUID | None
     error_category: LiteralErrorCategory
 
     @property
-    def error_context(self) -> "ProtocolMemoryErrorContext": ...
+    def error_context(self) -> ProtocolMemoryErrorContext: ...
 
     @property
     def recoverable(self) -> bool: ...
@@ -173,9 +173,9 @@ class ProtocolMemoryErrorResponse(Protocol):
     """
 
     correlation_id: UUID | None
-    response_timestamp: "datetime"
+    response_timestamp: datetime
     success: bool
-    error: "ProtocolMemoryError"
+    error: ProtocolMemoryError
     suggested_action: str
 
     @property
@@ -745,11 +745,11 @@ class ProtocolMemoryErrorRecoveryResponse(Protocol):
     """
 
     correlation_id: UUID | None
-    response_timestamp: "datetime"
+    response_timestamp: datetime
     success: bool
     recovery_attempted: bool
     recovery_successful: bool
-    recovery_strategy: "ProtocolErrorRecoveryStrategy | None"
+    recovery_strategy: ProtocolErrorRecoveryStrategy | None
 
     @property
     def error_message(self) -> str | None: ...
@@ -821,7 +821,7 @@ class ProtocolBatchErrorSummary(Protocol):
 
     total_operations: int
     failed_operations: int
-    error_categories: "ProtocolErrorCategoryMap"
+    error_categories: ProtocolErrorCategoryMap
 
     @property
     def failure_rate(self) -> float: ...
@@ -903,12 +903,12 @@ class ProtocolBatchErrorResponse(Protocol):
     """
 
     correlation_id: UUID | None
-    response_timestamp: "datetime"
+    response_timestamp: datetime
     success: bool
-    error: "ProtocolMemoryError"
+    error: ProtocolMemoryError
     suggested_action: str
-    batch_summary: "ProtocolBatchErrorSummary"
-    individual_errors: list["ProtocolMemoryError"]
+    batch_summary: ProtocolBatchErrorSummary
+    individual_errors: list[ProtocolMemoryError]
 
     @property
     def error_message(self) -> str | None: ...
@@ -917,4 +917,4 @@ class ProtocolBatchErrorResponse(Protocol):
     def retry_after_seconds(self) -> int | None: ...
 
     @property
-    def partial_success_recovery(self) -> "ProtocolErrorRecoveryStrategy | None": ...
+    def partial_success_recovery(self) -> ProtocolErrorRecoveryStrategy | None: ...

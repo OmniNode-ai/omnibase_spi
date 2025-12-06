@@ -15,6 +15,7 @@ Usage:
         --file src/path/to/file.py \
         --protocol1 ProtocolName1 --protocol2 ProtocolName2
 """
+
 from __future__ import annotations
 
 import argparse

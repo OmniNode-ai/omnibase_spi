@@ -21,12 +21,15 @@ This module supports two messaging patterns:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Awaitable, Callable, Protocol, runtime_checkable
+from collections.abc import Awaitable, Callable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import LiteralLogLevel
 from omnibase_spi.protocols.types.protocol_event_bus_types import ProtocolEventMessage
 
 if TYPE_CHECKING:
+    # Forward reference to avoid circular import: ModelOnexEnvelope is defined
+    # in omnibase_core.models.runtime but used in type hints here.
     from omnibase_core.models.runtime import ModelOnexEnvelope
 
 
@@ -75,7 +78,7 @@ class ProtocolEventBusBase(Protocol):
 
     async def publish_envelope(
         self,
-        envelope: "ModelOnexEnvelope",
+        envelope: ModelOnexEnvelope,
         topic: str,
     ) -> None:
         """
@@ -99,7 +102,7 @@ class ProtocolEventBusBase(Protocol):
     async def subscribe(
         self,
         topic: str,
-        handler: Callable[["ModelOnexEnvelope"], Awaitable[None]],
+        handler: Callable[[ModelOnexEnvelope], Awaitable[None]],
     ) -> None:
         """
         Subscribe to a topic with an envelope handler.
@@ -144,6 +147,40 @@ class ProtocolEventBusBase(Protocol):
 
         Raises:
             SPIError: If consumer initialization fails.
+        """
+        ...
+
+    async def stop_consuming(self, timeout_seconds: float = 30.0) -> None:
+        """
+        Stop consuming messages and gracefully shut down the consumer.
+
+        Signals the consumer loop to stop processing messages and cleanly
+        exit. This method should be called to ensure proper resource cleanup
+        and to allow in-flight messages to complete processing.
+
+        This is the counterpart to start_consuming() and should be called
+        during application shutdown or when consumption needs to be paused.
+
+        Args:
+            timeout_seconds: Maximum time to wait for graceful shutdown.
+                Defaults to 30.0 seconds. After this timeout, the consumer
+                will be forcefully terminated. Set to 0 for immediate
+                termination (not recommended for production).
+
+        Example:
+            ```python
+            # Graceful shutdown with default timeout
+            await bus.stop_consuming()
+
+            # Quick shutdown for testing
+            await bus.stop_consuming(timeout_seconds=5.0)
+
+            # Immediate termination (use with caution)
+            await bus.stop_consuming(timeout_seconds=0)
+            ```
+
+        Raises:
+            SPIError: If shutdown fails or times out unexpectedly.
         """
         ...
 
