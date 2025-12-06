@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    from omnibase_core.enums.handler import EnumHandlerType
     from omnibase_core.models.protocol import (
         ModelConnectionConfig,
         ModelOperationConfig,
@@ -55,15 +54,19 @@ class ProtocolHandler(Protocol):
     """
 
     @property
-    def handler_type(self) -> "EnumHandlerType":
+    def handler_type(self) -> str:
         """
-        The type of handler (HTTP, Kafka, PostgreSQL, etc.).
+        The type of handler as a string identifier.
 
         Used for handler identification, routing, and metrics collection.
-        Implementations must return the appropriate EnumHandlerType value.
+        Implementations should return a consistent, lowercase string identifier
+        that matches the corresponding EnumHandlerType values in omnibase_core.
+
+        Common values: "http", "kafka", "postgresql", "neo4j", "redis",
+        "grpc", "websocket", "file", "memory", etc.
 
         Returns:
-            The handler type enum value.
+            String identifier for the handler type.
         """
         ...
 
