@@ -3,12 +3,31 @@ Protocol definitions extracted from Event Bus Mixin.
 
 Provides clean protocol interfaces for event bus operations without
 implementation dependencies or mixin complexity.
+
+This module supports two messaging patterns:
+
+1. **Basic Event Messaging** (ProtocolEventMessage):
+   - Simple event publishing with publish() method
+   - Suitable for internal, non-serialized event passing
+   - Used by sync/async bus variants
+
+2. **Envelope-Based Messaging** (ModelOnexEnvelope):
+   - Structured envelope format with metadata, correlation IDs, and routing
+   - Full serialization/deserialization support for Kafka transport
+   - Consumer subscription model with handler callbacks
+   - Health monitoring and lifecycle management
+   - Used for cross-service communication and event sourcing
 """
 
-from typing import Protocol, runtime_checkable
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Awaitable, Callable, Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import LiteralLogLevel
 from omnibase_spi.protocols.types.protocol_event_bus_types import ProtocolEventMessage
+
+if TYPE_CHECKING:
+    from omnibase_core.models.runtime import ModelOnexEnvelope
 
 
 @runtime_checkable
@@ -20,13 +39,115 @@ class ProtocolEventBusBase(Protocol):
     and asynchronous event buses must implement. Provides unified
     event publishing capabilities across different execution patterns.
 
+    This protocol supports two messaging patterns:
+
+    **Basic Event Messaging**:
+        Use publish() for simple ProtocolEventMessage events. Suitable for
+        internal event passing without full envelope serialization.
+
+    **Envelope-Based Messaging**:
+        Use publish_envelope(), subscribe(), and start_consuming() for
+        structured ModelOnexEnvelope messages. Provides:
+        - Correlation ID tracking across service boundaries
+        - Full metadata preservation (timestamps, routing keys)
+        - Kafka-compatible serialization format
+        - Consumer group subscription model
+
     Key Features:
         - Unified event publishing interface
         - Support for both sync and async implementations
         - Compatible with dependency injection patterns
+        - Envelope support for cross-service messaging
+        - Health monitoring for operational readiness
     """
 
-    async def publish(self, event: ProtocolEventMessage) -> None: ...
+    async def publish(self, event: ProtocolEventMessage) -> None:
+        """
+        Publish a basic event message.
+
+        Args:
+            event: The event message to publish.
+
+        Raises:
+            SPIError: If publishing fails.
+        """
+        ...
+
+    async def publish_envelope(
+        self,
+        envelope: "ModelOnexEnvelope",
+        topic: str,
+    ) -> None:
+        """
+        Publish an envelope-wrapped event to a specific topic.
+
+        Envelope-based publishing provides structured messaging with:
+        - Correlation ID propagation for distributed tracing
+        - Metadata preservation (timestamps, routing information)
+        - Serialization-ready format for Kafka transport
+
+        Args:
+            envelope: The ONEX envelope containing the event payload
+                and metadata (correlation_id, timestamp, etc.).
+            topic: The Kafka topic or channel to publish to.
+
+        Raises:
+            SPIError: If publishing fails or topic is invalid.
+        """
+        ...
+
+    async def subscribe(
+        self,
+        topic: str,
+        handler: Callable[["ModelOnexEnvelope"], Awaitable[None]],
+    ) -> None:
+        """
+        Subscribe to a topic with an envelope handler.
+
+        Registers an async handler function to process incoming envelopes
+        from the specified topic. Multiple handlers can subscribe to the
+        same topic.
+
+        Args:
+            topic: The Kafka topic or channel to subscribe to.
+            handler: Async callback function that receives ModelOnexEnvelope
+                instances. Handler should process envelope.payload for
+                the actual event data.
+
+        Raises:
+            SPIError: If subscription fails or topic is invalid.
+        """
+        ...
+
+    async def start_consuming(self) -> None:
+        """
+        Start consuming messages from all subscribed topics.
+
+        Activates the consumer loop to begin processing incoming envelopes.
+        This method should be called after all subscribe() registrations
+        are complete. Typically runs until stop() is called or the
+        event bus is shut down.
+
+        Raises:
+            SPIError: If consumer initialization fails.
+        """
+        ...
+
+    async def health_check(self) -> bool:
+        """
+        Check the health status of the event bus connection.
+
+        Verifies connectivity to the underlying message broker (e.g., Kafka)
+        and returns operational readiness status.
+
+        Returns:
+            True if the event bus is healthy and ready for operations,
+            False if connectivity issues or degraded state detected.
+
+        Raises:
+            SPIError: If health check cannot be performed.
+        """
+        ...
 
 
 @runtime_checkable

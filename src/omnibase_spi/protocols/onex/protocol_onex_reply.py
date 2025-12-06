@@ -5,13 +5,7 @@ Protocol interface for Onex standard reply pattern.
 Defines the contract for response replies with status, data, and error information.
 """
 
-from typing import (
-    TYPE_CHECKING,
-    Literal,
-    Protocol,
-    TypeVar,
-    runtime_checkable,
-)
+from typing import TYPE_CHECKING, Literal, Protocol, TypeVar, runtime_checkable
 from uuid import UUID
 
 if TYPE_CHECKING:

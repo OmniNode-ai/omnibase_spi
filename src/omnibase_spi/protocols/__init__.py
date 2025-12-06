@@ -301,7 +301,10 @@ from omnibase_spi.protocols.contracts import (
 )
 
 # v0.3.0 Handler protocols (1 protocol) - DI-based protocol handlers
-from omnibase_spi.protocols.handlers import ProtocolHandler as ProtocolHandlerV3
+from omnibase_spi.protocols.handlers import ProtocolHandler
+
+# Alias for versioned naming convention (ProtocolHandlerV3 is the same as ProtocolHandler)
+ProtocolHandlerV3 = ProtocolHandler
 
 # v0.3.0 Node protocols (5 protocols) - Standard node interfaces with unified execute()
 from omnibase_spi.protocols.nodes import ProtocolComputeNode as ProtocolComputeNodeV3
@@ -382,11 +385,6 @@ from omnibase_spi.protocols.workflow_orchestration import (
 #     ProtocolOrchestratorNodeLegacy,
 #     ProtocolReducerNodeLegacy,
 # )
-
-
-
-
-
 
 
 # Test protocols (2 protocols) - Testing frameworks and testable components
@@ -476,7 +474,8 @@ __all__ = [
     # v0.3.0 Registry protocols
     "ProtocolHandlerRegistry",
     # v0.3.0 Handler protocols
-    "ProtocolHandlerV3",
+    "ProtocolHandler",
+    "ProtocolHandlerV3",  # Alias for ProtocolHandler
     "ProtocolHttpAuthConfig",
     "ProtocolHttpClient",
     "ProtocolHttpClientConfig",

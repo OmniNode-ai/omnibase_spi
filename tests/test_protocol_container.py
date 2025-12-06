@@ -10,7 +10,6 @@ Validates that ProtocolContainer:
 
 from typing import Any, Generic, TypeVar
 
-
 from omnibase_spi.protocols.container import ProtocolContainer
 
 T = TypeVar("T")

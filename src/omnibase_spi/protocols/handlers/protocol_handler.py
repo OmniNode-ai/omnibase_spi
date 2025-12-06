@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
+    from omnibase_core.enums.handler import EnumHandlerType
     from omnibase_core.models.protocol import (
         ModelConnectionConfig,
         ModelOperationConfig,
@@ -22,12 +23,33 @@ class ProtocolHandler(Protocol):
     This interface enables dependency injection of I/O handlers
     into effect nodes without tight coupling.
 
+    Handler vs Event Bus Distinction:
+        ProtocolHandler is for request-response I/O operations (HTTP, DB, etc.)
+        where a direct response is expected. This differs from event bus patterns
+        (ProtocolEventPublisher/ProtocolEventConsumer) which handle asynchronous,
+        fire-and-forget message passing. Handlers are typically used within effect
+        nodes to perform external calls, while event bus protocols coordinate
+        inter-service communication.
+
     Example implementations:
         - HttpRestHandler: HTTP/REST API calls
         - BoltHandler: Neo4j Cypher queries
         - PostgresHandler: SQL queries via asyncpg
         - KafkaHandler: Message publishing
     """
+
+    @property
+    def handler_type(self) -> "EnumHandlerType":
+        """
+        The type of handler (HTTP, Kafka, PostgreSQL, etc.).
+
+        Used for handler identification, routing, and metrics collection.
+        Implementations must return the appropriate EnumHandlerType value.
+
+        Returns:
+            The handler type enum value.
+        """
+        ...
 
     async def initialize(
         self,
@@ -76,5 +98,54 @@ class ProtocolHandler(Protocol):
 
         Raises:
             ProtocolHandlerError: If execution fails.
+        """
+        ...
+
+    def describe(self) -> dict[str, Any]:
+        """
+        Return handler metadata and capabilities.
+
+        Provides introspection information about the handler including
+        its type, supported operations, connection status, and any
+        handler-specific capabilities.
+
+        Returns:
+            Dictionary containing handler metadata:
+                - handler_type: The handler type (string representation)
+                - capabilities: List of supported operations/features
+                - version: Handler implementation version (optional)
+                - connection_info: Non-sensitive connection details (optional)
+
+        Example:
+            ```python
+            metadata = handler.describe()
+            print(f"Handler: {metadata['handler_type']}")
+            print(f"Capabilities: {metadata['capabilities']}")
+            ```
+        """
+        ...
+
+    async def health_check(self) -> dict[str, Any]:
+        """
+        Check handler health and connectivity.
+
+        Performs a lightweight check to verify the handler is operational
+        and can communicate with its backing service.
+
+        Returns:
+            Dictionary containing health status:
+                - healthy: Boolean indicating overall health
+                - latency_ms: Response time in milliseconds (optional)
+                - details: Additional diagnostic information (optional)
+                - last_error: Most recent error message if unhealthy (optional)
+
+        Example:
+            ```python
+            health = await handler.health_check()
+            if health['healthy']:
+                print(f"Handler OK, latency: {health.get('latency_ms', 'N/A')}ms")
+            else:
+                print(f"Handler unhealthy: {health.get('last_error', 'Unknown')}")
+            ```
         """
         ...

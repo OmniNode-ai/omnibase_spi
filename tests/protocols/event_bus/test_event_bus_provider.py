@@ -31,6 +31,8 @@ class MockEventBus:
     def __init__(self) -> None:
         """Initialize the mock event bus with empty state."""
         self._published_events: list[ProtocolEventMessage] = []
+        self._handlers: dict[str, list[object]] = {}
+        self._consuming: bool = False
 
     async def publish(self, event: ProtocolEventMessage) -> None:
         """Record published events for test verification.
@@ -39,6 +41,42 @@ class MockEventBus:
             event: The event message to publish.
         """
         self._published_events.append(event)
+
+    async def publish_envelope(self, envelope: object, topic: str) -> None:
+        """Publish an envelope to a topic (mock implementation).
+
+        Args:
+            envelope: The envelope to publish.
+            topic: The topic to publish to.
+        """
+        pass
+
+    async def subscribe(
+        self,
+        topic: str,
+        handler: object,
+    ) -> None:
+        """Subscribe to a topic with a handler (mock implementation).
+
+        Args:
+            topic: The topic to subscribe to.
+            handler: The handler function.
+        """
+        if topic not in self._handlers:
+            self._handlers[topic] = []
+        self._handlers[topic].append(handler)
+
+    async def start_consuming(self) -> None:
+        """Start consuming messages (mock implementation)."""
+        self._consuming = True
+
+    async def health_check(self) -> bool:
+        """Check health status (mock implementation).
+
+        Returns:
+            Always True for mock.
+        """
+        return True
 
     @property
     def published_events(self) -> list[ProtocolEventMessage]:

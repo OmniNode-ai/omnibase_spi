@@ -3,11 +3,15 @@ Tests for ProtocolHandler protocol.
 
 Validates that ProtocolHandler:
 - Is properly runtime checkable
-- Defines required methods (initialize, shutdown, execute)
+- Defines required methods (initialize, shutdown, execute, describe, health_check)
+- Has required property (handler_type)
 - Methods have correct signatures
 - Cannot be instantiated directly
 - Works correctly with isinstance checks for compliant/non-compliant classes
 """
+
+from typing import Any
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -20,16 +24,22 @@ ModelConnectionConfig = object
 ModelProtocolRequest = object
 ModelOperationConfig = object
 ModelProtocolResponse = object
+EnumHandlerType = object  # Mock for handler type enum
 
 
 class CompliantHandler:
     """A class that fully implements the ProtocolHandler protocol."""
 
+    @property
+    def handler_type(self) -> "EnumHandlerType":
+        """Return the handler type."""
+        return MagicMock()
+
     async def initialize(self, _config: "ModelConnectionConfig") -> None:
         """Initialize the handler."""
         pass
 
-    async def shutdown(self) -> None:
+    async def shutdown(self, timeout_seconds: float = 30.0) -> None:
         """Shutdown the handler."""
         pass
 
@@ -39,10 +49,18 @@ class CompliantHandler:
         _operation_config: "ModelOperationConfig",
     ) -> "ModelProtocolResponse":
         """Execute a protocol operation."""
-        # Return a mock response
-        from unittest.mock import MagicMock
-
         return MagicMock()
+
+    def describe(self) -> dict[str, Any]:
+        """Return handler metadata."""
+        return {
+            "handler_type": "mock",
+            "capabilities": ["test"],
+        }
+
+    async def health_check(self) -> dict[str, Any]:
+        """Check handler health."""
+        return {"healthy": True}
 
 
 class PartialHandler:
@@ -62,6 +80,11 @@ class NonCompliantHandler:
 class WrongSignatureHandler:
     """A class that implements methods with wrong signatures."""
 
+    @property
+    def handler_type(self) -> "EnumHandlerType":
+        """Return the handler type."""
+        return MagicMock()
+
     async def initialize(self) -> None:  # type: ignore[override]
         """Initialize with wrong signature (missing config parameter)."""
         pass
@@ -76,9 +99,15 @@ class WrongSignatureHandler:
         _operation_config: "ModelOperationConfig",
     ) -> "ModelProtocolResponse":
         """Execute a protocol operation."""
-        from unittest.mock import MagicMock
-
         return MagicMock()
+
+    def describe(self) -> dict[str, Any]:
+        """Return handler metadata."""
+        return {}
+
+    async def health_check(self) -> dict[str, Any]:
+        """Check handler health."""
+        return {"healthy": True}
 
 
 class TestProtocolHandlerProtocol:
@@ -112,6 +141,18 @@ class TestProtocolHandlerProtocol:
     def test_protocol_handler_has_execute_method(self) -> None:
         """ProtocolHandler should define execute method."""
         assert "execute" in dir(ProtocolHandler)
+
+    def test_protocol_handler_has_handler_type_property(self) -> None:
+        """ProtocolHandler should define handler_type property."""
+        assert "handler_type" in dir(ProtocolHandler)
+
+    def test_protocol_handler_has_describe_method(self) -> None:
+        """ProtocolHandler should define describe method."""
+        assert "describe" in dir(ProtocolHandler)
+
+    def test_protocol_handler_has_health_check_method(self) -> None:
+        """ProtocolHandler should define health_check method."""
+        assert "health_check" in dir(ProtocolHandler)
 
     def test_protocol_cannot_be_instantiated(self) -> None:
         """ProtocolHandler protocol should not be directly instantiable."""
@@ -184,14 +225,34 @@ class TestProtocolHandlerMethodSignatures:
     @pytest.mark.asyncio
     async def test_execute_returns_response(self) -> None:
         """execute method should return ModelProtocolResponse."""
-        from unittest.mock import MagicMock
-
         handler = CompliantHandler()
         request = MagicMock()
         operation_config = MagicMock()
         response = await handler.execute(request, operation_config)
         # Verify we get something back
         assert response is not None
+
+    def test_handler_type_returns_value(self) -> None:
+        """handler_type property should return a value."""
+        handler = CompliantHandler()
+        handler_type = handler.handler_type
+        assert handler_type is not None
+
+    def test_describe_returns_dict(self) -> None:
+        """describe method should return a dictionary."""
+        handler = CompliantHandler()
+        metadata = handler.describe()
+        assert isinstance(metadata, dict)
+        assert "handler_type" in metadata
+        assert "capabilities" in metadata
+
+    @pytest.mark.asyncio
+    async def test_health_check_returns_dict(self) -> None:
+        """health_check method should return a dictionary with health status."""
+        handler = CompliantHandler()
+        health = await handler.health_check()
+        assert isinstance(health, dict)
+        assert "healthy" in health
 
 
 class TestProtocolHandlerAsyncNature:
@@ -214,6 +275,18 @@ class TestProtocolHandlerAsyncNature:
         import inspect
 
         assert inspect.iscoroutinefunction(CompliantHandler.execute)
+
+    def test_health_check_is_async(self) -> None:
+        """health_check should be an async method."""
+        import inspect
+
+        assert inspect.iscoroutinefunction(CompliantHandler.health_check)
+
+    def test_describe_is_sync(self) -> None:
+        """describe should be a sync method (not async)."""
+        import inspect
+
+        assert not inspect.iscoroutinefunction(CompliantHandler.describe)
 
 
 class TestProtocolHandlerImports:
@@ -269,3 +342,17 @@ class TestProtocolHandlerDocumentation:
     def test_execute_has_docstring(self) -> None:
         """execute method should have a docstring."""
         assert CompliantHandler.execute.__doc__ is not None
+
+    def test_describe_has_docstring(self) -> None:
+        """describe method should have a docstring."""
+        assert CompliantHandler.describe.__doc__ is not None
+
+    def test_health_check_has_docstring(self) -> None:
+        """health_check method should have a docstring."""
+        assert CompliantHandler.health_check.__doc__ is not None
+
+    def test_handler_type_has_docstring(self) -> None:
+        """handler_type property should have a docstring."""
+        # Access the fget from the property descriptor on the class
+        prop = CompliantHandler.__dict__["handler_type"]
+        assert prop.fget.__doc__ is not None
