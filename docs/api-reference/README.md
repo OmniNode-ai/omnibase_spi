@@ -21,6 +21,11 @@ The API reference is organized by domain, matching the package structure:
 ### 🔧 Core System Protocols
 - **[Core Protocols](CORE.md)** - System-level contracts and fundamentals (13 protocols)
 - **[Container Protocols](CONTAINER.md)** - Dependency injection and service management (14 protocols)
+- **[Node Protocols](NODES.md)** - ONEX 4-node architecture (5 protocols) **NEW in v0.3.0**
+- **[Handler Protocols](HANDLERS.md)** - Protocol-specific I/O handlers (1 protocol) **NEW in v0.3.0**
+- **[Contract Compilers](CONTRACTS.md)** - Contract compilation protocols (3 protocols) **NEW in v0.3.0**
+- **[Registry Protocols](REGISTRY.md)** - Handler registry management (1 protocol) **NEW in v0.3.0**
+- **[Exceptions](EXCEPTIONS.md)** - SPI exception hierarchy (6 exceptions) **NEW in v0.3.0**
 
 ### 🚀 Workflow & Event Processing
 - **[Workflow Orchestration](WORKFLOW-ORCHESTRATION.md)** - Event-driven FSM orchestration (12 protocols)
@@ -203,17 +208,17 @@ Common patterns documented throughout:
 
 ## 📊 Protocol Statistics
 
-- **Total Protocols**: 176 protocol files
-- **Domain Coverage**: 22 specialized domains
+- **Total Protocols**: 176+ protocol files
+- **Domain Coverage**: 22+ specialized domains
 - **Type Definitions**: 14 comprehensive type modules
 - **Enterprise Features**: Health monitoring, metrics, circuit breakers
 - **Architecture Patterns**: Event sourcing, dependency injection, distributed coordination
-- **Latest Additions (v0.1.0)**:
-  - ProtocolContainer - Generic value containers with metadata
-  - ProtocolServiceResolver - Service resolution interface
-  - ProtocolContract - Full contract interface for behavioral agreements
-  - ProtocolOnexError - Standardized error object protocol
-  - ONEX Node Protocols (4) - Effect, Compute, Reducer, Orchestrator node types
+- **Latest Additions (v0.3.0)**:
+  - **Node Protocols**: ProtocolNode, ProtocolComputeNode, ProtocolEffectNode, ProtocolReducerNode, ProtocolOrchestratorNode
+  - **Handler Protocols**: ProtocolHandler with full lifecycle management
+  - **Contract Compilers**: ProtocolEffectContractCompiler, ProtocolWorkflowContractCompiler, ProtocolFSMContractCompiler
+  - **Registry**: ProtocolHandlerRegistry for handler dependency injection
+  - **Exceptions**: Complete SPIError hierarchy with context support
 
 ## 🔍 Navigation
 
@@ -227,8 +232,8 @@ Use the sidebar or table of contents to navigate between different protocol doma
 
 ## 📄 Version Information
 
-- **API Version**: 0.2.0
-- **Python Compatibility**: 3.11, 3.12, 3.13
+- **API Version**: 0.3.0
+- **Python Compatibility**: 3.12+
 - **Type Checking**: mypy strict mode compatible
 - **Runtime Checking**: All protocols are `@runtime_checkable`
 
