@@ -44,6 +44,40 @@ CORE_MODELS_AVAILABLE = (
 )
 
 
+# =============================================================================
+# Helper Functions for Protocol Validation
+# =============================================================================
+# These helpers reduce code duplication across test classes and provide
+# consistent validation patterns for protocol verification.
+# =============================================================================
+
+
+def _verify_runtime_checkable_protocol(protocol: type) -> None:
+    """Verify a protocol has @runtime_checkable decorator.
+
+    This helper provides consistent validation that a protocol class is
+    properly decorated with @runtime_checkable and has standard Protocol
+    attributes. Use this for future tests to reduce duplication.
+
+    Args:
+        protocol: The protocol class to verify
+
+    Raises:
+        AssertionError: If protocol is not runtime checkable or missing
+            required Protocol attributes
+
+    Example:
+        >>> from omnibase_spi.protocols.nodes import ProtocolNode
+        >>> _verify_runtime_checkable_protocol(ProtocolNode)  # No error if valid
+    """
+    assert (
+        getattr(protocol, "_is_runtime_protocol", False) is True
+    ), f"{protocol.__name__} must be decorated with @runtime_checkable"
+    assert hasattr(
+        protocol, "__protocol_attrs__"
+    ), f"{protocol.__name__} must be a typing.Protocol with __protocol_attrs__"
+
+
 class TestNodeProtocolImports:
     """Test node protocol imports without forward reference errors.
 
@@ -508,6 +542,27 @@ class TestIsinstanceChecks:
     implementations via isinstance(). This is the practical test of runtime
     checkability - protocols should return True for objects that implement
     the required methods/attributes, and False for non-compliant objects.
+
+    Mock Implementation Value Conventions:
+        The mock classes in this test suite follow consistent conventions:
+
+        - node_id: Descriptive test identifiers (e.g., "test-node", "compute-test")
+            Used to identify mock instances in debugging and error messages.
+
+        - node_type: Match the protocol type being tested (e.g., "compute", "effect")
+            Should reflect the actual node classification for realistic testing.
+
+        - version: Valid semver format "MAJOR.MINOR.PATCH" (e.g., "1.0.0")
+            Use "1.0.0" as default for simple mocks, increment for test variations.
+
+        - is_deterministic: Boolean indicating output determinism (True for compute)
+            Compute nodes typically use True; effect nodes may use False.
+
+        - Method implementations: Return minimal valid responses (empty dict, input, None)
+            Focus on satisfying the protocol contract, not business logic.
+
+        - Docstrings: Brief explanation of what the mock method does.
+            Helpful for understanding mock behavior in test failures.
     """
 
     def test_isinstance_with_mock_compute_node(self) -> None:
@@ -1555,6 +1610,28 @@ class TestProtocolCoverage:
         Note:
             Uses the convention that Protocol classes inherit from Protocol
             or have 'Protocol' in their base class names.
+
+        Limitations:
+            This AST-based detection has the following known limitations:
+
+            1. **Direct inheritance only**: Only detects classes that directly
+               inherit from ``Protocol``. Protocols that inherit from other
+               protocols (e.g., ``class ProtocolComputeNode(ProtocolNode)``)
+               are detected through the parent, but multi-level inheritance
+               chains may be incomplete.
+
+            2. **Aliased imports not detected**: If Protocol is imported with
+               an alias (e.g., ``from typing import Protocol as P``), classes
+               inheriting from ``P`` will not be detected.
+
+            3. **String annotations**: Forward references in base classes using
+               string annotations are not resolved.
+
+            4. **Dynamic class creation**: Classes created dynamically (e.g.,
+               via ``type()`` or metaclasses) are not detected.
+
+            For comprehensive protocol discovery, consider using runtime
+            introspection with ``typing.get_type_hints()`` on the module.
         """
         import ast
 
@@ -1595,9 +1672,9 @@ class TestProtocolCoverage:
             Dictionary mapping file paths (relative to protocols/) to list of
             protocol names defined in that file.
         """
-        from pathlib import Path
+        import omnibase_spi.protocols
 
-        protocols_dir = Path("/workspace/omnibase_spi/src/omnibase_spi/protocols")
+        protocols_dir = Path(omnibase_spi.protocols.__file__).parent
         protocols_by_file: dict[str, list[str]] = {}
 
         for py_file in protocols_dir.rglob("*.py"):
