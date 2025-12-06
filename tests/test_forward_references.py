@@ -95,15 +95,7 @@ class TestNodeProtocolImports:
         from omnibase_spi.protocols.nodes import ProtocolNode
 
         assert ProtocolNode is not None
-        # Verify ProtocolNode is a proper Protocol with @runtime_checkable decorator
-        # _is_runtime_protocol is the canonical marker set by @runtime_checkable
-        assert (
-            getattr(ProtocolNode, "_is_runtime_protocol", False) is True
-        ), "ProtocolNode must be decorated with @runtime_checkable"
-        # Verify __protocol_attrs__ exists (standard Protocol attribute)
-        assert hasattr(
-            ProtocolNode, "__protocol_attrs__"
-        ), "ProtocolNode must be a typing.Protocol with __protocol_attrs__"
+        _verify_runtime_checkable_protocol(ProtocolNode)
 
     def test_protocol_compute_node_import(self) -> None:
         """Validate ProtocolComputeNode import succeeds.
@@ -114,13 +106,7 @@ class TestNodeProtocolImports:
         from omnibase_spi.protocols.nodes import ProtocolComputeNode
 
         assert ProtocolComputeNode is not None
-        # Verify ProtocolComputeNode is a proper Protocol with @runtime_checkable
-        assert (
-            getattr(ProtocolComputeNode, "_is_runtime_protocol", False) is True
-        ), "ProtocolComputeNode must be decorated with @runtime_checkable"
-        assert hasattr(
-            ProtocolComputeNode, "__protocol_attrs__"
-        ), "ProtocolComputeNode must be a typing.Protocol with __protocol_attrs__"
+        _verify_runtime_checkable_protocol(ProtocolComputeNode)
 
     def test_protocol_effect_node_import(self) -> None:
         """Validate ProtocolEffectNode import succeeds.
@@ -131,13 +117,7 @@ class TestNodeProtocolImports:
         from omnibase_spi.protocols.nodes import ProtocolEffectNode
 
         assert ProtocolEffectNode is not None
-        # Verify ProtocolEffectNode is a proper Protocol with @runtime_checkable
-        assert (
-            getattr(ProtocolEffectNode, "_is_runtime_protocol", False) is True
-        ), "ProtocolEffectNode must be decorated with @runtime_checkable"
-        assert hasattr(
-            ProtocolEffectNode, "__protocol_attrs__"
-        ), "ProtocolEffectNode must be a typing.Protocol with __protocol_attrs__"
+        _verify_runtime_checkable_protocol(ProtocolEffectNode)
 
     def test_protocol_reducer_node_import(self) -> None:
         """Validate ProtocolReducerNode import succeeds.
@@ -147,13 +127,7 @@ class TestNodeProtocolImports:
         from omnibase_spi.protocols.nodes import ProtocolReducerNode
 
         assert ProtocolReducerNode is not None
-        # Verify ProtocolReducerNode is a proper Protocol with @runtime_checkable
-        assert (
-            getattr(ProtocolReducerNode, "_is_runtime_protocol", False) is True
-        ), "ProtocolReducerNode must be decorated with @runtime_checkable"
-        assert hasattr(
-            ProtocolReducerNode, "__protocol_attrs__"
-        ), "ProtocolReducerNode must be a typing.Protocol with __protocol_attrs__"
+        _verify_runtime_checkable_protocol(ProtocolReducerNode)
 
     def test_protocol_orchestrator_node_import(self) -> None:
         """Validate ProtocolOrchestratorNode import succeeds.
@@ -163,13 +137,7 @@ class TestNodeProtocolImports:
         from omnibase_spi.protocols.nodes import ProtocolOrchestratorNode
 
         assert ProtocolOrchestratorNode is not None
-        # Verify ProtocolOrchestratorNode is a proper Protocol with @runtime_checkable
-        assert (
-            getattr(ProtocolOrchestratorNode, "_is_runtime_protocol", False) is True
-        ), "ProtocolOrchestratorNode must be decorated with @runtime_checkable"
-        assert hasattr(
-            ProtocolOrchestratorNode, "__protocol_attrs__"
-        ), "ProtocolOrchestratorNode must be a typing.Protocol with __protocol_attrs__"
+        _verify_runtime_checkable_protocol(ProtocolOrchestratorNode)
 
     def test_all_node_protocols_in_module_all(self) -> None:
         """Validate all node protocols are properly exported in __all__.
@@ -229,13 +197,7 @@ class TestHandlerProtocolImports:
         from omnibase_spi.protocols.handlers import ProtocolHandler
 
         assert ProtocolHandler is not None
-        # Verify ProtocolHandler is a proper Protocol with @runtime_checkable
-        assert (
-            getattr(ProtocolHandler, "_is_runtime_protocol", False) is True
-        ), "ProtocolHandler must be decorated with @runtime_checkable"
-        assert hasattr(
-            ProtocolHandler, "__protocol_attrs__"
-        ), "ProtocolHandler must be a typing.Protocol with __protocol_attrs__"
+        _verify_runtime_checkable_protocol(ProtocolHandler)
 
     def test_all_handler_protocols_in_module_all(self) -> None:
         """Validate all handler protocols are properly exported in __all__.
@@ -289,14 +251,7 @@ class TestContractCompilerImports:
         from omnibase_spi.protocols.contracts import ProtocolEffectContractCompiler
 
         assert ProtocolEffectContractCompiler is not None
-        # Verify protocol is properly decorated with @runtime_checkable
-        assert (
-            getattr(ProtocolEffectContractCompiler, "_is_runtime_protocol", False)
-            is True
-        ), "ProtocolEffectContractCompiler must be decorated with @runtime_checkable"
-        assert hasattr(
-            ProtocolEffectContractCompiler, "__protocol_attrs__"
-        ), "ProtocolEffectContractCompiler must be a typing.Protocol with __protocol_attrs__"
+        _verify_runtime_checkable_protocol(ProtocolEffectContractCompiler)
 
     def test_workflow_contract_compiler_import(self) -> None:
         """Validate ProtocolWorkflowContractCompiler import succeeds.
@@ -306,14 +261,7 @@ class TestContractCompilerImports:
         from omnibase_spi.protocols.contracts import ProtocolWorkflowContractCompiler
 
         assert ProtocolWorkflowContractCompiler is not None
-        # Verify protocol is properly decorated with @runtime_checkable
-        assert (
-            getattr(ProtocolWorkflowContractCompiler, "_is_runtime_protocol", False)
-            is True
-        ), "ProtocolWorkflowContractCompiler must be decorated with @runtime_checkable"
-        assert hasattr(
-            ProtocolWorkflowContractCompiler, "__protocol_attrs__"
-        ), "ProtocolWorkflowContractCompiler must be a typing.Protocol with __protocol_attrs__"
+        _verify_runtime_checkable_protocol(ProtocolWorkflowContractCompiler)
 
     def test_fsm_contract_compiler_import(self) -> None:
         """Validate ProtocolFSMContractCompiler import succeeds.
@@ -323,13 +271,7 @@ class TestContractCompilerImports:
         from omnibase_spi.protocols.contracts import ProtocolFSMContractCompiler
 
         assert ProtocolFSMContractCompiler is not None
-        # Verify protocol is properly decorated with @runtime_checkable
-        assert (
-            getattr(ProtocolFSMContractCompiler, "_is_runtime_protocol", False) is True
-        ), "ProtocolFSMContractCompiler must be decorated with @runtime_checkable"
-        assert hasattr(
-            ProtocolFSMContractCompiler, "__protocol_attrs__"
-        ), "ProtocolFSMContractCompiler must be a typing.Protocol with __protocol_attrs__"
+        _verify_runtime_checkable_protocol(ProtocolFSMContractCompiler)
 
     def test_all_contract_compilers_in_module_all(self) -> None:
         """Validate all contract compilers are properly exported in __all__.
@@ -385,13 +327,7 @@ class TestRegistryProtocolImports:
         from omnibase_spi.protocols.registry import ProtocolHandlerRegistry
 
         assert ProtocolHandlerRegistry is not None
-        # Verify ProtocolHandlerRegistry is a proper Protocol with @runtime_checkable
-        assert (
-            getattr(ProtocolHandlerRegistry, "_is_runtime_protocol", False) is True
-        ), "ProtocolHandlerRegistry must be decorated with @runtime_checkable"
-        assert hasattr(
-            ProtocolHandlerRegistry, "__protocol_attrs__"
-        ), "ProtocolHandlerRegistry must be a typing.Protocol with __protocol_attrs__"
+        _verify_runtime_checkable_protocol(ProtocolHandlerRegistry)
 
     def test_all_registry_protocols_in_module_all(self) -> None:
         """Validate all registry protocols are properly exported in __all__.
@@ -1363,18 +1299,15 @@ class TestModuleReimport:
             mock, contracts_module.ProtocolEffectContractCompiler
         ), "isinstance() check failed for ProtocolEffectContractCompiler after reload"
 
-    def test_isinstance_with_prereload_mock_limitation(self) -> None:
-        """Document that isinstance() may fail with pre-reload mocks after module reload.
+    def test_protocol_class_identity_changes_after_reload(self) -> None:
+        """Validate that Protocol class gets new identity after module reload.
 
-        When a module is reloaded, the Protocol class gets a new identity. Mocks
-        created before reload were checked against the OLD Protocol class, so
-        isinstance() checks against the NEW Protocol class may behave unexpectedly.
+        When a module is reloaded, the Protocol class gets a new identity.
+        This test demonstrates that pre-reload and post-reload Protocol
+        classes are different objects, even though they have the same name.
 
         This is expected Python behavior - class identity matters for isinstance().
         See: https://docs.python.org/3/library/importlib.html#importlib.reload
-
-        This test explicitly demonstrates the limitation rather than just noting it
-        in a comment, ensuring future developers understand this edge case.
 
         Note: We must reload the actual module where the protocol is defined
         (omnibase_spi.protocols.nodes.base), not just the package that re-exports it,
@@ -1384,26 +1317,6 @@ class TestModuleReimport:
 
         # Capture the Protocol class BEFORE reload
         protocol_before_reload = base_module.ProtocolNode
-
-        # Create a compliant mock BEFORE reload
-        class MockNodeBeforeReload:
-            """Mock created BEFORE reload to demonstrate class identity issues."""
-
-            node_id = "pre-reload-mock"  # Indicates pre-reload creation
-            node_type = "test"  # Generic test node type
-            version = "1.0.0"  # Valid semver
-
-        mock_before = MockNodeBeforeReload()
-
-        # Verify isinstance works with the protocol BEFORE reload
-        assert isinstance(
-            mock_before, protocol_before_reload
-        ), "Mock should be isinstance of protocol before reload"
-
-        # Also verify it works with the module attribute before reload
-        assert isinstance(
-            mock_before, base_module.ProtocolNode
-        ), "Mock should be isinstance of base_module.ProtocolNode before reload"
 
         # Now reload the actual module where ProtocolNode is defined
         # This is crucial: reloading a package that re-exports a class doesn't
@@ -1425,68 +1338,34 @@ class TestModuleReimport:
             "Both Protocol classes should have the same __name__"
         )
 
-        # Demonstrate the limitation: isinstance with the OLD reference still works
-        # because we're checking against the OLD class that MockNodeBeforeReload
-        # was originally designed to match
-        assert isinstance(
-            mock_before, protocol_before_reload
-        ), "Mock should still be isinstance of the OLD protocol reference"
-
-        # However, isinstance with the NEW module attribute behaves as follows:
-        # For structural subtyping (Protocol with @runtime_checkable), Python checks
-        # if the object has the required attributes/methods, not class identity.
-        # So this may actually PASS for simple attribute-based protocols.
-        #
-        # The "limitation" specifically affects cases where:
-        # 1. You cache a protocol reference before reload
-        # 2. You create an instance before reload
-        # 3. After reload, checking against the CACHED old reference vs the
-        #    NEW module.Protocol can yield different results in edge cases
-        #
-        # For runtime_checkable protocols, isinstance() does structural checks,
-        # so the mock will still pass the NEW protocol check (which is good!).
-        # But the class identity difference can matter for:
-        # - issubclass() checks on class definitions
-        # - Type comparisons using `is` or `id()`
-        # - Registration systems that use protocol identity as keys
-        isinstance_after = isinstance(mock_before, base_module.ProtocolNode)
-
-        # Document the actual behavior: for runtime_checkable protocols,
-        # the structural check means pre-reload mocks often still work.
-        # This is because @runtime_checkable does attribute-based checking.
-        if isinstance_after:
-            # This is the common case for simple attribute-based protocols
-            pass  # Mock passes structural check against new protocol
-        else:
-            # This could happen in edge cases with complex protocols
-            pass  # Mock fails against new protocol (class identity issue)
-
-        # =====================================================================
-        # LIMITATION IMPLICATIONS FOR CLASS IDENTITY
-        # =====================================================================
-        # For code that caches protocol references, this class identity change
-        # can cause subtle bugs:
-        #
-        # 1. Registry systems using protocol identity as dictionary keys:
-        #    registry = {protocol_before_reload: some_handler}
-        #    After reload: registry[protocol_after_reload] -> KeyError!
-        #
-        # 2. Type comparisons using `is`:
-        #    if some_protocol is cached_protocol:  # Fails after reload
-        #
-        # 3. Set membership with protocol classes:
-        #    protocols = {protocol_before_reload}
-        #    protocol_after_reload in protocols  # May be False!
-        #
-        # Note: issubclass() is NOT demonstrated here because Python's
-        # runtime_checkable protocols with non-method members (like node_id,
-        # node_type, version) raise TypeError for issubclass() checks.
-        # This is a known Python limitation documented in PEP 544.
-
         # Their id() values are different, proving they are distinct objects
         assert id(protocol_before_reload) != id(protocol_after_reload), (
             "Protocol classes should have different id() after reload"
         )
+
+    def test_dict_key_limitation_after_reload(self) -> None:
+        """Demonstrate dictionary key limitation when protocol identity changes.
+
+        Registry systems using protocol identity as dictionary keys will fail
+        after module reload because the protocol class gets a new identity.
+
+        Example failure mode:
+            registry = {protocol_before_reload: some_handler}
+            After reload: registry[protocol_after_reload] -> KeyError!
+
+        This demonstrates why caching protocol references is problematic in
+        long-running applications that might reload modules.
+        """
+        import omnibase_spi.protocols.nodes.base as base_module
+
+        # Capture the Protocol class BEFORE reload
+        protocol_before_reload = base_module.ProtocolNode
+
+        # Reload the module to get new class identity
+        importlib.reload(base_module)
+
+        # Capture the Protocol class AFTER reload
+        protocol_after_reload = base_module.ProtocolNode
 
         # Demonstrate dictionary key issue - the key limitation
         registry: dict[type, str] = {protocol_before_reload: "old_handler"}
@@ -1495,6 +1374,36 @@ class TestModuleReimport:
             "New protocol should NOT be in registry - this demonstrates the limitation"
         )
 
+        # Note: issubclass() is NOT demonstrated here because Python's
+        # runtime_checkable protocols with non-method members (like node_id,
+        # node_type, version) raise TypeError for issubclass() checks.
+        # This is a known Python limitation documented in PEP 544.
+
+    def test_set_membership_limitation_after_reload(self) -> None:
+        """Demonstrate set membership issues when protocol identity changes.
+
+        Set membership with protocol classes fails after reload because
+        class identity matters for hashing.
+
+        Example failure mode:
+            protocols = {protocol_before_reload}
+            protocol_after_reload in protocols  # May be False!
+
+        Mitigation Strategy:
+            Always use fresh module attribute access (base_module.ProtocolNode)
+            rather than caching the protocol class in a variable.
+        """
+        import omnibase_spi.protocols.nodes.base as base_module
+
+        # Capture the Protocol class BEFORE reload
+        protocol_before_reload = base_module.ProtocolNode
+
+        # Reload the module to get new class identity
+        importlib.reload(base_module)
+
+        # Capture the Protocol class AFTER reload
+        protocol_after_reload = base_module.ProtocolNode
+
         # Demonstrate set membership issue
         protocol_set: set[type] = {protocol_before_reload}
         assert protocol_before_reload in protocol_set, "Old protocol in set"
@@ -1502,15 +1411,65 @@ class TestModuleReimport:
             "New protocol NOT in set - class identity matters for hashing"
         )
 
-        # =====================================================================
-        # isinstance() BEHAVIOR WITH RUNTIME_CHECKABLE PROTOCOLS
-        # =====================================================================
-        # For @runtime_checkable protocols, isinstance() performs structural
-        # checking (verifying required attributes exist), NOT class hierarchy
-        # checking. This means pre-reload mocks often still pass isinstance()
-        # checks against the NEW protocol - which is generally what we want.
+        # Mitigation: Always use fresh module attribute access
+        # BAD:  cached_protocol = some_module.Protocol  # Stale after reload
+        # GOOD: some_module.Protocol  # Always fresh reference
 
-        # isinstance with NEW protocol also works due to structural subtyping
+    def test_isinstance_structural_check_survives_reload(self) -> None:
+        """Validate that isinstance() still works after reload due to structural typing.
+
+        For @runtime_checkable protocols, isinstance() performs structural
+        checking (verifying required attributes exist), NOT class hierarchy
+        checking. This means pre-reload mocks still pass isinstance()
+        checks against the NEW protocol - which is generally what we want.
+
+        This test explicitly demonstrates that structural subtyping in
+        @runtime_checkable protocols provides resilience against reload issues.
+        """
+        import omnibase_spi.protocols.nodes.base as base_module
+
+        # Capture the Protocol class BEFORE reload
+        protocol_before_reload = base_module.ProtocolNode
+
+        # Create a compliant mock BEFORE reload
+        class MockNodeBeforeReload:
+            """Mock created BEFORE reload to demonstrate structural typing resilience."""
+
+            node_id = "pre-reload-mock"  # Indicates pre-reload creation
+            node_type = "test"  # Generic test node type
+            version = "1.0.0"  # Valid semver
+
+        mock_before = MockNodeBeforeReload()
+
+        # Verify isinstance works with the protocol BEFORE reload
+        assert isinstance(
+            mock_before, protocol_before_reload
+        ), "Mock should be isinstance of protocol before reload"
+
+        # Also verify it works with the module attribute before reload
+        assert isinstance(
+            mock_before, base_module.ProtocolNode
+        ), "Mock should be isinstance of base_module.ProtocolNode before reload"
+
+        # Now reload the actual module where ProtocolNode is defined
+        importlib.reload(base_module)
+
+        # Capture the Protocol class AFTER reload
+        protocol_after_reload = base_module.ProtocolNode
+
+        # Demonstrate the limitation: isinstance with the OLD reference still works
+        # because we're checking against the OLD class that MockNodeBeforeReload
+        # was originally designed to match
+        assert isinstance(
+            mock_before, protocol_before_reload
+        ), "Mock should still be isinstance of the OLD protocol reference"
+
+        # For structural subtyping (Protocol with @runtime_checkable), Python checks
+        # if the object has the required attributes/methods, not class identity.
+        # So this PASSES for simple attribute-based protocols.
+        #
+        # The structural check means pre-reload mocks still work with the NEW
+        # protocol because @runtime_checkable does attribute-based checking.
         isinstance_with_new_protocol = isinstance(mock_before, protocol_after_reload)
         assert isinstance_with_new_protocol, (
             "Mock should ALSO pass isinstance with NEW protocol due to "
@@ -1518,15 +1477,11 @@ class TestModuleReimport:
             "not class identity"
         )
 
-        # =====================================================================
-        # MITIGATION STRATEGY
-        # =====================================================================
-        # Always use fresh module attribute access (base_module.ProtocolNode)
-        # rather than caching the protocol class in a variable, especially in
-        # long-running applications that might reload modules.
-        #
-        # BAD:  cached_protocol = some_module.Protocol  # Stale after reload
-        # GOOD: some_module.Protocol  # Always fresh reference
+        # Also verify using fresh module attribute access
+        isinstance_with_module_attr = isinstance(mock_before, base_module.ProtocolNode)
+        assert isinstance_with_module_attr, (
+            "Mock should pass isinstance with fresh module.ProtocolNode access"
+        )
 
 
 class TestProtocolCoverage:
@@ -2214,3 +2169,281 @@ class TestProtocolSignatureValidation:
         assert (
             sig.return_annotation is not inspect.Parameter.empty
         ), "validate() should have a return type annotation"
+
+
+class TestProtocolInheritanceChains:
+    """Test protocol inheritance relationships.
+
+    Validates that child protocols correctly inherit from parent protocols
+    and maintain proper attribute/method inheritance chains.
+
+    The ONEX node architecture defines a hierarchy:
+        ProtocolNode (base)
+            -> ProtocolComputeNode (pure transformations)
+            -> ProtocolEffectNode (I/O operations)
+            -> ProtocolReducerNode (state aggregation)
+            -> ProtocolOrchestratorNode (workflow coordination)
+
+    These tests verify:
+        1. Child protocols have all parent protocol attributes
+        2. Inheritance is properly declared in class bases
+        3. isinstance() checks work correctly for hierarchies
+        4. Mock implementations satisfying child protocols also satisfy parent
+    """
+
+    def test_compute_node_inherits_from_protocol_node(self) -> None:
+        """Validate ProtocolComputeNode has all ProtocolNode attributes.
+
+        ProtocolComputeNode inherits from ProtocolNode and must expose
+        the base identity attributes (node_id, node_type, version).
+        """
+        from omnibase_spi.protocols.nodes import ProtocolComputeNode, ProtocolNode
+
+        # Verify ProtocolComputeNode has base node attributes
+        assert hasattr(
+            ProtocolComputeNode, "node_id"
+        ), "ProtocolComputeNode missing inherited node_id"
+        assert hasattr(
+            ProtocolComputeNode, "node_type"
+        ), "ProtocolComputeNode missing inherited node_type"
+        assert hasattr(
+            ProtocolComputeNode, "version"
+        ), "ProtocolComputeNode missing inherited version"
+
+        # Verify ProtocolNode is in the MRO (method resolution order)
+        assert ProtocolNode in ProtocolComputeNode.__mro__, (
+            "ProtocolNode should be in ProtocolComputeNode's MRO"
+        )
+
+        # Verify compute-specific attributes also exist
+        assert hasattr(
+            ProtocolComputeNode, "is_deterministic"
+        ), "ProtocolComputeNode missing is_deterministic"
+        assert hasattr(
+            ProtocolComputeNode, "execute"
+        ), "ProtocolComputeNode missing execute"
+
+    def test_effect_node_inherits_from_protocol_node(self) -> None:
+        """Validate ProtocolEffectNode has all ProtocolNode attributes.
+
+        ProtocolEffectNode inherits from ProtocolNode and must expose
+        the base identity attributes plus lifecycle methods.
+        """
+        from omnibase_spi.protocols.nodes import ProtocolEffectNode, ProtocolNode
+
+        # Verify ProtocolEffectNode has base node attributes
+        assert hasattr(
+            ProtocolEffectNode, "node_id"
+        ), "ProtocolEffectNode missing inherited node_id"
+        assert hasattr(
+            ProtocolEffectNode, "node_type"
+        ), "ProtocolEffectNode missing inherited node_type"
+        assert hasattr(
+            ProtocolEffectNode, "version"
+        ), "ProtocolEffectNode missing inherited version"
+
+        # Verify ProtocolNode is in the MRO
+        assert ProtocolNode in ProtocolEffectNode.__mro__, (
+            "ProtocolNode should be in ProtocolEffectNode's MRO"
+        )
+
+        # Verify effect-specific lifecycle methods exist
+        assert hasattr(
+            ProtocolEffectNode, "initialize"
+        ), "ProtocolEffectNode missing initialize"
+        assert hasattr(
+            ProtocolEffectNode, "shutdown"
+        ), "ProtocolEffectNode missing shutdown"
+        assert hasattr(
+            ProtocolEffectNode, "execute"
+        ), "ProtocolEffectNode missing execute"
+
+    def test_reducer_node_inherits_from_protocol_node(self) -> None:
+        """Validate ProtocolReducerNode has all ProtocolNode attributes.
+
+        ProtocolReducerNode inherits from ProtocolNode and must expose
+        the base identity attributes.
+        """
+        from omnibase_spi.protocols.nodes import ProtocolNode, ProtocolReducerNode
+
+        # Verify ProtocolReducerNode has base node attributes
+        assert hasattr(
+            ProtocolReducerNode, "node_id"
+        ), "ProtocolReducerNode missing inherited node_id"
+        assert hasattr(
+            ProtocolReducerNode, "node_type"
+        ), "ProtocolReducerNode missing inherited node_type"
+        assert hasattr(
+            ProtocolReducerNode, "version"
+        ), "ProtocolReducerNode missing inherited version"
+
+        # Verify ProtocolNode is in the MRO
+        assert ProtocolNode in ProtocolReducerNode.__mro__, (
+            "ProtocolNode should be in ProtocolReducerNode's MRO"
+        )
+
+        # Verify reducer-specific execute method exists
+        assert hasattr(
+            ProtocolReducerNode, "execute"
+        ), "ProtocolReducerNode missing execute"
+
+    def test_orchestrator_node_inherits_from_protocol_node(self) -> None:
+        """Validate ProtocolOrchestratorNode has all ProtocolNode attributes.
+
+        ProtocolOrchestratorNode inherits from ProtocolNode and must expose
+        the base identity attributes.
+        """
+        from omnibase_spi.protocols.nodes import ProtocolNode, ProtocolOrchestratorNode
+
+        # Verify ProtocolOrchestratorNode has base node attributes
+        assert hasattr(
+            ProtocolOrchestratorNode, "node_id"
+        ), "ProtocolOrchestratorNode missing inherited node_id"
+        assert hasattr(
+            ProtocolOrchestratorNode, "node_type"
+        ), "ProtocolOrchestratorNode missing inherited node_type"
+        assert hasattr(
+            ProtocolOrchestratorNode, "version"
+        ), "ProtocolOrchestratorNode missing inherited version"
+
+        # Verify ProtocolNode is in the MRO
+        assert ProtocolNode in ProtocolOrchestratorNode.__mro__, (
+            "ProtocolNode should be in ProtocolOrchestratorNode's MRO"
+        )
+
+        # Verify orchestrator-specific execute method exists
+        assert hasattr(
+            ProtocolOrchestratorNode, "execute"
+        ), "ProtocolOrchestratorNode missing execute"
+
+    def test_isinstance_inheritance_chain_compute_node(self) -> None:
+        """Validate isinstance() works correctly for ProtocolComputeNode hierarchy.
+
+        A mock implementing ProtocolComputeNode should also satisfy
+        isinstance() checks against ProtocolNode due to inheritance.
+        """
+        from omnibase_spi.protocols.nodes import ProtocolComputeNode, ProtocolNode
+
+        class MockComputeNode:
+            """Mock implementation satisfying ProtocolComputeNode contract."""
+
+            # Base ProtocolNode attributes
+            node_id = "compute-test-001"
+            node_type = "compute"
+            version = "1.0.0"
+
+            # ProtocolComputeNode-specific attribute
+            is_deterministic = True
+
+            async def execute(self, input_data: object) -> object:
+                """Execute compute operation."""
+                return input_data
+
+        mock = MockComputeNode()
+
+        # Should satisfy ProtocolComputeNode
+        assert isinstance(mock, ProtocolComputeNode), (
+            "Mock should be isinstance of ProtocolComputeNode"
+        )
+
+        # Should also satisfy ProtocolNode due to inheritance
+        assert isinstance(mock, ProtocolNode), (
+            "Mock satisfying ProtocolComputeNode should also satisfy ProtocolNode"
+        )
+
+    def test_isinstance_inheritance_chain_effect_node(self) -> None:
+        """Validate isinstance() works correctly for ProtocolEffectNode hierarchy.
+
+        A mock implementing ProtocolEffectNode should also satisfy
+        isinstance() checks against ProtocolNode due to inheritance.
+        """
+        from omnibase_spi.protocols.nodes import ProtocolEffectNode, ProtocolNode
+
+        class MockEffectNode:
+            """Mock implementation satisfying ProtocolEffectNode contract."""
+
+            # Base ProtocolNode attributes
+            node_id = "effect-test-001"
+            node_type = "effect"
+            version = "1.0.0"
+
+            async def initialize(self) -> None:
+                """Initialize effect node resources."""
+                pass
+
+            async def shutdown(self, timeout_seconds: float = 30.0) -> None:
+                """Shutdown effect node resources."""
+                pass
+
+            async def execute(self, input_data: object) -> object:
+                """Execute effect operation."""
+                return input_data
+
+        mock = MockEffectNode()
+
+        # Should satisfy ProtocolEffectNode
+        assert isinstance(mock, ProtocolEffectNode), (
+            "Mock should be isinstance of ProtocolEffectNode"
+        )
+
+        # Should also satisfy ProtocolNode due to inheritance
+        assert isinstance(mock, ProtocolNode), (
+            "Mock satisfying ProtocolEffectNode should also satisfy ProtocolNode"
+        )
+
+    def test_all_node_protocols_share_base_attributes(self) -> None:
+        """Validate all node protocol variants share ProtocolNode base attributes.
+
+        All specialized node protocols (compute, effect, reducer, orchestrator)
+        should define the same base attributes from ProtocolNode.
+        """
+        from omnibase_spi.protocols.nodes import (
+            ProtocolComputeNode,
+            ProtocolEffectNode,
+            ProtocolNode,
+            ProtocolOrchestratorNode,
+            ProtocolReducerNode,
+        )
+
+        # Base attributes that all node protocols must have
+        base_attributes = {"node_id", "node_type", "version"}
+
+        node_protocols = [
+            ("ProtocolNode", ProtocolNode),
+            ("ProtocolComputeNode", ProtocolComputeNode),
+            ("ProtocolEffectNode", ProtocolEffectNode),
+            ("ProtocolReducerNode", ProtocolReducerNode),
+            ("ProtocolOrchestratorNode", ProtocolOrchestratorNode),
+        ]
+
+        for name, protocol in node_protocols:
+            for attr in base_attributes:
+                assert hasattr(protocol, attr), (
+                    f"{name} missing base attribute '{attr}' from ProtocolNode"
+                )
+
+    def test_protocol_hierarchy_mro_consistency(self) -> None:
+        """Validate MRO (Method Resolution Order) is consistent across node protocols.
+
+        All specialized node protocols should have ProtocolNode in their MRO,
+        ensuring proper inheritance chain resolution.
+        """
+        from omnibase_spi.protocols.nodes import (
+            ProtocolComputeNode,
+            ProtocolEffectNode,
+            ProtocolNode,
+            ProtocolOrchestratorNode,
+            ProtocolReducerNode,
+        )
+
+        child_protocols = [
+            ("ProtocolComputeNode", ProtocolComputeNode),
+            ("ProtocolEffectNode", ProtocolEffectNode),
+            ("ProtocolReducerNode", ProtocolReducerNode),
+            ("ProtocolOrchestratorNode", ProtocolOrchestratorNode),
+        ]
+
+        for name, protocol in child_protocols:
+            assert ProtocolNode in protocol.__mro__, (
+                f"{name} should have ProtocolNode in its MRO for proper inheritance"
+            )
