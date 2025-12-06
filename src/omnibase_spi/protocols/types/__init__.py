@@ -75,8 +75,14 @@ Type Safety Features:
 # are not re-exported here to avoid circular imports.
 # Import these directly from omnibase_spi.protocols.core as needed.
 
-# Contract protocol
-from omnibase_spi.protocols.types.protocol_contract import ProtocolContract
+# Analytics types
+from omnibase_spi.protocols.types.protocol_analytics_types import (
+    ProtocolAnalyticsMetric,
+    ProtocolAnalyticsProvider,
+    ProtocolAnalyticsSummary,
+    ProtocolPerformanceMetric,
+    ProtocolPerformanceMetrics,
+)
 
 # Base types (canonical source) - import directly from protocol_base_types
 from omnibase_spi.protocols.types.protocol_base_types import (
@@ -115,20 +121,14 @@ from omnibase_spi.protocols.types.protocol_base_types import (
     ProtocolSupportedMetadataType,
 )
 
-# Analytics types
-from omnibase_spi.protocols.types.protocol_analytics_types import (
-    ProtocolAnalyticsMetric,
-    ProtocolAnalyticsProvider,
-    ProtocolAnalyticsSummary,
-    ProtocolPerformanceMetric,
-    ProtocolPerformanceMetrics,
-)
-
 # Connection types
 from omnibase_spi.protocols.types.protocol_connection_types import (
     ProtocolConnectionConfig,
     ProtocolConnectionStatus,
 )
+
+# Contract protocol
+from omnibase_spi.protocols.types.protocol_contract import ProtocolContract
 
 # Error types
 from omnibase_spi.protocols.types.protocol_error_types import (
@@ -178,6 +178,9 @@ from omnibase_spi.protocols.types.protocol_node_types import (
     ProtocolNodeResult,
 )
 
+# ONEX error protocol
+from omnibase_spi.protocols.types.protocol_onex_error import ProtocolOnexError
+
 # Retry types
 from omnibase_spi.protocols.types.protocol_retry_types import (
     ProtocolDuration,
@@ -188,6 +191,9 @@ from omnibase_spi.protocols.types.protocol_retry_types import (
     ProtocolTimeBased,
     ProtocolTimeout,
 )
+
+# Schema value protocol
+from omnibase_spi.protocols.types.protocol_schema_value import ProtocolSchemaValue
 
 # Service types
 from omnibase_spi.protocols.types.protocol_service_types import (
@@ -208,6 +214,16 @@ from omnibase_spi.protocols.types.protocol_state_types import (
     ProtocolSystemEvent,
 )
 
+# Storage types
+from omnibase_spi.protocols.types.protocol_storage_types import (
+    ProtocolCheckpointData,
+    ProtocolStorageConfiguration,
+    ProtocolStorageCredentials,
+    ProtocolStorageHealthStatus,
+    ProtocolStorageListResult,
+    ProtocolStorageResult,
+)
+
 # Validation types
 from omnibase_spi.protocols.types.protocol_validation_types import (
     ProtocolCompatibilityCheck,
@@ -217,22 +233,6 @@ from omnibase_spi.protocols.types.protocol_validation_types import (
     ProtocolPatternChecker,
     ProtocolValidatable,
     ProtocolVersionInfo,
-)
-
-# ONEX error protocol
-from omnibase_spi.protocols.types.protocol_onex_error import ProtocolOnexError
-
-# Schema value protocol
-from omnibase_spi.protocols.types.protocol_schema_value import ProtocolSchemaValue
-
-# Storage types
-from omnibase_spi.protocols.types.protocol_storage_types import (
-    ProtocolCheckpointData,
-    ProtocolStorageConfiguration,
-    ProtocolStorageCredentials,
-    ProtocolStorageHealthStatus,
-    ProtocolStorageListResult,
-    ProtocolStorageResult,
 )
 
 # Validation types (from validation domain)

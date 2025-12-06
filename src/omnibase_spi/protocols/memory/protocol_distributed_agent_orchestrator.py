@@ -9,8 +9,6 @@ from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 from omnibase_spi.protocols.memory.protocol_agent_manager import (
     ProtocolAgentHealthStatus,
-)
-from omnibase_spi.protocols.memory.protocol_agent_manager import (
     ProtocolMemoryAgentInstance,
 )
 

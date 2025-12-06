@@ -9,7 +9,6 @@ import sys
 from pathlib import Path
 from typing import Any, Protocol, get_type_hints
 
-
 # Add src directory to Python path for testing
 src_dir = Path(__file__).parent.parent / "src"
 if str(src_dir) not in sys.path:

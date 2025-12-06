@@ -3,11 +3,15 @@ Tests for ProtocolHandler protocol.
 
 Validates that ProtocolHandler:
 - Is properly runtime checkable
-- Defines required methods (initialize, shutdown, execute)
+- Defines required methods (initialize, shutdown, execute, describe, health_check)
+- Has required property (handler_type)
 - Methods have correct signatures
 - Cannot be instantiated directly
 - Works correctly with isinstance checks for compliant/non-compliant classes
 """
+
+from typing import Any
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -20,16 +24,22 @@ ModelConnectionConfig = object
 ModelProtocolRequest = object
 ModelOperationConfig = object
 ModelProtocolResponse = object
+EnumHandlerType = object  # Mock for handler type enum
 
 
 class CompliantHandler:
     """A class that fully implements the ProtocolHandler protocol."""
 
+    @property
+    def handler_type(self) -> "EnumHandlerType":
+        """Return the handler type."""
+        return MagicMock()
+
     async def initialize(self, _config: "ModelConnectionConfig") -> None:
         """Initialize the handler."""
         pass
 
-    async def shutdown(self) -> None:
+    async def shutdown(self, timeout_seconds: float = 30.0) -> None:
         """Shutdown the handler."""
         pass
 
@@ -39,10 +49,18 @@ class CompliantHandler:
         _operation_config: "ModelOperationConfig",
     ) -> "ModelProtocolResponse":
         """Execute a protocol operation."""
-        # Return a mock response
-        from unittest.mock import MagicMock
-
         return MagicMock()
+
+    def describe(self) -> dict[str, Any]:
+        """Return handler metadata."""
+        return {
+            "handler_type": "mock",
+            "capabilities": ["test"],
+        }
+
+    async def health_check(self) -> dict[str, Any]:
+        """Check handler health."""
+        return {"healthy": True}
 
 
 class PartialHandler:
@@ -62,6 +80,11 @@ class NonCompliantHandler:
 class WrongSignatureHandler:
     """A class that implements methods with wrong signatures."""
 
+    @property
+    def handler_type(self) -> "EnumHandlerType":
+        """Return the handler type."""
+        return MagicMock()
+
     async def initialize(self) -> None:  # type: ignore[override]
         """Initialize with wrong signature (missing config parameter)."""
         pass
@@ -76,9 +99,15 @@ class WrongSignatureHandler:
         _operation_config: "ModelOperationConfig",
     ) -> "ModelProtocolResponse":
         """Execute a protocol operation."""
-        from unittest.mock import MagicMock
-
         return MagicMock()
+
+    def describe(self) -> dict[str, Any]:
+        """Return handler metadata."""
+        return {}
+
+    async def health_check(self) -> dict[str, Any]:
+        """Check handler health."""
+        return {"healthy": True}
 
 
 class TestProtocolHandlerProtocol:
@@ -112,6 +141,18 @@ class TestProtocolHandlerProtocol:
     def test_protocol_handler_has_execute_method(self) -> None:
         """ProtocolHandler should define execute method."""
         assert "execute" in dir(ProtocolHandler)
+
+    def test_protocol_handler_has_handler_type_property(self) -> None:
+        """ProtocolHandler should define handler_type property."""
+        assert "handler_type" in dir(ProtocolHandler)
+
+    def test_protocol_handler_has_describe_method(self) -> None:
+        """ProtocolHandler should define describe method."""
+        assert "describe" in dir(ProtocolHandler)
+
+    def test_protocol_handler_has_health_check_method(self) -> None:
+        """ProtocolHandler should define health_check method."""
+        assert "health_check" in dir(ProtocolHandler)
 
     def test_protocol_cannot_be_instantiated(self) -> None:
         """ProtocolHandler protocol should not be directly instantiable."""
@@ -184,14 +225,34 @@ class TestProtocolHandlerMethodSignatures:
     @pytest.mark.asyncio
     async def test_execute_returns_response(self) -> None:
         """execute method should return ModelProtocolResponse."""
-        from unittest.mock import MagicMock
-
         handler = CompliantHandler()
         request = MagicMock()
         operation_config = MagicMock()
         response = await handler.execute(request, operation_config)
         # Verify we get something back
         assert response is not None
+
+    def test_handler_type_returns_value(self) -> None:
+        """handler_type property should return a value."""
+        handler = CompliantHandler()
+        handler_type = handler.handler_type
+        assert handler_type is not None
+
+    def test_describe_returns_dict(self) -> None:
+        """describe method should return a dictionary."""
+        handler = CompliantHandler()
+        metadata = handler.describe()
+        assert isinstance(metadata, dict)
+        assert "handler_type" in metadata
+        assert "capabilities" in metadata
+
+    @pytest.mark.asyncio
+    async def test_health_check_returns_dict(self) -> None:
+        """health_check method should return a dictionary with health status."""
+        handler = CompliantHandler()
+        health = await handler.health_check()
+        assert isinstance(health, dict)
+        assert "healthy" in health
 
 
 class TestProtocolHandlerAsyncNature:
@@ -214,6 +275,18 @@ class TestProtocolHandlerAsyncNature:
         import inspect
 
         assert inspect.iscoroutinefunction(CompliantHandler.execute)
+
+    def test_health_check_is_async(self) -> None:
+        """health_check should be an async method."""
+        import inspect
+
+        assert inspect.iscoroutinefunction(CompliantHandler.health_check)
+
+    def test_describe_is_sync(self) -> None:
+        """describe should be a sync method (not async)."""
+        import inspect
+
+        assert not inspect.iscoroutinefunction(CompliantHandler.describe)
 
 
 class TestProtocolHandlerImports:
@@ -269,3 +342,199 @@ class TestProtocolHandlerDocumentation:
     def test_execute_has_docstring(self) -> None:
         """execute method should have a docstring."""
         assert CompliantHandler.execute.__doc__ is not None
+
+    def test_describe_has_docstring(self) -> None:
+        """describe method should have a docstring."""
+        assert CompliantHandler.describe.__doc__ is not None
+
+    def test_health_check_has_docstring(self) -> None:
+        """health_check method should have a docstring."""
+        assert CompliantHandler.health_check.__doc__ is not None
+
+    def test_handler_type_has_docstring(self) -> None:
+        """handler_type property should have a docstring."""
+        # Access the fget from the property descriptor on the class
+        prop = CompliantHandler.__dict__["handler_type"]
+        assert prop.fget.__doc__ is not None
+
+
+class TestProtocolHandlerDescribeReturnContract:
+    """Test return value contracts for ProtocolHandler.describe() method."""
+
+    def test_describe_returns_dict_with_handler_type(self) -> None:
+        """describe() must return dict containing handler_type key."""
+        handler = CompliantHandler()
+        result = handler.describe()
+
+        assert isinstance(result, dict)
+        assert "handler_type" in result
+
+    def test_describe_handler_type_is_string(self) -> None:
+        """describe() handler_type value should be string representation."""
+        handler = CompliantHandler()
+        result = handler.describe()
+
+        assert isinstance(result["handler_type"], str)
+
+    def test_describe_returns_dict_with_capabilities(self) -> None:
+        """describe() should return dict with capabilities as list."""
+        handler = CompliantHandler()
+        result = handler.describe()
+
+        assert "capabilities" in result
+        assert isinstance(result["capabilities"], list)
+
+    def test_describe_capabilities_contains_strings(self) -> None:
+        """describe() capabilities list should contain strings."""
+        handler = CompliantHandler()
+        result = handler.describe()
+
+        capabilities = result.get("capabilities", [])
+        for cap in capabilities:
+            assert isinstance(cap, str), f"Expected string, got {type(cap)}"
+
+    def test_describe_does_not_include_credentials(self) -> None:
+        """describe() must not include sensitive credential information."""
+        handler = CompliantHandler()
+        result = handler.describe()
+
+        # Check for common credential field names that should never appear
+        forbidden_keys = {
+            "password",
+            "api_key",
+            "secret",
+            "token",
+            "credential",
+            "auth_token",
+            "private_key",
+            "connection_string",
+        }
+        result_keys_lower = {k.lower() for k in result.keys()}
+
+        for key in forbidden_keys:
+            assert (
+                key not in result_keys_lower
+            ), f"Sensitive key '{key}' found in describe() output"
+
+    def test_describe_optional_fields_are_correct_types(self) -> None:
+        """describe() optional fields should have correct types when present."""
+        handler = CompliantHandler()
+        result = handler.describe()
+
+        # version should be string when present
+        if "version" in result:
+            assert isinstance(result["version"], str)
+
+        # connection_info should be dict when present
+        if "connection_info" in result:
+            assert isinstance(result["connection_info"], dict)
+
+
+class TestProtocolHandlerHealthCheckReturnContract:
+    """Test return value contracts for ProtocolHandler.health_check() method."""
+
+    @pytest.mark.asyncio
+    async def test_health_check_returns_dict(self) -> None:
+        """health_check() must return dict[str, Any]."""
+        handler = CompliantHandler()
+        result = await handler.health_check()
+
+        assert isinstance(result, dict)
+
+    @pytest.mark.asyncio
+    async def test_health_check_contains_healthy_key(self) -> None:
+        """health_check() must contain 'healthy' key."""
+        handler = CompliantHandler()
+        result = await handler.health_check()
+
+        assert "healthy" in result
+
+    @pytest.mark.asyncio
+    async def test_health_check_healthy_is_boolean(self) -> None:
+        """health_check() 'healthy' value must be boolean."""
+        handler = CompliantHandler()
+        result = await handler.health_check()
+
+        assert isinstance(result["healthy"], bool)
+
+    @pytest.mark.asyncio
+    async def test_health_check_latency_ms_is_numeric_when_present(self) -> None:
+        """health_check() 'latency_ms' should be numeric when present."""
+        handler = CompliantHandler()
+        result = await handler.health_check()
+
+        if "latency_ms" in result:
+            assert isinstance(
+                result["latency_ms"], (int, float)
+            ), f"latency_ms should be numeric, got {type(result['latency_ms'])}"
+
+    @pytest.mark.asyncio
+    async def test_health_check_last_error_is_string_when_present(self) -> None:
+        """health_check() 'last_error' should be string when present."""
+        handler = CompliantHandler()
+        result = await handler.health_check()
+
+        if "last_error" in result:
+            assert isinstance(
+                result["last_error"], str
+            ), f"last_error should be string, got {type(result['last_error'])}"
+
+    @pytest.mark.asyncio
+    async def test_health_check_details_is_dict_when_present(self) -> None:
+        """health_check() 'details' should be dict when present."""
+        handler = CompliantHandler()
+        result = await handler.health_check()
+
+        if "details" in result:
+            assert isinstance(
+                result["details"], dict
+            ), f"details should be dict, got {type(result['details'])}"
+
+
+class UnhealthyHandler(CompliantHandler):
+    """Handler implementation that returns unhealthy status for testing."""
+
+    async def health_check(self) -> dict[str, Any]:
+        """Return unhealthy status with error details."""
+        return {
+            "healthy": False,
+            "latency_ms": 5000.0,
+            "last_error": "Connection timeout to database",
+            "details": {"attempt_count": 3, "last_attempt": "2024-01-01T00:00:00Z"},
+        }
+
+
+class TestProtocolHandlerHealthCheckUnhealthyContract:
+    """Test return value contracts for unhealthy handler scenarios."""
+
+    @pytest.mark.asyncio
+    async def test_unhealthy_handler_returns_false_healthy(self) -> None:
+        """Unhealthy handler should return healthy=False."""
+        handler = UnhealthyHandler()
+        result = await handler.health_check()
+
+        assert result["healthy"] is False
+
+    @pytest.mark.asyncio
+    async def test_unhealthy_handler_includes_last_error(self) -> None:
+        """Unhealthy handler should include last_error string."""
+        handler = UnhealthyHandler()
+        result = await handler.health_check()
+
+        assert "last_error" in result
+        assert isinstance(result["last_error"], str)
+        assert len(result["last_error"]) > 0
+
+    @pytest.mark.asyncio
+    async def test_unhealthy_handler_error_is_sanitized(self) -> None:
+        """Unhealthy handler last_error should not contain credentials."""
+        handler = UnhealthyHandler()
+        result = await handler.health_check()
+
+        error_msg = result.get("last_error", "")
+        # Check that error message doesn't contain typical credential patterns
+        forbidden_patterns = ["password=", "api_key=", "secret=", "token=", "://user:"]
+        for pattern in forbidden_patterns:
+            assert (
+                pattern.lower() not in error_msg.lower()
+            ), f"Credential pattern '{pattern}' found in error message"

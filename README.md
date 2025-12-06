@@ -26,6 +26,7 @@ poetry add omnibase-spi
 
 - **[Complete Documentation](docs/README.md)** - Comprehensive protocol documentation
 - **[API Reference](docs/api-reference/README.md)** - All 165 protocols across 22 domains
+- **[Protocol Sequence Diagrams](docs/PROTOCOL_SEQUENCE_DIAGRAMS.md)** - Interaction patterns for Handler and EventBus protocols
 - **[Quick Start Guide](docs/quick-start.md)** - Get started in minutes
 - **[Developer Guide](docs/developer-guide/README.md)** - Development workflow and best practices
 - **[Changelog](CHANGELOG.md)** - Version history and release notes
