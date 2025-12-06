@@ -192,6 +192,11 @@ class ProtocolHandler(Protocol):
                 print(f"Handler unhealthy: {health.get('last_error', 'Unknown')}")
             ```
 
+        Caching:
+            Implementations SHOULD cache health check results for 5-30 seconds
+            to avoid overwhelming the backend service with repeated health probes.
+            Consider using a TTL cache for production deployments.
+
         Security:
             The ``last_error`` field may contain sensitive information from
             exception messages. Implementations SHOULD sanitize error messages

@@ -76,7 +76,7 @@ sequenceDiagram
 
     Note over Client,Handler: Metadata Discovery
     Client->>Handler: handler_type
-    Handler-->>Client: EnumHandlerType.HTTP
+    Handler-->>Client: "http"
 
     Client->>Handler: describe()
     Handler-->>Client: {handler_type: "http", capabilities: ["GET", "POST"], version: "1.0"}
@@ -318,6 +318,8 @@ sequenceDiagram
 
 ## See Also
 
-- [ProtocolHandler Implementation Guide](developer-guide/implementing-handlers.md)
-- [EventBus Architecture](api-reference/event-bus/README.md)
-- [Error Handling Patterns](patterns/error-handling.md)
+- [Developer Guide](developer-guide/README.md) - Protocol implementation guidance
+- [EventBus API Reference](api-reference/EVENT-BUS.md) - EventBus protocol details
+- [Protocol Selection Guide](patterns/PROTOCOL-SELECTION-GUIDE.md) - Choosing the right protocol
+- [Protocol Composition Patterns](patterns/PROTOCOL-COMPOSITION-PATTERNS.md) - Composing protocols
+- [Implementation Examples](examples/IMPLEMENTATION-EXAMPLES.md) - Working code examples
