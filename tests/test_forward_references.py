@@ -521,12 +521,14 @@ class TestIsinstanceChecks:
         class MockComputeNode:
             """Mock implementation of ProtocolComputeNode."""
 
-            node_id = "test-node"
-            node_type = "compute"
-            version = "1.0.0"
-            is_deterministic = True
+            # Mock attributes - see class docstring for value conventions
+            node_id = "test-node"  # Arbitrary test identifier
+            node_type = "compute"  # Required: matches node type classification
+            version = "1.0.0"  # Valid semver (MAJOR.MINOR.PATCH)
+            is_deterministic = True  # Compute nodes track output determinism
 
             async def execute(self, input_data: object) -> object:
+                """Returns input unchanged - minimal valid implementation."""
                 return input_data
 
         mock = MockComputeNode()
@@ -542,17 +544,20 @@ class TestIsinstanceChecks:
         from omnibase_spi.protocols.handlers import ProtocolHandler
 
         class MockHandler:
-            """Mock implementation of ProtocolHandler."""
+            """Mock implementation of ProtocolHandler lifecycle methods."""
 
             async def initialize(self, config: object) -> None:
+                """No-op initialization for testing."""
                 pass
 
             async def shutdown(self, timeout_seconds: float = 30.0) -> None:
+                """No-op shutdown. Default 30.0s matches protocol contract."""
                 pass
 
             async def execute(
                 self, request: object, operation_config: object
             ) -> object:
+                """Returns empty dict as placeholder response."""
                 return {}
 
         mock = MockHandler()
@@ -567,18 +572,22 @@ class TestIsinstanceChecks:
         from omnibase_spi.protocols.registry import ProtocolHandlerRegistry
 
         class MockRegistry:
-            """Mock implementation of ProtocolHandlerRegistry."""
+            """Mock implementation of ProtocolHandlerRegistry CRUD operations."""
 
             def register(self, protocol_type: str, handler_cls: type) -> None:
+                """No-op registration for testing."""
                 pass
 
             def get(self, protocol_type: str) -> type:
+                """Returns base 'type' class as placeholder."""
                 return type
 
             def list_protocols(self) -> list[str]:
+                """Returns empty list - no registrations in mock."""
                 return []
 
             def is_registered(self, protocol_type: str) -> bool:
+                """Always returns False - nothing registered in mock."""
                 return False
 
         mock = MockRegistry()
@@ -593,9 +602,10 @@ class TestIsinstanceChecks:
         from omnibase_spi.protocols.handlers import ProtocolHandler
 
         class NotAHandler:
-            """Class that doesn't implement ProtocolHandler."""
+            """Non-compliant class - deliberately lacks protocol methods."""
 
             def some_method(self) -> None:
+                """Arbitrary method unrelated to ProtocolHandler contract."""
                 pass
 
         obj = NotAHandler()
@@ -909,7 +919,8 @@ class TestModuleReimport:
     def test_reimport_nodes_module(self) -> None:
         """Validate nodes module survives reload without errors.
 
-        After reload, all node protocols should remain accessible.
+        After reload, all node protocols should remain accessible and
+        maintain their runtime checkable behavior.
         """
         import omnibase_spi.protocols.nodes as nodes_module
 
@@ -920,35 +931,162 @@ class TestModuleReimport:
         assert hasattr(nodes_module, "ProtocolNode")
         assert hasattr(nodes_module, "ProtocolComputeNode")
 
+        # Verify runtime checkable marker preserved after reload
+        assert (
+            getattr(nodes_module.ProtocolNode, "_is_runtime_protocol", False) is True
+        ), "ProtocolNode lost _is_runtime_protocol marker after reload"
+
+        # Verify __protocol_attrs__ still exists (standard Protocol attribute)
+        assert hasattr(
+            nodes_module.ProtocolNode, "__protocol_attrs__"
+        ), "ProtocolNode lost __protocol_attrs__ after reload"
+
+        # Verify isinstance still works with new mock after reload
+        class MockNodeAfterReload:
+            """Mock implementation created after reload."""
+
+            node_id = "test"
+            node_type = "test"
+            version = "1.0.0"
+
+        mock = MockNodeAfterReload()
+        assert isinstance(
+            mock, nodes_module.ProtocolNode
+        ), "isinstance() check failed after module reload"
+
     def test_reimport_handlers_module(self) -> None:
         """Validate handlers module survives reload without errors.
 
-        After reload, ProtocolHandler should remain accessible.
+        After reload, ProtocolHandler should remain accessible and
+        maintain its runtime checkable behavior.
         """
         import omnibase_spi.protocols.handlers as handlers_module
 
         importlib.reload(handlers_module)
         assert hasattr(handlers_module, "ProtocolHandler")
 
+        # Verify runtime checkable marker preserved after reload
+        assert (
+            getattr(handlers_module.ProtocolHandler, "_is_runtime_protocol", False)
+            is True
+        ), "ProtocolHandler lost _is_runtime_protocol marker after reload"
+
+        # Verify __protocol_attrs__ still exists (standard Protocol attribute)
+        assert hasattr(
+            handlers_module.ProtocolHandler, "__protocol_attrs__"
+        ), "ProtocolHandler lost __protocol_attrs__ after reload"
+
+        # Verify isinstance still works with new mock after reload
+        class MockHandlerAfterReload:
+            """Mock implementation created after reload."""
+
+            async def initialize(self, config: object) -> None:
+                pass
+
+            async def shutdown(self, timeout_seconds: float = 30.0) -> None:
+                pass
+
+            async def execute(
+                self, request: object, operation_config: object
+            ) -> object:
+                return {}
+
+        mock = MockHandlerAfterReload()
+        assert isinstance(
+            mock, handlers_module.ProtocolHandler
+        ), "isinstance() check failed after module reload"
+
     def test_reimport_contracts_module(self) -> None:
         """Validate contracts module survives reload without errors.
 
-        After reload, all contract compiler protocols should remain accessible.
+        After reload, all contract compiler protocols should remain accessible
+        and maintain their runtime checkable behavior.
         """
         import omnibase_spi.protocols.contracts as contracts_module
 
         importlib.reload(contracts_module)
         assert hasattr(contracts_module, "ProtocolEffectContractCompiler")
 
+        # Verify runtime checkable marker preserved after reload
+        assert (
+            getattr(
+                contracts_module.ProtocolEffectContractCompiler,
+                "_is_runtime_protocol",
+                False,
+            )
+            is True
+        ), "ProtocolEffectContractCompiler lost _is_runtime_protocol marker after reload"
+
+        # Verify __protocol_attrs__ still exists (standard Protocol attribute)
+        assert hasattr(
+            contracts_module.ProtocolEffectContractCompiler, "__protocol_attrs__"
+        ), "ProtocolEffectContractCompiler lost __protocol_attrs__ after reload"
+
+        # Verify isinstance still works with new mock after reload
+        class MockCompilerAfterReload:
+            """Mock compiler created after reload for isinstance() verification."""
+
+            def compile(self, contract_path: object) -> object:
+                """Returns None as placeholder compiled contract."""
+                return None
+
+            def validate(self, contract_path: object) -> bool:
+                """Always returns True (valid) for testing."""
+                return True
+
+        mock = MockCompilerAfterReload()
+        assert isinstance(
+            mock, contracts_module.ProtocolEffectContractCompiler
+        ), "isinstance() check failed after module reload"
+
     def test_reimport_registry_module(self) -> None:
         """Validate registry module survives reload without errors.
 
-        After reload, ProtocolHandlerRegistry should remain accessible.
+        After reload, ProtocolHandlerRegistry should remain accessible and
+        maintain its runtime checkable behavior.
         """
         import omnibase_spi.protocols.registry as registry_module
 
         importlib.reload(registry_module)
         assert hasattr(registry_module, "ProtocolHandlerRegistry")
+
+        # Verify runtime checkable marker preserved after reload
+        assert (
+            getattr(
+                registry_module.ProtocolHandlerRegistry, "_is_runtime_protocol", False
+            )
+            is True
+        ), "ProtocolHandlerRegistry lost _is_runtime_protocol marker after reload"
+
+        # Verify __protocol_attrs__ still exists (standard Protocol attribute)
+        assert hasattr(
+            registry_module.ProtocolHandlerRegistry, "__protocol_attrs__"
+        ), "ProtocolHandlerRegistry lost __protocol_attrs__ after reload"
+
+        # Verify isinstance still works with new mock after reload
+        class MockRegistryAfterReload:
+            """Mock registry created after reload for isinstance() verification."""
+
+            def register(self, protocol_type: str, handler_cls: type) -> None:
+                """No-op registration for testing."""
+                pass
+
+            def get(self, protocol_type: str) -> type:
+                """Returns base 'type' class as placeholder."""
+                return type
+
+            def list_protocols(self) -> list[str]:
+                """Returns empty list - no registrations in mock."""
+                return []
+
+            def is_registered(self, protocol_type: str) -> bool:
+                """Always returns False - nothing registered in mock."""
+                return False
+
+        mock = MockRegistryAfterReload()
+        assert isinstance(
+            mock, registry_module.ProtocolHandlerRegistry
+        ), "isinstance() check failed after module reload"
 
     def test_reimport_preserves_runtime_checkable_behavior(self) -> None:
         """Validate protocols remain runtime checkable after module reload.
@@ -965,11 +1103,11 @@ class TestModuleReimport:
 
         # Create mock and verify isinstance works before reload
         class MockNodeBeforeReload:
-            """Mock implementation before reload."""
+            """Mock ProtocolNode created before reload for comparison."""
 
-            node_id = "test-before"
-            node_type = "test"
-            version = "1.0.0"
+            node_id = "test-before"  # Indicates pre-reload creation
+            node_type = "test"  # Generic test node type
+            version = "1.0.0"  # Valid semver
 
         mock_before = MockNodeBeforeReload()
         assert isinstance(mock_before, nodes_module.ProtocolNode)
@@ -991,11 +1129,11 @@ class TestModuleReimport:
         # changes after reload, but the protocol should still function with new
         # mock instances created after reload
         class MockNodeAfterReload:
-            """Mock implementation created after reload."""
+            """Mock ProtocolNode created after reload for verification."""
 
-            node_id = "test-after"
-            node_type = "test"
-            version = "1.0.0"
+            node_id = "test-after"  # Indicates post-reload creation
+            node_type = "test"  # Generic test node type
+            version = "1.0.0"  # Valid semver
 
         mock_after = MockNodeAfterReload()
         assert isinstance(
@@ -1021,14 +1159,15 @@ class TestModuleReimport:
 
         # Create compliant mock after reload
         class MockComputeNodeAfterReload:
-            """Compliant compute node mock created after reload."""
+            """Mock ProtocolComputeNode created after reload for verification."""
 
-            node_id = "compute-test"
-            node_type = "compute"
-            version = "1.0.0"
-            is_deterministic = True
+            node_id = "compute-test"  # Identifier for compute test instance
+            node_type = "compute"  # Required: matches node classification
+            version = "1.0.0"  # Valid semver
+            is_deterministic = True  # Compute nodes track determinism
 
             async def execute(self, input_data: object) -> object:
+                """Returns input unchanged - minimal valid implementation."""
                 return input_data
 
         mock = MockComputeNodeAfterReload()
@@ -1055,17 +1194,20 @@ class TestModuleReimport:
 
         # Create compliant mock after reload
         class MockHandlerAfterReload:
-            """Compliant handler mock created after reload."""
+            """Mock ProtocolHandler created after reload for verification."""
 
             async def initialize(self, config: object) -> None:
+                """No-op initialization for testing."""
                 pass
 
             async def shutdown(self, timeout_seconds: float = 30.0) -> None:
+                """No-op shutdown. Default 30.0s matches protocol contract."""
                 pass
 
             async def execute(
                 self, request: object, operation_config: object
             ) -> object:
+                """Returns empty dict as placeholder response."""
                 return {}
 
         mock = MockHandlerAfterReload()
@@ -1094,18 +1236,22 @@ class TestModuleReimport:
 
         # Create compliant mock after reload
         class MockRegistryAfterReload:
-            """Compliant registry mock created after reload."""
+            """Mock ProtocolHandlerRegistry created after reload for verification."""
 
             def register(self, protocol_type: str, handler_cls: type) -> None:
+                """No-op registration for testing."""
                 pass
 
             def get(self, protocol_type: str) -> type:
+                """Returns base 'type' class as placeholder."""
                 return type
 
             def list_protocols(self) -> list[str]:
+                """Returns empty list - no registrations in mock."""
                 return []
 
             def is_registered(self, protocol_type: str) -> bool:
+                """Always returns False - nothing registered in mock."""
                 return False
 
         mock = MockRegistryAfterReload()
@@ -1147,12 +1293,14 @@ class TestModuleReimport:
 
         # Create compliant mock for ProtocolEffectContractCompiler after reload
         class MockEffectCompilerAfterReload:
-            """Compliant effect compiler mock created after reload."""
+            """Mock compiler created after reload for isinstance() verification."""
 
             def compile(self, contract_path: object) -> object:
+                """Returns None as placeholder compiled contract."""
                 return None
 
             def validate(self, contract: object) -> bool:
+                """Always returns True (valid) for testing."""
                 return True
 
         mock = MockEffectCompilerAfterReload()
@@ -1184,11 +1332,11 @@ class TestModuleReimport:
 
         # Create a compliant mock BEFORE reload
         class MockNodeBeforeReload:
-            """Mock implementation created before reload."""
+            """Mock created BEFORE reload to demonstrate class identity issues."""
 
-            node_id = "pre-reload-mock"
-            node_type = "test"
-            version = "1.0.0"
+            node_id = "pre-reload-mock"  # Indicates pre-reload creation
+            node_type = "test"  # Generic test node type
+            version = "1.0.0"  # Valid semver
 
         mock_before = MockNodeBeforeReload()
 
@@ -1345,36 +1493,51 @@ class TestProtocolCoverage:
         - Compares against known tested protocols from this test file
     """
 
-    # Protocols that are explicitly tested in TestNodeProtocolImports,
-    # TestHandlerProtocolImports, TestContractCompilerImports,
-    # TestRegistryProtocolImports, and TestRuntimeCheckableProtocols
+    # -------------------------------------------------------------------------
+    # TESTED_PROTOCOLS: Registry of protocols with explicit forward ref tests
+    # -------------------------------------------------------------------------
+    # When adding a new protocol to the SPI:
+    # 1. Add import test in appropriate TestXxxImports class
+    # 2. Add runtime checkable test in TestRuntimeCheckableProtocols
+    # 3. Add the protocol name to this set
+    # The test_all_protocols_have_import_tests() method warns about gaps.
+    # -------------------------------------------------------------------------
     TESTED_PROTOCOLS: set[str] = {
-        # Node protocols (TestNodeProtocolImports)
-        "ProtocolNode",
-        "ProtocolComputeNode",
-        "ProtocolEffectNode",
-        "ProtocolReducerNode",
-        "ProtocolOrchestratorNode",
+        # Node protocols (TestNodeProtocolImports) - core node hierarchy
+        "ProtocolNode",  # Base: node_id, node_type, version attributes
+        "ProtocolComputeNode",  # Pure transformations, deterministic flag
+        "ProtocolEffectNode",  # I/O operations with lifecycle (init/shutdown)
+        "ProtocolReducerNode",  # Aggregation and persistence
+        "ProtocolOrchestratorNode",  # Workflow coordination
         # Handler protocols (TestHandlerProtocolImports)
-        "ProtocolHandler",
+        "ProtocolHandler",  # Request/response lifecycle (init/shutdown/execute)
         # Contract compiler protocols (TestContractCompilerImports)
-        "ProtocolEffectContractCompiler",
-        "ProtocolWorkflowContractCompiler",
-        "ProtocolFSMContractCompiler",
+        "ProtocolEffectContractCompiler",  # Effect contract -> executable node
+        "ProtocolWorkflowContractCompiler",  # Multi-step workflow compilation
+        "ProtocolFSMContractCompiler",  # Finite state machine compilation
         # Registry protocols (TestRegistryProtocolImports)
-        "ProtocolHandlerRegistry",
+        "ProtocolHandlerRegistry",  # Handler registration/lookup CRUD
     }
 
-    # Patterns for directories to exclude from scanning
+    # -------------------------------------------------------------------------
+    # EXCLUDED_DIRS: Directories excluded from protocol discovery scan
+    # -------------------------------------------------------------------------
+    # Note: __init__.py files are also excluded (re-export, not define)
+    # -------------------------------------------------------------------------
     EXCLUDED_DIRS: set[str] = {
         "legacy",  # Deprecated protocols, removal scheduled in v0.5.0
-        "__pycache__",
+        "__pycache__",  # Python bytecode cache (not source)
     }
 
-    # Protocols that are intentionally not tested in forward reference tests
-    # (e.g., type aliases, internal protocols, or protocols without Core dependencies)
-    # Add protocol names here if they are intentionally not covered by forward ref tests
-    KNOWN_SKIPPED_PROTOCOLS: set[str] = set()
+    # -------------------------------------------------------------------------
+    # KNOWN_SKIPPED_PROTOCOLS: Intentionally untested protocols
+    # -------------------------------------------------------------------------
+    # Add protocol names here with comment explaining why they're skipped:
+    # - Type aliases (not actual Protocol classes)
+    # - Internal-only protocols (not part of public API)
+    # - Protocols without Core model dependencies (no forward refs to test)
+    # -------------------------------------------------------------------------
+    KNOWN_SKIPPED_PROTOCOLS: set[str] = set()  # Currently empty - all tested
 
     @staticmethod
     def _extract_protocol_classes_from_file(file_path: Path) -> list[str]:
