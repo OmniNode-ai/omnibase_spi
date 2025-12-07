@@ -208,9 +208,3 @@ class ProtocolClientConfigProvider(Protocol):
     ) -> ProtocolEventBusConsumerConfig: ...
 
     async def validate_configurations(self) -> list[str]: ...
-
-
-# Deprecated aliases for backwards compatibility (remove in v0.5.0)
-ProtocolKafkaClientConfig = ProtocolEventBusClientConfig
-ProtocolKafkaProducerConfig = ProtocolEventBusProducerConfig
-ProtocolKafkaConsumerConfig = ProtocolEventBusConsumerConfig

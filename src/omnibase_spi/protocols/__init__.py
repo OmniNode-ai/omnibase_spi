@@ -320,19 +320,14 @@ from omnibase_spi.protocols.contracts import (
 # v0.3.0 Handler protocols (1 protocol) - DI-based protocol handlers
 from omnibase_spi.protocols.handlers import ProtocolHandler
 
-# Backwards-compatible alias for versioned naming convention.
-# DEPRECATED: ProtocolHandlerV3 will be removed in v0.5.0.
-# Use ProtocolHandler directly instead.
-ProtocolHandlerV3 = ProtocolHandler
-
 # v0.3.0 Node protocols (5 protocols) - Standard node interfaces with unified execute()
-from omnibase_spi.protocols.nodes import ProtocolComputeNode as ProtocolComputeNodeV3
-from omnibase_spi.protocols.nodes import ProtocolEffectNode as ProtocolEffectNodeV3
-from omnibase_spi.protocols.nodes import ProtocolNode
 from omnibase_spi.protocols.nodes import (
-    ProtocolOrchestratorNode as ProtocolOrchestratorNodeV3,
+    ProtocolComputeNode,
+    ProtocolEffectNode,
+    ProtocolNode,
+    ProtocolOrchestratorNode,
+    ProtocolReducerNode,
 )
-from omnibase_spi.protocols.nodes import ProtocolReducerNode as ProtocolReducerNodeV3
 
 # v0.3.0 Registry protocols (1 protocol) - Handler registration
 from omnibase_spi.protocols.registry import ProtocolHandlerRegistry
@@ -398,87 +393,59 @@ from omnibase_spi.protocols.workflow_orchestration import (
     ProtocolWorkQueue,
 )
 
-# v0.3.0 Legacy node protocols (4 protocols) - DEPRECATED: will be removed in v0.5.0
-# Import only when needed to avoid deprecation warnings on module load
-# from omnibase_spi.protocols.nodes.legacy import (
-#     ProtocolComputeNodeLegacy,
-#     ProtocolEffectNodeLegacy,
-#     ProtocolOrchestratorNodeLegacy,
-#     ProtocolReducerNodeLegacy,
-# )
-
-
 # Test protocols (2 protocols) - Testing frameworks and testable components
 # NOTE: Commented out for production builds as test module is excluded from package
 # from omnibase_spi.protocols.test import ProtocolTestable, ProtocolTestableCLI
 
 
 __all__ = [
+    # Container types and enums
     "InjectionScope",
-    # Moved protocols
     "LiteralAssignmentStrategy",
     "LiteralContainerArtifactType",
-    # Effects Literal types
     "LiteralEffectCategory",
     "LiteralEffectId",
     "LiteralInjectionScope",
     "LiteralOnexStatus",
-    "LiteralProtocolCircuitBreakerEvent",
-    "LiteralProtocolCircuitBreakerState",
     "LiteralServiceLifecycle",
     "LiteralServiceResolutionStatus",
     "LiteralWorkQueuePriority",
-    "ModelCliDiscoveryStats",
-    # CLI protocol models
-    "ModelDiscoveredTool",
-    "ModelToolHealthStatus",
-    "ModelToolImplementation",
-    # Semantic protocols
+    # Protocols (alphabetically sorted)
     "ProtocolAdvancedPreprocessor",
     "ProtocolAgentCoordinator",
-    # "ProtocolTestable",  # Excluded from production builds
-    # "ProtocolTestableCLI",  # Excluded from production builds
     "ProtocolAnalyticsDataProvider",
     "ProtocolArtifactContainer",
     "ProtocolArtifactContainerStatus",
     "ProtocolArtifactInfo",
     "ProtocolArtifactMetadata",
     "ProtocolAsyncEventBus",
+    "ProtocolAuditLogger",
     "ProtocolCLI",
     "ProtocolCLIDirFixtureCase",
     "ProtocolCLIDirFixtureRegistry",
     "ProtocolCLIResult",
     "ProtocolCLIToolDiscovery",
-    "ProtocolCacheService",
-    "ProtocolCacheServiceProvider",
+    "ProtocolCanonicalSerializer",
     "ProtocolCircuitBreaker",
-    "ProtocolCircuitBreakerFactory",
-    "ProtocolCircuitBreakerMetrics",
     "ProtocolCliWorkflow",
-    "ProtocolClientConfigProvider",
     "ProtocolClusterCoordinator",
     "ProtocolCommunicationBridge",
-    "ProtocolComputeNodeV3",
-    "ProtocolConfigurationError",
-    "ProtocolConfigurationManager",
-    "ProtocolConfigurationManagerFactory",
+    "ProtocolComputeNode",
     "ProtocolContainer",
     "ProtocolContainerService",
-    "ProtocolContractService",
     "ProtocolDIServiceInstance",
     "ProtocolDIServiceMetadata",
+    "ProtocolDLQHandler",
     "ProtocolDatabaseConnection",
     "ProtocolDependencyGraph",
-    "ProtocolDLQHandler",
-    # Security protocols
     "ProtocolDetectionMatch",
-    # v0.3.0 Contract compiler protocols
+    "ProtocolDistributedTracing",
     "ProtocolEffectContractCompiler",
-    "ProtocolEffectNodeV3",
-    "ProtocolEnvelope",  # Alias for ProtocolOnexEnvelope (Issue #5)
+    "ProtocolEffectNode",
+    "ProtocolEnvelope",
+    "ProtocolErrorHandler",
     "ProtocolErrorSanitizer",
     "ProtocolErrorSanitizerFactory",
-    "ProtocolEventBusAdapter",
     "ProtocolEventBusBase",
     "ProtocolEventBusBatchProducer",
     "ProtocolEventBusClient",
@@ -489,7 +456,7 @@ __all__ = [
     "ProtocolEventBusLogEmitter",
     "ProtocolEventBusMessage",
     "ProtocolEventBusProducerHandler",
-    "ProtocolEventBusProvider",  # Factory protocol (interface protocols in omnibase_core)
+    "ProtocolEventBusProvider",
     "ProtocolEventBusRegistry",
     "ProtocolEventBusService",
     "ProtocolEventBusTransactionalProducer",
@@ -502,39 +469,22 @@ __all__ = [
     "ProtocolEventStoreTransaction",
     "ProtocolFSMContractCompiler",
     "ProtocolFileHandlerRegistry",
+    "ProtocolFileProcessingTypeHandler",
     "ProtocolFileReader",
-    "ProtocolFileTypeHandler",
     "ProtocolGraphDatabaseHandler",
+    "ProtocolHandler",
     "ProtocolHandlerDiscovery",
     "ProtocolHandlerInfo",
     "ProtocolHandlerRegistry",
-    # v0.3.0 Registry protocols
-    "ProtocolHandlerRegistry",
-    # v0.3.0 Handler protocols
-    "ProtocolHandler",
-    "ProtocolHandlerV3",  # Alias for ProtocolHandler
-    "ProtocolHttpAuthConfig",
+    "ProtocolHealthDetails",
+    "ProtocolHealthMonitor",
     "ProtocolHttpClient",
-    "ProtocolHttpClientConfig",
-    "ProtocolHttpClientProvider",
-    "ProtocolHttpExtendedClient",
     "ProtocolHttpEventBusAdapter",
-    "ProtocolHttpRequestBuilder",
-    "ProtocolHttpResponse",
-    "ProtocolHttpStreamingResponse",
+    "ProtocolHttpExtendedClient",
     "ProtocolHybridRetriever",
     "ProtocolInjectionContext",
     "ProtocolKafkaAdapter",
-    "ProtocolKafkaBatchProducer",
-    "ProtocolKafkaClientConfig",
-    "ProtocolKafkaClientProvider",
-    "ProtocolKafkaConsumer",
-    "ProtocolKafkaConsumerConfig",
-    "ProtocolKafkaMessage",
-    "ProtocolKafkaProducerConfig",
-    "ProtocolKafkaTransactionalProducer",
     "ProtocolKeyValueStore",
-    # LLM protocols
     "ProtocolLLMProvider",
     "ProtocolLLMToolProvider",
     "ProtocolLifecycleManager",
@@ -557,14 +507,11 @@ __all__ = [
     "ProtocolMCPValidator",
     "ProtocolMemoryOrchestrator",
     "ProtocolMemoryRecord",
+    "ProtocolMetricsCollector",
     "ProtocolModelRouter",
-    # v0.3.0 Standard Node protocols
     "ProtocolNode",
     "ProtocolNodeCliAdapter",
     "ProtocolNodeConfiguration",
-    "ProtocolNodeConfiguration",
-    "ProtocolNodeConfigurationProvider",
-    "ProtocolNodeRegistry",
     "ProtocolNodeRegistry",
     "ProtocolNodeRunner",
     "ProtocolNodeSchedulingResult",
@@ -583,11 +530,12 @@ __all__ = [
     "ProtocolOnexValidation",
     "ProtocolOnexValidationReport",
     "ProtocolOnexValidationResult",
-    "ProtocolOrchestratorNodeV3",
-    # Effects protocols
+    "ProtocolOrchestratorNode",
+    "ProtocolPerformanceMetricsCollector",
     "ProtocolPrimitiveEffectExecutor",
+    "ProtocolReducerNode",
     "ProtocolRedpandaAdapter",
-    "ProtocolReducerNodeV3",
+    "ProtocolRetryable",
     "ProtocolSchemaLoader",
     "ProtocolSchemaRegistry",
     "ProtocolSecurityEvent",
@@ -605,10 +553,11 @@ __all__ = [
     "ProtocolStorageBackendFactory",
     "ProtocolSyncEventBus",
     "ProtocolTaskSchedulingCriteria",
+    "ProtocolTimeBasedOperations",
     "ProtocolToolDiscoveryService",
     "ProtocolToolToolOnexVersionLoader",
     "ProtocolTrustedSchemaLoader",
-    "ProtocolUtilsNodeConfiguration",
+    "ProtocolUriParser",
     "ProtocolUtilsNodeConfiguration",
     "ProtocolValidationDecorator",
     "ProtocolValidationError",
@@ -616,6 +565,7 @@ __all__ = [
     "ProtocolValidationResult",
     "ProtocolValidator",
     "ProtocolVectorStoreHandler",
+    "ProtocolVersionManager",
     "ProtocolWorkQueue",
     "ProtocolWorkflowContractCompiler",
     "ProtocolWorkflowEventBus",
@@ -625,6 +575,5 @@ __all__ = [
     "ProtocolWorkflowNodeCapability",
     "ProtocolWorkflowNodeInfo",
     "ProtocolWorkflowNodeRegistry",
-    "ProtocolWorkflowReducer",
     "ServiceHealthStatus",
 ]

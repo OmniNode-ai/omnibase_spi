@@ -27,10 +27,6 @@ from .protocol_client_config import (
     ProtocolEventBusClientConfig,
     ProtocolEventBusConsumerConfig,
     ProtocolEventBusProducerConfig,
-    # Deprecated aliases (remove in v0.5.0)
-    ProtocolKafkaClientConfig,
-    ProtocolKafkaConsumerConfig,
-    ProtocolKafkaProducerConfig,
 )
 from .protocol_configuration_manager import ProtocolConfigurationManager
 from .protocol_connection_manageable import ProtocolConnectionManageable
@@ -82,15 +78,11 @@ __all__ = [
     "ProtocolDIServiceInstance",
     "ProtocolDIServiceMetadata",
     "ProtocolDependencyGraph",
-    # EventBus config protocols (new names)
+    # EventBus config protocols
     "ProtocolEventBusClientConfig",
     "ProtocolEventBusConsumerConfig",
     "ProtocolEventBusProducerConfig",
     "ProtocolInjectionContext",
-    # Deprecated Kafka aliases (remove in v0.5.0)
-    "ProtocolKafkaClientConfig",
-    "ProtocolKafkaConsumerConfig",
-    "ProtocolKafkaProducerConfig",
     "ProtocolServiceDependency",
     "ProtocolServiceFactory",
     "ProtocolServiceRegistration",
