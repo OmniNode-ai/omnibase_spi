@@ -178,12 +178,15 @@ Validate contract without compiling.
 - `contract_path` (`Path`): Path to contract file
 
 **Returns**:
-- `ModelContractValidationResult`: Validation result with errors if any
+- `ModelContractValidationResult`: Validation result containing:
+  - `is_valid` (`bool`): Whether the contract passed all validation checks
+  - `errors` (`list[ModelValidationError]`): List of validation errors (empty if valid)
+  - `warnings` (`list[ModelValidationWarning]`): List of non-fatal warnings
 
 **Semantic Contract**:
 - MUST NOT raise exceptions for invalid contracts (return errors in result)
 - SHOULD validate all errors, not just the first one
-- SHOULD provide actionable error messages
+- SHOULD provide actionable error messages with line numbers
 
 ### Protocol Definition
 
@@ -351,7 +354,16 @@ Validate contract without compiling.
 - `contract_path` (`Path`): Path to contract file
 
 **Returns**:
-- `ModelContractValidationResult`: Validation result with errors if any
+- `ModelContractValidationResult`: Validation result containing:
+  - `is_valid` (`bool`): Whether the contract passed all validation checks
+  - `errors` (`list[ModelValidationError]`): List of validation errors (empty if valid)
+  - `warnings` (`list[ModelValidationWarning]`): List of non-fatal warnings
+
+**Semantic Contract**:
+- MUST NOT raise exceptions for invalid contracts (return errors in result)
+- SHOULD validate all errors, not just the first one
+- SHOULD provide actionable error messages with line numbers
+- SHOULD detect DAG violations (circular dependencies)
 
 ### Protocol Definition
 
@@ -396,8 +408,22 @@ async def compile_workflow(
     compiler: ProtocolWorkflowContractCompiler,
     contract_path: Path,
 ) -> None:
-    """Compile a workflow contract with dependency validation."""
+    """Compile a workflow contract with validation-first pattern."""
 
+    # First validate without compiling to collect all errors
+    validation_result = await compiler.validate(contract_path)
+
+    if not validation_result.is_valid:
+        # Handle validation errors (no exception raised)
+        for error in validation_result.errors:
+            print(f"Error at line {error.line}: {error.message}")
+
+        # Also check warnings for non-fatal issues
+        for warning in validation_result.warnings:
+            print(f"Warning: {warning.message}")
+        return
+
+    # Compile the validated contract
     try:
         contract = await compiler.compile(contract_path)
 
@@ -413,10 +439,8 @@ async def compile_workflow(
             print("Compensation steps defined for rollback")
 
     except ContractCompilerError as e:
-        if "cycle" in str(e).lower():
-            print("Error: Workflow contains circular dependencies")
-        else:
-            print(f"Compilation failed: {e}")
+        # compile() may still raise for unexpected errors
+        print(f"Compilation failed: {e}")
 ```
 
 ### Workflow Contract YAML Example
@@ -524,7 +548,16 @@ Validate contract without compiling.
 - `contract_path` (`Path`): Path to contract file
 
 **Returns**:
-- `ModelContractValidationResult`: Validation result with errors if any
+- `ModelContractValidationResult`: Validation result containing:
+  - `is_valid` (`bool`): Whether the contract passed all validation checks
+  - `errors` (`list[ModelValidationError]`): List of validation errors (empty if valid)
+  - `warnings` (`list[ModelValidationWarning]`): List of non-fatal warnings
+
+**Semantic Contract**:
+- MUST NOT raise exceptions for invalid contracts (return errors in result)
+- SHOULD validate all errors, not just the first one
+- SHOULD provide actionable error messages with line numbers
+- SHOULD detect unreachable states and invalid transitions
 
 ### Protocol Definition
 
@@ -569,27 +602,46 @@ async def compile_fsm(
     compiler: ProtocolFSMContractCompiler,
     contract_path: Path,
 ) -> None:
-    """Compile and analyze an FSM contract."""
+    """Compile and analyze an FSM contract with validation-first pattern."""
 
-    contract = await compiler.compile(contract_path)
+    # First validate without compiling to collect all errors
+    validation_result = await compiler.validate(contract_path)
 
-    print(f"FSM: {contract.contract_id}")
-    print(f"Initial state: {contract.initial_state}")
-    print(f"States: {', '.join(contract.states)}")
-    print(f"Final states: {', '.join(contract.final_states)}")
+    if not validation_result.is_valid:
+        # Handle validation errors (no exception raised)
+        for error in validation_result.errors:
+            print(f"Error at line {error.line}: {error.message}")
 
-    print("\nTransitions:")
-    for transition in contract.transitions:
-        guard_str = f" [if {transition.guard}]" if transition.guard else ""
-        action_str = f" / {transition.action}" if transition.action else ""
-        print(f"  {transition.from_state} --{transition.event}--> "
-              f"{transition.to_state}{guard_str}{action_str}")
+        # Check warnings for issues like unreachable states
+        for warning in validation_result.warnings:
+            print(f"Warning: {warning.message}")
+        return
 
-    # Check for unreachable states
-    reachable = contract.get_reachable_states()
-    unreachable = set(contract.states) - reachable
-    if unreachable:
-        print(f"\nWarning: Unreachable states: {unreachable}")
+    # Compile the validated contract
+    try:
+        contract = await compiler.compile(contract_path)
+
+        print(f"FSM: {contract.contract_id}")
+        print(f"Initial state: {contract.initial_state}")
+        print(f"States: {', '.join(contract.states)}")
+        print(f"Final states: {', '.join(contract.final_states)}")
+
+        print("\nTransitions:")
+        for transition in contract.transitions:
+            guard_str = f" [if {transition.guard}]" if transition.guard else ""
+            action_str = f" / {transition.action}" if transition.action else ""
+            print(f"  {transition.from_state} --{transition.event}--> "
+                  f"{transition.to_state}{guard_str}{action_str}")
+
+        # Check for unreachable states
+        reachable = contract.get_reachable_states()
+        unreachable = set(contract.states) - reachable
+        if unreachable:
+            print(f"\nWarning: Unreachable states: {unreachable}")
+
+    except ContractCompilerError as e:
+        # compile() may still raise for unexpected errors
+        print(f"Compilation failed: {e}")
 ```
 
 ### FSM Contract YAML Example
@@ -724,14 +776,63 @@ async def load_contracts(
 
 ## Exception Handling
 
-Contract compiler methods may raise:
+### compile() vs validate() Semantics
 
-| Exception | Method | When |
-|-----------|--------|------|
-| `ContractCompilerError` | `compile()` | YAML syntax error, schema violation, semantic error |
-| `FileNotFoundError` | `compile()` | Contract file does not exist |
+The `compile()` and `validate()` methods have different error-handling semantics:
 
-The `validate()` method does NOT raise exceptions for invalid contracts. Instead, it returns a `ModelContractValidationResult` containing all validation errors.
+| Method | Invalid Contract | File Not Found | Unexpected Error |
+|--------|------------------|----------------|------------------|
+| `compile()` | Raises `ContractCompilerError` | Raises `FileNotFoundError` | Raises exception |
+| `validate()` | Returns `ModelContractValidationResult` with `is_valid=False` | Raises `FileNotFoundError` | Raises exception |
+
+**Key Distinction**:
+- **`validate()`**: Returns a result object for invalid contracts (no exception). Use this for validation-first workflows where you want to collect all errors.
+- **`compile()`**: Raises exceptions for invalid contracts. Use this when you expect the contract to be valid and want fail-fast behavior.
+
+### ModelContractValidationResult Structure
+
+```python
+class ModelContractValidationResult:
+    """Result of contract validation."""
+
+    is_valid: bool  # True if no errors (warnings are allowed)
+    errors: list[ModelValidationError]  # Fatal validation errors
+    warnings: list[ModelValidationWarning]  # Non-fatal warnings
+
+class ModelValidationError:
+    """A single validation error."""
+
+    message: str  # Human-readable error message
+    line: int | None  # Line number in YAML (if applicable)
+    column: int | None  # Column number (if applicable)
+    code: str  # Error code (e.g., "MISSING_FIELD", "INVALID_REF")
+
+class ModelValidationWarning:
+    """A non-fatal validation warning."""
+
+    message: str  # Human-readable warning message
+    line: int | None  # Line number (if applicable)
+    code: str  # Warning code (e.g., "UNREACHABLE_STATE")
+```
+
+### Recommended Pattern: Validation-First
+
+```python
+async def safe_compile(compiler, contract_path: Path):
+    """Recommended pattern: validate before compile."""
+
+    # Step 1: Validate to collect all errors
+    result = await compiler.validate(contract_path)
+
+    if not result.is_valid:
+        # Handle errors gracefully (no exception raised)
+        for error in result.errors:
+            logger.error(f"Line {error.line}: {error.message}")
+        return None
+
+    # Step 2: Compile (should succeed after validation)
+    return await compiler.compile(contract_path)
+```
 
 See [EXCEPTIONS.md](EXCEPTIONS.md) for complete exception hierarchy.
 

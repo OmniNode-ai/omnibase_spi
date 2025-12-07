@@ -383,7 +383,17 @@ flowchart TB
 ### Usage Example
 
 ```python
+import asyncio
+import time
+from typing import Any
+
 from omnibase_spi.protocols.handlers import ProtocolHandler
+from omnibase_spi.exceptions import (
+    HandlerInitializationError,
+    HandlerNotInitializedError,
+    InvalidProtocolStateError,
+    ProtocolHandlerError,
+)
 from omnibase_core.models.protocol import (
     ModelConnectionConfig,
     ModelOperationConfig,
@@ -391,12 +401,22 @@ from omnibase_core.models.protocol import (
     ModelProtocolResponse,
 )
 
-class HttpRestHandler:
-    """Example HTTP REST handler implementation."""
 
-    def __init__(self):
-        self._client = None
-        self._config = None
+class HttpRestHandler:
+    """Example HTTP REST handler implementation.
+
+    Note: This is an illustrative example. A real implementation would
+    use an HTTP client library like httpx or aiohttp.
+    """
+
+    def __init__(self) -> None:
+        self._client: Any = None  # Would be httpx.AsyncClient or similar
+        self._config: ModelConnectionConfig | None = None
+
+    async def _create_client(self, config: ModelConnectionConfig) -> Any:
+        """Create the HTTP client. Implementation would use httpx, aiohttp, etc."""
+        # Example: return httpx.AsyncClient(base_url=config.base_url)
+        raise NotImplementedError("Use httpx.AsyncClient or similar")
 
     @property
     def handler_type(self) -> str:
@@ -486,16 +506,33 @@ class HttpRestHandler:
             }
 
 # Usage with effect node
-handler = HttpRestHandler()
-await handler.initialize(connection_config)
+async def main() -> None:
+    # These would be provided by your application configuration
+    connection_config = ModelConnectionConfig(
+        base_url="https://api.example.com",
+        # ... other config options
+    )
+    request = ModelProtocolRequest(
+        url="/users",
+        headers={"Content-Type": "application/json"},
+        body={"name": "Example User"},
+    )
+    operation_config = ModelOperationConfig(
+        method="POST",
+        timeout_seconds=30.0,
+    )
 
-try:
-    # Check health before operations
-    health = await handler.health_check()
-    if health["healthy"]:
-        response = await handler.execute(request, operation_config)
-finally:
-    await handler.shutdown()
+    handler = HttpRestHandler()
+    await handler.initialize(connection_config)
+
+    try:
+        # Check health before operations
+        health = await handler.health_check()
+        if health["healthy"]:
+            response = await handler.execute(request, operation_config)
+            print(f"Response status: {response.status_code}")
+    finally:
+        await handler.shutdown()
 ```
 
 ### Handler Type Implementations

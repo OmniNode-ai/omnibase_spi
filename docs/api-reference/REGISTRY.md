@@ -23,6 +23,10 @@
   - [Effect Node Integration](#effect-node-integration)
   - [Testing with Mock Registry](#testing-with-mock-registry)
 - [Best Practices](#best-practices)
+- [Handler Validation Notes](#handler-validation-notes)
+  - [The Structural Typing Challenge](#the-structural-typing-challenge)
+  - [Validation Approaches](#validation-approaches)
+  - [Recommendation](#recommendation)
 - [Exception Handling](#exception-handling)
 - [Thread Safety](#thread-safety)
 - [Version Information](#version-information)
@@ -142,7 +146,7 @@ Register a protocol handler.
 - `RegistryError`: If registration fails (e.g., duplicate registration without override)
 
 **Semantic Contract**:
-- MUST validate handler_cls implements `ProtocolHandler`
+- SHOULD validate handler_cls implements `ProtocolHandler` (see [Validation Notes](#handler-validation-notes) below)
 - SHOULD allow re-registration (override) of existing types
 - MUST be thread-safe for concurrent registrations
 
@@ -270,13 +274,7 @@ class HandlerRegistryImpl:
                 context={"protocol_type": protocol_type}
             )
 
-        # Validate it's a ProtocolHandler
-        if not issubclass(handler_cls, ProtocolHandler):
-            raise RegistryError(
-                f"{handler_cls.__name__} does not implement ProtocolHandler",
-                context={"protocol_type": protocol_type}
-            )
-
+        # See "Handler Validation Notes" section for validation options
         self._handlers[protocol_type] = handler_cls
 
     def get(
@@ -522,6 +520,114 @@ def log_registry_state(
         protocols=protocols,
     )
 ```
+
+---
+
+## Handler Validation Notes
+
+### The Structural Typing Challenge
+
+`ProtocolHandler` is a `@runtime_checkable` protocol, which enables Python's structural subtyping (duck typing). However, this creates a validation challenge for class-level checks:
+
+| Check Type | Works With | Does NOT Work With |
+|------------|------------|-------------------|
+| `isinstance(instance, ProtocolHandler)` | Instances of any class with matching methods | Classes (type objects) |
+| `issubclass(cls, ProtocolHandler)` | Classes that explicitly inherit from Protocol | Structurally-conforming classes (duck-typed) |
+
+**Key Insight**: `issubclass()` only works for classes that explicitly inherit from the protocol. It does NOT detect structural conformance (duck typing). This means a class that implements all `ProtocolHandler` methods but does not inherit from it will fail `issubclass()` checks.
+
+### Validation Approaches
+
+#### Option 1: Explicit Protocol Inheritance (Recommended)
+
+Require handler implementations to explicitly inherit from `ProtocolHandler`:
+
+```python
+from omnibase_spi.protocols.handlers import ProtocolHandler
+
+class HttpRestHandler(ProtocolHandler):
+    """Handler that explicitly inherits from ProtocolHandler."""
+
+    @property
+    def handler_type(self) -> str:
+        return "http"
+
+    # ... implement other methods
+```
+
+With explicit inheritance, `issubclass()` works correctly:
+
+```python
+def register(self, protocol_type: str, handler_cls: type[ProtocolHandler]) -> None:
+    if not issubclass(handler_cls, ProtocolHandler):
+        raise RegistryError(f"{handler_cls.__name__} must inherit from ProtocolHandler")
+    self._handlers[protocol_type] = handler_cls
+```
+
+#### Option 2: Instance-Based Validation (Deferred)
+
+Validate by creating a temporary instance (more expensive but works with structural typing):
+
+```python
+def register(self, protocol_type: str, handler_cls: type[ProtocolHandler]) -> None:
+    # Create instance to check structural conformance
+    try:
+        instance = handler_cls.__new__(handler_cls)
+        if not isinstance(instance, ProtocolHandler):
+            raise RegistryError(f"{handler_cls.__name__} does not implement ProtocolHandler")
+    except Exception as e:
+        raise RegistryError(f"Cannot validate {handler_cls.__name__}: {e}")
+    self._handlers[protocol_type] = handler_cls
+```
+
+#### Option 3: Duck-Type at First Use (Lazy Validation)
+
+Skip class-level validation and rely on runtime errors when methods are called:
+
+```python
+def register(self, protocol_type: str, handler_cls: type[ProtocolHandler]) -> None:
+    # Trust the type hint - validation happens at first use
+    if not isinstance(handler_cls, type):
+        raise RegistryError(f"handler_cls must be a class, got {type(handler_cls)}")
+    self._handlers[protocol_type] = handler_cls
+```
+
+This approach relies on:
+- Type hints for static analysis (`type[ProtocolHandler]`)
+- Runtime errors when invalid handlers fail to respond to method calls
+
+#### Option 4: Attribute-Based Validation
+
+Check for required attributes/methods without inheritance:
+
+```python
+REQUIRED_HANDLER_METHODS = ["initialize", "shutdown", "execute", "describe", "health_check"]
+REQUIRED_HANDLER_PROPERTIES = ["handler_type"]
+
+def register(self, protocol_type: str, handler_cls: type[ProtocolHandler]) -> None:
+    # Check for required methods
+    for method in REQUIRED_HANDLER_METHODS:
+        if not callable(getattr(handler_cls, method, None)):
+            raise RegistryError(f"{handler_cls.__name__} missing method: {method}")
+
+    # Check for required properties
+    for prop in REQUIRED_HANDLER_PROPERTIES:
+        if not hasattr(handler_cls, prop):
+            raise RegistryError(f"{handler_cls.__name__} missing property: {prop}")
+
+    self._handlers[protocol_type] = handler_cls
+```
+
+### Recommendation
+
+For ONEX platform implementations, we recommend **Option 1 (Explicit Inheritance)** because:
+
+1. **Clear contract**: Inheritance explicitly declares intent to implement the protocol
+2. **Static type checking**: mypy can verify method signatures at development time
+3. **Simple validation**: `issubclass()` works reliably
+4. **Documentation**: Inheritance chain is visible in class hierarchy
+
+If supporting third-party handlers that may not inherit from `ProtocolHandler`, consider **Option 4 (Attribute-Based Validation)** as a fallback.
 
 ---
 

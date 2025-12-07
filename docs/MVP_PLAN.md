@@ -803,7 +803,7 @@ Post-Release:
 
 **Last Updated**: 2025-12-07
 **Document Owner**: OmniNode Architecture Team
-**Linear Project URL**: https://linear.app/omninode/project/mvp-omninode-platform-foundation-d447d3041f8d
+**Linear Project**: [MVP OmniNode Platform Foundation](https://linear.app/omninode/project/mvp-omninode-platform-foundation-d447d3041f8d)
 
 ## See Also
 

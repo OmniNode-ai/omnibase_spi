@@ -331,6 +331,11 @@ class VectorizationNode:
     def is_deterministic(self) -> bool:
         return True
 
+    def _vectorize(self, text: str) -> list[float]:
+        """Convert text to vector embedding (placeholder implementation)."""
+        # In production, this would call an embedding model (e.g., OpenAI, HuggingFace)
+        return [float(ord(c)) for c in text[:10]]  # Simplified for example
+
     async def execute(
         self,
         input_data: ModelComputeInput,
@@ -491,7 +496,9 @@ class ProtocolEffectNode(ProtocolNode, Protocol):
 ```python
 from omnibase_spi.protocols.nodes import ProtocolEffectNode
 from omnibase_spi.protocols.handlers import ProtocolHandler
+from omnibase_spi.exceptions import InvalidProtocolStateError
 from omnibase_core.models.effect import ModelEffectInput, ModelEffectOutput
+
 
 class HttpApiNode:
     """Example effect node for HTTP API calls."""
@@ -499,6 +506,8 @@ class HttpApiNode:
     def __init__(self, handler: ProtocolHandler):
         self._handler = handler
         self._initialized = False
+        # Configuration would typically come from environment or dependency injection
+        self._config = {"base_url": "https://api.example.com", "timeout": 30}
 
     @property
     def node_id(self) -> str:
@@ -514,7 +523,7 @@ class HttpApiNode:
 
     async def initialize(self) -> None:
         """Initialize HTTP connection pool."""
-        await self._handler.initialize(config)
+        await self._handler.initialize(self._config)
         self._initialized = True
 
     async def shutdown(self, timeout_seconds: float = 30.0) -> None:
@@ -531,19 +540,34 @@ class HttpApiNode:
             raise InvalidProtocolStateError(
                 "Cannot call execute() before initialize()"
             )
+        # Build request from input_data payload
+        request = input_data.payload.get("request", {})
+        operation_config = {"method": "POST", "endpoint": "/data"}
         response = await self._handler.execute(request, operation_config)
         return ModelEffectOutput(
             node_id=self.node_id,
             payload=response.data,
         )
 
-# Lifecycle management
-node = HttpApiNode(handler)
-await node.initialize()
-try:
-    result = await node.execute(input_data)
-finally:
-    await node.shutdown()
+
+# --- Example usage demonstrating lifecycle management ---
+
+async def example_usage():
+    # Assume: handler is a ProtocolHandler implementation (e.g., from omnibase_infra)
+    # In production, this would be injected via dependency injection or service registry
+    handler: ProtocolHandler = ...  # type: ignore  # Placeholder for actual handler
+
+    node = HttpApiNode(handler)
+    await node.initialize()
+    try:
+        # Create input data for the effect operation
+        input_data = ModelEffectInput(
+            node_id="http_api.v1",
+            payload={"request": {"url": "/users", "body": {"name": "test"}}},
+        )
+        result = await node.execute(input_data)
+    finally:
+        await node.shutdown()
 ```
 
 ---
@@ -635,6 +659,7 @@ class ProtocolReducerNode(ProtocolNode, Protocol):
 from omnibase_spi.protocols.nodes import ProtocolReducerNode
 from omnibase_core.models.reducer import ModelReductionInput, ModelReductionOutput
 
+
 class MetricsAggregatorNode:
     """Example reducer node for metrics aggregation."""
 
@@ -678,11 +703,30 @@ class MetricsAggregatorNode:
             },
         )
 
-# Reducer maintains state across invocations
-reducer = MetricsAggregatorNode()
-await reducer.execute(input1)  # Accumulates
-await reducer.execute(input2)  # Further accumulates
-result = await reducer.execute(input3)  # Returns aggregated result
+
+# --- Example usage demonstrating stateful reduction ---
+
+async def example_usage():
+    # Create sample inputs - each represents a batch of metrics to aggregate
+    input1 = ModelReductionInput(
+        node_id="metrics_aggregator.v1",
+        payload={"metrics": {"requests": 100, "errors": 5}},
+    )
+    input2 = ModelReductionInput(
+        node_id="metrics_aggregator.v1",
+        payload={"metrics": {"requests": 150, "errors": 3}},
+    )
+    input3 = ModelReductionInput(
+        node_id="metrics_aggregator.v1",
+        payload={"metrics": {"requests": 200, "errors": 2}},
+    )
+
+    # Reducer maintains state across invocations
+    reducer = MetricsAggregatorNode()
+    await reducer.execute(input1)  # Accumulates: requests=100, errors=5
+    await reducer.execute(input2)  # Accumulates: requests=250, errors=8
+    result = await reducer.execute(input3)  # Returns: requests=450, errors=10
+    # result.payload == {"aggregated_metrics": {"requests": 450, "errors": 10}, "sample_count": 3}
 ```
 
 ---
@@ -777,10 +821,14 @@ from omnibase_spi.protocols.nodes import (
     ProtocolComputeNode,
     ProtocolEffectNode,
 )
+from omnibase_spi.protocols.handlers import ProtocolHandler
 from omnibase_core.models.orchestrator import (
     ModelOrchestrationInput,
     ModelOrchestrationOutput,
 )
+from omnibase_core.models.compute import ModelComputeInput
+from omnibase_core.models.effect import ModelEffectInput
+
 
 class PipelineOrchestratorNode:
     """Example orchestrator for a data processing pipeline."""
@@ -812,12 +860,12 @@ class PipelineOrchestratorNode:
         """Orchestrate transform -> persist pipeline."""
         # Step 1: Transform data (compute node)
         transform_result = await self._transform_node.execute(
-            ModelComputeInput(payload=input_data.payload)
+            ModelComputeInput(node_id=self._transform_node.node_id, payload=input_data.payload)
         )
 
         # Step 2: Persist result (effect node)
         persist_result = await self._persist_node.execute(
-            ModelEffectInput(payload=transform_result.payload)
+            ModelEffectInput(node_id=self._persist_node.node_id, payload=transform_result.payload)
         )
 
         return ModelOrchestrationOutput(
@@ -829,12 +877,64 @@ class PipelineOrchestratorNode:
             },
         )
 
-# Compose nodes into orchestrated workflow
-orchestrator = PipelineOrchestratorNode(
-    transform_node=VectorizationNode(),
-    persist_node=DatabasePersistNode(handler),
-)
-result = await orchestrator.execute(input_data)
+
+# --- Example usage demonstrating workflow composition ---
+
+async def example_usage():
+    # Assume: VectorizationNode is a ProtocolComputeNode implementation
+    # (see ProtocolComputeNode example above for full implementation)
+    from omnibase_core.models.compute import ModelComputeOutput
+
+    class VectorizationNode:
+        """Placeholder compute node (see full implementation in ProtocolComputeNode section)."""
+        node_id = "vectorization.v1"
+        node_type = "compute"
+        version = "1.0.0"
+        is_deterministic = True
+
+        async def execute(self, input_data: ModelComputeInput) -> ModelComputeOutput:
+            return ModelComputeOutput(node_id=self.node_id, payload={"vector": [0.1, 0.2]})
+
+    # Assume: DatabasePersistNode is a ProtocolEffectNode implementation
+    # In production, this would be provided by omnibase_infra
+    from omnibase_core.models.effect import ModelEffectOutput
+
+    class DatabasePersistNode:
+        """Placeholder effect node for database persistence."""
+        node_id = "db_persist.v1"
+        node_type = "effect"
+        version = "1.0.0"
+
+        def __init__(self, handler: ProtocolHandler):
+            self._handler = handler
+
+        async def initialize(self) -> None:
+            pass  # Would initialize DB connection
+
+        async def shutdown(self, timeout_seconds: float = 30.0) -> None:
+            pass  # Would close DB connection
+
+        async def execute(self, input_data: ModelEffectInput) -> ModelEffectOutput:
+            # Would persist to database via handler
+            return ModelEffectOutput(node_id=self.node_id, payload={"persisted": True})
+
+    # Create handler placeholder (would be injected via DI in production)
+    handler: ProtocolHandler = ...  # type: ignore  # Placeholder
+
+    # Compose nodes into orchestrated workflow
+    orchestrator = PipelineOrchestratorNode(
+        transform_node=VectorizationNode(),
+        persist_node=DatabasePersistNode(handler),
+    )
+
+    # Create orchestration input
+    input_data = ModelOrchestrationInput(
+        node_id="pipeline_orchestrator.v1",
+        payload={"text": "Hello, world!"},
+    )
+
+    result = await orchestrator.execute(input_data)
+    # result.payload == {"transform_result": {...}, "persist_result": {...}, "status": "completed"}
 ```
 
 ---

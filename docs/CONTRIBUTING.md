@@ -450,7 +450,7 @@ Brief description of changes
 
 - [API Reference](api-reference/README.md)
 - [MVP Plan](MVP_PLAN.md)
-- [GitHub Issues](https://github.com/OWNER/omnibase_spi/issues)
+- [GitHub Issues](https://github.com/OmniNode-ai/omnibase_spi/issues)
 
 ### Questions
 

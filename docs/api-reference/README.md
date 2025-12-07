@@ -491,7 +491,8 @@ async def create_api_effect_node(
     )
 
     # Validate handler type at runtime
-    assert isinstance(handler, ProtocolHandler)
+    if not isinstance(handler, ProtocolHandler):
+        raise TypeError(f"Expected ProtocolHandler, got {type(handler).__name__}")
 
     return ApiEffectNode(handler=handler)
 ```
