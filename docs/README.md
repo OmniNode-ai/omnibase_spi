@@ -133,6 +133,7 @@ The ONEX SPI follows a **protocol-first design** with **176+ protocols** across 
 ## Project Information
 
 - **[Changelog](../CHANGELOG.md)** - Version history and release notes
+- **[Deprecations](DEPRECATIONS.md)** - Deprecated APIs and migration guides
 - **[Contributing Guide](CONTRIBUTING.md)** - Development workflow and validation requirements
 
 ## Quick Navigation
@@ -258,11 +259,22 @@ For quick contributions:
 - **Documentation Updated**: 2025-12-06
 - **Protocol Count**: 176+ protocols across 22 domains
 
+## ONEX Ecosystem
+
+This SPI package is part of the ONEX platform ecosystem:
+
+| Repository | Description | Role |
+|------------|-------------|------|
+| [omnibase_spi](https://github.com/OmniNode-ai/omnibase_spi) | Service Provider Interface | Protocol contracts and exceptions |
+| [omnibase_core](https://github.com/OmniNode-ai/omnibase_core) | Core Models | Pydantic models and runtime contracts |
+| [omnibase_infra](https://github.com/OmniNode-ai/omnibase_infra) | Infrastructure | Concrete implementations |
+
 ## See Also
 
 - **[Main README](../README.md)** - Repository overview and quick start
 - **[CLAUDE.md](../CLAUDE.md)** - AI assistant guidance for working with this codebase
 - **[Glossary](GLOSSARY.md)** - Definitions of SPI-specific terminology
+- **[Deprecations](DEPRECATIONS.md)** - Deprecated APIs, removal timelines, and migration guides
 - **[Contributing Guide](CONTRIBUTING.md)** - How to contribute to the project
 - **[MVP Plan](MVP_PLAN.md)** - v0.3.0 work breakdown and architecture
 

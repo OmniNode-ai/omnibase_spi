@@ -109,6 +109,11 @@ from omnibase_spi.exceptions import (
 +-----------------------------------------------------------+
 ```
 
+**Related Repositories**:
+- [omnibase_spi](https://github.com/OmniNode-ai/omnibase_spi) - This repository (Protocol contracts)
+- [omnibase_core](https://github.com/OmniNode-ai/omnibase_core) - Pydantic models and core types
+- [omnibase_infra](https://github.com/OmniNode-ai/omnibase_infra) - Concrete implementations
+
 **Dependency Rules**:
 - SPI -> Core: **allowed** (runtime imports of models and contract types)
 - Core -> SPI: **forbidden** (no imports)
