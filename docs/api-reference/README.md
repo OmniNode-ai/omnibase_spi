@@ -465,11 +465,12 @@ class ApiEffectNode:
             return self._transform_response(response)
 
         except ProtocolHandlerError:
-            # Re-raise handler errors with context
+            # Re-raise handler errors as-is
             raise
         except Exception as e:
+            # Wrap unexpected errors; original preserved via chaining
             raise ProtocolHandlerError(
-                f"Effect execution failed: {e}",
+                "Effect execution failed",
                 context={"node_id": self._node_id, "contract": str(contract)},
             ) from e
 
@@ -572,13 +573,10 @@ async def compile_workflow_pipeline(
             effect_contract = await effect_compiler.compile(effect_path)
             compiled["effects"].append(effect_contract)
         except ContractCompilerError as e:
+            # Add context and chain; the original error message is preserved via 'from e'
             raise ContractCompilerError(
                 f"Failed to compile effect: {effect_path.name}",
-                context={
-                    "path": str(effect_path),
-                    "original_error": str(e),
-                    **e.context,
-                },
+                context={"path": str(effect_path), **e.context},
             ) from e
 
     # Compile workflow contract
@@ -676,15 +674,10 @@ async def execute_with_error_handling(
             url=e.context.get("url"),
             method=e.context.get("method"),
         )
-        # Optionally wrap with more context
-        raise ProtocolHandlerError(
-            f"Request failed: {e}",
-            context={
-                **e.context,
-                "request_id": request.id,
-                "timestamp": datetime.utcnow().isoformat(),
-            },
-        ) from e
+        # Add context to existing error and re-raise; avoids redundant wrapping
+        e.context["request_id"] = request.id
+        e.context["timestamp"] = datetime.utcnow().isoformat()
+        raise
 
 
 def resolve_with_fallback(
@@ -894,20 +887,31 @@ async def create_orchestrator(
     )
 
 
-# Runtime protocol validation
+# Runtime protocol validation with proper error handling
 def validate_node_types(
     compute: object,
     effect: object,
     reducer: object,
     orchestrator: object,
-) -> bool:
-    """Validate that objects implement required protocols."""
-    return all([
-        isinstance(compute, ProtocolOnexComputeNode),
-        isinstance(effect, ProtocolOnexEffectNode),
-        isinstance(reducer, ProtocolOnexReducerNode),
-        isinstance(orchestrator, ProtocolOnexOrchestratorNode),
-    ])
+) -> None:
+    """
+    Validate that objects implement required protocols.
+
+    Raises:
+        TypeError: If any object does not implement its required protocol.
+    """
+    validations = [
+        (compute, ProtocolOnexComputeNode, "compute"),
+        (effect, ProtocolOnexEffectNode, "effect"),
+        (reducer, ProtocolOnexReducerNode, "reducer"),
+        (orchestrator, ProtocolOnexOrchestratorNode, "orchestrator"),
+    ]
+    for obj, protocol, name in validations:
+        if not isinstance(obj, protocol):
+            raise TypeError(
+                f"'{name}' must implement {protocol.__name__}, "
+                f"got {type(obj).__name__}"
+            )
 ```
 
 **Related Documentation**: [NODES.md](./NODES.md), [WORKFLOW-ORCHESTRATION.md](./WORKFLOW-ORCHESTRATION.md), [CONTAINER.md](./CONTAINER.md)

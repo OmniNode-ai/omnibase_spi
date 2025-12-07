@@ -2,8 +2,6 @@
 
 ![Version](https://img.shields.io/badge/SPI-v0.3.0-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.1.0-lightgrey)
 
-> **SPI Version**: 0.3.0 | **Status**: Stable | **Since**: v0.1.0
-
 ---
 
 ## Table of Contents
@@ -407,6 +405,9 @@ class HttpRestHandler:
 
     Note: This is an illustrative example. A real implementation would
     use an HTTP client library like httpx or aiohttp.
+
+    Production-ready implementations live in omnibase_infra:
+    https://github.com/OmniNode-ai/omnibase_infra
     """
 
     def __init__(self) -> None:

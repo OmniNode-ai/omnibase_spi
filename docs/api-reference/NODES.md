@@ -2,8 +2,6 @@
 
 ![Version](https://img.shields.io/badge/SPI-v0.3.0-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.1.0-lightgrey)
 
-> **SPI Version**: 0.3.0 | **Status**: Stable | **Since**: v0.1.0
-
 ---
 
 ## Table of Contents
@@ -555,7 +553,12 @@ class HttpApiNode:
 async def example_usage():
     # In production, handler would be obtained via dependency injection (DI) or service registry.
     # Example: handler = container.get(ProtocolHandler)
-    # The ProtocolHandler implementation lives in omnibase_infra (e.g., HttpHandler).
+    #
+    # ProtocolHandler implementations live in omnibase_infra:
+    # - HttpHandler: HTTP/REST API calls
+    # - PostgresHandler: PostgreSQL database operations
+    # - KafkaHandler: Kafka message publishing
+    # See: https://github.com/OmniNode-ai/omnibase_infra
     handler: ProtocolHandler = ...  # type: ignore  # Placeholder (see HANDLERS.md)
 
     node = HttpApiNode(handler)
@@ -921,7 +924,12 @@ async def example_usage():
 
     # In production, handler would be obtained via dependency injection (DI) or service registry.
     # Example: handler = container.get(ProtocolHandler)
-    # The ProtocolHandler implementation lives in omnibase_infra (e.g., DatabaseHandler).
+    #
+    # ProtocolHandler implementations live in omnibase_infra:
+    # - HttpHandler: HTTP/REST API calls
+    # - PostgresHandler: PostgreSQL database operations
+    # - KafkaHandler: Kafka message publishing
+    # See: https://github.com/OmniNode-ai/omnibase_infra
     handler: ProtocolHandler = ...  # type: ignore  # Placeholder (see HANDLERS.md)
 
     # Compose nodes into orchestrated workflow

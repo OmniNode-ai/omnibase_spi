@@ -2,8 +2,6 @@
 
 ![Version](https://img.shields.io/badge/SPI-v0.3.0-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.2.0-lightgrey)
 
-> **SPI Version**: 0.3.0 | **Status**: Stable | **Since**: v0.2.0
-
 ---
 
 ## Table of Contents

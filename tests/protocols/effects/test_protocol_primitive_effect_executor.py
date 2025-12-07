@@ -265,19 +265,19 @@ class TestProtocolPrimitiveEffectExecutorCompliance:
         assert "http.request" in effects
         assert "db.query" in effects
 
-    async def test_mock_executor_does_not_validate_effect_id(
+    async def test_mock_executor_accepts_unsupported_effect_ids(
         self, async_compliant_executor: CompliantEffectExecutor
     ) -> None:
-        """Verify mock executor does not validate effect_id.
+        """Verify mock executor accepts effect IDs not in get_supported_effects().
 
-        This test documents the mock's behavior: it accepts any effect_id
-        (including unsupported ones like "unknown.effect") and returns a
-        valid response without validation.
+        This test documents the mock's permissive behavior: it accepts any
+        effect_id string (including "unknown.effect" which is not in the
+        executor's get_supported_effects() list) and returns a valid response.
 
         Real implementations (in omnibase_infra) should validate effect_id
-        against get_supported_effects() and raise ValueError for unsupported
-        effects. The protocol itself does not enforce this - validation is
-        an implementation concern for concrete effect executors.
+        against get_supported_effects() and raise an appropriate error for
+        unsupported effects. The protocol itself does not enforce validation -
+        that is an implementation concern for concrete effect executors.
         """
         # "unknown.effect" is not in get_supported_effects(), but mock accepts it
         result = await async_compliant_executor.execute("unknown.effect", b"{}")

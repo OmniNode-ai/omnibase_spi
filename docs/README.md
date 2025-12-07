@@ -15,24 +15,22 @@ The ONEX SPI follows a **protocol-first design** with **176+ protocols** across 
 - **Multi-Subsystem Coordination**: MCP integration and distributed tooling
 - **Enterprise Features**: Health monitoring, metrics, circuit breakers, and more
 
+## Quicklinks
+
+**Most-Used Protocols**:
+- [ProtocolNode](api-reference/NODES.md#protocolnode) - Base node protocol for all ONEX nodes
+- [ProtocolComputeNode](api-reference/NODES.md#protocolcomputenode) - Pure transformation nodes
+- [ProtocolEffectNode](api-reference/NODES.md#protocoleffectnode) - I/O operation nodes
+- [ProtocolHandler](api-reference/HANDLERS.md#protocolhandler) - Protocol-specific I/O handlers
+- [ProtocolHandlerRegistry](api-reference/REGISTRY.md#protocolhandlerregistry) - Handler management and discovery
+- [SPIError](api-reference/EXCEPTIONS.md#spierror) - Exception hierarchy for SPI operations
+
 ## Documentation Structure
 
 ### Getting Started
-- **[API Reference Overview](api-reference/README.md)** - Complete protocol and type documentation
-- **[Core Protocols](api-reference/CORE.md)** - System-level contracts and fundamentals
-- **[Container Protocols](api-reference/CONTAINER.md)** - Dependency injection and service management
-
-### Developer Resources
-- **[API Reference Overview](api-reference/README.md)** - Complete protocol and type documentation
-- **[Core Protocols](api-reference/CORE.md)** - System-level contracts and fundamentals
-- **[Container Protocols](api-reference/CONTAINER.md)** - Dependency injection and service management
-- **[Workflow Orchestration](api-reference/WORKFLOW-ORCHESTRATION.md)** - Event-driven FSM orchestration
-- **[MCP Integration](api-reference/MCP.md)** - Model Context Protocol multi-subsystem coordination
-- **[Event Bus](api-reference/EVENT-BUS.md)** - Distributed messaging and event streaming
-- **[Memory Management](api-reference/MEMORY.md)** - Memory operations and workflow management
-- **[Networking](api-reference/NETWORKING.md)** - HTTP, Kafka, and communication protocols
-- **[File Handling](api-reference/FILE-HANDLING.md)** - File processing and type handling
-- **[Validation](api-reference/VALIDATION.md)** - Input validation and schema checking
+- **[Quick Start Guide](QUICK-START.md)** - Get up and running quickly
+- **[Developer Guide](developer-guide/README.md)** - Complete development workflow
+- **[Architecture Overview](architecture/README.md)** - Design principles and patterns
 
 ### API Reference
 - **[API Reference Overview](api-reference/README.md)** - Complete protocol and type documentation
