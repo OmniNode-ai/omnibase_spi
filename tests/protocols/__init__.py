@@ -11,7 +11,7 @@ Test modules are organized by protocol domain:
 """
 
 # Re-export test modules for package discovery
-from tests.protocols import effects, event_bus, handlers, nodes, registry
+from . import effects, event_bus, handlers, nodes, registry
 
 __all__ = [
     "effects",

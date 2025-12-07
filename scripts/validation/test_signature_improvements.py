@@ -63,7 +63,7 @@ def test_workflow_value_protocols():
 
     except Exception as e:
         print(f"❌ Error processing {file_path}: {e}")
-        raise AssertionError(f"Error processing {file_path}: {e}")
+        raise AssertionError(f"Error processing {file_path}: {e}") from e
 
     # Check for uniqueness
     unique_signatures = set(signatures.values())
@@ -105,7 +105,7 @@ def test_stamp_validation_options():
 
     if "error" in comparison:
         print(f"❌ Error: {comparison['error']}")
-        raise AssertionError(comparison["error"])
+        raise AssertionError(comparison["error"]) from Exception(comparison["error"])
 
     print("\n📋 ProtocolStampOptions:")
     print(f"   Signature Hash: {comparison['protocol1']['signature_hash']}")
@@ -151,7 +151,7 @@ def test_memory_request_protocols():
 
     if "error" in comparison:
         print(f"❌ Error: {comparison['error']}")
-        raise AssertionError(comparison["error"])
+        raise AssertionError(comparison["error"]) from Exception(comparison["error"])
 
     print("\n📋 ProtocolMemoryRetrieveRequest:")
     print(f"   Signature Hash: {comparison['protocol1']['signature_hash']}")

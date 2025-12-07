@@ -377,4 +377,4 @@ See: [EVENT-BUS.md - Schema Registry Protocol](./api-reference/EVENT-BUS.md#sche
 
 ---
 
-*This glossary is maintained as part of the omnibase_spi documentation. Last updated: 2025-12-07*
+This glossary is maintained as part of the omnibase_spi documentation. Last updated: 2025-12-07.
