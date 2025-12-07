@@ -288,7 +288,9 @@ class TestProtocolPrimitiveEffectExecutorCompliance:
         """
         # Verify the effect is NOT in supported effects (test precondition)
         supported = async_compliant_executor.get_supported_effects()
-        assert "unknown.effect" not in supported, "Test precondition: effect must be unsupported"
+        assert (
+            "unknown.effect" not in supported
+        ), "Test precondition: effect must be unsupported"
 
         # Mock accepts it anyway (permissive behavior - NOT protocol requirement)
         result = await async_compliant_executor.execute("unknown.effect", b"{}")

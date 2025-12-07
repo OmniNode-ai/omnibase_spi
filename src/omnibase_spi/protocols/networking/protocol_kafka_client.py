@@ -1,194 +1,50 @@
 """
-Protocol definitions for Kafka client abstraction.
+DEPRECATED: This module is deprecated and will be removed in v0.5.0.
 
-Provides Kafka client protocols that can be implemented by different
-Kafka client backends (aiokafka, confluent-kafka-python, etc.) and injected via ONEXContainer.
+Use omnibase_spi.protocols.event_bus.protocol_event_bus_client instead.
+
+Migration guide:
+    Old: from omnibase_spi.protocols.networking import ProtocolKafkaClient
+    New: from omnibase_spi.protocols.event_bus import ProtocolEventBusClient
+
+    Old: from omnibase_spi.protocols.networking import ProtocolKafkaClientProvider
+    New: from omnibase_spi.protocols.event_bus import ProtocolEventBusClientProvider
 """
 
-from typing import Protocol, runtime_checkable
+import warnings
+
+from omnibase_spi.protocols.event_bus.protocol_event_bus_client import (
+    ProtocolEventBusClient,
+    ProtocolEventBusClientProvider,
+)
 
 
-@runtime_checkable
-class ProtocolKafkaClient(Protocol):
-    """
-    Protocol interface for Kafka client implementations.
-
-    Provides standardized interface for Kafka producer/consumer operations
-    that can be implemented by different Kafka client libraries.
-
-    Example:
-        ```python
-        # Implementation example (not part of SPI)
-        # All methods defined in the protocol contract must be implemented
-
-        # Usage in application
-        kafka_client: "ProtocolKafkaClient" = get_kafka_client()
-
-        # Start the client
-        await kafka_client.start()
-
-        # Send messages with synchronous confirmation
-        message_data = b'{"event": "user_created", "user_id": 123}'
-        await kafka_client.send_and_wait(
-            topic="user-events",
-            value=message_data,
-            key=b"user:123"
+def __getattr__(name: str) -> type:
+    """Provide deprecated aliases for backwards compatibility."""
+    if name == "ProtocolKafkaClient":
+        warnings.warn(
+            "ProtocolKafkaClient is deprecated, use ProtocolEventBusClient instead. "
+            "Will be removed in v0.5.0.",
+            DeprecationWarning,
+            stacklevel=2,
         )
-
-        # Send multiple messages
-        messages = [
-            (b'{"event": "order_created", "order_id": 456}', b"order:456"),
-            (b'{"event": "payment_processed", "payment_id": 789}', b"payment:789")
-        ]
-
-        for value, key in messages:
-            await kafka_client.send_and_wait("events", value, key)
-
-        # Get configuration
-        servers = kafka_client.bootstrap_servers()
-        print(f"Connected to Kafka cluster: {servers}")
-
-        # Graceful shutdown
-        await kafka_client.stop()
-        ```
-
-    Producer Operations:
-        - Simple message sending with topic, value, and optional key
-        - Synchronous acknowledgment of message delivery
-        - Automatic connection management and error handling
-        - Support for message keys for partitioning
-
-    Key Features:
-        - Connection lifecycle management (start/stop)
-        - Synchronous message production with acknowledgment
-        - Automatic broker discovery and connection management
-        - Error handling and retry mechanisms
-        - Integration with ONEX monitoring and metrics
-
-    Configuration:
-        - Bootstrap servers for cluster connection
-        - Authentication and security settings
-        - Producer-specific configurations
-        - Error handling and retry policies
-    """
-
-    async def start(self) -> None:
-        """
-        Start the Kafka client and establish connections.
-
-        Initializes the client, connects to the Kafka cluster,
-        and prepares for message production operations.
-
-        Raises:
-            ConnectionError: If unable to connect to Kafka cluster
-            ConfigurationError: If client configuration is invalid
-        """
-        ...
-
-    async def stop(self, timeout_seconds: float = 30.0) -> None:
-        """
-        Stop the Kafka client and clean up resources.
-
-        Gracefully shuts down the client, closes connections,
-        and releases any allocated resources.
-
-        Args:
-            timeout_seconds: Maximum time to wait for shutdown to complete.
-                Defaults to 30.0 seconds.
-
-        Raises:
-            ShutdownError: If shutdown process fails.
-            TimeoutError: If shutdown does not complete within the specified timeout.
-        """
-        ...
-
-    async def send_and_wait(
-        self, topic: str, value: bytes, key: bytes | None = None
-    ) -> None:
-        """
-        Send a message to Kafka and wait for acknowledgment.
-
-        Args:
-            topic: Target topic for the message
-            value: Message payload as bytes
-            key: Optional message key for partitioning (default: None)
-
-        Raises:
-            ProducerError: If message production fails
-            TimeoutError: If acknowledgment times out
-            SerializationError: If message serialization fails
-
-        Example:
-            message = b'{"event": "user_created", "user_id": 123}'
-            await kafka_client.send_and_wait(
-                topic="user-events",
-                value=message,
-                key=b"user:123"
-            )
-        """
-        ...
-
-    def bootstrap_servers(self) -> list[str]: ...
+        return ProtocolEventBusClient
+    if name == "ProtocolKafkaClientProvider":
+        warnings.warn(
+            "ProtocolKafkaClientProvider is deprecated, use ProtocolEventBusClientProvider instead. "
+            "Will be removed in v0.5.0.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return ProtocolEventBusClientProvider
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
-@runtime_checkable
-class ProtocolKafkaClientProvider(Protocol):
-    """
-    Protocol for Kafka client factory and configuration provider.
-
-    Provides centralized creation of Kafka client instances with
-    consistent configuration, enabling dependency injection and
-    test mocking of Kafka connections.
-
-    Example:
-        ```python
-        provider: ProtocolKafkaClientProvider = get_kafka_provider()
-
-        # Get Kafka configuration
-        config = await provider.get_kafka_configuration()
-        print(f"Bootstrap servers: {config.get('bootstrap_servers')}")
-
-        # Create a new Kafka client
-        client = await provider.create_kafka_client()
-        await client.start()
-
-        try:
-            await client.send_and_wait("events", b'{"type": "test"}')
-        finally:
-            await client.stop()
-        ```
-
-    See Also:
-        - ProtocolKafkaClient: Created client interface
-        - ProtocolKafkaAdapter: Full adapter with subscriptions
-    """
-
-    async def create_kafka_client(self) -> ProtocolKafkaClient:
-        """
-        Create a new Kafka client instance.
-
-        Creates and returns a configured Kafka client ready for use.
-        The client should be started via its start() method before
-        sending messages.
-
-        Returns:
-            A configured ProtocolKafkaClient instance ready to be started.
-
-        Raises:
-            ConfigurationError: If client configuration is invalid.
-            FactoryError: If client instantiation fails.
-        """
-        ...
-
-    async def get_kafka_configuration(self) -> dict[str, str | int | float | bool]:
-        """
-        Retrieve Kafka client configuration parameters.
-
-        Returns:
-            Configuration dictionary with Kafka client settings including
-            bootstrap servers, security settings, and operational parameters.
-
-        Raises:
-            ConfigurationError: If configuration is invalid or unavailable.
-        """
-        ...
+__all__ = [
+    # Deprecated aliases (remove in v0.5.0)
+    "ProtocolKafkaClient",
+    "ProtocolKafkaClientProvider",
+    # New names (preferred)
+    "ProtocolEventBusClient",
+    "ProtocolEventBusClientProvider",
+]

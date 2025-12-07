@@ -13,6 +13,7 @@ This document tracks all deprecated APIs, protocols, and modules in the ONEX Ser
 - [Current Deprecations](#current-deprecations)
   - [ProtocolHandlerV3 Alias](#protocolhandlerv3-alias)
   - [Legacy Node Protocols](#legacy-node-protocols)
+  - [Kafka Protocol Renames](#kafka-protocol-renames)
 - [Deprecation Policy](#deprecation-policy)
 - [Version Timeline](#version-timeline)
 - [Migration Checklist](#migration-checklist)
@@ -33,6 +34,16 @@ The following items are deprecated and scheduled for removal. Each entry include
 | `ProtocolEffectNodeLegacy` | v0.3.0 | v0.5.0 | `ProtocolEffectNode` | Emits warning |
 | `ProtocolReducerNodeLegacy` | v0.3.0 | v0.5.0 | `ProtocolReducerNode` | Emits warning |
 | `ProtocolOrchestratorNodeLegacy` | v0.3.0 | v0.5.0 | `ProtocolOrchestratorNode` | Emits warning |
+| `ProtocolKafkaClient` | v0.3.0 | v0.5.0 | `ProtocolEventBusClient` | Active alias |
+| `ProtocolKafkaClientProvider` | v0.3.0 | v0.5.0 | `ProtocolEventBusClientProvider` | Active alias |
+| `ProtocolKafkaMessage` | v0.3.0 | v0.5.0 | `ProtocolEventBusMessage` | Active alias |
+| `ProtocolKafkaConsumer` | v0.3.0 | v0.5.0 | `ProtocolEventBusConsumer` | Active alias |
+| `ProtocolKafkaBatchProducer` | v0.3.0 | v0.5.0 | `ProtocolEventBusBatchProducer` | Active alias |
+| `ProtocolKafkaTransactionalProducer` | v0.3.0 | v0.5.0 | `ProtocolEventBusTransactionalProducer` | Active alias |
+| `ProtocolKafkaExtendedClient` | v0.3.0 | v0.5.0 | `ProtocolEventBusExtendedClient` | Active alias |
+| `ProtocolKafkaClientConfig` | v0.3.0 | v0.5.0 | `ProtocolEventBusClientConfig` | Active alias |
+| `ProtocolKafkaProducerConfig` | v0.3.0 | v0.5.0 | `ProtocolEventBusProducerConfig` | Active alias |
+| `ProtocolKafkaConsumerConfig` | v0.3.0 | v0.5.0 | `ProtocolEventBusConsumerConfig` | Active alias |
 
 ---
 
@@ -150,6 +161,70 @@ The canonical node protocols have the following improvements over legacy:
 
 ---
 
+### Kafka Protocol Renames
+
+**Location**: `omnibase_spi.protocols.event_bus`, `omnibase_spi.protocols.container`
+
+**Deprecated In**: v0.3.0
+
+**Removal Target**: v0.5.0
+
+**Status**: Active aliases (no warning emitted)
+
+#### Description
+
+The following protocols have been renamed to use backend-agnostic "EventBus" naming instead of Kafka-specific naming. The SPI defines abstract interfaces; Kafka-specific implementations belong in `omnibase_infra`.
+
+This rename aligns with the SPI's role as a backend-agnostic interface layer. The protocols define event bus operations that could be implemented with Kafka, RabbitMQ, Redis Streams, or other message brokers.
+
+#### Deprecated Protocols
+
+| Deprecated Name | New Name | Module |
+|-----------------|----------|--------|
+| `ProtocolKafkaClient` | `ProtocolEventBusClient` | `event_bus` |
+| `ProtocolKafkaClientProvider` | `ProtocolEventBusClientProvider` | `event_bus` |
+| `ProtocolKafkaMessage` | `ProtocolEventBusMessage` | `event_bus` |
+| `ProtocolKafkaConsumer` | `ProtocolEventBusConsumer` | `event_bus` |
+| `ProtocolKafkaBatchProducer` | `ProtocolEventBusBatchProducer` | `event_bus` |
+| `ProtocolKafkaTransactionalProducer` | `ProtocolEventBusTransactionalProducer` | `event_bus` |
+| `ProtocolKafkaExtendedClient` | `ProtocolEventBusExtendedClient` | `event_bus` |
+| `ProtocolKafkaClientConfig` | `ProtocolEventBusClientConfig` | `container` |
+| `ProtocolKafkaProducerConfig` | `ProtocolEventBusProducerConfig` | `container` |
+| `ProtocolKafkaConsumerConfig` | `ProtocolEventBusConsumerConfig` | `container` |
+
+#### Migration Path
+
+```python
+# Old (deprecated)
+from omnibase_spi.protocols.networking import ProtocolKafkaClient
+from omnibase_spi.protocols.container import ProtocolKafkaClientConfig
+
+# New (recommended)
+from omnibase_spi.protocols.event_bus import ProtocolEventBusClient
+from omnibase_spi.protocols.container import ProtocolEventBusClientConfig
+```
+
+#### Protocols Retained (NOT Deprecated)
+
+The following Kafka-specific adapter protocols are **NOT** deprecated. They are intentionally Kafka-specific as they represent adapter implementations rather than abstract interfaces:
+
+- `ProtocolKafkaConfig` - Kafka-specific adapter configuration
+- `ProtocolKafkaAdapter` - Kafka-specific adapter implementation
+- `ProtocolKafkaHealthCheckResult` - Kafka-specific health check result
+- `ProtocolKafkaEventBusInputState` - Kafka-specific validation input state
+- `ProtocolKafkaEventBusOutputState` - Kafka-specific validation output state
+
+#### Notes
+
+- The aliases do not emit deprecation warnings at runtime
+- Both old and new imports point to identical protocol definitions
+- Update imports before upgrading to v0.5.0
+- Kafka-specific adapter protocols remain in `omnibase_spi.protocols.adapters`
+
+**See**: [EVENT_BUS.md](./api-reference/EVENT_BUS.md)
+
+---
+
 ## Deprecation Policy
 
 The ONEX SPI follows a structured deprecation policy to ensure smooth migrations:
@@ -202,6 +277,7 @@ v0.3.0 (Current)
   |
   +-- ProtocolHandlerV3 deprecated (alias to ProtocolHandler)
   +-- Legacy node protocols deprecated (emits warnings)
+  +-- Kafka protocols renamed to EventBus (aliases provided)
   |
   v
 v0.4.0 (Planned)
@@ -214,6 +290,7 @@ v0.5.0 (Planned)
   |
   +-- REMOVAL: ProtocolHandlerV3 alias
   +-- REMOVAL: omnibase_spi.protocols.nodes.legacy module
+  +-- REMOVAL: ProtocolKafka* aliases (use ProtocolEventBus* equivalents)
   +-- Breaking changes require code updates
 ```
 
@@ -236,6 +313,8 @@ Use this checklist to ensure your codebase is ready for future SPI versions:
 - [ ] Replace all `ProtocolHandlerV3` imports with `ProtocolHandler`
 - [ ] Replace all imports from `omnibase_spi.protocols.nodes.legacy` with `omnibase_spi.protocols.nodes`
 - [ ] Update implementations to use canonical node protocols
+- [ ] Replace all `ProtocolKafka*` imports with `ProtocolEventBus*` equivalents
+- [ ] Update imports from `omnibase_spi.protocols.networking` to `omnibase_spi.protocols.event_bus`
 - [ ] Run tests with deprecation warnings enabled
 - [ ] Review CI/CD pipelines for deprecated imports
 
@@ -250,6 +329,18 @@ grep -r "ProtocolHandlerV3" src/ tests/
 # Find legacy node imports
 grep -r "from omnibase_spi.protocols.nodes.legacy" src/ tests/
 grep -r "from omnibase_spi.protocols.nodes import.*Legacy" src/ tests/
+
+# Find deprecated Kafka protocol imports
+grep -r "ProtocolKafkaClient\b" src/ tests/
+grep -r "ProtocolKafkaClientProvider" src/ tests/
+grep -r "ProtocolKafkaMessage\b" src/ tests/
+grep -r "ProtocolKafkaConsumer\b" src/ tests/
+grep -r "ProtocolKafkaBatchProducer" src/ tests/
+grep -r "ProtocolKafkaTransactionalProducer" src/ tests/
+grep -r "ProtocolKafkaExtendedClient" src/ tests/
+grep -r "ProtocolKafkaClientConfig" src/ tests/
+grep -r "ProtocolKafkaProducerConfig" src/ tests/
+grep -r "ProtocolKafkaConsumerConfig" src/ tests/
 
 # Run tests with warnings as errors (strict mode)
 pytest -W error::DeprecationWarning tests/
