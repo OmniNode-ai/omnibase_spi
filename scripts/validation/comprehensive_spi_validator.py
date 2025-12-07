@@ -952,7 +952,7 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
     def _analyze_protocol_members(self, node: ast.ClassDef) -> None:
         """Analyze protocol members for comprehensive reporting."""
         for item in node.body:
-            if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            if isinstance(item, ast.FunctionDef | ast.AsyncFunctionDef):
                 # Already handled in visit methods
                 pass
             elif isinstance(item, ast.AnnAssign) and isinstance(item.target, ast.Name):
@@ -965,7 +965,7 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
         score = 0
 
         for item in node.body:
-            if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            if isinstance(item, ast.FunctionDef | ast.AsyncFunctionDef):
                 score += 2
                 # Add complexity for parameters
                 score += len(item.args.args) - 1  # Subtract 1 for 'self'
@@ -1155,14 +1155,11 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
 
         # Allow simple string/number literals for constants
         if isinstance(value_node, ast.Constant):
-            if isinstance(value_node.value, (str, int, float, bool)):
+            if isinstance(value_node.value, str | int | float | bool):
                 return True
 
         # Allow None assignments for optional module attributes
-        if isinstance(value_node, ast.Constant) and value_node.value is None:
-            return True
-
-        return False
+        return bool(isinstance(value_node, ast.Constant) and value_node.value is None)
 
     def _is_implementation_logic(self, node: ast.Assign) -> bool:
         """Check if this assignment contains implementation logic."""
@@ -1186,10 +1183,7 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
             return True
 
         # Check for complex expressions that look like implementation
-        if self._is_complex_implementation_expression(node.value):
-            return True
-
-        return False
+        return bool(self._is_complex_implementation_expression(node.value))
 
     def _contains_function_calls(self, node: ast.AST) -> bool:
         """Check if node contains function calls (implementation logic)."""
@@ -1215,16 +1209,15 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
     def _is_complex_implementation_expression(self, node: ast.AST) -> bool:
         """Check if expression is complex implementation logic."""
         # Flag complex expressions that involve computation
-        if isinstance(node, (ast.BinOp, ast.BoolOp, ast.Compare, ast.IfExp)):
+        if isinstance(node, ast.BinOp | ast.BoolOp | ast.Compare | ast.IfExp):
             return True
 
         # Flag comprehensions (implementation logic)
-        if isinstance(
-            node, (ast.ListComp, ast.DictComp, ast.SetComp, ast.GeneratorExp)
-        ):
-            return True
-
-        return False
+        return bool(
+            isinstance(
+                node, ast.ListComp | ast.DictComp | ast.SetComp | ast.GeneratorExp
+            )
+        )
 
     def _is_implementation_function_call(self, node: ast.Call) -> bool:
         """Check if function call violates SPI purity."""
@@ -1278,11 +1271,7 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
             return False
 
         # Check parameter annotations (excluding 'self')
-        for arg in node.args.args[1:]:  # Skip 'self'
-            if not arg.annotation:
-                return False
-
-        return True
+        return all(arg.annotation for arg in node.args.args[1:])
 
     def _should_be_async_method(self, node: ast.FunctionDef) -> bool:
         """Determine if method should be async based on naming and types."""
@@ -1375,7 +1364,7 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
     def _is_literal_class(self, node: ast.ClassDef) -> bool:
         """Check if class is a Literal-style constant definition."""
         return len(node.bases) == 0 and all(
-            isinstance(item, (ast.Assign, ast.AnnAssign, ast.Expr))
+            isinstance(item, ast.Assign | ast.AnnAssign | ast.Expr)
             for item in node.body
         )
 
@@ -1530,7 +1519,7 @@ class DuplicateProtocolAnalyzer:
         """Find protocols with identical signatures."""
         violations = []
 
-        for signature_hash, duplicate_protocols in by_signature.items():
+        for _signature_hash, duplicate_protocols in by_signature.items():
             if len(duplicate_protocols) > 1:
                 # Verify these are truly duplicates, not just hash collisions
                 truly_duplicate_groups = self._group_truly_identical_protocols(
@@ -1610,10 +1599,7 @@ class DuplicateProtocolAnalyzer:
             return False
 
         # Must have same async method patterns
-        if set(protocol1.async_methods) != set(protocol2.async_methods):
-            return False
-
-        return True
+        return set(protocol1.async_methods) == set(protocol2.async_methods)
 
     def _find_name_conflicts(
         self, by_name: dict[str, list[ProtocolInfo]]
@@ -1632,7 +1618,7 @@ class DuplicateProtocolAnalyzer:
 
         for name, conflicting_protocols in by_name.items():
             if len(conflicting_protocols) > 1:
-                unique_signatures = set(p.signature_hash for p in conflicting_protocols)
+                unique_signatures = {p.signature_hash for p in conflicting_protocols}
 
                 if len(unique_signatures) > 1:  # Different signatures
                     # Check if this is a migration scenario
@@ -1677,7 +1663,7 @@ class DuplicateProtocolAnalyzer:
         # Get exclusions from rule configuration
         exclusions = self._get_rule_exclusions("SPI010")
 
-        for semantic_key, similar_protocols in by_semantic.items():
+        for _semantic_key, similar_protocols in by_semantic.items():
             if len(similar_protocols) > 1:
                 # Check if they're actually different enough to warrant separation
                 similarity_score = self._calculate_similarity_score(similar_protocols)

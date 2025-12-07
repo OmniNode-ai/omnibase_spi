@@ -37,11 +37,10 @@ import json
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TypeAlias
 
 # Type aliases for clarity
-LineNumber: TypeAlias = int
-ClassName: TypeAlias = str
+type LineNumber = int
+type ClassName = str
 
 # Default maximum protocols per file before flagging as a violation
 # This allows domain-cohesive groupings while catching overly large files

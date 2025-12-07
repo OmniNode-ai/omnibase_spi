@@ -443,18 +443,17 @@ class SPIProtocolValidator(ast.NodeVisitor):
             return True
 
         # Check for docstring + ellipsis
-        if len(node.body) == 2:
-            if (
+        return bool(
+            len(node.body) == 2
+            and (
                 isinstance(node.body[0], ast.Expr)
                 and isinstance(node.body[0].value, ast.Constant)
                 and isinstance(node.body[0].value.value, str)
                 and isinstance(node.body[1], ast.Expr)
                 and isinstance(node.body[1].value, ast.Constant)
                 and node.body[1].value.value is ...
-            ):
-                return True
-
-        return False
+            )
+        )
 
     def _has_sync_io_operations(self, node: ast.FunctionDef) -> bool:
         """Check if method contains synchronous I/O operations."""
@@ -682,7 +681,7 @@ def validate_protocol_duplicates(
         by_name[protocol.name].append(protocol)
 
     # Check exact duplicates - but be smarter about what constitutes a duplicate
-    for signature_hash, duplicate_protocols in by_signature.items():
+    for _signature_hash, duplicate_protocols in by_signature.items():
         if len(duplicate_protocols) > 1:
             # Check if these are truly problematic duplicates
             real_duplicates = _filter_real_duplicates(duplicate_protocols, strict_mode)
@@ -705,9 +704,9 @@ def validate_protocol_duplicates(
                     )
 
     # Check name conflicts (different signatures, same name) - also with smarter detection
-    for name, conflicting_protocols in by_name.items():
+    for _name, conflicting_protocols in by_name.items():
         if len(conflicting_protocols) > 1:
-            unique_signatures = set(p.signature_hash for p in conflicting_protocols)
+            unique_signatures = {p.signature_hash for p in conflicting_protocols}
             if len(unique_signatures) > 1:  # Different signatures
                 # Check if these are legitimate variations or real conflicts
                 real_conflicts = _filter_real_conflicts(
@@ -748,7 +747,7 @@ def _filter_real_duplicates(
 
     real_duplicates = []
 
-    for (domain, protocol_type), domain_protocols in by_domain_type.items():
+    for (_domain, protocol_type), domain_protocols in by_domain_type.items():
         if len(domain_protocols) > 1:
             # These are protocols in the same domain with the same type and signature
             # This is likely a real duplicate
@@ -783,8 +782,8 @@ def _filter_real_conflicts(
         return protocols
 
     # If protocols are in different domains, they might be legitimate variations
-    domains = set(p.domain for p in protocols)
-    protocol_types = set(p.protocol_type for p in protocols)
+    domains = {p.domain for p in protocols}
+    protocol_types = {p.protocol_type for p in protocols}
 
     # If all protocols are in different domains, this might be acceptable
     if len(domains) == len(protocols) and not strict_mode:
@@ -987,6 +986,12 @@ def main():
         action="store_true",
         help="Show detailed protocol information in output",
     )
+    parser.add_argument(
+        "--exclude-pattern",
+        action="append",
+        default=[],
+        help="File patterns to exclude from validation (can be specified multiple times)",
+    )
 
     args = parser.parse_args()
 
@@ -1002,6 +1007,20 @@ def main():
         # Discover Python files
         with timeout_context("file_discovery"):
             python_files = discover_python_files(base_path)
+
+        # Apply exclude patterns
+        if args.exclude_pattern:
+            original_count = len(python_files)
+            python_files = [
+                f
+                for f in python_files
+                if not any(pattern in str(f) for pattern in args.exclude_pattern)
+            ]
+            if original_count != len(python_files):
+                excluded = original_count - len(python_files)
+                print(
+                    f"📝 Excluded {excluded} file(s) matching patterns: {args.exclude_pattern}"
+                )
 
         if not python_files:
             print("✅ No Python files to validate")

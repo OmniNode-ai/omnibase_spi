@@ -118,7 +118,9 @@ class TestProtocolPrimitiveEffectExecutorMethods:
     async def test_execute_method_signature(self) -> None:
         """Verify execute method accepts correct parameters."""
         executor = CompliantEffectExecutor()
-        result = await executor.execute("http.request", b'{"url": "https://example.com"}')
+        result = await executor.execute(
+            "http.request", b'{"url": "https://example.com"}'
+        )
         assert isinstance(result, bytes)
 
     def test_get_supported_effects_returns_list(self) -> None:
@@ -166,7 +168,9 @@ class TestEffectIdLiteralTypes:
         ]
         for effect_id in effect_ids:
             parts = effect_id.split(".")
-            assert len(parts) == 2, f"Effect ID should have format 'category.operation': {effect_id}"
+            assert (
+                len(parts) == 2
+            ), f"Effect ID should have format 'category.operation': {effect_id}"
 
     def test_http_effects_exist(self) -> None:
         """Verify HTTP effect IDs are defined."""

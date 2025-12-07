@@ -271,20 +271,14 @@ class PythonEnvVarValidator(ast.NodeVisitor):
             if var_name.startswith(prefix):
                 return True
 
-        for suffix in self.env_var_suffixes:
-            if var_name.endswith(suffix):
-                return True
-
-        return False
+        return any(var_name.endswith(suffix) for suffix in self.env_var_suffixes)
 
     def _is_hardcoded_value(self, value_node: ast.AST) -> bool:
         """Check if value is hardcoded (not from environment or config)."""
         if isinstance(value_node, ast.Constant):
-            if value_node.value is None:
-                return False
-            return True
+            return value_node.value is not None
 
-        if isinstance(value_node, (ast.List, ast.Dict, ast.Set, ast.Tuple)):
+        if isinstance(value_node, ast.List | ast.Dict | ast.Set | ast.Tuple):
             return True
 
         if isinstance(value_node, ast.Call):
@@ -338,7 +332,7 @@ class PythonEnvVarValidator(ast.NodeVisitor):
             return str(value_node.value)
         elif isinstance(value_node, ast.List):
             return "[...]"
-        elif isinstance(value_node, ast.Dict) or isinstance(value_node, ast.Set):
+        elif isinstance(value_node, ast.Dict | ast.Set):
             return "{...}"
         else:
             try:

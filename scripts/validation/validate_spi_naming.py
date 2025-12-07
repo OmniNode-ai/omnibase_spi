@@ -332,13 +332,13 @@ class SPINamingValidator(ast.NodeVisitor):
 
     def _is_literal_type_assignment(self, node: ast.Assign) -> bool:
         """Check if assignment is a Literal type definition."""
-        if isinstance(node.value, ast.Call):
-            if (
+        return bool(
+            isinstance(node.value, ast.Call)
+            and (
                 isinstance(node.value.func, ast.Name)
                 and node.value.func.id == "Literal"
-            ):
-                return True
-        return False
+            )
+        )
 
     def _determine_domain(self, file_path: str) -> str:
         """Determine the domain from file path."""

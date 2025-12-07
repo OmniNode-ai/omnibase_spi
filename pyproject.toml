@@ -70,6 +70,55 @@ ignore = [
     "C901",   # too complex
 ]
 
+[tool.ruff.lint.per-file-ignores]
+"scripts/validation/*.py" = [
+    "SIM102",  # nested if statements (readability preference in validators)
+    "SIM103",  # return condition directly (clarity in boolean functions)
+    "ARG002",  # unused method argument (signal handlers, visitor pattern)
+    "B904",    # raise from (acceptable in test utilities)
+]
+"tests/*.py" = [
+    "ARG002",  # unused method argument (mock implementations)
+    "UP038",   # isinstance tuple (readability in tests)
+    "SIM118",  # key in dict.keys() (explicit in tests)
+    "B007",    # unused loop variable (intentional in test iteration)
+    "E402",    # import not at top (path manipulation in tests)
+]
+"tests/**/*.py" = [
+    "ARG002",  # unused method argument (mock implementations)
+    "UP038",   # isinstance tuple (readability in tests)
+    "SIM118",  # key in dict.keys() (explicit in tests)
+    "B007",    # unused loop variable (intentional in test iteration)
+]
+"examples/*.py" = [
+    "ARG002",  # unused method argument (example stubs)
+]
+"src/omnibase_spi/protocols/__init__.py" = [
+    "E402",    # import not at top (organized sections)
+    "F401",    # unused imports (re-exports)
+]
+"src/omnibase_spi/protocols/types/__init__.py" = [
+    "E402",    # import not at top (organized sections)
+]
+"src/omnibase_spi/protocols/workflow_orchestration/__init__.py" = [
+    "E402",    # import not at top (organized sections)
+]
+"src/omnibase_spi/protocols/nodes/legacy/__init__.py" = [
+    "E402",    # import not at top (organized sections)
+]
+"src/omnibase_spi/protocols/networking/__init__.py" = [
+    "F401",    # unused imports (re-exports or future use)
+]
+"src/omnibase_spi/protocols/storage/__init__.py" = [
+    "F401",    # unused imports (re-exports or future use)
+]
+"src/omnibase_spi/protocols/container/protocol_registry.py" = [
+    "UP040",   # TypeAlias annotation (compatibility)
+]
+"src/omnibase_spi/protocols/validation/protocol_validation_provider.py" = [
+    "UP040",   # TypeAlias annotation (compatibility)
+]
+
 [tool.ruff.lint.isort]
 known-first-party = ["omnibase_spi", "omnibase_core"]
 
