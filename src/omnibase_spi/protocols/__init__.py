@@ -271,14 +271,12 @@ from omnibase_spi.protocols.memory import (
     ProtocolWorkflowManager,
 )
 
-# Networking protocols (6 protocols) - HTTP, Kafka, circuit breaker, and communication protocols
+# Networking protocols (4 protocols) - HTTP, circuit breaker, and communication protocols
 from omnibase_spi.protocols.networking import (
     ProtocolCircuitBreaker,
     ProtocolCommunicationBridge,
     ProtocolHttpClient,
     ProtocolHttpExtendedClient,
-    ProtocolKafkaClient,
-    ProtocolKafkaExtendedClient,
 )
 
 # Node protocols (4 protocols) - Node management, configuration, and registry
@@ -528,14 +526,10 @@ __all__ = [
     "ProtocolInjectionContext",
     "ProtocolKafkaAdapter",
     "ProtocolKafkaBatchProducer",
-    "ProtocolKafkaClient",
-    "ProtocolKafkaClient",
     "ProtocolKafkaClientConfig",
     "ProtocolKafkaClientProvider",
     "ProtocolKafkaConsumer",
     "ProtocolKafkaConsumerConfig",
-    "ProtocolKafkaExtendedClient",
-    "ProtocolKafkaExtendedClient",
     "ProtocolKafkaMessage",
     "ProtocolKafkaProducerConfig",
     "ProtocolKafkaTransactionalProducer",
