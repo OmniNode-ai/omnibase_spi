@@ -1,5 +1,11 @@
 # Workflow Orchestration API Reference
 
+![Version](https://img.shields.io/badge/SPI-v0.3.0-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.2.0-lightgrey)
+
+> **SPI Version**: 0.3.0 | **Status**: Stable | **Since**: v0.2.0
+
+---
+
 ## Overview
 
 The ONEX workflow orchestration protocols provide comprehensive event-driven FSM coordination, event sourcing, workflow state management, and distributed task scheduling. These protocols enable sophisticated workflow orchestration patterns with event sourcing, state projections, and distributed execution.

@@ -1,5 +1,11 @@
 # MCP Integration API Reference
 
+![Version](https://img.shields.io/badge/SPI-v0.3.0-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.3.0-lightgrey)
+
+> **SPI Version**: 0.3.0 | **Status**: Stable | **Since**: v0.3.0
+
+---
+
 ## Overview
 
 The ONEX MCP (Model Context Protocol) integration protocols provide comprehensive multi-subsystem tool coordination, dynamic tool discovery, load balancing, and health monitoring across distributed MCP-enabled subsystems. These protocols enable sophisticated tool management and execution coordination in the ONEX ecosystem.

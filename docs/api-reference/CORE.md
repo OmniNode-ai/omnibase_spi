@@ -1,5 +1,11 @@
 # Core Protocols API Reference
 
+![Version](https://img.shields.io/badge/SPI-v0.3.0-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.1.0-lightgrey)
+
+> **SPI Version**: 0.3.0 | **Status**: Stable | **Since**: v0.1.0
+
+---
+
 ## Overview
 
 The ONEX core protocols provide fundamental system contracts for logging, health monitoring, error handling, service discovery, and performance metrics. These protocols serve as the foundation for all ONEX services with consistent patterns and observability.

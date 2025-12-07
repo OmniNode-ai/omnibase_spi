@@ -1,5 +1,11 @@
 # Networking API Reference
 
+![Version](https://img.shields.io/badge/SPI-v0.3.0-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.3.0-lightgrey)
+
+> **SPI Version**: 0.3.0 | **Status**: Stable | **Since**: v0.3.0
+
+---
+
 ## Overview
 
 The ONEX networking protocols provide comprehensive communication infrastructure with HTTP clients, Kafka integration, circuit breakers, and communication bridges. These protocols enable robust distributed communication with resilience patterns and performance optimization.

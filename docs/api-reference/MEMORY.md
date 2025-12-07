@@ -1,5 +1,11 @@
 # Memory Management API Reference
 
+![Version](https://img.shields.io/badge/SPI-v0.3.0-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.3.0-lightgrey)
+
+> **SPI Version**: 0.3.0 | **Status**: Stable | **Since**: v0.3.0
+
+---
+
 ## Overview
 
 The ONEX memory management protocols provide comprehensive memory operations, workflow state persistence, agent coordination, and security features. These protocols enable sophisticated memory management patterns with key-value operations, workflow state tracking, and distributed agent coordination.

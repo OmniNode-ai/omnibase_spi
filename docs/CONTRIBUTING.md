@@ -1,80 +1,180 @@
-# Contributing Guide
+# Contributing to omnibase_spi
 
-## Development Workflow
+Thank you for your interest in contributing to omnibase_spi! This document provides guidelines for contributing to the ONEX (OmniNode Execution System) Service Provider Interface.
 
-Complete development workflow and validation requirements for contributing to ONEX SPI.
+## Table of Contents
 
-## Development Setup
+- [Getting Started](#getting-started)
+- [Development Setup](#development-setup)
+- [Contributing Guidelines](#contributing-guidelines)
+- [Code Standards](#code-standards)
+- [Protocol Development Guidelines](#protocol-development-guidelines)
+- [Testing Requirements](#testing-requirements)
+- [Documentation](#documentation)
+- [Pull Request Process](#pull-request-process)
+- [Code of Conduct](#code-of-conduct)
+- [Getting Help](#getting-help)
+- [License](#license)
+
+## Getting Started
 
 ### Prerequisites
 
 - Python 3.12+
-- Poetry for dependency management
-- Git for version control
-- Pre-commit hooks for code quality
+- Poetry (for package management)
+- Git
+- Basic understanding of ONEX architecture and Python protocols
 
-### Environment Setup
+### First Steps
+
+1. **Read the documentation**:
+   - [API Reference](api-reference/README.md) - Protocol documentation
+   - [MVP Plan](MVP_PLAN.md) - Architecture and work breakdown
+   - [Validation Integration Plan](VALIDATION_INTEGRATION_PLAN.md) - Validation approach
+
+2. **Explore the codebase**:
+   - Review protocol definitions in `src/omnibase_spi/protocols/`
+   - Study the exception hierarchy in `src/omnibase_spi/exceptions.py`
+   - Check domain-specific protocols (nodes, handlers, contracts, etc.)
+
+3. **Understand the dependency direction**:
+   - SPI imports Core: allowed and required (runtime imports of models)
+   - Core imports SPI: forbidden
+   - SPI imports Infra: forbidden
+   - Infra imports SPI + Core: expected (implements behavior)
+
+## Development Setup
+
+### 1. Fork and Clone
 
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd omnibase-spi
+# Fork the repository on GitHub
+# Clone your fork
+git clone https://github.com/YOUR_USERNAME/omnibase_spi.git
+cd omnibase_spi
+```
 
-# Install dependencies
+### 2. Install Dependencies
+
+```bash
+# Install with Poetry
 poetry install
-
-# Install pre-commit hooks
-poetry run pre-commit install
 
 # Activate virtual environment
 poetry shell
 ```
 
-## Development Workflow
-
-### 1. Create Feature Branch
+### 3. Set Up Git Hooks
 
 ```bash
-# Create and checkout feature branch
-git checkout -b feature/new-protocol
-
-# Make changes
-# ... implement new protocol ...
-
-# Stage changes
-git add .
-
-# Commit with descriptive message
-git commit -m "Add new protocol for advanced data processing"
+# Install pre-commit hooks (formatting, linting, type checking, validation)
+poetry run pre-commit install
 ```
 
-### 2. Run Validation
+**What do these hooks do?**
+
+- **Pre-commit**: Runs before every commit
+  - Code formatting (black, isort)
+  - Linting (ruff)
+  - Type checking (mypy)
+  - Protocol naming validation
+  - Namespace isolation checks
+  - Fast feedback on code quality
+
+### 4. Verify Setup
 
 ```bash
-# Run all validation checks
-poetry run pytest && poetry build
+# Run tests
+poetry run pytest tests/
 
-# Type safety validation
-poetry run mypy src/ --strict --no-any-expr
+# Run type checking
+poetry run mypy src/
 
-# Protocol compliance checking
-poetry run python scripts/ast_spi_validator.py --check-protocols
+# Run linting
+poetry run ruff check src/
 
-# Namespace isolation testing
-./scripts/validate-namespace-isolation.sh
+# Run all validations
+python scripts/validation/run_all_validations.py
+
+# Run pre-commit hooks
+poetry run pre-commit run --all-files
 ```
 
-### 3. Create Pull Request
+## Contributing Guidelines
 
-```bash
-# Push feature branch
-git push origin feature/new-protocol
+### Types of Contributions
 
-# Create pull request with:
-# - Clear description of changes
-# - Reference to related issues
-# - Validation results
-```
+We welcome:
+
+- **New protocols** - Add new protocol definitions for ONEX capabilities
+- **Protocol refinements** - Improve existing protocol signatures and contracts
+- **Bug fixes** - Fix issues in existing code
+- **Documentation** - Improve docs, examples, tutorials
+- **Tests** - Add test coverage
+- **Validation improvements** - Enhance validation scripts and checks
+
+### Before You Start
+
+1. **Check existing issues** - Look for related issues or discussions
+2. **Open an issue first** - For significant changes, discuss before implementing
+3. **Get feedback early** - Share your approach before investing too much time
+4. **Review naming conventions** - All protocols must follow SPI naming standards
+
+## Code Standards
+
+### SPI Naming Conventions
+
+**Files**:
+- Protocols: `protocol_<name>.py`
+- Exceptions: `exceptions.py` (centralized)
+
+**Classes**:
+- Protocols: `Protocol<Name>` (e.g., `ProtocolComputeNode`, `ProtocolHandler`)
+- Exceptions: `<Type>Error` (e.g., `SPIError`, `RegistryError`)
+
+**Methods**:
+- Use `snake_case` for all methods and functions
+- Use descriptive names that explain intent
+
+### Code Quality Standards
+
+1. **Type Annotations**: All functions must have type hints
+   ```python
+   def process_data(input_data: dict, config: ModelConfig) -> dict:
+       pass
+   ```
+
+2. **Runtime Checkable**: All protocols must use `@runtime_checkable`
+   ```python
+   from typing import Protocol, runtime_checkable
+
+   @runtime_checkable
+   class ProtocolExample(Protocol):
+       """Protocol description."""
+       ...
+   ```
+
+3. **No Pydantic Models**: All `BaseModel` definitions belong in `omnibase_core`
+   - SPI may import Core models for type hints
+   - SPI must not define its own Pydantic models
+
+4. **Documentation**: All public APIs must have docstrings
+   ```python
+   async def my_method(data: dict) -> dict:
+       """
+       Process input data and return result.
+
+       Args:
+           data: Input data dictionary
+
+       Returns:
+           Processed result dictionary
+
+       Raises:
+           SPIError: When operation fails
+       """
+       ...
+   ```
 
 ## Protocol Development Guidelines
 
@@ -87,6 +187,8 @@ git push origin feature/new-protocol
 
 2. **Protocol Structure**
    ```python
+   from typing import Protocol, runtime_checkable, Optional
+
    @runtime_checkable
    class ProtocolExample(Protocol):
        """
@@ -141,7 +243,8 @@ git push origin feature/new-protocol
 3. **Namespace Isolation**
    - Complete separation from implementation packages
    - No concrete implementations in protocol files
-   - Zero runtime dependencies
+   - No imports from `omnibase_infra`
+   - Runtime imports from `omnibase_core` allowed
 
 4. **Documentation**
    - Comprehensive docstrings for all protocols
@@ -149,170 +252,219 @@ git push origin feature/new-protocol
    - Usage examples where appropriate
    - Integration notes for complex protocols
 
-## Validation Requirements
+## Testing Requirements
 
-### Automated Validation
+### Test Coverage
 
-All changes must pass automated validation:
+- **Minimum**: 80% code coverage
+- **Target**: 90% code coverage
+- **Critical paths**: 100% coverage
 
-```bash
-# Run complete validation suite
-poetry run pytest && poetry build
+### Writing Tests
 
-# Type safety validation
-poetry run mypy src/ --strict --no-any-expr
+```python
+import pytest
+from typing import Protocol
 
-# Protocol compliance checking
-poetry run python scripts/ast_spi_validator.py --check-protocols
+@pytest.mark.asyncio
+async def test_protocol_compliance():
+    """Test that implementation satisfies protocol."""
+    # Arrange
+    class MockImplementation:
+        async def method_name(self, param: str) -> str:
+            return f"processed: {param}"
 
-# Namespace isolation testing
-./scripts/validate-namespace-isolation.sh
+    # Act & Assert
+    assert isinstance(MockImplementation(), ProtocolExample)
 ```
 
-### Manual Validation
-
-1. **Protocol Compliance**
-   - Verify all protocols are `@runtime_checkable`
-   - Test `isinstance(obj, Protocol)` validation
-   - Ensure proper type annotations
-
-2. **Documentation Quality**
-   - Review all docstrings for clarity
-   - Verify parameter descriptions
-   - Check return type documentation
-   - Validate usage examples
-
-3. **Integration Testing**
-   - Test protocol interactions
-   - Verify error handling
-   - Check performance characteristics
-
-## Code Quality Standards
-
-### Code Style
-
-1. **Formatting**
-   - Use ruff for code formatting and linting
-   - Follow PEP 8 style guidelines
-   - Maintain consistent indentation
-
-2. **Imports**
-   - Use absolute imports
-   - Group imports logically
-   - Remove unused imports
-
-3. **Comments**
-   - Use clear, concise comments
-   - Explain complex logic
-   - Document non-obvious decisions
-
-### Testing Standards
-
-1. **Unit Tests**
-   - Test individual protocol methods
-   - Cover edge cases and error conditions
-   - Verify type safety and compliance
-
-2. **Integration Tests**
-   - Test protocol interactions
-   - Verify end-to-end workflows
-   - Check performance characteristics
-
-3. **Documentation Tests**
-   - Verify code examples work
-   - Test usage patterns
-   - Validate integration examples
-
-## Pull Request Process
-
-### Pull Request Requirements
-
-1. **Description**
-   - Clear description of changes
-   - Reference to related issues
-   - Breaking changes documentation
-
-2. **Validation Results**
-   - All automated tests passing
-   - Type safety validation complete
-   - Protocol compliance verified
-
-3. **Documentation Updates**
-   - Update relevant documentation
-   - Add usage examples
-   - Update API reference if needed
-
-### Review Process
-
-1. **Automated Review**
-   - All validation checks must pass
-   - Code quality metrics must meet standards
-   - Documentation must be complete
-
-2. **Manual Review**
-   - Code review by maintainers
-   - Protocol design review
-   - Integration testing review
-
-3. **Approval Requirements**
-   - At least one maintainer approval
-   - All validation checks passing
-   - Documentation updates complete
-
-## Quality Gates
-
-### Pre-commit Validation
+### Running Tests
 
 ```bash
-# Install pre-commit hooks
-poetry run pre-commit install
+# Run all tests
+poetry run pytest tests/
 
-# Run pre-commit validation
-poetry run pre-commit run --all-files
+# Run with coverage
+poetry run pytest tests/ --cov=src --cov-report=html
+
+# Run specific test
+poetry run pytest tests/unit/test_protocols.py -v
 ```
 
-### Continuous Integration
+### Validation Suite
 
-All pull requests must pass:
+```bash
+# Run all validation checks
+python scripts/validation/run_all_validations.py
 
-1. **Type Safety** - mypy strict mode validation
-2. **Protocol Compliance** - AST-based protocol validation
-3. **Namespace Isolation** - Implementation dependency checking
-4. **Documentation** - Docstring and example validation
-5. **Performance** - Basic performance regression testing
+# Run with strict mode and verbose output
+python scripts/validation/run_all_validations.py --strict --verbose
 
-### Release Validation
+# Individual validators
+python scripts/validation/validate_naming_patterns.py src/
+python scripts/validation/validate_namespace_isolation.py
+python scripts/validation/validate_architecture.py --verbose
+```
 
-Before release:
+## Documentation
 
-1. **Full Test Suite** - All tests passing
-2. **Documentation** - Complete and accurate
-3. **Performance** - No regressions
-4. **Compatibility** - Backward compatibility maintained
+### Documentation Standards
 
-## Best Practices
+1. **Docstrings**: All public APIs
+2. **Type hints**: All function signatures
+3. **Examples**: Include usage examples
+4. **Updates**: Update docs with code changes
 
-### Protocol Development
+### Adding Documentation
 
-1. **Start Simple** - Begin with basic functionality
-2. **Add Complexity** - Gradually add advanced features
-3. **Test Thoroughly** - Comprehensive testing coverage
-4. **Document Well** - Clear documentation and examples
+- Place API docs in `docs/api-reference/`
+- Place guides in `docs/`
+- Follow existing documentation structure
 
-### Collaboration
-
-1. **Communication** - Clear communication in issues and PRs
-2. **Feedback** - Constructive feedback and suggestions
-3. **Learning** - Continuous learning and improvement
-4. **Sharing** - Share knowledge and best practices
-
-## API Reference
+### API Reference Structure
 
 - **[Core Protocols](api-reference/CORE.md)** - System fundamentals
 - **[Container Protocols](api-reference/CONTAINER.md)** - Dependency injection
 - **[Workflow Orchestration](api-reference/WORKFLOW-ORCHESTRATION.md)** - Event-driven FSM
 - **[MCP Integration](api-reference/MCP.md)** - Multi-subsystem coordination
 
+## Pull Request Process
+
+### 1. Create a Branch
+
+```bash
+# Create feature branch
+git checkout -b feature/my-new-protocol
+
+# Or fix branch
+git checkout -b fix/protocol-issue
+```
+
+### 2. Make Changes
+
+- Follow code standards
+- Add tests
+- Update documentation
+- Keep commits focused and atomic
+
+### 3. Test Everything
+
+```bash
+# Run all quality checks
+poetry run pytest tests/
+poetry run mypy src/
+poetry run ruff check src/
+poetry run black src/ --check
+poetry run isort src/ --check
+
+# Run validation suite
+python scripts/validation/run_all_validations.py
+poetry run pre-commit run --all-files
+```
+
+### 4. Commit Changes
+
+```bash
+# Use semantic commit messages
+git commit -m "feat(spi): add new protocol for data processing"
+git commit -m "fix(spi): resolve protocol signature issue"
+git commit -m "docs(spi): update protocol documentation"
+```
+
+**Commit Types**:
+- `feat:` - New feature or protocol
+- `fix:` - Bug fix
+- `docs:` - Documentation only
+- `style:` - Code style changes (formatting)
+- `refactor:` - Code refactoring
+- `test:` - Adding tests
+- `chore:` - Build process or auxiliary tool changes
+
+### 5. Push and Create PR
+
+```bash
+# Push to your fork
+git push origin feature/my-new-protocol
+
+# Create pull request on GitHub
+```
+
+### 6. PR Requirements
+
+Your PR must:
+
+- Pass all CI checks
+- Include tests for new protocols
+- Update relevant documentation
+- Follow code standards
+- Have a clear description
+- Pass all validation checks
+
+### PR Template
+
+```markdown
+## Description
+Brief description of changes
+
+## Type of Change
+- [ ] New protocol
+- [ ] Protocol refinement
+- [ ] Bug fix
+- [ ] Documentation update
+- [ ] Refactoring
+
+## Testing
+- [ ] Tests added/updated
+- [ ] All tests passing
+- [ ] Validation suite passing
+- [ ] Manual testing performed
+
+## Checklist
+- [ ] Code follows style guidelines
+- [ ] Self-reviewed code
+- [ ] Documented changes
+- [ ] No breaking changes (or documented)
+- [ ] Protocol naming conventions followed
+- [ ] @runtime_checkable decorator present
+```
+
+## Code of Conduct
+
+### Our Standards
+
+- **Be respectful** - Treat everyone with respect
+- **Be collaborative** - Work together effectively
+- **Be professional** - Maintain professionalism
+- **Be inclusive** - Welcome diverse perspectives
+
+### Unacceptable Behavior
+
+- Harassment or discrimination
+- Trolling or inflammatory comments
+- Personal attacks
+- Unprofessional conduct
+
+## Getting Help
+
+### Resources
+
+- [API Reference](api-reference/README.md)
+- [MVP Plan](MVP_PLAN.md)
+- [GitHub Issues](https://github.com/OWNER/omnibase_spi/issues)
+
+### Questions
+
+- **General questions**: Open a GitHub discussion
+- **Bug reports**: Open a GitHub issue
+- **Feature requests**: Open a GitHub issue with "enhancement" label
+- **Protocol design**: Discuss in issue before implementing
+
+## License
+
+By contributing to omnibase_spi, you agree that your contributions will be licensed under the same license as the project.
+
 ---
 
-*For detailed protocol documentation, see the [API Reference](api-reference/README.md).*
+**Thank you for contributing to omnibase_spi!**
+
+Your contributions help make ONEX better for everyone.
