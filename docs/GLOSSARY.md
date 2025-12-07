@@ -358,11 +358,22 @@ See: [EVENT-BUS.md - Schema Registry Protocol](./api-reference/EVENT-BUS.md#sche
 
 ## See Also
 
-- **[README.md](./README.md)** - Documentation overview
-- **[Architecture Overview](./architecture/README.md)** - Design principles
-- **[API Reference](./api-reference/README.md)** - Complete protocol documentation
-- **[QUICK-START.md](./QUICK-START.md)** - Getting started guide
-- **[CONTRIBUTING.md](./CONTRIBUTING.md)** - Development workflow
+- **[Main README](../README.md)** - Repository overview and quick start
+- **[Documentation Hub](./README.md)** - Complete documentation overview
+- **[Architecture Overview](./architecture/README.md)** - Design principles and patterns
+- **[API Reference](./api-reference/README.md)** - Complete protocol documentation (176+ protocols)
+- **[Quick Start Guide](./QUICK-START.md)** - Get up and running quickly
+- **[Developer Guide](./developer-guide/README.md)** - Complete development workflow
+- **[Contributing Guide](./CONTRIBUTING.md)** - How to contribute to the project
+- **[MVP Plan](./MVP_PLAN.md)** - v0.3.0 work breakdown and roadmap
+
+### v0.3.0 Core Protocols
+
+- **[Node Protocols](./api-reference/NODES.md)** - ProtocolNode, ProtocolComputeNode, etc.
+- **[Handler Protocols](./api-reference/HANDLERS.md)** - ProtocolHandler interface
+- **[Contract Compilers](./api-reference/CONTRACTS.md)** - Effect, Workflow, FSM compilers
+- **[Registry Protocols](./api-reference/REGISTRY.md)** - ProtocolHandlerRegistry
+- **[Exception Hierarchy](./api-reference/EXCEPTIONS.md)** - SPIError and subclasses
 
 ---
 

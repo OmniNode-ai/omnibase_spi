@@ -258,6 +258,16 @@ For quick contributions:
 - **Documentation Updated**: 2025-12-06
 - **Protocol Count**: 176+ protocols across 22 domains
 
+## See Also
+
+- **[Main README](../README.md)** - Repository overview and quick start
+- **[CLAUDE.md](../CLAUDE.md)** - AI assistant guidance for working with this codebase
+- **[Glossary](GLOSSARY.md)** - Definitions of SPI-specific terminology
+- **[Contributing Guide](CONTRIBUTING.md)** - How to contribute to the project
+- **[MVP Plan](MVP_PLAN.md)** - v0.3.0 work breakdown and architecture
+
+For term definitions used throughout this documentation, see the [Glossary](GLOSSARY.md).
+
 ## License
 
 This documentation and the omnibase-spi package are provided under the MIT license.

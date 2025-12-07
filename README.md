@@ -14,7 +14,7 @@
 ## Table of Contents
 
 - [Quick Start](#quick-start)
-- [v0.3.0 Highlights](#v030-highlights)
+- [V0.3.0 Highlights](#v030-highlights)
 - [Architecture](#architecture)
 - [Repository Structure](#repository-structure)
 - [Protocol Overview](#protocol-overview)
@@ -70,7 +70,7 @@ from omnibase_spi.exceptions import (
 )
 ```
 
-## v0.3.0 Highlights
+## V0.3.0 Highlights
 
 - **Node Protocols**: Complete node type hierarchy with `ProtocolNode`, `ProtocolComputeNode`, `ProtocolEffectNode`, `ProtocolReducerNode`, and `ProtocolOrchestratorNode`
 - **Handler Protocol**: `ProtocolHandler` with full lifecycle management (initialize, execute, shutdown)
@@ -291,9 +291,20 @@ poetry run pre-commit run --all-files
 
 - **[Complete Documentation](docs/README.md)** - Comprehensive protocol documentation
 - **[API Reference](docs/api-reference/README.md)** - All 176+ protocols across 22 domains
-- **[Protocol Sequence Diagrams](docs/PROTOCOL_SEQUENCE_DIAGRAMS.md)** - Interaction patterns
+- **[Quick Start Guide](docs/QUICK-START.md)** - Get up and running in minutes
 - **[Developer Guide](docs/developer-guide/README.md)** - Development workflow and best practices
+- **[Architecture Overview](docs/architecture/README.md)** - Design principles and patterns
+- **[Protocol Sequence Diagrams](docs/PROTOCOL_SEQUENCE_DIAGRAMS.md)** - Interaction patterns
+- **[Glossary](docs/GLOSSARY.md)** - Terminology and definitions
 - **[Changelog](CHANGELOG.md)** - Version history and release notes
+
+See the [Glossary](docs/GLOSSARY.md) for definitions of SPI-specific terms like Protocol, Handler, Node, and Contract.
+
+## See Also
+
+- **[Contributing Guide](docs/CONTRIBUTING.md)** - How to contribute to the project
+- **[MVP Plan](docs/MVP_PLAN.md)** - v0.3.0 work breakdown and architecture
+- **[CLAUDE.md](CLAUDE.md)** - AI assistant guidance for working with this repository
 
 ## License
 
