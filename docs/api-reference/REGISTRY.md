@@ -1,5 +1,28 @@
 # Registry Protocols API Reference
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Architecture](#architecture)
+- [ProtocolHandlerRegistry](#protocolhandlerregistry)
+  - [Description](#description)
+  - [Methods](#methods)
+    - [register](#register)
+    - [get](#get)
+    - [list_protocols](#list_protocols)
+    - [is_registered](#is_registered)
+  - [Protocol Definition](#protocol-definition)
+  - [Usage Example](#usage-example)
+  - [Factory Pattern Integration](#factory-pattern-integration)
+  - [Effect Node Integration](#effect-node-integration)
+  - [Testing with Mock Registry](#testing-with-mock-registry)
+- [Best Practices](#best-practices)
+- [Exception Handling](#exception-handling)
+- [Thread Safety](#thread-safety)
+- [Version Information](#version-information)
+
+---
+
 ## Overview
 
 The registry protocols define interfaces for managing handler registrations in the ONEX platform. The registry pattern enables dependency injection by mapping protocol type identifiers to their handler implementations.
@@ -13,21 +36,63 @@ The handler registry acts as a **service locator** for protocol handlers, enabli
 - **Testability**: Register mock handlers for testing
 - **Extensibility**: Add new protocol types without code changes
 
-```text
-Application Startup
-        |
-        v
-+-------------------+
-| ProtocolHandler-  |
-| Registry          |
-|                   |
-| "http" -> HttpH.  |
-| "kafka" -> KafkaH.|
-| "postgres" -> PgH.|
-+-------------------+
-        |
-        v
-Runtime Resolution (effect nodes request handlers by type)
+```mermaid
+flowchart TB
+    subgraph Startup["Application Startup"]
+        R[register handlers]
+    end
+
+    subgraph Registry["ProtocolHandlerRegistry"]
+        direction LR
+        M1["'http' -> HttpRestHandler"]
+        M2["'kafka' -> KafkaHandler"]
+        M3["'postgresql' -> PostgresHandler"]
+        M4["'neo4j' -> BoltHandler"]
+    end
+
+    subgraph Runtime["Runtime Resolution"]
+        EN1[EffectNode A]
+        EN2[EffectNode B]
+        EN3[EffectNode C]
+    end
+
+    subgraph Handlers["Handler Instances"]
+        H1[HttpRestHandler]
+        H2[KafkaHandler]
+        H3[PostgresHandler]
+    end
+
+    R --> Registry
+    EN1 -->|get 'http'| Registry
+    EN2 -->|get 'kafka'| Registry
+    EN3 -->|get 'postgresql'| Registry
+    Registry --> H1
+    Registry --> H2
+    Registry --> H3
+```
+
+### Registry Operations Sequence
+
+```mermaid
+sequenceDiagram
+    participant App as Application
+    participant Reg as ProtocolHandlerRegistry
+    participant Node as EffectNode
+    participant H as Handler
+
+    Note over App,Reg: Startup Phase
+    App->>Reg: register("http", HttpRestHandler)
+    App->>Reg: register("kafka", KafkaHandler)
+
+    Note over Node,H: Runtime Phase
+    Node->>Reg: is_registered("http")?
+    Reg-->>Node: true
+    Node->>Reg: get("http")
+    Reg-->>Node: HttpRestHandler class
+    Node->>H: create instance
+    Node->>H: initialize(config)
+    Node->>H: execute(request)
+    H-->>Node: response
 ```
 
 ---
@@ -40,7 +105,7 @@ from omnibase_spi.protocols.registry import ProtocolHandlerRegistry
 
 ### Description
 
-Protocol for registering and resolving `ProtocolHandler` implementations. Manages the mapping between protocol types (http_rest, bolt, postgres, kafka) and their handler implementations for dependency injection.
+Protocol for registering and resolving [ProtocolHandler](./HANDLERS.md#protocolhandler) implementations. Manages the mapping between protocol types (http_rest, bolt, postgres, kafka) and their handler implementations for dependency injection.
 
 **Use Cases**:
 - Application bootstrap (register all handlers)
@@ -57,7 +122,8 @@ def register(
     self,
     protocol_type: str,
     handler_cls: type[ProtocolHandler],
-) -> None
+) -> None:
+    ...
 ```
 
 Register a protocol handler.
@@ -80,7 +146,8 @@ Register a protocol handler.
 def get(
     self,
     protocol_type: str,
-) -> type[ProtocolHandler]
+) -> type[ProtocolHandler]:
+    ...
 ```
 
 Get handler class for protocol type.
@@ -101,7 +168,8 @@ Get handler class for protocol type.
 #### `list_protocols`
 
 ```python
-def list_protocols(self) -> list[str]
+def list_protocols(self) -> list[str]:
+    ...
 ```
 
 List registered protocol types.
@@ -116,7 +184,8 @@ List registered protocol types.
 #### `is_registered`
 
 ```python
-def is_registered(self, protocol_type: str) -> bool
+def is_registered(self, protocol_type: str) -> bool:
+    ...
 ```
 
 Check if protocol type is registered.
@@ -513,6 +582,16 @@ class ThreadSafeRegistry:
 - **Python Compatibility**: 3.12+
 - **Type Checking**: mypy strict mode compatible
 - **Runtime Checking**: All protocols are `@runtime_checkable`
+
+---
+
+## See Also
+
+- **[HANDLERS.md](./HANDLERS.md)** - Handler protocols that are registered in the registry
+- **[NODES.md](./NODES.md)** - Node protocols, especially [ProtocolEffectNode](./NODES.md#protocoleffectnode) which uses the registry for handler resolution
+- **[CONTAINER.md](./CONTAINER.md)** - Dependency injection container that may use the registry
+- **[EXCEPTIONS.md](./EXCEPTIONS.md)** - Exception hierarchy including `RegistryError`
+- **[README.md](./README.md)** - Complete API reference index
 
 ---
 

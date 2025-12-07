@@ -1,5 +1,40 @@
 # Node Protocols API Reference
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Architecture](#architecture)
+- [Protocol Hierarchy](#protocol-hierarchy)
+- [ProtocolNode](#protocolnode)
+  - [Properties](#properties)
+  - [Protocol Definition](#protocol-definition)
+  - [Usage Example](#usage-example)
+- [ProtocolComputeNode](#protocolcomputenode)
+  - [Properties](#properties-1)
+  - [Methods](#methods)
+  - [Protocol Definition](#protocol-definition-1)
+  - [Usage Example](#usage-example-1)
+- [ProtocolEffectNode](#protocoleffectnode)
+  - [Properties](#properties-2)
+  - [Methods](#methods-1)
+  - [Protocol Definition](#protocol-definition-2)
+  - [Usage Example](#usage-example-2)
+- [ProtocolReducerNode](#protocolreducernode)
+  - [Properties](#properties-3)
+  - [Methods](#methods-2)
+  - [Protocol Definition](#protocol-definition-3)
+  - [Usage Example](#usage-example-3)
+- [ProtocolOrchestratorNode](#protocolorchestratornode)
+  - [Properties](#properties-4)
+  - [Methods](#methods-3)
+  - [Protocol Definition](#protocol-definition-4)
+  - [Usage Example](#usage-example-4)
+- [Node Type Comparison](#node-type-comparison)
+- [Exception Handling](#exception-handling)
+- [Version Information](#version-information)
+
+---
+
 ## Overview
 
 The ONEX node protocols define the four fundamental node types in the ONEX architecture. Each node type serves a specific purpose in the system, from pure computations to side-effecting I/O operations to workflow orchestration.
@@ -19,13 +54,79 @@ All node protocols inherit from `ProtocolNode`, which provides common identity a
 
 ## Protocol Hierarchy
 
-```text
-ProtocolNode (base)
-    |
-    +-- ProtocolComputeNode
-    +-- ProtocolEffectNode
-    +-- ProtocolReducerNode
-    +-- ProtocolOrchestratorNode
+```mermaid
+classDiagram
+    class ProtocolNode {
+        <<protocol>>
+        +node_id: str
+        +node_type: str
+        +version: str
+    }
+
+    class ProtocolComputeNode {
+        <<protocol>>
+        +is_deterministic: bool
+        +execute(input_data) ModelComputeOutput
+    }
+
+    class ProtocolEffectNode {
+        <<protocol>>
+        +initialize()
+        +shutdown(timeout_seconds)
+        +execute(input_data) ModelEffectOutput
+    }
+
+    class ProtocolReducerNode {
+        <<protocol>>
+        +execute(input_data) ModelReductionOutput
+    }
+
+    class ProtocolOrchestratorNode {
+        <<protocol>>
+        +execute(input_data) ModelOrchestrationOutput
+    }
+
+    ProtocolNode <|-- ProtocolComputeNode : inherits
+    ProtocolNode <|-- ProtocolEffectNode : inherits
+    ProtocolNode <|-- ProtocolReducerNode : inherits
+    ProtocolNode <|-- ProtocolOrchestratorNode : inherits
+```
+
+### Node Execution Flow
+
+The following diagram shows how data flows through each node type and how the orchestrator coordinates the other nodes:
+
+```mermaid
+flowchart LR
+    subgraph Input
+        CI[ComputeInput]
+        EI[EffectInput]
+        RI[ReductionInput]
+        OI[OrchestrationInput]
+    end
+
+    subgraph Nodes
+        CN[ProtocolComputeNode]
+        EN[ProtocolEffectNode]
+        RN[ProtocolReducerNode]
+        ON[ProtocolOrchestratorNode]
+    end
+
+    subgraph Output
+        CO[ComputeOutput]
+        EO[EffectOutput]
+        RO[ReductionOutput]
+        OO[OrchestrationOutput]
+    end
+
+    CI --> CN --> CO
+    EI --> EN --> EO
+    RI --> RN --> RO
+    OI --> ON --> OO
+
+    ON -.->|coordinates| CN
+    ON -.->|coordinates| EN
+    ON -.->|coordinates| RN
 ```
 
 ---
@@ -145,7 +246,8 @@ Protocol for pure compute nodes that perform deterministic, side-effect-free tra
 async def execute(
     self,
     input_data: ModelComputeInput,
-) -> ModelComputeOutput
+) -> ModelComputeOutput:
+    ...
 ```
 
 Execute pure computation.
@@ -256,7 +358,7 @@ Protocol for effect nodes that perform side-effecting operations such as externa
 - Has side effects (I/O operations)
 - May not be deterministic
 - Requires lifecycle management (initialize/shutdown)
-- Often delegates to `ProtocolHandler` implementations for actual I/O
+- Often delegates to [ProtocolHandler](./HANDLERS.md#protocolhandler) implementations for actual I/O
 
 **Example Implementations**:
 - HTTP API client nodes
@@ -277,7 +379,8 @@ Protocol for effect nodes that perform side-effecting operations such as externa
 #### `initialize`
 
 ```python
-async def initialize(self) -> None
+async def initialize(self) -> None:
+    ...
 ```
 
 Initialize node-specific resources if needed.
@@ -295,7 +398,8 @@ Called before the first `execute()` to set up connections, load contracts, initi
 #### `shutdown`
 
 ```python
-async def shutdown(self, timeout_seconds: float = 30.0) -> None
+async def shutdown(self, timeout_seconds: float = 30.0) -> None:
+    ...
 ```
 
 Release node-specific resources if needed.
@@ -319,7 +423,8 @@ Called during graceful shutdown to close connections, flush pending operations, 
 async def execute(
     self,
     input_data: ModelEffectInput,
-) -> ModelEffectOutput
+) -> ModelEffectOutput:
+    ...
 ```
 
 Execute effect operation.
@@ -474,7 +579,8 @@ Protocol for reducer nodes that aggregate state from a stream of inputs. They ma
 async def execute(
     self,
     input_data: ModelReductionInput,
-) -> ModelReductionOutput
+) -> ModelReductionOutput:
+    ...
 ```
 
 Execute state reduction.
@@ -613,7 +719,8 @@ Protocol for orchestrator nodes that coordinate the execution of other nodes or 
 async def execute(
     self,
     input_data: ModelOrchestrationInput,
-) -> ModelOrchestrationOutput
+) -> ModelOrchestrationOutput:
+    ...
 ```
 
 Execute orchestration.
@@ -759,6 +866,17 @@ See [EXCEPTIONS.md](EXCEPTIONS.md) for complete exception hierarchy.
 - **Python Compatibility**: 3.12+
 - **Type Checking**: mypy strict mode compatible
 - **Runtime Checking**: All protocols are `@runtime_checkable`
+
+---
+
+## See Also
+
+- **[HANDLERS.md](./HANDLERS.md)** - Handler protocols that effect nodes delegate I/O operations to
+- **[CONTRACTS.md](./CONTRACTS.md)** - Contract compilers that generate runtime contracts for nodes
+- **[REGISTRY.md](./REGISTRY.md)** - Handler registry for dependency injection into nodes
+- **[EXCEPTIONS.md](./EXCEPTIONS.md)** - Exception hierarchy for node error handling
+- **[WORKFLOW-ORCHESTRATION.md](./WORKFLOW-ORCHESTRATION.md)** - Workflow orchestration using ONEX nodes
+- **[README.md](./README.md)** - Complete API reference index
 
 ---
 

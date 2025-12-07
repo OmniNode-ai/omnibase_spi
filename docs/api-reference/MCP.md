@@ -670,4 +670,14 @@ print(f"Total tools: {overview.total_tools}")
 
 ---
 
+## See Also
+
+- **[HANDLERS.md](./HANDLERS.md)** - Handler protocols for MCP tool execution
+- **[REGISTRY.md](./REGISTRY.md)** - Handler registry patterns applicable to MCP subsystem registration
+- **[CORE.md](./CORE.md)** - Core protocols including health monitoring
+- **[EXCEPTIONS.md](./EXCEPTIONS.md)** - Exception hierarchy for MCP error handling
+- **[README.md](./README.md)** - Complete API reference index
+
+---
+
 *This API reference is automatically generated from protocol definitions and maintained alongside the codebase.*

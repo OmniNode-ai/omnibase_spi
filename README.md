@@ -7,8 +7,26 @@
 [![Pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 [![Protocols](https://img.shields.io/badge/protocols-176+-green.svg)](https://github.com/OmniNode-ai/omnibase_spi)
 [![Domains](https://img.shields.io/badge/domains-22-blue.svg)](https://github.com/OmniNode-ai/omnibase_spi)
+[![Version](https://img.shields.io/badge/version-0.3.0-blue.svg)](https://github.com/OmniNode-ai/omnibase_spi/releases)
 
 **Pure protocol interfaces for the ONEX framework with zero implementation dependencies.**
+
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [v0.3.0 Highlights](#v030-highlights)
+- [Architecture](#architecture)
+- [Repository Structure](#repository-structure)
+- [Protocol Overview](#protocol-overview)
+- [Key Features](#key-features)
+- [Exception Hierarchy](#exception-hierarchy)
+- [Protocol Design Guidelines](#protocol-design-guidelines)
+- [Development](#development)
+- [Namespace Isolation](#namespace-isolation)
+- [Contributing](#contributing)
+- [Documentation](#documentation)
+- [License](#license)
+- [Support](#support)
 
 ## Quick Start
 
@@ -121,7 +139,7 @@ src/omnibase_spi/
 |   +-- event_bus/           # Event bus protocols
 |   +-- workflow_orchestration/  # Workflow protocols
 |   +-- mcp/                 # MCP integration protocols
-|   +-- [18 more domains]
+|   +-- [22 more domains]
 +-- exceptions.py            # SPIError hierarchy
 +-- py.typed                 # PEP 561 marker
 ```
@@ -205,8 +223,17 @@ poetry install
 # Run tests
 poetry run pytest
 
+# Run single test file
+poetry run pytest tests/path/to/test_file.py
+
+# Run single test
+poetry run pytest tests/path/to/test_file.py::test_name -v
+
 # Type checking
 poetry run mypy src/
+
+# Strict type checking (target for CI)
+poetry run mypy src/ --strict
 
 # Format code
 poetry run black src/ tests/
@@ -215,11 +242,22 @@ poetry run isort src/ tests/
 # Lint
 poetry run ruff check src/ tests/
 
-# Run validation
-poetry run pre-commit run --all-files
-
 # Build package
 poetry build
+
+# Run standalone validators (stdlib only, no dependencies)
+python scripts/validation/run_all_validations.py
+python scripts/validation/run_all_validations.py --strict --verbose
+
+# Individual validators
+python scripts/validation/validate_naming_patterns.py src/
+python scripts/validation/validate_namespace_isolation.py
+python scripts/validation/validate_architecture.py --verbose
+
+# Pre-commit hooks
+pre-commit run --all-files
+pre-commit run validate-naming-patterns --all-files
+pre-commit run validate-namespace-isolation-new --all-files
 ```
 
 ## Namespace Isolation
@@ -235,7 +273,7 @@ This SPI package maintains **complete namespace isolation** to prevent circular 
 
 ## Contributing
 
-We welcome contributions! Please see our [Contributing Guide](docs/contributing.md) for development guidelines.
+We welcome contributions! Please see our [Contributing Guide](docs/CONTRIBUTING.md) for development guidelines.
 
 ```bash
 # Clone the repository

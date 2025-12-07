@@ -1,5 +1,36 @@
 # Exceptions API Reference
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Exception Hierarchy](#exception-hierarchy)
+- [Design Principles](#design-principles)
+- [SPIError](#spierror)
+  - [Constructor](#constructor)
+  - [Usage Example](#usage-example)
+- [ProtocolHandlerError](#protocolhandlererror)
+  - [Usage Example](#usage-example-1)
+  - [Common Scenarios](#common-scenarios)
+- [HandlerInitializationError](#handlerinitializationerror)
+  - [Usage Example](#usage-example-2)
+  - [Security Note](#security-note)
+- [ContractCompilerError](#contractcompilererror)
+  - [Usage Example](#usage-example-3)
+  - [Common Scenarios](#common-scenarios-1)
+- [RegistryError](#registryerror)
+  - [Usage Example](#usage-example-4)
+- [ProtocolNotImplementedError](#protocolnotimplementederror)
+  - [Usage Example](#usage-example-5)
+  - [Common Scenarios](#common-scenarios-2)
+- [InvalidProtocolStateError](#invalidprotocolstateerror)
+  - [Usage Example](#usage-example-6)
+  - [Lifecycle State Machine](#lifecycle-state-machine)
+- [Exception Handling Patterns](#exception-handling-patterns)
+- [Exception Summary Table](#exception-summary-table)
+- [Version Information](#version-information)
+
+---
+
 ## Overview
 
 The SPI exception hierarchy provides a structured approach to error handling across the ONEX platform. All SPI-related exceptions inherit from `SPIError`, enabling both broad exception handling and specific error categorization.
@@ -66,10 +97,10 @@ Each exception type has a specific semantic meaning:
 | Exception | Semantic Meaning |
 |-----------|------------------|
 | `SPIError` | Generic SPI failure |
-| `ProtocolHandlerError` | Handler operation failed |
-| `HandlerInitializationError` | Handler startup failed |
-| `ContractCompilerError` | Contract compilation failed |
-| `RegistryError` | Registry operation failed |
+| `ProtocolHandlerError` | [Handler](./HANDLERS.md) operation failed |
+| `HandlerInitializationError` | [Handler](./HANDLERS.md) startup failed |
+| `ContractCompilerError` | [Contract](./CONTRACTS.md) compilation failed |
+| `RegistryError` | [Registry](./REGISTRY.md) operation failed |
 | `ProtocolNotImplementedError` | Missing implementation |
 | `InvalidProtocolStateError` | Lifecycle violation |
 
@@ -92,7 +123,8 @@ def __init__(
     self,
     message: str = "",
     context: dict[str, Any] | None = None,
-) -> None
+) -> None:
+    ...
 ```
 
 **Args**:
@@ -635,6 +667,16 @@ def log_spi_error(
 - **API Version**: 0.3.0
 - **Python Compatibility**: 3.12+
 - **Type Checking**: mypy strict mode compatible
+
+---
+
+## See Also
+
+- **[NODES.md](./NODES.md)** - Node protocols that may raise SPI exceptions
+- **[HANDLERS.md](./HANDLERS.md)** - Handler protocols that raise `ProtocolHandlerError` and `HandlerInitializationError`
+- **[CONTRACTS.md](./CONTRACTS.md)** - Contract compilers that raise `ContractCompilerError`
+- **[REGISTRY.md](./REGISTRY.md)** - Registry protocols that raise `RegistryError`
+- **[README.md](./README.md)** - Complete API reference index
 
 ---
 

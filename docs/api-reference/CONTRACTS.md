@@ -1,5 +1,32 @@
 # Contract Compiler Protocols API Reference
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Architecture](#architecture)
+- [Contract Types](#contract-types)
+- [ProtocolEffectContractCompiler](#protocoleffectcontractcompiler)
+  - [Methods](#methods)
+  - [Protocol Definition](#protocol-definition)
+  - [Usage Example](#usage-example)
+  - [Effect Contract YAML Example](#effect-contract-yaml-example)
+- [ProtocolWorkflowContractCompiler](#protocolworkflowcontractcompiler)
+  - [Methods](#methods-1)
+  - [Protocol Definition](#protocol-definition-1)
+  - [Usage Example](#usage-example-1)
+  - [Workflow Contract YAML Example](#workflow-contract-yaml-example)
+- [ProtocolFSMContractCompiler](#protocolfsmcontractcompiler)
+  - [Methods](#methods-2)
+  - [Protocol Definition](#protocol-definition-2)
+  - [Usage Example](#usage-example-2)
+  - [FSM Contract YAML Example](#fsm-contract-yaml-example)
+- [Common Patterns](#common-patterns)
+- [Exception Handling](#exception-handling)
+- [Contract Validation Errors](#contract-validation-errors)
+- [Version Information](#version-information)
+
+---
+
 ## Overview
 
 The contract compiler protocols define interfaces for compiling and validating ONEX contracts from YAML files. Contracts are declarative specifications that define behaviors, state machines, and workflows in the ONEX platform.
@@ -12,16 +39,61 @@ Contract compilers are **build-time tools** used by the ONEX CLI to:
 2. **Validate** contract structure and semantic correctness
 3. **Generate** optimized runtime representations
 
-```text
-YAML Contract Files
-        |
-        v
-+-------------------+
-| Contract Compiler | (build-time)
-+-------------------+
-        |
-        v
-Runtime Contract Models (used by nodes at runtime)
+```mermaid
+flowchart TB
+    subgraph Sources["YAML Contract Files"]
+        EY[effect.yaml]
+        WY[workflow.yaml]
+        FY[fsm.yaml]
+    end
+
+    subgraph Compilers["Contract Compilers - build-time"]
+        EC[ProtocolEffectContractCompiler]
+        WC[ProtocolWorkflowContractCompiler]
+        FC[ProtocolFSMContractCompiler]
+    end
+
+    subgraph Models["Runtime Contract Models"]
+        EM[ModelEffectContract]
+        WM[ModelWorkflowContract]
+        FM[ModelFSMContract]
+    end
+
+    subgraph Nodes["ONEX Nodes - runtime"]
+        EN[ProtocolEffectNode]
+        ON[ProtocolOrchestratorNode]
+    end
+
+    EY --> EC --> EM --> EN
+    WY --> WC --> WM --> ON
+    FY --> FC --> FM --> ON
+```
+
+### Compiler Protocol Relationships
+
+```mermaid
+classDiagram
+    class ProtocolEffectContractCompiler {
+        <<protocol>>
+        +compile(contract_path) ModelEffectContract
+        +validate(contract_path) ModelContractValidationResult
+    }
+
+    class ProtocolWorkflowContractCompiler {
+        <<protocol>>
+        +compile(contract_path) ModelWorkflowContract
+        +validate(contract_path) ModelContractValidationResult
+    }
+
+    class ProtocolFSMContractCompiler {
+        <<protocol>>
+        +compile(contract_path) ModelFSMContract
+        +validate(contract_path) ModelContractValidationResult
+    }
+
+    note for ProtocolEffectContractCompiler "HTTP, Kafka, DB contracts"
+    note for ProtocolWorkflowContractCompiler "Multi-step orchestrations"
+    note for ProtocolFSMContractCompiler "State machine definitions"
 ```
 
 **Note**: Contract compilers are not runtime nodes. Methods are async to maintain consistency with SPI patterns and allow for future flexibility in I/O operations (e.g., remote schema validation).
@@ -62,7 +134,8 @@ Compile and validate effect contracts from YAML. Effect contracts define side-ef
 async def compile(
     self,
     contract_path: Path,
-) -> ModelEffectContract
+) -> ModelEffectContract:
+    ...
 ```
 
 Compile effect contract from YAML file.
@@ -89,7 +162,8 @@ Compile effect contract from YAML file.
 async def validate(
     self,
     contract_path: Path,
-) -> ModelContractValidationResult
+) -> ModelContractValidationResult:
+    ...
 ```
 
 Validate contract without compiling.
@@ -233,7 +307,8 @@ Compile and validate workflow contracts from YAML. Workflow contracts define mul
 async def compile(
     self,
     contract_path: Path,
-) -> ModelWorkflowContract
+) -> ModelWorkflowContract:
+    ...
 ```
 
 Compile workflow contract from YAML file.
@@ -260,7 +335,8 @@ Compile workflow contract from YAML file.
 async def validate(
     self,
     contract_path: Path,
-) -> ModelContractValidationResult
+) -> ModelContractValidationResult:
+    ...
 ```
 
 Validate contract without compiling.
@@ -403,7 +479,8 @@ Compile and validate FSM (Finite State Machine) contracts from YAML. FSM contrac
 async def compile(
     self,
     contract_path: Path,
-) -> ModelFSMContract
+) -> ModelFSMContract:
+    ...
 ```
 
 Compile FSM contract from YAML file.
@@ -431,7 +508,8 @@ Compile FSM contract from YAML file.
 async def validate(
     self,
     contract_path: Path,
-) -> ModelContractValidationResult
+) -> ModelContractValidationResult:
+    ...
 ```
 
 Validate contract without compiling.
@@ -674,6 +752,17 @@ Common validation errors and their meanings:
 - **Python Compatibility**: 3.12+
 - **Type Checking**: mypy strict mode compatible
 - **Runtime Checking**: All protocols are `@runtime_checkable`
+
+---
+
+## See Also
+
+- **[NODES.md](./NODES.md)** - Node protocols that use compiled contracts at runtime
+- **[HANDLERS.md](./HANDLERS.md)** - Handler protocols referenced in effect contracts
+- **[WORKFLOW-ORCHESTRATION.md](./WORKFLOW-ORCHESTRATION.md)** - Workflow orchestration that uses workflow contracts
+- **[VALIDATION.md](./VALIDATION.md)** - Validation protocols for contract validation
+- **[EXCEPTIONS.md](./EXCEPTIONS.md)** - Exception hierarchy including `ContractCompilerError`
+- **[README.md](./README.md)** - Complete API reference index
 
 ---
 

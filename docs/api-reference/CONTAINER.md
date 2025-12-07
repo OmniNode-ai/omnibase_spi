@@ -607,4 +607,15 @@ print(f"Memory usage: {status.memory_usage_bytes} bytes")
 
 ---
 
+## See Also
+
+- **[REGISTRY.md](./REGISTRY.md)** - Handler registry for protocol handler management
+- **[HANDLERS.md](./HANDLERS.md)** - Handler protocols that can be managed by the container
+- **[NODES.md](./NODES.md)** - Node protocols that use dependency injection
+- **[CORE.md](./CORE.md)** - Core protocols including health monitoring
+- **[EXCEPTIONS.md](./EXCEPTIONS.md)** - Exception hierarchy for DI-related errors
+- **[README.md](./README.md)** - Complete API reference index
+
+---
+
 *This API reference is automatically generated from protocol definitions and maintained alongside the codebase.*

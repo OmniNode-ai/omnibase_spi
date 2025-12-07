@@ -1454,9 +1454,11 @@ from omnibase_spi.protocols.event_bus.protocol_event_bus_types import (
 
 ## See Also
 
-- **[Workflow Event Bus](WORKFLOW-ORCHESTRATION.md)** - Workflow-specific event bus extensions
-- **[Developer Guide](../developer-guide/README.md)** - Implementation patterns and best practices
-- **[Examples](../examples/README.md)** - Working code examples
+- **[WORKFLOW-ORCHESTRATION.md](./WORKFLOW-ORCHESTRATION.md)** - Workflow-specific event bus extensions
+- **[HANDLERS.md](./HANDLERS.md)** - Handler protocols, which differ from event bus (request-response vs fire-and-forget)
+- **[NODES.md](./NODES.md)** - Node protocols including effect nodes that may publish events
+- **[EXCEPTIONS.md](./EXCEPTIONS.md)** - Exception hierarchy for event bus error handling
+- **[README.md](./README.md)** - Complete API reference index
 
 ---
 

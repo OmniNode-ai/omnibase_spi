@@ -1,12 +1,37 @@
 # Handler Protocols API Reference
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Architecture](#architecture)
+- [ProtocolHandler](#protocolhandler)
+  - [Description](#description)
+  - [Migration Note](#migration-note)
+  - [Properties](#properties)
+  - [Methods](#methods)
+    - [handler_type](#handler_type-property)
+    - [initialize](#initialize)
+    - [shutdown](#shutdown)
+    - [execute](#execute)
+    - [describe](#describe)
+    - [health_check](#health_check)
+  - [Protocol Definition](#protocol-definition)
+  - [Lifecycle Diagram](#lifecycle-diagram)
+  - [Usage Example](#usage-example)
+  - [Handler Type Implementations](#handler-type-implementations)
+- [Exception Handling](#exception-handling)
+- [Best Practices](#best-practices)
+- [Version Information](#version-information)
+
+---
+
 ## Overview
 
 The handler protocols define interfaces for protocol-specific I/O handlers in the ONEX platform. Handlers encapsulate the complexity of communicating with external systems (HTTP APIs, databases, message queues) and provide a consistent interface for effect nodes.
 
 ## Architecture
 
-Handlers follow a **dependency injection pattern** where effect nodes receive handlers through their constructors, enabling:
+Handlers follow a **dependency injection pattern** where [effect nodes](./NODES.md#protocoleffectnode) receive handlers through their constructors, enabling:
 
 - **Loose coupling**: Nodes depend on protocols, not implementations
 - **Testability**: Mock handlers for unit testing
@@ -40,8 +65,8 @@ Implementations live in `omnibase_core` or `omnibase_infra`. This is the canonic
 
 **Handler vs Event Bus Distinction**:
 - `ProtocolHandler` is for **request-response I/O operations** where a direct response is expected
-- Event bus protocols (`ProtocolEventPublisher`/`ProtocolEventConsumer`) handle **asynchronous, fire-and-forget** message passing
-- Handlers are typically used within effect nodes to perform external calls
+- [Event bus protocols](./EVENT-BUS.md) (`ProtocolEventPublisher`/`ProtocolEventConsumer`) handle **asynchronous, fire-and-forget** message passing
+- Handlers are typically used within [effect nodes](./NODES.md#protocoleffectnode) to perform external calls
 - Event bus protocols coordinate inter-service communication
 
 **Example Implementations**:
@@ -76,7 +101,8 @@ The protocols are identical - no code changes are needed beyond updating the imp
 
 ```python
 @property
-def handler_type(self) -> str
+def handler_type(self) -> str:
+    ...
 ```
 
 The type of handler as a string identifier.
@@ -93,7 +119,8 @@ Used for handler identification, routing, and metrics collection. Implementation
 async def initialize(
     self,
     config: ModelConnectionConfig,
-) -> None
+) -> None:
+    ...
 ```
 
 Initialize any clients or connection pools.
@@ -113,7 +140,8 @@ Initialize any clients or connection pools.
 #### `shutdown`
 
 ```python
-async def shutdown(self, timeout_seconds: float = 30.0) -> None
+async def shutdown(self, timeout_seconds: float = 30.0) -> None:
+    ...
 ```
 
 Release resources and close connections.
@@ -139,7 +167,8 @@ async def execute(
     self,
     request: ModelProtocolRequest,
     operation_config: ModelOperationConfig,
-) -> ModelProtocolResponse
+) -> ModelProtocolResponse:
+    ...
 ```
 
 Execute a protocol-specific operation.
@@ -164,7 +193,8 @@ Execute a protocol-specific operation.
 #### `describe`
 
 ```python
-def describe(self) -> dict[str, Any]
+def describe(self) -> dict[str, Any]:
+    ...
 ```
 
 Return handler metadata and capabilities.
@@ -212,7 +242,8 @@ NEVER include in output:
 #### `health_check`
 
 ```python
-async def health_check(self) -> dict[str, Any]
+async def health_check(self) -> dict[str, Any]:
+    ...
 ```
 
 Check handler health and connectivity.
@@ -298,39 +329,49 @@ class ProtocolHandler(Protocol):
 
 ### Lifecycle Diagram
 
-```text
-                    +-------------+
-                    |   Created   |
-                    +------+------+
-                           |
-                           v
-              +------------+------------+
-              |     initialize()        |
-              +------------+------------+
-                           |
-                           v
-                    +------+------+
-                    | Initialized |<---------+
-                    +------+------+          |
-                           |                 |
-        +------------------+------------------+
-        |                  |                  |
-        v                  v                  |
-   +---------+       +-----------+           |
-   | execute |       |health_check|          |
-   +---------+       +-----------+           |
-        |                  |                  |
-        +------------------+------------------+
-                           |
-                           v
-              +------------+------------+
-              |      shutdown()         |
-              +------------+------------+
-                           |
-                           v
-                    +------+------+
-                    |   Closed    |
-                    +-------------+
+```mermaid
+stateDiagram-v2
+    [*] --> Created
+    Created --> Initialized : initialize()
+
+    Initialized --> Initialized : execute()
+    Initialized --> Initialized : health_check()
+    Initialized --> Initialized : describe()
+
+    Initialized --> Closed : shutdown()
+    Closed --> [*]
+
+    note right of Created : Handler instance created
+    note right of Initialized : Ready for operations
+    note right of Closed : Resources released
+```
+
+### Handler Dependency Injection Pattern
+
+The following diagram shows how effect nodes depend on the `ProtocolHandler` protocol, and how various handler implementations satisfy that contract:
+
+```mermaid
+flowchart TB
+    subgraph EffectNode["ProtocolEffectNode"]
+        N[Effect Node]
+    end
+
+    subgraph Handlers["Handler Implementations"]
+        H1[HttpRestHandler]
+        H2[PostgresHandler]
+        H3[KafkaHandler]
+        H4[BoltHandler]
+    end
+
+    subgraph Protocol["Protocol Contract"]
+        P[ProtocolHandler]
+    end
+
+    N -->|uses| P
+    H1 -.->|implements| P
+    H2 -.->|implements| P
+    H3 -.->|implements| P
+    H4 -.->|implements| P
 ```
 
 ### Usage Example
@@ -541,6 +582,16 @@ async def health_check(self) -> dict[str, Any]:
 - **Python Compatibility**: 3.12+
 - **Type Checking**: mypy strict mode compatible
 - **Runtime Checking**: All protocols are `@runtime_checkable`
+
+---
+
+## See Also
+
+- **[NODES.md](./NODES.md)** - Node protocols that use handlers for I/O operations, especially [ProtocolEffectNode](./NODES.md#protocoleffectnode)
+- **[REGISTRY.md](./REGISTRY.md)** - Handler registry for managing and discovering handlers
+- **[EVENT-BUS.md](./EVENT-BUS.md)** - Event bus protocols for asynchronous messaging (alternative to request-response handlers)
+- **[EXCEPTIONS.md](./EXCEPTIONS.md)** - Exception hierarchy including `HandlerInitializationError` and `ProtocolHandlerError`
+- **[README.md](./README.md)** - Complete API reference index
 
 ---
 

@@ -8,7 +8,7 @@ Complete development workflow and validation requirements for contributing to ON
 
 ### Prerequisites
 
-- Python 3.11, 3.12, or 3.13
+- Python 3.12+
 - Poetry for dependency management
 - Git for version control
 - Pre-commit hooks for code quality

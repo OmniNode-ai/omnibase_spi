@@ -752,4 +752,14 @@ result = await circuit_breaker.execute_with_circuit_breaker(
 
 ---
 
+## See Also
+
+- **[HANDLERS.md](./HANDLERS.md)** - Handler protocols for HTTP and Kafka handlers
+- **[EVENT-BUS.md](./EVENT-BUS.md)** - Event bus protocols including Kafka adapter
+- **[CORE.md](./CORE.md)** - Core protocols including health monitoring
+- **[EXCEPTIONS.md](./EXCEPTIONS.md)** - Exception hierarchy for networking errors
+- **[README.md](./README.md)** - Complete API reference index
+
+---
+
 *This API reference is automatically generated from protocol definitions and maintained alongside the codebase.*

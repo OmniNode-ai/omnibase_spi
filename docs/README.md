@@ -4,9 +4,9 @@
 
 Welcome to the comprehensive documentation for **omnibase-spi**, the Service Provider Interface package that provides protocol-based typing for the ONEX distributed orchestration framework. This documentation covers everything you need to know to use, implement, and extend ONEX protocols for event-driven workflow orchestration, MCP integration, and distributed service coordination.
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
-The ONEX SPI follows a **protocol-first design** with **165 protocol files** across **22 specialized domains**. This enterprise-grade architecture provides:
+The ONEX SPI follows a **protocol-first design** with **176+ protocols** across **22 specialized domains**. This enterprise-grade architecture provides:
 
 - **Zero Implementation Dependencies**: Pure protocol contracts only
 - **Runtime Type Safety**: Full `@runtime_checkable` protocol support
@@ -15,26 +15,14 @@ The ONEX SPI follows a **protocol-first design** with **165 protocol files** acr
 - **Multi-Subsystem Coordination**: MCP integration and distributed tooling
 - **Enterprise Features**: Health monitoring, metrics, circuit breakers, and more
 
-## 📚 Documentation Structure
+## Documentation Structure
 
-### 🚀 Getting Started
+### Getting Started
 - **[API Reference Overview](api-reference/README.md)** - Complete protocol and type documentation
 - **[Core Protocols](api-reference/CORE.md)** - System-level contracts and fundamentals
 - **[Container Protocols](api-reference/CONTAINER.md)** - Dependency injection and service management
 
-### 🔧 Developer Resources
-- **[API Reference Overview](api-reference/README.md)** - Complete protocol and type documentation
-- **[Core Protocols](api-reference/CORE.md)** - System-level contracts and fundamentals
-- **[Container Protocols](api-reference/CONTAINER.md)** - Dependency injection and service management
-- **[Workflow Orchestration](api-reference/WORKFLOW-ORCHESTRATION.md)** - Event-driven FSM orchestration
-- **[MCP Integration](api-reference/MCP.md)** - Model Context Protocol multi-subsystem coordination
-- **[Event Bus](api-reference/EVENT-BUS.md)** - Distributed messaging and event streaming
-- **[Memory Management](api-reference/MEMORY.md)** - Memory operations and workflow management
-- **[Networking](api-reference/NETWORKING.md)** - HTTP, Kafka, and communication protocols
-- **[File Handling](api-reference/FILE-HANDLING.md)** - File processing and type handling
-- **[Validation](api-reference/VALIDATION.md)** - Input validation and schema checking
-
-### 📖 API Reference
+### Developer Resources
 - **[API Reference Overview](api-reference/README.md)** - Complete protocol and type documentation
 - **[Core Protocols](api-reference/CORE.md)** - System-level contracts and fundamentals
 - **[Container Protocols](api-reference/CONTAINER.md)** - Dependency injection and service management
@@ -46,13 +34,25 @@ The ONEX SPI follows a **protocol-first design** with **165 protocol files** acr
 - **[File Handling](api-reference/FILE-HANDLING.md)** - File processing and type handling
 - **[Validation](api-reference/VALIDATION.md)** - Input validation and schema checking
 
-### 🎯 Specialized Documentation
+### API Reference
+- **[API Reference Overview](api-reference/README.md)** - Complete protocol and type documentation
+- **[Core Protocols](api-reference/CORE.md)** - System-level contracts and fundamentals
+- **[Container Protocols](api-reference/CONTAINER.md)** - Dependency injection and service management
+- **[Workflow Orchestration](api-reference/WORKFLOW-ORCHESTRATION.md)** - Event-driven FSM orchestration
+- **[MCP Integration](api-reference/MCP.md)** - Model Context Protocol multi-subsystem coordination
+- **[Event Bus](api-reference/EVENT-BUS.md)** - Distributed messaging and event streaming
+- **[Memory Management](api-reference/MEMORY.md)** - Memory operations and workflow management
+- **[Networking](api-reference/NETWORKING.md)** - HTTP, Kafka, and communication protocols
+- **[File Handling](api-reference/FILE-HANDLING.md)** - File processing and type handling
+- **[Validation](api-reference/VALIDATION.md)** - Input validation and schema checking
+
+### Specialized Documentation
 - **[Protocol Composition Patterns](patterns/PROTOCOL-COMPOSITION-PATTERNS.md)** - Advanced protocol design patterns
 - **[Protocol Selection Guide](patterns/PROTOCOL-SELECTION-GUIDE.md)** - Decision framework for choosing protocols
 - **[Memory Protocols Guide](examples/MEMORY_PROTOCOLS_GUIDE.md)** - Memory system implementation patterns
 - **[Node Templates](templates/README.md)** - ONEX 4-node architecture templates
 
-## 🏛️ Protocol Domains
+## Protocol Domains
 
 ### Core System (16 protocols)
 **Foundation protocols for system operations**
@@ -130,12 +130,12 @@ The ONEX SPI follows a **protocol-first design** with **165 protocol files** acr
 - **Types**: Comprehensive type definitions
 - **Validation**: Input validation and compliance
 
-## 📋 Project Information
+## Project Information
 
 - **[Changelog](../CHANGELOG.md)** - Version history and release notes
 - **[Contributing Guide](CONTRIBUTING.md)** - Development workflow and validation requirements
 
-## 🚀 Quick Navigation
+## Quick Navigation
 
 ### For New Users
 1. Start with the [Quick Start Guide](QUICK-START.md) for immediate hands-on experience
@@ -155,7 +155,7 @@ The ONEX SPI follows a **protocol-first design** with **165 protocol files** acr
 3. Review [Container Protocols](api-reference/CONTAINER.md) for dependency injection patterns
 4. Study [Memory Management](api-reference/MEMORY.md) for workflow state persistence
 
-## 🔑 Key Features
+## Key Features
 
 ### Event-Driven Workflow Orchestration
 - **FSM States**: `pending` → `running` → `completed` with compensation actions
@@ -182,7 +182,7 @@ The ONEX SPI follows a **protocol-first design** with **165 protocol files** acr
 - **Namespace Isolation**: Complete separation from implementation packages
 - **Runtime Validation**: `@runtime_checkable` protocols for duck typing
 
-## 🛠️ Development Workflow
+## Development Workflow
 
 ### Protocol Compliance
 All protocols in the API reference are designed to be:
@@ -209,15 +209,15 @@ Common patterns documented throughout:
 - **Distributed Coordination**: Multi-node service coordination
 - **Type Safety**: Leveraging strong typing for reliability
 
-## 📊 Protocol Statistics
+## Protocol Statistics
 
-- **Total Protocols**: 165 protocol files
+- **Total Protocols**: 176+ protocol files
 - **Domain Coverage**: 22 specialized domains
-- **Type Definitions**: 13 comprehensive type modules
+- **Type Definitions**: 14 comprehensive type modules
 - **Enterprise Features**: Health monitoring, metrics, circuit breakers
 - **Architecture Patterns**: Event sourcing, dependency injection, distributed coordination
 
-## 🔧 Validation and Quality Assurance
+## Validation and Quality Assurance
 
 The omnibase-spi maintains strict architectural purity through automated validation:
 
@@ -235,7 +235,7 @@ poetry run python scripts/ast_spi_validator.py --check-protocols
 ./scripts/validate-namespace-isolation.sh
 ```
 
-## 📋 Contributing
+## Contributing
 
 This documentation is maintained alongside the omnibase-spi codebase. See the **[Contributing Guide](CONTRIBUTING.md)** for complete development workflow including:
 
@@ -250,15 +250,15 @@ For quick contributions:
 2. **Pull Requests**: Follow the validation requirements in the contributing guide  
 3. **Quality Gates**: All changes must pass `mypy --strict`, namespace isolation, and protocol compliance tests
 
-## 📄 Version Information
+## Version Information
 
-- **Package Version**: 0.2.0
-- **Python Support**: 3.11, 3.12, 3.13
+- **Package Version**: 0.3.0
+- **Python Support**: 3.12+
 - **Architecture**: Protocol-first SPI with zero runtime dependencies
-- **Documentation Updated**: 2025-10-30
-- **Protocol Count**: 176 protocols across 22 domains
+- **Documentation Updated**: 2025-12-06
+- **Protocol Count**: 176+ protocols across 22 domains
 
-## 📜 License
+## License
 
 This documentation and the omnibase-spi package are provided under the MIT license.
 
