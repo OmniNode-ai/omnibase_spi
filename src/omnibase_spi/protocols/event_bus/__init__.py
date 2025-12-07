@@ -23,6 +23,7 @@ from .protocol_event_bus_mixin import (
     ProtocolEventBusRegistry,
     ProtocolSyncEventBus,
 )
+from .protocol_event_bus_producer_handler import ProtocolEventBusProducerHandler
 from .protocol_event_bus_provider import ProtocolEventBusProvider
 from .protocol_event_bus_service import (
     ProtocolEventBusService,
@@ -42,6 +43,7 @@ __all__ = [
     "ProtocolEventBusBase",
     "ProtocolEventBusContextManager",
     "ProtocolEventBusLogEmitter",
+    "ProtocolEventBusProducerHandler",
     "ProtocolEventBusProvider",
     "ProtocolEventBusRegistry",
     "ProtocolEventBusService",
