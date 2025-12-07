@@ -21,13 +21,13 @@ from typing import Literal, Protocol, runtime_checkable
 
 # Effect categories for grouping related effects
 LiteralEffectCategory = Literal[
-    "http",      # HTTP/REST API operations
-    "db",        # Database operations (SQL, NoSQL)
-    "messaging", # Message queue operations (Kafka, Redis pub/sub)
-    "storage",   # File/object storage operations
-    "cache",     # Caching operations (Redis, Memcached)
-    "secrets",   # Secret management (Vault, etc.)
-    "discovery", # Service discovery (Consul, etc.)
+    "http",  # HTTP/REST API operations
+    "db",  # Database operations (SQL, NoSQL)
+    "messaging",  # Message queue operations (Kafka, Redis pub/sub)
+    "storage",  # File/object storage operations
+    "cache",  # Caching operations (Redis, Memcached)
+    "secrets",  # Secret management (Vault, etc.)
+    "discovery",  # Service discovery (Consul, etc.)
 ]
 
 # Primitive effect identifiers

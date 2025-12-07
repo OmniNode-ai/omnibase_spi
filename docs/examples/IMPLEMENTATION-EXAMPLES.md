@@ -266,8 +266,9 @@ class KafkaEventBusProvider:
             return bus
 
         except ConnectionError as e:
+            # Translate to SPI error; original error preserved via chaining
             raise HandlerInitializationError(
-                f"Failed to connect to Kafka: {e}"
+                "Failed to connect to Kafka"
             ) from e
 
     async def close_all(self) -> None:
@@ -591,7 +592,8 @@ class VectorizationNode:
                 "Vectorization failed",
                 extra={"node_id": self.node_id, "error": str(e)},
             )
-            raise SPIError(f"Vectorization failed: {e}") from e
+            # Chain with 'from e' to preserve the original exception as the cause
+            raise SPIError("Vectorization failed") from e
 
     def _extract_texts(
         self,

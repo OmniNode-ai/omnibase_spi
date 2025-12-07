@@ -1,5 +1,11 @@
 # Workflow Orchestration API Reference
 
+![Version](https://img.shields.io/badge/SPI-v0.3.0-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.2.0-lightgrey)
+
+> **SPI Version**: 0.3.0 | **Status**: Stable | **Since**: v0.2.0
+
+---
+
 ## Overview
 
 The ONEX workflow orchestration protocols provide comprehensive event-driven FSM coordination, event sourcing, workflow state management, and distributed task scheduling. These protocols enable sophisticated workflow orchestration patterns with event sourcing, state projections, and distributed execution.
@@ -1394,9 +1400,12 @@ print(f"Coordinator health: {health['status']}")
 
 ## See Also
 
-- **[Event Bus](EVENT-BUS.md)** - Base event bus protocols
-- **[Developer Guide](../developer-guide/README.md)** - Implementation patterns
-- **[Examples](../examples/README.md)** - Working code examples
+- **[EVENT-BUS.md](./EVENT-BUS.md)** - Base event bus protocols that workflow orchestration extends
+- **[NODES.md](./NODES.md)** - Node protocols (Effect, Compute, Reducer, Orchestrator) used in workflows
+- **[CONTRACTS.md](./CONTRACTS.md)** - Contract compilers including `ProtocolWorkflowContractCompiler`
+- **[REGISTRY.md](./REGISTRY.md)** - Handler registry for workflow node management
+- **[EXCEPTIONS.md](./EXCEPTIONS.md)** - Exception hierarchy for workflow error handling
+- **[README.md](./README.md)** - Complete API reference index
 
 ---
 

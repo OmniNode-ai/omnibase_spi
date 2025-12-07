@@ -1,5 +1,11 @@
 # File Handling API Reference
 
+![Version](https://img.shields.io/badge/SPI-v0.3.0-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.3.0-lightgrey)
+
+> **SPI Version**: 0.3.0 | **Status**: Stable | **Since**: v0.3.0
+
+---
+
 ## Overview
 
 The ONEX file handling protocols provide comprehensive file processing capabilities with type detection, metadata stamping, directory traversal, and file I/O operations. These protocols enable sophisticated file management patterns with ONEX metadata integration and advanced file processing.
@@ -861,6 +867,16 @@ except FileProcessingError as e:
 - **File Discovery**: Multiple source type support
 - **Performance**: Streaming, chunking, and optimization
 - **Metadata**: Comprehensive file metadata management
+
+---
+
+## See Also
+
+- **[HANDLERS.md](./HANDLERS.md)** - Handler protocols including file-based handlers
+- **[NODES.md](./NODES.md)** - Effect nodes that perform file I/O
+- **[VALIDATION.md](./VALIDATION.md)** - Validation protocols for file content validation
+- **[EXCEPTIONS.md](./EXCEPTIONS.md)** - Exception hierarchy for file operation errors
+- **[README.md](./README.md)** - Complete API reference index
 
 ---
 

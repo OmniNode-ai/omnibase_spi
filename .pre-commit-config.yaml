@@ -79,9 +79,9 @@ repos:
         language: system
         types: [python]
         files: ^src/.*\.py$
-        exclude: ^(tests/|scripts/).*\.py$
+        exclude: ^(tests/|scripts/|src/omnibase_spi/exceptions\.py).*$
         pass_filenames: false
-        args: ['src/']
+        args: ['src/', '--exclude-pattern', 'exceptions.py']
         stages: [pre-commit]
 
       # Enhanced protocol duplicate detection

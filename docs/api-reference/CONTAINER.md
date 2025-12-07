@@ -1,5 +1,11 @@
 # Container Protocols API Reference
 
+![Version](https://img.shields.io/badge/SPI-v0.3.0-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.2.0-lightgrey)
+
+> **SPI Version**: 0.3.0 | **Status**: Stable | **Since**: v0.2.0
+
+---
+
 ## Overview
 
 The ONEX container protocols provide comprehensive dependency injection, service location, and artifact management capabilities for distributed systems. These protocols enable sophisticated service lifecycle management, circular dependency detection, health monitoring, and enterprise-grade dependency injection patterns.
@@ -604,6 +610,17 @@ print(f"Memory usage: {status.memory_usage_bytes} bytes")
 - **Performance Metrics**: Resolution time and memory usage tracking
 - **Dependency Analysis**: Circular dependency detection and graph analysis
 - **Container Features**: Generic value containers with metadata support
+
+---
+
+## See Also
+
+- **[REGISTRY.md](./REGISTRY.md)** - Handler registry for protocol handler management
+- **[HANDLERS.md](./HANDLERS.md)** - Handler protocols that can be managed by the container
+- **[NODES.md](./NODES.md)** - Node protocols that use dependency injection
+- **[CORE.md](./CORE.md)** - Core protocols including health monitoring
+- **[EXCEPTIONS.md](./EXCEPTIONS.md)** - Exception hierarchy for DI-related errors
+- **[README.md](./README.md)** - Complete API reference index
 
 ---
 

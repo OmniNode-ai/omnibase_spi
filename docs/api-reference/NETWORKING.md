@@ -1,5 +1,11 @@
 # Networking API Reference
 
+![Version](https://img.shields.io/badge/SPI-v0.3.0-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.3.0-lightgrey)
+
+> **SPI Version**: 0.3.0 | **Status**: Stable | **Since**: v0.3.0
+
+---
+
 ## Overview
 
 The ONEX networking protocols provide comprehensive communication infrastructure with HTTP clients, Kafka integration, circuit breakers, and communication bridges. These protocols enable robust distributed communication with resilience patterns and performance optimization.
@@ -749,6 +755,16 @@ result = await circuit_breaker.execute_with_circuit_breaker(
 - **Communication Bridges**: Protocol translation and routing
 - **Performance**: Connection pooling, compression, and optimization
 - **Security**: Authentication, encryption, and access control
+
+---
+
+## See Also
+
+- **[HANDLERS.md](./HANDLERS.md)** - Handler protocols for HTTP and Kafka handlers
+- **[EVENT-BUS.md](./EVENT-BUS.md)** - Event bus protocols including Kafka adapter
+- **[CORE.md](./CORE.md)** - Core protocols including health monitoring
+- **[EXCEPTIONS.md](./EXCEPTIONS.md)** - Exception hierarchy for networking errors
+- **[README.md](./README.md)** - Complete API reference index
 
 ---
 

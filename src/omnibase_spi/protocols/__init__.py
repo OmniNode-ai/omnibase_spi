@@ -183,6 +183,13 @@ from omnibase_spi.protocols.discovery import (
     ProtocolHandlerInfo,
 )
 
+# Effects protocols (1 protocol) - Primitive effect execution for kernel
+from omnibase_spi.protocols.effects import (
+    LiteralEffectCategory,
+    LiteralEffectId,
+    ProtocolPrimitiveEffectExecutor,
+)
+
 # Event bus protocols - Distributed messaging infrastructure
 # Supports multiple backends (Kafka, Redis, in-memory) with async/sync patterns
 # Note: Interface protocols (ProtocolEventBus, ProtocolEventBusHeaders,
@@ -198,13 +205,6 @@ from omnibase_spi.protocols.event_bus import (
     ProtocolKafkaAdapter,
     ProtocolRedpandaAdapter,
     ProtocolSyncEventBus,
-)
-
-# Effects protocols (1 protocol) - Primitive effect execution for kernel
-from omnibase_spi.protocols.effects import (
-    LiteralEffectCategory,
-    LiteralEffectId,
-    ProtocolPrimitiveEffectExecutor,
 )
 
 # File handling protocols (4 protocols) - File processing and ONEX metadata

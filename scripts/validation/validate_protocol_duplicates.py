@@ -424,7 +424,7 @@ def analyze_duplicates(protocols: list[ProtocolInfo]) -> dict[str, Any]:
     actual_name_conflicts = {}
     for name, name_protocols in by_name.items():
         if len(name_protocols) > 1:
-            unique_signatures = set(p.signature_hash for p in name_protocols)
+            unique_signatures = {p.signature_hash for p in name_protocols}
             if len(unique_signatures) > 1:
                 # Check if these are legitimate variations vs real conflicts
                 real_conflicts = _filter_real_conflicts(name_protocols)
@@ -482,8 +482,8 @@ def _are_semantically_different(p1: ProtocolInfo, p2: ProtocolInfo) -> bool:
         True if protocols are semantically different, False if they're likely duplicates
     """
     # Check 1: Different method names indicate different purposes
-    p1_methods = set(m.split("(")[0] for m in p1.methods)
-    p2_methods = set(m.split("(")[0] for m in p2.methods)
+    p1_methods = {m.split("(")[0] for m in p1.methods}
+    p2_methods = {m.split("(")[0] for m in p2.methods}
 
     if p1_methods != p2_methods:
         return True  # Different operations = different protocols
@@ -551,7 +551,7 @@ def _filter_real_duplicates(protocols: list[ProtocolInfo]) -> list[ProtocolInfo]
         by_domain_type[key].append(protocol)
 
     real_duplicates = []
-    for (domain, protocol_type), domain_protocols in by_domain_type.items():
+    for (_domain, protocol_type), domain_protocols in by_domain_type.items():
         if len(domain_protocols) > 1:
             # For property-only protocols, check if they have truly identical properties
             if protocol_type == "property_only":
@@ -576,8 +576,8 @@ def _filter_real_conflicts(protocols: list[ProtocolInfo]) -> list[ProtocolInfo]:
         return protocols
 
     # If protocols are in different domains with different purposes, they might be legitimate
-    domains = set(p.domain for p in protocols)
-    protocol_types = set(p.protocol_type for p in protocols)
+    domains = {p.domain for p in protocols}
+    protocol_types = {p.protocol_type for p in protocols}
 
     # If all protocols are in different domains, this is likely acceptable variation
     if len(domains) == len(protocols):
@@ -742,7 +742,7 @@ def generate_migration_plan(analysis: dict[str, Any]) -> dict[str, Any]:
     plan = {"exact_duplicates": [], "name_conflicts": [], "quality_improvements": []}
 
     # Handle exact duplicates
-    for signature_hash, duplicate_protocols in analysis["exact_duplicates"].items():
+    for _signature_hash, duplicate_protocols in analysis["exact_duplicates"].items():
         primary = duplicate_protocols[0]  # Keep first as primary
         plan["exact_duplicates"].append(
             {

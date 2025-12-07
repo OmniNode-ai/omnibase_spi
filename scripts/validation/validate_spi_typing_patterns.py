@@ -159,7 +159,7 @@ class SPITypingValidator(ast.NodeVisitor):
         if not self.has_type_checking_import:
             # Check if forward references are used without TYPE_CHECKING
             for item in node.body:
-                if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                if isinstance(item, ast.FunctionDef | ast.AsyncFunctionDef):
                     if self._has_string_annotations(item):
                         self.violations.append(
                             TypingViolation(
@@ -346,10 +346,7 @@ class SPITypingValidator(ast.NodeVisitor):
         # Check return type patterns
         io_return_types = ["connection", "client", "response", "result", "stream"]
 
-        if any(io_type in return_type.lower() for io_type in io_return_types):
-            return True
-
-        return False
+        return bool(any(io_type in return_type.lower() for io_type in io_return_types))
 
     def _has_property_decorator(self, node: ast.FunctionDef) -> bool:
         """Check if function has @property decorator."""

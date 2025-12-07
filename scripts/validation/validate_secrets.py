@@ -233,9 +233,8 @@ class PythonSecretValidator(ast.NodeVisitor):
         value_lower = value.lower()
 
         for pattern, valid_values in self.metadata_patterns.items():
-            if pattern in var_lower:
-                if value_lower in valid_values:
-                    return True
+            if pattern in var_lower and value_lower in valid_values:
+                return True
 
         return False
 
@@ -305,9 +304,7 @@ class PythonSecretValidator(ast.NodeVisitor):
             value = value_node.value
             if not value or value in ["", "YOUR_KEY_HERE", "CHANGEME", "TODO"]:
                 return False
-            if len(value) < 3:
-                return False
-            return True
+            return not len(value) < 3
 
         if isinstance(value_node, ast.JoinedStr):
             for joined_value in value_node.values:

@@ -405,7 +405,7 @@ def compare_protocol_signatures(
     are_duplicates = debug1["signature_hash"] == debug2["signature_hash"]
 
     differences = []
-    for key in debug1.keys():
+    for key in debug1:
         if key != "signature_string" and debug1[key] != debug2[key]:
             differences.append(
                 {

@@ -71,7 +71,7 @@ class WrongSignatureExecutor:
         """Return unique executor identifier."""
         return "wrong-executor"
 
-    async def execute(self, _effect_id: str) -> bytes:  # type: ignore[override]
+    async def execute(self, _effect_id: str) -> bytes:
         """Execute with wrong signature (missing input_data parameter)."""
         return b"{}"
 
@@ -80,59 +80,111 @@ class WrongSignatureExecutor:
         return []
 
 
+# --- Fixtures ---
+
+
+@pytest.fixture
+def compliant_executor() -> CompliantEffectExecutor:
+    """Provide a compliant effect executor instance for tests."""
+    return CompliantEffectExecutor()
+
+
+@pytest.fixture
+def async_compliant_executor() -> CompliantEffectExecutor:
+    """Provide a compliant effect executor instance for async tests.
+
+    Note: This fixture is synchronous because executor instantiation
+    does not require async operations. The fixture name reflects its
+    intended use in async test methods that call async executor methods.
+    """
+    return CompliantEffectExecutor()
+
+
+@pytest.fixture
+def non_compliant_executor() -> NonCompliantEffectExecutor:
+    """Provide a non-compliant executor instance for tests."""
+    return NonCompliantEffectExecutor()
+
+
+@pytest.fixture
+def partial_executor() -> PartialEffectExecutor:
+    """Provide a partial executor instance for tests."""
+    return PartialEffectExecutor()
+
+
 class TestProtocolPrimitiveEffectExecutorBasics:
     """Test basic protocol properties."""
 
-    def test_protocol_is_runtime_checkable(self) -> None:
+    def test_protocol_is_runtime_checkable(
+        self, compliant_executor: CompliantEffectExecutor
+    ) -> None:
         """Verify protocol has @runtime_checkable decorator."""
-        compliant = CompliantEffectExecutor()
-        assert isinstance(compliant, ProtocolPrimitiveEffectExecutor)
+        assert isinstance(compliant_executor, ProtocolPrimitiveEffectExecutor)
 
     def test_protocol_cannot_be_instantiated(self) -> None:
         """Verify Protocol class itself cannot be instantiated."""
         with pytest.raises(TypeError):
-            ProtocolPrimitiveEffectExecutor()  # type: ignore[abstract]
+            ProtocolPrimitiveEffectExecutor()  # type: ignore[misc]
 
-    def test_compliant_class_passes_isinstance(self) -> None:
+    def test_compliant_class_passes_isinstance(
+        self, compliant_executor: CompliantEffectExecutor
+    ) -> None:
         """Verify compliant implementation passes isinstance check."""
-        executor = CompliantEffectExecutor()
-        assert isinstance(executor, ProtocolPrimitiveEffectExecutor)
+        assert isinstance(compliant_executor, ProtocolPrimitiveEffectExecutor)
 
-    def test_non_compliant_class_fails_isinstance(self) -> None:
+    def test_non_compliant_class_fails_isinstance(
+        self, non_compliant_executor: NonCompliantEffectExecutor
+    ) -> None:
         """Verify non-compliant class fails isinstance check."""
-        executor = NonCompliantEffectExecutor()
-        assert not isinstance(executor, ProtocolPrimitiveEffectExecutor)
+        assert not isinstance(non_compliant_executor, ProtocolPrimitiveEffectExecutor)
 
-    def test_partial_implementation_fails_isinstance(self) -> None:
-        """Verify partial implementation fails isinstance check."""
-        _executor = PartialEffectExecutor()
-        # Partial implementations may pass runtime check but lack full interface
-        # The @runtime_checkable only checks for method existence, not completeness
-        # This is expected Python Protocol behavior
+    def test_partial_implementation_behavior(
+        self, partial_executor: PartialEffectExecutor
+    ) -> None:
+        """Verify partial implementation behavior with runtime_checkable.
+
+        Python's @runtime_checkable only checks for method/attribute existence,
+        not signature completeness. A partial implementation that has 'execute'
+        but lacks 'executor_id' and 'get_supported_effects' will fail isinstance.
+
+        This test documents expected Protocol behavior: partial implementations
+        that lack required attributes will not satisfy the protocol check.
+        """
+        # Verify the partial executor has execute but lacks required attributes
+        assert hasattr(partial_executor, "execute")
+        assert not hasattr(partial_executor, "executor_id")
+        assert not hasattr(partial_executor, "get_supported_effects")
+
+        # Therefore it should fail the isinstance check
+        assert not isinstance(partial_executor, ProtocolPrimitiveEffectExecutor)
 
 
 class TestProtocolPrimitiveEffectExecutorMethods:
     """Test protocol method signatures and behavior."""
 
-    @pytest.mark.asyncio
-    async def test_execute_method_signature(self) -> None:
+    async def test_execute_method_signature(
+        self, async_compliant_executor: CompliantEffectExecutor
+    ) -> None:
         """Verify execute method accepts correct parameters."""
-        executor = CompliantEffectExecutor()
-        result = await executor.execute("http.request", b'{"url": "https://example.com"}')
+        result = await async_compliant_executor.execute(
+            "http.request", b'{"url": "https://example.com"}'
+        )
         assert isinstance(result, bytes)
 
-    def test_get_supported_effects_returns_list(self) -> None:
+    def test_get_supported_effects_returns_list(
+        self, compliant_executor: CompliantEffectExecutor
+    ) -> None:
         """Verify get_supported_effects returns list of strings."""
-        executor = CompliantEffectExecutor()
-        effects = executor.get_supported_effects()
+        effects = compliant_executor.get_supported_effects()
         assert isinstance(effects, list)
         assert all(isinstance(e, str) for e in effects)
 
-    def test_executor_id_property(self) -> None:
+    def test_executor_id_property(
+        self, compliant_executor: CompliantEffectExecutor
+    ) -> None:
         """Verify executor_id property returns string."""
-        executor = CompliantEffectExecutor()
-        assert isinstance(executor.executor_id, str)
-        assert executor.executor_id == "test-executor-1"
+        assert isinstance(compliant_executor.executor_id, str)
+        assert compliant_executor.executor_id == "test-executor-1"
 
 
 class TestEffectIdLiteralTypes:
@@ -166,7 +218,9 @@ class TestEffectIdLiteralTypes:
         ]
         for effect_id in effect_ids:
             parts = effect_id.split(".")
-            assert len(parts) == 2, f"Effect ID should have format 'category.operation': {effect_id}"
+            assert (
+                len(parts) == 2
+            ), f"Effect ID should have format 'category.operation': {effect_id}"
 
     def test_http_effects_exist(self) -> None:
         """Verify HTTP effect IDs are defined."""
@@ -193,33 +247,51 @@ class TestEffectIdLiteralTypes:
 class TestProtocolPrimitiveEffectExecutorCompliance:
     """Test protocol compliance scenarios."""
 
-    def test_compliant_executor_has_all_methods(self) -> None:
+    def test_compliant_executor_has_all_methods(
+        self, compliant_executor: CompliantEffectExecutor
+    ) -> None:
         """Verify compliant executor has all required methods."""
-        executor = CompliantEffectExecutor()
-        assert hasattr(executor, "execute")
-        assert hasattr(executor, "get_supported_effects")
-        assert hasattr(executor, "executor_id")
-        assert callable(executor.execute)
-        assert callable(executor.get_supported_effects)
+        assert hasattr(compliant_executor, "execute")
+        assert hasattr(compliant_executor, "get_supported_effects")
+        assert hasattr(compliant_executor, "executor_id")
+        assert callable(compliant_executor.execute)
+        assert callable(compliant_executor.get_supported_effects)
 
-    def test_effect_executor_supports_expected_effects(self) -> None:
+    def test_effect_executor_supports_expected_effects(
+        self, compliant_executor: CompliantEffectExecutor
+    ) -> None:
         """Verify executor reports supported effects correctly."""
-        executor = CompliantEffectExecutor()
-        effects = executor.get_supported_effects()
+        effects = compliant_executor.get_supported_effects()
         assert "http.request" in effects
         assert "db.query" in effects
 
-    @pytest.mark.asyncio
-    async def test_execute_handles_unknown_effect(self) -> None:
-        """Test behavior when executing unsupported effect.
+    async def test_mock_executor_is_permissive_with_effect_ids(
+        self, async_compliant_executor: CompliantEffectExecutor
+    ) -> None:
+        """Document that the test mock accepts ANY effect_id (permissive behavior).
 
-        Note: This test documents expected behavior - implementations
-        should raise ValueError for unsupported effects.
+        This test documents the CompliantEffectExecutor mock's permissive behavior:
+        it accepts any effect_id string, including "unknown.effect" which is NOT in
+        the executor's get_supported_effects() list, and returns a valid response.
+
+        **Important Protocol vs Implementation Distinction**:
+
+        - The ProtocolPrimitiveEffectExecutor PROTOCOL does not enforce effect_id
+          validation - it only defines the interface contract (method signatures).
+
+        - Real implementations in omnibase_infra SHOULD validate effect_id against
+          get_supported_effects() and raise an appropriate error (e.g., ValueError
+          or a domain-specific exception) for unsupported effects.
+
+        - This test mock is intentionally permissive to simplify protocol compliance
+          testing. It is NOT a reference for how real implementations should behave.
         """
-        executor = CompliantEffectExecutor()
-        # CompliantEffectExecutor doesn't validate effect_id in this mock
-        # Real implementations should validate and raise ValueError
-        result = await executor.execute("unknown.effect", b"{}")
+        # Verify the effect is NOT in supported effects (test precondition)
+        supported = async_compliant_executor.get_supported_effects()
+        assert "unknown.effect" not in supported, "Test precondition: effect must be unsupported"
+
+        # Mock accepts it anyway (permissive behavior - NOT protocol requirement)
+        result = await async_compliant_executor.execute("unknown.effect", b"{}")
         assert isinstance(result, bytes)
 
 
