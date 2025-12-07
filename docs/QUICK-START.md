@@ -14,6 +14,15 @@ pip install omnibase-spi
 poetry add omnibase-spi
 ```
 
+## Important: SPI vs Implementation
+
+**`omnibase_spi` defines protocols (interfaces), not implementations.** The examples below demonstrate how to work with these protocol interfaces. Helper functions like `get_service_registry()`, `get_workflow_orchestrator()`, and `get_mcp_registry()` are **implementation-specific factories** provided by `omnibase_infra` or your own application code.
+
+For concrete implementations, see:
+
+- **[omnibase_infra](https://github.com/OmniNode-ai/omnibase_infra)** - Reference implementations
+- **[omnibase_core](https://github.com/OmniNode-ai/omnibase_core)** - Pydantic models and core types
+
 ## Basic Usage
 
 ### Service Registration and Resolution
@@ -22,11 +31,11 @@ poetry add omnibase-spi
 from omnibase_spi.protocols.container import ProtocolServiceRegistry
 from omnibase_spi.protocols.core import ProtocolLogger
 
-# Register a service
+# Factory function - implementation provided by omnibase_infra
 registry: ProtocolServiceRegistry = get_service_registry()
 await registry.register_service(
     interface=ProtocolLogger,
-    implementation=ConsoleLogger,
+    implementation=ConsoleLogger,  # Your concrete implementation
     lifecycle="singleton",
     scope="global"
 )
@@ -41,7 +50,7 @@ await logger.log("INFO", "Hello, ONEX SPI!")
 ```python
 from omnibase_spi.protocols.workflow_orchestration import ProtocolWorkflowOrchestrator
 
-# Start a workflow
+# Factory function - implementation provided by omnibase_infra
 orchestrator: ProtocolWorkflowOrchestrator = get_workflow_orchestrator()
 workflow = await orchestrator.start_workflow(
     workflow_type="order-processing",
@@ -57,7 +66,7 @@ print(f"Workflow state: {workflow.current_state}")
 ```python
 from omnibase_spi.protocols.mcp import ProtocolMCPRegistry
 
-# Execute a tool
+# Factory function - implementation provided by omnibase_infra
 mcp_registry: ProtocolMCPRegistry = get_mcp_registry()
 result = await mcp_registry.execute_tool(
     tool_name="text_generation",
