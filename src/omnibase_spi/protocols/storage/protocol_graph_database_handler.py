@@ -179,12 +179,41 @@ class ProtocolGraphDatabaseHandler(Protocol):
         the results. Supports parameterized queries for security and
         performance.
 
+        Security:
+            **WARNING: QUERY INJECTION RISK**
+
+            Never construct queries by string concatenation or f-string
+            interpolation with user-provided input. Doing so exposes your
+            application to query injection attacks, which can lead to:
+
+            - Unauthorized data access or exfiltration
+            - Data modification or deletion
+            - Privilege escalation
+            - Denial of service
+
+            **UNSAFE** (vulnerable to injection)::
+
+                # DO NOT DO THIS - user_input could contain malicious Cypher
+                user_input = "Alice' OR 1=1 WITH n MATCH (m) DETACH DELETE m //"
+                query = f"MATCH (n:User {{name: '{user_input}'}}) RETURN n"
+                await handler.execute_query(query)  # DANGEROUS!
+
+            **SAFE** (parameterized query)::
+
+                # ALWAYS use parameterized queries
+                query = "MATCH (n:User {name: $name}) RETURN n"
+                parameters = {"name": user_input}  # Safe - properly escaped
+                await handler.execute_query(query, parameters)
+
+            Implementations MUST properly escape parameter values according
+            to their graph database's parameterization mechanism.
+
         Args:
             query: The graph query string (Cypher for Neo4j, Gremlin for
                 Neptune, GSQL for TigerGraph, etc.).
             parameters: Optional dictionary of query parameters for
                 parameterized queries. Keys are parameter names, values
-                are the parameter values.
+                are the parameter values. **Always use this for user input.**
 
         Returns:
             Dictionary containing query results:
@@ -503,10 +532,35 @@ class ProtocolGraphDatabaseHandler(Protocol):
                 - connection_count: Active connections in pool
                 - details: Additional diagnostic information
                 - last_error: Most recent error message if unhealthy
+                - cached: Boolean indicating if result was from cache (optional)
 
         Caching:
             Implementations SHOULD cache health check results for 5-30 seconds
             to avoid overwhelming the backend with repeated health probes.
+            The cache duration should be configurable and may vary based on:
+
+            - Production environments: 10-30 seconds (stability over freshness)
+            - Development environments: 5-10 seconds (faster feedback)
+            - High-availability setups: 5-15 seconds (balance)
+
+            When returning cached results, implementations SHOULD include
+            ``cached: True`` in the response to indicate staleness.
+
+        Rate Limiting:
+            Implementations SHOULD protect against denial-of-service through
+            excessive health check calls by:
+
+            - Tracking call frequency per client/source when possible
+            - Returning cached results for rapid repeated calls (e.g., >1 call/second)
+            - Implementing exponential backoff for cache refresh under load
+            - Optionally returning HTTP 429 (Too Many Requests) equivalent errors
+              for egregiously abusive patterns
+
+            Example rate limiting strategy::
+
+                # Return cached result if called within last N seconds
+                if time.time() - self._last_health_check < self._min_interval:
+                    return {**self._cached_health, "cached": True}
 
         Security:
             Error messages SHOULD be sanitized to avoid exposing credentials,
@@ -521,6 +575,8 @@ class ProtocolGraphDatabaseHandler(Protocol):
             if health["healthy"]:
                 print(f"Database OK, latency: {health['latency_ms']}ms")
                 print(f"Version: {health['database_version']}")
+                if health.get("cached"):
+                    print("(cached result)")
             else:
                 print(f"Unhealthy: {health.get('last_error', 'Unknown error')}")
             ```

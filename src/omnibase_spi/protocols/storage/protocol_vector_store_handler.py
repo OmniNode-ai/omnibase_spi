@@ -197,8 +197,23 @@ class ProtocolVectorStoreHandler(Protocol):
                 - timestamp: ISO format timestamp of operation
 
         Raises:
-            ProtocolHandlerError: If storage operation fails.
+            ProtocolHandlerError: If storage operation fails, including
+                dimension mismatch errors.
             InvalidProtocolStateError: If called before initialize().
+
+        Dimension Validation:
+            The vector dimension MUST match the dimension of the target index.
+            For example, if the index was created with dimension=1536, all stored
+            vectors must have exactly 1536 elements.
+
+            Implementations SHOULD validate dimensions before storage and raise
+            ProtocolHandlerError with a descriptive message if dimensions do not
+            match. Common embedding dimensions:
+                - OpenAI text-embedding-ada-002: 1536
+                - OpenAI text-embedding-3-small: 1536
+                - OpenAI text-embedding-3-large: 3072
+                - Cohere embed-english-v3.0: 1024
+                - Sentence Transformers (varies): 384-1024
 
         Example:
             ```python
@@ -245,6 +260,27 @@ class ProtocolVectorStoreHandler(Protocol):
         Raises:
             ProtocolHandlerError: If batch operation fails.
             InvalidProtocolStateError: If called before initialize().
+
+        Backend-Specific Batch Size Guidance:
+            Optimal batch sizes vary significantly by vector database backend.
+            Using inappropriate batch sizes can cause performance degradation,
+            timeouts, or memory issues. Recommended ranges:
+
+                - Qdrant: 100-1000 vectors per batch (default 100 is good)
+                - Pinecone: 100 vectors max per upsert request (hard limit)
+                - Weaviate: 100-500 vectors per batch
+                - Milvus: 100-1000 vectors per batch
+                - Chroma: 100-500 vectors per batch
+
+            Consult your backend's documentation for the most current guidance.
+            Consider these factors when choosing batch size:
+                - Memory usage: Each batch is held in memory during processing
+                - Network overhead: Smaller batches have more round-trip overhead
+                - Timeout risk: Larger batches take longer and may timeout
+                - Error recovery: Smaller batches limit blast radius on failures
+
+            Implementations SHOULD respect backend-specific limits and may
+            internally split batches that exceed optimal sizes.
 
         Example:
             ```python
@@ -508,6 +544,20 @@ class ProtocolVectorStoreHandler(Protocol):
         Caching:
             Implementations SHOULD cache health check results for 5-30 seconds
             to avoid overwhelming the backend service with repeated probes.
+            The caching TTL should balance freshness requirements against
+            backend load. For high-availability scenarios, 5-10 seconds is
+            recommended; for lower-traffic systems, 15-30 seconds is acceptable.
+
+        Rate Limiting:
+            Implementations SHOULD protect against DoS through excessive health
+            check calls by tracking call frequency. Consider implementing:
+                - Token bucket or sliding window rate limiting
+                - Per-client rate limits if caller identity is available
+                - Exponential backoff responses when limits are exceeded
+                - Logging of rate limit violations for security monitoring
+
+            A reasonable default is to allow no more than 12 health checks per
+            minute (one every 5 seconds) per handler instance.
 
         Security:
             Error messages should be sanitized to avoid exposing credentials

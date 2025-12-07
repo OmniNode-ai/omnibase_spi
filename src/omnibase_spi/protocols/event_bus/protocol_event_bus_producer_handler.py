@@ -108,6 +108,38 @@ Args:
     key: Message key (if provided)
     value: Message payload
     error: Exception if delivery failed, None on success
+
+Sync/Async Semantics:
+    Callbacks are defined as **synchronous** callables and are invoked
+    synchronously by the producer implementation. This design choice:
+
+    - **Invocation**: Callbacks are called from the producer's internal
+      delivery thread/task, NOT from the caller's async context.
+    - **Blocking behavior**: Callbacks SHOULD be non-blocking to avoid
+      delaying message delivery. Long-running operations should be
+      offloaded to a task queue or background worker.
+    - **Thread safety**: Implementations may invoke callbacks from
+      background threads. Callback code MUST be thread-safe if it
+      accesses shared state.
+    - **Async callbacks**: If async callback support is needed, wrap
+      the async coroutine with ``asyncio.create_task()`` or use a
+      thread-safe queue to bridge sync-to-async:
+
+      ```python
+      def sync_callback(topic, key, value, error):
+          # Option 1: Fire-and-forget async task
+          loop = asyncio.get_event_loop()
+          loop.call_soon_threadsafe(
+              lambda: asyncio.create_task(async_handler(topic, key, value, error))
+          )
+
+          # Option 2: Queue for async consumer
+          callback_queue.put_nowait((topic, key, value, error))
+      ```
+
+    - **Exception handling**: Exceptions raised in callbacks are caught
+      and logged by the producer but do not affect message delivery.
+      Implementations SHOULD NOT rely on exception propagation.
 """
 
 
@@ -313,10 +345,33 @@ class ProtocolEventBusProducerHandler(Protocol):
                 Receives (topic, key, value, exception).
 
         Raises:
-            ProducerError: If the message cannot be queued for delivery.
-            ProducerNotInitializedError: If the producer has not been initialized.
-            TopicNotFoundError: If the topic does not exist and auto-creation
-                is disabled.
+            ProtocolHandlerError: If the message cannot be queued for delivery.
+                Implementations may subclass this as ``ProducerError`` for more
+                specific error handling.
+            HandlerInitializationError: If the producer has not been initialized
+                or connection to the broker has been lost. Implementations may
+                subclass this as ``ProducerNotInitializedError``.
+            InvalidProtocolStateError: If the producer is in an invalid state
+                (e.g., closed, or transaction state conflict).
+
+        Message Size Limits:
+            Message brokers impose maximum message size limits that vary by backend:
+
+            - **Kafka**: Default 1MB (``message.max.bytes``), configurable up to ~1GB
+            - **RabbitMQ**: Default 128MB, configurable via ``max_message_size``
+            - **Redis Streams**: 512MB per entry (Redis string limit)
+            - **In-Memory**: Limited by available memory
+
+            Implementations SHOULD:
+                - Validate message size before sending and raise ``ProtocolHandlerError``
+                  with a descriptive message if the limit is exceeded
+                - Expose a ``max_message_size`` property or configuration option
+                - Document the configured limit in health_check() response
+
+            For large payloads, consider:
+                - Compression (gzip, snappy, lz4) before serialization
+                - Chunking large messages into smaller parts
+                - Claim-check pattern: store payload externally, send reference
 
         Example:
             ```python
@@ -385,9 +440,12 @@ class ProtocolEventBusProducerHandler(Protocol):
             Number of messages successfully queued for delivery.
 
         Raises:
-            ProducerError: If the batch cannot be queued for delivery.
-            ProducerNotInitializedError: If the producer has not been initialized.
-            ValidationError: If any message in the batch is malformed.
+            ProtocolHandlerError: If the batch cannot be queued for delivery.
+                Implementations may subclass this for more specific errors.
+            HandlerInitializationError: If the producer has not been initialized
+                or connection to the broker has been lost.
+            InvalidProtocolStateError: If any message in the batch is malformed
+                or the producer is in an invalid state.
 
         Example:
             ```python
@@ -435,7 +493,8 @@ class ProtocolEventBusProducerHandler(Protocol):
 
         Raises:
             TimeoutError: If flush does not complete within the timeout.
-            ProducerNotInitializedError: If the producer has not been initialized.
+            HandlerInitializationError: If the producer has not been initialized
+                or connection to the broker has been lost.
 
         Example:
             ```python
@@ -520,6 +579,34 @@ class ProtocolEventBusProducerHandler(Protocol):
         Caching:
             Implementations should cache health check results for 5-30
             seconds to avoid overwhelming the broker with health probes.
+
+        Rate Limiting:
+            Health check endpoints are common targets for denial-of-service
+            attacks. Implementations SHOULD protect against excessive calls:
+
+            - **Request throttling**: Limit health_check() calls to N per second
+              per client/caller. Return cached results for rapid successive calls.
+            - **Token bucket**: Use token bucket algorithm allowing burst capacity
+              (e.g., 10 requests/second with 5-request burst allowance).
+            - **Exponential backoff**: If caller exceeds rate limit, progressively
+              increase response delay rather than hard-failing.
+            - **Circuit breaker**: If broker connectivity fails, avoid hammering
+              the broker with repeated connection attempts during health checks.
+
+            Recommended limits:
+                - Maximum 10 calls per second per producer instance
+                - Minimum 1 second between actual broker probes (use cache otherwise)
+                - Consider exposing rate limit status in health response
+
+            Example rate-limited implementation:
+                ```python
+                async def health_check(self) -> dict[str, Any]:
+                    now = time.monotonic()
+                    if now - self._last_health_check < self._min_health_check_interval:
+                        return self._cached_health_result
+                    self._last_health_check = now
+                    # ... perform actual health check ...
+                ```
         """
         ...
 
@@ -532,10 +619,13 @@ class ProtocolEventBusProducerHandler(Protocol):
         with ``commit_transaction()`` or ``abort_transaction()``.
 
         Raises:
-            TransactionNotSupportedError: If the backend does not support
-                transactions (check ``supports_transactions`` first).
-            TransactionInProgressError: If a transaction is already active.
-            ProducerNotInitializedError: If the producer has not been initialized.
+            InvalidProtocolStateError: If the backend does not support
+                transactions (check ``supports_transactions`` first), or if
+                a transaction is already active. Implementations may subclass
+                this as ``TransactionNotSupportedError`` or ``TransactionInProgressError``
+                for more specific error handling.
+            HandlerInitializationError: If the producer has not been initialized
+                or connection to the broker has been lost.
 
         Example:
             ```python
@@ -566,12 +656,15 @@ class ProtocolEventBusProducerHandler(Protocol):
         returns to non-transactional mode.
 
         Raises:
-            TransactionNotSupportedError: If the backend does not support
-                transactions.
-            NoActiveTransactionError: If no transaction is active.
-            TransactionCommitError: If the commit fails (messages may need
-                to be resent).
-            ProducerNotInitializedError: If the producer has not been initialized.
+            InvalidProtocolStateError: If the backend does not support
+                transactions, or if no transaction is active. Implementations
+                may subclass this as ``TransactionNotSupportedError`` or
+                ``NoActiveTransactionError`` for more specific error handling.
+            ProtocolHandlerError: If the commit fails (messages may need
+                to be resent). Implementations may subclass this as
+                ``TransactionCommitError``.
+            HandlerInitializationError: If the producer has not been initialized
+                or connection to the broker has been lost.
 
         Example:
             ```python
@@ -595,10 +688,12 @@ class ProtocolEventBusProducerHandler(Protocol):
         Use this to rollback on error conditions.
 
         Raises:
-            TransactionNotSupportedError: If the backend does not support
-                transactions.
-            NoActiveTransactionError: If no transaction is active.
-            ProducerNotInitializedError: If the producer has not been initialized.
+            InvalidProtocolStateError: If the backend does not support
+                transactions, or if no transaction is active. Implementations
+                may subclass this as ``TransactionNotSupportedError`` or
+                ``NoActiveTransactionError`` for more specific error handling.
+            HandlerInitializationError: If the producer has not been initialized
+                or connection to the broker has been lost.
 
         Example:
             ```python
