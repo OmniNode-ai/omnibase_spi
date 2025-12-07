@@ -311,6 +311,8 @@ This section demonstrates common multi-protocol usage patterns showing how proto
 - `ProtocolServiceRegistry` - Service lifecycle management
 
 ```python
+from typing import Any
+
 from omnibase_spi.protocols import (
     ProtocolHandler,
     ProtocolHandlerRegistry,
@@ -352,8 +354,24 @@ async def setup_handlers(
         )
 
 
-async def use_handler(registry: ProtocolHandlerRegistry) -> None:
-    """Resolve and use a handler with proper lifecycle."""
+async def use_handler(
+    registry: ProtocolHandlerRegistry,
+    connection_config: dict[str, Any],
+    request: Any,
+    operation_config: dict[str, Any],
+) -> Any:
+    """
+    Resolve and use a handler with proper lifecycle.
+
+    Args:
+        registry: Handler registry for protocol lookup.
+        connection_config: Configuration for handler initialization.
+        request: The request payload to execute.
+        operation_config: Configuration for the execute operation.
+
+    Returns:
+        The handler response.
+    """
     try:
         handler_cls = registry.get("http")
         handler = handler_cls()
@@ -370,12 +388,15 @@ async def use_handler(registry: ProtocolHandlerRegistry) -> None:
             if not health["healthy"]:
                 # Handle degraded state
                 pass
+
+            return response
         finally:
             # Always clean up resources
             await handler.shutdown(timeout_seconds=10.0)
 
     except RegistryError as e:
         print(f"Protocol not registered: {e.context}")
+        raise
 ```
 
 **Related Documentation**: [HANDLERS.md](./HANDLERS.md), [REGISTRY.md](./REGISTRY.md), [CONTAINER.md](./CONTAINER.md)
@@ -531,7 +552,9 @@ async def compile_effect_contract(
     Effect contracts define side-effecting operations such as
     API calls, database queries, and message publishing.
     """
-    # First validate without compiling
+    # First validate without compiling.
+    # Note: validate() returns a result object rather than raising exceptions,
+    # allowing batch validation and detailed error collection.
     validation_result = await compiler.validate(contract_path)
 
     if not validation_result.is_valid:
@@ -622,6 +645,9 @@ async def compile_workflow_pipeline(
 - `InvalidProtocolStateError` - Lifecycle violations
 
 ```python
+from datetime import datetime
+from typing import Any, Protocol
+
 from omnibase_spi.exceptions import (
     ContractCompilerError,
     HandlerInitializationError,
@@ -631,16 +657,30 @@ from omnibase_spi.exceptions import (
     RegistryError,
     SPIError,
 )
+from omnibase_spi.protocols import (
+    ProtocolHandler,
+    ProtocolHandlerRegistry,
+    ProtocolOnexOrchestratorNode,
+)
+
+# Assume a structured logger is available (e.g., structlog)
+log: Any  # Type: StructuredLogger
 
 
 async def execute_with_error_handling(
     handler: ProtocolHandler,
     request: Any,
+    operation_config: dict[str, Any],
 ) -> Any:
     """
     Demonstrate proper error handling with SPI exceptions.
 
     All SPI exceptions include a context dict for debugging.
+
+    Args:
+        handler: The protocol handler to execute.
+        request: The request payload (must have an 'id' attribute).
+        operation_config: Configuration for the handler operation.
     """
     try:
         # Attempt handler execution

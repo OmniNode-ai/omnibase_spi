@@ -265,21 +265,32 @@ class TestProtocolPrimitiveEffectExecutorCompliance:
         assert "http.request" in effects
         assert "db.query" in effects
 
-    async def test_mock_executor_accepts_unsupported_effect_ids(
+    async def test_mock_executor_is_permissive_with_effect_ids(
         self, async_compliant_executor: CompliantEffectExecutor
     ) -> None:
-        """Verify mock executor accepts effect IDs not in get_supported_effects().
+        """Document that the test mock accepts ANY effect_id (permissive behavior).
 
-        This test documents the mock's permissive behavior: it accepts any
-        effect_id string (including "unknown.effect" which is not in the
-        executor's get_supported_effects() list) and returns a valid response.
+        This test documents the CompliantEffectExecutor mock's permissive behavior:
+        it accepts any effect_id string, including "unknown.effect" which is NOT in
+        the executor's get_supported_effects() list, and returns a valid response.
 
-        Real implementations (in omnibase_infra) should validate effect_id
-        against get_supported_effects() and raise an appropriate error for
-        unsupported effects. The protocol itself does not enforce validation -
-        that is an implementation concern for concrete effect executors.
+        **Important Protocol vs Implementation Distinction**:
+
+        - The ProtocolPrimitiveEffectExecutor PROTOCOL does not enforce effect_id
+          validation - it only defines the interface contract (method signatures).
+
+        - Real implementations in omnibase_infra SHOULD validate effect_id against
+          get_supported_effects() and raise an appropriate error (e.g., ValueError
+          or a domain-specific exception) for unsupported effects.
+
+        - This test mock is intentionally permissive to simplify protocol compliance
+          testing. It is NOT a reference for how real implementations should behave.
         """
-        # "unknown.effect" is not in get_supported_effects(), but mock accepts it
+        # Verify the effect is NOT in supported effects (test precondition)
+        supported = async_compliant_executor.get_supported_effects()
+        assert "unknown.effect" not in supported, "Test precondition: effect must be unsupported"
+
+        # Mock accepts it anyway (permissive behavior - NOT protocol requirement)
         result = await async_compliant_executor.execute("unknown.effect", b"{}")
         assert isinstance(result, bytes)
 
