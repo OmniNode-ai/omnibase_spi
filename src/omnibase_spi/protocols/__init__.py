@@ -345,11 +345,13 @@ from omnibase_spi.protocols.semantic import (
     ProtocolHybridRetriever,
 )
 
-# Storage protocols (3 protocols) - Data storage and persistence
+# Storage protocols (5 protocols) - Data storage and persistence
 from omnibase_spi.protocols.storage import (
     ProtocolDatabaseConnection,
+    ProtocolGraphDatabaseHandler,
     ProtocolStorageBackend,
     ProtocolStorageBackendFactory,
+    ProtocolVectorStoreHandler,
 )
 
 # Validation protocols (4 protocols) - Input validation and error handling
@@ -478,6 +480,7 @@ __all__ = [
     "ProtocolFileHandlerRegistry",
     "ProtocolFileReader",
     "ProtocolFileTypeHandler",
+    "ProtocolGraphDatabaseHandler",
     "ProtocolHandlerDiscovery",
     "ProtocolHandlerInfo",
     "ProtocolHandlerRegistry",
@@ -591,6 +594,7 @@ __all__ = [
     "ProtocolValidationOptions",
     "ProtocolValidationResult",
     "ProtocolValidator",
+    "ProtocolVectorStoreHandler",
     "ProtocolWorkQueue",
     "ProtocolWorkflowContractCompiler",
     "ProtocolWorkflowEventBus",
