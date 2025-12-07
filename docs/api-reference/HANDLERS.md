@@ -491,7 +491,7 @@ class HttpRestHandler:
 
     async def health_check(self) -> dict[str, Any]:
         """Check HTTP connectivity."""
-        if not self._client:
+        if not self._client or not self._config:
             raise HandlerNotInitializedError("Handler not initialized")
 
         start = time.monotonic()
@@ -600,10 +600,10 @@ logger.info(f"Connecting to {config.host}:{config.port}")
 ### 4. Cache Health Check Results
 
 ```python
-from functools import lru_cache
 from time import time
+from typing import Any
 
-_health_cache = {}
+_health_cache: dict[str, Any] = {}
 _cache_ttl = 10  # seconds
 
 async def health_check(self) -> dict[str, Any]:

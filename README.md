@@ -81,7 +81,7 @@ from omnibase_spi.exceptions import (
 
 ## Architecture
 
-```
+```text
 +-----------------------------------------------------------+
 |                      Applications                          |
 |               (omniagent, omniintelligence)                |
@@ -110,11 +110,13 @@ from omnibase_spi.exceptions import (
 ```
 
 **Related Repositories**:
+
 - [omnibase_spi](https://github.com/OmniNode-ai/omnibase_spi) - This repository (Protocol contracts)
 - [omnibase_core](https://github.com/OmniNode-ai/omnibase_core) - Pydantic models and core types
 - [omnibase_infra](https://github.com/OmniNode-ai/omnibase_infra) - Concrete implementations
 
 **Dependency Rules**:
+
 - SPI -> Core: **allowed** (runtime imports of models and contract types)
 - Core -> SPI: **forbidden** (no imports)
 - SPI -> Infra: **forbidden** (no imports, even transitively)
@@ -122,7 +124,7 @@ from omnibase_spi.exceptions import (
 
 ## Repository Structure
 
-```
+```text
 src/omnibase_spi/
 +-- protocols/
 |   +-- nodes/               # Node type protocols
@@ -213,6 +215,7 @@ class ProtocolComputeNode(Protocol):
 ### Protocol Requirements
 
 Every protocol must:
+
 1. Inherit from `typing.Protocol`
 2. Have `@runtime_checkable` decorator
 3. Use `...` (ellipsis) for method bodies
@@ -320,7 +323,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 - **Documentation**: [Complete Documentation](docs/README.md)
 - **Issues**: [GitHub Issues](https://github.com/OmniNode-ai/omnibase_spi/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/OmniNode-ai/omnibase_spi/discussions)
-- **Email**: team@omninode.ai
+- **Email**: [team@omninode.ai](mailto:team@omninode.ai)
 
 ---
 

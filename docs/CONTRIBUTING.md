@@ -125,14 +125,17 @@ We welcome:
 ### SPI Naming Conventions
 
 **Files**:
+
 - Protocols: `protocol_<name>.py`
 - Exceptions: `exceptions.py` (centralized)
 
 **Classes**:
+
 - Protocols: `Protocol<Name>` (e.g., `ProtocolComputeNode`, `ProtocolHandler`)
 - Exceptions: `<Type>Error` (e.g., `SPIError`, `RegistryError`)
 
 **Methods**:
+
 - Use `snake_case` for all methods and functions
 - Use descriptive names that explain intent
 
@@ -372,6 +375,7 @@ git commit -m "docs(spi): update protocol documentation"
 ```
 
 **Commit Types**:
+
 - `feat:` - New feature or protocol
 - `fix:` - Bug fix
 - `docs:` - Documentation only

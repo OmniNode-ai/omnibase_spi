@@ -553,9 +553,10 @@ class HttpApiNode:
 # --- Example usage demonstrating lifecycle management ---
 
 async def example_usage():
-    # Assume: handler is a ProtocolHandler implementation (e.g., from omnibase_infra)
-    # In production, this would be injected via dependency injection or service registry
-    handler: ProtocolHandler = ...  # type: ignore  # Placeholder for actual handler
+    # In production, handler would be obtained via dependency injection (DI) or service registry.
+    # Example: handler = container.get(ProtocolHandler)
+    # The ProtocolHandler implementation lives in omnibase_infra (e.g., HttpHandler).
+    handler: ProtocolHandler = ...  # type: ignore  # Placeholder (see HANDLERS.md)
 
     node = HttpApiNode(handler)
     await node.initialize()
@@ -918,8 +919,10 @@ async def example_usage():
             # Would persist to database via handler
             return ModelEffectOutput(node_id=self.node_id, payload={"persisted": True})
 
-    # Create handler placeholder (would be injected via DI in production)
-    handler: ProtocolHandler = ...  # type: ignore  # Placeholder
+    # In production, handler would be obtained via dependency injection (DI) or service registry.
+    # Example: handler = container.get(ProtocolHandler)
+    # The ProtocolHandler implementation lives in omnibase_infra (e.g., DatabaseHandler).
+    handler: ProtocolHandler = ...  # type: ignore  # Placeholder (see HANDLERS.md)
 
     # Compose nodes into orchestrated workflow
     orchestrator = PipelineOrchestratorNode(

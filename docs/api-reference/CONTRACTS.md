@@ -188,6 +188,11 @@ Validate contract without compiling.
 - SHOULD validate all errors, not just the first one
 - SHOULD provide actionable error messages with line numbers
 
+> **Design Note**: Unlike `compile()` which raises `ContractCompilerError` for invalid contracts, `validate()` returns a result object with `is_valid=False`. This validation-first pattern enables:
+> - **Batch error collection**: Gather all validation errors in one pass, not just the first
+> - **Better developer experience**: Display all issues at once for faster iteration
+> - **Programmatic error handling**: Inspect errors without try/except blocks
+
 ### Protocol Definition
 
 ```python
@@ -364,6 +369,11 @@ Validate contract without compiling.
 - SHOULD validate all errors, not just the first one
 - SHOULD provide actionable error messages with line numbers
 - SHOULD detect DAG violations (circular dependencies)
+
+> **Design Note**: Unlike `compile()` which raises `ContractCompilerError` for invalid contracts, `validate()` returns a result object with `is_valid=False`. This validation-first pattern enables:
+> - **Batch error collection**: Gather all validation errors in one pass, not just the first
+> - **Better developer experience**: Display all issues at once for faster iteration
+> - **Programmatic error handling**: Inspect errors without try/except blocks
 
 ### Protocol Definition
 
@@ -558,6 +568,11 @@ Validate contract without compiling.
 - SHOULD validate all errors, not just the first one
 - SHOULD provide actionable error messages with line numbers
 - SHOULD detect unreachable states and invalid transitions
+
+> **Design Note**: Unlike `compile()` which raises `ContractCompilerError` for invalid contracts, `validate()` returns a result object with `is_valid=False`. This validation-first pattern enables:
+> - **Batch error collection**: Gather all validation errors in one pass, not just the first
+> - **Better developer experience**: Display all issues at once for faster iteration
+> - **Programmatic error handling**: Inspect errors without try/except blocks
 
 ### Protocol Definition
 
@@ -778,16 +793,28 @@ async def load_contracts(
 
 ### compile() vs validate() Semantics
 
-The `compile()` and `validate()` methods have different error-handling semantics:
+The `compile()` and `validate()` methods have fundamentally different error-handling semantics:
 
 | Method | Invalid Contract | File Not Found | Unexpected Error |
 |--------|------------------|----------------|------------------|
-| `compile()` | Raises `ContractCompilerError` | Raises `FileNotFoundError` | Raises exception |
-| `validate()` | Returns `ModelContractValidationResult` with `is_valid=False` | Raises `FileNotFoundError` | Raises exception |
+| `compile()` | **Raises** `ContractCompilerError` | Raises `FileNotFoundError` | Raises exception |
+| `validate()` | **Returns** `ModelContractValidationResult` with `is_valid=False` | Raises `FileNotFoundError` | Raises exception |
 
 **Key Distinction**:
-- **`validate()`**: Returns a result object for invalid contracts (no exception). Use this for validation-first workflows where you want to collect all errors.
-- **`compile()`**: Raises exceptions for invalid contracts. Use this when you expect the contract to be valid and want fail-fast behavior.
+
+> **`validate()` does NOT raise exceptions for invalid contracts.**
+>
+> Instead, it returns a `ModelContractValidationResult` with `is_valid=False` and populates the `errors` list.
+> This is intentional: validation is designed to collect ALL errors in a single pass.
+
+> **`compile()` RAISES exceptions for invalid contracts.**
+>
+> It raises `ContractCompilerError` at the first fatal error encountered.
+> Use this when you expect the contract to be valid and want fail-fast behavior.
+
+**When to use each method**:
+- **`validate()`**: Use for validation-first workflows, IDE integration, linting tools, or any scenario where you want to collect and display all errors at once
+- **`compile()`**: Use for production pipelines after validation, or when you need the compiled contract and expect it to be valid
 
 ### ModelContractValidationResult Structure
 
@@ -819,19 +846,35 @@ class ModelValidationWarning:
 
 ```python
 async def safe_compile(compiler, contract_path: Path):
-    """Recommended pattern: validate before compile."""
+    """
+    Recommended pattern: validate before compile.
 
-    # Step 1: Validate to collect all errors
+    This pattern demonstrates the key semantic difference:
+    - validate() returns a result object (no exception for invalid contracts)
+    - compile() raises ContractCompilerError for invalid contracts
+    """
+
+    # Step 1: Validate to collect ALL errors (no exception raised)
+    # validate() returns ModelContractValidationResult, NOT an exception
     result = await compiler.validate(contract_path)
 
     if not result.is_valid:
-        # Handle errors gracefully (no exception raised)
+        # Errors are in result.errors, not caught via try/except
+        # This allows displaying ALL errors to the user at once
         for error in result.errors:
             logger.error(f"Line {error.line}: {error.message}")
         return None
 
-    # Step 2: Compile (should succeed after validation)
-    return await compiler.compile(contract_path)
+    # Step 2: Compile the validated contract
+    # After successful validation, compile() should succeed
+    # However, compile() CAN still raise for unexpected errors (I/O, etc.)
+    try:
+        return await compiler.compile(contract_path)
+    except ContractCompilerError as e:
+        # This should be rare after successful validation
+        # May indicate a race condition or implementation bug
+        logger.error(f"Unexpected compile error: {e}")
+        return None
 ```
 
 See [EXCEPTIONS.md](EXCEPTIONS.md) for complete exception hierarchy.

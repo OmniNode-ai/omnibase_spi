@@ -11,7 +11,6 @@ Validates that ProtocolPrimitiveEffectExecutor:
 """
 
 import pytest
-import pytest_asyncio
 
 from omnibase_spi.protocols.effects.protocol_primitive_effect_executor import (
     LiteralEffectCategory,
@@ -90,16 +89,15 @@ def compliant_executor() -> CompliantEffectExecutor:
     return CompliantEffectExecutor()
 
 
-@pytest_asyncio.fixture
-async def async_compliant_executor() -> CompliantEffectExecutor:
+@pytest.fixture
+def async_compliant_executor() -> CompliantEffectExecutor:
     """Provide a compliant effect executor instance for async tests.
 
-    This fixture can be used when async setup/teardown is needed,
-    or when the executor needs to be initialized with async operations.
+    Note: This fixture is synchronous because executor instantiation
+    does not require async operations. The fixture name reflects its
+    intended use in async test methods that call async executor methods.
     """
-    executor = CompliantEffectExecutor()
-    # Async setup could go here (e.g., initializing connections)
-    return executor
+    return CompliantEffectExecutor()
 
 
 @pytest.fixture
@@ -140,14 +138,25 @@ class TestProtocolPrimitiveEffectExecutorBasics:
         """Verify non-compliant class fails isinstance check."""
         assert not isinstance(non_compliant_executor, ProtocolPrimitiveEffectExecutor)
 
-    def test_partial_implementation_fails_isinstance(
+    def test_partial_implementation_behavior(
         self, partial_executor: PartialEffectExecutor
     ) -> None:
-        """Verify partial implementation fails isinstance check."""
-        # Partial implementations may pass runtime check but lack full interface
-        # The @runtime_checkable only checks for method existence, not completeness
-        # This is expected Python Protocol behavior
-        _ = partial_executor  # Use the fixture
+        """Verify partial implementation behavior with runtime_checkable.
+
+        Python's @runtime_checkable only checks for method/attribute existence,
+        not signature completeness. A partial implementation that has 'execute'
+        but lacks 'executor_id' and 'get_supported_effects' will fail isinstance.
+
+        This test documents expected Protocol behavior: partial implementations
+        that lack required attributes will not satisfy the protocol check.
+        """
+        # Verify the partial executor has execute but lacks required attributes
+        assert hasattr(partial_executor, "execute")
+        assert not hasattr(partial_executor, "executor_id")
+        assert not hasattr(partial_executor, "get_supported_effects")
+
+        # Therefore it should fail the isinstance check
+        assert not isinstance(partial_executor, ProtocolPrimitiveEffectExecutor)
 
 
 class TestProtocolPrimitiveEffectExecutorMethods:
@@ -256,19 +265,21 @@ class TestProtocolPrimitiveEffectExecutorCompliance:
         assert "http.request" in effects
         assert "db.query" in effects
 
-    async def test_execute_accepts_any_effect_id_in_mock(
+    async def test_mock_executor_does_not_validate_effect_id(
         self, async_compliant_executor: CompliantEffectExecutor
     ) -> None:
-        """Verify mock executor accepts any effect_id without validation.
+        """Verify mock executor does not validate effect_id.
 
         This test documents the mock's behavior: it accepts any effect_id
-        and returns a valid response. Real implementations (in omnibase_infra)
-        should validate effect_id against get_supported_effects() and raise
-        ValueError for unsupported effects.
+        (including unsupported ones like "unknown.effect") and returns a
+        valid response without validation.
 
-        The protocol itself does not enforce effect_id validation - that is
+        Real implementations (in omnibase_infra) should validate effect_id
+        against get_supported_effects() and raise ValueError for unsupported
+        effects. The protocol itself does not enforce this - validation is
         an implementation concern for concrete effect executors.
         """
+        # "unknown.effect" is not in get_supported_effects(), but mock accepts it
         result = await async_compliant_executor.execute("unknown.effect", b"{}")
         assert isinstance(result, bytes)
 
