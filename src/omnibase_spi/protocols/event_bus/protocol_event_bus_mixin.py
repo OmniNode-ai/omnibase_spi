@@ -238,7 +238,22 @@ class ProtocolSyncEventBus(ProtocolEventBusBase, Protocol):
         - Compatible with sync event processing
     """
 
-    async def publish_sync(self, event: ProtocolEventMessage) -> None: ...
+    async def publish_sync(self, event: ProtocolEventMessage) -> None:
+        """Publish an event synchronously with blocking semantics.
+
+        This method blocks until the event is confirmed delivered to the
+        message broker, providing stronger delivery guarantees at the cost
+        of latency.
+
+        Args:
+            event: The event message to publish synchronously.
+
+        Raises:
+            SPIError: If publishing fails or the event bus is not connected.
+            TimeoutError: If the synchronous publish times out waiting for
+                broker confirmation.
+        """
+        ...
 
 
 @runtime_checkable
@@ -256,7 +271,21 @@ class ProtocolAsyncEventBus(ProtocolEventBusBase, Protocol):
         - Non-blocking event processing
     """
 
-    async def publish_async(self, event: ProtocolEventMessage) -> None: ...
+    async def publish_async(self, event: ProtocolEventMessage) -> None:
+        """Publish an event asynchronously with non-blocking semantics.
+
+        This method returns immediately after enqueueing the event for
+        delivery, allowing the caller to continue processing without
+        waiting for broker confirmation.
+
+        Args:
+            event: The event message to publish asynchronously.
+
+        Raises:
+            SPIError: If the event cannot be enqueued for delivery
+                or the event bus is not connected.
+        """
+        ...
 
 
 @runtime_checkable
@@ -275,9 +304,28 @@ class ProtocolEventBusRegistry(Protocol):
 
     event_bus: ProtocolEventBusBase | None
 
-    async def validate_registry_bus(self) -> bool: ...
+    async def validate_registry_bus(self) -> bool:
+        """Validate that the registry's event bus is operational.
 
-    def has_bus_access(self) -> bool: ...
+        Performs a health check on the registered event bus to verify
+        connectivity and operational readiness.
+
+        Returns:
+            True if the event bus is valid and operational, False otherwise.
+
+        Raises:
+            SPIError: If validation fails due to an unexpected error.
+        """
+        ...
+
+    def has_bus_access(self) -> bool:
+        """Check if the registry has an event bus instance available.
+
+        Returns:
+            True if an event bus instance is registered and accessible,
+            False if no event bus is configured.
+        """
+        ...
 
 
 @runtime_checkable
@@ -299,4 +347,32 @@ class ProtocolEventBusLogEmitter(Protocol):
         level: LiteralLogLevel,
         message: str,
         data: dict[str, str | int | float | bool],
-    ) -> None: ...
+    ) -> None:
+        """Emit a structured log event with typed data.
+
+        Emits a log event to the event bus or logging infrastructure with
+        structured data that can be queried and analyzed.
+
+        Args:
+            level: The log level for this event (e.g., "DEBUG", "INFO",
+                "WARNING", "ERROR", "CRITICAL").
+            message: Human-readable log message describing the event.
+            data: Structured data associated with the log event. Keys should
+                be descriptive identifiers, values must be primitive types
+                (str, int, float, bool) for serialization compatibility.
+
+        Example:
+            ```python
+            emitter.emit_log_event(
+                level="INFO",
+                message="Order processed successfully",
+                data={
+                    "order_id": "order-123",
+                    "processing_time_ms": 45,
+                    "item_count": 3,
+                    "success": True,
+                }
+            )
+            ```
+        """
+        ...

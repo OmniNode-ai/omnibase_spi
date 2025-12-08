@@ -154,7 +154,6 @@ Sophisticated system capabilities:
 ## Project Information
 
 - **[Changelog](../CHANGELOG.md)** - Version history and release notes
-- **[Deprecations](DEPRECATIONS.md)** - Deprecated APIs and migration guides
 - **[Contributing Guide](CONTRIBUTING.md)** - Development workflow and validation requirements
 
 ## Quick Navigation
@@ -306,7 +305,6 @@ This SPI package is part of the ONEX platform ecosystem:
 - **[Main README](../README.md)** - Repository overview and quick start
 - **[CLAUDE.md](../CLAUDE.md)** - AI assistant guidance for working with this codebase
 - **[Glossary](GLOSSARY.md)** - Definitions of SPI-specific terminology
-- **[Deprecations](DEPRECATIONS.md)** - Deprecated APIs, removal timelines, and migration guides
 - **[Contributing Guide](CONTRIBUTING.md)** - How to contribute to the project
 - **[MVP Plan](MVP_PLAN.md)** - v0.3.0 work breakdown and architecture
 

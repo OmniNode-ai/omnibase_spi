@@ -25,7 +25,7 @@ This separation ensures:
 
 ## Protocol Architecture
 
-The event bus domain consists of **18+ specialized protocols** organized into these categories:
+The event bus domain consists of **24 specialized protocols** organized into these categories:
 
 | Category | Protocols | Purpose |
 |----------|-----------|---------|
@@ -34,12 +34,14 @@ The event bus domain consists of **18+ specialized protocols** organized into th
 | Base Interfaces | `ProtocolEventBusBase`, `ProtocolSyncEventBus`, `ProtocolAsyncEventBus` | Core publish/subscribe patterns |
 | Service & Registry | `ProtocolEventBusService`, `ProtocolEventBusRegistry` | Service operations and dependency injection |
 | Event Envelope | `ProtocolEventEnvelope` | Generic envelope for breaking circular dependencies |
-| Pub/Sub | `ProtocolEventPubSub`, `ProtocolEventBusCredentials` | Simple pub/sub and authentication |
-| Backend Adapters | `ProtocolKafkaAdapter`, `ProtocolRedpandaAdapter` | Backend-specific implementations |
-| Publishing | `ProtocolEventPublisher` | Batch publishing and compression |
+| Client Protocols | `ProtocolEventBusClient`, `ProtocolEventBusClientProvider` | Event bus client abstraction for DI |
+| Extended Client | `ProtocolEventBusExtendedClient`, `ProtocolEventBusConsumer` | Comprehensive client with consumer operations |
+| Producer Protocols | `ProtocolEventBusProducerHandler`, `ProtocolEventBusBatchProducer`, `ProtocolEventBusTransactionalProducer` | Message production operations |
+| Backend Adapters | `ProtocolKafkaAdapter`, `ProtocolRedpandaAdapter`, `ProtocolHttpEventBusAdapter` | Backend-specific implementations |
+| Publishing | `ProtocolEventPublisher` | Reliable event publishing with retry/circuit breaker |
 | Error Handling | `ProtocolDLQHandler` | Dead letter queue management |
 | Schema Management | `ProtocolSchemaRegistry` | Schema versioning and compatibility |
-| Orchestration | `ProtocolEventOrchestrator` | Distributed workflow coordination |
+| Message Types | `ProtocolEventBusMessage`, `ProtocolEventMessage` | Message data structures |
 | Logging | `ProtocolEventBusLogEmitter` | Structured log emission |
 
 ### Event Bus Provider Protocol
@@ -267,6 +269,427 @@ class ProtocolRedpandaAdapter(Protocol):
     async def optimize_redpanda_performance(
         self, topic: str, settings: dict[str, Any]
     ) -> bool: ...
+```
+
+### Event Bus Client Protocol
+
+The `ProtocolEventBusClient` provides a standardized interface for event bus producer/consumer operations:
+
+```python
+from omnibase_spi.protocols.event_bus import ProtocolEventBusClient
+
+@runtime_checkable
+class ProtocolEventBusClient(Protocol):
+    """
+    Protocol interface for EventBus client implementations.
+
+    Provides standardized interface for event bus producer/consumer operations
+    that can be implemented by different message broker libraries.
+    """
+
+    async def start(self) -> None:
+        """Start the EventBus client and establish connections."""
+        ...
+
+    async def stop(self, timeout_seconds: float = 30.0) -> None:
+        """Stop the EventBus client and clean up resources."""
+        ...
+
+    async def send_and_wait(
+        self, topic: str, value: bytes, key: bytes | None = None
+    ) -> None:
+        """Send a message to the event bus and wait for acknowledgment."""
+        ...
+
+    def bootstrap_servers(self) -> list[str]:
+        """Get the list of bootstrap servers for the event bus cluster."""
+        ...
+```
+
+### Event Bus Client Provider Protocol
+
+The `ProtocolEventBusClientProvider` provides centralized creation of EventBus client instances:
+
+```python
+from omnibase_spi.protocols.event_bus import ProtocolEventBusClientProvider
+
+@runtime_checkable
+class ProtocolEventBusClientProvider(Protocol):
+    """
+    Protocol for EventBus client factory and configuration provider.
+
+    Provides centralized creation of EventBus client instances with
+    consistent configuration, enabling dependency injection and
+    test mocking of event bus connections.
+    """
+
+    async def create_event_bus_client(self) -> ProtocolEventBusClient:
+        """Create a new EventBus client instance."""
+        ...
+
+    async def get_event_bus_configuration(self) -> dict[str, str | int | float | bool]:
+        """Retrieve EventBus client configuration parameters."""
+        ...
+```
+
+### Event Bus Consumer Protocol
+
+The `ProtocolEventBusConsumer` provides comprehensive consumer operations:
+
+```python
+from omnibase_spi.protocols.event_bus import ProtocolEventBusConsumer
+
+@runtime_checkable
+class ProtocolEventBusConsumer(Protocol):
+    """
+    Protocol for EventBus consumer operations.
+
+    Supports topic subscription, message consumption, offset management,
+    and consumer group coordination for distributed event processing.
+    """
+
+    async def subscribe_to_topics(self, topics: list[str], group_id: str) -> None:
+        """Subscribe to one or more topics for message consumption."""
+        ...
+
+    async def unsubscribe_from_topics(self, topics: list[str]) -> None:
+        """Unsubscribe from one or more topics."""
+        ...
+
+    async def consume_messages(
+        self, timeout_ms: int, max_messages: int
+    ) -> list[ProtocolEventBusMessage]:
+        """Consume messages from subscribed topics."""
+        ...
+
+    async def consume_messages_stream(
+        self, batch_timeout_ms: int
+    ) -> list[ProtocolEventBusMessage]:
+        """Consume a batch of messages with streaming semantics."""
+        ...
+
+    async def commit_offsets(self) -> None:
+        """Commit current consumer offsets to the event bus."""
+        ...
+
+    async def seek_to_beginning(self, topic: str, partition: int) -> None:
+        """Seek to the beginning of a topic partition."""
+        ...
+
+    async def seek_to_end(self, topic: str, partition: int) -> None:
+        """Seek to the end of a topic partition."""
+        ...
+
+    async def seek_to_offset(self, topic: str, partition: int, offset: int) -> None:
+        """Seek to a specific offset in a topic partition."""
+        ...
+
+    async def get_current_offsets(self) -> dict[str, dict[int, int]]:
+        """Get current consumer offsets for all subscribed topic partitions."""
+        ...
+
+    async def close_consumer(self, timeout_seconds: float = 30.0) -> None:
+        """Close the EventBus consumer and release resources."""
+        ...
+```
+
+### Event Bus Batch Producer Protocol
+
+The `ProtocolEventBusBatchProducer` provides high-throughput batch message production:
+
+```python
+from omnibase_spi.protocols.event_bus import ProtocolEventBusBatchProducer
+
+@runtime_checkable
+class ProtocolEventBusBatchProducer(Protocol):
+    """
+    Protocol for batch EventBus producer operations.
+
+    Supports batching multiple messages, custom partitioning strategies,
+    transaction management, and high-throughput message production.
+    """
+
+    async def send_batch(self, messages: list[ProtocolEventBusMessage]) -> None:
+        """Send a batch of messages to the event bus."""
+        ...
+
+    async def send_to_partition(
+        self,
+        topic: str,
+        partition: int,
+        key: bytes | None,
+        value: bytes,
+        headers: dict[str, bytes] | None = None,
+    ) -> None:
+        """Send a message to a specific partition."""
+        ...
+
+    async def send_with_custom_partitioner(
+        self,
+        topic: str,
+        key: bytes | None,
+        value: bytes,
+        partition_strategy: str,
+        headers: dict[str, bytes] | None = None,
+    ) -> None:
+        """Send a message using a custom partitioning strategy."""
+        ...
+
+    async def flush_pending(self, timeout_ms: int) -> None:
+        """Flush all pending messages to the event bus."""
+        ...
+
+    async def get_batch_metrics(self) -> dict[str, int]:
+        """Get metrics for batch producer operations."""
+        ...
+```
+
+### Event Bus Transactional Producer Protocol
+
+The `ProtocolEventBusTransactionalProducer` provides exactly-once semantics with transaction management:
+
+```python
+from omnibase_spi.protocols.event_bus import ProtocolEventBusTransactionalProducer
+
+@runtime_checkable
+class ProtocolEventBusTransactionalProducer(Protocol):
+    """
+    Protocol for transactional EventBus producer operations.
+
+    Supports exactly-once semantics with transaction management,
+    atomic message production, and consumer-producer coordination.
+    """
+
+    async def init_transactions(self, transaction_id: str) -> None:
+        """Initialize the transactional producer with a transaction ID."""
+        ...
+
+    async def begin_transaction(self) -> None:
+        """Begin a new transaction."""
+        ...
+
+    async def send_transactional(
+        self,
+        topic: str,
+        value: bytes,
+        key: bytes | None = None,
+        headers: dict[str, bytes] | None = None,
+    ) -> None:
+        """Send a message as part of the current transaction."""
+        ...
+
+    async def commit_transaction(self) -> None:
+        """Commit the current transaction."""
+        ...
+
+    async def abort_transaction(self) -> None:
+        """Abort the current transaction."""
+        ...
+```
+
+### Event Bus Extended Client Protocol
+
+The `ProtocolEventBusExtendedClient` provides comprehensive client operations:
+
+```python
+from omnibase_spi.protocols.event_bus import ProtocolEventBusExtendedClient
+
+@runtime_checkable
+class ProtocolEventBusExtendedClient(Protocol):
+    """
+    Protocol for comprehensive EventBus client with all operations.
+
+    Combines producer, consumer, and administrative operations
+    with advanced features like schema registry and monitoring.
+    """
+
+    async def create_consumer(self) -> ProtocolEventBusConsumer:
+        """Create a new EventBus consumer instance."""
+        ...
+
+    async def create_batch_producer(self) -> ProtocolEventBusBatchProducer:
+        """Create a new batch producer instance."""
+        ...
+
+    async def create_transactional_producer(self) -> ProtocolEventBusTransactionalProducer:
+        """Create a new transactional producer instance."""
+        ...
+
+    async def create_topic(
+        self,
+        topic_name: str,
+        partitions: int,
+        replication_factor: int,
+        config: dict[str, ContextValue] | None = None,
+    ) -> None:
+        """Create a new topic with the specified configuration."""
+        ...
+
+    async def delete_topic(self, topic_name: str) -> None:
+        """Delete an existing topic."""
+        ...
+
+    async def list_topics(self) -> list[str]:
+        """List all available topics."""
+        ...
+
+    async def get_topic_metadata(self, topic_name: str) -> dict[str, str | int]:
+        """Get metadata for a specific topic."""
+        ...
+
+    async def health_check(self) -> bool:
+        """Check the health of the EventBus connection."""
+        ...
+
+    async def close_client(self, timeout_seconds: float = 30.0) -> None:
+        """Close the extended EventBus client and release all resources."""
+        ...
+```
+
+### Event Bus Producer Handler Protocol
+
+The `ProtocolEventBusProducerHandler` provides specialized handler for message production:
+
+```python
+from omnibase_spi.protocols.event_bus import ProtocolEventBusProducerHandler
+
+@runtime_checkable
+class ProtocolEventBusProducerHandler(Protocol):
+    """
+    Protocol for event bus message producer handlers.
+
+    Defines the contract for backend-agnostic message production operations.
+    This protocol extends the ProtocolHandler pattern for specialized
+    event bus production operations.
+    """
+
+    @property
+    def handler_type(self) -> str:
+        """The type of handler as a string identifier."""
+        ...
+
+    @property
+    def supports_transactions(self) -> bool:
+        """Whether this producer supports transactional message delivery."""
+        ...
+
+    @property
+    def supports_exactly_once(self) -> bool:
+        """Whether this producer supports exactly-once delivery semantics."""
+        ...
+
+    async def send(
+        self,
+        topic: str,
+        value: bytes,
+        key: bytes | None = None,
+        headers: dict[str, bytes] | None = None,
+        partition: int | None = None,
+        on_success: Callable | None = None,
+        on_error: Callable | None = None,
+    ) -> None:
+        """Send a single message to the specified topic."""
+        ...
+
+    async def send_batch(
+        self,
+        messages: Sequence[dict],
+        on_success: Callable | None = None,
+        on_error: Callable | None = None,
+    ) -> int:
+        """Send multiple messages efficiently as a batch."""
+        ...
+
+    async def flush(self, timeout_seconds: float = 30.0) -> None:
+        """Flush all pending messages to ensure delivery."""
+        ...
+
+    async def close(self, timeout_seconds: float = 30.0) -> None:
+        """Close the producer and release all resources."""
+        ...
+
+    async def health_check(self) -> dict[str, Any]:
+        """Check producer health and connectivity."""
+        ...
+
+    async def begin_transaction(self) -> None:
+        """Begin a new transaction for atomic message delivery."""
+        ...
+
+    async def commit_transaction(self) -> None:
+        """Commit the current transaction."""
+        ...
+
+    async def abort_transaction(self) -> None:
+        """Abort the current transaction."""
+        ...
+```
+
+### HTTP Event Bus Adapter Protocol
+
+The `ProtocolHttpEventBusAdapter` provides HTTP-based event bus integration:
+
+```python
+from omnibase_spi.protocols.event_bus import ProtocolHttpEventBusAdapter
+
+@runtime_checkable
+class ProtocolHttpEventBusAdapter(Protocol):
+    """
+    Protocol for HTTP-based event bus adapters for lightweight integration.
+
+    Provides lightweight event bus adapter for services that connect to external
+    event bus systems over HTTP/REST APIs rather than native protocols.
+    """
+
+    async def publish(self, event: ProtocolEventMessage) -> bool:
+        """Publish event via HTTP to the event bus."""
+        ...
+
+    async def subscribe(
+        self, handler: Callable[[ProtocolEventMessage], Awaitable[bool]]
+    ) -> bool:
+        """Subscribe to events with HTTP-based handler."""
+        ...
+
+    async def unsubscribe(
+        self, handler: Callable[[ProtocolEventMessage], Awaitable[bool]]
+    ) -> bool:
+        """Unsubscribe from events and stop receiving messages."""
+        ...
+
+    @property
+    def is_healthy(self) -> bool:
+        """Check if HTTP event bus adapter is healthy."""
+        ...
+
+    async def close(self, timeout_seconds: float = 30.0) -> None:
+        """Close HTTP event bus adapter and release resources."""
+        ...
+```
+
+### Event Bus Message Protocol
+
+The `ProtocolEventBusMessage` provides message data structure for event bus operations:
+
+```python
+from omnibase_spi.protocols.event_bus import ProtocolEventBusMessage
+
+@runtime_checkable
+class ProtocolEventBusMessage(Protocol):
+    """
+    Protocol for EventBus message data.
+
+    Represents a single message with key, value, headers, and metadata
+    for comprehensive message handling across producers and consumers.
+    """
+
+    key: bytes | None
+    value: bytes
+    topic: str
+    partition: int | None
+    offset: int | None
+    timestamp: int | None
+    headers: dict[str, bytes]
 ```
 
 ### Event Publisher Protocol
@@ -1395,14 +1818,15 @@ class ProtocolOnexEvent(Protocol):
 
 | Metric | Value |
 |--------|-------|
-| **Total Protocols** | 18+ event bus protocols |
-| **Backend Support** | Kafka, Redpanda, Redis, in-memory, RabbitMQ |
-| **Message Features** | Serialization, compression, batching, envelopes |
-| **Reliability** | Dead letter queues, retry logic, error handling |
+| **Total Protocols** | 24 event bus protocols |
+| **Backend Support** | Kafka, Redpanda, HTTP, in-memory |
+| **Message Features** | Serialization, compression, batching, envelopes, transactions |
+| **Reliability** | Dead letter queues, retry logic, circuit breakers, exactly-once semantics |
 | **Schema Management** | Avro, JSON, Protobuf schema support |
-| **Performance** | High-throughput messaging with optimization |
+| **Performance** | High-throughput batch messaging with optimization |
 | **Monitoring** | Comprehensive metrics and health tracking |
-| **Orchestration** | Agent lifecycle, work distribution, load balancing |
+| **Consumer Features** | Topic subscription, offset management, consumer groups |
+| **Producer Features** | Batch production, transactions, custom partitioning |
 
 ## Import Reference
 
@@ -1428,10 +1852,31 @@ from omnibase_spi.protocols.event_bus import (
     ProtocolEventEnvelope,
 )
 
+# Client protocols
+from omnibase_spi.protocols.event_bus import (
+    ProtocolEventBusClient,
+    ProtocolEventBusClientProvider,
+)
+
+# Extended client and consumer
+from omnibase_spi.protocols.event_bus import (
+    ProtocolEventBusExtendedClient,
+    ProtocolEventBusConsumer,
+    ProtocolEventBusMessage,
+)
+
+# Producer protocols
+from omnibase_spi.protocols.event_bus import (
+    ProtocolEventBusProducerHandler,
+    ProtocolEventBusBatchProducer,
+    ProtocolEventBusTransactionalProducer,
+)
+
 # Backend adapters
 from omnibase_spi.protocols.event_bus import (
     ProtocolKafkaAdapter,
     ProtocolRedpandaAdapter,
+    ProtocolHttpEventBusAdapter,
 )
 
 # Publishing and error handling
@@ -1449,12 +1894,6 @@ from omnibase_spi.protocols.types.protocol_event_bus_types import (
     ProtocolOnexEvent,
     LiteralEventPriority,
     LiteralAuthStatus,
-)
-
-# Pub/Sub protocols (from event_bus module)
-from omnibase_spi.protocols.event_bus.protocol_event_bus_types import (
-    ProtocolEventPubSub,
-    ProtocolEventBusCredentials,
 )
 ```
 

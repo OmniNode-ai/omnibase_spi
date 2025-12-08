@@ -15,7 +15,20 @@ Note:
 
 from ..types.protocol_event_bus_types import ProtocolEventMessage
 from .protocol_dlq_handler import ProtocolDLQHandler
+
+# EventBus Client protocols (backend-agnostic)
+from .protocol_event_bus_client import (
+    ProtocolEventBusClient,
+    ProtocolEventBusClientProvider,
+)
 from .protocol_event_bus_context_manager import ProtocolEventBusContextManager
+from .protocol_event_bus_extended import (
+    ProtocolEventBusBatchProducer,
+    ProtocolEventBusConsumer,
+    ProtocolEventBusExtendedClient,
+    ProtocolEventBusMessage,
+    ProtocolEventBusTransactionalProducer,
+)
 from .protocol_event_bus_mixin import (
     ProtocolAsyncEventBus,
     ProtocolEventBusBase,
@@ -29,6 +42,7 @@ from .protocol_event_bus_service import (
     ProtocolEventBusService,
     ProtocolHttpEventBusAdapter,
 )
+from .protocol_event_bus_types import ProtocolTopicConfig
 
 # Phase 1: Event Bus Foundation
 from .protocol_event_envelope import ProtocolEventEnvelope
@@ -41,13 +55,20 @@ __all__ = [
     "ProtocolAsyncEventBus",
     "ProtocolDLQHandler",
     "ProtocolEventBusBase",
+    "ProtocolEventBusClient",
+    "ProtocolEventBusClientProvider",
     "ProtocolEventBusContextManager",
     "ProtocolEventBusLogEmitter",
     "ProtocolEventBusProducerHandler",
     "ProtocolEventBusProvider",
     "ProtocolEventBusRegistry",
     "ProtocolEventBusService",
+    "ProtocolEventBusTransactionalProducer",
     # Phase 1: Event Bus Foundation
+    "ProtocolEventBusBatchProducer",
+    "ProtocolEventBusConsumer",
+    "ProtocolEventBusExtendedClient",
+    "ProtocolEventBusMessage",
     "ProtocolEventEnvelope",
     "ProtocolEventMessage",
     "ProtocolEventPublisher",
@@ -56,4 +77,5 @@ __all__ = [
     "ProtocolRedpandaAdapter",
     "ProtocolSchemaRegistry",
     "ProtocolSyncEventBus",
+    "ProtocolTopicConfig",
 ]

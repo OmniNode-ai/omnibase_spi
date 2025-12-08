@@ -48,7 +48,13 @@ class ProtocolEventData(Protocol):
         ```
     """
 
-    async def validate_for_transport(self) -> bool: ...
+    async def validate_for_transport(self) -> bool:
+        """Validate that this data can be serialized and transported.
+
+        Returns:
+            True if the data is valid for transport, False otherwise.
+        """
+        ...
 
 
 @runtime_checkable
@@ -185,7 +191,13 @@ class ProtocolEvent(Protocol):
     timestamp: "ProtocolDateTime"
     source: str
 
-    async def validate_event(self) -> bool: ...
+    async def validate_event(self) -> bool:
+        """Validate that this event is well-formed and complete.
+
+        Returns:
+            True if the event is valid, False otherwise.
+        """
+        ...
 
 
 @runtime_checkable
@@ -226,7 +238,13 @@ class ProtocolEventResult(Protocol):
     processing_time: float
     error_message: str | None
 
-    async def validate_result(self) -> bool: ...
+    async def validate_result(self) -> bool:
+        """Validate that this result is well-formed.
+
+        Returns:
+            True if the result is valid, False otherwise.
+        """
+        ...
 
 
 @runtime_checkable
@@ -266,7 +284,13 @@ class ProtocolSecurityContext(Protocol):
     auth_status: LiteralAuthStatus
     token_expires_at: "ProtocolDateTime | None"
 
-    async def validate_security_context(self) -> bool: ...
+    async def validate_security_context(self) -> bool:
+        """Validate that this security context is valid and authorized.
+
+        Returns:
+            True if the security context is valid, False otherwise.
+        """
+        ...
 
 
 @runtime_checkable
@@ -306,7 +330,13 @@ class ProtocolEventSubscription(Protocol):
     filter_criteria: dict[str, "ContextValue"]
     is_active: bool
 
-    async def validate_subscription(self) -> bool: ...
+    async def validate_subscription(self) -> bool:
+        """Validate that this subscription is properly configured.
+
+        Returns:
+            True if the subscription is valid, False otherwise.
+        """
+        ...
 
 
 @runtime_checkable
@@ -355,7 +385,13 @@ class ProtocolOnexEvent(Protocol):
     correlation_id: UUID
     metadata: dict[str, "ProtocolEventData"]
 
-    async def validate_onex_event(self) -> bool: ...
+    async def validate_onex_event(self) -> bool:
+        """Validate that this ONEX event is well-formed and complete.
+
+        Returns:
+            True if the ONEX event is valid, False otherwise.
+        """
+        ...
 
 
 @runtime_checkable
@@ -482,7 +518,13 @@ class ProtocolEventHeaders(Protocol):
     max_retries: int | None
     ttl_seconds: int | None
 
-    async def validate_headers(self) -> bool: ...
+    async def validate_headers(self) -> bool:
+        """Validate that these headers are well-formed and complete.
+
+        Returns:
+            True if the headers are valid, False otherwise.
+        """
+        ...
 
 
 EventMessage = "ProtocolEventMessage"
@@ -534,7 +576,17 @@ class ProtocolEventMessage(Protocol):
     offset: str | None
     partition: int | None
 
-    async def ack(self) -> None: ...
+    async def ack(self) -> None:
+        """Acknowledge successful processing of this message.
+
+        Commits the consumer offset for this message, indicating that
+        processing completed successfully and the message should not
+        be redelivered.
+
+        Raises:
+            SPIError: If acknowledgment fails.
+        """
+        ...
 
 
 # Re-export all for backward compatibility

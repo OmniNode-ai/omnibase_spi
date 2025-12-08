@@ -22,7 +22,12 @@ from .protocol_artifact_container import (
     ProtocolArtifactMetadata,
 )
 from .protocol_cache_service import ProtocolCacheService
-from .protocol_client_config import ProtocolClientConfigProvider
+from .protocol_client_config import (
+    ProtocolClientConfigProvider,
+    ProtocolEventBusClientConfig,
+    ProtocolEventBusConsumerConfig,
+    ProtocolEventBusProducerConfig,
+)
 from .protocol_configuration_manager import ProtocolConfigurationManager
 from .protocol_connection_manageable import ProtocolConnectionManageable
 from .protocol_container import ProtocolContainer
@@ -73,6 +78,10 @@ __all__ = [
     "ProtocolDIServiceInstance",
     "ProtocolDIServiceMetadata",
     "ProtocolDependencyGraph",
+    # EventBus config protocols
+    "ProtocolEventBusClientConfig",
+    "ProtocolEventBusConsumerConfig",
+    "ProtocolEventBusProducerConfig",
     "ProtocolInjectionContext",
     "ProtocolServiceDependency",
     "ProtocolServiceFactory",

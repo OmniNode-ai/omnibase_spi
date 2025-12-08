@@ -177,7 +177,6 @@ These validators will be replaced by `omnibase_core.validation` once the circula
 - **[docs/README.md](docs/README.md)** - Complete documentation hub
 - **[docs/api-reference/README.md](docs/api-reference/README.md)** - All 176+ protocols across 22 domains
 - **[docs/GLOSSARY.md](docs/GLOSSARY.md)** - Terminology definitions (Protocol, Handler, Node, Contract)
-- **[docs/DEPRECATIONS.md](docs/DEPRECATIONS.md)** - Deprecated APIs, removal timelines, and migration guides
 - **[docs/QUICK-START.md](docs/QUICK-START.md)** - Get up and running quickly
 - **[docs/developer-guide/README.md](docs/developer-guide/README.md)** - Development workflow
 - **[docs/architecture/README.md](docs/architecture/README.md)** - Design principles and patterns

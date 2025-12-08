@@ -1,8 +1,12 @@
 """
-Typed configuration protocols for HTTP and Kafka clients.
+Typed configuration protocols for HTTP and EventBus clients.
 
 Provides strongly-typed configuration contracts to replace generic
 dict returns with specific, validated configuration structures.
+
+Note: EventBus protocols (formerly Kafka-specific) provide a backend-agnostic
+interface that can be implemented for Kafka, RabbitMQ, Redis Streams, or other
+message broker backends.
 """
 
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
@@ -75,16 +79,18 @@ class ProtocolHttpAuthConfig(Protocol):
 
 
 @runtime_checkable
-class ProtocolKafkaClientConfig(Protocol):
+class ProtocolEventBusClientConfig(Protocol):
     """
-    Protocol for Kafka client configuration parameters.
+    Protocol for EventBus client configuration parameters.
 
-    Defines typed configuration structure for Kafka clients with
+    Defines typed configuration structure for EventBus clients with
     connection settings, security, performance tuning, and reliability.
+    This backend-agnostic protocol can be implemented for Kafka, RabbitMQ,
+    Redis Streams, or other message broker backends.
 
     Example:
         ```python
-        config: "ProtocolKafkaClientConfig" = get_kafka_config()
+        config: "ProtocolEventBusClientConfig" = get_eventbus_config()
 
         print(f"Brokers: {config.bootstrap_servers}")
         print(f"Security: {config.security_protocol}")
@@ -112,12 +118,14 @@ class ProtocolKafkaClientConfig(Protocol):
 
 
 @runtime_checkable
-class ProtocolKafkaProducerConfig(Protocol):
+class ProtocolEventBusProducerConfig(Protocol):
     """
-    Protocol for Kafka producer-specific configuration parameters.
+    Protocol for EventBus producer-specific configuration parameters.
 
     Defines typed configuration for producer performance, reliability,
     and delivery semantics including batching and compression settings.
+    This backend-agnostic protocol can be implemented for Kafka, RabbitMQ,
+    Redis Streams, or other message broker backends.
     """
 
     acks: str
@@ -136,12 +144,14 @@ class ProtocolKafkaProducerConfig(Protocol):
 
 
 @runtime_checkable
-class ProtocolKafkaConsumerConfig(Protocol):
+class ProtocolEventBusConsumerConfig(Protocol):
     """
-    Protocol for Kafka consumer-specific configuration parameters.
+    Protocol for EventBus consumer-specific configuration parameters.
 
     Defines typed configuration for consumer group management, offset handling,
     and message consumption patterns including auto-commit and fetch settings.
+    This backend-agnostic protocol can be implemented for Kafka, RabbitMQ,
+    Redis Streams, or other message broker backends.
     """
 
     group_id: str
@@ -164,7 +174,7 @@ class ProtocolClientConfigProvider(Protocol):
     """
     Protocol for client configuration provider.
 
-    Provides access to typed configuration objects for HTTP and Kafka clients
+    Provides access to typed configuration objects for HTTP and EventBus clients
     with support for environment-based overrides and configuration validation.
 
     Example:
@@ -172,7 +182,7 @@ class ProtocolClientConfigProvider(Protocol):
         provider: "ProtocolClientConfigProvider" = get_config_provider()
 
         http_config = provider.get_http_client_config("api_client")
-        kafka_config = provider.get_kafka_client_config("event_processor")
+        eventbus_config = provider.get_eventbus_client_config("event_processor")
 
         # Validate configurations
         await provider.validate_configurations()
@@ -185,16 +195,16 @@ class ProtocolClientConfigProvider(Protocol):
 
     async def get_http_auth_config(self, auth_name: str) -> ProtocolHttpAuthConfig: ...
 
-    async def get_kafka_client_config(
+    async def get_eventbus_client_config(
         self, client_name: str
-    ) -> ProtocolKafkaClientConfig: ...
+    ) -> ProtocolEventBusClientConfig: ...
 
-    async def get_kafka_producer_config(
+    async def get_eventbus_producer_config(
         self, producer_name: str
-    ) -> ProtocolKafkaProducerConfig: ...
+    ) -> ProtocolEventBusProducerConfig: ...
 
-    async def get_kafka_consumer_config(
+    async def get_eventbus_consumer_config(
         self, consumer_name: str
-    ) -> ProtocolKafkaConsumerConfig: ...
+    ) -> ProtocolEventBusConsumerConfig: ...
 
     async def validate_configurations(self) -> list[str]: ...
