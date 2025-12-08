@@ -42,6 +42,7 @@ from .protocol_event_bus_service import (
     ProtocolEventBusService,
     ProtocolHttpEventBusAdapter,
 )
+from .protocol_event_bus_types import ProtocolTopicConfig
 
 # Phase 1: Event Bus Foundation
 from .protocol_event_envelope import ProtocolEventEnvelope
@@ -76,4 +77,5 @@ __all__ = [
     "ProtocolRedpandaAdapter",
     "ProtocolSchemaRegistry",
     "ProtocolSyncEventBus",
+    "ProtocolTopicConfig",
 ]

@@ -137,6 +137,37 @@ class ProtocolEventBusClient(Protocol):
         """
         ...
 
+    async def validate_connection(self) -> bool:
+        """
+        Validate the event bus connection is healthy.
+
+        Performs a health check on the underlying connection to ensure
+        the client can communicate with the event bus cluster.
+
+        Returns:
+            True if connection is valid and healthy, False otherwise.
+        """
+        ...
+
+    async def validate_message(
+        self, topic: str, value: bytes, key: bytes | None = None
+    ) -> bool:
+        """
+        Validate a message before publishing.
+
+        Performs validation checks on the message parameters to ensure
+        they meet the requirements for successful publishing.
+
+        Args:
+            topic: Target topic for the message.
+            value: Message payload as bytes.
+            key: Optional message key for partitioning.
+
+        Returns:
+            True if message is valid, False otherwise.
+        """
+        ...
+
 
 @runtime_checkable
 class ProtocolEventBusClientProvider(Protocol):

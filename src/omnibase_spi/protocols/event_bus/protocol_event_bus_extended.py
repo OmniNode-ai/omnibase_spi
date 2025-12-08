@@ -11,7 +11,9 @@ Redpanda, RabbitMQ) live in omnibase_infra.
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.protocol_core_types import ContextValue
+    from omnibase_spi.protocols.event_bus.protocol_event_bus_types import (
+        ProtocolTopicConfig,
+    )
 
 
 @runtime_checkable
@@ -190,6 +192,17 @@ class ProtocolEventBusConsumer(Protocol):
         """
         ...
 
+    async def validate_connection(self) -> bool:
+        """Validate the event bus consumer connection is healthy.
+
+        Performs a health check on the underlying connection to ensure
+        the consumer can communicate with the event bus cluster.
+
+        Returns:
+            True if connection is valid and healthy, False otherwise.
+        """
+        ...
+
 
 @runtime_checkable
 class ProtocolEventBusBatchProducer(Protocol):
@@ -297,6 +310,32 @@ class ProtocolEventBusBatchProducer(Protocol):
 
         Raises:
             EventBusConnectionError: If the connection to the event bus is lost.
+        """
+        ...
+
+    async def validate_connection(self) -> bool:
+        """Validate the event bus producer connection is healthy.
+
+        Performs a health check on the underlying connection to ensure
+        the producer can communicate with the event bus cluster.
+
+        Returns:
+            True if connection is valid and healthy, False otherwise.
+        """
+        ...
+
+    async def validate_message(self, message: "ProtocolEventBusMessage") -> bool:
+        """Validate a message before publishing.
+
+        Performs validation checks on the message to ensure it meets
+        the requirements for successful publishing, including topic
+        validity, payload size limits, and header format.
+
+        Args:
+            message: The message to validate.
+
+        Returns:
+            True if message is valid, False otherwise.
         """
         ...
 
@@ -476,7 +515,7 @@ class ProtocolEventBusExtendedClient(Protocol):
         topic_name: str,
         partitions: int,
         replication_factor: int,
-        config: dict[str, "ContextValue"] | None = None,
+        topic_config: "ProtocolTopicConfig | None" = None,
     ) -> None:
         """Create a new topic with the specified configuration.
 
@@ -484,7 +523,8 @@ class ProtocolEventBusExtendedClient(Protocol):
             topic_name: Name of the topic to create.
             partitions: Number of partitions for the topic.
             replication_factor: Replication factor for the topic.
-            config: Optional topic-specific configuration parameters.
+            topic_config: Optional topic-specific configuration parameters
+                including retention, compression, and cleanup policies.
 
         Raises:
             EventBusConnectionError: If the connection to the event bus is lost.
@@ -536,6 +576,33 @@ class ProtocolEventBusExtendedClient(Protocol):
 
         Returns:
             True if the connection is healthy, False otherwise.
+        """
+        ...
+
+    async def validate_connection(self) -> bool:
+        """Validate the event bus connection is healthy.
+
+        Performs a comprehensive health check on the underlying connection
+        to ensure the client can communicate with the event bus cluster.
+        This includes verifying broker connectivity and metadata availability.
+
+        Returns:
+            True if connection is valid and healthy, False otherwise.
+        """
+        ...
+
+    async def validate_message(self, message: ProtocolEventBusMessage) -> bool:
+        """Validate a message before publishing.
+
+        Performs validation checks on the message to ensure it meets
+        the requirements for successful publishing, including topic
+        validity, payload size limits, and header format.
+
+        Args:
+            message: The message to validate.
+
+        Returns:
+            True if message is valid, False otherwise.
         """
         ...
 
