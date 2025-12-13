@@ -186,6 +186,28 @@ class MissingPropertiesProvider:
         pass
 
 
+# =============================================================================
+# Pytest Fixtures
+# =============================================================================
+
+
+@pytest.fixture
+def compliant_provider() -> CompliantProvider:
+    """Provide a compliant EventBus provider for testing."""
+    return CompliantProvider()
+
+
+@pytest.fixture
+def mock_event_bus() -> MockEventBus:
+    """Provide a mock event bus for testing."""
+    return MockEventBus()
+
+
+# =============================================================================
+# Test Classes
+# =============================================================================
+
+
 class TestProtocolEventBusProviderProtocol:
     """Test suite for ProtocolEventBusProvider protocol compliance."""
 
@@ -235,10 +257,11 @@ class TestProtocolEventBusProviderProtocol:
 class TestProtocolEventBusProviderCompliance:
     """Test isinstance checks for protocol compliance."""
 
-    def test_compliant_class_passes_isinstance(self) -> None:
+    def test_compliant_class_passes_isinstance(
+        self, compliant_provider: CompliantProvider
+    ) -> None:
         """A class implementing all ProtocolEventBusProvider methods should pass isinstance check."""
-        provider = CompliantProvider()
-        assert isinstance(provider, ProtocolEventBusProvider)
+        assert isinstance(compliant_provider, ProtocolEventBusProvider)
 
     def test_partial_implementation_fails_isinstance(self) -> None:
         """A class missing ProtocolEventBusProvider methods should fail isinstance check."""
@@ -260,45 +283,51 @@ class TestProtocolEventBusProviderMethodSignatures:
     """Test method signatures from compliant implementations."""
 
     @pytest.mark.asyncio
-    async def test_get_event_bus_with_defaults(self) -> None:
+    async def test_get_event_bus_with_defaults(
+        self, compliant_provider: CompliantProvider
+    ) -> None:
         """get_event_bus should work with default parameters."""
-        provider = CompliantProvider()
-        bus = await provider.get_event_bus()
+        bus = await compliant_provider.get_event_bus()
         assert bus is not None
 
     @pytest.mark.asyncio
-    async def test_get_event_bus_with_environment(self) -> None:
+    async def test_get_event_bus_with_environment(
+        self, compliant_provider: CompliantProvider
+    ) -> None:
         """get_event_bus should accept environment parameter."""
-        provider = CompliantProvider()
-        bus = await provider.get_event_bus(environment="prod")
+        bus = await compliant_provider.get_event_bus(environment="prod")
         assert bus is not None
 
     @pytest.mark.asyncio
-    async def test_get_event_bus_with_group(self) -> None:
+    async def test_get_event_bus_with_group(
+        self, compliant_provider: CompliantProvider
+    ) -> None:
         """get_event_bus should accept group parameter."""
-        provider = CompliantProvider()
-        bus = await provider.get_event_bus(group="my-service")
+        bus = await compliant_provider.get_event_bus(group="my-service")
         assert bus is not None
 
     @pytest.mark.asyncio
-    async def test_get_event_bus_with_all_params(self) -> None:
+    async def test_get_event_bus_with_all_params(
+        self, compliant_provider: CompliantProvider
+    ) -> None:
         """get_event_bus should accept both environment and group."""
-        provider = CompliantProvider()
-        bus = await provider.get_event_bus(environment="prod", group="my-service")
+        bus = await compliant_provider.get_event_bus(environment="prod", group="my-service")
         assert bus is not None
 
     @pytest.mark.asyncio
-    async def test_create_event_bus_accepts_required_params(self) -> None:
+    async def test_create_event_bus_accepts_required_params(
+        self, compliant_provider: CompliantProvider
+    ) -> None:
         """create_event_bus should require environment and group."""
-        provider = CompliantProvider()
-        bus = await provider.create_event_bus(environment="test", group="test-consumer")
+        bus = await compliant_provider.create_event_bus(environment="test", group="test-consumer")
         assert bus is not None
 
     @pytest.mark.asyncio
-    async def test_create_event_bus_accepts_config(self) -> None:
+    async def test_create_event_bus_accepts_config(
+        self, compliant_provider: CompliantProvider
+    ) -> None:
         """create_event_bus should accept optional config."""
-        provider = CompliantProvider()
-        bus = await provider.create_event_bus(
+        bus = await compliant_provider.create_event_bus(
             environment="test",
             group="test-consumer",
             config={"auto_offset_reset": "earliest"},
@@ -306,22 +335,25 @@ class TestProtocolEventBusProviderMethodSignatures:
         assert bus is not None
 
     @pytest.mark.asyncio
-    async def test_close_all_takes_no_args(self) -> None:
+    async def test_close_all_takes_no_args(
+        self, compliant_provider: CompliantProvider
+    ) -> None:
         """close_all should take no arguments."""
-        provider = CompliantProvider()
         # Should not raise
-        await provider.close_all()
+        await compliant_provider.close_all()
 
-    def test_default_environment_returns_string(self) -> None:
+    def test_default_environment_returns_string(
+        self, compliant_provider: CompliantProvider
+    ) -> None:
         """default_environment should return a string."""
-        provider = CompliantProvider()
-        env = provider.default_environment
+        env = compliant_provider.default_environment
         assert isinstance(env, str)
 
-    def test_default_group_returns_string(self) -> None:
+    def test_default_group_returns_string(
+        self, compliant_provider: CompliantProvider
+    ) -> None:
         """default_group should return a string."""
-        provider = CompliantProvider()
-        group = provider.default_group
+        group = compliant_provider.default_group
         assert isinstance(group, str)
 
 
@@ -405,30 +437,30 @@ class TestProtocolEventBusProviderContextManagerLifecycle:
     """Test context manager lifecycle patterns for event bus provider."""
 
     @pytest.mark.asyncio
-    async def test_provider_lifecycle_pattern(self) -> None:
+    async def test_provider_lifecycle_pattern(
+        self, compliant_provider: CompliantProvider
+    ) -> None:
         """Test typical provider lifecycle: get bus, use, close all."""
-        provider = CompliantProvider()
-
         # Get event bus
-        bus = await provider.get_event_bus(environment="test", group="test-consumer")
+        bus = await compliant_provider.get_event_bus(environment="test", group="test-consumer")
         assert bus is not None
 
         # Create additional bus
-        bus2 = await provider.create_event_bus(
+        bus2 = await compliant_provider.create_event_bus(
             environment="test", group="another-consumer"
         )
         assert bus2 is not None
 
         # Cleanup
-        await provider.close_all()
+        await compliant_provider.close_all()
 
     @pytest.mark.asyncio
-    async def test_factory_pattern_returns_different_instances(self) -> None:
+    async def test_factory_pattern_returns_different_instances(
+        self, compliant_provider: CompliantProvider
+    ) -> None:
         """create_event_bus should create new instances (no caching)."""
-        provider = CompliantProvider()
-
-        bus1 = await provider.create_event_bus(environment="test", group="consumer-1")
-        bus2 = await provider.create_event_bus(environment="test", group="consumer-2")
+        bus1 = await compliant_provider.create_event_bus(environment="test", group="consumer-1")
+        bus2 = await compliant_provider.create_event_bus(environment="test", group="consumer-2")
 
         # create_event_bus should return different instances
         # (Note: MockEventBus always returns new instances, matching expected behavior)
@@ -445,10 +477,11 @@ class TestProtocolEventBusBaseHealthCheckReturnContract:
     """
 
     @pytest.mark.asyncio
-    async def test_health_check_returns_dict(self) -> None:
+    async def test_health_check_returns_dict(
+        self, mock_event_bus: MockEventBus
+    ) -> None:
         """health_check() must return dict[str, Any] (not bool)."""
-        bus = MockEventBus()
-        result = await bus.health_check()
+        result = await mock_event_bus.health_check()
 
         assert isinstance(result, dict), (
             f"health_check() should return dict, got {type(result)}. "
@@ -456,28 +489,31 @@ class TestProtocolEventBusBaseHealthCheckReturnContract:
         )
 
     @pytest.mark.asyncio
-    async def test_health_check_contains_healthy_key(self) -> None:
+    async def test_health_check_contains_healthy_key(
+        self, mock_event_bus: MockEventBus
+    ) -> None:
         """health_check() must contain 'healthy' key."""
-        bus = MockEventBus()
-        result = await bus.health_check()
+        result = await mock_event_bus.health_check()
 
         assert "healthy" in result, "health_check() must return dict with 'healthy' key"
 
     @pytest.mark.asyncio
-    async def test_health_check_healthy_is_boolean(self) -> None:
+    async def test_health_check_healthy_is_boolean(
+        self, mock_event_bus: MockEventBus
+    ) -> None:
         """health_check() 'healthy' value must be boolean."""
-        bus = MockEventBus()
-        result = await bus.health_check()
+        result = await mock_event_bus.health_check()
 
         assert isinstance(
             result["healthy"], bool
         ), f"'healthy' should be bool, got {type(result['healthy'])}"
 
     @pytest.mark.asyncio
-    async def test_health_check_latency_ms_is_numeric_when_present(self) -> None:
+    async def test_health_check_latency_ms_is_numeric_when_present(
+        self, mock_event_bus: MockEventBus
+    ) -> None:
         """health_check() 'latency_ms' should be numeric when present."""
-        bus = MockEventBus()
-        result = await bus.health_check()
+        result = await mock_event_bus.health_check()
 
         if "latency_ms" in result:
             assert isinstance(
@@ -485,10 +521,11 @@ class TestProtocolEventBusBaseHealthCheckReturnContract:
             ), f"latency_ms should be numeric, got {type(result['latency_ms'])}"
 
     @pytest.mark.asyncio
-    async def test_health_check_last_error_is_string_when_present(self) -> None:
+    async def test_health_check_last_error_is_string_when_present(
+        self, mock_event_bus: MockEventBus
+    ) -> None:
         """health_check() 'last_error' should be string when present."""
-        bus = MockEventBus()
-        result = await bus.health_check()
+        result = await mock_event_bus.health_check()
 
         if "last_error" in result:
             assert isinstance(
@@ -496,10 +533,11 @@ class TestProtocolEventBusBaseHealthCheckReturnContract:
             ), f"last_error should be string, got {type(result['last_error'])}"
 
     @pytest.mark.asyncio
-    async def test_health_check_details_is_dict_when_present(self) -> None:
+    async def test_health_check_details_is_dict_when_present(
+        self, mock_event_bus: MockEventBus
+    ) -> None:
         """health_check() 'details' should be dict when present."""
-        bus = MockEventBus()
-        result = await bus.health_check()
+        result = await mock_event_bus.health_check()
 
         if "details" in result:
             assert isinstance(
