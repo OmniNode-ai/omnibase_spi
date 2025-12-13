@@ -18,7 +18,7 @@ Key protocols tested:
 """
 
 import inspect
-from typing import Any, Protocol, cast
+from typing import Protocol, cast
 
 import pytest
 
@@ -32,6 +32,9 @@ from omnibase_spi.protocols.event_bus.protocol_event_bus_extended import (
     ProtocolEventBusExtendedClient,
     ProtocolEventBusMessage,
     ProtocolEventBusTransactionalProducer,
+)
+from omnibase_spi.protocols.event_bus.protocol_event_bus_types import (
+    ProtocolTopicConfig,
 )
 
 # =============================================================================
@@ -48,13 +51,13 @@ class CompliantEventBusClient:
 
     async def stop(self, timeout_seconds: float = 30.0) -> None:
         """Stop the EventBus client."""
-        del timeout_seconds  # Unused in mock implementation
+        _ = timeout_seconds  # Unused in mock
 
     async def send_and_wait(
         self, topic: str, value: bytes, key: bytes | None = None
     ) -> None:
         """Send a message and wait for acknowledgment."""
-        del topic, value, key  # Unused in mock implementation
+        _ = (topic, value, key)  # Unused in mock
 
     def bootstrap_servers(self) -> list[str]:
         """Get bootstrap servers."""
@@ -68,7 +71,7 @@ class CompliantEventBusClient:
         self, topic: str, value: bytes, key: bytes | None = None
     ) -> bool:
         """Validate a message before publishing."""
-        del topic, value, key  # Unused in mock implementation
+        _ = (topic, value, key)  # Unused in mock
         return True
 
 
@@ -81,7 +84,7 @@ class PartialEventBusClient:
 
     async def stop(self, timeout_seconds: float = 30.0) -> None:
         """Stop the EventBus client."""
-        del timeout_seconds  # Unused in mock implementation
+        _ = timeout_seconds  # Unused in mock
 
 
 class NonCompliantEventBusClient:
@@ -172,41 +175,41 @@ class CompliantEventBusConsumer:
 
     async def subscribe_to_topics(self, topics: list[str], group_id: str) -> None:
         """Subscribe to topics."""
-        del topics, group_id  # Unused in mock implementation
+        _ = (topics, group_id)  # Unused in mock
 
     async def unsubscribe_from_topics(self, topics: list[str]) -> None:
         """Unsubscribe from topics."""
-        del topics  # Unused in mock implementation
+        _ = topics  # Unused in mock
 
     async def consume_messages(
         self, timeout_ms: int, max_messages: int
     ) -> list[ProtocolEventBusMessage]:
         """Consume messages."""
-        del timeout_ms, max_messages  # Unused in mock implementation
+        _ = (timeout_ms, max_messages)  # Unused in mock
         return []
 
     async def consume_messages_stream(
         self, batch_timeout_ms: int
     ) -> list[ProtocolEventBusMessage]:
         """Consume a batch of messages with streaming semantics."""
-        del batch_timeout_ms  # Unused in mock implementation
+        _ = batch_timeout_ms  # Unused in mock
         return []
 
     async def commit_offsets(self) -> None:
         """Commit current consumer offsets."""
-        pass  # Mock implementation
+        pass
 
     async def seek_to_beginning(self, topic: str, partition: int) -> None:
         """Seek to the beginning of a topic partition."""
-        del topic, partition  # Unused in mock implementation
+        _ = (topic, partition)  # Unused in mock
 
     async def seek_to_end(self, topic: str, partition: int) -> None:
         """Seek to the end of a topic partition."""
-        del topic, partition  # Unused in mock implementation
+        _ = (topic, partition)  # Unused in mock
 
     async def seek_to_offset(self, topic: str, partition: int, offset: int) -> None:
         """Seek to a specific offset."""
-        del topic, partition, offset  # Unused in mock implementation
+        _ = (topic, partition, offset)  # Unused in mock
 
     async def get_current_offsets(self) -> dict[str, dict[int, int]]:
         """Get current consumer offsets."""
@@ -214,7 +217,7 @@ class CompliantEventBusConsumer:
 
     async def close_consumer(self, timeout_seconds: float = 30.0) -> None:
         """Close the consumer."""
-        del timeout_seconds  # Unused in mock implementation
+        _ = timeout_seconds  # Unused in mock
 
     async def validate_connection(self) -> bool:
         """Validate the connection."""
@@ -226,13 +229,13 @@ class PartialEventBusConsumer:
 
     async def subscribe_to_topics(self, topics: list[str], group_id: str) -> None:
         """Subscribe to topics."""
-        del topics, group_id  # Unused in mock implementation
+        _ = (topics, group_id)  # Unused in mock
 
     async def consume_messages(
         self, timeout_ms: int, max_messages: int
     ) -> list[ProtocolEventBusMessage]:
         """Consume messages."""
-        del timeout_ms, max_messages  # Unused in mock implementation
+        _ = (timeout_ms, max_messages)  # Unused in mock
         return []
 
 
@@ -241,7 +244,7 @@ class CompliantEventBusBatchProducer:
 
     async def send_batch(self, messages: list[ProtocolEventBusMessage]) -> None:
         """Send a batch of messages."""
-        del messages  # Unused in mock implementation
+        _ = messages  # Unused in mock
 
     async def send_to_partition(
         self,
@@ -252,7 +255,7 @@ class CompliantEventBusBatchProducer:
         headers: dict[str, bytes] | None = None,
     ) -> None:
         """Send a message to a specific partition."""
-        del topic, partition, key, value, headers  # Unused in mock implementation
+        _ = (topic, partition, key, value, headers)  # Unused in mock
 
     async def send_with_custom_partitioner(
         self,
@@ -263,11 +266,11 @@ class CompliantEventBusBatchProducer:
         headers: dict[str, bytes] | None = None,
     ) -> None:
         """Send a message using a custom partitioning strategy."""
-        del topic, key, value, partition_strategy, headers  # Unused in mock implementation
+        _ = (topic, key, value, partition_strategy, headers)  # Unused in mock
 
     async def flush_pending(self, timeout_ms: int) -> None:
         """Flush all pending messages."""
-        del timeout_ms  # Unused in mock implementation
+        _ = timeout_ms  # Unused in mock
 
     async def get_batch_metrics(self) -> dict[str, int]:
         """Get metrics for batch producer operations."""
@@ -279,7 +282,7 @@ class CompliantEventBusBatchProducer:
 
     async def validate_message(self, message: ProtocolEventBusMessage) -> bool:
         """Validate a message before publishing."""
-        del message  # Unused in mock implementation
+        _ = message  # Unused in mock
         return True
 
 
@@ -288,11 +291,11 @@ class PartialEventBusBatchProducer:
 
     async def send_batch(self, messages: list[ProtocolEventBusMessage]) -> None:
         """Send a batch of messages."""
-        del messages  # Unused in mock implementation
+        _ = messages  # Unused in mock
 
     async def flush_pending(self, timeout_ms: int) -> None:
         """Flush all pending messages."""
-        del timeout_ms  # Unused in mock implementation
+        _ = timeout_ms  # Unused in mock
 
 
 class CompliantEventBusTransactionalProducer:
@@ -300,11 +303,11 @@ class CompliantEventBusTransactionalProducer:
 
     async def init_transactions(self, transaction_id: str) -> None:
         """Initialize the transactional producer."""
-        del transaction_id  # Unused in mock implementation
+        _ = transaction_id  # Unused in mock
 
     async def begin_transaction(self) -> None:
         """Begin a new transaction."""
-        pass  # Mock implementation
+        pass
 
     async def send_transactional(
         self,
@@ -314,15 +317,15 @@ class CompliantEventBusTransactionalProducer:
         headers: dict[str, bytes] | None = None,
     ) -> None:
         """Send a message as part of the current transaction."""
-        del topic, value, key, headers  # Unused in mock implementation
+        _ = (topic, value, key, headers)  # Unused in mock
 
     async def commit_transaction(self) -> None:
         """Commit the current transaction."""
-        pass  # Mock implementation
+        pass
 
     async def abort_transaction(self) -> None:
         """Abort the current transaction."""
-        pass  # Mock implementation
+        pass
 
 
 class PartialEventBusTransactionalProducer:
@@ -365,14 +368,14 @@ class CompliantEventBusExtendedClient:
         topic_name: str,
         partitions: int,
         replication_factor: int,
-        topic_config: Any = None,
+        topic_config: ProtocolTopicConfig | None = None,
     ) -> None:
         """Create a new topic."""
-        del topic_name, partitions, replication_factor, topic_config  # Unused in mock
+        _ = (topic_name, partitions, replication_factor, topic_config)  # Unused in mock
 
     async def delete_topic(self, topic_name: str) -> None:
         """Delete a topic."""
-        del topic_name  # Unused in mock implementation
+        _ = topic_name  # Unused in mock
 
     async def list_topics(self) -> list[str]:
         """List all topics."""
@@ -380,7 +383,7 @@ class CompliantEventBusExtendedClient:
 
     async def get_topic_metadata(self, topic_name: str) -> dict[str, str | int]:
         """Get topic metadata."""
-        del topic_name  # Unused in mock implementation
+        _ = topic_name  # Unused in mock
         return {"partitions": 3, "replication_factor": 2}
 
     async def health_check(self) -> bool:
@@ -393,12 +396,12 @@ class CompliantEventBusExtendedClient:
 
     async def validate_message(self, message: ProtocolEventBusMessage) -> bool:
         """Validate a message before publishing."""
-        del message  # Unused in mock implementation
+        _ = message  # Unused in mock
         return True
 
     async def close_client(self, timeout_seconds: float = 30.0) -> None:
         """Close the client."""
-        del timeout_seconds  # Unused in mock implementation
+        _ = timeout_seconds  # Unused in mock
 
 
 class PartialEventBusExtendedClient:
