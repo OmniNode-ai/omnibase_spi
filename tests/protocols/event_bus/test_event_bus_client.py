@@ -119,7 +119,10 @@ class CompliantEventBusMessage:
     partition: int | None = 0
     offset: int | None = 100
     timestamp: int | None = 1699999999
-    headers: dict[str, bytes] = {}  # noqa: RUF012
+    headers: dict[str, bytes] | None = None
+
+    def __init__(self) -> None:
+        self.headers = {}
 
 
 class PartialEventBusMessage:
@@ -496,27 +499,57 @@ class TestProtocolEventBusClientAsyncNature:
     """Test that ProtocolEventBusClient methods are async."""
 
     def test_start_is_async(self) -> None:
-        """start should be an async method."""
+        """start should be an async method in both protocol and implementation."""
+        # Check protocol defines async signature
+        protocol_method = getattr(ProtocolEventBusClient, "start", None)
+        assert protocol_method is not None
+        assert inspect.iscoroutinefunction(protocol_method)
+        # Check compliant implementation is async
         assert inspect.iscoroutinefunction(CompliantEventBusClient.start)
 
     def test_stop_is_async(self) -> None:
-        """stop should be an async method."""
+        """stop should be an async method in both protocol and implementation."""
+        # Check protocol defines async signature
+        protocol_method = getattr(ProtocolEventBusClient, "stop", None)
+        assert protocol_method is not None
+        assert inspect.iscoroutinefunction(protocol_method)
+        # Check compliant implementation is async
         assert inspect.iscoroutinefunction(CompliantEventBusClient.stop)
 
     def test_send_and_wait_is_async(self) -> None:
-        """send_and_wait should be an async method."""
+        """send_and_wait should be an async method in both protocol and implementation."""
+        # Check protocol defines async signature
+        protocol_method = getattr(ProtocolEventBusClient, "send_and_wait", None)
+        assert protocol_method is not None
+        assert inspect.iscoroutinefunction(protocol_method)
+        # Check compliant implementation is async
         assert inspect.iscoroutinefunction(CompliantEventBusClient.send_and_wait)
 
     def test_validate_connection_is_async(self) -> None:
-        """validate_connection should be an async method."""
+        """validate_connection should be an async method in both protocol and implementation."""
+        # Check protocol defines async signature
+        protocol_method = getattr(ProtocolEventBusClient, "validate_connection", None)
+        assert protocol_method is not None
+        assert inspect.iscoroutinefunction(protocol_method)
+        # Check compliant implementation is async
         assert inspect.iscoroutinefunction(CompliantEventBusClient.validate_connection)
 
     def test_validate_message_is_async(self) -> None:
-        """validate_message should be an async method."""
+        """validate_message should be an async method in both protocol and implementation."""
+        # Check protocol defines async signature
+        protocol_method = getattr(ProtocolEventBusClient, "validate_message", None)
+        assert protocol_method is not None
+        assert inspect.iscoroutinefunction(protocol_method)
+        # Check compliant implementation is async
         assert inspect.iscoroutinefunction(CompliantEventBusClient.validate_message)
 
     def test_bootstrap_servers_is_sync(self) -> None:
-        """bootstrap_servers should be a sync method."""
+        """bootstrap_servers should be a sync method in both protocol and implementation."""
+        # Check protocol defines sync signature
+        protocol_method = getattr(ProtocolEventBusClient, "bootstrap_servers", None)
+        assert protocol_method is not None
+        assert not inspect.iscoroutinefunction(protocol_method)
+        # Check compliant implementation is sync
         assert not inspect.iscoroutinefunction(CompliantEventBusClient.bootstrap_servers)
 
 
@@ -593,31 +626,51 @@ class TestProtocolEventBusMessageProtocol:
 
     def test_protocol_has_key_attribute(self) -> None:
         """ProtocolEventBusMessage should define key attribute."""
-        # Check protocol annotations or compliant implementation
+        # Check protocol defines the attribute in annotations
+        assert "key" in ProtocolEventBusMessage.__annotations__
+        # Also verify compliant implementation has it
         assert hasattr(CompliantEventBusMessage, "key")
 
     def test_protocol_has_value_attribute(self) -> None:
         """ProtocolEventBusMessage should define value attribute."""
+        # Check protocol defines the attribute in annotations
+        assert "value" in ProtocolEventBusMessage.__annotations__
+        # Also verify compliant implementation has it
         assert hasattr(CompliantEventBusMessage, "value")
 
     def test_protocol_has_topic_attribute(self) -> None:
         """ProtocolEventBusMessage should define topic attribute."""
+        # Check protocol defines the attribute in annotations
+        assert "topic" in ProtocolEventBusMessage.__annotations__
+        # Also verify compliant implementation has it
         assert hasattr(CompliantEventBusMessage, "topic")
 
     def test_protocol_has_partition_attribute(self) -> None:
         """ProtocolEventBusMessage should define partition attribute."""
+        # Check protocol defines the attribute in annotations
+        assert "partition" in ProtocolEventBusMessage.__annotations__
+        # Also verify compliant implementation has it
         assert hasattr(CompliantEventBusMessage, "partition")
 
     def test_protocol_has_offset_attribute(self) -> None:
         """ProtocolEventBusMessage should define offset attribute."""
+        # Check protocol defines the attribute in annotations
+        assert "offset" in ProtocolEventBusMessage.__annotations__
+        # Also verify compliant implementation has it
         assert hasattr(CompliantEventBusMessage, "offset")
 
     def test_protocol_has_timestamp_attribute(self) -> None:
         """ProtocolEventBusMessage should define timestamp attribute."""
+        # Check protocol defines the attribute in annotations
+        assert "timestamp" in ProtocolEventBusMessage.__annotations__
+        # Also verify compliant implementation has it
         assert hasattr(CompliantEventBusMessage, "timestamp")
 
     def test_protocol_has_headers_attribute(self) -> None:
         """ProtocolEventBusMessage should define headers attribute."""
+        # Check protocol defines the attribute in annotations
+        assert "headers" in ProtocolEventBusMessage.__annotations__
+        # Also verify compliant implementation has it
         assert hasattr(CompliantEventBusMessage, "headers")
 
     def test_protocol_cannot_be_instantiated(self) -> None:
@@ -752,19 +805,39 @@ class TestProtocolEventBusConsumerAsyncNature:
     """Test that ProtocolEventBusConsumer methods are async."""
 
     def test_subscribe_to_topics_is_async(self) -> None:
-        """subscribe_to_topics should be async."""
+        """subscribe_to_topics should be async in both protocol and implementation."""
+        # Check protocol defines async signature
+        protocol_method = getattr(ProtocolEventBusConsumer, "subscribe_to_topics", None)
+        assert protocol_method is not None
+        assert inspect.iscoroutinefunction(protocol_method)
+        # Check compliant implementation is async
         assert inspect.iscoroutinefunction(CompliantEventBusConsumer.subscribe_to_topics)
 
     def test_consume_messages_is_async(self) -> None:
-        """consume_messages should be async."""
+        """consume_messages should be async in both protocol and implementation."""
+        # Check protocol defines async signature
+        protocol_method = getattr(ProtocolEventBusConsumer, "consume_messages", None)
+        assert protocol_method is not None
+        assert inspect.iscoroutinefunction(protocol_method)
+        # Check compliant implementation is async
         assert inspect.iscoroutinefunction(CompliantEventBusConsumer.consume_messages)
 
     def test_commit_offsets_is_async(self) -> None:
-        """commit_offsets should be async."""
+        """commit_offsets should be async in both protocol and implementation."""
+        # Check protocol defines async signature
+        protocol_method = getattr(ProtocolEventBusConsumer, "commit_offsets", None)
+        assert protocol_method is not None
+        assert inspect.iscoroutinefunction(protocol_method)
+        # Check compliant implementation is async
         assert inspect.iscoroutinefunction(CompliantEventBusConsumer.commit_offsets)
 
     def test_validate_connection_is_async(self) -> None:
-        """validate_connection should be async."""
+        """validate_connection should be async in both protocol and implementation."""
+        # Check protocol defines async signature
+        protocol_method = getattr(ProtocolEventBusConsumer, "validate_connection", None)
+        assert protocol_method is not None
+        assert inspect.iscoroutinefunction(protocol_method)
+        # Check compliant implementation is async
         assert inspect.iscoroutinefunction(
             CompliantEventBusConsumer.validate_connection
         )
@@ -1120,31 +1193,58 @@ class TestProtocolEventBusExtendedClientAsyncNature:
     """Test that ProtocolEventBusExtendedClient methods are async."""
 
     def test_create_consumer_is_async(self) -> None:
-        """create_consumer should be async."""
+        """create_consumer should be async in both protocol and implementation."""
+        # Check protocol defines async signature
+        protocol_method = getattr(ProtocolEventBusExtendedClient, "create_consumer", None)
+        assert protocol_method is not None
+        assert inspect.iscoroutinefunction(protocol_method)
+        # Check compliant implementation is async
         assert inspect.iscoroutinefunction(
             CompliantEventBusExtendedClient.create_consumer
         )
 
     def test_create_batch_producer_is_async(self) -> None:
-        """create_batch_producer should be async."""
+        """create_batch_producer should be async in both protocol and implementation."""
+        # Check protocol defines async signature
+        protocol_method = getattr(
+            ProtocolEventBusExtendedClient, "create_batch_producer", None
+        )
+        assert protocol_method is not None
+        assert inspect.iscoroutinefunction(protocol_method)
+        # Check compliant implementation is async
         assert inspect.iscoroutinefunction(
             CompliantEventBusExtendedClient.create_batch_producer
         )
 
     def test_create_topic_is_async(self) -> None:
-        """create_topic should be async."""
+        """create_topic should be async in both protocol and implementation."""
+        # Check protocol defines async signature
+        protocol_method = getattr(ProtocolEventBusExtendedClient, "create_topic", None)
+        assert protocol_method is not None
+        assert inspect.iscoroutinefunction(protocol_method)
+        # Check compliant implementation is async
         assert inspect.iscoroutinefunction(
             CompliantEventBusExtendedClient.create_topic
         )
 
     def test_list_topics_is_async(self) -> None:
-        """list_topics should be async."""
+        """list_topics should be async in both protocol and implementation."""
+        # Check protocol defines async signature
+        protocol_method = getattr(ProtocolEventBusExtendedClient, "list_topics", None)
+        assert protocol_method is not None
+        assert inspect.iscoroutinefunction(protocol_method)
+        # Check compliant implementation is async
         assert inspect.iscoroutinefunction(
             CompliantEventBusExtendedClient.list_topics
         )
 
     def test_health_check_is_async(self) -> None:
-        """health_check should be async."""
+        """health_check should be async in both protocol and implementation."""
+        # Check protocol defines async signature
+        protocol_method = getattr(ProtocolEventBusExtendedClient, "health_check", None)
+        assert protocol_method is not None
+        assert inspect.iscoroutinefunction(protocol_method)
+        # Check compliant implementation is async
         assert inspect.iscoroutinefunction(
             CompliantEventBusExtendedClient.health_check
         )
