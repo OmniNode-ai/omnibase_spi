@@ -1,13 +1,46 @@
 """
-Tests for ProtocolEventBusProvider protocol.
+Tests for ProtocolEventBusProvider protocol compliance.
 
-Validates that ProtocolEventBusProvider:
-- Is properly runtime checkable
-- Defines required methods (get_event_bus, create_event_bus, close_all)
-- Defines required properties (default_environment, default_group)
-- Methods have correct signatures
-- Cannot be instantiated directly
-- Works correctly with isinstance checks for compliant/non-compliant classes
+This module validates that the ProtocolEventBusProvider protocol is correctly
+defined and can be used for runtime type checking. It also tests the
+ProtocolEventBusBase health_check() contract.
+
+Protocols Tested
+----------------
+- **ProtocolEventBusProvider**: Factory protocol for managing event bus instances,
+  including creation, caching, and lifecycle management.
+
+- **ProtocolEventBusBase** (via health_check tests): Core event bus operations
+  with focus on the health_check() return contract.
+
+Test Organization
+-----------------
+1. **Protocol Tests** (TestProtocolEventBusProviderProtocol): Verify protocol structure.
+2. **Compliance Tests** (TestProtocolEventBusProviderCompliance): Verify isinstance behavior.
+3. **Signature Tests** (TestProtocolEventBusProviderMethodSignatures): Verify method signatures.
+4. **Async Nature Tests** (TestProtocolEventBusProviderAsyncNature): Verify async methods.
+5. **Import Tests** (TestProtocolEventBusProviderImports): Verify import consistency.
+6. **Documentation Tests** (TestProtocolEventBusProviderDocumentation): Verify docstrings.
+7. **Lifecycle Tests** (TestProtocolEventBusProviderContextManagerLifecycle): Verify patterns.
+8. **Health Check Tests**: Verify health_check() return contract.
+
+Testing Approach
+----------------
+Mock implementations are used to test protocol compliance:
+
+- **MockEventBus**: Implements ProtocolEventBusBase for testing
+- **CompliantProvider**: Fully implements ProtocolEventBusProvider
+- **PartialProvider**: Implements only some methods (should fail isinstance)
+- **NonCompliantProvider**: Implements no methods (should fail isinstance)
+- **MissingPropertiesProvider**: Has methods but missing properties
+
+Note on Type Ignores
+--------------------
+- ``# type: ignore[misc]`` on protocol instantiation: Required because we're
+  intentionally testing that Protocol classes raise TypeError when instantiated.
+
+- ``# type: ignore[comparison-overlap]`` on Protocol MRO check: mypy incorrectly
+  flags the comparison, but at runtime we need to verify Protocol is in the MRO.
 """
 
 from typing import Any
@@ -24,10 +57,21 @@ from omnibase_spi.protocols.types.protocol_event_bus_types import ProtocolEventM
 
 
 class MockEventBus:
-    """Test double implementing ProtocolEventBusBase for testing purposes.
+    """Test double implementing all ProtocolEventBusBase requirements.
 
-    Provides a minimal implementation of the event bus protocol that can be
-    used as a return value from provider methods without requiring MagicMock.
+    This mock provides a complete event bus implementation suitable for testing
+    provider methods without requiring MagicMock or real Kafka connections.
+
+    Implements:
+        - publish(event) -> None: Records events for test verification
+        - publish_envelope(envelope, topic) -> None: Envelope publishing
+        - subscribe(topic, handler) -> None: Handler registration
+        - start_consuming(timeout_seconds) -> None: Start message consumption
+        - stop_consuming(timeout_seconds) -> None: Stop message consumption
+        - health_check() -> dict[str, Any]: Returns health status dict
+
+    Note: The health_check() method returns dict[str, Any] (not bool) to provide
+    richer diagnostic information. This is verified by the health check contract tests.
     """
 
     def __init__(self) -> None:
@@ -104,28 +148,43 @@ class MockEventBus:
         return self._published_events
 
 
-# Verify MockEventBus satisfies the protocol
+# Verify MockEventBus satisfies the protocol at module load time.
+# This assertion acts as a sanity check that our mock correctly implements
+# ProtocolEventBusBase, catching any protocol changes early.
 assert isinstance(MockEventBus(), ProtocolEventBusBase)
 
 
 class CompliantProvider:
-    """A class that fully implements the ProtocolEventBusProvider protocol."""
+    """Test double implementing all ProtocolEventBusProvider requirements.
+
+    This mock provides a complete provider implementation for protocol testing.
+    Factory methods return MockEventBus instances.
+
+    Implements:
+        - get_event_bus(environment, group) -> ProtocolEventBusBase
+        - create_event_bus(environment, group, config) -> ProtocolEventBusBase
+        - close_all() -> None
+        - default_environment property -> str
+        - default_group property -> str
+    """
 
     async def get_event_bus(
         self,
-        environment: str | None = None,  # noqa: ARG002
-        group: str | None = None,  # noqa: ARG002
+        environment: str | None = None,
+        group: str | None = None,
     ) -> ProtocolEventBusBase:
         """Get or create an event bus instance."""
+        _ = (environment, group)  # Unused in mock
         return MockEventBus()
 
     async def create_event_bus(
         self,
-        environment: str,  # noqa: ARG002
-        group: str,  # noqa: ARG002
-        config: dict[str, object] | None = None,  # noqa: ARG002
+        environment: str,
+        group: str,
+        config: dict[str, object] | None = None,
     ) -> ProtocolEventBusBase:
         """Create a new event bus instance."""
+        _ = (environment, group, config)  # Unused in mock
         return MockEventBus()
 
     async def close_all(self) -> None:
@@ -144,7 +203,16 @@ class CompliantProvider:
 
 
 class PartialProvider:
-    """A class that only implements some ProtocolEventBusProvider methods."""
+    """Test double implementing only SOME ProtocolEventBusProvider methods.
+
+    Missing methods/properties (intentionally):
+        - create_event_bus
+        - close_all
+        - default_environment
+        - default_group
+
+    Used by: test_partial_implementation_fails_isinstance
+    """
 
     async def get_event_bus(
         self,
@@ -156,13 +224,30 @@ class PartialProvider:
 
 
 class NonCompliantProvider:
-    """A class that implements none of the ProtocolEventBusProvider methods."""
+    """Test double implementing NONE of the ProtocolEventBusProvider methods.
+
+    This empty class verifies that isinstance() correctly rejects objects
+    with no protocol method implementations.
+
+    Used by: test_non_compliant_class_fails_isinstance
+    """
 
     pass
 
 
 class MissingPropertiesProvider:
-    """A class that has methods but not properties."""
+    """Test double with all methods but MISSING required properties.
+
+    This mock verifies that isinstance() checks both methods AND properties.
+    Even though all methods are implemented, the missing properties should
+    cause isinstance() to return False.
+
+    Missing properties (intentionally):
+        - default_environment
+        - default_group
+
+    Used by: test_missing_properties_fails_isinstance
+    """
 
     async def get_event_bus(
         self,
@@ -186,8 +271,65 @@ class MissingPropertiesProvider:
         pass
 
 
+# =============================================================================
+# Pytest Fixtures
+# =============================================================================
+#
+# Fixtures provide pre-configured test doubles for protocol compliance testing.
+# =============================================================================
+
+
+@pytest.fixture
+def compliant_provider() -> CompliantProvider:
+    """Provide a compliant EventBus provider for protocol compliance testing.
+
+    Returns:
+        A fresh CompliantProvider instance implementing all
+        ProtocolEventBusProvider requirements.
+    """
+    return CompliantProvider()
+
+
+@pytest.fixture
+def mock_event_bus() -> MockEventBus:
+    """Provide a mock event bus for health_check contract testing.
+
+    Returns:
+        A fresh MockEventBus instance implementing all ProtocolEventBusBase
+        requirements, including the dict-returning health_check() method.
+    """
+    return MockEventBus()
+
+
+# =============================================================================
+# Test Classes
+# =============================================================================
+#
+# Tests are organized by category:
+# - Protocol structure verification
+# - isinstance compliance checks
+# - Method signature verification
+# - Async nature verification
+# - Import consistency
+# - Documentation verification
+# - Lifecycle patterns
+# - Health check contract
+# =============================================================================
+
+
 class TestProtocolEventBusProviderProtocol:
-    """Test suite for ProtocolEventBusProvider protocol compliance."""
+    """Test suite verifying ProtocolEventBusProvider protocol definition structure.
+
+    These tests ensure the protocol is correctly defined with all required
+    methods, properties, and the @runtime_checkable decorator.
+
+    Tests cover:
+        - Protocol is marked as @runtime_checkable
+        - Protocol inherits from typing.Protocol
+        - All required methods are defined (get_event_bus, create_event_bus, close_all)
+        - All required properties are defined (default_environment, default_group)
+        - Protocol cannot be directly instantiated
+    """
 
     def test_protocol_is_runtime_checkable(self) -> None:
         """ProtocolEventBusProvider should be runtime_checkable."""
@@ -200,9 +342,9 @@ class TestProtocolEventBusProviderProtocol:
         """ProtocolEventBusProvider should be a Protocol class."""
         from typing import Protocol
 
-        # Check that ProtocolEventBusProvider has Protocol in its bases
+        # Checking if Protocol is in MRO - mypy flags as non-overlapping but it's valid at runtime
         assert any(
-            base is Protocol or base.__name__ == "Protocol"
+            base is Protocol or base.__name__ == "Protocol"  # type: ignore[comparison-overlap]
             for base in ProtocolEventBusProvider.__mro__
         )
 
@@ -229,16 +371,25 @@ class TestProtocolEventBusProviderProtocol:
     def test_protocol_cannot_be_instantiated(self) -> None:
         """ProtocolEventBusProvider protocol should not be directly instantiable."""
         with pytest.raises(TypeError):
+            # Intentionally testing that Protocol cannot be instantiated
             ProtocolEventBusProvider()  # type: ignore[misc]
 
 
 class TestProtocolEventBusProviderCompliance:
-    """Test isinstance checks for protocol compliance."""
+    """Test isinstance checks for ProtocolEventBusProvider protocol compliance.
 
-    def test_compliant_class_passes_isinstance(self) -> None:
+    These tests verify that runtime_checkable correctly identifies:
+    - Fully compliant implementations (should pass isinstance)
+    - Partial implementations (should fail isinstance)
+    - Non-compliant classes (should fail isinstance)
+    - Classes with methods but missing properties (should fail isinstance)
+    """
+
+    def test_compliant_class_passes_isinstance(
+        self, compliant_provider: CompliantProvider
+    ) -> None:
         """A class implementing all ProtocolEventBusProvider methods should pass isinstance check."""
-        provider = CompliantProvider()
-        assert isinstance(provider, ProtocolEventBusProvider)
+        assert isinstance(compliant_provider, ProtocolEventBusProvider)
 
     def test_partial_implementation_fails_isinstance(self) -> None:
         """A class missing ProtocolEventBusProvider methods should fail isinstance check."""
@@ -257,48 +408,58 @@ class TestProtocolEventBusProviderCompliance:
 
 
 class TestProtocolEventBusProviderMethodSignatures:
-    """Test method signatures from compliant implementations."""
+    """Test method signatures for ProtocolEventBusProvider implementations.
+
+    These tests verify that compliant implementations accept the expected
+    parameters and return the expected types for each protocol method.
+    """
 
     @pytest.mark.asyncio
-    async def test_get_event_bus_with_defaults(self) -> None:
+    async def test_get_event_bus_with_defaults(
+        self, compliant_provider: CompliantProvider
+    ) -> None:
         """get_event_bus should work with default parameters."""
-        provider = CompliantProvider()
-        bus = await provider.get_event_bus()
+        bus = await compliant_provider.get_event_bus()
         assert bus is not None
 
     @pytest.mark.asyncio
-    async def test_get_event_bus_with_environment(self) -> None:
+    async def test_get_event_bus_with_environment(
+        self, compliant_provider: CompliantProvider
+    ) -> None:
         """get_event_bus should accept environment parameter."""
-        provider = CompliantProvider()
-        bus = await provider.get_event_bus(environment="prod")
+        bus = await compliant_provider.get_event_bus(environment="prod")
         assert bus is not None
 
     @pytest.mark.asyncio
-    async def test_get_event_bus_with_group(self) -> None:
+    async def test_get_event_bus_with_group(
+        self, compliant_provider: CompliantProvider
+    ) -> None:
         """get_event_bus should accept group parameter."""
-        provider = CompliantProvider()
-        bus = await provider.get_event_bus(group="my-service")
+        bus = await compliant_provider.get_event_bus(group="my-service")
         assert bus is not None
 
     @pytest.mark.asyncio
-    async def test_get_event_bus_with_all_params(self) -> None:
+    async def test_get_event_bus_with_all_params(
+        self, compliant_provider: CompliantProvider
+    ) -> None:
         """get_event_bus should accept both environment and group."""
-        provider = CompliantProvider()
-        bus = await provider.get_event_bus(environment="prod", group="my-service")
+        bus = await compliant_provider.get_event_bus(environment="prod", group="my-service")
         assert bus is not None
 
     @pytest.mark.asyncio
-    async def test_create_event_bus_accepts_required_params(self) -> None:
+    async def test_create_event_bus_accepts_required_params(
+        self, compliant_provider: CompliantProvider
+    ) -> None:
         """create_event_bus should require environment and group."""
-        provider = CompliantProvider()
-        bus = await provider.create_event_bus(environment="test", group="test-consumer")
+        bus = await compliant_provider.create_event_bus(environment="test", group="test-consumer")
         assert bus is not None
 
     @pytest.mark.asyncio
-    async def test_create_event_bus_accepts_config(self) -> None:
+    async def test_create_event_bus_accepts_config(
+        self, compliant_provider: CompliantProvider
+    ) -> None:
         """create_event_bus should accept optional config."""
-        provider = CompliantProvider()
-        bus = await provider.create_event_bus(
+        bus = await compliant_provider.create_event_bus(
             environment="test",
             group="test-consumer",
             config={"auto_offset_reset": "earliest"},
@@ -306,27 +467,34 @@ class TestProtocolEventBusProviderMethodSignatures:
         assert bus is not None
 
     @pytest.mark.asyncio
-    async def test_close_all_takes_no_args(self) -> None:
+    async def test_close_all_takes_no_args(
+        self, compliant_provider: CompliantProvider
+    ) -> None:
         """close_all should take no arguments."""
-        provider = CompliantProvider()
         # Should not raise
-        await provider.close_all()
+        await compliant_provider.close_all()
 
-    def test_default_environment_returns_string(self) -> None:
+    def test_default_environment_returns_string(
+        self, compliant_provider: CompliantProvider
+    ) -> None:
         """default_environment should return a string."""
-        provider = CompliantProvider()
-        env = provider.default_environment
+        env = compliant_provider.default_environment
         assert isinstance(env, str)
 
-    def test_default_group_returns_string(self) -> None:
+    def test_default_group_returns_string(
+        self, compliant_provider: CompliantProvider
+    ) -> None:
         """default_group should return a string."""
-        provider = CompliantProvider()
-        group = provider.default_group
+        group = compliant_provider.default_group
         assert isinstance(group, str)
 
 
 class TestProtocolEventBusProviderAsyncNature:
-    """Test that ProtocolEventBusProvider methods are async."""
+    """Test that ProtocolEventBusProvider methods are properly async.
+
+    These tests verify that all provider methods that should be async
+    are correctly defined as coroutine functions in compliant implementations.
+    """
 
     def test_get_event_bus_is_async(self) -> None:
         """get_event_bus should be an async method."""
@@ -348,7 +516,11 @@ class TestProtocolEventBusProviderAsyncNature:
 
 
 class TestProtocolEventBusProviderImports:
-    """Test protocol imports from different locations."""
+    """Test protocol imports from different module paths.
+
+    These tests verify that ProtocolEventBusProvider can be imported from
+    multiple locations and that all import paths resolve to the same class.
+    """
 
     def test_import_from_provider_module(self) -> None:
         """Test direct import from protocol_event_bus_provider module."""
@@ -381,7 +553,11 @@ class TestProtocolEventBusProviderImports:
 
 
 class TestProtocolEventBusProviderDocumentation:
-    """Test that ProtocolEventBusProvider has proper documentation."""
+    """Test that ProtocolEventBusProvider has proper documentation.
+
+    These tests verify that both the protocol and compliant implementations
+    have meaningful docstrings for IDE/documentation support.
+    """
 
     def test_protocol_has_docstring(self) -> None:
         """ProtocolEventBusProvider should have a docstring."""
@@ -402,33 +578,40 @@ class TestProtocolEventBusProviderDocumentation:
 
 
 class TestProtocolEventBusProviderContextManagerLifecycle:
-    """Test context manager lifecycle patterns for event bus provider."""
+    """Test typical lifecycle patterns for event bus provider usage.
+
+    These tests verify common usage patterns including:
+    - Getting event bus instances
+    - Creating multiple bus instances
+    - Proper cleanup with close_all()
+    - Factory pattern behavior (new instances each time)
+    """
 
     @pytest.mark.asyncio
-    async def test_provider_lifecycle_pattern(self) -> None:
+    async def test_provider_lifecycle_pattern(
+        self, compliant_provider: CompliantProvider
+    ) -> None:
         """Test typical provider lifecycle: get bus, use, close all."""
-        provider = CompliantProvider()
-
         # Get event bus
-        bus = await provider.get_event_bus(environment="test", group="test-consumer")
+        bus = await compliant_provider.get_event_bus(environment="test", group="test-consumer")
         assert bus is not None
 
         # Create additional bus
-        bus2 = await provider.create_event_bus(
+        bus2 = await compliant_provider.create_event_bus(
             environment="test", group="another-consumer"
         )
         assert bus2 is not None
 
         # Cleanup
-        await provider.close_all()
+        await compliant_provider.close_all()
 
     @pytest.mark.asyncio
-    async def test_factory_pattern_returns_different_instances(self) -> None:
+    async def test_factory_pattern_returns_different_instances(
+        self, compliant_provider: CompliantProvider
+    ) -> None:
         """create_event_bus should create new instances (no caching)."""
-        provider = CompliantProvider()
-
-        bus1 = await provider.create_event_bus(environment="test", group="consumer-1")
-        bus2 = await provider.create_event_bus(environment="test", group="consumer-2")
+        bus1 = await compliant_provider.create_event_bus(environment="test", group="consumer-1")
+        bus2 = await compliant_provider.create_event_bus(environment="test", group="consumer-2")
 
         # create_event_bus should return different instances
         # (Note: MockEventBus always returns new instances, matching expected behavior)
@@ -441,14 +624,23 @@ class TestProtocolEventBusBaseHealthCheckReturnContract:
     """Test return value contracts for ProtocolEventBusBase.health_check() method.
 
     The health_check() method was changed from returning bool to dict[str, Any]
-    to provide richer diagnostic information.
+    to provide richer diagnostic information. These tests verify the contract:
+
+    Required keys:
+        - healthy: bool - Whether the event bus is healthy
+
+    Optional keys (when present, must have correct types):
+        - latency_ms: int | float - Health check latency
+        - last_error: str - Last error message (if unhealthy)
+        - details: dict - Additional diagnostic information
     """
 
     @pytest.mark.asyncio
-    async def test_health_check_returns_dict(self) -> None:
+    async def test_health_check_returns_dict(
+        self, mock_event_bus: MockEventBus
+    ) -> None:
         """health_check() must return dict[str, Any] (not bool)."""
-        bus = MockEventBus()
-        result = await bus.health_check()
+        result = await mock_event_bus.health_check()
 
         assert isinstance(result, dict), (
             f"health_check() should return dict, got {type(result)}. "
@@ -456,28 +648,31 @@ class TestProtocolEventBusBaseHealthCheckReturnContract:
         )
 
     @pytest.mark.asyncio
-    async def test_health_check_contains_healthy_key(self) -> None:
+    async def test_health_check_contains_healthy_key(
+        self, mock_event_bus: MockEventBus
+    ) -> None:
         """health_check() must contain 'healthy' key."""
-        bus = MockEventBus()
-        result = await bus.health_check()
+        result = await mock_event_bus.health_check()
 
         assert "healthy" in result, "health_check() must return dict with 'healthy' key"
 
     @pytest.mark.asyncio
-    async def test_health_check_healthy_is_boolean(self) -> None:
+    async def test_health_check_healthy_is_boolean(
+        self, mock_event_bus: MockEventBus
+    ) -> None:
         """health_check() 'healthy' value must be boolean."""
-        bus = MockEventBus()
-        result = await bus.health_check()
+        result = await mock_event_bus.health_check()
 
         assert isinstance(
             result["healthy"], bool
         ), f"'healthy' should be bool, got {type(result['healthy'])}"
 
     @pytest.mark.asyncio
-    async def test_health_check_latency_ms_is_numeric_when_present(self) -> None:
+    async def test_health_check_latency_ms_is_numeric_when_present(
+        self, mock_event_bus: MockEventBus
+    ) -> None:
         """health_check() 'latency_ms' should be numeric when present."""
-        bus = MockEventBus()
-        result = await bus.health_check()
+        result = await mock_event_bus.health_check()
 
         if "latency_ms" in result:
             assert isinstance(
@@ -485,10 +680,11 @@ class TestProtocolEventBusBaseHealthCheckReturnContract:
             ), f"latency_ms should be numeric, got {type(result['latency_ms'])}"
 
     @pytest.mark.asyncio
-    async def test_health_check_last_error_is_string_when_present(self) -> None:
+    async def test_health_check_last_error_is_string_when_present(
+        self, mock_event_bus: MockEventBus
+    ) -> None:
         """health_check() 'last_error' should be string when present."""
-        bus = MockEventBus()
-        result = await bus.health_check()
+        result = await mock_event_bus.health_check()
 
         if "last_error" in result:
             assert isinstance(
@@ -496,10 +692,11 @@ class TestProtocolEventBusBaseHealthCheckReturnContract:
             ), f"last_error should be string, got {type(result['last_error'])}"
 
     @pytest.mark.asyncio
-    async def test_health_check_details_is_dict_when_present(self) -> None:
+    async def test_health_check_details_is_dict_when_present(
+        self, mock_event_bus: MockEventBus
+    ) -> None:
         """health_check() 'details' should be dict when present."""
-        bus = MockEventBus()
-        result = await bus.health_check()
+        result = await mock_event_bus.health_check()
 
         if "details" in result:
             assert isinstance(
@@ -508,7 +705,17 @@ class TestProtocolEventBusBaseHealthCheckReturnContract:
 
 
 class UnhealthyMockEventBus(MockEventBus):
-    """Event bus implementation that returns unhealthy status for testing."""
+    """Test double simulating an unhealthy event bus state.
+
+    Extends MockEventBus to provide unhealthy status from health_check(),
+    used to verify the health check contract handles failure scenarios.
+
+    Returns from health_check():
+        - healthy: False
+        - latency_ms: 5000.0 (simulating timeout)
+        - last_error: Connection failure message
+        - details: Broker and retry information
+    """
 
     async def health_check(self) -> dict[str, Any]:
         """Return unhealthy status with error details."""
@@ -524,7 +731,14 @@ class UnhealthyMockEventBus(MockEventBus):
 
 
 class TestProtocolEventBusBaseHealthCheckUnhealthyContract:
-    """Test return value contracts for unhealthy event bus scenarios."""
+    """Test return value contracts for unhealthy event bus scenarios.
+
+    These tests verify that unhealthy event bus implementations:
+    - Return healthy=False
+    - Include meaningful error information (last_error)
+    - Include latency for diagnostic purposes
+    - Sanitize credentials from error messages
+    """
 
     @pytest.mark.asyncio
     async def test_unhealthy_bus_returns_false_healthy(self) -> None:
