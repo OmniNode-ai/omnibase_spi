@@ -657,8 +657,22 @@ class ProtocolServiceRegistry(Protocol):
     """
     Protocol for service registry operations.
 
-    Provides dependency injection service registration and management.
+    Implements ProtocolRegistryBase[type[TInterface], TImplementation] interface for
+    dependency injection service registration and management with advanced lifecycle
+    and dependency management features.
+
     Supports the complete service lifecycle including registration, resolution, injection, and disposal.
+
+    Type Parameters (conceptual):
+        K = type[TInterface]: Interface type for service registration
+        V = TImplementation: Implementation instance or class
+
+    Core Registry Methods (from ProtocolRegistryBase):
+        - register: Maps to register_service (with lifecycle/scope)
+        - get: Maps to resolve_service
+        - list_keys: Maps to get_all_registrations (lists registration objects)
+        - is_registered: Implemented via get_registration check
+        - unregister: Maps to unregister_service
 
     Advanced Features:
         - **Lifecycle Management**: Support for singleton, transient, scoped, pooled patterns
@@ -676,6 +690,14 @@ class ProtocolServiceRegistry(Protocol):
         - **Generic registration**: Support for generic service types
         - **Conditional registration**: Register based on runtime conditions
         - **Decorator-based registration**: Use decorators for automatic registration
+
+    Thread Safety:
+        Implementations MUST be thread-safe for concurrent read/write operations.
+
+    See Also:
+        - ProtocolRegistryBase: Generic base protocol for key-value registries
+        - ProtocolServiceRegistrationMetadata: Service registration metadata
+        - ProtocolServiceRegistration: Service registration information
     """
 
     @property
@@ -686,6 +708,115 @@ class ProtocolServiceRegistry(Protocol):
 
     @property
     def factory(self) -> ProtocolServiceFactory | None: ...
+
+    # Core Registry Methods (ProtocolRegistryBase interface)
+    # Note: ProtocolServiceRegistry uses async methods and richer semantics than the base protocol
+
+    def register(
+        self,
+        key: type[TInterface],
+        value: type[TImplementation],
+    ) -> None:
+        """
+        Register a service with default lifecycle (singleton) and scope (global).
+
+        This method provides simplified registration compatible with ProtocolRegistryBase[K, V].
+        For advanced registration with lifecycle/scope control, use register_service().
+
+        Args:
+            key: Interface type for service registration.
+            value: Implementation class for the service.
+
+        Raises:
+            RegistryError: If registration fails.
+            ValueError: If duplicate key and implementation forbids overwrites.
+
+        Note:
+            This is a synchronous wrapper around async register_service with default
+            lifecycle='singleton' and scope='global'. For full control, use register_service() directly.
+        """
+        ...
+
+    def get(self, key: type[TInterface]) -> TInterface:
+        """
+        Resolve and return a service instance.
+
+        This method provides simplified resolution compatible with ProtocolRegistryBase[K, V].
+        For advanced resolution with scope/context control, use resolve_service().
+
+        Args:
+            key: Interface type to resolve.
+
+        Returns:
+            Service instance implementing the interface.
+
+        Raises:
+            KeyError: If interface is not registered.
+            RegistryError: If retrieval fails due to internal error.
+
+        Note:
+            This is a synchronous wrapper around async resolve_service with default scope.
+        """
+        ...
+
+    def list_keys(self) -> list[type[TInterface]]:
+        """
+        List all registered interface types.
+
+        Returns:
+            List of interface types that have registrations.
+            Order is implementation-specific.
+
+        Thread Safety:
+            Must return a consistent snapshot.
+
+        Note:
+            This extracts interface types from get_all_registrations() results.
+        """
+        ...
+
+    def is_registered(self, key: type[TInterface]) -> bool:
+        """
+        Check if an interface type is registered.
+
+        Args:
+            key: Interface type to check.
+
+        Returns:
+            True if interface type is registered, False otherwise.
+
+        Thread Safety:
+            Result is a point-in-time snapshot.
+
+        Note:
+            This checks if get_registrations_by_interface() returns non-empty list.
+        """
+        ...
+
+    def unregister(self, key: type[TInterface]) -> bool:
+        """
+        Remove all registrations for an interface type.
+
+        Idempotent operation - safe to call multiple times with same key.
+
+        Args:
+            key: Interface type to remove.
+
+        Returns:
+            True if any registrations were removed.
+            False if no registrations existed (no-op).
+
+        Thread Safety:
+            Must be safe to call concurrently with other registry methods.
+
+        Note:
+            This removes ALL registrations for the interface. For fine-grained control,
+            use unregister_service(registration_id).
+        """
+        ...
+
+    # Domain-Specific Service Registry Methods
+    # These provide rich DI semantics beyond basic key-value registry
 
     async def register_service(
         self,

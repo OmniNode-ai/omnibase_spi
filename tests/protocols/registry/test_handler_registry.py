@@ -31,26 +31,37 @@ class CompliantRegistry:
 
     def register(
         self,
-        protocol_type: str,
-        handler_cls: type[object],
+        key: str,
+        value: type[object],
     ) -> None:
         """Register a protocol handler."""
-        self._handlers[protocol_type] = handler_cls
+        self._handlers[key] = value
 
     def get(
         self,
-        protocol_type: str,
+        key: str,
     ) -> type[object]:
         """Get handler class for protocol type."""
-        return self._handlers[protocol_type]
+        return self._handlers[key]
 
-    def list_protocols(self) -> list[str]:
+    def list_keys(self) -> list[str]:
         """List registered protocol types."""
         return list(self._handlers.keys())
 
-    def is_registered(self, protocol_type: str) -> bool:
+    def is_registered(self, key: str) -> bool:
         """Check if protocol type is registered."""
-        return protocol_type in self._handlers
+        return key in self._handlers
+
+    def unregister(self, key: str) -> bool:
+        """Remove a protocol handler from the registry."""
+        if key in self._handlers:
+            del self._handlers[key]
+            return True
+        return False
+
+    def list_protocols(self) -> list[str]:
+        """List registered protocol types (compatibility method)."""
+        return self.list_keys()
 
 
 class PartialRegistry:
@@ -58,15 +69,15 @@ class PartialRegistry:
 
     def register(
         self,
-        _protocol_type: str,
-        _handler_cls: type[object],
+        _key: str,
+        _value: type[object],
     ) -> None:
         """Register a protocol handler."""
         pass
 
     def get(
         self,
-        _protocol_type: str,
+        _key: str,
     ) -> type[object]:
         """Get handler class for protocol type."""
         return MockHandler
@@ -81,21 +92,29 @@ class NonCompliantRegistry:
 class WrongSignatureRegistry:
     """A class that implements methods with wrong signatures."""
 
-    def register(self, _protocol_type: str) -> None:  # Missing handler_cls parameter
+    def register(self, _key: str) -> None:  # Missing value parameter
         """Register a protocol handler."""
         pass
 
-    def get(self, _protocol_type: str) -> type[object]:
+    def get(self, _key: str) -> type[object]:
         """Get handler class for protocol type."""
         return MockHandler
 
-    def list_protocols(self) -> list[str]:
+    def list_keys(self) -> list[str]:
         """List registered protocol types."""
         return []
 
-    def is_registered(self, _protocol_type: str) -> bool:
+    def is_registered(self, _key: str) -> bool:
         """Check if protocol type is registered."""
         return False
+
+    def unregister(self, _key: str) -> bool:
+        """Remove a protocol handler from the registry."""
+        return False
+
+    def list_protocols(self) -> list[str]:
+        """List registered protocol types (compatibility method)."""
+        return []
 
 
 class TestProtocolHandlerRegistryProtocol:
@@ -123,13 +142,21 @@ class TestProtocolHandlerRegistryProtocol:
         """ProtocolHandlerRegistry should define get method."""
         assert "get" in dir(ProtocolHandlerRegistry)
 
+    def test_protocol_has_list_keys_method(self) -> None:
+        """ProtocolHandlerRegistry should define list_keys method."""
+        assert "list_keys" in dir(ProtocolHandlerRegistry)
+
     def test_protocol_has_list_protocols_method(self) -> None:
-        """ProtocolHandlerRegistry should define list_protocols method."""
+        """ProtocolHandlerRegistry should define list_protocols method (compatibility)."""
         assert "list_protocols" in dir(ProtocolHandlerRegistry)
 
     def test_protocol_has_is_registered_method(self) -> None:
         """ProtocolHandlerRegistry should define is_registered method."""
         assert "is_registered" in dir(ProtocolHandlerRegistry)
+
+    def test_protocol_has_unregister_method(self) -> None:
+        """ProtocolHandlerRegistry should define unregister method."""
+        assert "unregister" in dir(ProtocolHandlerRegistry)
 
     def test_protocol_cannot_be_instantiated(self) -> None:
         """ProtocolHandlerRegistry protocol should not be directly instantiable."""

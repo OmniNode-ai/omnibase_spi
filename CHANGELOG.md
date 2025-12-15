@@ -7,12 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2025-12-15
+
 ### Added
 
-#### Test Infrastructure
-- **Integration Test Structure**: New `tests/integration/` directory with comprehensive fixtures and 21 sample integration tests
-- **Proper Test Doubles**: Replaced `MagicMock` with typed test doubles (`MockEventBus`, `MockEventBusProvider`, `MockComputeNode`) for better type safety
-- **pytest Markers**: Added `integration` and `slow` markers for selective test execution
+#### Generic Registry Protocols (OMN-845)
+- **ProtocolRegistryBase[K, V]**: Generic registry protocol with type-safe CRUD operations
+  - Generic key (K) and value (V) type parameters for compile-time type safety
+  - Core operations: `register()`, `unregister()`, `get()`, `contains()`, `list_all()`, `clear()`
+  - Immutable key enforcement with frozen validation
+  - Comprehensive error handling with `RegistryError` for duplicate/missing keys
+- **ProtocolVersionedRegistry[K, V]**: Versioned registry protocol extending `ProtocolRegistryBase[K, V]`
+  - Semantic version tracking with `ModelSemVer` integration
+  - Version-aware operations: `register_version()`, `get_version()`, `get_all_versions()`
+  - Latest version resolution with `get_latest()` and `get_latest_version()`
+  - Version range queries and compatibility checking
+- **Test Coverage**: 95%+ test coverage across 600+ lines of comprehensive tests
+  - Property-based testing with Hypothesis for edge cases
+  - Thread-safety validation tests
+  - Error handling and validation tests
+  - Integration tests for real-world usage patterns
 
 #### Documentation
 - **IMPLEMENTATION-EXAMPLES.md** (1090 lines): Comprehensive guide showing how to implement protocols in `omnibase_infra`
@@ -20,6 +34,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `ProtocolComputeNode` implementation examples (JSON transform, vectorization)
   - `ProtocolHandler` implementation examples (HTTP, PostgreSQL with circuit breaker)
   - Implementation checklist covering protocol compliance, type safety, and testing
+- **docs/protocols/PROTOCOL_REGISTRY.md**: Complete API reference for generic registry protocols
+  - Type parameter guidelines and best practices
+  - Error handling patterns and recovery strategies
+  - Usage examples for common registry use cases
+  - Integration with existing Core implementations
+
+#### Test Infrastructure
+- **Integration Test Structure**: New `tests/integration/` directory with comprehensive fixtures and 21 sample integration tests
+- **Proper Test Doubles**: Replaced `MagicMock` with typed test doubles (`MockEventBus`, `MockEventBusProvider`, `MockComputeNode`) for better type safety
+- **pytest Markers**: Added `integration` and `slow` markers for selective test execution
 
 #### Protocol Enhancements
 - **Timeout Parameters**: Added `timeout_seconds: float = 30.0` parameter to 20+ async cleanup methods across protocols:
@@ -30,6 +54,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Storage: `disconnect()`
 
 ### Changed
+
+#### Protocol Refactoring (OMN-845)
+- **ProtocolServiceRegistry**: Refactored to extend `ProtocolRegistryBase[str, Any]`
+  - Maintains backward compatibility with existing consumers
+  - Inherits type-safe CRUD operations from base protocol
+  - Simplified implementation by delegating to base protocol methods
+- **ProtocolWorkflowNodeRegistry**: Refactored to extend `ProtocolRegistryBase[str, ProtocolWorkflowNode]`
+  - Type-safe node storage with `ProtocolWorkflowNode` value type
+  - Workflow-specific node management operations
+  - Enhanced type checking for node registration
+- **ProtocolWorkflowReducer**: Enhanced with versioned state management
+  - Version tracking for reducer state transitions
+  - Backward-compatible state access methods
+  - Improved debugging and auditing capabilities
 
 #### Code Quality
 - **Sorted `__all__` Exports**: Alphabetically sorted all `__all__` lists across 27 files for RUF022 compliance
@@ -182,6 +220,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Total Protocols | Test Coverage | Validation Status |
 |---------|-----------------|---------------|-------------------|
+| 0.4.0   | 178+            | 300+ tests    | All passing       |
 | 0.3.0   | 176+            | 268 tests     | All passing       |
 | 0.2.0   | 176             | 210 tests     | All passing       |
 | 0.1.1   | 165             | Basic         | All passing       |
