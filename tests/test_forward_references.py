@@ -583,7 +583,7 @@ class TestIsinstanceChecks:
     def test_isinstance_with_mock_registry(self) -> None:
         """Validate isinstance() returns True for compliant ProtocolHandlerRegistry.
 
-        Creates a mock class with register/get/list_protocols/is_registered methods,
+        Creates a mock class with register/get/list_keys/is_registered/unregister methods,
         then verifies isinstance() correctly identifies it.
         """
         from omnibase_spi.protocols.registry import ProtocolHandlerRegistry
@@ -600,10 +600,6 @@ class TestIsinstanceChecks:
                 return type
 
             def list_keys(self) -> list[str]:
-                """Returns empty list - no registrations in mock."""
-                return []
-
-            def list_protocols(self) -> list[str]:
                 """Returns empty list - no registrations in mock."""
                 return []
 
@@ -890,15 +886,16 @@ class TestProtocolMethodSignatures:
     def test_registry_has_crud_methods(self) -> None:
         """Validate ProtocolHandlerRegistry defines CRUD operations.
 
-        Registries must support register, get, list_protocols, and
-        is_registered operations for handler management.
+        Registries must support register, get, list_keys, is_registered,
+        and unregister operations for handler management.
         """
         from omnibase_spi.protocols.registry import ProtocolHandlerRegistry
 
         assert hasattr(ProtocolHandlerRegistry, "register")
         assert hasattr(ProtocolHandlerRegistry, "get")
-        assert hasattr(ProtocolHandlerRegistry, "list_protocols")
+        assert hasattr(ProtocolHandlerRegistry, "list_keys")
         assert hasattr(ProtocolHandlerRegistry, "is_registered")
+        assert hasattr(ProtocolHandlerRegistry, "unregister")
 
     def test_contract_compilers_have_compile_and_validate(self) -> None:
         """Validate contract compilers define compile() and validate() methods.
@@ -1116,10 +1113,6 @@ class TestModuleReimport:
                 """Returns empty list - no registrations in mock."""
                 return []
 
-            def list_protocols(self) -> list[str]:
-                """Returns empty list - no registrations in mock."""
-                return []
-
             def is_registered(self, protocol_type: str) -> bool:
                 """Always returns False - nothing registered in mock."""
                 return False
@@ -1305,10 +1298,6 @@ class TestModuleReimport:
                 return type
 
             def list_keys(self) -> list[str]:
-                """Returns empty list - no registrations in mock."""
-                return []
-
-            def list_protocols(self) -> list[str]:
                 """Returns empty list - no registrations in mock."""
                 return []
 
@@ -2139,28 +2128,28 @@ class TestProtocolSignatureValidation:
             sig.return_annotation is not inspect.Parameter.empty
         ), "is_registered() should have a return type annotation"
 
-    def test_registry_list_protocols_signature(self) -> None:
-        """Validate ProtocolHandlerRegistry.list_protocols has correct signature.
+    def test_registry_list_keys_signature(self) -> None:
+        """Validate ProtocolHandlerRegistry.list_keys has correct signature.
 
-        The list_protocols method must have:
+        The list_keys method must have:
         - self: implicit first parameter
         - No other required parameters
         """
         from omnibase_spi.protocols.registry import ProtocolHandlerRegistry
 
-        sig = inspect.signature(ProtocolHandlerRegistry.list_protocols)
+        sig = inspect.signature(ProtocolHandlerRegistry.list_keys)
         params = list(sig.parameters.keys())
 
         # Verify only self parameter exists
-        assert "self" in params, "list_protocols() missing 'self' parameter"
+        assert "self" in params, "list_keys() missing 'self' parameter"
         assert (
             len(params) == 1
-        ), f"list_protocols() should only have 'self', got {params}"
+        ), f"list_keys() should only have 'self', got {params}"
 
         # Verify return annotation exists (should be list[str])
         assert (
             sig.return_annotation is not inspect.Parameter.empty
-        ), "list_protocols() should have a return type annotation"
+        ), "list_keys() should have a return type annotation"
 
     def test_effect_node_execute_signature(self) -> None:
         """Validate ProtocolEffectNode.execute has correct parameters.

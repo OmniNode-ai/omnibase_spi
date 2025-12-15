@@ -110,16 +110,3 @@ class ProtocolHandlerRegistry(Protocol):
             Must be safe to call concurrently with other registry methods.
         """
         ...
-
-    # Domain-specific compatibility methods (delegate to base protocol methods)
-    def list_protocols(self) -> list[str]:
-        """
-        List registered protocol types.
-
-        DEPRECATED: Use list_keys() instead for consistency with ProtocolRegistryBase.
-        This method is maintained for backward compatibility.
-
-        Returns:
-            List of registered protocol type identifiers.
-        """
-        return self.list_keys()

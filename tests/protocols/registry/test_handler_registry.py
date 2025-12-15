@@ -3,7 +3,7 @@ Tests for ProtocolHandlerRegistry protocol.
 
 Validates that ProtocolHandlerRegistry:
 - Is properly runtime checkable
-- Defines required methods (register, get, list_protocols, is_registered)
+- Defines required methods (register, get, list_keys, is_registered, unregister)
 - Methods have correct signatures
 - Cannot be instantiated directly
 - Works correctly with isinstance checks for compliant/non-compliant classes
@@ -59,10 +59,6 @@ class CompliantRegistry:
             return True
         return False
 
-    def list_protocols(self) -> list[str]:
-        """List registered protocol types (compatibility method)."""
-        return self.list_keys()
-
 
 class PartialRegistry:
     """A class that only implements some ProtocolHandlerRegistry methods."""
@@ -112,10 +108,6 @@ class WrongSignatureRegistry:
         """Remove a protocol handler from the registry."""
         return False
 
-    def list_protocols(self) -> list[str]:
-        """List registered protocol types (compatibility method)."""
-        return []
-
 
 class TestProtocolHandlerRegistryProtocol:
     """Test suite for ProtocolHandlerRegistry protocol compliance."""
@@ -145,10 +137,6 @@ class TestProtocolHandlerRegistryProtocol:
     def test_protocol_has_list_keys_method(self) -> None:
         """ProtocolHandlerRegistry should define list_keys method."""
         assert "list_keys" in dir(ProtocolHandlerRegistry)
-
-    def test_protocol_has_list_protocols_method(self) -> None:
-        """ProtocolHandlerRegistry should define list_protocols method (compatibility)."""
-        assert "list_protocols" in dir(ProtocolHandlerRegistry)
 
     def test_protocol_has_is_registered_method(self) -> None:
         """ProtocolHandlerRegistry should define is_registered method."""
@@ -210,12 +198,12 @@ class TestProtocolHandlerRegistryMethodSignatures:
         result = registry.get("http_rest")
         assert result is MockHandler
 
-    def test_list_protocols_returns_list_of_strings(self) -> None:
-        """list_protocols method should return a list of strings."""
+    def test_list_keys_returns_list_of_strings(self) -> None:
+        """list_keys method should return a list of strings."""
         registry = CompliantRegistry()
         registry.register("http_rest", MockHandler)
         registry.register("bolt", MockHandler)
-        result = registry.list_protocols()
+        result = registry.list_keys()
         assert isinstance(result, list)
         assert all(isinstance(protocol, str) for protocol in result)
         assert "http_rest" in result
@@ -237,7 +225,7 @@ class TestProtocolHandlerRegistryWorkflow:
         registry = CompliantRegistry()
 
         # Initially empty
-        assert registry.list_protocols() == []
+        assert registry.list_keys() == []
         assert not registry.is_registered("http_rest")
 
         # Register handler
@@ -245,7 +233,7 @@ class TestProtocolHandlerRegistryWorkflow:
 
         # Verify registration
         assert registry.is_registered("http_rest")
-        assert "http_rest" in registry.list_protocols()
+        assert "http_rest" in registry.list_keys()
 
         # Retrieve handler
         handler_cls = registry.get("http_rest")
@@ -264,7 +252,7 @@ class TestProtocolHandlerRegistryWorkflow:
         registry.register("http_rest", Handler1)
         registry.register("bolt", Handler2)
 
-        assert len(registry.list_protocols()) == 2
+        assert len(registry.list_keys()) == 2
         assert registry.get("http_rest") is Handler1
         assert registry.get("bolt") is Handler2
 

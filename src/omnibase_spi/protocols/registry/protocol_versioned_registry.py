@@ -50,27 +50,27 @@ Example:
     >>> registry: ProtocolVersionedRegistry[str, type[Policy]]
     >>>
     >>> # Register multiple versions
-    >>> registry.register_version("rate-limit", "1.0.0", RateLimitV1)
-    >>> registry.register_version("rate-limit", "1.1.0", RateLimitV1_1)
-    >>> registry.register_version("rate-limit", "2.0.0", RateLimitV2)
+    >>> await registry.register_version("rate-limit", "1.0.0", RateLimitV1)
+    >>> await registry.register_version("rate-limit", "1.1.0", RateLimitV1_1)
+    >>> await registry.register_version("rate-limit", "2.0.0", RateLimitV2)
     >>>
     >>> # Get specific version
-    >>> v1 = registry.get_version("rate-limit", "1.0.0")
+    >>> v1 = await registry.get_version("rate-limit", "1.0.0")
     >>>
     >>> # Get latest (returns RateLimitV2 - highest semver)
-    >>> latest = registry.get_latest("rate-limit")
+    >>> latest = await registry.get_latest("rate-limit")
     >>>
     >>> # List all versions for a key
-    >>> versions = registry.list_versions("rate-limit")
+    >>> versions = await registry.list_versions("rate-limit")
     >>> # ["1.0.0", "1.1.0", "2.0.0"]
     >>>
     >>> # Get all versions as mapping
-    >>> all_versions = registry.get_all_versions("rate-limit")
+    >>> all_versions = await registry.get_all_versions("rate-limit")
     >>> # {"1.0.0": RateLimitV1, "1.1.0": RateLimitV1_1, "2.0.0": RateLimitV2}
     >>>
     >>> # Base protocol methods work with latest version
-    >>> registry.get("rate-limit")  # Returns RateLimitV2
-    >>> registry.is_registered("rate-limit")  # True if ANY version exists
+    >>> await registry.get("rate-limit")  # Returns RateLimitV2
+    >>> await registry.is_registered("rate-limit")  # True if ANY version exists
 
 See Also:
     - ProtocolRegistryBase: Base protocol for generic registries
@@ -110,13 +110,20 @@ class ProtocolVersionedRegistry(ProtocolRegistryBase[K, V], Protocol):
         - `list_versions()` returns empty list for non-existent keys (does not raise)
         - `get_all_versions()` returns empty dict for non-existent keys (does not raise)
 
+    Async Methods:
+        All version-specific methods are async to support I/O operations such as:
+        - Loading versioned data from external storage (databases, caches)
+        - Querying remote registries or distributed systems
+        - Event notification and audit logging
+        - Distributed locking and coordination
+
     Invariants:
-        - After `register_version(k, v, val)`, `get_version(k, v)` returns `val`
-        - `get_latest(k)` returns the version with highest semantic version number
-        - `list_versions(k)` returns versions in ascending semver order
-        - `unregister(k)` removes ALL versions of key `k`
-        - `is_registered(k)` returns True if ANY version of `k` exists
-        - `get(k)` returns same value as `get_latest(k)`
+        - After `await register_version(k, v, val)`, `await get_version(k, v)` returns `val`
+        - `await get_latest(k)` returns the version with highest semantic version number
+        - `await list_versions(k)` returns versions in ascending semver order
+        - `await unregister(k)` removes ALL versions of key `k`
+        - `await is_registered(k)` returns True if ANY version of `k` exists
+        - `await get(k)` returns same value as `await get_latest(k)`
 
     Version Ordering:
         Implementations MUST use semantic versioning (MAJOR.MINOR.PATCH) by default.
@@ -124,13 +131,16 @@ class ProtocolVersionedRegistry(ProtocolRegistryBase[K, V], Protocol):
         documented clearly in implementation docstrings.
     """
 
-    def register_version(self, key: K, version: str, value: V) -> None:
+    async def register_version(self, key: K, version: str, value: V) -> None:
         """
         Register a specific version of a key-value pair.
 
         Adds or updates a versioned mapping. Multiple versions of the same key
         can coexist. Behavior for duplicate (key, version) pairs is implementation-
         specific (may overwrite or raise ValueError).
+
+        This method is async to support I/O operations such as persisting version
+        metadata to external storage, event notification, or distributed locking.
 
         Args:
             key: Registration key (must be hashable).
@@ -147,15 +157,18 @@ class ProtocolVersionedRegistry(ProtocolRegistryBase[K, V], Protocol):
             other `register_version()` calls for different versions of the same key.
 
         Example:
-            >>> registry.register_version("api", "1.0.0", ApiV1Handler)
-            >>> registry.register_version("api", "2.0.0", ApiV2Handler)
+            >>> await registry.register_version("api", "1.0.0", ApiV1Handler)
+            >>> await registry.register_version("api", "2.0.0", ApiV2Handler)
             >>> # Now two versions coexist
         """
         ...
 
-    def get_version(self, key: K, version: str) -> V:
+    async def get_version(self, key: K, version: str) -> V:
         """
         Retrieve a specific version of a registered value.
+
+        This method is async to support I/O operations such as loading versioned
+        data from external storage, remote registries, or cache systems.
 
         Args:
             key: Registration key to lookup.
@@ -172,18 +185,21 @@ class ProtocolVersionedRegistry(ProtocolRegistryBase[K, V], Protocol):
             Must be safe to call concurrently with register_version/unregister.
 
         Example:
-            >>> handler_v1 = registry.get_version("api", "1.0.0")
-            >>> handler_v2 = registry.get_version("api", "2.0.0")
+            >>> handler_v1 = await registry.get_version("api", "1.0.0")
+            >>> handler_v2 = await registry.get_version("api", "2.0.0")
         """
         ...
 
-    def get_latest(self, key: K) -> V:
+    async def get_latest(self, key: K) -> V:
         """
         Retrieve the latest version of a registered value.
 
         The "latest" version is determined by semantic versioning ordering
         (highest MAJOR.MINOR.PATCH wins). If multiple versions exist with
         same semver, behavior is implementation-specific.
+
+        This method is async to support I/O operations such as querying version
+        metadata from external storage or distributed registries.
 
         Args:
             key: Registration key to lookup.
@@ -200,18 +216,21 @@ class ProtocolVersionedRegistry(ProtocolRegistryBase[K, V], Protocol):
             immediately after this call returns.
 
         Example:
-            >>> registry.register_version("api", "1.0.0", ApiV1)
-            >>> registry.register_version("api", "2.0.0", ApiV2)
-            >>> latest = registry.get_latest("api")  # Returns ApiV2
+            >>> await registry.register_version("api", "1.0.0", ApiV1)
+            >>> await registry.register_version("api", "2.0.0", ApiV2)
+            >>> latest = await registry.get_latest("api")  # Returns ApiV2
         """
         ...
 
-    def list_versions(self, key: K) -> list[str]:
+    async def list_versions(self, key: K) -> list[str]:
         """
         List all registered versions for a key.
 
         Returns versions in ascending semantic version order (e.g., "1.0.0"
         before "2.0.0"). Returns empty list if key has no versions.
+
+        This method is async to support I/O operations such as querying version
+        lists from external registries or database indexes.
 
         Args:
             key: Key to list versions for.
@@ -225,20 +244,23 @@ class ProtocolVersionedRegistry(ProtocolRegistryBase[K, V], Protocol):
             during list construction must not cause corruption or exceptions.
 
         Example:
-            >>> registry.register_version("api", "1.0.0", ApiV1)
-            >>> registry.register_version("api", "2.0.0", ApiV2)
-            >>> registry.register_version("api", "1.5.0", ApiV1_5)
-            >>> versions = registry.list_versions("api")
+            >>> await registry.register_version("api", "1.0.0", ApiV1)
+            >>> await registry.register_version("api", "2.0.0", ApiV2)
+            >>> await registry.register_version("api", "1.5.0", ApiV1_5)
+            >>> versions = await registry.list_versions("api")
             >>> # ["1.0.0", "1.5.0", "2.0.0"]
         """
         ...
 
-    def get_all_versions(self, key: K) -> dict[str, V]:
+    async def get_all_versions(self, key: K) -> dict[str, V]:
         """
         Retrieve all versions of a registered key as a mapping.
 
         Returns a dictionary mapping version strings to their corresponding
         values. Useful for migration, rollback, or version comparison scenarios.
+
+        This method is async to support I/O operations such as bulk loading
+        versioned data from external storage or distributed caches.
 
         Args:
             key: Registration key to retrieve all versions for.
@@ -253,13 +275,13 @@ class ProtocolVersionedRegistry(ProtocolRegistryBase[K, V], Protocol):
             during retrieval must not cause corruption or exceptions.
 
         Example:
-            >>> registry.register_version("policy", "1.0.0", PolicyV1)
-            >>> registry.register_version("policy", "2.0.0", PolicyV2)
-            >>> all_versions = registry.get_all_versions("policy")
+            >>> await registry.register_version("policy", "1.0.0", PolicyV1)
+            >>> await registry.register_version("policy", "2.0.0", PolicyV2)
+            >>> all_versions = await registry.get_all_versions("policy")
             >>> # {"1.0.0": PolicyV1, "2.0.0": PolicyV2}
             >>>
             >>> # Migrate all policies
             >>> for version, policy_cls in all_versions.items():
-            ...     migrate_policy(version, policy_cls)
+            ...     await migrate_policy(version, policy_cls)
         """
         ...

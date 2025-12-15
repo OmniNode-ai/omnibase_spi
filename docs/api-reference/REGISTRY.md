@@ -689,14 +689,14 @@ Get handler class for protocol type.
 - MUST return the exact class registered (not an instance)
 - MUST raise `KeyError` for unknown types (not return None)
 
-#### `list_keys` (as `list_protocols`)
+#### `list_keys`
 
-For `ProtocolHandlerRegistry`, this method is typically aliased or documented as `list_protocols()`:
+Lists all registered protocol types:
 
 ```python
-def list_protocols(self) -> list[str]:
+def list_keys(self) -> list[str]:
     """List registered protocol types."""
-    return self.list_keys()
+    ...
 ```
 
 **Returns**:
@@ -749,12 +749,16 @@ class ProtocolHandlerRegistry(Protocol):
         """Get handler class for protocol type."""
         ...
 
-    def list_protocols(self) -> list[str]:
+    def list_keys(self) -> list[str]:
         """List registered protocol types."""
         ...
 
     def is_registered(self, protocol_type: str) -> bool:
         """Check if protocol type is registered."""
+        ...
+
+    def unregister(self, protocol_type: str) -> bool:
+        """Remove a protocol handler from the registry."""
         ...
 ```
 
@@ -799,9 +803,16 @@ class HandlerRegistryImpl:
             )
         return self._handlers[protocol_type]
 
-    def list_protocols(self) -> list[str]:
+    def list_keys(self) -> list[str]:
         """List registered protocol types."""
         return sorted(self._handlers.keys())
+
+    def unregister(self, protocol_type: str) -> bool:
+        """Remove a protocol handler from the registry."""
+        if protocol_type in self._handlers:
+            del self._handlers[protocol_type]
+            return True
+        return False
 
     def is_registered(self, protocol_type: str) -> bool:
         """Check if protocol type is registered."""
@@ -823,7 +834,7 @@ registry.register("postgresql", PostgresHandler)
 registry.register("neo4j", BoltHandler)
 
 # List available protocols
-print(f"Available protocols: {registry.list_protocols()}")
+print(f"Available protocols: {registry.list_keys()}")
 # Output: Available protocols: ['http', 'kafka', 'neo4j', 'postgresql']
 
 # Check before using
