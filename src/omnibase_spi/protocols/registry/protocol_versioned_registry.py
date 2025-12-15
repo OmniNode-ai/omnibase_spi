@@ -128,22 +128,86 @@ class ProtocolVersionedRegistry(ProtocolRegistryBase[K, V], Protocol):
 
         IMPORTANT - Implementation Guidance:
         Implementations MUST internally bridge the sync/async boundary by having sync
-        base methods delegate to async version methods. This typically requires:
+        base methods delegate to async version methods. Three strategies are available:
 
-        1. Running async operations in an event loop within sync methods:
+        1. Event Loop Strategy - Running async operations in sync context:
            ```python
+           import asyncio
+
            def get(self, key: K) -> V:
-               # Run async get_latest in sync context
-               return asyncio.get_event_loop().run_until_complete(self.get_latest(key))
+               # Option A: Use existing event loop if available
+               try:
+                   loop = asyncio.get_running_loop()
+                   raise RuntimeError("Cannot use sync method from async context")
+               except RuntimeError:
+                   # No running loop - safe to create new one
+                   return asyncio.run(self.get_latest(key))
            ```
 
-        2. Or maintaining a cached sync view for base methods while async methods
-           perform actual I/O and update the cache.
+           Reference: https://docs.python.org/3/library/asyncio-runner.html#asyncio.run
 
-        3. Or using thread-safe blocking wrappers around async operations.
+           WARNING: This strategy can deadlock if called from an async context.
+           Always check for running event loop first. For production code, prefer
+           Strategy 2 or 3.
 
-        The specific bridging strategy depends on your runtime environment and
-        threading model. See implementation examples in omnibase_infra.
+        2. Cached Sync View Strategy - Maintain dual data structures:
+           ```python
+           class VersionedRegistry:
+               def __init__(self):
+                   self._async_store: dict[K, dict[str, V]] = {}  # Authoritative
+                   self._sync_cache: dict[K, V] = {}  # Latest versions only
+                   self._cache_lock = threading.Lock()
+
+               async def register_version(self, key: K, version: str, value: V) -> None:
+                   self._async_store.setdefault(key, {})[version] = value
+                   latest = max(self._async_store[key].keys())  # Semver ordering
+                   with self._cache_lock:
+                       self._sync_cache[key] = self._async_store[key][latest]
+
+               def get(self, key: K) -> V:
+                   # Fast sync access to cached latest version
+                   with self._cache_lock:
+                       return self._sync_cache[key]
+           ```
+
+           Reference: Python threading.Lock - https://docs.python.org/3/library/threading.html#lock-objects
+
+           BENEFITS: No event loop overhead, safe from async context, fast reads.
+           TRADEOFFS: Memory overhead (2x storage), cache invalidation complexity.
+
+        3. Thread-Safe Blocking Wrapper Strategy - Use concurrent.futures:
+           ```python
+           import asyncio
+           from concurrent.futures import ThreadPoolExecutor
+
+           class VersionedRegistry:
+               def __init__(self):
+                   self._executor = ThreadPoolExecutor(max_workers=1)
+                   self._loop = asyncio.new_event_loop()
+                   self._executor.submit(self._loop.run_forever)
+
+               def get(self, key: K) -> V:
+                   # Submit async operation to dedicated event loop thread
+                   future = asyncio.run_coroutine_threadsafe(
+                       self.get_latest(key),
+                       self._loop
+                   )
+                   return future.result()  # Blocks until complete
+           ```
+
+           Reference: https://docs.python.org/3/library/asyncio-task.html#asyncio.run_coroutine_threadsafe
+
+           BENEFITS: Safe from any context, clean separation of concerns.
+           TRADEOFFS: Thread overhead, complexity managing event loop lifecycle.
+
+        Strategy Selection Guide:
+            - Strategy 1: Simple cases, CLI tools, scripts (not production services)
+            - Strategy 2: High-read, low-write workloads with memory to spare
+            - Strategy 3: Production services requiring robust sync/async bridging
+
+        No concrete implementation exists yet in omnibase_infra - these are reference
+        patterns for implementers to follow. Future versions will provide reference
+        implementations once versioned registry use cases emerge.
 
     Invariants:
         - After `await register_version(k, v, val)`, `await get_version(k, v)` returns `val`
@@ -172,7 +236,7 @@ class ProtocolVersionedRegistry(ProtocolRegistryBase[K, V], Protocol):
             - "01.0.0" (leading zeros not allowed)
             - "latest" (not a valid semver)
 
-        Implementations MUST validate version strings before storage and SHOULD
+        Implementations MUST validate version strings before storage and MUST
         raise ValueError for invalid formats.
 
         Reference: https://semver.org (strict MAJOR.MINOR.PATCH subset)
@@ -214,7 +278,7 @@ class ProtocolVersionedRegistry(ProtocolRegistryBase[K, V], Protocol):
         Args:
             key: Registration key (must be hashable).
             version: Semantic version string in MAJOR.MINOR.PATCH format (e.g., "1.2.3").
-                    Implementations SHOULD validate format before storage.
+                    Implementations MUST validate format before storage.
             value: Value to associate with this (key, version) pair.
 
         Raises:
