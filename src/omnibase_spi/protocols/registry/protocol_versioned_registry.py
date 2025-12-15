@@ -1,8 +1,8 @@
 """Versioned registry protocol for managing multiple versions of registered items.
 
 This module provides a protocol for registries that need to track multiple versions
-of the same key. It extends ProtocolRegistryBase with version-aware operations,
-enabling semantic versioning, version querying, and automatic latest-version resolution.
+of the same key. It provides version-aware async operations, enabling semantic
+versioning, version querying, and automatic latest-version resolution.
 
 Thread Safety:
     Implementations MUST be thread-safe for concurrent read/write operations across
@@ -23,14 +23,14 @@ Version Ordering:
     monotonic integers) but MUST document their ordering semantics clearly.
 
 Base Method Behavior:
-    - `register(key, value)` operates on the LATEST version (or creates "0.0.1" if none)
-    - `get(key)` retrieves the LATEST version
-    - `unregister(key)` removes ALL versions of the key
-    - `list_keys()` returns keys with ANY version registered
-    - `is_registered(key)` returns True if ANY version exists
+    All methods are async and version-aware:
+    - `await register(key, value)` operates on the LATEST version (or creates "0.0.1" if none)
+    - `await get(key)` retrieves the LATEST version
+    - `await unregister(key)` removes ALL versions of the key
+    - `await list_keys()` returns keys with ANY version registered
+    - `await is_registered(key)` returns True if ANY version exists
 
-    This design ensures backward compatibility with ProtocolRegistryBase while
-    providing version-aware operations via the extended methods.
+    This design provides a clean async interface for version-aware registry operations.
 
 Usage:
     Use this protocol when:
@@ -68,9 +68,9 @@ Example:
     >>> all_versions = await registry.get_all_versions("rate-limit")
     >>> # {"1.0.0": RateLimitV1, "1.1.0": RateLimitV1_1, "2.0.0": RateLimitV2}
     >>>
-    >>> # Base protocol methods work with latest version (sync bridge methods)
-    >>> registry.get("rate-limit")  # Returns RateLimitV2 (delegates to get_latest internally)
-    >>> registry.is_registered("rate-limit")  # True if ANY version exists
+    >>> # Base protocol methods work with latest version (async overrides)
+    >>> await registry.get("rate-limit")  # Returns RateLimitV2 (delegates to get_latest internally)
+    >>> await registry.is_registered("rate-limit")  # True if ANY version exists
 
 See Also:
     - ProtocolRegistryBase: Base protocol for generic registries
@@ -79,25 +79,24 @@ See Also:
 
 from __future__ import annotations
 
-from typing import Protocol, runtime_checkable
+from typing import Generic, Protocol, TypeVar, runtime_checkable
 
-from omnibase_spi.protocols.registry.protocol_registry_base import (
-    K,
-    ProtocolRegistryBase,
-    V,
-)
+# Type variables for generic versioned registry (reusing from base for consistency)
+K = TypeVar("K")  # Key type (must be hashable in implementations)
+V = TypeVar("V")  # Value type
 
 __all__ = ["ProtocolVersionedRegistry"]
 
 
 @runtime_checkable
-class ProtocolVersionedRegistry(ProtocolRegistryBase[K, V], Protocol):
+class ProtocolVersionedRegistry(Protocol, Generic[K, V]):
     """
     Protocol for versioned key-value registry implementations.
 
-    This protocol extends ProtocolRegistryBase with version-aware operations,
-    enabling management of multiple versions of the same key using semantic
-    versioning for ordering and latest-version resolution.
+    This protocol provides version-aware registry operations, enabling management
+    of multiple versions of the same key using semantic versioning for ordering
+    and latest-version resolution. It defines a fully async interface for all
+    registry operations.
 
     Type Parameters:
         K: Key type (must be hashable in concrete implementations)
@@ -115,107 +114,73 @@ class ProtocolVersionedRegistry(ProtocolRegistryBase[K, V], Protocol):
         - `list_versions()` returns empty list for non-existent keys (does not raise)
         - `get_all_versions()` returns empty dict for non-existent keys (does not raise)
 
-    Async/Sync Design Pattern:
-        Version-specific methods (register_version, get_version, get_latest,
-        list_versions, get_all_versions) are async to support I/O operations such as:
+    Async Design Pattern:
+        ALL methods in this protocol are async to support I/O operations such as:
         - Loading versioned data from external storage (databases, caches)
         - Querying remote registries or distributed systems
         - Event notification and audit logging
         - Distributed locking and coordination
 
-        Base protocol methods (register, get, list_keys, is_registered, unregister)
-        are inherited as synchronous from ProtocolRegistryBase for backward compatibility.
+        This protocol defines a fully async interface independent of ProtocolRegistryBase,
+        which uses synchronous methods. The async design enables consistent async/await
+        patterns throughout the versioned registry implementation.
 
         IMPORTANT - Implementation Guidance:
-        Implementations MUST internally bridge the sync/async boundary by having sync
-        base methods delegate to async version methods. Three strategies are available:
+        All base protocol methods (register, get, list_keys, is_registered, unregister)
+        MUST delegate to their corresponding version-aware async methods:
 
-        1. Event Loop Strategy - Running async operations in sync context:
-           ```python
-           import asyncio
+        - `register(key, value)` → `register_version(key, version, value)`
+          (choose appropriate version: "0.0.1" for new keys, or increment latest)
+        - `get(key)` → `get_latest(key)`
+        - `is_registered(key)` → Check if `list_versions(key)` is non-empty
+        - `unregister(key)` → Remove all entries from version storage
+        - `list_keys()` → Return unique keys from version storage
 
-           def get(self, key: K) -> V:
-               # Option A: Use existing event loop if available
-               try:
-                   loop = asyncio.get_running_loop()
-                   raise RuntimeError("Cannot use sync method from async context")
-               except RuntimeError:
-                   # No running loop - safe to create new one
-                   return asyncio.run(self.get_latest(key))
-           ```
+        Example implementation pattern:
+            ```python
+            class VersionedRegistry:
+                def __init__(self):
+                    self._store: dict[K, dict[str, V]] = {}  # key -> {version -> value}
 
-           Reference: https://docs.python.org/3/library/asyncio-runner.html#asyncio.run
+                async def register_version(self, key: K, version: str, value: V) -> None:
+                    if not self._validate_semver(version):
+                        raise ValueError(f"Invalid semver: {version}")
+                    self._store.setdefault(key, {})[version] = value
 
-           WARNING: This strategy can deadlock if called from an async context.
-           Always check for running event loop first. For production code, prefer
-           Strategy 2 or 3.
+                async def get_latest(self, key: K) -> V:
+                    if key not in self._store or not self._store[key]:
+                        raise KeyError(f"Key not registered: {key}")
+                    latest_version = max(self._store[key].keys(), key=self._parse_semver)
+                    return self._store[key][latest_version]
 
-        2. Cached Sync View Strategy - Maintain dual data structures:
-           ```python
-           class VersionedRegistry:
-               def __init__(self):
-                   self._async_store: dict[K, dict[str, V]] = {}  # Authoritative
-                   self._sync_cache: dict[K, V] = {}  # Latest versions only
-                   self._cache_lock = threading.Lock()
+                async def register(self, key: K, value: V) -> None:
+                    # Delegate to register_version with appropriate version
+                    if key in self._store and self._store[key]:
+                        # Increment latest version's PATCH component
+                        latest = max(self._store[key].keys(), key=self._parse_semver)
+                        major, minor, patch = self._parse_semver(latest)
+                        new_version = f"{major}.{minor}.{patch + 1}"
+                    else:
+                        new_version = "0.0.1"
+                    await self.register_version(key, new_version, value)
 
-               async def register_version(self, key: K, version: str, value: V) -> None:
-                   self._async_store.setdefault(key, {})[version] = value
-                   latest = max(self._async_store[key].keys())  # Semver ordering
-                   with self._cache_lock:
-                       self._sync_cache[key] = self._async_store[key][latest]
+                async def get(self, key: K) -> V:
+                    # Delegate to get_latest
+                    return await self.get_latest(key)
+            ```
 
-               def get(self, key: K) -> V:
-                   # Fast sync access to cached latest version
-                   with self._cache_lock:
-                       return self._sync_cache[key]
-           ```
-
-           Reference: Python threading.Lock - https://docs.python.org/3/library/threading.html#lock-objects
-
-           BENEFITS: No event loop overhead, safe from async context, fast reads.
-           TRADEOFFS: Memory overhead (2x storage), cache invalidation complexity.
-
-        3. Thread-Safe Blocking Wrapper Strategy - Use concurrent.futures:
-           ```python
-           import asyncio
-           from concurrent.futures import ThreadPoolExecutor
-
-           class VersionedRegistry:
-               def __init__(self):
-                   self._executor = ThreadPoolExecutor(max_workers=1)
-                   self._loop = asyncio.new_event_loop()
-                   self._executor.submit(self._loop.run_forever)
-
-               def get(self, key: K) -> V:
-                   # Submit async operation to dedicated event loop thread
-                   future = asyncio.run_coroutine_threadsafe(
-                       self.get_latest(key),
-                       self._loop
-                   )
-                   return future.result()  # Blocks until complete
-           ```
-
-           Reference: https://docs.python.org/3/library/asyncio-task.html#asyncio.run_coroutine_threadsafe
-
-           BENEFITS: Safe from any context, clean separation of concerns.
-           TRADEOFFS: Thread overhead, complexity managing event loop lifecycle.
-
-        Strategy Selection Guide:
-            - Strategy 1: Simple cases, CLI tools, scripts (not production services)
-            - Strategy 2: High-read, low-write workloads with memory to spare
-            - Strategy 3: Production services requiring robust sync/async bridging
-
-        No concrete implementation exists yet in omnibase_infra - these are reference
-        patterns for implementers to follow. Future versions will provide reference
+        No concrete implementation exists yet in omnibase_infra - this is a reference
+        pattern for implementers to follow. Future versions will provide reference
         implementations once versioned registry use cases emerge.
 
     Invariants:
         - After `await register_version(k, v, val)`, `await get_version(k, v)` returns `val`
         - `await get_latest(k)` returns the version with highest semantic version number
         - `await list_versions(k)` returns versions in ascending semver order
-        - `unregister(k)` removes ALL versions of key `k` (sync wrapper around async operation)
-        - `is_registered(k)` returns True if ANY version of `k` exists (sync wrapper around async operation)
-        - `get(k)` returns same value as `await get_latest(k)` (sync wrapper delegates to async)
+        - `await unregister(k)` removes ALL versions of key `k`
+        - `await is_registered(k)` returns True if ANY version of `k` exists
+        - `await get(k)` returns same value as `await get_latest(k)` (delegates to get_latest)
+        - `await register(k, val)` delegates to `await register_version(k, "0.0.1", val)` or latest version
 
     Version Ordering:
         Implementations MUST use semantic versioning (MAJOR.MINOR.PATCH) by default.
@@ -417,5 +382,130 @@ class ProtocolVersionedRegistry(ProtocolRegistryBase[K, V], Protocol):
             >>> # Migrate all policies
             >>> for version, policy_cls in all_versions.items():
             ...     await migrate_policy(version, policy_cls)
+        """
+        ...
+
+    # ===== Base Registry Methods (Async) =====
+    # These methods provide the same CRUD interface as ProtocolRegistryBase,
+    # but with async signatures and version-aware semantics.
+
+    async def register(self, key: K, value: V) -> None:
+        """
+        Register a key-value pair in the registry.
+
+        Implementations MUST delegate to register_version with an appropriate
+        version (e.g., "0.0.1" for new keys, or increment latest version's PATCH).
+
+        Args:
+            key: Registration key (must be hashable).
+            value: Value to associate with the key.
+
+        Raises:
+            ValueError: If duplicate key and implementation forbids overwrites.
+            RegistryError: If registration fails due to internal error.
+
+        Thread Safety:
+            Must be safe to call concurrently with other registry methods.
+
+        Example:
+            >>> await registry.register("api", ApiV1Handler)
+            >>> # Internally delegates to register_version("api", "0.0.1", ApiV1Handler)
+        """
+        ...
+
+    async def get(self, key: K) -> V:
+        """
+        Retrieve the latest version of a registered value.
+
+        Implementations MUST delegate to get_latest internally.
+
+        Args:
+            key: Registration key to lookup.
+
+        Returns:
+            Value associated with the latest version of the key.
+
+        Raises:
+            KeyError: If key is not registered.
+            RegistryError: If retrieval fails due to internal error.
+
+        Thread Safety:
+            Must be safe to call concurrently with register/unregister.
+
+        Example:
+            >>> handler = await registry.get("api")
+            >>> # Returns latest version (delegates to get_latest internally)
+        """
+        ...
+
+    async def list_keys(self) -> list[K]:
+        """
+        List all registered keys.
+
+        Returns keys that have at least one version registered.
+
+        Returns:
+            List of all registered keys. Empty list if no keys registered.
+            Order is implementation-specific (may be insertion order, sorted, etc.).
+
+        Thread Safety:
+            Must return a consistent snapshot. Concurrent modifications during
+            list construction must not cause corruption or exceptions.
+
+        Example:
+            >>> keys = await registry.list_keys()
+            >>> for key in keys:
+            ...     print(f"{key} -> {await registry.get(key)}")
+        """
+        ...
+
+    async def is_registered(self, key: K) -> bool:
+        """
+        Check if a key has any registered versions.
+
+        Returns True if the key has at least one version.
+
+        Args:
+            key: Key to check.
+
+        Returns:
+            True if key has at least one version registered, False otherwise.
+
+        Thread Safety:
+            Result is a point-in-time snapshot. Key may be registered/unregistered
+            immediately after this call returns.
+
+        Example:
+            >>> if await registry.is_registered("api"):
+            ...     handler = await registry.get("api")
+            ... else:
+            ...     print("API not available")
+        """
+        ...
+
+    async def unregister(self, key: K) -> bool:
+        """
+        Remove ALL versions of a key from the registry.
+
+        This removes ALL registered versions of the key from the registry.
+
+        Idempotent operation - safe to call multiple times with same key.
+
+        Args:
+            key: Key to remove (all versions will be deleted).
+
+        Returns:
+            True if key was registered and removed (at least one version existed).
+            False if key was not registered (no-op).
+
+        Thread Safety:
+            Must be safe to call concurrently with other registry methods.
+            If multiple threads unregister same key, only one returns True.
+
+        Example:
+            >>> if await registry.unregister("api"):
+            ...     print("All API versions unregistered")
+            ... else:
+            ...     print("API was not registered")
         """
         ...

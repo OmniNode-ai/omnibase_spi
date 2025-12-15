@@ -34,7 +34,7 @@
 - [Best Practices](#best-practices)
 - [Handler Validation Notes](#handler-validation-notes)
 - [Exception Handling](#exception-handling)
-- [Thread Safety](#thread-safety)
+- [Thread Safety](#thread-safety-1)
 - [Version Information](#version-information)
 
 ---
@@ -716,6 +716,26 @@ Check if protocol type is registered.
 
 **Returns**:
 - `bool`: True if protocol type is registered
+
+#### `unregister`
+
+```python
+def unregister(self, protocol_type: str) -> bool:
+    ...
+```
+
+Remove a protocol handler from the registry.
+
+**Args**:
+- `protocol_type` (`str`): Protocol type identifier to remove
+
+**Returns**:
+- `bool`: `True` if handler was registered and removed, `False` if not registered
+
+**Contract**:
+- Idempotent operation (safe to call multiple times)
+- MUST NOT raise exceptions for non-existent protocol types
+- Must be thread-safe with concurrent operations
 
 ### Protocol Definition
 
