@@ -132,6 +132,15 @@ class ProtocolVersionedRegistry(Protocol, Generic[K, V]):
 
     .. versionadded:: 0.3.0
 
+    .. versionchanged:: 0.4.0
+        Removed inheritance from ProtocolRegistryBase due to async/sync incompatibility.
+        All methods are now fully async. This is a breaking change: synchronous
+        method calls (e.g., ``registry.get(key)``) must be replaced with async calls
+        (``await registry.get(key)``). This change ensures compliance with the
+        Liskov Substitution Principle - async methods cannot override sync methods
+        without violating LSP. See Migration Guide in docs/api-reference/REGISTRY.md
+        for upgrade instructions.
+
     Type Parameters:
         K: Key type (must be hashable in concrete implementations)
         V: Value type (can be any type)
@@ -141,21 +150,55 @@ class ProtocolVersionedRegistry(Protocol, Generic[K, V]):
         Concurrent operations across different versions of the same key must not
         corrupt internal state.
 
-        Implementation Requirements (MUST):
-        - Use thread synchronization primitives (locks, RLocks, semaphores)
-        - OR use lock-free/wait-free data structures (atomic operations)
-        - OR use copy-on-write semantics with immutable data structures
-        - Ensure all public methods are atomic or properly synchronized
-        - Prevent race conditions during version resolution and latest-version lookup
+        Thread Safety Guarantees:
+            - **Consistency Model**: Sequential consistency for single-key operations.
+              Each method call appears to execute atomically for its specific key.
 
-        Caller Guidance (SHOULD):
-        - Do NOT assume thread safety without checking implementation documentation
-        - Be aware that latest-version lookups are point-in-time snapshots
-        - Expect that a newer version may be registered immediately after get_latest()
-        - Use application-level locking if transactional semantics are required
-        - Consider eventual consistency for distributed registry implementations
+            - **Atomic Operations**: Each method call is atomic with respect to its key.
+              Operations on different keys may execute concurrently without coordination.
 
-        Thread Safety Example:
+            - **Snapshot Isolation**: list_keys() and get_all_versions() return point-in-time
+              snapshots. The returned data reflects a consistent state at some moment during
+              execution, though concurrent modifications may occur before/after.
+
+            - **Concurrent Registration**: Multiple threads can register different versions
+              of the same key concurrently. Operations MUST serialize to prevent corruption.
+
+            - **Read-Your-Writes**: After successful register_version(), a subsequent
+              get_version() for that (key, version) pair MUST return the registered value
+              (assuming no intermediate unregister).
+
+            - **No Lost Updates**: Concurrent register_version() calls for the same
+              (key, version) pair MUST serialize. The last write wins, or implementation
+              MAY raise ValueError to prevent silent overwrites.
+
+        Race Condition Behavior:
+            - **Concurrent get_latest() during register_version()**: May return old or
+              new version (both valid). Callers should not assume atomicity across multiple
+              get_latest() calls for the same key.
+
+            - **Concurrent unregister() during get_version()**: May raise KeyError if the
+              unregister completes before get_version acquires its read lock. This is
+              expected behavior.
+
+            - **Concurrent list_versions() during register_version()**: Returned list may
+              or may not include the newly registered version. Snapshot timing determines
+              inclusion.
+
+        Implementation Guidance:
+            Implementers should use one of these patterns:
+
+            - **Lock-based**: threading.Lock, threading.RLock, or asyncio.Lock for
+              serialization. Suitable for simple in-memory registries.
+
+            - **Lock-free**: Immutable data structures with atomic swap operations
+              (e.g., copy-on-write dict with atomic reference replacement). Suitable
+              for high-concurrency scenarios.
+
+            - **Copy-on-write**: Snapshot-at-start for consistent reads, with versioned
+              internal state. Suitable for distributed or eventually-consistent systems.
+
+        Thread Safety Example (Lock-based):
             ```python
             import asyncio
             import threading
@@ -176,6 +219,13 @@ class ProtocolVersionedRegistry(Protocol, Generic[K, V]):
                         latest_version = max(self._store[key].keys(), key=self._parse_semver)
                         return self._store[key][latest_version]
             ```
+
+        Caller Guidance (SHOULD):
+            - Do NOT assume thread safety without checking implementation documentation
+            - Be aware that latest-version lookups are point-in-time snapshots
+            - Expect that a newer version may be registered immediately after get_latest()
+            - Use application-level locking if transactional semantics are required
+            - Consider eventual consistency for distributed registry implementations
 
     Error Handling:
         - `get_version()` MUST raise KeyError if key or version not found
@@ -310,6 +360,8 @@ class ProtocolVersionedRegistry(Protocol, Generic[K, V]):
         This method is async to support I/O operations such as persisting version
         metadata to external storage, event notification, or distributed locking.
 
+        .. versionadded:: 0.4.0
+
         Args:
             key: Registration key (must be hashable).
             version: Semantic version string in MAJOR.MINOR.PATCH format (e.g., "1.2.3").
@@ -338,6 +390,8 @@ class ProtocolVersionedRegistry(Protocol, Generic[K, V]):
 
         This method is async to support I/O operations such as loading versioned
         data from external storage, remote registries, or cache systems.
+
+        .. versionadded:: 0.4.0
 
         Args:
             key: Registration key to lookup.
@@ -370,6 +424,8 @@ class ProtocolVersionedRegistry(Protocol, Generic[K, V]):
         This method is async to support I/O operations such as querying version
         metadata from external storage or distributed registries.
 
+        .. versionadded:: 0.4.0
+
         Args:
             key: Registration key to lookup.
 
@@ -401,6 +457,8 @@ class ProtocolVersionedRegistry(Protocol, Generic[K, V]):
         This method is async to support I/O operations such as querying version
         lists from external registries or database indexes.
 
+        .. versionadded:: 0.4.0
+
         Args:
             key: Key to list versions for.
 
@@ -431,6 +489,8 @@ class ProtocolVersionedRegistry(Protocol, Generic[K, V]):
         This method is async to support I/O operations such as bulk loading
         versioned data from external storage or distributed caches.
 
+        .. versionadded:: 0.4.0
+
         Args:
             key: Registration key to retrieve all versions for.
 
@@ -456,8 +516,9 @@ class ProtocolVersionedRegistry(Protocol, Generic[K, V]):
         ...
 
     # ===== Base Registry Methods (Async) =====
-    # These methods provide the same CRUD interface as ProtocolRegistryBase,
-    # but with async signatures and version-aware semantics.
+    # These methods are DUPLICATED from ProtocolRegistryBase (not inherited) to provide
+    # version-aware async implementations. Duplication is intentional due to async/sync
+    # incompatibility - async methods cannot override sync methods without breaking LSP.
     #
     # METHOD SELECTION GUIDE:
     #
@@ -505,7 +566,30 @@ class ProtocolVersionedRegistry(Protocol, Generic[K, V]):
         Register a key-value pair in the registry.
 
         Implementations MUST delegate to register_version with an appropriate
-        version (e.g., "0.0.1" for new keys, or increment latest version's PATCH).
+        version:
+        - **New key**: Use "0.0.1" as initial version
+        - **Existing key**: Increment PATCH component of latest version
+          (e.g., 1.2.3 → 1.2.4)
+
+        Version Increment Semantics:
+            This method is intended for development/testing scenarios where
+            explicit version management is not required. For production use,
+            prefer explicit register_version() calls with semantic versions.
+
+            Auto-incrementing PATCH assumes backward-compatible bug fixes.
+            Breaking changes or new features should use register_version()
+            with appropriate MAJOR/MINOR increments.
+
+        Rapid Calls:
+            Multiple rapid register() calls will create version sequence:
+            0.0.1 → 0.0.2 → 0.0.3 → ...
+
+            If this is not desired, use register_version() directly to control
+            version assignment.
+
+        .. versionadded:: 0.1.0
+        .. versionchanged:: 0.4.0
+            Changed to async method. Previously synchronous in ProtocolRegistryBase.
 
         Args:
             key: Registration key (must be hashable).
@@ -519,8 +603,16 @@ class ProtocolVersionedRegistry(Protocol, Generic[K, V]):
             Must be safe to call concurrently with other registry methods.
 
         Example:
-            >>> await registry.register("api", ApiV1Handler)
-            >>> # Internally delegates to register_version("api", "0.0.1", ApiV1Handler)
+            >>> # Development: Quick registration without version control
+            >>> await registry.register("api", ApiHandler)
+            >>> # Creates version 0.0.1
+            >>>
+            >>> await registry.register("api", ApiHandlerFixed)
+            >>> # Creates version 0.0.2 (patch increment)
+            >>>
+            >>> # Production: Explicit version control
+            >>> await registry.register_version("api", "2.0.0", ApiV2Handler)
+            >>> # Explicit semantic version for breaking change
         """
         ...
 
@@ -529,6 +621,10 @@ class ProtocolVersionedRegistry(Protocol, Generic[K, V]):
         Retrieve the latest version of a registered value.
 
         Implementations MUST delegate to get_latest internally.
+
+        .. versionadded:: 0.1.0
+        .. versionchanged:: 0.4.0
+            Changed to async method. Previously synchronous in ProtocolRegistryBase.
 
         Args:
             key: Registration key to lookup.
@@ -555,6 +651,10 @@ class ProtocolVersionedRegistry(Protocol, Generic[K, V]):
 
         Returns keys that have at least one version registered.
 
+        .. versionadded:: 0.1.0
+        .. versionchanged:: 0.4.0
+            Changed to async method. Previously synchronous in ProtocolRegistryBase.
+
         Returns:
             List of all registered keys. Empty list if no keys registered.
             Order is implementation-specific (may be insertion order, sorted, etc.).
@@ -575,6 +675,10 @@ class ProtocolVersionedRegistry(Protocol, Generic[K, V]):
         Check if a key has any registered versions.
 
         Returns True if the key has at least one version.
+
+        .. versionadded:: 0.1.0
+        .. versionchanged:: 0.4.0
+            Changed to async method. Previously synchronous in ProtocolRegistryBase.
 
         Args:
             key: Key to check.
@@ -601,6 +705,10 @@ class ProtocolVersionedRegistry(Protocol, Generic[K, V]):
         This removes ALL registered versions of the key from the registry.
 
         Idempotent operation - safe to call multiple times with same key.
+
+        .. versionadded:: 0.1.0
+        .. versionchanged:: 0.4.0
+            Changed to async method. Previously synchronous in ProtocolRegistryBase.
 
         Args:
             key: Key to remove (all versions will be deleted).
