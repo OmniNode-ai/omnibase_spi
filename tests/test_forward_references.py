@@ -248,7 +248,8 @@ class TestContractCompilerImports:
 
         Effect compilers transform contract definitions into executable effect nodes.
         """
-        from omnibase_spi.protocols.contracts import ProtocolEffectContractCompiler
+        from omnibase_spi.protocols.contracts import \
+            ProtocolEffectContractCompiler
 
         assert ProtocolEffectContractCompiler is not None
         _verify_runtime_checkable_protocol(ProtocolEffectContractCompiler)
@@ -258,7 +259,8 @@ class TestContractCompilerImports:
 
         Workflow compilers handle multi-step workflow contract compilation.
         """
-        from omnibase_spi.protocols.contracts import ProtocolWorkflowContractCompiler
+        from omnibase_spi.protocols.contracts import \
+            ProtocolWorkflowContractCompiler
 
         assert ProtocolWorkflowContractCompiler is not None
         _verify_runtime_checkable_protocol(ProtocolWorkflowContractCompiler)
@@ -268,7 +270,8 @@ class TestContractCompilerImports:
 
         FSM compilers handle finite state machine contract compilation.
         """
-        from omnibase_spi.protocols.contracts import ProtocolFSMContractCompiler
+        from omnibase_spi.protocols.contracts import \
+            ProtocolFSMContractCompiler
 
         assert ProtocolFSMContractCompiler is not None
         _verify_runtime_checkable_protocol(ProtocolFSMContractCompiler)
@@ -340,6 +343,8 @@ class TestRegistryProtocolImports:
 
         expected = {
             "ProtocolHandlerRegistry",
+            "ProtocolRegistryBase",
+            "ProtocolVersionedRegistry",
         }
         for protocol_name in expected:
             assert protocol_name in registry.__all__, f"{protocol_name} not in __all__"
@@ -456,10 +461,8 @@ class TestRuntimeCheckableProtocols:
     def test_contract_compilers_are_runtime_checkable(self) -> None:
         """Validate all contract compiler protocols have @runtime_checkable."""
         from omnibase_spi.protocols.contracts import (
-            ProtocolEffectContractCompiler,
-            ProtocolFSMContractCompiler,
-            ProtocolWorkflowContractCompiler,
-        )
+            ProtocolEffectContractCompiler, ProtocolFSMContractCompiler,
+            ProtocolWorkflowContractCompiler)
 
         for protocol in [
             ProtocolEffectContractCompiler,
@@ -580,7 +583,7 @@ class TestIsinstanceChecks:
     def test_isinstance_with_mock_registry(self) -> None:
         """Validate isinstance() returns True for compliant ProtocolHandlerRegistry.
 
-        Creates a mock class with register/get/list_protocols/is_registered methods,
+        Creates a mock class with register/get/list_keys/is_registered/unregister methods,
         then verifies isinstance() correctly identifies it.
         """
         from omnibase_spi.protocols.registry import ProtocolHandlerRegistry
@@ -596,12 +599,16 @@ class TestIsinstanceChecks:
                 """Returns base 'type' class as placeholder."""
                 return type
 
-            def list_protocols(self) -> list[str]:
+            def list_keys(self) -> list[str]:
                 """Returns empty list - no registrations in mock."""
                 return []
 
-            def is_registered(self, protocol_type: str) -> bool:
+            def is_registered(self, key: str) -> bool:
                 """Always returns False - nothing registered in mock."""
+                return False
+
+            def unregister(self, key: str) -> bool:
+                """Always returns False - nothing to unregister in mock."""
                 return False
 
         mock = MockRegistry()
@@ -646,7 +653,9 @@ class TestForwardReferenceResolution:
         verifying that ModelComputeInput and ModelComputeOutput are resolved
         to the actual Core model classes.
         """
-        from omnibase_core.models.compute import ModelComputeInput, ModelComputeOutput
+        from omnibase_core.models.compute import (ModelComputeInput,
+                                                  ModelComputeOutput)
+
         from omnibase_spi.protocols.nodes.compute import ProtocolComputeNode
 
         # get_type_hints should resolve forward references when Core is available
@@ -669,7 +678,9 @@ class TestForwardReferenceResolution:
         verifying that ModelEffectInput and ModelEffectOutput are resolved
         to the actual Core model classes.
         """
-        from omnibase_core.models.effect import ModelEffectInput, ModelEffectOutput
+        from omnibase_core.models.effect import (ModelEffectInput,
+                                                 ModelEffectOutput)
+
         from omnibase_spi.protocols.nodes.effect import ProtocolEffectNode
 
         hints = get_type_hints(ProtocolEffectNode.execute)
@@ -691,12 +702,12 @@ class TestForwardReferenceResolution:
         verifying request/response model references are resolved to the actual
         Core model classes.
         """
-        from omnibase_core.models.protocol import (
-            ModelOperationConfig,
-            ModelProtocolRequest,
-            ModelProtocolResponse,
-        )
-        from omnibase_spi.protocols.handlers.protocol_handler import ProtocolHandler
+        from omnibase_core.models.protocol import (ModelOperationConfig,
+                                                   ModelProtocolRequest,
+                                                   ModelProtocolResponse)
+
+        from omnibase_spi.protocols.handlers.protocol_handler import \
+            ProtocolHandler
 
         hints = get_type_hints(ProtocolHandler.execute)
         assert "request" in hints
@@ -723,9 +734,9 @@ class TestForwardReferenceResolution:
         from pathlib import Path
 
         from omnibase_core.models.contract import ModelEffectContract
-        from omnibase_spi.protocols.contracts.effect_compiler import (
-            ProtocolEffectContractCompiler,
-        )
+
+        from omnibase_spi.protocols.contracts.effect_compiler import \
+            ProtocolEffectContractCompiler
 
         hints = get_type_hints(ProtocolEffectContractCompiler.compile)
         assert "contract_path" in hints
@@ -744,7 +755,8 @@ class TestForwardReferenceResolution:
         This ensures SPI can be used for interface definitions standalone.
         """
         # These imports should work regardless of Core availability
-        from omnibase_spi.protocols.contracts import ProtocolEffectContractCompiler
+        from omnibase_spi.protocols.contracts import \
+            ProtocolEffectContractCompiler
         from omnibase_spi.protocols.handlers import ProtocolHandler
         from omnibase_spi.protocols.nodes import ProtocolComputeNode
 
@@ -874,15 +886,16 @@ class TestProtocolMethodSignatures:
     def test_registry_has_crud_methods(self) -> None:
         """Validate ProtocolHandlerRegistry defines CRUD operations.
 
-        Registries must support register, get, list_protocols, and
-        is_registered operations for handler management.
+        Registries must support register, get, list_keys, is_registered,
+        and unregister operations for handler management.
         """
         from omnibase_spi.protocols.registry import ProtocolHandlerRegistry
 
         assert hasattr(ProtocolHandlerRegistry, "register")
         assert hasattr(ProtocolHandlerRegistry, "get")
-        assert hasattr(ProtocolHandlerRegistry, "list_protocols")
+        assert hasattr(ProtocolHandlerRegistry, "list_keys")
         assert hasattr(ProtocolHandlerRegistry, "is_registered")
+        assert hasattr(ProtocolHandlerRegistry, "unregister")
 
     def test_contract_compilers_have_compile_and_validate(self) -> None:
         """Validate contract compilers define compile() and validate() methods.
@@ -890,10 +903,8 @@ class TestProtocolMethodSignatures:
         All compiler protocols must support contract compilation and validation.
         """
         from omnibase_spi.protocols.contracts import (
-            ProtocolEffectContractCompiler,
-            ProtocolFSMContractCompiler,
-            ProtocolWorkflowContractCompiler,
-        )
+            ProtocolEffectContractCompiler, ProtocolFSMContractCompiler,
+            ProtocolWorkflowContractCompiler)
 
         for compiler in [
             ProtocolEffectContractCompiler,
@@ -1098,12 +1109,16 @@ class TestModuleReimport:
                 """Returns base 'type' class as placeholder."""
                 return type
 
-            def list_protocols(self) -> list[str]:
+            def list_keys(self) -> list[str]:
                 """Returns empty list - no registrations in mock."""
                 return []
 
-            def is_registered(self, protocol_type: str) -> bool:
+            def is_registered(self, key: str) -> bool:
                 """Always returns False - nothing registered in mock."""
+                return False
+
+            def unregister(self, key: str) -> bool:
+                """Always returns False - nothing to unregister in mock."""
                 return False
 
         mock = MockRegistryAfterReload()
@@ -1282,12 +1297,16 @@ class TestModuleReimport:
                 """Returns base 'type' class as placeholder."""
                 return type
 
-            def list_protocols(self) -> list[str]:
+            def list_keys(self) -> list[str]:
                 """Returns empty list - no registrations in mock."""
                 return []
 
-            def is_registered(self, protocol_type: str) -> bool:
+            def is_registered(self, key: str) -> bool:
                 """Always returns False - nothing registered in mock."""
+                return False
+
+            def unregister(self, key: str) -> bool:
+                """Always returns False - nothing to unregister in mock."""
                 return False
 
         mock = MockRegistryAfterReload()
@@ -2025,8 +2044,8 @@ class TestProtocolSignatureValidation:
 
         The register method must have:
         - self: implicit first parameter
-        - protocol_type: required string parameter for protocol identifier
-        - handler_cls: required parameter for handler class type
+        - key: required string parameter for protocol identifier (replaces protocol_type)
+        - value: required parameter for handler class type (replaces handler_cls)
         """
         from omnibase_spi.protocols.registry import ProtocolHandlerRegistry
 
@@ -2035,20 +2054,20 @@ class TestProtocolSignatureValidation:
 
         # Verify required parameters exist
         assert "self" in params, "register() missing 'self' parameter"
-        assert "protocol_type" in params, "register() missing 'protocol_type' parameter"
-        assert "handler_cls" in params, "register() missing 'handler_cls' parameter"
+        assert "key" in params, "register() missing 'key' parameter"
+        assert "value" in params, "register() missing 'value' parameter"
 
-        # Verify protocol_type has no default (is required)
-        protocol_type_param = sig.parameters["protocol_type"]
+        # Verify key has no default (is required)
+        key_param = sig.parameters["key"]
         assert (
-            protocol_type_param.default is inspect.Parameter.empty
-        ), "protocol_type should not have a default value (must be required)"
+            key_param.default is inspect.Parameter.empty
+        ), "key should not have a default value (must be required)"
 
-        # Verify handler_cls has no default (is required)
-        handler_cls_param = sig.parameters["handler_cls"]
+        # Verify value has no default (is required)
+        value_param = sig.parameters["value"]
         assert (
-            handler_cls_param.default is inspect.Parameter.empty
-        ), "handler_cls should not have a default value (must be required)"
+            value_param.default is inspect.Parameter.empty
+        ), "value should not have a default value (must be required)"
 
         # Verify return annotation exists
         assert (
@@ -2060,7 +2079,7 @@ class TestProtocolSignatureValidation:
 
         The get method must have:
         - self: implicit first parameter
-        - protocol_type: required string parameter for protocol identifier
+        - key: required string parameter for protocol identifier (replaces protocol_type)
         """
         from omnibase_spi.protocols.registry import ProtocolHandlerRegistry
 
@@ -2069,13 +2088,13 @@ class TestProtocolSignatureValidation:
 
         # Verify required parameters exist
         assert "self" in params, "get() missing 'self' parameter"
-        assert "protocol_type" in params, "get() missing 'protocol_type' parameter"
+        assert "key" in params, "get() missing 'key' parameter"
 
-        # Verify protocol_type has no default (is required)
-        protocol_type_param = sig.parameters["protocol_type"]
+        # Verify key has no default (is required)
+        key_param = sig.parameters["key"]
         assert (
-            protocol_type_param.default is inspect.Parameter.empty
-        ), "protocol_type should not have a default value (must be required)"
+            key_param.default is inspect.Parameter.empty
+        ), "key should not have a default value (must be required)"
 
         # Verify return annotation exists
         assert (
@@ -2087,7 +2106,7 @@ class TestProtocolSignatureValidation:
 
         The is_registered method must have:
         - self: implicit first parameter
-        - protocol_type: required string parameter for protocol identifier
+        - key: required string parameter for protocol identifier (replaces protocol_type)
         """
         from omnibase_spi.protocols.registry import ProtocolHandlerRegistry
 
@@ -2096,43 +2115,41 @@ class TestProtocolSignatureValidation:
 
         # Verify required parameters exist
         assert "self" in params, "is_registered() missing 'self' parameter"
-        assert (
-            "protocol_type" in params
-        ), "is_registered() missing 'protocol_type' parameter"
+        assert "key" in params, "is_registered() missing 'key' parameter"
 
-        # Verify protocol_type has no default (is required)
-        protocol_type_param = sig.parameters["protocol_type"]
+        # Verify key has no default (is required)
+        key_param = sig.parameters["key"]
         assert (
-            protocol_type_param.default is inspect.Parameter.empty
-        ), "protocol_type should not have a default value (must be required)"
+            key_param.default is inspect.Parameter.empty
+        ), "key should not have a default value (must be required)"
 
         # Verify return annotation exists (should be bool)
         assert (
             sig.return_annotation is not inspect.Parameter.empty
         ), "is_registered() should have a return type annotation"
 
-    def test_registry_list_protocols_signature(self) -> None:
-        """Validate ProtocolHandlerRegistry.list_protocols has correct signature.
+    def test_registry_list_keys_signature(self) -> None:
+        """Validate ProtocolHandlerRegistry.list_keys has correct signature.
 
-        The list_protocols method must have:
+        The list_keys method must have:
         - self: implicit first parameter
         - No other required parameters
         """
         from omnibase_spi.protocols.registry import ProtocolHandlerRegistry
 
-        sig = inspect.signature(ProtocolHandlerRegistry.list_protocols)
+        sig = inspect.signature(ProtocolHandlerRegistry.list_keys)
         params = list(sig.parameters.keys())
 
         # Verify only self parameter exists
-        assert "self" in params, "list_protocols() missing 'self' parameter"
+        assert "self" in params, "list_keys() missing 'self' parameter"
         assert (
             len(params) == 1
-        ), f"list_protocols() should only have 'self', got {params}"
+        ), f"list_keys() should only have 'self', got {params}"
 
         # Verify return annotation exists (should be list[str])
         assert (
             sig.return_annotation is not inspect.Parameter.empty
-        ), "list_protocols() should have a return type annotation"
+        ), "list_keys() should have a return type annotation"
 
     def test_effect_node_execute_signature(self) -> None:
         """Validate ProtocolEffectNode.execute has correct parameters.
@@ -2168,7 +2185,8 @@ class TestProtocolSignatureValidation:
         - self: implicit first parameter
         - contract_path: required parameter for contract file path
         """
-        from omnibase_spi.protocols.contracts import ProtocolEffectContractCompiler
+        from omnibase_spi.protocols.contracts import \
+            ProtocolEffectContractCompiler
 
         sig = inspect.signature(ProtocolEffectContractCompiler.compile)
         params = list(sig.parameters.keys())
@@ -2195,7 +2213,8 @@ class TestProtocolSignatureValidation:
         - self: implicit first parameter
         - contract_path: required parameter for path to contract file to validate
         """
-        from omnibase_spi.protocols.contracts import ProtocolEffectContractCompiler
+        from omnibase_spi.protocols.contracts import \
+            ProtocolEffectContractCompiler
 
         sig = inspect.signature(ProtocolEffectContractCompiler.validate)
         params = list(sig.parameters.keys())
@@ -2242,7 +2261,8 @@ class TestProtocolInheritanceChains:
         ProtocolComputeNode inherits from ProtocolNode and must expose
         the base identity attributes (node_id, node_type, version).
         """
-        from omnibase_spi.protocols.nodes import ProtocolComputeNode, ProtocolNode
+        from omnibase_spi.protocols.nodes import (ProtocolComputeNode,
+                                                  ProtocolNode)
 
         # Verify ProtocolComputeNode has base node attributes
         assert hasattr(
@@ -2274,7 +2294,8 @@ class TestProtocolInheritanceChains:
         ProtocolEffectNode inherits from ProtocolNode and must expose
         the base identity attributes plus lifecycle methods.
         """
-        from omnibase_spi.protocols.nodes import ProtocolEffectNode, ProtocolNode
+        from omnibase_spi.protocols.nodes import (ProtocolEffectNode,
+                                                  ProtocolNode)
 
         # Verify ProtocolEffectNode has base node attributes
         assert hasattr(
@@ -2309,7 +2330,8 @@ class TestProtocolInheritanceChains:
         ProtocolReducerNode inherits from ProtocolNode and must expose
         the base identity attributes.
         """
-        from omnibase_spi.protocols.nodes import ProtocolNode, ProtocolReducerNode
+        from omnibase_spi.protocols.nodes import (ProtocolNode,
+                                                  ProtocolReducerNode)
 
         # Verify ProtocolReducerNode has base node attributes
         assert hasattr(
@@ -2338,7 +2360,8 @@ class TestProtocolInheritanceChains:
         ProtocolOrchestratorNode inherits from ProtocolNode and must expose
         the base identity attributes.
         """
-        from omnibase_spi.protocols.nodes import ProtocolNode, ProtocolOrchestratorNode
+        from omnibase_spi.protocols.nodes import (ProtocolNode,
+                                                  ProtocolOrchestratorNode)
 
         # Verify ProtocolOrchestratorNode has base node attributes
         assert hasattr(
@@ -2367,7 +2390,8 @@ class TestProtocolInheritanceChains:
         A mock implementing ProtocolComputeNode should also satisfy
         isinstance() checks against ProtocolNode due to inheritance.
         """
-        from omnibase_spi.protocols.nodes import ProtocolComputeNode, ProtocolNode
+        from omnibase_spi.protocols.nodes import (ProtocolComputeNode,
+                                                  ProtocolNode)
 
         class MockComputeNode:
             """Mock implementation satisfying ProtocolComputeNode contract."""
@@ -2402,7 +2426,8 @@ class TestProtocolInheritanceChains:
         A mock implementing ProtocolEffectNode should also satisfy
         isinstance() checks against ProtocolNode due to inheritance.
         """
-        from omnibase_spi.protocols.nodes import ProtocolEffectNode, ProtocolNode
+        from omnibase_spi.protocols.nodes import (ProtocolEffectNode,
+                                                  ProtocolNode)
 
         class MockEffectNode:
             """Mock implementation satisfying ProtocolEffectNode contract."""
@@ -2442,13 +2467,11 @@ class TestProtocolInheritanceChains:
         All specialized node protocols (compute, effect, reducer, orchestrator)
         should define the same base attributes from ProtocolNode.
         """
-        from omnibase_spi.protocols.nodes import (
-            ProtocolComputeNode,
-            ProtocolEffectNode,
-            ProtocolNode,
-            ProtocolOrchestratorNode,
-            ProtocolReducerNode,
-        )
+        from omnibase_spi.protocols.nodes import (ProtocolComputeNode,
+                                                  ProtocolEffectNode,
+                                                  ProtocolNode,
+                                                  ProtocolOrchestratorNode,
+                                                  ProtocolReducerNode)
 
         # Base attributes that all node protocols must have
         base_attributes = {"node_id", "node_type", "version"}
@@ -2473,13 +2496,11 @@ class TestProtocolInheritanceChains:
         All specialized node protocols should have ProtocolNode in their MRO,
         ensuring proper inheritance chain resolution.
         """
-        from omnibase_spi.protocols.nodes import (
-            ProtocolComputeNode,
-            ProtocolEffectNode,
-            ProtocolNode,
-            ProtocolOrchestratorNode,
-            ProtocolReducerNode,
-        )
+        from omnibase_spi.protocols.nodes import (ProtocolComputeNode,
+                                                  ProtocolEffectNode,
+                                                  ProtocolNode,
+                                                  ProtocolOrchestratorNode,
+                                                  ProtocolReducerNode)
 
         child_protocols = [
             ("ProtocolComputeNode", ProtocolComputeNode),

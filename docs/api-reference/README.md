@@ -337,7 +337,7 @@ async def setup_handlers(
     registry.register("kafka", KafkaHandler)
 
     # List available protocols for introspection
-    available = registry.list_protocols()
+    available = registry.list_keys()
     print(f"Registered protocols: {available}")
 
     # Resolve handler for effect node injection
