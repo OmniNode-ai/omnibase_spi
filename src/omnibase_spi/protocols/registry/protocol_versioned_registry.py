@@ -22,6 +22,36 @@ Version Ordering:
     Implementations MAY support alternative versioning schemes (e.g., timestamps,
     monotonic integers) but MUST document their ordering semantics clearly.
 
+Design Rationale - Independent Async Protocol:
+    ProtocolVersionedRegistry does NOT inherit from ProtocolRegistryBase due to
+    fundamental async/sync incompatibility:
+
+    1. Async-First Design:
+       - ALL methods are async to support I/O operations (database queries,
+         distributed registries, remote version lookups, event notifications)
+       - Async methods cannot override sync methods without breaking Liskov
+         Substitution Principle (LSP)
+       - Async context is necessary for version-aware operations that may involve
+         external storage systems
+
+    2. Semantic Differences:
+       - ProtocolRegistryBase assumes single-value-per-key semantics
+       - ProtocolVersionedRegistry requires multi-value-per-key semantics
+       - Version resolution adds complexity that doesn't fit base protocol model
+
+    3. Benefits of Independence:
+       - Clean async interface throughout the protocol (no sync/async mixing)
+       - Freedom to evolve versioned registry semantics without impacting base protocol
+       - Explicit opt-in to versioning complexity (not hidden behind inheritance)
+       - Type checker can properly validate async context propagation
+
+    4. Implementation Pattern:
+       - Implementations SHOULD provide both sync base protocol methods AND async
+         versioned methods to support dual-mode access when needed
+       - Delegation pattern: sync methods can delegate to async methods via
+         asyncio.run() or event loop integration
+       - Pure async implementations can focus solely on versioned protocol
+
 Base Method Behavior:
     All methods are async and version-aware:
     - `await register(key, value)` operates on the LATEST version (or creates "0.0.1" if none)
@@ -38,10 +68,12 @@ Usage:
     - Version rollback/pinning is required
     - Migration between versions needs to be tracked
     - Semantic versioning is a domain requirement
+    - Async I/O operations are needed (database, remote registry, event bus)
 
     Use ProtocolRegistryBase when:
     - Versioning is not required (single active version per key)
     - Simple key-value mapping is sufficient
+    - Synchronous operations are preferred (in-memory registry)
 
 Example:
     >>> from omnibase_spi.protocols.registry import ProtocolVersionedRegistry
@@ -81,7 +113,7 @@ from __future__ import annotations
 
 from typing import Generic, Protocol, TypeVar, runtime_checkable
 
-# Type variables for generic versioned registry (reusing from base for consistency)
+# Type variables for generic versioned registry
 K = TypeVar("K")  # Key type (must be hashable in implementations)
 V = TypeVar("V")  # Value type
 
@@ -98,14 +130,52 @@ class ProtocolVersionedRegistry(Protocol, Generic[K, V]):
     and latest-version resolution. It defines a fully async interface for all
     registry operations.
 
+    .. versionadded:: 0.3.0
+
     Type Parameters:
         K: Key type (must be hashable in concrete implementations)
         V: Value type (can be any type)
 
     Thread Safety:
-        Implementations MUST be thread-safe. Concurrent operations across
-        different versions of the same key must not corrupt internal state.
-        Use locks, lock-free data structures, or copy-on-write semantics.
+        Implementations MUST be thread-safe for concurrent read/write operations.
+        Concurrent operations across different versions of the same key must not
+        corrupt internal state.
+
+        Implementation Requirements (MUST):
+        - Use thread synchronization primitives (locks, RLocks, semaphores)
+        - OR use lock-free/wait-free data structures (atomic operations)
+        - OR use copy-on-write semantics with immutable data structures
+        - Ensure all public methods are atomic or properly synchronized
+        - Prevent race conditions during version resolution and latest-version lookup
+
+        Caller Guidance (SHOULD):
+        - Do NOT assume thread safety without checking implementation documentation
+        - Be aware that latest-version lookups are point-in-time snapshots
+        - Expect that a newer version may be registered immediately after get_latest()
+        - Use application-level locking if transactional semantics are required
+        - Consider eventual consistency for distributed registry implementations
+
+        Thread Safety Example:
+            ```python
+            import asyncio
+            import threading
+
+            class ThreadSafeVersionedRegistry:
+                def __init__(self):
+                    self._store: dict[K, dict[str, V]] = {}
+                    self._lock = threading.RLock()
+
+                async def register_version(self, key: K, version: str, value: V) -> None:
+                    with self._lock:
+                        self._store.setdefault(key, {})[version] = value
+
+                async def get_latest(self, key: K) -> V:
+                    with self._lock:
+                        if key not in self._store or not self._store[key]:
+                            raise KeyError(f"Key not registered: {key}")
+                        latest_version = max(self._store[key].keys(), key=self._parse_semver)
+                        return self._store[key][latest_version]
+            ```
 
     Error Handling:
         - `get_version()` MUST raise KeyError if key or version not found
@@ -388,6 +458,47 @@ class ProtocolVersionedRegistry(Protocol, Generic[K, V]):
     # ===== Base Registry Methods (Async) =====
     # These methods provide the same CRUD interface as ProtocolRegistryBase,
     # but with async signatures and version-aware semantics.
+    #
+    # METHOD SELECTION GUIDE:
+    #
+    # Use register_version() when:
+    #   - You need explicit version control (e.g., "1.2.3")
+    #   - Multiple versions must coexist simultaneously
+    #   - Version pinning/rollback is required
+    #   - Migration between specific versions needs tracking
+    #   - External version numbering scheme is provided
+    #
+    # Use register() when:
+    #   - You want automatic version management
+    #   - Latest version semantics are sufficient
+    #   - Simpler API is preferred for basic use cases
+    #   - Version numbers are implementation detail
+    #   - Migration from ProtocolRegistryBase code
+    #
+    # Decision Matrix:
+    #   ┌─────────────────────────┬───────────────────┬──────────────────────┐
+    #   │ Scenario                │ Method            │ Rationale            │
+    #   ├─────────────────────────┼───────────────────┼──────────────────────┤
+    #   │ API versioning          │ register_version  │ Explicit versions    │
+    #   │ Schema evolution        │ register_version  │ Track migrations     │
+    #   │ Policy rollback         │ register_version  │ Pin to version       │
+    #   │ Simple latest-only      │ register          │ Auto version mgmt    │
+    #   │ Single active version   │ register          │ Simpler semantics    │
+    #   │ Migration from base     │ register          │ Compatible API       │
+    #   └─────────────────────────┴───────────────────┴──────────────────────┘
+    #
+    # Usage Examples:
+    #
+    #   # Explicit version control (recommended for production APIs)
+    #   await registry.register_version("payment-api", "1.0.0", PaymentV1)
+    #   await registry.register_version("payment-api", "2.0.0", PaymentV2)
+    #   v1_handler = await registry.get_version("payment-api", "1.0.0")
+    #   v2_handler = await registry.get_latest("payment-api")  # Returns PaymentV2
+    #
+    #   # Automatic version management (simpler for internal use)
+    #   await registry.register("cache-policy", CachePolicy)  # Creates v0.0.1
+    #   await registry.register("cache-policy", ImprovedCache)  # Creates v0.0.2
+    #   latest = await registry.get("cache-policy")  # Returns ImprovedCache
 
     async def register(self, key: K, value: V) -> None:
         """
