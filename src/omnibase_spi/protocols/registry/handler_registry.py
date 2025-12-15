@@ -7,6 +7,8 @@ from typing import TYPE_CHECKING, Protocol, runtime_checkable
 if TYPE_CHECKING:
     from omnibase_spi.protocols.handlers.protocol_handler import ProtocolHandler
 
+__all__ = ["ProtocolHandlerRegistry"]
+
 
 @runtime_checkable
 class ProtocolHandlerRegistry(Protocol):

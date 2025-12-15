@@ -68,9 +68,9 @@ Example:
     >>> all_versions = await registry.get_all_versions("rate-limit")
     >>> # {"1.0.0": RateLimitV1, "1.1.0": RateLimitV1_1, "2.0.0": RateLimitV2}
     >>>
-    >>> # Base protocol methods work with latest version
-    >>> await registry.get("rate-limit")  # Returns RateLimitV2
-    >>> await registry.is_registered("rate-limit")  # True if ANY version exists
+    >>> # Base protocol methods work with latest version (sync methods)
+    >>> registry.get("rate-limit")  # Returns RateLimitV2
+    >>> registry.is_registered("rate-limit")  # True if ANY version exists
 
 See Also:
     - ProtocolRegistryBase: Base protocol for generic registries
@@ -82,7 +82,10 @@ from __future__ import annotations
 from typing import Protocol, runtime_checkable
 
 from omnibase_spi.protocols.registry.protocol_registry_base import (
-    K, ProtocolRegistryBase, V)
+    K,
+    ProtocolRegistryBase,
+    V,
+)
 
 __all__ = ["ProtocolVersionedRegistry"]
 
@@ -123,9 +126,9 @@ class ProtocolVersionedRegistry(ProtocolRegistryBase[K, V], Protocol):
         - After `await register_version(k, v, val)`, `await get_version(k, v)` returns `val`
         - `await get_latest(k)` returns the version with highest semantic version number
         - `await list_versions(k)` returns versions in ascending semver order
-        - `await unregister(k)` removes ALL versions of key `k`
-        - `await is_registered(k)` returns True if ANY version of `k` exists
-        - `await get(k)` returns same value as `await get_latest(k)`
+        - `unregister(k)` removes ALL versions of key `k`
+        - `is_registered(k)` returns True if ANY version of `k` exists
+        - `get(k)` returns same value as `await get_latest(k)` (base method is sync)
 
     Version Ordering:
         Implementations MUST use semantic versioning (MAJOR.MINOR.PATCH) by default.
@@ -134,20 +137,43 @@ class ProtocolVersionedRegistry(ProtocolRegistryBase[K, V], Protocol):
 
     Semantic Version Validation:
         Version strings MUST follow semantic versioning format: MAJOR.MINOR.PATCH
-        - Valid: "1.0.0", "2.1.3", "10.20.30"
-        - Invalid: "1.0", "v1.0.0", "1.0.0-beta", "latest"
+        where each component is a non-negative integer with no leading zeros (except "0").
 
-        Implementations SHOULD validate version strings before storage.
-        Reference: https://semver.org
+        Valid examples:
+            - "1.0.0", "2.1.3", "10.20.30", "0.0.1"
 
-        Example implementation pattern:
+        Invalid examples:
+            - "1.0" (missing PATCH)
+            - "v1.0.0" (prefix not allowed)
+            - "1.0.0-beta" (pre-release identifiers not supported)
+            - "01.0.0" (leading zeros not allowed)
+            - "latest" (not a valid semver)
+
+        Implementations MUST validate version strings before storage and SHOULD
+        raise ValueError for invalid formats.
+
+        Reference: https://semver.org (strict MAJOR.MINOR.PATCH subset)
+
+        Recommended validation pattern:
             ```python
             import re
 
             def _validate_semver(version: str) -> bool:
-                '''Validate semantic version format.'''
-                pattern = r'^\\d+\\.\\d+\\.\\d+$'
+                '''Validate strict semantic version format (MAJOR.MINOR.PATCH).
+
+                Returns:
+                    True if version matches format, False otherwise.
+                '''
+                # Pattern: non-negative integers, no leading zeros (except "0")
+                pattern = r'^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$'
                 return bool(re.match(pattern, version))
+
+            # Usage in register_version:
+            if not _validate_semver(version):
+                raise ValueError(
+                    f"Invalid semantic version format: {version!r}. "
+                    f"Expected MAJOR.MINOR.PATCH (e.g., '1.0.0')"
+                )
             ```
     """
 

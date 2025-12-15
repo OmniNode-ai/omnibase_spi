@@ -603,11 +603,11 @@ class TestIsinstanceChecks:
                 """Returns empty list - no registrations in mock."""
                 return []
 
-            def is_registered(self, protocol_type: str) -> bool:
+            def is_registered(self, key: str) -> bool:
                 """Always returns False - nothing registered in mock."""
                 return False
 
-            def unregister(self, protocol_type: str) -> bool:
+            def unregister(self, key: str) -> bool:
                 """Always returns False - nothing to unregister in mock."""
                 return False
 
@@ -1113,11 +1113,11 @@ class TestModuleReimport:
                 """Returns empty list - no registrations in mock."""
                 return []
 
-            def is_registered(self, protocol_type: str) -> bool:
+            def is_registered(self, key: str) -> bool:
                 """Always returns False - nothing registered in mock."""
                 return False
 
-            def unregister(self, protocol_type: str) -> bool:
+            def unregister(self, key: str) -> bool:
                 """Always returns False - nothing to unregister in mock."""
                 return False
 
@@ -1301,11 +1301,11 @@ class TestModuleReimport:
                 """Returns empty list - no registrations in mock."""
                 return []
 
-            def is_registered(self, protocol_type: str) -> bool:
+            def is_registered(self, key: str) -> bool:
                 """Always returns False - nothing registered in mock."""
                 return False
 
-            def unregister(self, protocol_type: str) -> bool:
+            def unregister(self, key: str) -> bool:
                 """Always returns False - nothing to unregister in mock."""
                 return False
 

@@ -34,7 +34,7 @@
 - [Best Practices](#best-practices)
 - [Handler Validation Notes](#handler-validation-notes)
 - [Exception Handling](#exception-handling)
-- [Thread Safety](#thread-safety-2)
+- [Thread Safety](#thread-safety)
 - [Version Information](#version-information)
 
 ---
@@ -469,7 +469,7 @@ class ProtocolServiceRegistry(ProtocolRegistryBase[str, object], Protocol):
 
     # Inherits: register(), get(), list_keys(), is_registered(), unregister()
 
-    def get_or_create(self, key: str, factory: Callable) -> object:
+    def get_or_create(self, key: str, factory: Callable[[], object]) -> object:
         """Get service or create using factory if not registered."""
         ...
 
@@ -546,7 +546,6 @@ class ServiceRegistryImpl:
 
 ```python
 from typing import TypeVar, Generic
-from collections import defaultdict
 import time
 
 K = TypeVar("K")
@@ -818,13 +817,6 @@ class HandlerRegistryImpl:
     def is_registered(self, protocol_type: str) -> bool:
         """Check if protocol type is registered."""
         return protocol_type in self._handlers
-
-    def unregister(self, protocol_type: str) -> bool:
-        """Unregister a protocol type."""
-        if protocol_type in self._handlers:
-            del self._handlers[protocol_type]
-            return True
-        return False
 
 
 # Application bootstrap
