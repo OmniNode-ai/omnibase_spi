@@ -68,8 +68,8 @@ Example:
     >>> all_versions = await registry.get_all_versions("rate-limit")
     >>> # {"1.0.0": RateLimitV1, "1.1.0": RateLimitV1_1, "2.0.0": RateLimitV2}
     >>>
-    >>> # Base protocol methods work with latest version (sync methods)
-    >>> registry.get("rate-limit")  # Returns RateLimitV2
+    >>> # Base protocol methods work with latest version (sync bridge methods)
+    >>> registry.get("rate-limit")  # Returns RateLimitV2 (delegates to get_latest internally)
     >>> registry.is_registered("rate-limit")  # True if ANY version exists
 
 See Also:
@@ -115,20 +115,43 @@ class ProtocolVersionedRegistry(ProtocolRegistryBase[K, V], Protocol):
         - `list_versions()` returns empty list for non-existent keys (does not raise)
         - `get_all_versions()` returns empty dict for non-existent keys (does not raise)
 
-    Async Methods:
-        All version-specific methods are async to support I/O operations such as:
+    Async/Sync Design Pattern:
+        Version-specific methods (register_version, get_version, get_latest,
+        list_versions, get_all_versions) are async to support I/O operations such as:
         - Loading versioned data from external storage (databases, caches)
         - Querying remote registries or distributed systems
         - Event notification and audit logging
         - Distributed locking and coordination
 
+        Base protocol methods (register, get, list_keys, is_registered, unregister)
+        are inherited as synchronous from ProtocolRegistryBase for backward compatibility.
+
+        IMPORTANT - Implementation Guidance:
+        Implementations MUST internally bridge the sync/async boundary by having sync
+        base methods delegate to async version methods. This typically requires:
+
+        1. Running async operations in an event loop within sync methods:
+           ```python
+           def get(self, key: K) -> V:
+               # Run async get_latest in sync context
+               return asyncio.get_event_loop().run_until_complete(self.get_latest(key))
+           ```
+
+        2. Or maintaining a cached sync view for base methods while async methods
+           perform actual I/O and update the cache.
+
+        3. Or using thread-safe blocking wrappers around async operations.
+
+        The specific bridging strategy depends on your runtime environment and
+        threading model. See implementation examples in omnibase_infra.
+
     Invariants:
         - After `await register_version(k, v, val)`, `await get_version(k, v)` returns `val`
         - `await get_latest(k)` returns the version with highest semantic version number
         - `await list_versions(k)` returns versions in ascending semver order
-        - `unregister(k)` removes ALL versions of key `k`
-        - `is_registered(k)` returns True if ANY version of `k` exists
-        - `get(k)` returns same value as `await get_latest(k)` (base method is sync)
+        - `unregister(k)` removes ALL versions of key `k` (sync wrapper around async operation)
+        - `is_registered(k)` returns True if ANY version of `k` exists (sync wrapper around async operation)
+        - `get(k)` returns same value as `await get_latest(k)` (sync wrapper delegates to async)
 
     Version Ordering:
         Implementations MUST use semantic versioning (MAJOR.MINOR.PATCH) by default.
