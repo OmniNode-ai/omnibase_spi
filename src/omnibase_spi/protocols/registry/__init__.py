@@ -1,4 +1,4 @@
-"""Registry interfaces for omnibase_spi v0.3.0."""
+"""Registry interfaces for omnibase_spi v0.4.0."""
 
 from omnibase_spi.protocols.registry.handler_registry import \
     ProtocolHandlerRegistry

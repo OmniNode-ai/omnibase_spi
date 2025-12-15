@@ -84,6 +84,8 @@ from typing import Protocol, runtime_checkable
 from omnibase_spi.protocols.registry.protocol_registry_base import (
     K, ProtocolRegistryBase, V)
 
+__all__ = ["ProtocolVersionedRegistry"]
+
 
 @runtime_checkable
 class ProtocolVersionedRegistry(ProtocolRegistryBase[K, V], Protocol):
@@ -129,6 +131,24 @@ class ProtocolVersionedRegistry(ProtocolRegistryBase[K, V], Protocol):
         Implementations MUST use semantic versioning (MAJOR.MINOR.PATCH) by default.
         Alternative schemes (timestamps, integers) MAY be supported but MUST be
         documented clearly in implementation docstrings.
+
+    Semantic Version Validation:
+        Version strings MUST follow semantic versioning format: MAJOR.MINOR.PATCH
+        - Valid: "1.0.0", "2.1.3", "10.20.30"
+        - Invalid: "1.0", "v1.0.0", "1.0.0-beta", "latest"
+
+        Implementations SHOULD validate version strings before storage.
+        Reference: https://semver.org
+
+        Example implementation pattern:
+            ```python
+            import re
+
+            def _validate_semver(version: str) -> bool:
+                '''Validate semantic version format.'''
+                pattern = r'^\\d+\\.\\d+\\.\\d+$'
+                return bool(re.match(pattern, version))
+            ```
     """
 
     async def register_version(self, key: K, version: str, value: V) -> None:
@@ -144,12 +164,13 @@ class ProtocolVersionedRegistry(ProtocolRegistryBase[K, V], Protocol):
 
         Args:
             key: Registration key (must be hashable).
-            version: Semantic version string (e.g., "1.2.3").
+            version: Semantic version string in MAJOR.MINOR.PATCH format (e.g., "1.2.3").
+                    Implementations SHOULD validate format before storage.
             value: Value to associate with this (key, version) pair.
 
         Raises:
             ValueError: If duplicate (key, version) and implementation forbids overwrites,
-                       or if version string is invalid (e.g., not valid semver).
+                       or if version string is invalid (e.g., not valid semver format).
             RegistryError: If registration fails due to internal error.
 
         Thread Safety:

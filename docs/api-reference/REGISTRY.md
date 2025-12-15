@@ -11,10 +11,10 @@
 - [ProtocolRegistryBase[K, V]](#protocolregistrybasek-v) **NEW**
   - [Description](#description)
   - [Type Parameters](#type-parameters)
-  - [Methods](#methods-1)
-  - [Protocol Definition](#protocol-definition-1)
-  - [Thread Safety](#thread-safety-1)
-  - [Error Handling](#error-handling-1)
+  - [Methods](#methods)
+  - [Protocol Definition](#protocol-definition)
+  - [Thread Safety](#thread-safety)
+  - [Error Handling](#error-handling)
   - [Invariants](#invariants)
 - [Usage Patterns](#usage-patterns)
   - [Pattern 1: Simple Type Alias](#pattern-1-simple-type-alias)
@@ -22,8 +22,8 @@
   - [Pattern 3: Custom Implementation](#pattern-3-custom-implementation)
 - [ProtocolHandlerRegistry](#protocolhandlerregistry)
   - [Description](#description-1)
-  - [Methods](#methods-2)
-  - [Protocol Definition](#protocol-definition-2)
+  - [Methods](#methods-1)
+  - [Protocol Definition](#protocol-definition-1)
   - [Usage Example](#usage-example)
   - [Factory Pattern Integration](#factory-pattern-integration)
   - [Effect Node Integration](#effect-node-integration)
@@ -458,7 +458,8 @@ handler_cls = handler_registry.get("http")
 **Example**: Service registry with lifecycle methods
 
 ```python
-from typing import runtime_checkable, Protocol
+from typing import Callable, Protocol, runtime_checkable
+
 from omnibase_spi.protocols.registry import ProtocolRegistryBase
 
 
@@ -468,7 +469,7 @@ class ProtocolServiceRegistry(ProtocolRegistryBase[str, object], Protocol):
 
     # Inherits: register(), get(), list_keys(), is_registered(), unregister()
 
-    def get_or_create(self, key: str, factory: callable) -> object:
+    def get_or_create(self, key: str, factory: Callable) -> object:
         """Get service or create using factory if not registered."""
         ...
 
@@ -508,7 +509,7 @@ class ServiceRegistryImpl:
         return False
 
     # Implement extended methods
-    def get_or_create(self, key: str, factory: callable) -> object:
+    def get_or_create(self, key: str, factory: Callable) -> object:
         if not self.is_registered(key):
             service = factory()
             self.register(key, service)
@@ -1103,11 +1104,13 @@ class ServiceRegistryImpl:
 When you don't need additional methods, use a simple type alias:
 
 ```python
+from typing import Callable
+
 from omnibase_spi.protocols.registry import ProtocolRegistryBase
 
 # Clean and type-safe
 ProtocolConfigRegistry = ProtocolRegistryBase[str, dict]
-ProtocolFactoryRegistry = ProtocolRegistryBase[str, callable]
+ProtocolFactoryRegistry = ProtocolRegistryBase[str, Callable]
 ```
 
 ### 2. Register at Startup, Resolve at Runtime

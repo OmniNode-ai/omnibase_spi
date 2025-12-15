@@ -649,3 +649,10 @@ class TestProtocolRegistryBaseThreadSafetyDocumentation:
         assert (
             "thread" in unregister_doc.lower()
         ), "unregister should document thread safety"
+
+    def test_list_keys_thread_safety_documented(self) -> None:
+        """Verify list_keys method documents thread safety."""
+        list_keys_doc = ProtocolRegistryBase.list_keys.__doc__ or ""
+        assert (
+            "thread" in list_keys_doc.lower() or "concurrent" in list_keys_doc.lower()
+        ), "list_keys should document thread safety requirements"

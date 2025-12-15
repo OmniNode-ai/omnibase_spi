@@ -66,6 +66,8 @@ from __future__ import annotations
 
 from typing import Generic, Protocol, TypeVar, runtime_checkable
 
+__all__ = ["ProtocolRegistryBase"]
+
 # Type variables for generic registry
 K = TypeVar("K")  # Key type (must be hashable in implementations)
 V = TypeVar("V")  # Value type
