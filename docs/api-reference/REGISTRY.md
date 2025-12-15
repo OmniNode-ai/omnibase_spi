@@ -20,21 +20,31 @@
   - [Pattern 1: Simple Type Alias](#pattern-1-simple-type-alias)
   - [Pattern 2: Extended Protocol](#pattern-2-extended-protocol)
   - [Pattern 3: Custom Implementation](#pattern-3-custom-implementation)
-- [ProtocolHandlerRegistry](#protocolhandlerregistry)
+- [ProtocolVersionedRegistry[K, V]](#protocolversionedregistryk-v) **NEW**
   - [Description](#description-1)
+  - [Type Parameters](#type-parameters-1)
   - [Methods](#methods-1)
+  - [Thread Safety](#thread-safety-1)
+  - [Method Selection Guide](#method-selection-guide)
+  - [Error Handling](#error-handling-1)
+  - [Semantic Version Validation](#semantic-version-validation)
+- [ProtocolHandlerRegistry](#protocolhandlerregistry)
+  - [Description](#description-2)
+  - [Methods](#methods-2)
   - [Protocol Definition](#protocol-definition-1)
   - [Usage Example](#usage-example)
   - [Factory Pattern Integration](#factory-pattern-integration)
   - [Effect Node Integration](#effect-node-integration)
   - [Testing with Mock Registry](#testing-with-mock-registry)
 - [Migration Guide](#migration-guide)
+  - [Migrating from v0.3.0 ProtocolVersionedRegistry to v0.4.0](#migrating-from-v030-protocolversionedregistry-to-v040) **BREAKING**
+  - [Migrating from ProtocolRegistryBase to ProtocolVersionedRegistry](#migrating-from-protocolregistrybase-to-protocolversionedregistry)
   - [Migrating from ProtocolHandlerRegistry](#migrating-from-protocolhandlerregistry)
   - [Migrating from ProtocolServiceRegistry](#migrating-from-protocolserviceregistry)
 - [Best Practices](#best-practices)
 - [Handler Validation Notes](#handler-validation-notes)
-- [Exception Handling](#exception-handling)
-- [Thread Safety](#thread-safety)
+- [Exception Handling](#exception-handling-2)
+- [Thread Safety](#thread-safety-2)
 - [Version Information](#version-information)
 
 ---
@@ -126,6 +136,7 @@ sequenceDiagram
 
 ```python
 from omnibase_spi.protocols.registry import ProtocolRegistryBase
+
 ```
 
 ### Description
@@ -351,6 +362,7 @@ class ProtocolRegistryBase(Protocol, Generic[K, V]):
 ```python
 import threading
 
+
 class ThreadSafeRegistry:
     """Example thread-safe registry implementation."""
 
@@ -424,6 +436,7 @@ The generic `ProtocolRegistryBase[K, V]` supports three primary usage patterns f
 
 ```python
 from typing import TYPE_CHECKING, runtime_checkable
+
 from omnibase_spi.protocols.registry import ProtocolRegistryBase
 
 if TYPE_CHECKING:
@@ -545,8 +558,8 @@ class ServiceRegistryImpl:
 **Example**: Registry with metrics and caching
 
 ```python
-from typing import TypeVar, Generic
 import time
+from typing import Generic, TypeVar
 
 K = TypeVar("K")
 V = TypeVar("V")
@@ -614,6 +627,418 @@ class MetricsRegistry(Generic[K, V]):
 **Trade-offs**:
 - ⚠️ More code to maintain
 - ⚠️ Non-protocol methods not available through protocol interface
+
+---
+
+## ProtocolVersionedRegistry[K, V]
+
+```python
+from omnibase_spi.protocols.registry import ProtocolVersionedRegistry
+
+```
+
+> **Since**: v0.3.0
+
+### Description
+
+**Async protocol for versioned key-value registry implementations.** This protocol enables management of multiple versions of the same key using semantic versioning for ordering and latest-version resolution. All operations are async to support I/O operations such as database queries, distributed registries, and event notifications.
+
+**Design Note**: This protocol does NOT inherit from `ProtocolRegistryBase` due to fundamental async/sync incompatibility. Async methods cannot override sync methods without breaking the Liskov Substitution Principle. See [module docstring](/workspace/omnibase_spi/src/omnibase_spi/protocols/registry/protocol_versioned_registry.py) for detailed rationale.
+
+**Use Cases**:
+- Managing multiple API versions with coexistence requirements
+- Schema evolution with migration tracking
+- Policy versioning with rollback capabilities
+- Configuration versioning with semantic versioning
+- Distributed registries with async I/O requirements
+
+**When to Use**:
+- ✅ Multiple versions of same key must coexist
+- ✅ Version pinning/rollback is required
+- ✅ Semantic versioning is a domain requirement
+- ✅ Async I/O operations needed (database, remote registry, event bus)
+- ✅ Version migration tracking is required
+
+**When NOT to Use**:
+- ❌ Single active version per key is sufficient → use `ProtocolRegistryBase`
+- ❌ Synchronous operations only → use `ProtocolRegistryBase`
+- ❌ Simple in-memory registry without versioning → use `ProtocolRegistryBase`
+
+### Type Parameters
+
+| Parameter | Description | Constraints | Examples |
+|-----------|-------------|-------------|----------|
+| `K` | Key type | Must be hashable in implementations | `str`, `int`, `Enum`, `type` |
+| `V` | Value type | Can be any type | `type[Policy]`, `type[APIHandler]`, `SchemaClass` |
+
+### Methods
+
+#### Version-Specific Methods
+
+##### `register_version`
+
+```python
+async def register_version(self, key: K, version: str, value: V) -> None:
+    ...
+```
+
+Register a specific version of a key-value pair.
+
+**Args**:
+- `key` (`K`): Registration key (must be hashable)
+- `version` (`str`): Semantic version string in MAJOR.MINOR.PATCH format (e.g., "1.2.3")
+- `value` (`V`): Value to associate with this (key, version) pair
+
+**Raises**:
+- `ValueError`: If version string is invalid or duplicate (key, version) exists
+- `RegistryError`: If registration fails due to internal error
+
+**Use When**:
+- You need explicit version control
+- Multiple versions must coexist
+- External version numbering is provided
+
+**Example**:
+```python
+await registry.register_version("payment-api", "1.0.0", PaymentV1Handler)
+await registry.register_version("payment-api", "2.0.0", PaymentV2Handler)
+```
+
+##### `get_version`
+
+```python
+async def get_version(self, key: K, version: str) -> V:
+    ...
+```
+
+Retrieve a specific version of a registered value.
+
+**Args**:
+- `key` (`K`): Registration key to lookup
+- `version` (`str`): Semantic version string to retrieve
+
+**Returns**:
+- `V`: Value associated with the (key, version) pair
+
+**Raises**:
+- `KeyError`: If key is not registered or version does not exist
+
+**Example**:
+```python
+handler_v1 = await registry.get_version("payment-api", "1.0.0")
+handler_v2 = await registry.get_version("payment-api", "2.0.0")
+```
+
+##### `get_latest`
+
+```python
+async def get_latest(self, key: K) -> V:
+    ...
+```
+
+Retrieve the latest version of a registered value.
+
+**Args**:
+- `key` (`K`): Registration key to lookup
+
+**Returns**:
+- `V`: Value associated with the latest version (highest semantic version)
+
+**Raises**:
+- `KeyError`: If key has no registered versions
+
+**Thread Safety Note**: Result is a point-in-time snapshot. A newer version may be registered immediately after this call returns.
+
+**Example**:
+```python
+await registry.register_version("api", "1.0.0", ApiV1)
+await registry.register_version("api", "2.0.0", ApiV2)
+latest = await registry.get_latest("api")  # Returns ApiV2
+```
+
+##### `list_versions`
+
+```python
+async def list_versions(self, key: K) -> list[str]:
+    ...
+```
+
+List all registered versions for a key.
+
+**Args**:
+- `key` (`K`): Key to list versions for
+
+**Returns**:
+- `list[str]`: List of version strings in ascending semver order. Empty list if key not registered.
+
+**Example**:
+```python
+await registry.register_version("api", "1.0.0", ApiV1)
+await registry.register_version("api", "2.0.0", ApiV2)
+await registry.register_version("api", "1.5.0", ApiV1_5)
+versions = await registry.list_versions("api")
+# ["1.0.0", "1.5.0", "2.0.0"]
+```
+
+##### `get_all_versions`
+
+```python
+async def get_all_versions(self, key: K) -> dict[str, V]:
+    ...
+```
+
+Retrieve all versions of a registered key as a mapping.
+
+**Args**:
+- `key` (`K`): Registration key to retrieve all versions for
+
+**Returns**:
+- `dict[str, V]`: Dictionary mapping version strings to values. Empty dict if key not registered.
+
+**Example**:
+```python
+await registry.register_version("policy", "1.0.0", PolicyV1)
+await registry.register_version("policy", "2.0.0", PolicyV2)
+all_versions = await registry.get_all_versions("policy")
+# {"1.0.0": PolicyV1, "2.0.0": PolicyV2}
+
+# Migrate all policies
+for version, policy_cls in all_versions.items():
+    await migrate_policy(version, policy_cls)
+```
+
+#### Base Registry Methods (Async)
+
+These methods provide the same interface as `ProtocolRegistryBase` but with async signatures and version-aware semantics.
+
+##### `register`
+
+```python
+async def register(self, key: K, value: V) -> None:
+    ...
+```
+
+Register a key-value pair with automatic version management.
+
+**Behavior**:
+- Implementations MUST delegate to `register_version` with appropriate version
+- New keys typically create version "0.0.1"
+- Existing keys typically increment latest version's PATCH component
+
+**Use When**:
+- You want automatic version management
+- Latest-version semantics are sufficient
+- Simpler API is preferred
+
+**Example**:
+```python
+await registry.register("cache-policy", CachePolicy)  # Creates v0.0.1
+await registry.register("cache-policy", ImprovedCache)  # Creates v0.0.2
+```
+
+##### `get`
+
+```python
+async def get(self, key: K) -> V:
+    ...
+```
+
+Retrieve the latest version of a registered value.
+
+**Behavior**:
+- Implementations MUST delegate to `get_latest` internally
+
+**Example**:
+```python
+handler = await registry.get("api")  # Returns latest version
+```
+
+##### `list_keys`
+
+```python
+async def list_keys(self) -> list[K]:
+    ...
+```
+
+List all registered keys (returns keys that have at least one version).
+
+**Returns**:
+- `list[K]`: List of all registered keys. Empty list if no keys registered.
+
+##### `is_registered`
+
+```python
+async def is_registered(self, key: K) -> bool:
+    ...
+```
+
+Check if a key has any registered versions.
+
+**Returns**:
+- `bool`: True if key has at least one version registered
+
+##### `unregister`
+
+```python
+async def unregister(self, key: K) -> bool:
+    ...
+```
+
+Remove ALL versions of a key from the registry.
+
+**Returns**:
+- `bool`: True if key was registered and removed, False if not registered
+
+**Important**: This removes ALL registered versions of the key.
+
+### Thread Safety
+
+**Contract**: Implementations MUST be thread-safe for concurrent read/write operations.
+
+#### Consistency Guarantees
+
+**Consistency Model**: Implementations MUST provide **sequential consistency** for single-key operations:
+- Each method call is atomic for its key
+- Operations on the same key appear in a total order consistent with program order
+- Concurrent operations on different keys do not interfere
+
+**Read-Your-Writes**: After a successful `register_version()` call, subsequent `get_version()` calls for that (key, version) pair MUST return the registered value.
+
+**No Lost Updates**: Concurrent `register_version()` calls for the same (key, version) pair MUST serialize - both values cannot be accepted (one must win or raise `ValueError`).
+
+#### Snapshot Isolation
+
+**Point-in-Time Snapshots**: The following methods MUST return consistent point-in-time snapshots:
+- `list_keys()` - Returns keys that existed at a single point in time
+- `list_versions(key)` - Returns versions for a key at a single point in time
+- `get_all_versions(key)` - Returns version→value mapping at a single point in time
+
+**Snapshot Consistency**: Within a single snapshot operation, data must not be partially updated (e.g., `get_all_versions()` must not return some versions from before a concurrent registration and others from after).
+
+**Staleness Acceptable**: Snapshots may become stale immediately after the method returns (concurrent registrations are not blocked).
+
+#### Race Condition Behavior
+
+Implementations MUST handle these race conditions gracefully:
+
+| Operation | Concurrent With | Expected Behavior |
+|-----------|----------------|-------------------|
+| `get_latest()` | `register_version()` | Returns old or new version (both valid) |
+| `get_version()` | `unregister()` | May raise `KeyError` if unregister wins race |
+| `list_versions()` | `register_version()` | May or may not include new version (snapshot semantics) |
+| `register_version()` (same key/version) | `register_version()` | MUST serialize - one succeeds, other may raise `ValueError` |
+| `unregister()` (same key) | `unregister()` | Only one thread returns `True`, others return `False` |
+
+#### Implementation Requirements
+
+Implementations MUST use one of the following approaches:
+
+**Option 1: Lock-Based Synchronization**
+```python
+import threading
+
+class ThreadSafeVersionedRegistry:
+    def __init__(self):
+        self._store: dict[K, dict[str, V]] = {}
+        self._lock = threading.RLock()
+
+    async def register_version(self, key: K, version: str, value: V) -> None:
+        with self._lock:
+            self._store.setdefault(key, {})[version] = value
+
+    async def get_latest(self, key: K) -> V:
+        with self._lock:
+            if key not in self._store or not self._store[key]:
+                raise KeyError(f"Key not registered: {key}")
+            latest_version = max(self._store[key].keys(), key=self._parse_semver)
+            return self._store[key][latest_version]
+
+    async def list_keys(self) -> list[K]:
+        with self._lock:
+            # Return snapshot of keys with at least one version
+            return [k for k, versions in self._store.items() if versions]
+```
+
+**Option 2: Lock-Free Data Structures**
+- Use atomic operations (e.g., `threading.atomic` if available)
+- Ensure operations complete without waiting on locks
+- May use compare-and-swap (CAS) patterns
+
+**Option 3: Copy-on-Write Semantics**
+- Use immutable data structures
+- Atomic pointer swap for updates
+- Readers see consistent snapshots without locks
+
+#### Caller Guidance
+
+**Assumptions**:
+- Do NOT assume thread safety without checking implementation documentation
+- Be aware that latest-version lookups are point-in-time snapshots
+- A newer version may be registered immediately after `get_latest()` returns
+
+**Transactional Semantics**:
+- If multi-key transactional semantics are required (e.g., atomic registration across multiple keys), use application-level locking
+- Registry methods guarantee atomicity only for single-key operations
+
+**Distributed Registries**:
+- Distributed implementations may provide eventual consistency instead of sequential consistency
+- Check implementation documentation for specific consistency guarantees
+- Be prepared for stale reads in distributed scenarios
+
+### Method Selection Guide
+
+**Decision Matrix**:
+
+| Scenario | Method | Rationale |
+|----------|--------|-----------|
+| API versioning | `register_version` | Explicit versions required |
+| Schema evolution | `register_version` | Track migrations between versions |
+| Policy rollback | `register_version` | Pin to specific version |
+| Simple latest-only | `register` | Auto version management |
+| Single active version | `register` | Simpler semantics |
+| Migration from base | `register` | Compatible API |
+
+**Usage Examples**:
+
+```python
+# Explicit version control (recommended for production APIs)
+await registry.register_version("payment-api", "1.0.0", PaymentV1)
+await registry.register_version("payment-api", "2.0.0", PaymentV2)
+v1_handler = await registry.get_version("payment-api", "1.0.0")
+v2_handler = await registry.get_latest("payment-api")  # Returns PaymentV2
+
+# Automatic version management (simpler for internal use)
+await registry.register("cache-policy", CachePolicy)  # Creates v0.0.1
+await registry.register("cache-policy", ImprovedCache)  # Creates v0.0.2
+latest = await registry.get("cache-policy")  # Returns ImprovedCache
+```
+
+### Error Handling
+
+| Method | Error Condition | Required Behavior |
+|--------|----------------|-------------------|
+| `register_version()` | Invalid version format | MUST raise `ValueError` |
+| `register_version()` | Duplicate (key, version) | MAY raise `ValueError` |
+| `get_version()` | Key or version not found | MUST raise `KeyError` |
+| `get_latest()` | Key has no versions | MUST raise `KeyError` |
+| `list_versions()` | Key not found | Returns empty list (no error) |
+| `get_all_versions()` | Key not found | Returns empty dict (no error) |
+
+### Semantic Version Validation
+
+Version strings MUST follow semantic versioning format: `MAJOR.MINOR.PATCH`
+
+**Valid Examples**:
+- `"1.0.0"`, `"2.1.3"`, `"10.20.30"`, `"0.0.1"`
+
+**Invalid Examples**:
+- `"1.0"` (missing PATCH)
+- `"v1.0.0"` (prefix not allowed)
+- `"1.0.0-beta"` (pre-release not supported)
+- `"01.0.0"` (leading zeros not allowed)
+- `"latest"` (not a valid semver)
+
+Implementations MUST validate version strings and raise `ValueError` for invalid formats.
 
 ---
 
@@ -716,6 +1141,26 @@ Check if protocol type is registered.
 
 **Returns**:
 - `bool`: True if protocol type is registered
+
+#### `unregister`
+
+```python
+def unregister(self, protocol_type: str) -> bool:
+    ...
+```
+
+Remove a protocol handler from the registry.
+
+**Args**:
+- `protocol_type` (`str`): Protocol type identifier to remove
+
+**Returns**:
+- `bool`: `True` if handler was registered and removed, `False` if not registered
+
+**Contract**:
+- Idempotent operation (safe to call multiple times)
+- MUST NOT raise exceptions for non-existent protocol types
+- Must be thread-safe with concurrent operations
 
 ### Protocol Definition
 
@@ -982,6 +1427,355 @@ async def test_effect_node_with_mock_registry(mock_registry):
 
 ## Migration Guide
 
+### Migrating from v0.3.0 ProtocolVersionedRegistry to v0.4.0
+
+**Breaking Change**: In v0.4.0, `ProtocolVersionedRegistry` no longer inherits from `ProtocolRegistryBase` due to async/sync incompatibility. This change ensures compliance with the Liskov Substitution Principle (LSP) - async methods cannot override sync methods without violating LSP.
+
+#### What Changed
+
+**v0.3.0 (Old)**:
+```python
+from omnibase_spi.protocols.registry import ProtocolVersionedRegistry
+
+# In v0.3.0, ProtocolVersionedRegistry inherited from ProtocolRegistryBase
+# This violated LSP because async methods overrode sync methods
+class VersionedRegistry(ProtocolVersionedRegistry[str, type]):
+    pass
+```
+
+**v0.4.0 (New)**:
+```python
+from omnibase_spi.protocols.registry import ProtocolVersionedRegistry
+
+# In v0.4.0, ProtocolVersionedRegistry is independent and fully async
+# All methods are async - no sync/async mixing
+class VersionedRegistry(ProtocolVersionedRegistry[str, type]):
+    pass
+```
+
+#### Why This Change Was Needed
+
+The original design violated the **Liskov Substitution Principle (LSP)**:
+
+1. **ProtocolRegistryBase** defined **synchronous** methods: `get(key) -> V`
+2. **ProtocolVersionedRegistry** inherited from it but defined **async** methods: `async def get(key) -> V`
+3. This created an LSP violation: async methods cannot be called where sync methods are expected
+
+**Example of the Problem**:
+```python
+# v0.3.0 - LSP violation
+def process_registry(registry: ProtocolRegistryBase[str, type]) -> None:
+    # Expects sync method
+    value = registry.get("key")  # Works with ProtocolRegistryBase
+    # FAILS with ProtocolVersionedRegistry - returns coroutine, not value!
+
+# v0.3.0 - ProtocolVersionedRegistry substituted for ProtocolRegistryBase
+versioned_registry: ProtocolVersionedRegistry[str, type] = ...
+process_registry(versioned_registry)  # Runtime error!
+```
+
+#### Migration Steps
+
+**Step 1: Update All Registry Calls to Async**
+
+```python
+# Before (v0.3.0) - sync calls on versioned registry (incorrect usage)
+registry: ProtocolVersionedRegistry[str, type] = ...
+value = registry.get("key")  # Returns coroutine, not value - BUG!
+registry.register("key", MyClass)  # Returns coroutine - BUG!
+
+# After (v0.4.0) - async calls (correct usage)
+registry: ProtocolVersionedRegistry[str, type] = ...
+value = await registry.get("key")  # Correct - awaits coroutine
+await registry.register("key", MyClass)  # Correct - awaits coroutine
+```
+
+**Step 2: Mark Caller Functions as Async**
+
+```python
+# Before (v0.3.0) - sync function
+def get_policy(registry: ProtocolVersionedRegistry[str, type], name: str) -> type:
+    return registry.get(name)  # BUG - returns coroutine!
+
+# After (v0.4.0) - async function
+async def get_policy(registry: ProtocolVersionedRegistry[str, type], name: str) -> type:
+    return await registry.get(name)  # Correct
+```
+
+**Step 3: Update Error Handling**
+
+```python
+# Before (v0.3.0)
+def safe_get(registry: ProtocolVersionedRegistry[str, type], key: str) -> type | None:
+    try:
+        return registry.get(key)  # BUG - returns coroutine!
+    except KeyError:
+        return None
+
+# After (v0.4.0)
+async def safe_get(registry: ProtocolVersionedRegistry[str, type], key: str) -> type | None:
+    try:
+        return await registry.get(key)  # Correct
+    except KeyError:
+        return None
+```
+
+#### Code Examples: Before and After
+
+**Example 1: Basic Registry Usage**
+
+```python
+# Before (v0.3.0) - Incorrect usage that appeared to work
+registry: ProtocolVersionedRegistry[str, type] = VersionedRegistryImpl()
+registry.register("api", ApiHandler)  # Returns coroutine - silently broken
+handler = registry.get("api")  # Returns coroutine, not handler - BUG!
+
+# After (v0.4.0) - Correct async usage
+registry: ProtocolVersionedRegistry[str, type] = VersionedRegistryImpl()
+await registry.register("api", ApiHandler)  # Correct
+handler = await registry.get("api")  # Correct
+```
+
+**Example 2: Version-Specific Operations**
+
+```python
+# Before (v0.3.0) - Incorrect
+registry.register_version("api", "1.0.0", ApiV1)  # Returns coroutine - BUG!
+registry.register_version("api", "2.0.0", ApiV2)  # Returns coroutine - BUG!
+latest = registry.get_latest("api")  # Returns coroutine - BUG!
+
+# After (v0.4.0) - Correct
+await registry.register_version("api", "1.0.0", ApiV1)
+await registry.register_version("api", "2.0.0", ApiV2)
+latest = await registry.get_latest("api")
+```
+
+**Example 3: Listing and Iteration**
+
+```python
+# Before (v0.3.0) - Incorrect
+keys = registry.list_keys()  # Returns coroutine - BUG!
+for key in keys:  # FAILS - can't iterate over coroutine
+    value = registry.get(key)  # Returns coroutine - BUG!
+
+# After (v0.4.0) - Correct
+keys = await registry.list_keys()
+for key in keys:
+    value = await registry.get(key)
+```
+
+#### Compatibility Notes
+
+**If you need both sync and async access**:
+
+```python
+# Option 1: Wrapper class for backward compatibility
+class SyncAsyncRegistry:
+    """Provides both sync and async interfaces."""
+
+    def __init__(self, async_registry: ProtocolVersionedRegistry[str, type]):
+        self._async_registry = async_registry
+
+    # Sync methods (for legacy code)
+    def get(self, key: str) -> type:
+        import asyncio
+        return asyncio.run(self._async_registry.get(key))
+
+    # Async methods (for new code)
+    async def async_get(self, key: str) -> type:
+        return await self._async_registry.get(key)
+
+# Option 2: Separate registries
+sync_registry: ProtocolRegistryBase[str, type] = SimpleSyncRegistry()
+async_registry: ProtocolVersionedRegistry[str, type] = VersionedAsyncRegistry()
+```
+
+#### Summary of Breaking Changes
+
+| Method | v0.3.0 (Broken) | v0.4.0 (Fixed) |
+|--------|-----------------|----------------|
+| `register(key, value)` | `registry.register(...)` (returns coroutine) | `await registry.register(...)` |
+| `get(key)` | `registry.get(...)` (returns coroutine) | `await registry.get(...)` |
+| `list_keys()` | `registry.list_keys()` (returns coroutine) | `await registry.list_keys()` |
+| `is_registered(key)` | `registry.is_registered(...)` (returns coroutine) | `await registry.is_registered(...)` |
+| `unregister(key)` | `registry.unregister(...)` (returns coroutine) | `await registry.unregister(...)` |
+| `register_version(...)` | `registry.register_version(...)` (returns coroutine) | `await registry.register_version(...)` |
+| `get_version(...)` | `registry.get_version(...)` (returns coroutine) | `await registry.get_version(...)` |
+| `get_latest(key)` | `registry.get_latest(...)` (returns coroutine) | `await registry.get_latest(...)` |
+| `list_versions(key)` | `registry.list_versions(...)` (returns coroutine) | `await registry.list_versions(...)` |
+| `get_all_versions(key)` | `registry.get_all_versions(...)` (returns coroutine) | `await registry.get_all_versions(...)` |
+
+**Key Takeaway**: ALL methods in `ProtocolVersionedRegistry` are now async and MUST be awaited.
+
+---
+
+### Migrating from ProtocolRegistryBase to ProtocolVersionedRegistry
+
+When you need versioning capabilities for an existing registry, follow this migration path:
+
+**Step 1: Assess Your Versioning Needs**
+
+```python
+# Questions to ask:
+# - Do I need multiple versions of the same key to coexist?
+# - Do I need version pinning or rollback capabilities?
+# - Do I need async I/O for version lookups (database, remote registry)?
+# - Is semantic versioning a domain requirement?
+
+# If YES to any → migrate to ProtocolVersionedRegistry
+# If NO to all → keep using ProtocolRegistryBase
+```
+
+**Step 2: Update Type Annotations**
+
+```python
+# Before (synchronous base registry)
+from omnibase_spi.protocols.registry import ProtocolRegistryBase
+
+class PolicyRegistry:
+    def __init__(self):
+        self._registry: ProtocolRegistryBase[str, type[Policy]] = SimpleRegistry()
+
+    def get_policy(self, name: str) -> type[Policy]:
+        return self._registry.get(name)
+
+# After (async versioned registry)
+from omnibase_spi.protocols.registry import ProtocolVersionedRegistry
+
+class PolicyRegistry:
+    def __init__(self):
+        self._registry: ProtocolVersionedRegistry[str, type[Policy]] = VersionedRegistryImpl()
+
+    async def get_policy(self, name: str) -> type[Policy]:
+        # Returns latest version
+        return await self._registry.get(name)
+
+    async def get_policy_version(self, name: str, version: str) -> type[Policy]:
+        # New capability: get specific version
+        return await self._registry.get_version(name, version)
+```
+
+**Step 3: Convert Synchronous Calls to Async**
+
+```python
+# Before (sync)
+registry.register("rate-limit", RateLimitPolicy)
+policy_cls = registry.get("rate-limit")
+if registry.is_registered("rate-limit"):
+    registry.unregister("rate-limit")
+
+# After (async with latest-version semantics)
+await registry.register("rate-limit", RateLimitPolicy)  # Creates v0.0.1
+policy_cls = await registry.get("rate-limit")  # Gets latest (v0.0.1)
+if await registry.is_registered("rate-limit"):
+    await registry.unregister("rate-limit")  # Removes ALL versions
+
+# Or with explicit versions
+await registry.register_version("rate-limit", "1.0.0", RateLimitPolicyV1)
+await registry.register_version("rate-limit", "2.0.0", RateLimitPolicyV2)
+v1 = await registry.get_version("rate-limit", "1.0.0")
+latest = await registry.get_latest("rate-limit")  # Returns v2.0.0
+```
+
+**Step 4: Handle Version-Aware Operations**
+
+```python
+# New capabilities with ProtocolVersionedRegistry
+
+# List all versions for a key
+versions = await registry.list_versions("rate-limit")
+# ["1.0.0", "2.0.0"]
+
+# Get all versions as mapping
+all_versions = await registry.get_all_versions("rate-limit")
+# {"1.0.0": RateLimitPolicyV1, "2.0.0": RateLimitPolicyV2}
+
+# Version pinning
+pinned_version = "1.0.0"
+policy_v1 = await registry.get_version("rate-limit", pinned_version)
+
+# Rollback by re-registering older version as latest
+await registry.register_version("rate-limit", "2.1.0", RateLimitPolicyV1)
+```
+
+**Step 5: Update Error Handling**
+
+```python
+# Before (sync)
+try:
+    policy = registry.get("unknown")
+except KeyError:
+    # Handle missing key
+    pass
+
+# After (async)
+try:
+    policy = await registry.get("unknown")
+except KeyError:
+    # Same error handling, but in async context
+    pass
+
+try:
+    policy = await registry.get_version("rate-limit", "99.99.99")
+except KeyError:
+    # Handle missing version
+    pass
+```
+
+**Migration Checklist**:
+- ✅ All registry calls converted to `await` syntax
+- ✅ Caller functions marked as `async def`
+- ✅ Error handling updated for async context
+- ✅ Version management strategy defined (auto vs explicit)
+- ✅ Thread safety requirements documented for implementation
+- ✅ Tests updated to use async test framework (pytest-asyncio)
+
+**Common Migration Patterns**:
+
+```python
+# Pattern 1: Wrapper for backward compatibility
+class CompatibilityWrapper:
+    """Sync wrapper around async versioned registry."""
+
+    def __init__(self, async_registry: ProtocolVersionedRegistry):
+        self._async_registry = async_registry
+
+    def get(self, key: str) -> type:
+        """Sync wrapper - runs async in new event loop."""
+        import asyncio
+        return asyncio.run(self._async_registry.get(key))
+
+# Pattern 2: Dual-mode registry (implements both protocols)
+class DualModeRegistry:
+    """Implements both sync base and async versioned protocols."""
+
+    def __init__(self):
+        self._store: dict[str, dict[str, type]] = {}
+
+    # Sync methods (ProtocolRegistryBase)
+    def register(self, key: str, value: type) -> None:
+        import asyncio
+        asyncio.run(self.async_register(key, value))
+
+    # Async methods (ProtocolVersionedRegistry)
+    async def async_register(self, key: str, value: type) -> None:
+        # Auto-increment version
+        versions = self._store.get(key, {})
+        if versions:
+            latest = max(versions.keys(), key=self._parse_semver)
+            major, minor, patch = self._parse_semver(latest)
+            new_version = f"{major}.{minor}.{patch + 1}"
+        else:
+            new_version = "0.0.1"
+        await self.register_version(key, new_version, value)
+```
+
+**When NOT to Migrate**:
+- Registry is purely in-memory with no I/O operations
+- Single active version per key is sufficient
+- Codebase is synchronous and cannot use async/await
+- Versioning complexity is not needed for your use case
+
 ### Migrating from ProtocolHandlerRegistry
 
 If you have existing code using `ProtocolHandlerRegistry`, no changes are required - the protocol is now built on `ProtocolRegistryBase` but maintains full backward compatibility.
@@ -1201,6 +1995,7 @@ Always use locks for mutable state:
 ```python
 import threading
 
+
 class ThreadSafeRegistry:
     def __init__(self):
         self._registry: dict[str, type] = {}
@@ -1403,9 +2198,11 @@ class ThreadSafeRegistry:
 
 **New in v0.3.0**:
 - `ProtocolRegistryBase[K, V]` - Generic registry protocol
+- `ProtocolVersionedRegistry[K, V]` - Async versioned registry protocol
 - Type-safe registry patterns
 - Comprehensive thread safety guarantees
 - Enhanced error handling contracts
+- Semantic versioning support for registry values
 
 ---
 

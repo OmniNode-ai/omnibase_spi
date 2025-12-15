@@ -185,8 +185,8 @@ class TestProtocolHandlerRegistryCompliance:
 class TestProtocolHandlerRegistryMethodSignatures:
     """Test method signatures and behavior from compliant implementations."""
 
-    def test_register_accepts_protocol_type_and_handler_cls(self) -> None:
-        """register method should accept protocol_type and handler_cls parameters."""
+    def test_register_accepts_key_and_value(self) -> None:
+        """register method should accept key and value parameters."""
         registry = CompliantRegistry()
         # Should not raise
         registry.register("http_rest", MockHandler)
