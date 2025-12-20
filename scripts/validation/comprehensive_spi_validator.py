@@ -1277,6 +1277,16 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
         """Determine if method should be async based on naming and types."""
         method_name = node.name.lower()
 
+        # Properties cannot be async in Python - skip them entirely
+        for decorator in node.decorator_list:
+            decorator_name = ""
+            if isinstance(decorator, ast.Name):
+                decorator_name = decorator.id
+            elif isinstance(decorator, ast.Attribute):
+                decorator_name = decorator.attr
+            if decorator_name == "property":
+                return False
+
         # Synchronous getter exceptions - these are NOT I/O operations
         sync_exceptions = [
             "get_metadata",  # Dictionary lookup, not I/O
