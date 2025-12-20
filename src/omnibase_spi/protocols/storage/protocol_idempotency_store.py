@@ -59,7 +59,7 @@ class ProtocolIdempotencyStore(Protocol):
         - InMemoryIdempotencyStore: Uses dict with threading.Lock for testing
 
     Migration:
-        This protocol is introduced in v0.5.0 as part of the runtime
+        This protocol is introduced in v0.4.1 as part of the runtime
         idempotency guard feature (B3). Future versions may add batch
         operations and partition-aware methods.
     """
@@ -172,7 +172,10 @@ class ProtocolIdempotencyStore(Protocol):
             domain: Optional domain namespace for isolated deduplication.
             correlation_id: Optional correlation ID for tracing.
             processed_at: Optional timestamp of when processing occurred.
-                If None, uses current UTC time.
+                If None, implementations MUST use datetime.now(timezone.utc).
+                This value MUST be timezone-aware (preferably UTC). Naive
+                datetimes (without tzinfo) SHOULD be rejected by implementations
+                or treated as UTC with a warning logged.
 
         Raises:
             IdempotencyStoreError: If the record operation fails.
@@ -185,11 +188,13 @@ class ProtocolIdempotencyStore(Protocol):
 
         Example:
             ```python
+            from datetime import datetime, timezone
+
             # Mark as processed with explicit timestamp
             await store.mark_processed(
                 message_id=event.message_id,
                 domain="registration",
-                processed_at=datetime.now(UTC),
+                processed_at=datetime.now(timezone.utc),
             )
             ```
         """
