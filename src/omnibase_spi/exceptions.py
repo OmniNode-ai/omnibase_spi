@@ -123,6 +123,37 @@ class HandlerInitializationError(ProtocolHandlerError):
     pass
 
 
+class IdempotencyStoreError(SPIError):
+    """
+    Errors raised by ProtocolIdempotencyStore implementations.
+
+    Raised when idempotency store operations fail due to connection
+    issues, constraint violations, or other storage errors.
+
+    Args:
+        message: The error message describing what went wrong.
+        context: Optional dictionary containing idempotency store operation details.
+
+    Example:
+        raise IdempotencyStoreError(
+            f"Failed to record event: {event_id}"
+        )
+
+    Example with context:
+        raise IdempotencyStoreError(
+            "Failed to record event",
+            context={
+                "event_id": event_id,
+                "idempotency_key": key,
+                "operation": "record",
+                "store_type": "redis"
+            }
+        )
+    """
+
+    pass
+
+
 class ContractCompilerError(SPIError):
     """
     Errors raised during contract compilation or validation.

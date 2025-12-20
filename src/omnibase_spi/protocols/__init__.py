@@ -352,10 +352,11 @@ from omnibase_spi.protocols.semantic import (
     ProtocolHybridRetriever,
 )
 
-# Storage protocols (5 protocols) - Data storage and persistence
+# Storage protocols (6 protocols) - Data storage and persistence
 from omnibase_spi.protocols.storage import (
     ProtocolDatabaseConnection,
     ProtocolGraphDatabaseHandler,
+    ProtocolIdempotencyStore,
     ProtocolStorageBackend,
     ProtocolStorageBackendFactory,
     ProtocolVectorStoreHandler,
@@ -482,6 +483,7 @@ __all__ = [
     "ProtocolHttpEventBusAdapter",
     "ProtocolHttpExtendedClient",
     "ProtocolHybridRetriever",
+    "ProtocolIdempotencyStore",
     "ProtocolInjectionContext",
     "ProtocolKafkaAdapter",
     "ProtocolKeyValueStore",

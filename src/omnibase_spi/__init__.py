@@ -66,7 +66,7 @@ Architecture:
 import importlib
 from typing import TYPE_CHECKING, Any, cast
 
-__version__ = "0.4.0"
+__version__ = "0.4.1"
 __author__ = "OmniNode Team"
 __email__ = "team@omninode.ai"
 
@@ -80,6 +80,7 @@ __email__ = "team@omninode.ai"
 _LAZY_EXCEPTION_MAP = {
     "ContractCompilerError": "omnibase_spi.exceptions",
     "HandlerInitializationError": "omnibase_spi.exceptions",
+    "IdempotencyStoreError": "omnibase_spi.exceptions",
     "InvalidProtocolStateError": "omnibase_spi.exceptions",
     "ProtocolHandlerError": "omnibase_spi.exceptions",
     "ProtocolNotImplementedError": "omnibase_spi.exceptions",
@@ -259,6 +260,7 @@ def __dir__() -> list[str]:
     exception_attrs = [
         "ContractCompilerError",
         "HandlerInitializationError",
+        "IdempotencyStoreError",
         "InvalidProtocolStateError",
         "ProtocolHandlerError",
         "ProtocolNotImplementedError",
@@ -286,6 +288,7 @@ __all__ = [
     # Exceptions (alphabetically ordered)
     "ContractCompilerError",
     "HandlerInitializationError",
+    "IdempotencyStoreError",
     "InvalidProtocolStateError",
     "ProtocolHandlerError",
     "ProtocolNotImplementedError",
