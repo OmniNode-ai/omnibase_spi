@@ -287,6 +287,16 @@ from omnibase_spi.protocols.node import (
     ProtocolUtilsNodeConfiguration,
 )
 
+# Projections protocols (5 protocols) - Projection persistence and state reading
+# Projector writes projections with ordering; Reader queries materialized state
+from omnibase_spi.protocols.projections import (
+    ProtocolBatchPersistResult,
+    ProtocolPersistResult,
+    ProtocolProjectionReader,
+    ProtocolProjector,
+    ProtocolSequenceInfo,
+)
+
 # ONEX protocols (15 protocols) - ONEX platform specific protocols
 from omnibase_spi.protocols.onex import (
     ProtocolOnexComputeNode,
@@ -421,6 +431,7 @@ __all__ = [
     "ProtocolArtifactMetadata",
     "ProtocolAsyncEventBus",
     "ProtocolAuditLogger",
+    "ProtocolBatchPersistResult",
     "ProtocolCLI",
     "ProtocolCLIDirFixtureCase",
     "ProtocolCLIDirFixtureRegistry",
@@ -534,13 +545,17 @@ __all__ = [
     "ProtocolOnexValidationResult",
     "ProtocolOrchestratorNode",
     "ProtocolPerformanceMetricsCollector",
+    "ProtocolPersistResult",
     "ProtocolPrimitiveEffectExecutor",
+    "ProtocolProjectionReader",
+    "ProtocolProjector",
     "ProtocolReducerNode",
     "ProtocolRedpandaAdapter",
     "ProtocolRetryable",
     "ProtocolSchemaLoader",
     "ProtocolSchemaRegistry",
     "ProtocolSecurityEvent",
+    "ProtocolSequenceInfo",
     "ProtocolServiceDependency",
     "ProtocolServiceDiscovery",
     "ProtocolServiceFactory",

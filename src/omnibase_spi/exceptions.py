@@ -290,3 +290,41 @@ class InvalidProtocolStateError(SPIError):
     """
 
     pass
+
+
+class ProjectorError(SPIError):
+    """
+    Errors raised by ProtocolProjector implementations.
+
+    Raised when projector operations fail due to connection issues,
+    storage errors, or other persistence layer problems. Note that
+    stale update rejections are NOT errors - they return a rejected
+    status in the PersistResult.
+
+    Args:
+        message: The error message describing what went wrong.
+        context: Optional dictionary containing projector operation details.
+
+    Example:
+        raise ProjectorError(
+            f"Failed to persist projection for entity: {entity_id}"
+        )
+
+    Example with context:
+        raise ProjectorError(
+            "Failed to persist projection",
+            context={
+                "entity_id": entity_id,
+                "domain": "orders",
+                "sequence": 42,
+                "operation": "persist",
+                "store_type": "postgres"
+            }
+        )
+
+    Related:
+        - OMN-940: Define ProtocolProjector in omnibase_spi
+        - IdempotencyStoreError: For runtime-level deduplication errors
+    """
+
+    pass
