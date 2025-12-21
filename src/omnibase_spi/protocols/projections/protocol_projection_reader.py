@@ -211,9 +211,13 @@ class ProtocolProjectionReader(Protocol):
                 - Nested fields: {"metadata.region": "us-east-1"}
                 Implementation-specific operators may be supported.
             domain: The domain namespace for the projection.
-            limit: Maximum number of results to return. None for unlimited.
-                Implementations SHOULD enforce a reasonable default (e.g., 100).
-            offset: Number of results to skip for pagination. None for no offset.
+            limit: Maximum number of results to return. When None, implementations
+                SHOULD use a reasonable default limit (e.g., 100) to prevent
+                unbounded queries that could cause performance issues or resource
+                exhaustion. Note: None does NOT mean unlimited; implementations
+                must enforce a default limit for safety.
+            offset: Number of results to skip for pagination. None for no offset
+                (start from beginning). Used with limit for cursor-based pagination.
 
         Returns:
             List of dictionaries containing matching entities' projected state.
@@ -223,6 +227,22 @@ class ProtocolProjectionReader(Protocol):
         Raises:
             ProjectionReadError: If the query fails due to infrastructure errors.
             ValueError: If criteria contains invalid or unsupported operators.
+
+        Security:
+            Implementations MUST sanitize all criteria values to prevent injection
+            attacks (e.g., SQL injection, NoSQL injection, LDAP injection).
+            Field names SHOULD be validated against an allowlist of queryable fields
+            to prevent access to internal or sensitive fields.
+            Nested field access (e.g., "metadata.region") MUST respect domain access
+            control policies and not expose fields outside the caller's authorization.
+
+            Recommendations for implementations:
+            - Use parameterized queries for database operations
+            - Validate field names against allowed queryable fields before query execution
+            - Implement rate limiting to prevent DoS via expensive or frequent queries
+            - Log and audit sensitive projection queries for security monitoring
+            - Sanitize string values to prevent injection patterns
+            - Limit query complexity (e.g., maximum number of criteria, nesting depth)
 
         Performance:
             Performance depends on criteria complexity and index availability.
@@ -330,7 +350,9 @@ class ProtocolProjectionReader(Protocol):
                 - "suspended": Temporarily unavailable
             capabilities: Optional list of required capabilities.
                 Nodes must have ALL listed capabilities (AND semantics).
-            limit: Maximum number of results. None for implementation default.
+            limit: Maximum number of results to return. When None, implementations
+                SHOULD use a reasonable default limit (e.g., 100) to prevent
+                unbounded queries. None does NOT mean unlimited.
 
         Returns:
             List of dictionaries containing node registration state.

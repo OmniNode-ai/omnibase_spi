@@ -63,16 +63,14 @@ Example implementations:
 
 Related tickets:
     - OMN-940: Define ProtocolProjector in omnibase_spi
-    - OMN-930: Define ProtocolProjection protocol (projection model)
+    - OMN-930: Define ProtocolProjectionReader for orchestrators
     - OMN-991: Define ProtocolIdempotencyStore (B3 runtime deduplication)
 """
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Literal, Protocol, runtime_checkable
-
-if TYPE_CHECKING:
-    from collections.abc import Sequence
+from collections.abc import Sequence
+from typing import Any, Literal, Protocol, runtime_checkable
 
 
 @runtime_checkable
@@ -268,6 +266,17 @@ class ProtocolProjector(Protocol):
         - Stale updates return rejected_stale status (not an error)
         - Invalid projections raise ValueError
 
+    Type Design Note:
+        The `projection` parameter in persist() and batch_persist() uses
+        `Any` type intentionally. This is a deliberate SPI design decision:
+
+        - SPI protocols must remain domain-agnostic to support any projection
+          type (OrderProjection, UserProjection, InventoryProjection, etc.)
+        - Concrete implementations in omnibase_infra should validate and
+          narrow the projection type as appropriate for their domain
+        - This allows maximum flexibility while maintaining type safety at
+          the implementation layer where domain knowledge exists
+
     Example Usage:
         ```python
         # Single projection persistence
@@ -399,6 +408,11 @@ class ProtocolProjector(Protocol):
             batch as a whole is NOT atomic. Some projections may succeed
             while others fail. Check individual results for status.
 
+            Per-projection guarantee: Each projection in the batch either
+            fully succeeds or fully fails; partial writes within a single
+            projection are not allowed. An individual projection will never
+            be left in an inconsistent state.
+
         Ordering:
             Projections for the same (entity_id, domain) within a batch
             are processed in sequence order, highest first. This ensures
@@ -524,6 +538,7 @@ class ProtocolProjector(Protocol):
         sequence: int,
         *,
         batch_size: int = 1000,
+        confirmed: bool = False,
     ) -> int:
         """
         Remove sequence tracking entries older than the given sequence.
@@ -538,6 +553,10 @@ class ProtocolProjector(Protocol):
                 this value. Typically set to the last snapshot sequence.
             batch_size: Maximum entries to remove per batch. Implementations
                 should batch deletions to avoid long-running transactions.
+            confirmed: Safety confirmation for destructive cleanup. Implementations
+                MAY require this to be True before performing the cleanup operation.
+                This provides an extra layer of protection against accidental
+                cleanup calls. Default is False.
 
         Returns:
             Number of tracking entries removed.
@@ -552,8 +571,15 @@ class ProtocolProjector(Protocol):
 
         Warning:
             After cleanup, the projector cannot detect stale updates for
-            sequences below the cleanup threshold. Only call after taking
-            a snapshot at or above the cleanup sequence.
+            sequences BELOW the cleanup threshold. Stale detection continues
+            to work normally for sequences at or above the threshold. This
+            means:
+
+            - Sequences >= threshold: Normal stale detection and rejection
+            - Sequences < threshold: No stale detection (tracking removed)
+
+            Only call after taking a snapshot at or above the cleanup sequence
+            to ensure no data loss from undetected stale updates.
 
         Example:
             ```python
@@ -562,6 +588,7 @@ class ProtocolProjector(Protocol):
                 domain="orders",
                 sequence=10000,
                 batch_size=5000,
+                confirmed=True,  # Required by some implementations
             )
             logger.info(f"Cleaned up {removed} tracking entries")
             ```
