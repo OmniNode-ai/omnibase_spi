@@ -267,6 +267,7 @@ class MockProjector:
         sequence: int,
         *,
         batch_size: int = 1000,
+        confirmed: bool = False,
     ) -> int:
         """
         Remove sequence tracking entries older than the given sequence.
@@ -275,6 +276,8 @@ class MockProjector:
             domain: Domain namespace to clean up.
             sequence: Remove tracking for sequences < this value.
             batch_size: Maximum entries to remove per batch.
+            confirmed: Safety confirmation for destructive cleanup. This mock
+                does not enforce the confirmation flag.
 
         Returns:
             Number of tracking entries removed.
