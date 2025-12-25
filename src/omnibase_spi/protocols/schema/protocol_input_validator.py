@@ -12,7 +12,7 @@ from omnibase_spi.protocols.types.protocol_core_types import (
     LiteralValidationLevel,
     LiteralValidationMode,
 )
-from omnibase_spi.protocols.validation.protocol_validation import (
+from omnibase_core.protocols.validation import (
     ProtocolValidationResult,
 )
 

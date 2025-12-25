@@ -9,7 +9,7 @@ orchestration for NodeValidationOrchestrator implementations.
 from typing import TYPE_CHECKING, List, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    from omnibase_spi.protocols.validation.protocol_validation import (
+    from omnibase_core.protocols.validation import (
         ProtocolValidationResult,
     )
 

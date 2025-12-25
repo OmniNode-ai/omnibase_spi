@@ -15,11 +15,9 @@ Key Design Principles:
 Domain Organization:
     - protocol_core_types: System-wide types (logging, validation, health, metadata)
     - protocol_discovery_types: Node and service discovery contracts
-    - protocol_event_bus_types: Event messaging and subscription types
     - protocol_file_handling_types: File processing and metadata types
     - protocol_mcp_types: Model Context Protocol integration types
     - protocol_workflow_orchestration_types: Event-driven workflow and FSM types
-    - protocol_container_types: Dependency injection and service location types
 
 Usage Examples:
     # Basic type imports
@@ -166,9 +164,6 @@ from omnibase_spi.protocols.types.protocol_core_types import (  # Migrated from 
 # ONEX error protocol
 from omnibase_spi.protocols.types.protocol_onex_error import ProtocolOnexError
 
-# Schema value protocol
-from omnibase_spi.protocols.types.protocol_schema_value import ProtocolSchemaValue
-
 # Storage types
 from omnibase_spi.protocols.types.protocol_storage_types import (
     ProtocolCheckpointData,
@@ -179,8 +174,8 @@ from omnibase_spi.protocols.types.protocol_storage_types import (
     ProtocolStorageResult,
 )
 
-# Validation types
-from omnibase_spi.protocols.validation.protocol_validation import (
+# Validation types (from omnibase_core)
+from omnibase_core.protocols.validation import (
     ProtocolValidationResult,
 )
 
@@ -188,13 +183,6 @@ from omnibase_spi.protocols.validation.protocol_validation import (
 # Core types are for service discovery, container types are for dependency injection
 ProtocolDiscoveryServiceMetadata = ProtocolServiceMetadata
 ProtocolDiscoveryServiceInstance = ProtocolServiceInstance
-
-# Container types
-from omnibase_spi.protocols.types.protocol_container_types import (
-    LiteralContainerStatus,
-    LiteralDependencyScope,
-    LiteralServiceLifecycle,
-)
 
 # Discovery types
 from omnibase_spi.protocols.types.protocol_discovery_types import (
@@ -206,27 +194,6 @@ from omnibase_spi.protocols.types.protocol_discovery_types import (
     ProtocolDiscoveryResult,
     ProtocolHandlerCapability,
     ProtocolHandlerRegistration,
-)
-
-# Event bus types
-from omnibase_spi.protocols.types.protocol_event_bus_types import (
-    EventStatus,
-    LiteralAuthStatus,
-    LiteralEventPriority,
-    MessageKey,
-    ProtocolCompletionData,
-    ProtocolEvent,
-    ProtocolEventBusConnectionCredentials,
-    ProtocolEventData,
-    ProtocolEventHeaders,
-    ProtocolEventMessage,
-    ProtocolEventResult,
-    ProtocolEventStringData,
-    ProtocolEventStringDictData,
-    ProtocolEventStringListData,
-    ProtocolEventSubscription,
-    ProtocolOnexEvent,
-    ProtocolSecurityContext,
 )
 
 # File handling types
@@ -277,6 +244,12 @@ from omnibase_spi.protocols.types.protocol_mcp_types import (
     ProtocolMCPValidationResult,
 )
 
+# Event bus types
+from omnibase_spi.protocols.types.protocol_event_bus_types import (
+    ProtocolEventHeaders,
+    ProtocolOnexEvent,
+)
+
 # Workflow orchestration types
 from omnibase_spi.protocols.types.protocol_workflow_orchestration_types import (
     LiteralExecutionSemantics,
@@ -319,15 +292,11 @@ __all__ = [
     "ContextValue",
     "LiteralAnalyticsMetricType",
     "LiteralAnalyticsTimeWindow",
-    "LiteralAuthStatus",
     "LiteralBaseStatus",
     "LiteralConnectionState",
-    "LiteralContainerStatus",
-    "LiteralDependencyScope",
     "LiteralDiscoveryStatus",
     "LiteralErrorRecoveryStrategy",
     "LiteralErrorSeverity",
-    "LiteralEventPriority",
     "LiteralExecutionMode",
     "LiteralExecutionSemantics",
     "LiteralFileOperation",
@@ -385,21 +354,9 @@ __all__ = [
     "ProtocolErrorContext",
     "ProtocolErrorInfo",
     "ProtocolErrorResult",
-    "MessageKey",
-    "ProtocolCompletionData",
-    "ProtocolEvent",
-    "ProtocolEventBusConnectionCredentials",
-    "ProtocolEventData",
     "ProtocolEventHeaders",
-    "ProtocolEventMessage",
-    "ProtocolEventStringData",
-    "ProtocolEventStringListData",
-    "ProtocolEventStringDictData",
     "ProtocolEventProjection",
-    "ProtocolEventResult",
     "ProtocolEventStream",
-    "ProtocolEventSubscription",
-    "ProtocolOnexEvent",
     "ProtocolExecutable",
     "ProtocolExtractedBlock",
     "ProtocolBinaryFileContent",
@@ -445,6 +402,7 @@ __all__ = [
     "ProtocolNodeMetadataBlock",
     "ProtocolNodeResult",
     "ProtocolOnexError",
+    "ProtocolOnexEvent",
     "ProtocolOnexInputState",
     "ProtocolOnexOutputState",
     "ProtocolOnexResult",
@@ -462,8 +420,6 @@ __all__ = [
     "ProtocolRetryPolicy",
     "ProtocolRetryResult",
     "ProtocolSchemaObject",
-    "ProtocolSchemaValue",
-    "ProtocolSecurityContext",
     "ProtocolSemVer",
     "ProtocolSerializable",
     "ProtocolSerializationResult",

@@ -12,7 +12,6 @@ Key Features:
     - Event sourcing patterns with sequence numbers and causation tracking
     - Workflow isolation using {workflowType, instanceId} pattern
     - Multi-subsystem MCP tool coordination and discovery
-    - Distributed event bus with pluggable backend adapters
     - LAZY LOADING: "Protocols" loaded only when accessed for optimal performance
 
 Usage Examples:
@@ -41,8 +40,7 @@ Usage Examples:
         ProtocolLogger,              # Core logging
         ProtocolWorkflowEventBus,    # Workflow events
         ProtocolMCPRegistry,         # MCP coordination
-        ProtocolEventBus,            # Event messaging
-        ProtocolServiceRegistry,     # Service registry
+        ProtocolArtifactContainer,   # Artifact management
     )
 
 Performance Notes:
@@ -74,12 +72,7 @@ __email__ = "team@omninode.ai"
 _LAZY_PROTOCOL_MAP = {
     # Core protocols - most frequently used
     "ProtocolLogger": "omnibase_spi.protocols.core.protocol_logger",
-    "ProtocolCacheService": "omnibase_spi.protocols.core.protocol_cache_service",
-    "ProtocolNodeRegistry": "omnibase_spi.protocols.core.protocol_node_registry",
-    "ProtocolWorkflowReducer": "omnibase_spi.protocols.core.protocol_workflow_reducer",
-    # Event bus protocols
-    "ProtocolEventBus": "omnibase_spi.protocols.event_bus.protocol_event_bus",
-    "ProtocolEventBusAdapter": "omnibase_spi.protocols.event_bus.protocol_event_bus",
+    "ProtocolNodeRegistry": "omnibase_spi.protocols.node.protocol_node_registry",
     # Workflow orchestration protocols
     "ProtocolWorkflowEventBus": "omnibase_spi.protocols.workflow_orchestration.protocol_workflow_event_bus",
     "ProtocolWorkflowNodeRegistry": "omnibase_spi.protocols.workflow_orchestration.protocol_workflow_node_registry",
@@ -89,11 +82,11 @@ _LAZY_PROTOCOL_MAP = {
     "ProtocolMCPSubsystemClient": "omnibase_spi.protocols.mcp.protocol_mcp_subsystem_client",
     "ProtocolMCPToolProxy": "omnibase_spi.protocols.mcp.protocol_mcp_tool_proxy",
     # Container protocols
-    "ProtocolServiceRegistry": "omnibase_spi.protocols.container.protocol_service_registry",
     "ProtocolArtifactContainer": "omnibase_spi.protocols.container.protocol_artifact_container",
-    # Validation protocols
-    "ProtocolValidator": "omnibase_spi.protocols.validation.protocol_validation",
-    "ProtocolValidationResult": "omnibase_spi.protocols.validation.protocol_validation",
+    "ProtocolCacheService": "omnibase_spi.protocols.container.protocol_cache_service",
+    # Validation protocols (from omnibase_core)
+    "ProtocolValidator": "omnibase_core.protocols.validation",
+    "ProtocolValidationResult": "omnibase_core.protocols.validation",
 }
 
 # Cache for loaded protocols to avoid repeated imports
@@ -217,21 +210,19 @@ if TYPE_CHECKING:
     from omnibase_spi.protocols.container import (
         ProtocolCacheService as ProtocolCacheService,
     )
-    from omnibase_spi.protocols.container import (
-        ProtocolServiceRegistry as ProtocolServiceRegistry,
-    )
     from omnibase_spi.protocols.core import ProtocolLogger as ProtocolLogger
-    from omnibase_spi.protocols.event_bus import ProtocolEventBus as ProtocolEventBus
     from omnibase_spi.protocols.mcp import ProtocolMCPRegistry as ProtocolMCPRegistry
     from omnibase_spi.protocols.mcp import (
         ProtocolMCPSubsystemClient as ProtocolMCPSubsystemClient,
     )
     from omnibase_spi.protocols.mcp import ProtocolMCPToolProxy as ProtocolMCPToolProxy
     from omnibase_spi.protocols.node import ProtocolNodeRegistry as ProtocolNodeRegistry
-    from omnibase_spi.protocols.validation import (
+    from omnibase_core.protocols.validation import (
         ProtocolValidationResult as ProtocolValidationResult,
     )
-    from omnibase_spi.protocols.validation import ProtocolValidator as ProtocolValidator
+    from omnibase_core.protocols.validation import (
+        ProtocolValidator as ProtocolValidator,
+    )
     from omnibase_spi.protocols.workflow_orchestration import (
         ProtocolEventStore as ProtocolEventStore,
     )
@@ -240,7 +231,4 @@ if TYPE_CHECKING:
     )
     from omnibase_spi.protocols.workflow_orchestration import (
         ProtocolWorkflowNodeRegistry as ProtocolWorkflowNodeRegistry,
-    )
-    from omnibase_spi.protocols.workflow_orchestration import (
-        ProtocolWorkflowReducer as ProtocolWorkflowReducer,
     )

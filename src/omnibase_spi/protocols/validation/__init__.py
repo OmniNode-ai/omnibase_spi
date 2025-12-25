@@ -10,20 +10,24 @@ Key Features:
 - Type-safe validation contracts for ONEX 4-node architecture
 - Framework-agnostic validation protocols with proper duck typing
 
+Core Validation Protocols:
+- ProtocolValidationResult: Standard validation result structure
+- ProtocolValidator: Core validation interface
+- ProtocolValidationError: Validation error representation
+- ProtocolValidationDecorator: Validation decorator interface
+
 ONEX Validation Node Protocols:
 - ProtocolImportValidator: For NodeImportValidatorCompute implementations
 - ProtocolValidationOrchestrator: For NodeValidationOrchestratorOrchestrator implementations
-- ProtocolQualityValidator: For NodeQualityValidatorEffect implementations
-- ProtocolComplianceValidator: For NodeComplianceValidatorReducer implementations
 
 Usage:
     ```python
-from omnibase_spi.protocols.validation import (
+    from omnibase_spi.protocols.validation import (
+        ProtocolValidationResult,
+        ProtocolValidator,
         ProtocolImportValidator,
         ProtocolValidationOrchestrator,
-        ProtocolQualityValidator,
-        ProtocolComplianceValidator
-)
+    )
 
     # Concrete implementations will be available in omnibase_core nodes
     ```
@@ -32,35 +36,22 @@ Note: This module contains ONLY Protocol definitions. Concrete implementations
 will be provided by ONEX validation nodes in omnibase_core.
 """
 
-# ONEX validation node protocols (new)
-from .protocol_compliance_validator import (
-    ProtocolArchitectureCompliance,
-    ProtocolComplianceReport,
-    ProtocolComplianceRule,
-    ProtocolComplianceValidator,
-    ProtocolComplianceViolation,
-    ProtocolONEXStandards,
-)
-from .protocol_import_validator import (
-    ProtocolImportAnalysis,
-    ProtocolImportValidationConfig,
-    ProtocolImportValidator,
-)
-from .protocol_quality_validator import (
-    ProtocolQualityIssue,
-    ProtocolQualityMetrics,
-    ProtocolQualityReport,
-    ProtocolQualityStandards,
-    ProtocolQualityValidator,
-)
-
-# Core validation protocols (existing)
-from .protocol_validation import (
+# Core validation protocols (from omnibase_core)
+from omnibase_core.protocols.validation import (
     ProtocolValidationDecorator,
     ProtocolValidationError,
     ProtocolValidationResult,
     ProtocolValidator,
 )
+
+# ONEX validation node protocols
+from .protocol_import_validator import (
+    ProtocolImportAnalysis,
+    ProtocolImportValidationConfig,
+    ProtocolImportValidator,
+)
+
+# Validation orchestrator protocols
 from .protocol_validation_orchestrator import (
     ProtocolValidationMetrics,
     ProtocolValidationOrchestrator,
@@ -74,29 +65,21 @@ from .protocol_validation_orchestrator import (
 from .protocol_validation_provider import ProtocolValidationProvider
 
 __all__ = [
-    "ProtocolArchitectureCompliance",
-    "ProtocolComplianceReport",
-    "ProtocolComplianceRule",
-    "ProtocolComplianceValidator",
-    "ProtocolComplianceViolation",
+    # Core validation protocols
+    "ProtocolValidationDecorator",
+    "ProtocolValidationError",
+    "ProtocolValidationResult",
+    "ProtocolValidator",
+    # Import validation protocols
     "ProtocolImportAnalysis",
     "ProtocolImportValidationConfig",
     "ProtocolImportValidator",
-    "ProtocolONEXStandards",
-    "ProtocolQualityIssue",
-    "ProtocolQualityMetrics",
-    "ProtocolQualityReport",
-    "ProtocolQualityStandards",
-    "ProtocolQualityValidator",
-    "ProtocolValidationDecorator",
-    "ProtocolValidationError",
+    # Validation orchestrator protocols
     "ProtocolValidationMetrics",
     "ProtocolValidationOrchestrator",
     "ProtocolValidationProvider",
     "ProtocolValidationReport",
-    "ProtocolValidationResult",
     "ProtocolValidationScope",
     "ProtocolValidationSummary",
     "ProtocolValidationWorkflow",
-    "ProtocolValidator",
 ]

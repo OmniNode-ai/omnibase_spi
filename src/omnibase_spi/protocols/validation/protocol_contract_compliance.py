@@ -12,9 +12,9 @@ Author: ONEX Framework Team
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    from omnibase_spi.protocols.event_bus.protocol_event_bus import ProtocolEventBus
-    from omnibase_spi.protocols.file_handling.protocol_file_io import ProtocolFileIO
-    from omnibase_spi.protocols.types import ContextValue, ProtocolValidationResult
+    from omnibase_core.protocols.validation import ProtocolValidationResult
+
+    from omnibase_spi.protocols.types import ContextValue
 
 
 @runtime_checkable

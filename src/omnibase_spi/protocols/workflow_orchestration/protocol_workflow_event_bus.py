@@ -5,7 +5,7 @@ These protocols extend the base event bus with workflow-specific
 messaging patterns, event sourcing, and orchestration coordination.
 """
 
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 from uuid import UUID
 
 from omnibase_spi.protocols.types.protocol_core_types import ContextValue
@@ -13,10 +13,6 @@ from omnibase_spi.protocols.types.protocol_workflow_orchestration_types import (
     LiteralWorkflowEventType,
     ProtocolWorkflowEvent,
 )
-
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.event_bus.protocol_event_bus import ProtocolEventBus
-
 
 @runtime_checkable
 class ProtocolWorkflowEventMessage(Protocol):
@@ -93,7 +89,7 @@ class ProtocolWorkflowEventBus(Protocol):
     """
 
     @property
-    def base_event_bus(self) -> "ProtocolEventBus": ...
+    def base_event_bus(self) -> Any: ...
 
     async def publish_workflow_event(
         self,

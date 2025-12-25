@@ -30,11 +30,6 @@ Key Protocol Domains:
       * Load balancing and failover for tool execution
       * Health monitoring and metrics collection
 
-    - event_bus: Distributed event patterns (12 protocols)
-      * Pluggable backend adapters (Kafka, Redis, in-memory)
-      * Async and sync event bus implementations
-      * Event message serialization and routing
-
     - container: Dependency injection and service registry (19 protocols)
       * Service registration, discovery, and lifecycle management
       * Dependency resolution and injection contexts
@@ -125,33 +120,19 @@ from omnibase_spi.protocols.cli import (
     ProtocolNodeCliAdapter,
 )
 
-# Import container protocols for dependency injection and service management
-# Container protocols (22 protocols) - Service lifecycle and dependency resolution
-from omnibase_spi.protocols.container import (  # Phase 3 additions
-    InjectionScope,
+# Import container protocols for artifact management and caching
+# Container protocols - Artifact container and utility protocols
+from omnibase_spi.protocols.container import (
     LiteralContainerArtifactType,
-    LiteralInjectionScope,
     LiteralOnexStatus,
-    LiteralServiceLifecycle,
-    LiteralServiceResolutionStatus,
     ProtocolArtifactContainer,
     ProtocolArtifactContainerStatus,
     ProtocolArtifactInfo,
     ProtocolArtifactMetadata,
-    ProtocolContainer,
-    ProtocolContainerService,
-    ProtocolDependencyGraph,
-    ProtocolDIServiceInstance,
-    ProtocolDIServiceMetadata,
-    ProtocolInjectionContext,
-    ProtocolServiceDependency,
-    ProtocolServiceFactory,
-    ProtocolServiceRegistration,
-    ProtocolServiceRegistry,
-    ProtocolServiceRegistryConfig,
-    ProtocolServiceRegistryStatus,
-    ProtocolServiceValidator,
-    ServiceHealthStatus,
+    ProtocolCacheService,
+    ProtocolClientConfigProvider,
+    ProtocolSchemaExclusionRegistry,
+    ProtocolTestableRegistry,
 )
 
 # Core protocols (16 protocols) - Fundamental system contracts
@@ -181,23 +162,6 @@ from omnibase_spi.protocols.discovery import (
     ProtocolHandlerDiscovery,
     ProtocolHandlerInfo,
     ProtocolHandlerRegistry,
-)
-
-# Event bus protocols (13 protocols) - Distributed messaging infrastructure
-# Supports multiple backends (Kafka, Redis, in-memory) with async/sync patterns
-from omnibase_spi.protocols.event_bus import (  # Phase 2 additions
-    ProtocolAsyncEventBus,
-    ProtocolEventBus,
-    ProtocolEventBusContextManager,
-    ProtocolEventBusHeaders,
-    ProtocolEventBusInMemory,
-    ProtocolEventBusLogEmitter,
-    ProtocolEventBusRegistry,
-    ProtocolEventBusService,
-    ProtocolEventMessage,
-    ProtocolKafkaAdapter,
-    ProtocolRedpandaAdapter,
-    ProtocolSyncEventBus,
 )
 
 # File handling protocols (4 protocols) - File processing and ONEX metadata
@@ -291,10 +255,15 @@ from omnibase_spi.protocols.onex import (
 # ProtocolEnvelope is the canonical name per roadmap specification
 ProtocolEnvelope = ProtocolOnexEnvelope
 
-# Schema protocols (2 protocols) - Schema loading and validation
+# Schema protocols - Schema loading, validation, and naming conventions
 from omnibase_spi.protocols.schema import (
-    ProtocolSchemaLoader,
+    ProtocolContractService,
+    ProtocolInputValidator,
+    ProtocolModelRegistryValidator,
+    ProtocolNamingConvention,
+    ProtocolNamingConventions,
     ProtocolTrustedSchemaLoader,
+    ProtocolTypeMapper,
 )
 
 # Security protocols (2 protocols) - Security event and detection interfaces
@@ -320,7 +289,8 @@ from omnibase_spi.protocols.storage import (
 
 # Validation protocols (4 protocols) - Input validation and error handling
 # Provides structured validation with error reporting and compliance checking
-from omnibase_spi.protocols.validation import (
+# Core validation protocols are re-exported from omnibase_core
+from omnibase_core.protocols.validation import (
     ProtocolValidationDecorator,
     ProtocolValidationError,
     ProtocolValidationResult,
@@ -356,26 +326,95 @@ from omnibase_spi.protocols.workflow_orchestration import (
 
 
 __all__ = [
+    # Analytics protocols
+    "ProtocolAnalyticsDataProvider",
+    # CLI protocols
     "ProtocolCLI",
     "ProtocolCLIResult",
     "ProtocolCLIDirFixtureCase",
     "ProtocolCLIDirFixtureRegistry",
     "ProtocolCLIToolDiscovery",
     "ProtocolCliWorkflow",
-    "ProtocolLogger",
     "ProtocolNodeCliAdapter",
+    # Container protocols
+    "LiteralContainerArtifactType",
+    "LiteralOnexStatus",
+    "ProtocolArtifactContainer",
+    "ProtocolArtifactContainerStatus",
+    "ProtocolArtifactInfo",
+    "ProtocolArtifactMetadata",
+    "ProtocolCacheService",
+    "ProtocolClientConfigProvider",
+    "ProtocolSchemaExclusionRegistry",
+    "ProtocolTestableRegistry",
+    # Core protocols
+    "ProtocolAuditLogger",
+    "ProtocolCanonicalSerializer",
+    "ProtocolDistributedTracing",
+    "ProtocolErrorHandler",
+    "ProtocolErrorSanitizer",
+    "ProtocolErrorSanitizerFactory",
+    "ProtocolHealthDetails",
+    "ProtocolHealthMonitor",
+    "ProtocolLogger",
+    "ProtocolMetricsCollector",
+    "ProtocolPerformanceMetricsCollector",
+    "ProtocolRetryable",
+    "ProtocolServiceDiscovery",
+    "ProtocolTimeBasedOperations",
+    "ProtocolUriParser",
+    "ProtocolVersionManager",
+    # Discovery protocols
+    "ProtocolHandlerDiscovery",
+    "ProtocolHandlerInfo",
+    "ProtocolHandlerRegistry",
+    # File handling protocols
+    "ProtocolFileProcessingTypeHandler",
+    "ProtocolFileReader",
+    "ProtocolStampOptions",
+    "ProtocolValidationOptions",
+    # LLM protocols
+    "ProtocolLLMProvider",
+    "ProtocolLLMToolProvider",
+    "ProtocolModelRouter",
+    "ProtocolOllamaClient",
+    # MCP protocols
+    "ProtocolMCPDiscovery",
+    "ProtocolMCPHealthMonitor",
+    "ProtocolMCPMonitor",
+    "ProtocolMCPRegistry",
+    "ProtocolMCPRegistryAdmin",
+    "ProtocolMCPRegistryMetricsOperations",
+    "ProtocolMCPServiceDiscovery",
+    "ProtocolMCPSubsystemClient",
+    "ProtocolMCPSubsystemConfig",
+    "ProtocolMCPToolExecutor",
+    "ProtocolMCPToolProxy",
+    "ProtocolMCPToolRouter",
+    "ProtocolMCPToolValidator",
+    "ProtocolMCPValidator",
+    "ProtocolToolDiscoveryService",
+    # Memory protocols
+    "ProtocolAgentCoordinator",
+    "ProtocolClusterCoordinator",
+    "ProtocolKeyValueStore",
+    "ProtocolLifecycleManager",
+    "ProtocolMemoryOrchestrator",
+    "ProtocolMemoryRecord",
+    "ProtocolWorkflowManager",
+    # Networking protocols
+    "ProtocolCircuitBreaker",
     "ProtocolCommunicationBridge",
     "ProtocolHttpClient",
     "ProtocolHttpExtendedClient",
     "ProtocolKafkaClient",
     "ProtocolKafkaExtendedClient",
+    # Node protocols
     "ProtocolNodeConfiguration",
-    "ProtocolUtilsNodeConfiguration",
     "ProtocolNodeRegistry",
     "ProtocolNodeRunner",
-    # "ProtocolTestable",  # Excluded from production builds
-    # "ProtocolTestableCLI",  # Excluded from production builds
-    "ProtocolAnalyticsDataProvider",
+    "ProtocolUtilsNodeConfiguration",
+    # ONEX protocols
     "ProtocolComputeNode",
     "ProtocolEffectNode",
     "ProtocolOnexContractData",
@@ -392,151 +431,46 @@ __all__ = [
     "ProtocolOrchestratorNode",
     "ProtocolReducerNode",
     "ProtocolToolToolOnexVersionLoader",
-    "ProtocolSchemaLoader",
+    # Schema protocols
+    "ProtocolContractService",
+    "ProtocolInputValidator",
+    "ProtocolModelRegistryValidator",
+    "ProtocolNamingConvention",
+    "ProtocolNamingConventions",
     "ProtocolTrustedSchemaLoader",
+    "ProtocolTypeMapper",
+    # Security protocols
+    "ProtocolDetectionMatch",
+    "ProtocolSecurityEvent",
+    # Semantic protocols
+    "ProtocolAdvancedPreprocessor",
+    "ProtocolHybridRetriever",
+    # Storage protocols
+    "ProtocolDatabaseConnection",
     "ProtocolStorageBackend",
     "ProtocolStorageBackendFactory",
-    "ProtocolDatabaseConnection",
-    "InjectionScope",
-    "LiteralContainerArtifactType",
-    "LiteralInjectionScope",
-    "LiteralOnexStatus",
-    "ProtocolAgentCoordinator",
-    "ProtocolArtifactContainer",
-    "ProtocolArtifactContainerStatus",
-    "ProtocolArtifactInfo",
-    "ProtocolArtifactMetadata",
-    "ProtocolAsyncEventBus",
-    "ProtocolCacheService",
-    "ProtocolCacheServiceProvider",
-    "ProtocolCircuitBreaker",
-    "LiteralProtocolCircuitBreakerEvent",
-    "ProtocolCircuitBreakerFactory",
-    "ProtocolCircuitBreakerMetrics",
-    "LiteralProtocolCircuitBreakerState",
-    "LiteralServiceLifecycle",
-    "LiteralServiceResolutionStatus",
-    "ProtocolClientConfigProvider",
-    "ProtocolConfigurationError",
-    "ProtocolConfigurationManager",
-    "ProtocolConfigurationManagerFactory",
-    "ProtocolContainer",
-    "ProtocolContainerService",
-    "ProtocolContractService",
-    "ProtocolDependencyGraph",
-    "ProtocolDIServiceInstance",
-    "ProtocolDIServiceMetadata",
-    "ProtocolErrorSanitizer",
-    "ProtocolErrorSanitizerFactory",
-    "ProtocolClusterCoordinator",
-    "ProtocolEventBus",
-    "ProtocolEventBusAdapter",
-    "ProtocolEventBusContextManager",
-    "ProtocolEventBusHeaders",
-    "ProtocolEventBusInMemory",
-    "ProtocolEventBusService",
-    "ProtocolEventMessage",
+    # Validation protocols
+    "ProtocolValidationDecorator",
+    "ProtocolValidationError",
+    "ProtocolValidationResult",
+    "ProtocolValidator",
+    # Workflow orchestration protocols
+    "LiteralAssignmentStrategy",
+    "LiteralWorkQueuePriority",
     "ProtocolEventQueryOptions",
     "ProtocolEventStore",
     "ProtocolEventStoreResult",
     "ProtocolEventStoreTransaction",
-    "ProtocolFileTypeHandler",
-    "ProtocolHandlerDiscovery",
-    "ProtocolHandlerInfo",
-    "ProtocolHttpAuthConfig",
-    "ProtocolHttpClientConfig",
-    "ProtocolHttpClientProvider",
-    "ProtocolHttpExtendedClient",
-    "ProtocolHttpRequestBuilder",
-    "ProtocolHttpResponse",
-    "ProtocolHttpStreamingResponse",
-    "ProtocolInjectionContext",
-    "ProtocolKafkaAdapter",
-    "ProtocolKafkaBatchProducer",
-    "ProtocolKafkaClient",
-    "ProtocolKafkaClientConfig",
-    "ProtocolKafkaClientProvider",
-    "ProtocolKafkaConsumer",
-    "ProtocolKafkaConsumerConfig",
-    "ProtocolKafkaExtendedClient",
-    "ProtocolKafkaMessage",
-    "ProtocolKafkaProducerConfig",
-    "ProtocolKafkaTransactionalProducer",
-    "ProtocolKeyValueStore",
-    "ProtocolLifecycleManager",
-    "ProtocolEventBusLogEmitter",
-    "ProtocolMCPDiscovery",
-    "ProtocolMCPHealthMonitor",
-    "ProtocolMCPMonitor",
-    "ProtocolMCPRegistry",
-    "ProtocolMCPRegistryAdmin",
-    "ProtocolMCPRegistryMetricsOperations",
-    "ProtocolMCPServiceDiscovery",
-    "ProtocolMCPSubsystemClient",
-    "ProtocolMCPSubsystemConfig",
-    "ProtocolMCPToolExecutor",
-    "ProtocolMCPToolProxy",
-    "ProtocolMCPToolRouter",
-    "ProtocolMCPToolValidator",
-    "ProtocolMCPValidator",
-    "ProtocolMemoryOrchestrator",
-    "ProtocolMemoryRecord",
-    "ProtocolNodeConfiguration",
-    "ProtocolNodeConfigurationProvider",
-    "ProtocolHandlerRegistry",
-    "ProtocolNodeRegistry",
+    "ProtocolLiteralWorkflowStateProjection",
+    "ProtocolLiteralWorkflowStateStore",
     "ProtocolNodeSchedulingResult",
-    "ProtocolRedpandaAdapter",
-    "ProtocolEventBusRegistry",
-    "ProtocolServiceDependency",
-    "ProtocolServiceDiscovery",
-    "ProtocolServiceFactory",
-    "ProtocolServiceRegistration",
-    "ProtocolServiceRegistry",
-    "ProtocolServiceRegistryConfig",
-    "ProtocolServiceRegistryStatus",
-    "ProtocolServiceValidator",
     "ProtocolSnapshotStore",
-    "ProtocolStampOptions",
-    "ProtocolSyncEventBus",
     "ProtocolTaskSchedulingCriteria",
-    "ProtocolToolDiscoveryService",
-    "ProtocolUtilsNodeConfiguration",
-    "ProtocolValidationDecorator",
-    "ProtocolValidationError",
-    "ProtocolValidationOptions",
-    "ProtocolValidationResult",
-    "ProtocolValidator",
     "ProtocolWorkflowEventBus",
     "ProtocolWorkflowEventHandler",
     "ProtocolWorkflowEventMessage",
-    "ProtocolWorkflowManager",
     "ProtocolWorkflowNodeCapability",
     "ProtocolWorkflowNodeInfo",
     "ProtocolWorkflowNodeRegistry",
-    "ProtocolWorkflowReducer",
-    "ProtocolLiteralWorkflowStateProjection",
-    "ProtocolLiteralWorkflowStateStore",
-    "ServiceHealthStatus",
-    # LLM protocols
-    "ProtocolLLMProvider",
-    "ProtocolLLMToolProvider",
-    "ProtocolModelRouter",
-    "ProtocolOllamaClient",
-    # Semantic protocols
-    "ProtocolAdvancedPreprocessor",
-    "ProtocolHybridRetriever",
-    # Security protocols
-    "ProtocolDetectionMatch",
-    "ProtocolSecurityEvent",
-    # Moved protocols
-    "LiteralAssignmentStrategy",
-    "LiteralWorkQueuePriority",
-    "ProtocolFileReader",
     "ProtocolWorkQueue",
-    # CLI protocol models
-    "ModelDiscoveredTool",
-    "ModelToolImplementation",
-    "ModelToolHealthStatus",
-    "ModelCliDiscoveryStats",
 ]

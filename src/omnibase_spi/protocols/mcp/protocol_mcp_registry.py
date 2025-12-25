@@ -28,7 +28,7 @@ from omnibase_spi.protocols.types.protocol_mcp_types import (
     ProtocolMCPToolExecution,
     ProtocolMCPValidationResult,
 )
-from omnibase_spi.protocols.validation.protocol_validation import (
+from omnibase_core.protocols.validation import (
     ProtocolValidationResult,
 )
 
