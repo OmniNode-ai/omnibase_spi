@@ -158,6 +158,7 @@ ignore_missing_imports = true
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 markers = [
+    "unit: mark test as unit test (deselect with '-m \"not unit\"')",
     "integration: mark test as integration test (deselect with '-m \"not integration\"')",
     "slow: mark test as slow (deselect with '-m \"not slow\"')",
 ]

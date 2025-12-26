@@ -84,19 +84,25 @@ class TestSPIError:
         assert error.context == {}
         assert isinstance(error.context, dict)
 
-    def test_context_shallow_copy_behavior(self) -> None:
-        """Document that context uses shallow copy - nested mutables are shared."""
+    def test_context_deep_copy_behavior(self) -> None:
+        """Verify that context uses deep copy - nested mutables are fully isolated."""
         nested_list = ["item1"]
-        context: dict[str, Any] = {"nested": nested_list}
+        nested_dict = {"inner_key": "inner_value"}
+        context: dict[str, Any] = {"nested_list": nested_list, "nested_dict": nested_dict}
         error = SPIError("Test", context=context)
 
-        # Verify top-level is independent (shallow copy)
+        # Verify top-level is independent
         context["new_key"] = "value"
         assert "new_key" not in error.context
 
-        # Document that nested mutables are shared (shallow copy behavior)
+        # Verify nested list is fully isolated (deep copy)
         nested_list.append("item2")
-        assert error.context["nested"] == ["item1", "item2"]
+        assert error.context["nested_list"] == ["item1"]  # Original value preserved
+
+        # Verify nested dict is fully isolated (deep copy)
+        nested_dict["another_key"] = "another_value"
+        assert "another_key" not in error.context["nested_dict"]
+        assert error.context["nested_dict"] == {"inner_key": "inner_value"}
 
 
 class TestProtocolHandlerError:
