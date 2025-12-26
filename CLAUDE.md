@@ -83,6 +83,32 @@ pre-commit run validate-naming-patterns --all-files
 pre-commit run validate-namespace-isolation-new --all-files
 ```
 
+## Test Markers
+
+Tests can be filtered using pytest markers defined in `pyproject.toml`:
+
+| Marker | Purpose | Example |
+|--------|---------|---------|
+| `unit` | Unit tests (fast, isolated) | `@pytest.mark.unit` |
+| `integration` | Integration tests | `@pytest.mark.integration` |
+| `slow` | Slow-running tests | `@pytest.mark.slow` |
+
+```bash
+# Run only unit tests
+poetry run pytest -m unit
+
+# Run only integration tests
+poetry run pytest -m integration
+
+# Exclude slow tests
+poetry run pytest -m "not slow"
+
+# Combine markers
+poetry run pytest -m "unit and not slow"
+```
+
+**Convention**: All unit tests in `tests/unit/` should have the `@pytest.mark.unit` decorator.
+
 ## Directory Structure
 
 ```text

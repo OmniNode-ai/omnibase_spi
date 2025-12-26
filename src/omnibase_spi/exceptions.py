@@ -7,6 +7,7 @@ These are abstract error types that implementations should use or subclass.
 
 from __future__ import annotations
 
+from copy import deepcopy
 from typing import Any
 
 
@@ -58,7 +59,7 @@ class SPIError(Exception):
             context: Optional dictionary of debugging context.
         """
         super().__init__(message)
-        self.context: dict[str, Any] = context if context is not None else {}
+        self.context: dict[str, Any] = deepcopy(context) if context is not None else {}
 
 
 class ProtocolHandlerError(SPIError):

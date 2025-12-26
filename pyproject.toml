@@ -158,6 +158,7 @@ ignore_missing_imports = true
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 markers = [
+    "unit: mark test as unit test (deselect with '-m \"not unit\"')",
     "integration: mark test as integration test (deselect with '-m \"not integration\"')",
     "slow: mark test as slow (deselect with '-m \"not slow\"')",
 ]
@@ -187,7 +188,47 @@ exclude_lines = [
     "@abstractmethod",
     "\\.\\.\\.",
 ]
-fail_under = 60
+
+# =============================================================================
+# Coverage Threshold Enforcement (OMN-789)
+# =============================================================================
+#
+# AUTOMATICALLY ENFORCED (by pytest-cov):
+# ----------------------------------------
+# The `fail_under` setting below is the ONLY threshold automatically enforced.
+# When running `pytest --cov`, if overall coverage drops below 80%, the test
+# run will exit with a non-zero status code and fail.
+#
+#   Command: poetry run pytest --cov --cov-report=term-missing
+#   Behavior: Test suite FAILS if overall coverage < 80%
+#
+# TARGET THRESHOLDS (for reference, not auto-enforced):
+# -----------------------------------------------------
+# These are target coverage levels for critical modules. They are NOT
+# automatically enforced by pytest-cov (which only supports a single global
+# fail_under threshold). To enforce per-module thresholds, you would need:
+#   - A custom CI script that parses coverage reports, OR
+#   - Separate pytest runs with module-specific --cov paths
+#
+#   Module                    | Target | Status
+#   --------------------------|--------|------------------
+#   protocols/nodes/          | ≥85%   | Target (manual)
+#   protocols/handlers/       | ≥85%   | Target (manual)
+#   exceptions.py             | ≥90%   | Target (manual)
+#
+# HOW TO CHECK PER-MODULE COVERAGE:
+# ---------------------------------
+# 1. Run: poetry run pytest --cov --cov-report=term-missing
+# 2. Review the per-file coverage percentages in the output
+# 3. Manually verify critical modules meet their target thresholds
+#
+# Or generate an HTML report for detailed inspection:
+#   poetry run pytest --cov --cov-report=html
+#   open htmlcov/index.html
+#
+# =============================================================================
+
+fail_under = 80  # Minimum coverage threshold; CI fails if coverage drops below 80%
 show_missing = true
 skip_covered = false
 
