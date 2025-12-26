@@ -228,7 +228,7 @@ exclude_lines = [
 #
 # =============================================================================
 
-fail_under = 80
+fail_under = 80  # Minimum coverage threshold; CI fails if coverage drops below 80%
 show_missing = true
 skip_covered = false
 

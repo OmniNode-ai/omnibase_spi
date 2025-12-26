@@ -12,7 +12,8 @@ Key Integration Patterns Demonstrated:
     4. Error propagation through protocol layers
 
 For single-component unit tests, see:
-    tests/unit/test_exception_handlers.py
+    tests/unit/test_exceptions.py (exception hierarchy tests)
+    tests/unit/test_exception_handlers.py (handler pattern tests)
 """
 
 from __future__ import annotations
