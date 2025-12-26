@@ -51,14 +51,17 @@ class TestSPIError:
         assert error.context["handler_id"] == "http_handler_123"
 
     def test_context_is_independent_copy(self) -> None:
-        """Test that modifying original context dict doesn't affect error."""
+        """Test that context is copied, not stored by reference."""
         original_context = {"key": "value"}
         error = SPIError("Test error", context=original_context)
+
+        # Context should be a copy, not the same reference
+        assert error.context is not original_context
+
+        # Mutating original should not affect error's context
         original_context["new_key"] = "new_value"
-        # The error's context should not have the new key
-        # (depends on implementation - currently it does reference same dict)
-        # This test documents current behavior
-        assert error.context is original_context
+        assert "new_key" not in error.context
+        assert error.context == {"key": "value"}
 
     def test_inherits_from_exception(self) -> None:
         """Test that SPIError inherits from Exception."""
@@ -357,5 +360,62 @@ class TestExceptionHierarchy:
             raise HandlerInitializationError("Test", context=context)
         except ProtocolHandlerError as e:
             assert e.context == context
-        except SPIError:
-            pytest.fail("Should have been caught as ProtocolHandlerError")
+
+
+class TestExceptionReprStr:
+    """Tests for exception string representations."""
+
+    def test_str_returns_message(self) -> None:
+        """Test __str__ returns the error message."""
+        error = SPIError("Something went wrong")
+        assert str(error) == "Something went wrong"
+
+    def test_str_empty_message(self) -> None:
+        """Test __str__ with empty message."""
+        error = SPIError()
+        assert str(error) == ""
+
+    def test_repr_includes_class_and_message(self) -> None:
+        """Test __repr__ includes class name and message."""
+        error = SPIError("Test error")
+        r = repr(error)
+        assert "SPIError" in r
+        assert "Test error" in r
+
+    def test_repr_subclass_shows_correct_class(self) -> None:
+        """Test __repr__ for subclasses shows correct class name."""
+        error = ProtocolHandlerError("Handler failed")
+        r = repr(error)
+        assert "ProtocolHandlerError" in r
+        assert "Handler failed" in r
+
+    def test_repr_with_context(self) -> None:
+        """Test __repr__ works with context."""
+        error = SPIError("Error", context={"key": "value"})
+        r = repr(error)
+        assert "SPIError" in r
+
+    def test_repr_for_all_exception_types(self) -> None:
+        """Test __repr__ works correctly for all exception subclasses."""
+        exception_instances = [
+            (ProtocolHandlerError("handler msg"), "ProtocolHandlerError"),
+            (HandlerInitializationError("init msg"), "HandlerInitializationError"),
+            (IdempotencyStoreError("store msg"), "IdempotencyStoreError"),
+            (ContractCompilerError("compiler msg"), "ContractCompilerError"),
+            (RegistryError("registry msg"), "RegistryError"),
+            (
+                ProtocolNotImplementedError("not impl msg"),
+                "ProtocolNotImplementedError",
+            ),
+            (InvalidProtocolStateError("state msg"), "InvalidProtocolStateError"),
+            (ProjectorError("projector msg"), "ProjectorError"),
+            (ProjectionReadError("read msg"), "ProjectionReadError"),
+        ]
+        for error, expected_class_name in exception_instances:
+            r = repr(error)
+            assert expected_class_name in r, f"{expected_class_name} not in repr: {r}"
+
+    def test_str_for_subclass(self) -> None:
+        """Test __str__ works correctly for subclasses."""
+        error = HandlerInitializationError("Initialization failed")
+        assert str(error) == "Initialization failed"
