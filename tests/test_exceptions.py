@@ -436,3 +436,250 @@ class TestExceptionReprStr:
         """Test __str__ works correctly for subclasses."""
         error = HandlerInitializationError("Initialization failed")
         assert str(error) == "Initialization failed"
+
+
+class TestExceptionChaining:
+    """Tests for exception chaining with 'raise ... from e' pattern.
+
+    Exception chaining is a Python feature that preserves the original cause
+    of an exception when re-raising. This is critical for debugging and
+    error tracing in complex systems.
+    """
+
+    def test_spi_error_chaining_preserves_cause(self) -> None:
+        """Test that raise SPIError from e preserves __cause__."""
+        original = ValueError("Original error")
+        chained = SPIError("Wrapped error")
+        chained.__cause__ = original
+
+        assert chained.__cause__ is original
+        assert isinstance(chained.__cause__, ValueError)
+        assert str(chained.__cause__) == "Original error"
+
+    def test_spi_error_chaining_via_raise_from(self) -> None:
+        """Test exception chaining using raise ... from syntax."""
+        original = ValueError("Original error")
+
+        with pytest.raises(SPIError) as exc_info:
+            try:
+                raise original
+            except ValueError as e:
+                raise SPIError("Wrapped error") from e
+
+        assert exc_info.value.__cause__ is original
+        assert str(exc_info.value.__cause__) == "Original error"
+
+    def test_registry_error_chaining(self) -> None:
+        """Test exception chaining for RegistryError."""
+        original = KeyError("handler_type")
+
+        with pytest.raises(RegistryError) as exc_info:
+            try:
+                raise original
+            except KeyError as e:
+                raise RegistryError(
+                    "Protocol type not found",
+                    context={"protocol_type": "unknown"},
+                ) from e
+
+        assert exc_info.value.__cause__ is original
+        assert exc_info.value.context["protocol_type"] == "unknown"
+
+    def test_contract_compiler_error_chaining(self) -> None:
+        """Test exception chaining for ContractCompilerError."""
+        original = FileNotFoundError("contract.yaml")
+
+        with pytest.raises(ContractCompilerError) as exc_info:
+            try:
+                raise original
+            except FileNotFoundError as e:
+                raise ContractCompilerError(
+                    "Failed to load contract file",
+                    context={"path": "contract.yaml"},
+                ) from e
+
+        assert exc_info.value.__cause__ is original
+        assert isinstance(exc_info.value.__cause__, FileNotFoundError)
+
+    def test_handler_initialization_error_chaining(self) -> None:
+        """Test exception chaining for HandlerInitializationError."""
+        original = ConnectionError("Database connection refused")
+
+        with pytest.raises(HandlerInitializationError) as exc_info:
+            try:
+                raise original
+            except ConnectionError as e:
+                raise HandlerInitializationError(
+                    "Handler failed to initialize",
+                    context={"connection_string": "postgres://localhost/db"},
+                ) from e
+
+        assert exc_info.value.__cause__ is original
+        assert isinstance(exc_info.value.__cause__, ConnectionError)
+        # Verify caught at parent level still has cause
+        assert exc_info.value.__cause__ is original
+
+    def test_protocol_handler_error_chaining(self) -> None:
+        """Test exception chaining for ProtocolHandlerError."""
+        original = TimeoutError("Request timed out")
+
+        with pytest.raises(ProtocolHandlerError) as exc_info:
+            try:
+                raise original
+            except TimeoutError as e:
+                raise ProtocolHandlerError(
+                    "HTTP request failed",
+                    context={"timeout": 30, "url": "https://api.example.com"},
+                ) from e
+
+        assert exc_info.value.__cause__ is original
+
+    def test_idempotency_store_error_chaining(self) -> None:
+        """Test exception chaining for IdempotencyStoreError."""
+        original = RuntimeError("Redis connection lost")
+
+        with pytest.raises(IdempotencyStoreError) as exc_info:
+            try:
+                raise original
+            except RuntimeError as e:
+                raise IdempotencyStoreError(
+                    "Failed to check idempotency",
+                    context={"event_id": "evt-123"},
+                ) from e
+
+        assert exc_info.value.__cause__ is original
+
+    def test_protocol_not_implemented_error_chaining(self) -> None:
+        """Test exception chaining for ProtocolNotImplementedError."""
+        original = ImportError("Module not found")
+
+        with pytest.raises(ProtocolNotImplementedError) as exc_info:
+            try:
+                raise original
+            except ImportError as e:
+                raise ProtocolNotImplementedError(
+                    "No implementation available",
+                    context={"protocol_name": "IEffectNode"},
+                ) from e
+
+        assert exc_info.value.__cause__ is original
+
+    def test_invalid_protocol_state_error_chaining(self) -> None:
+        """Test exception chaining for InvalidProtocolStateError."""
+        original = AssertionError("State invariant violated")
+
+        with pytest.raises(InvalidProtocolStateError) as exc_info:
+            try:
+                raise original
+            except AssertionError as e:
+                raise InvalidProtocolStateError(
+                    "Cannot execute in current state",
+                    context={"current_state": "uninitialized"},
+                ) from e
+
+        assert exc_info.value.__cause__ is original
+
+    def test_projector_error_chaining(self) -> None:
+        """Test exception chaining for ProjectorError."""
+        original = IOError("Disk write failed")
+
+        with pytest.raises(ProjectorError) as exc_info:
+            try:
+                raise original
+            except IOError as e:
+                raise ProjectorError(
+                    "Failed to persist projection",
+                    context={"entity_id": "order-456"},
+                ) from e
+
+        assert exc_info.value.__cause__ is original
+
+    def test_projection_read_error_chaining(self) -> None:
+        """Test exception chaining for ProjectionReadError."""
+        original = TimeoutError("Database query timeout")
+
+        with pytest.raises(ProjectionReadError) as exc_info:
+            try:
+                raise original
+            except TimeoutError as e:
+                raise ProjectionReadError(
+                    "Failed to read projection",
+                    context={"entity_id": "order-789"},
+                ) from e
+
+        assert exc_info.value.__cause__ is original
+
+    def test_chaining_spi_to_spi_error(self) -> None:
+        """Test chaining one SPI error to another SPI error."""
+        original = RegistryError("Handler not found")
+
+        with pytest.raises(ProtocolHandlerError) as exc_info:
+            try:
+                raise original
+            except RegistryError as e:
+                raise ProtocolHandlerError(
+                    "Cannot execute: handler lookup failed"
+                ) from e
+
+        assert exc_info.value.__cause__ is original
+        assert isinstance(exc_info.value.__cause__, RegistryError)
+
+    def test_multi_level_chaining(self) -> None:
+        """Test multiple levels of exception chaining."""
+        level1 = ValueError("Invalid value")
+        level2 = RegistryError("Registry lookup failed")
+        level2.__cause__ = level1
+        level3 = ProtocolHandlerError("Handler execution failed")
+        level3.__cause__ = level2
+
+        # Verify the chain
+        assert level3.__cause__ is level2
+        assert level3.__cause__.__cause__ is level1
+        assert isinstance(level3.__cause__, RegistryError)
+        assert isinstance(level3.__cause__.__cause__, ValueError)
+
+    def test_chaining_with_none_cause(self) -> None:
+        """Test that __cause__ is None when not using chaining."""
+        error = SPIError("Simple error")
+        assert error.__cause__ is None
+
+    def test_chaining_preserves_context(self) -> None:
+        """Test that context is preserved alongside cause."""
+        original = ValueError("Original")
+        context = {"operation": "validate", "field": "email"}
+
+        with pytest.raises(SPIError) as exc_info:
+            try:
+                raise original
+            except ValueError as e:
+                raise SPIError("Validation failed", context=context) from e
+
+        # Both cause and context should be preserved
+        assert exc_info.value.__cause__ is original
+        assert exc_info.value.context == context
+
+    def test_cause_accessible_when_caught_as_parent_type(self) -> None:
+        """Test that __cause__ is accessible when catching as parent exception type."""
+        original = KeyError("missing_key")
+
+        try:
+            try:
+                raise original
+            except KeyError as e:
+                raise HandlerInitializationError("Init failed") from e
+        except SPIError as e:
+            # Even when caught as SPIError, cause should be accessible
+            assert e.__cause__ is original
+            assert isinstance(e.__cause__, KeyError)
+
+    def test_suppress_context_with_from_none(self) -> None:
+        """Test that 'raise ... from None' suppresses context."""
+        with pytest.raises(SPIError) as exc_info:
+            try:
+                raise ValueError("Original")
+            except ValueError:
+                raise SPIError("New error without context chain") from None
+
+        assert exc_info.value.__cause__ is None
+        # __suppress_context__ is set to True with 'from None'
+        assert exc_info.value.__suppress_context__ is True
