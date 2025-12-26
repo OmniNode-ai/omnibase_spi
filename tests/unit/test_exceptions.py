@@ -25,6 +25,7 @@ from omnibase_spi.exceptions import (
 )
 
 
+@pytest.mark.unit
 class TestSPIError:
     """Tests for the SPIError base exception class."""
 
@@ -53,8 +54,13 @@ class TestSPIError:
         assert error.context is not context  # Verify it's a copy
         assert error.context["handler_id"] == "http_handler_123"
 
-    def test_context_is_independent_copy(self) -> None:
-        """Test that context is copied, not stored by reference."""
+    def test_context_top_level_is_independent_copy(self) -> None:
+        """Test that context is copied at the top level, not stored by reference.
+
+        This verifies that modifying the original context dict after error creation
+        does not affect the error's context. For nested object isolation (deep copy),
+        see test_context_deep_copy_behavior.
+        """
         original_context = {"key": "value"}
         error = SPIError("Test error", context=original_context)
 
@@ -105,6 +111,7 @@ class TestSPIError:
         assert error.context["nested_dict"] == {"inner_key": "inner_value"}
 
 
+@pytest.mark.unit
 class TestProtocolHandlerError:
     """Tests for ProtocolHandlerError."""
 
@@ -131,6 +138,7 @@ class TestProtocolHandlerError:
             raise ProtocolHandlerError("Handler error")
 
 
+@pytest.mark.unit
 class TestHandlerInitializationError:
     """Tests for HandlerInitializationError."""
 
@@ -168,6 +176,7 @@ class TestHandlerInitializationError:
             raise HandlerInitializationError("Init failed")
 
 
+@pytest.mark.unit
 class TestIdempotencyStoreError:
     """Tests for IdempotencyStoreError."""
 
@@ -189,6 +198,7 @@ class TestIdempotencyStoreError:
         assert error.context["store_type"] == "redis"
 
 
+@pytest.mark.unit
 class TestContractCompilerError:
     """Tests for ContractCompilerError."""
 
@@ -212,6 +222,7 @@ class TestContractCompilerError:
         assert "protocol" in error.context["missing_fields"]
 
 
+@pytest.mark.unit
 class TestRegistryError:
     """Tests for RegistryError."""
 
@@ -232,6 +243,7 @@ class TestRegistryError:
         assert "grpc" in error.context["available_types"]
 
 
+@pytest.mark.unit
 class TestProtocolNotImplementedError:
     """Tests for ProtocolNotImplementedError."""
 
@@ -254,6 +266,7 @@ class TestProtocolNotImplementedError:
         assert error.context["required_by"] == "WorkflowOrchestrator"
 
 
+@pytest.mark.unit
 class TestInvalidProtocolStateError:
     """Tests for InvalidProtocolStateError."""
 
@@ -279,6 +292,7 @@ class TestInvalidProtocolStateError:
         assert "created" in error.context["lifecycle_history"]
 
 
+@pytest.mark.unit
 class TestProjectorError:
     """Tests for ProjectorError."""
 
@@ -301,6 +315,7 @@ class TestProjectorError:
         assert error.context["sequence"] == 42
 
 
+@pytest.mark.unit
 class TestProjectionReadError:
     """Tests for ProjectionReadError."""
 
@@ -321,6 +336,7 @@ class TestProjectionReadError:
         assert error.context["operation"] == "get_entity_state"
 
 
+@pytest.mark.unit
 class TestExceptionHierarchy:
     """Tests for the complete exception hierarchy."""
 
@@ -385,6 +401,7 @@ class TestExceptionHierarchy:
             assert e.context == context
 
 
+@pytest.mark.unit
 class TestExceptionReprStr:
     """Tests for exception string representations."""
 
@@ -444,6 +461,7 @@ class TestExceptionReprStr:
         assert str(error) == "Initialization failed"
 
 
+@pytest.mark.unit
 class TestExceptionChaining:
     """Tests for exception chaining with 'raise ... from e' pattern.
 
@@ -587,12 +605,12 @@ class TestExceptionChaining:
 
     def test_projector_error_chaining(self) -> None:
         """Test exception chaining for ProjectorError."""
-        original = IOError("Disk write failed")
+        original = OSError("Disk write failed")
 
         with pytest.raises(ProjectorError) as exc_info:
             try:
                 raise original
-            except IOError as e:
+            except OSError as e:
                 raise ProjectorError(
                     "Failed to persist projection",
                     context={"entity_id": "order-456"},
