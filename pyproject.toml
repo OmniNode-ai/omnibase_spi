@@ -187,7 +187,12 @@ exclude_lines = [
     "@abstractmethod",
     "\\.\\.\\.",
 ]
-fail_under = 60
+# Coverage thresholds (OMN-789):
+# - Overall: ≥80% (enforced via fail_under)
+# - protocols/nodes/: ≥85% (verified in CI)
+# - protocols/handlers/: ≥85% (verified in CI)
+# - exceptions.py: ≥90% (verified in CI)
+fail_under = 80
 show_missing = true
 skip_covered = false
 
