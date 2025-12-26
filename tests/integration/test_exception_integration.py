@@ -905,6 +905,14 @@ class TestExceptionPropagation:
 
         Pattern: Catch specific exceptions first for specific handling,
         then fall back to broader exception types for general error handling.
+
+        Note: In this test, the SPIError catch-all branch is included to
+        demonstrate the complete recommended pattern, but is not exercised
+        because RealisticProtocolHandler only raises ProtocolHandlerError.
+        See test_spi_error_fallback_handler and
+        test_spi_error_fallback_with_contract_compiler_error for tests that
+        exercise the SPIError fallback with RegistryError and
+        ContractCompilerError respectively.
         """
         handler = RealisticProtocolHandler(simulate_timeout=True)
         config = MockConnectionConfig()
@@ -924,7 +932,8 @@ class TestExceptionPropagation:
             # Handle execution errors
             error_handled_by = "ProtocolHandlerError"
         except SPIError:
-            # Catch-all for any other SPI error
+            # Catch-all for any other SPI error (pattern demonstration;
+            # see test_spi_error_fallback_handler for actual exercise)
             error_handled_by = "SPIError"
 
         assert error_handled_by == "ProtocolHandlerError"
@@ -958,6 +967,100 @@ class TestExceptionPropagation:
         assert captured_context["handler_id"] == "context-test-handler"
         assert captured_context["operation"] == "test-operation"
         assert captured_context["error_type"] == "service_unavailable"
+
+    @pytest.mark.asyncio
+    async def test_spi_error_fallback_handler(self) -> None:
+        """
+        SPIError catch-all handles errors not caught by specific handlers.
+
+        Pattern: When using layered exception handling, the generic SPIError
+        handler catches any SPI errors not matched by more specific handlers.
+        This is the recommended pattern for robust error handling:
+
+            try:
+                operation()
+            except SpecificError1:
+                handle_specific_1()
+            except SpecificError2:
+                handle_specific_2()
+            except SPIError:
+                handle_any_other_spi_error()  # Fallback
+
+        This test demonstrates that errors like RegistryError, which are
+        NOT caught by InvalidProtocolStateError or ProtocolHandlerError,
+        correctly fall through to the SPIError catch-all.
+        """
+        registry = RealisticHandlerRegistry()
+        # Register one handler type
+        registry.register("http", RealisticProtocolHandler)
+
+        error_handled_by: str | None = None
+        captured_error: SPIError | None = None
+
+        # Attempt to look up an unregistered protocol type
+        # This raises RegistryError, which is NOT caught by
+        # InvalidProtocolStateError or ProtocolHandlerError
+        try:
+            registry.get("kafka")  # Not registered, will raise RegistryError
+        except InvalidProtocolStateError:
+            # This handler would catch state validation errors
+            error_handled_by = "InvalidProtocolStateError"
+        except ProtocolHandlerError:
+            # This handler would catch execution errors
+            error_handled_by = "ProtocolHandlerError"
+        except SPIError as e:
+            # Catch-all for any other SPI error (RegistryError falls here)
+            error_handled_by = "SPIError"
+            captured_error = e
+
+        # Verify the fallback SPIError handler was reached
+        assert error_handled_by == "SPIError", (
+            f"Expected SPIError fallback, but got {error_handled_by}"
+        )
+
+        # Verify the captured error is actually a RegistryError
+        assert captured_error is not None
+        assert isinstance(captured_error, RegistryError)
+
+        # Verify context is preserved even when caught as SPIError
+        assert captured_error.context["protocol_type"] == "kafka"
+        assert "http" in captured_error.context["available_types"]
+
+    @pytest.mark.asyncio
+    async def test_spi_error_fallback_with_contract_compiler_error(self) -> None:
+        """
+        SPIError fallback also catches ContractCompilerError.
+
+        Pattern: This test reinforces that the SPIError catch-all works
+        for multiple error types. ContractCompilerError represents a
+        different domain (compilation) than RegistryError (registration),
+        demonstrating the fallback's generality.
+        """
+        compiler = RealisticContractCompiler()
+
+        error_handled_by: str | None = None
+        captured_error: SPIError | None = None
+
+        # Attempt to compile an empty contract
+        # This raises ContractCompilerError
+        try:
+            compiler.compile("", path="empty.yaml")
+        except InvalidProtocolStateError:
+            error_handled_by = "InvalidProtocolStateError"
+        except ProtocolHandlerError:
+            error_handled_by = "ProtocolHandlerError"
+        except SPIError as e:
+            # ContractCompilerError falls through to SPIError
+            error_handled_by = "SPIError"
+            captured_error = e
+
+        # Verify the fallback SPIError handler was reached
+        assert error_handled_by == "SPIError"
+
+        # Verify the captured error is actually a ContractCompilerError
+        assert captured_error is not None
+        assert isinstance(captured_error, ContractCompilerError)
+        assert captured_error.context["error_type"] == "empty_file"
 
 
 @pytest.mark.integration
