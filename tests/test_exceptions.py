@@ -7,6 +7,8 @@ ensuring proper initialization, inheritance, and context handling.
 
 from __future__ import annotations
 
+from typing import Any
+
 import pytest
 
 from omnibase_spi.exceptions import (
@@ -48,6 +50,7 @@ class TestSPIError:
         error = SPIError("Handler execution failed", context=context)
         assert str(error) == "Handler execution failed"
         assert error.context == context
+        assert error.context is not context  # Verify it's a copy
         assert error.context["handler_id"] == "http_handler_123"
 
     def test_context_is_independent_copy(self) -> None:
@@ -80,6 +83,20 @@ class TestSPIError:
         error = SPIError("Test", context=None)
         assert error.context == {}
         assert isinstance(error.context, dict)
+
+    def test_context_shallow_copy_behavior(self) -> None:
+        """Document that context uses shallow copy - nested mutables are shared."""
+        nested_list = ["item1"]
+        context: dict[str, Any] = {"nested": nested_list}
+        error = SPIError("Test", context=context)
+
+        # Verify top-level is independent (shallow copy)
+        context["new_key"] = "value"
+        assert "new_key" not in error.context
+
+        # Document that nested mutables are shared (shallow copy behavior)
+        nested_list.append("item2")
+        assert error.context["nested"] == ["item1", "item2"]
 
 
 class TestProtocolHandlerError:
@@ -303,7 +320,7 @@ class TestExceptionHierarchy:
 
     def test_all_exceptions_inherit_from_spi_error(self) -> None:
         """Verify all SPI exceptions inherit from SPIError."""
-        exception_classes = [
+        exception_classes: list[type[SPIError]] = [
             ProtocolHandlerError,
             HandlerInitializationError,
             IdempotencyStoreError,
@@ -330,7 +347,7 @@ class TestExceptionHierarchy:
 
     def test_broad_exception_handling(self) -> None:
         """Test that SPIError can catch any SPI exception."""
-        exceptions_to_test = [
+        exceptions_to_test: list[SPIError] = [
             ProtocolHandlerError("handler error"),
             HandlerInitializationError("init error"),
             IdempotencyStoreError("store error"),
@@ -397,7 +414,7 @@ class TestExceptionReprStr:
 
     def test_repr_for_all_exception_types(self) -> None:
         """Test __repr__ works correctly for all exception subclasses."""
-        exception_instances = [
+        exception_instances: list[tuple[SPIError, str]] = [
             (ProtocolHandlerError("handler msg"), "ProtocolHandlerError"),
             (HandlerInitializationError("init msg"), "HandlerInitializationError"),
             (IdempotencyStoreError("store msg"), "IdempotencyStoreError"),
