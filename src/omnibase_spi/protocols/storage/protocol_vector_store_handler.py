@@ -732,9 +732,24 @@ class ProtocolVectorStoreHandler(Protocol):
         its type, supported operations, connection status, and
         vector-specific capabilities.
 
-        This method is async because implementations may need to check
-        connection status, query backend capabilities, or perform other
-        I/O operations to provide accurate metadata.
+        .. versionchanged:: 0.5.0
+            This method changed from synchronous to asynchronous.
+
+        Breaking Change (v0.5.0):
+            The ``describe()`` method is now async. Callers must update their code:
+
+            Before (v0.4.x)::
+
+                metadata = handler.describe()
+
+            After (v0.5.0+)::
+
+                metadata = await handler.describe()
+
+        Note:
+            This method is async because implementations may need to check
+            connection status, query backend capabilities, or perform other
+            I/O operations to provide accurate metadata.
 
         Returns:
             ModelVectorHandlerMetadata containing handler metadata with fields:
