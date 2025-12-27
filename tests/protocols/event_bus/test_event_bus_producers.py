@@ -67,7 +67,6 @@ from omnibase_spi.protocols.event_bus.protocol_event_bus_extended import (
     ProtocolEventBusTransactionalProducer,
 )
 
-
 # =============================================================================
 # Mock/Compliant Implementations for Testing
 # =============================================================================

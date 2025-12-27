@@ -57,7 +57,6 @@ from omnibase_spi.protocols.event_bus.protocol_event_bus_extended import (
 )
 from omnibase_spi.protocols.types.protocol_event_bus_types import ProtocolEventMessage
 
-
 # =============================================================================
 # Mock Implementations - Message
 # =============================================================================

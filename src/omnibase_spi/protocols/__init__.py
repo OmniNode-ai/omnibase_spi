@@ -287,16 +287,6 @@ from omnibase_spi.protocols.node import (
     ProtocolUtilsNodeConfiguration,
 )
 
-# Projections protocols (5 protocols) - Projection persistence and state reading
-# Projector writes projections with ordering; Reader queries materialized state
-from omnibase_spi.protocols.projections import (
-    ProtocolBatchPersistResult,
-    ProtocolPersistResult,
-    ProtocolProjectionReader,
-    ProtocolProjector,
-    ProtocolSequenceInfo,
-)
-
 # ONEX protocols (15 protocols) - ONEX platform specific protocols
 from omnibase_spi.protocols.onex import (
     ProtocolOnexComputeNode,
@@ -314,6 +304,16 @@ from omnibase_spi.protocols.onex import (
     ProtocolOnexValidationReport,
     ProtocolOnexValidationResult,
     ProtocolToolToolOnexVersionLoader,
+)
+
+# Projections protocols (5 protocols) - Projection persistence and state reading
+# Projector writes projections with ordering; Reader queries materialized state
+from omnibase_spi.protocols.projections import (
+    ProtocolBatchPersistResult,
+    ProtocolPersistResult,
+    ProtocolProjectionReader,
+    ProtocolProjector,
+    ProtocolSequenceInfo,
 )
 
 # Naming consistency alias (Issue #5)

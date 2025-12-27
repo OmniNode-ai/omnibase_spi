@@ -51,7 +51,6 @@ from omnibase_spi.protocols.event_bus.protocol_event_bus_mixin import (
 )
 from omnibase_spi.protocols.types.protocol_event_bus_types import ProtocolEventMessage
 
-
 # =============================================================================
 # Mock Implementations for Testing Inheritance
 # =============================================================================
