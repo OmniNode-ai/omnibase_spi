@@ -59,7 +59,6 @@ from omnibase_spi.protocols.event_bus.protocol_event_bus_types import (
     ProtocolTopicConfig,
 )
 
-
 # =============================================================================
 # Mock/Compliant Implementations for Testing
 # =============================================================================

@@ -87,7 +87,6 @@ import pytest
 
 from omnibase_spi.protocols.event_bus.protocol_event_bus_client import (
     ProtocolEventBusClient,
-    ProtocolEventBusClientProvider,
 )
 from omnibase_spi.protocols.event_bus.protocol_event_bus_extended import (
     ProtocolEventBusBatchProducer,

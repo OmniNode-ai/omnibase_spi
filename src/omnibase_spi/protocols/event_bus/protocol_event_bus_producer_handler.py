@@ -15,11 +15,17 @@ The producer handler provides:
 Key Protocols:
     - ProtocolEventBusProducerHandler: Producer handler interface
 
+Core Models:
+    This protocol uses typed models from ``omnibase_core.models.event_bus``:
+        - ModelProducerMessage: Typed message structure for batch operations
+        - ModelDeliveryResult: Delivery confirmation result (for future use)
+        - ModelProducerHealthStatus: Health check return type
+
 Message Structure:
-    Messages sent through the producer handler use the following structure:
+    Messages sent through the producer handler use ``ModelProducerMessage`` with fields:
         - topic (str): Target topic/queue name
-        - key (bytes | None): Optional partition key for message ordering
         - value (bytes): Message payload (serialized data)
+        - key (bytes | None): Optional partition key for message ordering
         - headers (dict[str, bytes] | None): Optional message headers/metadata
         - partition (int | None): Optional explicit partition assignment
 
@@ -31,6 +37,7 @@ Callback Pattern:
 Example:
     ```python
     from omnibase_spi.protocols.event_bus import ProtocolEventBusProducerHandler
+    from omnibase_core.models.event_bus import ModelProducerMessage
 
     # Get producer handler from dependency injection
     producer: ProtocolEventBusProducerHandler = get_producer_handler()
@@ -43,10 +50,10 @@ Example:
         headers={"correlation_id": b"abc123"},
     )
 
-    # Send batch of messages
+    # Send batch of messages using typed models (preferred)
     messages = [
-        {"topic": "events", "value": b"msg1", "key": b"k1"},
-        {"topic": "events", "value": b"msg2", "key": b"k2"},
+        ModelProducerMessage(topic="events", value=b"msg1", key=b"k1"),
+        ModelProducerMessage(topic="events", value=b"msg2", key=b"k2"),
     ]
     await producer.send_batch(messages)
 
@@ -60,6 +67,11 @@ Example:
             await producer.abort_transaction()
             raise
 
+    # Health check with typed response
+    health = await producer.health_check()
+    if health.healthy:
+        print(f"Connected: {health.connected}, Pending: {health.pending_messages}")
+
     # Cleanup
     await producer.flush()
     await producer.close()
@@ -70,34 +82,29 @@ See Also:
     - ProtocolEventPublisher: High-level event publishing with retry/circuit breaker
     - ProtocolKafkaAdapter: Kafka-specific adapter implementation
     - ProtocolEventBusService: Service layer for event bus operations
+    - ModelProducerMessage: Core model for producer messages
+    - ModelProducerHealthStatus: Core model for health check results
 """
 
 from __future__ import annotations
 
 from collections.abc import Callable, Sequence
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    # Future Core models - using Any until models are defined
-    # from omnibase_core.models.event_bus import (
-    #     ModelProducerMessage,
-    #     ModelDeliveryResult,
-    # )
-    pass
+    from omnibase_core.models.event_bus import (
+        ModelDeliveryResult,  # noqa: F401 (documented for future use)
+        ModelProducerHealthStatus,
+        ModelProducerMessage,
+    )
 
 
-# Type aliases for message structure
-ProducerMessage = dict[str, Any]
-"""
-Message structure for producer operations.
+# NOTE: Dynamic payload policy
+# - Message payloads are opaque to the protocol layer
+# - Core logic MUST NOT depend on specific payload keys beyond the defined structure
+# - Adapters MAY validate and serialize for backend requirements
+# - Payloads MUST be JSON-serializable (value is bytes, caller handles serialization)
 
-Expected keys:
-    - topic (str): Target topic/queue name (required)
-    - value (bytes): Message payload (required)
-    - key (bytes | None): Optional partition key
-    - headers (dict[str, bytes] | None): Optional headers
-    - partition (int | None): Optional explicit partition
-"""
 
 DeliveryCallback = Callable[[str, bytes | None, bytes, Exception | None], None]
 """
@@ -413,7 +420,7 @@ class ProtocolEventBusProducerHandler(Protocol):
 
     async def send_batch(
         self,
-        messages: Sequence[ProducerMessage],
+        messages: Sequence[ModelProducerMessage],
         on_success: DeliveryCallback | None = None,
         on_error: DeliveryCallback | None = None,
     ) -> int:
@@ -425,8 +432,8 @@ class ProtocolEventBusProducerHandler(Protocol):
         supported and active.
 
         Args:
-            messages: Sequence of messages to send. Each message is a
-                dictionary with keys:
+            messages: Sequence of ``ModelProducerMessage`` instances to send.
+                Each message contains:
                     - topic (str): Target topic (required)
                     - value (bytes): Message payload (required)
                     - key (bytes | None): Optional partition key
@@ -449,21 +456,23 @@ class ProtocolEventBusProducerHandler(Protocol):
 
         Example:
             ```python
+            from omnibase_core.models.event_bus import ModelProducerMessage
+
             messages = [
-                {
-                    "topic": "user-events",
-                    "value": b'{"user_id": "1", "action": "create"}',
-                    "key": b"user:1",
-                },
-                {
-                    "topic": "user-events",
-                    "value": b'{"user_id": "2", "action": "create"}',
-                    "key": b"user:2",
-                },
-                {
-                    "topic": "audit-log",
-                    "value": b'{"action": "batch_create", "count": 2}',
-                },
+                ModelProducerMessage(
+                    topic="user-events",
+                    value=b'{"user_id": "1", "action": "create"}',
+                    key=b"user:1",
+                ),
+                ModelProducerMessage(
+                    topic="user-events",
+                    value=b'{"user_id": "2", "action": "create"}',
+                    key=b"user:2",
+                ),
+                ModelProducerMessage(
+                    topic="audit-log",
+                    value=b'{"action": "batch_create", "count": 2}',
+                ),
             ]
 
             sent_count = await producer.send_batch(messages)
@@ -542,7 +551,7 @@ class ProtocolEventBusProducerHandler(Protocol):
         """
         ...
 
-    async def health_check(self) -> dict[str, Any]:
+    async def health_check(self) -> ModelProducerHealthStatus:
         """
         Check producer health and connectivity.
 
@@ -550,23 +559,27 @@ class ProtocolEventBusProducerHandler(Protocol):
         and can communicate with the message broker.
 
         Returns:
-            Dictionary containing health status:
+            ModelProducerHealthStatus: Health status containing:
                 - healthy (bool): Overall health status
                 - latency_ms (float | None): Broker response time in milliseconds
                 - connected (bool): Whether connected to broker
                 - pending_messages (int): Number of messages awaiting delivery
-                - details (dict | None): Additional diagnostic information
                 - last_error (str | None): Most recent error if unhealthy
+                - last_error_timestamp (datetime | None): When the last error occurred
+                - messages_sent (int): Total messages successfully sent
+                - messages_failed (int): Total messages that failed to send
+                - broker_count (int): Number of connected brokers
 
         Example:
             ```python
             health = await producer.health_check()
 
-            if health["healthy"]:
-                print(f"Producer OK, latency: {health.get('latency_ms')}ms")
-                print(f"Pending: {health.get('pending_messages', 0)} messages")
+            if health.healthy:
+                print(f"Producer OK, latency: {health.latency_ms}ms")
+                print(f"Pending: {health.pending_messages} messages")
+                print(f"Sent: {health.messages_sent}, Failed: {health.messages_failed}")
             else:
-                print(f"Producer unhealthy: {health.get('last_error')}")
+                print(f"Producer unhealthy: {health.last_error}")
             ```
 
         Security:
@@ -600,7 +613,7 @@ class ProtocolEventBusProducerHandler(Protocol):
 
             Example rate-limited implementation:
                 ```python
-                async def health_check(self) -> dict[str, Any]:
+                async def health_check(self) -> ModelProducerHealthStatus:
                     now = time.monotonic()
                     if now - self._last_health_check < self._min_health_check_interval:
                         return self._cached_health_result

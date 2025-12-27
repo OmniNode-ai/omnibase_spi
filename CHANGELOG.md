@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Breaking Changes
+
+#### Handler Protocol `describe()` Method Now Async (OMN-710)
+
+The `describe()` method in specialized handler protocols has been changed from synchronous to asynchronous:
+
+**Affected Protocols:**
+- `ProtocolGraphDatabaseHandler.describe()` - now returns `Coroutine[Any, Any, ModelGraphHandlerMetadata]`
+- `ProtocolVectorStoreHandler.describe()` - now returns `Coroutine[Any, Any, ModelVectorHandlerMetadata]`
+
+**Migration Required:**
+
+```python
+# Before (v0.4.x and earlier):
+metadata = handler.describe()
+
+# After (v0.5.0+):
+metadata = await handler.describe()
+```
+
+**Rationale:**
+Implementations may need to perform I/O operations to provide accurate metadata, such as:
+- Checking connection status to the backing database
+- Querying database version information
+- Retrieving index/collection statistics
+- Validating credentials before reporting capabilities
+
+Making `describe()` async allows implementations to gather this runtime information without blocking.
+
+**Note:** The base `ProtocolHandler.describe()` remains synchronous and returns `dict[str, Any]`. Only the specialized storage handlers have been updated to async with typed return models.
+
 ## [0.4.0] - 2025-12-15
 
 ### Added
