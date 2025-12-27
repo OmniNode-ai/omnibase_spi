@@ -1,17 +1,130 @@
 """
-Protocol for vector store handler operations.
+Vector Store Handler Protocol - ONEX SPI Interface.
 
-Defines the interface for vector store handlers that manage embedding storage,
-similarity search, and index operations. This protocol extends the handler
-pattern for specialized vector database operations used in semantic search,
-RAG (Retrieval Augmented Generation), and AI/ML applications.
+Protocol definition for vector store operations. This is a specialized handler
+protocol that extends the ProtocolHandler pattern for backend-agnostic vector
+database operations (supports Qdrant, Pinecone, Weaviate, Milvus, Chroma, and
+other vector stores).
+
+The vector store handler provides:
+    - Embedding storage with metadata association
+    - Single and batch embedding operations
+    - Similarity/distance-based vector search (ANN)
+    - Metadata filtering during search
+    - Index lifecycle management (create, delete)
+    - Multiple distance metrics (cosine, euclidean, dot product)
+    - Health monitoring and introspection
+
+Key Protocols:
+    - ProtocolVectorStoreHandler: Vector store handler interface
+
+Core Models:
+    This protocol uses typed models from ``omnibase_core.models.vector``:
+        - ModelVectorConnectionConfig: Connection configuration
+        - ModelEmbedding: Embedding with vector and metadata
+        - ModelVectorStoreResult: Single store operation result
+        - ModelVectorBatchStoreResult: Batch store operation result
+        - ModelVectorSearchResults: Similarity search results
+        - ModelVectorDeleteResult: Deletion operation result
+        - ModelVectorIndexConfig: Index creation configuration
+        - ModelVectorIndexResult: Index operation result
+        - ModelVectorMetadataFilter: Metadata filter for search
+        - ModelVectorHealthStatus: Health check return type
+        - ModelVectorHandlerMetadata: Handler introspection metadata
+
+Handler Lifecycle:
+    1. Create handler instance
+    2. Call initialize() with ModelVectorConnectionConfig
+    3. Create indices with create_index() if needed
+    4. Store embeddings with store_embedding() or store_embeddings_batch()
+    5. Query with query_similar() for similarity search
+    6. Call shutdown() to release resources
+
+Example:
+    ```python
+    from omnibase_spi.protocols.storage import ProtocolVectorStoreHandler
+    from omnibase_core.models.vector import (
+        ModelVectorConnectionConfig,
+        ModelEmbedding,
+        ModelVectorMetadataFilter,
+    )
+
+    # Get handler from dependency injection
+    handler: ProtocolVectorStoreHandler = get_vector_handler()
+
+    # Initialize connection
+    config = ModelVectorConnectionConfig(
+        url="http://localhost:6333",
+        api_key="secret-key",
+        timeout=30.0,
+    )
+    await handler.initialize(config)
+
+    # Create an index for document embeddings
+    await handler.create_index(
+        index_name="documents",
+        dimension=1536,  # OpenAI embedding dimension
+        metric="cosine",
+    )
+
+    # Store a single embedding
+    await handler.store_embedding(
+        embedding_id="doc_001",
+        vector=[0.1, 0.2, ...],  # 1536-dimensional vector
+        metadata={"source": "report.pdf", "page": 1},
+        index_name="documents",
+    )
+
+    # Store embeddings in batch for efficiency
+    embeddings = [
+        ModelEmbedding(id="doc_002", vector=[...], metadata={"page": 2}),
+        ModelEmbedding(id="doc_003", vector=[...], metadata={"page": 3}),
+    ]
+    result = await handler.store_embeddings_batch(
+        embeddings=embeddings,
+        index_name="documents",
+        batch_size=100,
+    )
+    print(f"Stored {result.total_stored} embeddings")
+
+    # Query for similar documents with metadata filtering
+    filter_config = ModelVectorMetadataFilter(
+        field="source",
+        operator="eq",
+        value="report.pdf",
+    )
+    results = await handler.query_similar(
+        query_vector=query_embedding,
+        top_k=5,
+        index_name="documents",
+        filter_metadata=filter_config,
+        score_threshold=0.7,
+    )
+    for match in results.results:
+        print(f"ID: {match.id}, Score: {match.score}")
+
+    # Health check with typed response
+    health = await handler.health_check()
+    if health.healthy:
+        print(f"Vector store OK, latency: {health.latency_ms}ms")
+
+    # Cleanup
+    await handler.shutdown()
+    ```
 
 Example implementations:
-    - QdrantVectorStoreHandler: Qdrant vector database operations
-    - PineconeVectorStoreHandler: Pinecone serverless vector DB
-    - WeaviateVectorStoreHandler: Weaviate vector search engine
-    - MilvusVectorStoreHandler: Milvus vector database
-    - ChromaVectorStoreHandler: Chroma embedded vector DB
+    - QdrantVectorStoreHandler: Qdrant gRPC/REST operations
+    - PineconeVectorStoreHandler: Pinecone serverless API
+    - WeaviateVectorStoreHandler: Weaviate GraphQL interface
+    - MilvusVectorStoreHandler: Milvus distributed vector DB
+    - ChromaVectorStoreHandler: Chroma embedded database
+
+See Also:
+    - ProtocolHandler: Base handler protocol pattern
+    - ProtocolGraphDatabaseHandler: Graph database handler for relationships
+    - ProtocolStorageBackend: General checkpoint/state persistence
+    - ModelVectorSearchResults: Core model for search results
+    - ModelEmbedding: Core model for embedding data
 """
 
 from __future__ import annotations
@@ -69,6 +182,13 @@ class ProtocolVectorStoreHandler(Protocol):
         This protocol is introduced in v0.3.0 as the standard interface for
         vector store operations. Future versions may add streaming and
         batch optimization methods.
+
+    See Also:
+        - ProtocolHandler: Base handler protocol pattern
+        - ProtocolGraphDatabaseHandler: Graph database handler for relationship data
+        - ModelVectorSearchResults: Result model for similarity search
+        - ModelEmbedding: Embedding model with vector and metadata
+        - ModelVectorConnectionConfig: Configuration model for connections
     """
 
     @property
@@ -604,13 +724,17 @@ class ProtocolVectorStoreHandler(Protocol):
         """
         ...
 
-    def describe(self) -> ModelVectorHandlerMetadata:
+    async def describe(self) -> ModelVectorHandlerMetadata:
         """
         Return handler metadata and capabilities.
 
         Provides introspection information about the handler including
         its type, supported operations, connection status, and
         vector-specific capabilities.
+
+        This method is async because implementations may need to check
+        connection status, query backend capabilities, or perform other
+        I/O operations to provide accurate metadata.
 
         Returns:
             ModelVectorHandlerMetadata containing handler metadata with fields:
@@ -623,7 +747,7 @@ class ProtocolVectorStoreHandler(Protocol):
 
         Example:
             ```python
-            metadata = handler.describe()
+            metadata = await handler.describe()
             print(f"Metrics: {metadata.supported_metrics}")
             print(f"Max dimension: {metadata.max_dimension or 'unlimited'}")
             ```

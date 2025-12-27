@@ -1,9 +1,103 @@
 """
-Protocol for Graph Database Handler operations.
+Graph Database Handler Protocol - ONEX SPI Interface.
 
-Provides a specialized handler interface for graph database operations
-including Neo4j/Bolt protocol support, Cypher query execution, and
-node/relationship management.
+Protocol definition for graph database operations. This is a specialized handler
+protocol that extends the ProtocolHandler pattern for backend-agnostic graph
+database operations (supports Neo4j, Amazon Neptune, TigerGraph, and other
+graph databases).
+
+The graph database handler provides:
+    - Cypher/Gremlin/GSQL query execution with parameterization
+    - Node and relationship CRUD operations
+    - Graph traversal with configurable depth and filters
+    - Transaction support for atomic multi-query operations
+    - Connection pooling and resource management
+    - Health monitoring and introspection
+
+Key Protocols:
+    - ProtocolGraphDatabaseHandler: Graph database handler interface
+
+Core Models:
+    This protocol uses typed models from ``omnibase_core.models.graph``:
+        - ModelGraphQueryResult: Query execution results with records and counters
+        - ModelGraphDatabaseNode: Node with labels, properties, and identifiers
+        - ModelGraphRelationship: Relationship with type and connected nodes
+        - ModelGraphTraversalResult: Traversal results with paths and discovered nodes
+        - ModelGraphBatchResult: Batch query execution results
+        - ModelGraphDeleteResult: Deletion operation results
+        - ModelGraphHealthStatus: Health check return type
+        - ModelGraphHandlerMetadata: Handler introspection metadata
+        - ModelGraphTraversalFilters: Filters for traversal operations
+
+Handler Lifecycle:
+    1. Create handler instance
+    2. Call initialize() with connection URI and credentials
+    3. Execute operations (queries, node/relationship management, traversals)
+    4. Call shutdown() to release resources
+
+Example:
+    ```python
+    from omnibase_spi.protocols.storage import ProtocolGraphDatabaseHandler
+    from omnibase_core.models.graph import ModelGraphQueryResult
+
+    # Get handler from dependency injection
+    handler: ProtocolGraphDatabaseHandler = get_graph_handler()
+
+    # Initialize connection
+    await handler.initialize(
+        connection_uri="bolt://localhost:7687",
+        auth=("neo4j", "password"),
+        options={"max_connection_pool_size": 50},
+    )
+
+    # Execute parameterized query (safe from injection)
+    result = await handler.execute_query(
+        query="MATCH (n:Person {name: $name}) RETURN n",
+        parameters={"name": "Alice"},
+    )
+    for record in result.records:
+        print(record)
+
+    # Create nodes and relationships
+    alice = await handler.create_node(
+        labels=["Person"],
+        properties={"name": "Alice", "age": 30},
+    )
+    bob = await handler.create_node(
+        labels=["Person"],
+        properties={"name": "Bob", "age": 25},
+    )
+    await handler.create_relationship(
+        from_node_id=alice.id,
+        to_node_id=bob.id,
+        relationship_type="KNOWS",
+        properties={"since": "2023-01-15"},
+    )
+
+    # Traverse the graph
+    result = await handler.traverse(
+        start_node_id=alice.id,
+        relationship_types=["KNOWS"],
+        direction="outgoing",
+        max_depth=2,
+    )
+    print(f"Found {len(result.nodes)} connected nodes")
+
+    # Health check with typed response
+    health = await handler.health_check()
+    if health.healthy:
+        print(f"Database OK, latency: {health.latency_ms}ms")
+
+    # Cleanup
+    await handler.shutdown()
+    ```
+
+See Also:
+    - ProtocolHandler: Base handler protocol pattern
+    - ProtocolVectorStoreHandler: Vector store handler for embeddings
+    - ProtocolStorageBackend: General checkpoint/state persistence
+    - ModelGraphQueryResult: Core model for query results
+    - ModelGraphDatabaseNode: Core model for graph nodes
 """
 
 from __future__ import annotations
@@ -84,6 +178,13 @@ class ProtocolGraphDatabaseHandler(Protocol):
         handler = Neo4jHandler()
         assert isinstance(handler, ProtocolGraphDatabaseHandler)
         ```
+
+    See Also:
+        - ProtocolHandler: Base handler protocol pattern
+        - ProtocolVectorStoreHandler: Vector store handler for embedding operations
+        - ModelGraphQueryResult: Result model for query operations
+        - ModelGraphDatabaseNode: Node model with labels and properties
+        - ModelGraphRelationship: Relationship model with type and endpoints
     """
 
     @property
@@ -638,13 +739,18 @@ class ProtocolGraphDatabaseHandler(Protocol):
         """
         ...
 
-    def describe(self) -> ModelGraphHandlerMetadata:
+    async def describe(self) -> ModelGraphHandlerMetadata:
         """
         Return handler metadata and capabilities.
 
         Provides introspection information about the handler including
         its type, supported operations, connection status, and any
         handler-specific capabilities.
+
+        Note:
+            This method is async because implementations may need to check
+            connection status, query database version, or perform other I/O
+            operations to populate accurate metadata.
 
         Returns:
             ModelGraphHandlerMetadata containing:
@@ -666,7 +772,7 @@ class ProtocolGraphDatabaseHandler(Protocol):
 
         Example:
             ```python
-            metadata = handler.describe()
+            metadata = await handler.describe()
             print(f"Handler: {metadata.handler_type}")
             print(f"Database: {metadata.database_type}")
             print(f"Capabilities: {metadata.capabilities}")

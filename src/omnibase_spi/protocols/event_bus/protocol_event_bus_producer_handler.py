@@ -89,7 +89,7 @@ See Also:
 from __future__ import annotations
 
 from collections.abc import Callable, Sequence
-from typing import TYPE_CHECKING, Protocol, TypedDict, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_core.models.event_bus import (
@@ -104,52 +104,6 @@ if TYPE_CHECKING:
 # - Core logic MUST NOT depend on specific payload keys beyond the defined structure
 # - Adapters MAY validate and serialize for backend requirements
 # - Payloads MUST be JSON-serializable (value is bytes, caller handles serialization)
-
-
-class ProducerMessage(TypedDict, total=False):
-    """
-    Message structure for producer operations using TypedDict.
-
-    This provides a typed dict alternative to ``ModelProducerMessage`` for
-    backward compatibility with existing dict-based code. New code SHOULD
-    prefer using ``ModelProducerMessage`` from ``omnibase_core.models.event_bus``.
-
-    .. deprecated::
-        Use ``ModelProducerMessage`` from ``omnibase_core.models.event_bus`` instead.
-        This TypedDict is maintained for backward compatibility with dict-based APIs.
-
-    Attributes:
-        topic: Target topic/queue name (required when sending).
-        value: Message payload as bytes (required when sending).
-        key: Optional partition key for message ordering.
-        headers: Optional message headers as a dictionary of string keys to bytes values.
-        partition: Optional explicit partition assignment.
-
-    Example:
-        ```python
-        # Using TypedDict for type-safe dict construction
-        msg: ProducerMessage = {
-            "topic": "user-events",
-            "value": b'{"user_id": "123"}',
-            "key": b"user:123",
-        }
-        await producer.send_batch([msg])
-
-        # Preferred: Use ModelProducerMessage directly
-        from omnibase_core.models.event_bus import ModelProducerMessage
-        msg = ModelProducerMessage(topic="user-events", value=b'{"user_id": "123"}')
-        await producer.send_batch([msg])
-        ```
-
-    See Also:
-        ModelProducerMessage: The preferred Pydantic model for producer messages.
-    """
-
-    topic: str
-    value: bytes
-    key: bytes | None
-    headers: dict[str, bytes] | None
-    partition: int | None
 
 
 DeliveryCallback = Callable[[str, bytes | None, bytes, Exception | None], None]
@@ -466,7 +420,7 @@ class ProtocolEventBusProducerHandler(Protocol):
 
     async def send_batch(
         self,
-        messages: Sequence[ProducerMessage | ModelProducerMessage],
+        messages: Sequence[ModelProducerMessage],
         on_success: DeliveryCallback | None = None,
         on_error: DeliveryCallback | None = None,
     ) -> int:
@@ -478,9 +432,8 @@ class ProtocolEventBusProducerHandler(Protocol):
         supported and active.
 
         Args:
-            messages: Sequence of messages to send. Each message can be either:
-                - A ``ModelProducerMessage`` instance (preferred), or
-                - A dictionary with keys (deprecated, for backward compatibility):
+            messages: Sequence of ``ModelProducerMessage`` instances to send.
+                Each message contains:
                     - topic (str): Target topic (required)
                     - value (bytes): Message payload (required)
                     - key (bytes | None): Optional partition key
@@ -503,21 +456,23 @@ class ProtocolEventBusProducerHandler(Protocol):
 
         Example:
             ```python
+            from omnibase_core.models.event_bus import ModelProducerMessage
+
             messages = [
-                {
-                    "topic": "user-events",
-                    "value": b'{"user_id": "1", "action": "create"}',
-                    "key": b"user:1",
-                },
-                {
-                    "topic": "user-events",
-                    "value": b'{"user_id": "2", "action": "create"}',
-                    "key": b"user:2",
-                },
-                {
-                    "topic": "audit-log",
-                    "value": b'{"action": "batch_create", "count": 2}',
-                },
+                ModelProducerMessage(
+                    topic="user-events",
+                    value=b'{"user_id": "1", "action": "create"}',
+                    key=b"user:1",
+                ),
+                ModelProducerMessage(
+                    topic="user-events",
+                    value=b'{"user_id": "2", "action": "create"}',
+                    key=b"user:2",
+                ),
+                ModelProducerMessage(
+                    topic="audit-log",
+                    value=b'{"action": "batch_create", "count": 2}',
+                ),
             ]
 
             sent_count = await producer.send_batch(messages)
