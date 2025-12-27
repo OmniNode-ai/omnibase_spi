@@ -22,7 +22,6 @@ from omnibase_spi.protocols.storage.protocol_graph_database_handler import (
     ProtocolGraphDatabaseHandler,
 )
 
-
 # =============================================================================
 # Mock Types for Testing
 # =============================================================================
@@ -439,6 +438,7 @@ def compliant_handler() -> CompliantGraphDatabaseHandler:
 # =============================================================================
 
 
+@pytest.mark.unit
 class TestProtocolGraphDatabaseHandlerProtocol:
     """Test suite for ProtocolGraphDatabaseHandler protocol definition."""
 
@@ -518,6 +518,7 @@ class TestProtocolGraphDatabaseHandlerProtocol:
 # =============================================================================
 
 
+@pytest.mark.unit
 class TestProtocolGraphDatabaseHandlerCompliance:
     """Test isinstance checks for ProtocolGraphDatabaseHandler compliance."""
 
@@ -538,6 +539,7 @@ class TestProtocolGraphDatabaseHandlerCompliance:
 # =============================================================================
 
 
+@pytest.mark.unit
 class TestProtocolGraphDatabaseHandlerDescribeAsync:
     """Test describe() is async (key change in PR #47).
 
@@ -606,6 +608,7 @@ class TestProtocolGraphDatabaseHandlerDescribeAsync:
 # =============================================================================
 
 
+@pytest.mark.unit
 class TestProtocolGraphDatabaseHandlerAsyncNature:
     """Test that all async methods are properly defined."""
 
@@ -687,6 +690,7 @@ class TestProtocolGraphDatabaseHandlerAsyncNature:
 # =============================================================================
 
 
+@pytest.mark.unit
 class TestProtocolGraphDatabaseHandlerMethodSignatures:
     """Test method signatures and parameter handling."""
 
@@ -734,6 +738,7 @@ class TestProtocolGraphDatabaseHandlerMethodSignatures:
 # =============================================================================
 
 
+@pytest.mark.unit
 class TestProtocolGraphDatabaseHandlerProperties:
     """Test property definitions and values."""
 
@@ -756,6 +761,7 @@ class TestProtocolGraphDatabaseHandlerProperties:
 # =============================================================================
 
 
+@pytest.mark.unit
 class TestProtocolGraphDatabaseHandlerImports:
     """Test protocol imports from different locations."""
 
@@ -783,6 +789,7 @@ class TestProtocolGraphDatabaseHandlerImports:
 # =============================================================================
 
 
+@pytest.mark.unit
 class TestProtocolGraphDatabaseHandlerDocumentation:
     """Test that protocol has proper documentation."""
 

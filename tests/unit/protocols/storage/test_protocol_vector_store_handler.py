@@ -22,7 +22,6 @@ from omnibase_spi.protocols.storage.protocol_vector_store_handler import (
     ProtocolVectorStoreHandler,
 )
 
-
 # =============================================================================
 # Mock Types for Testing
 # =============================================================================
@@ -420,6 +419,7 @@ def compliant_handler() -> CompliantVectorStoreHandler:
 # =============================================================================
 
 
+@pytest.mark.unit
 class TestProtocolVectorStoreHandlerProtocol:
     """Test suite for ProtocolVectorStoreHandler protocol definition."""
 
@@ -499,6 +499,7 @@ class TestProtocolVectorStoreHandlerProtocol:
 # =============================================================================
 
 
+@pytest.mark.unit
 class TestProtocolVectorStoreHandlerCompliance:
     """Test isinstance checks for ProtocolVectorStoreHandler compliance."""
 
@@ -519,6 +520,7 @@ class TestProtocolVectorStoreHandlerCompliance:
 # =============================================================================
 
 
+@pytest.mark.unit
 class TestProtocolVectorStoreHandlerDescribeAsync:
     """Test describe() is async (key change in PR #47).
 
@@ -597,6 +599,7 @@ class TestProtocolVectorStoreHandlerDescribeAsync:
 # =============================================================================
 
 
+@pytest.mark.unit
 class TestProtocolVectorStoreHandlerAsyncNature:
     """Test that all async methods are properly defined."""
 
@@ -676,6 +679,7 @@ class TestProtocolVectorStoreHandlerAsyncNature:
 # =============================================================================
 
 
+@pytest.mark.unit
 class TestProtocolVectorStoreHandlerMethodSignatures:
     """Test method signatures and parameter handling."""
 
@@ -735,6 +739,7 @@ class TestProtocolVectorStoreHandlerMethodSignatures:
 # =============================================================================
 
 
+@pytest.mark.unit
 class TestProtocolVectorStoreHandlerProperties:
     """Test property definitions and values."""
 
@@ -760,6 +765,7 @@ class TestProtocolVectorStoreHandlerProperties:
 # =============================================================================
 
 
+@pytest.mark.unit
 class TestProtocolVectorStoreHandlerImports:
     """Test protocol imports from different locations."""
 
@@ -787,6 +793,7 @@ class TestProtocolVectorStoreHandlerImports:
 # =============================================================================
 
 
+@pytest.mark.unit
 class TestProtocolVectorStoreHandlerDocumentation:
     """Test that protocol has proper documentation."""
 

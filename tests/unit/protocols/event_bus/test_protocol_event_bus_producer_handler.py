@@ -22,7 +22,6 @@ from omnibase_spi.protocols.event_bus.protocol_event_bus_producer_handler import
     ProtocolEventBusProducerHandler,
 )
 
-
 # =============================================================================
 # Mock/Compliant Implementations for Testing
 # =============================================================================
@@ -231,6 +230,7 @@ def compliant_producer() -> CompliantEventBusProducerHandler:
 # =============================================================================
 
 
+@pytest.mark.unit
 class TestProtocolEventBusProducerHandlerProtocol:
     """Test suite for ProtocolEventBusProducerHandler protocol definition."""
 
@@ -302,6 +302,7 @@ class TestProtocolEventBusProducerHandlerProtocol:
 # =============================================================================
 
 
+@pytest.mark.unit
 class TestProtocolEventBusProducerHandlerCompliance:
     """Test isinstance checks for ProtocolEventBusProducerHandler compliance."""
 
@@ -322,6 +323,7 @@ class TestProtocolEventBusProducerHandlerCompliance:
 # =============================================================================
 
 
+@pytest.mark.unit
 class TestProtocolEventBusProducerHandlerSendBatch:
     """Test send_batch method accepts typed ModelProducerMessage.
 
@@ -405,6 +407,7 @@ class TestProtocolEventBusProducerHandlerSendBatch:
 # =============================================================================
 
 
+@pytest.mark.unit
 class TestProtocolEventBusProducerHandlerAsyncNature:
     """Test that ProtocolEventBusProducerHandler methods are async."""
 
@@ -473,6 +476,7 @@ class TestProtocolEventBusProducerHandlerAsyncNature:
 # =============================================================================
 
 
+@pytest.mark.unit
 class TestProtocolEventBusProducerHandlerProperties:
     """Test property definitions and values."""
 
@@ -501,6 +505,7 @@ class TestProtocolEventBusProducerHandlerProperties:
 # =============================================================================
 
 
+@pytest.mark.unit
 class TestProtocolEventBusProducerHandlerHealthCheck:
     """Test health_check returns typed ModelProducerHealthStatus."""
 
@@ -538,6 +543,7 @@ class TestProtocolEventBusProducerHandlerHealthCheck:
 # =============================================================================
 
 
+@pytest.mark.unit
 class TestProtocolEventBusProducerHandlerTransactions:
     """Test transaction-related methods."""
 
@@ -566,6 +572,7 @@ class TestProtocolEventBusProducerHandlerTransactions:
 # =============================================================================
 
 
+@pytest.mark.unit
 class TestProtocolEventBusProducerHandlerImports:
     """Test protocol imports from different locations."""
 
@@ -601,6 +608,7 @@ class TestProtocolEventBusProducerHandlerImports:
 # =============================================================================
 
 
+@pytest.mark.unit
 class TestProtocolEventBusProducerHandlerDocumentation:
     """Test that protocol has proper documentation."""
 

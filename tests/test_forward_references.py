@@ -248,8 +248,7 @@ class TestContractCompilerImports:
 
         Effect compilers transform contract definitions into executable effect nodes.
         """
-        from omnibase_spi.protocols.contracts import \
-            ProtocolEffectContractCompiler
+        from omnibase_spi.protocols.contracts import ProtocolEffectContractCompiler
 
         assert ProtocolEffectContractCompiler is not None
         _verify_runtime_checkable_protocol(ProtocolEffectContractCompiler)
@@ -259,8 +258,7 @@ class TestContractCompilerImports:
 
         Workflow compilers handle multi-step workflow contract compilation.
         """
-        from omnibase_spi.protocols.contracts import \
-            ProtocolWorkflowContractCompiler
+        from omnibase_spi.protocols.contracts import ProtocolWorkflowContractCompiler
 
         assert ProtocolWorkflowContractCompiler is not None
         _verify_runtime_checkable_protocol(ProtocolWorkflowContractCompiler)
@@ -270,8 +268,7 @@ class TestContractCompilerImports:
 
         FSM compilers handle finite state machine contract compilation.
         """
-        from omnibase_spi.protocols.contracts import \
-            ProtocolFSMContractCompiler
+        from omnibase_spi.protocols.contracts import ProtocolFSMContractCompiler
 
         assert ProtocolFSMContractCompiler is not None
         _verify_runtime_checkable_protocol(ProtocolFSMContractCompiler)
@@ -461,8 +458,10 @@ class TestRuntimeCheckableProtocols:
     def test_contract_compilers_are_runtime_checkable(self) -> None:
         """Validate all contract compiler protocols have @runtime_checkable."""
         from omnibase_spi.protocols.contracts import (
-            ProtocolEffectContractCompiler, ProtocolFSMContractCompiler,
-            ProtocolWorkflowContractCompiler)
+            ProtocolEffectContractCompiler,
+            ProtocolFSMContractCompiler,
+            ProtocolWorkflowContractCompiler,
+        )
 
         for protocol in [
             ProtocolEffectContractCompiler,
@@ -653,9 +652,7 @@ class TestForwardReferenceResolution:
         verifying that ModelComputeInput and ModelComputeOutput are resolved
         to the actual Core model classes.
         """
-        from omnibase_core.models.compute import (ModelComputeInput,
-                                                  ModelComputeOutput)
-
+        from omnibase_core.models.compute import ModelComputeInput, ModelComputeOutput
         from omnibase_spi.protocols.nodes.compute import ProtocolComputeNode
 
         # get_type_hints should resolve forward references when Core is available
@@ -678,9 +675,7 @@ class TestForwardReferenceResolution:
         verifying that ModelEffectInput and ModelEffectOutput are resolved
         to the actual Core model classes.
         """
-        from omnibase_core.models.effect import (ModelEffectInput,
-                                                 ModelEffectOutput)
-
+        from omnibase_core.models.effect import ModelEffectInput, ModelEffectOutput
         from omnibase_spi.protocols.nodes.effect import ProtocolEffectNode
 
         hints = get_type_hints(ProtocolEffectNode.execute)
@@ -702,12 +697,12 @@ class TestForwardReferenceResolution:
         verifying request/response model references are resolved to the actual
         Core model classes.
         """
-        from omnibase_core.models.protocol import (ModelOperationConfig,
-                                                   ModelProtocolRequest,
-                                                   ModelProtocolResponse)
-
-        from omnibase_spi.protocols.handlers.protocol_handler import \
-            ProtocolHandler
+        from omnibase_core.models.protocol import (
+            ModelOperationConfig,
+            ModelProtocolRequest,
+            ModelProtocolResponse,
+        )
+        from omnibase_spi.protocols.handlers.protocol_handler import ProtocolHandler
 
         hints = get_type_hints(ProtocolHandler.execute)
         assert "request" in hints
@@ -734,9 +729,9 @@ class TestForwardReferenceResolution:
         from pathlib import Path
 
         from omnibase_core.models.contract import ModelEffectContract
-
-        from omnibase_spi.protocols.contracts.effect_compiler import \
-            ProtocolEffectContractCompiler
+        from omnibase_spi.protocols.contracts.effect_compiler import (
+            ProtocolEffectContractCompiler,
+        )
 
         hints = get_type_hints(ProtocolEffectContractCompiler.compile)
         assert "contract_path" in hints
@@ -755,8 +750,7 @@ class TestForwardReferenceResolution:
         This ensures SPI can be used for interface definitions standalone.
         """
         # These imports should work regardless of Core availability
-        from omnibase_spi.protocols.contracts import \
-            ProtocolEffectContractCompiler
+        from omnibase_spi.protocols.contracts import ProtocolEffectContractCompiler
         from omnibase_spi.protocols.handlers import ProtocolHandler
         from omnibase_spi.protocols.nodes import ProtocolComputeNode
 
@@ -903,8 +897,10 @@ class TestProtocolMethodSignatures:
         All compiler protocols must support contract compilation and validation.
         """
         from omnibase_spi.protocols.contracts import (
-            ProtocolEffectContractCompiler, ProtocolFSMContractCompiler,
-            ProtocolWorkflowContractCompiler)
+            ProtocolEffectContractCompiler,
+            ProtocolFSMContractCompiler,
+            ProtocolWorkflowContractCompiler,
+        )
 
         for compiler in [
             ProtocolEffectContractCompiler,
@@ -2185,8 +2181,7 @@ class TestProtocolSignatureValidation:
         - self: implicit first parameter
         - contract_path: required parameter for contract file path
         """
-        from omnibase_spi.protocols.contracts import \
-            ProtocolEffectContractCompiler
+        from omnibase_spi.protocols.contracts import ProtocolEffectContractCompiler
 
         sig = inspect.signature(ProtocolEffectContractCompiler.compile)
         params = list(sig.parameters.keys())
@@ -2213,8 +2208,7 @@ class TestProtocolSignatureValidation:
         - self: implicit first parameter
         - contract_path: required parameter for path to contract file to validate
         """
-        from omnibase_spi.protocols.contracts import \
-            ProtocolEffectContractCompiler
+        from omnibase_spi.protocols.contracts import ProtocolEffectContractCompiler
 
         sig = inspect.signature(ProtocolEffectContractCompiler.validate)
         params = list(sig.parameters.keys())
@@ -2261,8 +2255,7 @@ class TestProtocolInheritanceChains:
         ProtocolComputeNode inherits from ProtocolNode and must expose
         the base identity attributes (node_id, node_type, version).
         """
-        from omnibase_spi.protocols.nodes import (ProtocolComputeNode,
-                                                  ProtocolNode)
+        from omnibase_spi.protocols.nodes import ProtocolComputeNode, ProtocolNode
 
         # Verify ProtocolComputeNode has base node attributes
         assert hasattr(
@@ -2294,8 +2287,7 @@ class TestProtocolInheritanceChains:
         ProtocolEffectNode inherits from ProtocolNode and must expose
         the base identity attributes plus lifecycle methods.
         """
-        from omnibase_spi.protocols.nodes import (ProtocolEffectNode,
-                                                  ProtocolNode)
+        from omnibase_spi.protocols.nodes import ProtocolEffectNode, ProtocolNode
 
         # Verify ProtocolEffectNode has base node attributes
         assert hasattr(
@@ -2330,8 +2322,7 @@ class TestProtocolInheritanceChains:
         ProtocolReducerNode inherits from ProtocolNode and must expose
         the base identity attributes.
         """
-        from omnibase_spi.protocols.nodes import (ProtocolNode,
-                                                  ProtocolReducerNode)
+        from omnibase_spi.protocols.nodes import ProtocolNode, ProtocolReducerNode
 
         # Verify ProtocolReducerNode has base node attributes
         assert hasattr(
@@ -2360,8 +2351,7 @@ class TestProtocolInheritanceChains:
         ProtocolOrchestratorNode inherits from ProtocolNode and must expose
         the base identity attributes.
         """
-        from omnibase_spi.protocols.nodes import (ProtocolNode,
-                                                  ProtocolOrchestratorNode)
+        from omnibase_spi.protocols.nodes import ProtocolNode, ProtocolOrchestratorNode
 
         # Verify ProtocolOrchestratorNode has base node attributes
         assert hasattr(
@@ -2390,8 +2380,7 @@ class TestProtocolInheritanceChains:
         A mock implementing ProtocolComputeNode should also satisfy
         isinstance() checks against ProtocolNode due to inheritance.
         """
-        from omnibase_spi.protocols.nodes import (ProtocolComputeNode,
-                                                  ProtocolNode)
+        from omnibase_spi.protocols.nodes import ProtocolComputeNode, ProtocolNode
 
         class MockComputeNode:
             """Mock implementation satisfying ProtocolComputeNode contract."""
@@ -2426,8 +2415,7 @@ class TestProtocolInheritanceChains:
         A mock implementing ProtocolEffectNode should also satisfy
         isinstance() checks against ProtocolNode due to inheritance.
         """
-        from omnibase_spi.protocols.nodes import (ProtocolEffectNode,
-                                                  ProtocolNode)
+        from omnibase_spi.protocols.nodes import ProtocolEffectNode, ProtocolNode
 
         class MockEffectNode:
             """Mock implementation satisfying ProtocolEffectNode contract."""
@@ -2467,11 +2455,13 @@ class TestProtocolInheritanceChains:
         All specialized node protocols (compute, effect, reducer, orchestrator)
         should define the same base attributes from ProtocolNode.
         """
-        from omnibase_spi.protocols.nodes import (ProtocolComputeNode,
-                                                  ProtocolEffectNode,
-                                                  ProtocolNode,
-                                                  ProtocolOrchestratorNode,
-                                                  ProtocolReducerNode)
+        from omnibase_spi.protocols.nodes import (
+            ProtocolComputeNode,
+            ProtocolEffectNode,
+            ProtocolNode,
+            ProtocolOrchestratorNode,
+            ProtocolReducerNode,
+        )
 
         # Base attributes that all node protocols must have
         base_attributes = {"node_id", "node_type", "version"}
@@ -2496,11 +2486,13 @@ class TestProtocolInheritanceChains:
         All specialized node protocols should have ProtocolNode in their MRO,
         ensuring proper inheritance chain resolution.
         """
-        from omnibase_spi.protocols.nodes import (ProtocolComputeNode,
-                                                  ProtocolEffectNode,
-                                                  ProtocolNode,
-                                                  ProtocolOrchestratorNode,
-                                                  ProtocolReducerNode)
+        from omnibase_spi.protocols.nodes import (
+            ProtocolComputeNode,
+            ProtocolEffectNode,
+            ProtocolNode,
+            ProtocolOrchestratorNode,
+            ProtocolReducerNode,
+        )
 
         child_protocols = [
             ("ProtocolComputeNode", ProtocolComputeNode),
