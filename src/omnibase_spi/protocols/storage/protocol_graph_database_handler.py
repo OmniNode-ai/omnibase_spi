@@ -8,20 +8,25 @@ node/relationship management.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from collections.abc import Mapping
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    # Future Core model imports would go here:
-    # from omnibase_core.models.protocol import (
-    #     ModelConnectionConfig,
-    #     ModelOperationConfig,
-    # )
-    # from omnibase_core.models.graph import (
-    #     ModelGraphNode,
-    #     ModelGraphRelationship,
-    #     ModelGraphTraversalResult,
-    # )
-    pass
+    # Graph database models from omnibase_core.models.graph (PR #250, OMN-1053)
+    # These models replace dict[str, Any] for type-safe graph database operations.
+    # Available in omnibase_core >= 0.6.0 (pending release)
+    from omnibase_core.models.graph import (
+        ModelGraphBatchResult,
+        ModelGraphDatabaseNode,
+        ModelGraphDeleteResult,
+        ModelGraphHandlerMetadata,
+        ModelGraphHealthStatus,
+        ModelGraphQueryResult,
+        ModelGraphRelationship,
+        ModelGraphTraversalFilters,
+        ModelGraphTraversalResult,
+    )
+    from omnibase_core.types import JsonValue
 
 
 @runtime_checkable
@@ -50,6 +55,10 @@ class ProtocolGraphDatabaseHandler(Protocol):
 
     Example:
         ```python
+        from collections.abc import Mapping
+        from omnibase_core.models.graph import ModelGraphQueryResult
+        from omnibase_core.types import JsonValue
+
         class Neo4jHandler:
             '''Neo4j graph database handler implementation.'''
 
@@ -64,12 +73,13 @@ class ProtocolGraphDatabaseHandler(Protocol):
             async def execute_query(
                 self,
                 query: str,
-                parameters: dict[str, Any] | None = None,
-            ) -> dict[str, Any]:
+                parameters: Mapping[str, JsonValue] | None = None,
+            ) -> ModelGraphQueryResult:
                 # Execute Cypher query via Bolt protocol
                 async with self._driver.session() as session:
-                    result = await session.run(query, parameters or {})
-                    return {"records": [dict(r) for r in await result.data()]}
+                    result = await session.run(query, dict(parameters) if parameters else {})
+                    records = [dict(r) for r in await result.data()]
+                    return ModelGraphQueryResult(records=records)
 
         handler = Neo4jHandler()
         assert isinstance(handler, ProtocolGraphDatabaseHandler)
@@ -113,7 +123,8 @@ class ProtocolGraphDatabaseHandler(Protocol):
         self,
         connection_uri: str,
         auth: tuple[str, str] | None = None,
-        **kwargs: Any,
+        *,
+        options: Mapping[str, JsonValue] | None = None,
     ) -> None:
         """
         Initialize the graph database connection.
@@ -127,11 +138,19 @@ class ProtocolGraphDatabaseHandler(Protocol):
                 for Neo4j, "wss://neptune-endpoint:8182" for Neptune).
             auth: Optional tuple of (username, password) for authentication.
                 If None, attempts connection without authentication.
-            **kwargs: Additional connection parameters such as:
+            options: Additional connection parameters as JSON-serializable mapping.
+                Common options include:
                 - max_connection_pool_size: Maximum connections in pool
                 - connection_timeout: Timeout in seconds for connections
                 - encrypted: Whether to use TLS/SSL encryption
                 - trust: Certificate trust strategy
+
+                NOTE: Dynamic payload policy
+                - This field is opaque backend-defined configuration
+                - Core logic MUST NOT depend on specific keys
+                - Adapters MAY validate and normalize for backend requirements
+                - Payloads MUST be JSON-serializable (JsonValue type enforces this)
+                - Recommended constraints: max_keys=100, max_depth=5
 
         Raises:
             HandlerInitializationError: If connection cannot be established,
@@ -142,8 +161,10 @@ class ProtocolGraphDatabaseHandler(Protocol):
             await handler.initialize(
                 connection_uri="bolt://localhost:7687",
                 auth=("neo4j", "password"),
-                max_connection_pool_size=50,
-                encrypted=True,
+                options={
+                    "max_connection_pool_size": 50,
+                    "encrypted": True,
+                },
             )
             ```
         """
@@ -170,8 +191,8 @@ class ProtocolGraphDatabaseHandler(Protocol):
     async def execute_query(
         self,
         query: str,
-        parameters: dict[str, Any] | None = None,
-    ) -> dict[str, Any]:
+        parameters: Mapping[str, JsonValue] | None = None,
+    ) -> ModelGraphQueryResult:
         """
         Execute a Cypher or graph query language query.
 
@@ -211,15 +232,23 @@ class ProtocolGraphDatabaseHandler(Protocol):
         Args:
             query: The graph query string (Cypher for Neo4j, Gremlin for
                 Neptune, GSQL for TigerGraph, etc.).
-            parameters: Optional dictionary of query parameters for
+            parameters: Optional mapping of query parameters for
                 parameterized queries. Keys are parameter names, values
-                are the parameter values. **Always use this for user input.**
+                are JSON-serializable parameter values. **Always use this
+                for user input.**
+
+                NOTE: Dynamic payload policy
+                - This field contains user-provided query parameters
+                - Core logic MUST NOT depend on specific keys
+                - Adapters MAY validate and normalize for backend requirements
+                - Payloads MUST be JSON-serializable (JsonValue type enforces this)
 
         Returns:
-            Dictionary containing query results:
-                - records: List of result records as dictionaries
-                - summary: Query execution summary (if available)
+            ModelGraphQueryResult containing:
+                - records: List of result records
+                - summary: Query execution summary (ModelGraphQuerySummary)
                 - counters: Statistics about nodes/relationships affected
+                  (ModelGraphQueryCounters)
                 - execution_time_ms: Query execution time in milliseconds
 
         Raises:
@@ -232,17 +261,17 @@ class ProtocolGraphDatabaseHandler(Protocol):
                 query="MATCH (n:Person {name: $name}) RETURN n",
                 parameters={"name": "Alice"},
             )
-            for record in result["records"]:
-                print(record["n"])
+            for record in result.records:
+                print(record)
             ```
         """
         ...
 
     async def execute_query_batch(
         self,
-        queries: list[tuple[str, dict[str, Any] | None]],
+        queries: list[tuple[str, Mapping[str, JsonValue] | None]],
         transaction: bool = True,
-    ) -> dict[str, Any]:
+    ) -> ModelGraphBatchResult:
         """
         Execute multiple queries, optionally within a transaction.
 
@@ -252,14 +281,22 @@ class ProtocolGraphDatabaseHandler(Protocol):
 
         Args:
             queries: List of (query, parameters) tuples to execute.
-                Each tuple contains the query string and optional parameters.
+                Each tuple contains the query string and optional parameters
+                as a JSON-serializable mapping.
+
+                NOTE: Dynamic payload policy (for parameters)
+                - Parameters contain user-provided query values
+                - Core logic MUST NOT depend on specific keys
+                - Adapters MAY validate and normalize for backend requirements
+                - Payloads MUST be JSON-serializable (JsonValue type enforces this)
+
             transaction: If True and handler supports transactions, execute
                 all queries within a single transaction. If any query fails,
                 all changes are rolled back. Defaults to True.
 
         Returns:
-            Dictionary containing batch results:
-                - results: List of individual query results
+            ModelGraphBatchResult containing:
+                - results: List of individual ModelGraphQueryResult objects
                 - success: Overall success status
                 - transaction_id: Transaction identifier (if transactional)
                 - rollback_occurred: Whether rollback was triggered
@@ -287,8 +324,8 @@ class ProtocolGraphDatabaseHandler(Protocol):
     async def create_node(
         self,
         labels: list[str],
-        properties: dict[str, Any],
-    ) -> dict[str, Any]:
+        properties: Mapping[str, JsonValue],
+    ) -> ModelGraphDatabaseNode:
         """
         Create a new node in the graph.
 
@@ -298,12 +335,19 @@ class ProtocolGraphDatabaseHandler(Protocol):
         Args:
             labels: List of labels to assign to the node (e.g., ["Person"],
                 ["User", "Admin"]). At least one label is recommended.
-            properties: Dictionary of property key-value pairs for the node.
-                Values must be serializable to the graph database's supported
-                types (strings, numbers, booleans, lists of primitives).
+            properties: Mapping of property key-value pairs for the node.
+                Values must be JSON-serializable (strings, numbers, booleans,
+                lists, nested objects).
+
+                NOTE: Dynamic payload policy
+                - This field contains user-defined node properties
+                - Core logic MUST NOT depend on specific keys
+                - Adapters MAY validate and normalize for backend requirements
+                - Payloads MUST be JSON-serializable (JsonValue type enforces this)
+                - Recommended constraints: max_keys=100, max_depth=5
 
         Returns:
-            Dictionary containing the created node:
+            ModelGraphDatabaseNode containing:
                 - id: Database-assigned node identifier (internal ID)
                 - element_id: Unique element identifier (Neo4j 5.x+)
                 - labels: List of node labels
@@ -324,7 +368,7 @@ class ProtocolGraphDatabaseHandler(Protocol):
                     "age": 30,
                 },
             )
-            print(f"Created node with ID: {node['id']}")
+            print(f"Created node with ID: {node.id}")
             ```
         """
         ...
@@ -334,8 +378,8 @@ class ProtocolGraphDatabaseHandler(Protocol):
         from_node_id: str | int,
         to_node_id: str | int,
         relationship_type: str,
-        properties: dict[str, Any] | None = None,
-    ) -> dict[str, Any]:
+        properties: Mapping[str, JsonValue] | None = None,
+    ) -> ModelGraphRelationship:
         """
         Create a relationship between two nodes.
 
@@ -350,14 +394,21 @@ class ProtocolGraphDatabaseHandler(Protocol):
                 Can be internal ID (int) or element ID (str).
             relationship_type: Type of the relationship (e.g., "KNOWS",
                 "WORKS_FOR", "PURCHASED"). Should be uppercase by convention.
-            properties: Optional dictionary of property key-value pairs for
-                the relationship.
+            properties: Optional mapping of property key-value pairs for
+                the relationship. Must be JSON-serializable.
+
+                NOTE: Dynamic payload policy
+                - This field contains user-defined relationship properties
+                - Core logic MUST NOT depend on specific keys
+                - Adapters MAY validate and normalize for backend requirements
+                - Payloads MUST be JSON-serializable (JsonValue type enforces this)
+                - Recommended constraints: max_keys=100, max_depth=5
 
         Returns:
-            Dictionary containing the created relationship:
+            ModelGraphRelationship containing:
                 - id: Database-assigned relationship identifier
                 - element_id: Unique element identifier (Neo4j 5.x+)
-                - type: Relationship type as stored
+                - relationship_type: Relationship type as stored
                 - properties: Relationship properties as stored
                 - start_node_id: Source node identifier
                 - end_node_id: Target node identifier
@@ -370,8 +421,8 @@ class ProtocolGraphDatabaseHandler(Protocol):
         Example:
             ```python
             relationship = await handler.create_relationship(
-                from_node_id=alice_node["id"],
-                to_node_id=bob_node["id"],
+                from_node_id=alice_node.id,
+                to_node_id=bob_node.id,
                 relationship_type="KNOWS",
                 properties={"since": "2023-01-15", "closeness": 0.8},
             )
@@ -383,7 +434,7 @@ class ProtocolGraphDatabaseHandler(Protocol):
         self,
         node_id: str | int,
         detach: bool = False,
-    ) -> dict[str, Any]:
+    ) -> ModelGraphDeleteResult:
         """
         Delete a node from the graph.
 
@@ -399,9 +450,9 @@ class ProtocolGraphDatabaseHandler(Protocol):
                 the node has any relationships. Defaults to False.
 
         Returns:
-            Dictionary containing deletion result:
+            ModelGraphDeleteResult containing:
                 - success: Whether the deletion succeeded
-                - node_id: Identifier of the deleted node
+                - entity_id: Identifier of the deleted node
                 - relationships_deleted: Number of relationships removed
                     (only if detach=True)
                 - execution_time_ms: Operation execution time
@@ -414,10 +465,10 @@ class ProtocolGraphDatabaseHandler(Protocol):
             ```python
             # Delete node and its relationships
             result = await handler.delete_node(
-                node_id=node["id"],
+                node_id=node.id,
                 detach=True,
             )
-            print(f"Deleted node, removed {result['relationships_deleted']} relationships")
+            print(f"Deleted node, removed {result.relationships_deleted} relationships")
             ```
         """
         ...
@@ -425,7 +476,7 @@ class ProtocolGraphDatabaseHandler(Protocol):
     async def delete_relationship(
         self,
         relationship_id: str | int,
-    ) -> dict[str, Any]:
+    ) -> ModelGraphDeleteResult:
         """
         Delete a relationship from the graph.
 
@@ -438,9 +489,9 @@ class ProtocolGraphDatabaseHandler(Protocol):
                 the graph database.
 
         Returns:
-            Dictionary containing deletion result:
+            ModelGraphDeleteResult containing:
                 - success: Whether the deletion succeeded
-                - relationship_id: Identifier of the deleted relationship
+                - entity_id: Identifier of the deleted relationship
                 - execution_time_ms: Operation execution time
 
         Raises:
@@ -450,9 +501,9 @@ class ProtocolGraphDatabaseHandler(Protocol):
         Example:
             ```python
             result = await handler.delete_relationship(
-                relationship_id=relationship["id"],
+                relationship_id=relationship.id,
             )
-            if result["success"]:
+            if result.success:
                 print("Relationship deleted successfully")
             ```
         """
@@ -464,8 +515,8 @@ class ProtocolGraphDatabaseHandler(Protocol):
         relationship_types: list[str] | None = None,
         direction: str = "outgoing",
         max_depth: int = 1,
-        filters: dict[str, Any] | None = None,
-    ) -> dict[str, Any]:
+        filters: ModelGraphTraversalFilters | None = None,
+    ) -> ModelGraphTraversalResult:
         """
         Traverse the graph from a starting node.
 
@@ -483,15 +534,16 @@ class ProtocolGraphDatabaseHandler(Protocol):
                 - "both": Follow relationships in both directions
             max_depth: Maximum traversal depth (number of hops from start).
                 Defaults to 1. Use with caution for large graphs.
-            filters: Optional filters to apply during traversal:
+            filters: Optional ModelGraphTraversalFilters to apply during traversal,
+                containing:
                 - node_labels: List of labels nodes must have
                 - node_properties: Property conditions for nodes
                 - relationship_properties: Property conditions for relationships
 
         Returns:
-            Dictionary containing traversal results:
-                - nodes: List of discovered nodes with their properties
-                - relationships: List of traversed relationships
+            ModelGraphTraversalResult containing:
+                - nodes: List of discovered ModelGraphDatabaseNode objects
+                - relationships: List of traversed ModelGraphRelationship objects
                 - paths: List of paths from start node to each discovered node
                 - depth_reached: Actual maximum depth reached
                 - execution_time_ms: Traversal execution time
@@ -502,21 +554,24 @@ class ProtocolGraphDatabaseHandler(Protocol):
 
         Example:
             ```python
+            from omnibase_core.models.graph import ModelGraphTraversalFilters
+
+            filters = ModelGraphTraversalFilters(node_labels=["Person"])
             result = await handler.traverse(
-                start_node_id=alice_node["id"],
+                start_node_id=alice_node.id,
                 relationship_types=["KNOWS", "WORKS_WITH"],
                 direction="both",
                 max_depth=2,
-                filters={"node_labels": ["Person"]},
+                filters=filters,
             )
-            print(f"Found {len(result['nodes'])} connected people")
-            for path in result["paths"]:
+            print(f"Found {len(result.nodes)} connected people")
+            for path in result.paths:
                 print(f"Path: {' -> '.join(str(n) for n in path)}")
             ```
         """
         ...
 
-    async def health_check(self) -> dict[str, Any]:
+    async def health_check(self) -> ModelGraphHealthStatus:
         """
         Check handler health and database connectivity.
 
@@ -525,7 +580,7 @@ class ProtocolGraphDatabaseHandler(Protocol):
         and not perform heavy operations.
 
         Returns:
-            Dictionary containing health status:
+            ModelGraphHealthStatus containing:
                 - healthy: Boolean indicating overall health
                 - latency_ms: Response time in milliseconds
                 - database_version: Graph database version (if available)
@@ -543,8 +598,8 @@ class ProtocolGraphDatabaseHandler(Protocol):
             - Development environments: 5-10 seconds (faster feedback)
             - High-availability setups: 5-15 seconds (balance)
 
-            When returning cached results, implementations SHOULD include
-            ``cached: True`` in the response to indicate staleness.
+            When returning cached results, implementations SHOULD set the
+            ``cached`` field to True to indicate staleness.
 
         Rate Limiting:
             Implementations SHOULD protect against denial-of-service through
@@ -560,7 +615,7 @@ class ProtocolGraphDatabaseHandler(Protocol):
 
                 # Return cached result if called within last N seconds
                 if time.time() - self._last_health_check < self._min_interval:
-                    return {**self._cached_health, "cached": True}
+                    return self._cached_health.model_copy(update={"cached": True})
 
         Security:
             Error messages SHOULD be sanitized to avoid exposing credentials,
@@ -572,18 +627,18 @@ class ProtocolGraphDatabaseHandler(Protocol):
         Example:
             ```python
             health = await handler.health_check()
-            if health["healthy"]:
-                print(f"Database OK, latency: {health['latency_ms']}ms")
-                print(f"Version: {health['database_version']}")
-                if health.get("cached"):
+            if health.healthy:
+                print(f"Database OK, latency: {health.latency_ms}ms")
+                print(f"Version: {health.database_version}")
+                if health.cached:
                     print("(cached result)")
             else:
-                print(f"Unhealthy: {health.get('last_error', 'Unknown error')}")
+                print(f"Unhealthy: {health.last_error or 'Unknown error'}")
             ```
         """
         ...
 
-    def describe(self) -> dict[str, Any]:
+    def describe(self) -> ModelGraphHandlerMetadata:
         """
         Return handler metadata and capabilities.
 
@@ -592,7 +647,7 @@ class ProtocolGraphDatabaseHandler(Protocol):
         handler-specific capabilities.
 
         Returns:
-            Dictionary containing handler metadata:
+            ModelGraphHandlerMetadata containing:
                 - handler_type: "graph_database"
                 - capabilities: List of supported operations/features
                 - database_type: Specific graph database type (neo4j, neptune, etc.)
@@ -612,9 +667,9 @@ class ProtocolGraphDatabaseHandler(Protocol):
         Example:
             ```python
             metadata = handler.describe()
-            print(f"Handler: {metadata['handler_type']}")
-            print(f"Database: {metadata['database_type']}")
-            print(f"Capabilities: {metadata['capabilities']}")
+            print(f"Handler: {metadata.handler_type}")
+            print(f"Database: {metadata.database_type}")
+            print(f"Capabilities: {metadata.capabilities}")
             ```
         """
         ...

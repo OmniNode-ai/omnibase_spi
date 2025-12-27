@@ -16,16 +16,24 @@ Example implementations:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from collections.abc import Mapping
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    # Future imports from omnibase_core when models are defined:
-    # from omnibase_core.models.vector import (
-    #     ModelEmbedding,
-    #     ModelVectorSearchResult,
-    #     ModelVectorIndexConfig,
-    # )
-    pass
+    from omnibase_core.models.vector import (
+        ModelEmbedding,
+        ModelVectorBatchStoreResult,
+        ModelVectorConnectionConfig,
+        ModelVectorDeleteResult,
+        ModelVectorHandlerMetadata,
+        ModelVectorHealthStatus,
+        ModelVectorIndexConfig,
+        ModelVectorIndexResult,
+        ModelVectorMetadataFilter,
+        ModelVectorSearchResults,
+        ModelVectorStoreResult,
+    )
+    from omnibase_core.types import JsonValue
 
 
 @runtime_checkable
@@ -111,7 +119,7 @@ class ProtocolVectorStoreHandler(Protocol):
 
     async def initialize(
         self,
-        connection_config: dict[str, Any],
+        connection_config: ModelVectorConnectionConfig,
     ) -> None:
         """
         Initialize the vector store handler with connection configuration.
@@ -121,8 +129,8 @@ class ProtocolVectorStoreHandler(Protocol):
         other operations.
 
         Args:
-            connection_config: Dictionary containing connection parameters.
-                Common keys include:
+            connection_config: Configuration model containing connection parameters.
+                See ModelVectorConnectionConfig for available fields including:
                 - url: Vector database endpoint URL
                 - api_key: Authentication API key (optional)
                 - timeout: Connection timeout in seconds
@@ -135,17 +143,15 @@ class ProtocolVectorStoreHandler(Protocol):
 
         Example:
             ```python
-            await handler.initialize({
-                "url": "http://localhost:6333",
-                "api_key": "secret-key",
-                "timeout": 30.0,
-            })
-            ```
+            from omnibase_core.models.vector import ModelVectorConnectionConfig
 
-        Note:
-            The config parameter uses dict[str, Any] instead of a Core model
-            to maintain SPI/Core decoupling. Implementations may validate
-            against ModelConnectionConfig internally.
+            config = ModelVectorConnectionConfig(
+                url="http://localhost:6333",
+                api_key="secret-key",
+                timeout=30.0,
+            )
+            await handler.initialize(config)
+            ```
         """
         ...
 
@@ -175,22 +181,34 @@ class ProtocolVectorStoreHandler(Protocol):
         self,
         embedding_id: str,
         vector: list[float],
-        metadata: dict[str, Any] | None = None,
+        metadata: Mapping[str, JsonValue] | None = None,
         index_name: str | None = None,
-    ) -> dict[str, Any]:
+    ) -> ModelVectorStoreResult:
         """
         Store a single embedding vector with optional metadata.
 
         Args:
             embedding_id: Unique identifier for the embedding.
             vector: The embedding vector as a list of floats.
-            metadata: Optional metadata dictionary to store with the embedding.
+            metadata: Optional metadata mapping to store with the embedding.
                 Can include text content, source references, timestamps, etc.
+                Must be JSON-serializable (JsonValue type enforces this).
             index_name: Name of the index/collection to store in.
                 Uses default index if not specified.
 
+        Dynamic Payload Policy:
+            The metadata field is opaque user/backend-defined payload.
+            Core logic MUST NOT depend on specific keys.
+            Adapters MAY validate and normalize for backend requirements.
+            Payloads MUST be JSON-serializable (JsonValue type enforces this).
+
+        Metadata Constraints:
+            Recommended max keys: 100 (CONTEXT_MAX_KEYS)
+            Recommended max nesting depth: 5 (CONTEXT_MAX_NESTING_DEPTH)
+            Note: Enforcement is in adapters, not protocol.
+
         Returns:
-            Dictionary containing operation result:
+            ModelVectorStoreResult containing operation result with fields:
                 - success: Boolean indicating success
                 - embedding_id: The stored embedding ID
                 - index_name: The index where stored
@@ -229,10 +247,10 @@ class ProtocolVectorStoreHandler(Protocol):
 
     async def store_embeddings_batch(
         self,
-        embeddings: list[dict[str, Any]],
+        embeddings: list[ModelEmbedding],
         index_name: str | None = None,
         batch_size: int = 100,
-    ) -> dict[str, Any]:
+    ) -> ModelVectorBatchStoreResult:
         """
         Store multiple embeddings efficiently in a batch operation.
 
@@ -240,18 +258,24 @@ class ProtocolVectorStoreHandler(Protocol):
         handle batching internally for optimal throughput.
 
         Args:
-            embeddings: List of embedding dictionaries, each containing:
+            embeddings: List of ModelEmbedding instances, each containing:
                 - id: Unique embedding identifier (str)
                 - vector: Embedding vector (list[float])
-                - metadata: Optional metadata (dict[str, Any])
+                - metadata: Optional metadata (Mapping[str, JsonValue])
             index_name: Name of the index/collection to store in.
                 Uses default index if not specified.
             batch_size: Number of embeddings to process per batch.
                 Defaults to 100. Larger batches improve throughput
                 but increase memory usage.
 
+        Dynamic Payload Policy:
+            The metadata in each ModelEmbedding is opaque user/backend-defined payload.
+            Core logic MUST NOT depend on specific keys.
+            Adapters MAY validate and normalize for backend requirements.
+            Payloads MUST be JSON-serializable (JsonValue type enforces this).
+
         Returns:
-            Dictionary containing batch operation result:
+            ModelVectorBatchStoreResult containing batch operation result with fields:
                 - success: Boolean indicating overall success
                 - total_stored: Number of embeddings stored
                 - failed_ids: List of IDs that failed to store
@@ -284,16 +308,18 @@ class ProtocolVectorStoreHandler(Protocol):
 
         Example:
             ```python
+            from omnibase_core.models.vector import ModelEmbedding
+
             embeddings = [
-                {"id": "doc_001", "vector": [...], "metadata": {"page": 1}},
-                {"id": "doc_002", "vector": [...], "metadata": {"page": 2}},
+                ModelEmbedding(id="doc_001", vector=[...], metadata={"page": 1}),
+                ModelEmbedding(id="doc_002", vector=[...], metadata={"page": 2}),
             ]
             result = await handler.store_embeddings_batch(
                 embeddings=embeddings,
                 index_name="documents",
                 batch_size=50,
             )
-            print(f"Stored {result['total_stored']} embeddings")
+            print(f"Stored {result.total_stored} embeddings")
             ```
         """
         ...
@@ -303,11 +329,11 @@ class ProtocolVectorStoreHandler(Protocol):
         query_vector: list[float],
         top_k: int = 10,
         index_name: str | None = None,
-        filter_metadata: dict[str, Any] | None = None,
+        filter_metadata: ModelVectorMetadataFilter | None = None,
         include_metadata: bool = True,
         include_vectors: bool = False,
         score_threshold: float | None = None,
-    ) -> dict[str, Any]:
+    ) -> ModelVectorSearchResults:
         """
         Find similar vectors using similarity/distance search.
 
@@ -320,8 +346,8 @@ class ProtocolVectorStoreHandler(Protocol):
             top_k: Maximum number of results to return. Defaults to 10.
             index_name: Name of the index/collection to search.
                 Uses default index if not specified.
-            filter_metadata: Optional metadata filter to restrict search.
-                Format depends on implementation (e.g., {"category": "tech"}).
+            filter_metadata: Optional ModelVectorMetadataFilter to restrict search.
+                See ModelVectorMetadataFilter for filter operators and syntax.
             include_metadata: Whether to include metadata in results.
                 Defaults to True.
             include_vectors: Whether to include vectors in results.
@@ -330,8 +356,8 @@ class ProtocolVectorStoreHandler(Protocol):
                 Results below this threshold are excluded.
 
         Returns:
-            Dictionary containing search results:
-                - results: List of result dictionaries, each containing:
+            ModelVectorSearchResults containing search results with fields:
+                - results: List of ModelVectorSearchResult, each containing:
                     - id: Embedding ID
                     - score: Similarity/distance score
                     - metadata: Metadata dict (if include_metadata=True)
@@ -345,15 +371,22 @@ class ProtocolVectorStoreHandler(Protocol):
 
         Example:
             ```python
+            from omnibase_core.models.vector import ModelVectorMetadataFilter
+
+            filter_config = ModelVectorMetadataFilter(
+                field="category",
+                operator="eq",
+                value="technical",
+            )
             results = await handler.query_similar(
                 query_vector=query_embedding,
                 top_k=5,
                 index_name="documents",
-                filter_metadata={"category": "technical"},
+                filter_metadata=filter_config,
                 score_threshold=0.7,
             )
-            for result in results["results"]:
-                print(f"ID: {result['id']}, Score: {result['score']}")
+            for result in results.results:
+                print(f"ID: {result.id}, Score: {result.score}")
             ```
         """
         ...
@@ -362,7 +395,7 @@ class ProtocolVectorStoreHandler(Protocol):
         self,
         embedding_id: str,
         index_name: str | None = None,
-    ) -> dict[str, Any]:
+    ) -> ModelVectorDeleteResult:
         """
         Remove a single embedding by ID.
 
@@ -372,7 +405,7 @@ class ProtocolVectorStoreHandler(Protocol):
                 Uses default index if not specified.
 
         Returns:
-            Dictionary containing deletion result:
+            ModelVectorDeleteResult containing deletion result with fields:
                 - success: Boolean indicating success
                 - embedding_id: The deleted embedding ID
                 - deleted: Boolean indicating if embedding existed and was deleted
@@ -387,7 +420,7 @@ class ProtocolVectorStoreHandler(Protocol):
                 embedding_id="doc_001",
                 index_name="documents",
             )
-            if result["deleted"]:
+            if result.deleted:
                 print("Embedding removed successfully")
             ```
         """
@@ -397,7 +430,7 @@ class ProtocolVectorStoreHandler(Protocol):
         self,
         embedding_ids: list[str],
         index_name: str | None = None,
-    ) -> dict[str, Any]:
+    ) -> ModelVectorDeleteResult:
         """
         Remove multiple embeddings by their IDs.
 
@@ -410,7 +443,7 @@ class ProtocolVectorStoreHandler(Protocol):
                 Uses default index if not specified.
 
         Returns:
-            Dictionary containing batch deletion result:
+            ModelVectorDeleteResult containing batch deletion result with fields:
                 - success: Boolean indicating overall success
                 - total_deleted: Number of embeddings deleted
                 - failed_ids: List of IDs that failed to delete
@@ -426,7 +459,7 @@ class ProtocolVectorStoreHandler(Protocol):
                 embedding_ids=["doc_001", "doc_002", "doc_003"],
                 index_name="documents",
             )
-            print(f"Deleted {result['total_deleted']} embeddings")
+            print(f"Deleted {result.total_deleted} embeddings")
             ```
         """
         ...
@@ -436,8 +469,8 @@ class ProtocolVectorStoreHandler(Protocol):
         index_name: str,
         dimension: int,
         metric: str = "cosine",
-        index_config: dict[str, Any] | None = None,
-    ) -> dict[str, Any]:
+        index_config: ModelVectorIndexConfig | None = None,
+    ) -> ModelVectorIndexResult:
         """
         Create a new vector index/collection.
 
@@ -449,15 +482,15 @@ class ProtocolVectorStoreHandler(Protocol):
             dimension: Vector dimension (e.g., 1536 for OpenAI embeddings).
             metric: Distance metric to use. Must be in supported_metrics.
                 Defaults to "cosine".
-            index_config: Optional implementation-specific configuration:
+            index_config: Optional ModelVectorIndexConfig with settings:
                 - shards: Number of shards for distributed storage
                 - replicas: Number of replicas for redundancy
                 - on_disk: Whether to store vectors on disk
-                - quantization: Vector quantization settings
-                - hnsw_config: HNSW index parameters
+                - quantization: ModelQuantizationConfig for compression
+                - hnsw_config: ModelHnswConfig for HNSW parameters
 
         Returns:
-            Dictionary containing creation result:
+            ModelVectorIndexResult containing creation result with fields:
                 - success: Boolean indicating success
                 - index_name: The created index name
                 - dimension: Vector dimension
@@ -471,11 +504,14 @@ class ProtocolVectorStoreHandler(Protocol):
 
         Example:
             ```python
+            from omnibase_core.models.vector import ModelVectorIndexConfig
+
+            config = ModelVectorIndexConfig(on_disk=True)
             result = await handler.create_index(
                 index_name="documents",
                 dimension=1536,
                 metric="cosine",
-                index_config={"on_disk": True},
+                index_config=config,
             )
             ```
         """
@@ -484,7 +520,7 @@ class ProtocolVectorStoreHandler(Protocol):
     async def delete_index(
         self,
         index_name: str,
-    ) -> dict[str, Any]:
+    ) -> ModelVectorIndexResult:
         """
         Delete a vector index/collection.
 
@@ -495,7 +531,7 @@ class ProtocolVectorStoreHandler(Protocol):
             index_name: Name of the index to delete.
 
         Returns:
-            Dictionary containing deletion result:
+            ModelVectorIndexResult containing deletion result with fields:
                 - success: Boolean indicating success
                 - index_name: The deleted index name
                 - deleted: Boolean indicating if index existed and was deleted
@@ -507,7 +543,7 @@ class ProtocolVectorStoreHandler(Protocol):
         Example:
             ```python
             result = await handler.delete_index(index_name="old_documents")
-            if result["deleted"]:
+            if result.deleted:
                 print("Index removed successfully")
             ```
 
@@ -517,7 +553,7 @@ class ProtocolVectorStoreHandler(Protocol):
         """
         ...
 
-    async def health_check(self) -> dict[str, Any]:
+    async def health_check(self) -> ModelVectorHealthStatus:
         """
         Check handler health and connectivity to the vector store.
 
@@ -525,7 +561,7 @@ class ProtocolVectorStoreHandler(Protocol):
         and can communicate with its backing vector database.
 
         Returns:
-            Dictionary containing health status:
+            ModelVectorHealthStatus containing health status with fields:
                 - healthy: Boolean indicating overall health
                 - latency_ms: Response time in milliseconds
                 - details: Additional diagnostic information
@@ -535,10 +571,10 @@ class ProtocolVectorStoreHandler(Protocol):
         Example:
             ```python
             health = await handler.health_check()
-            if health["healthy"]:
-                print(f"Vector store OK, latency: {health['latency_ms']}ms")
+            if health.healthy:
+                print(f"Vector store OK, latency: {health.latency_ms}ms")
             else:
-                print(f"Unhealthy: {health.get('last_error', 'Unknown error')}")
+                print(f"Unhealthy: {health.last_error or 'Unknown error'}")
             ```
 
         Caching:
@@ -568,7 +604,7 @@ class ProtocolVectorStoreHandler(Protocol):
         """
         ...
 
-    def describe(self) -> dict[str, Any]:
+    def describe(self) -> ModelVectorHandlerMetadata:
         """
         Return handler metadata and capabilities.
 
@@ -577,7 +613,7 @@ class ProtocolVectorStoreHandler(Protocol):
         vector-specific capabilities.
 
         Returns:
-            Dictionary containing handler metadata:
+            ModelVectorHandlerMetadata containing handler metadata with fields:
                 - handler_type: "vector_store"
                 - capabilities: List of supported operations
                 - supported_metrics: List of distance metrics
@@ -588,8 +624,8 @@ class ProtocolVectorStoreHandler(Protocol):
         Example:
             ```python
             metadata = handler.describe()
-            print(f"Metrics: {metadata['supported_metrics']}")
-            print(f"Max dimension: {metadata.get('max_dimension', 'unlimited')}")
+            print(f"Metrics: {metadata.supported_metrics}")
+            print(f"Max dimension: {metadata.max_dimension or 'unlimited'}")
             ```
 
         Security:
