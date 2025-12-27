@@ -38,6 +38,134 @@ Making `describe()` async allows implementations to gather this runtime informat
 
 **Note:** The base `ProtocolHandler.describe()` remains synchronous and returns `dict[str, Any]`. Only the specialized storage handlers have been updated to async with typed return models.
 
+#### Handler Protocol Typed Model Introduction (OMN-710)
+
+Specialized handler protocols now use typed Pydantic models from `omnibase_core` instead of untyped `dict[str, Any]` returns. This provides compile-time type safety and runtime validation.
+
+**Affected Protocols and New Types:**
+
+| Protocol | Method | Old Return Type | New Return Type |
+|----------|--------|-----------------|-----------------|
+| `ProtocolGraphDatabaseHandler` | `health_check()` | `dict[str, Any]` | `ModelGraphHealthStatus` |
+| `ProtocolGraphDatabaseHandler` | `describe()` | `dict[str, Any]` | `ModelGraphHandlerMetadata` |
+| `ProtocolGraphDatabaseHandler` | `execute_query()` | `dict[str, Any]` | `ModelGraphQueryResult` |
+| `ProtocolGraphDatabaseHandler` | `execute_query_batch()` | `list[dict]` | `ModelGraphBatchResult` |
+| `ProtocolGraphDatabaseHandler` | `create_node()` | `dict[str, Any]` | `ModelGraphDatabaseNode` |
+| `ProtocolGraphDatabaseHandler` | `create_relationship()` | `dict[str, Any]` | `ModelGraphRelationship` |
+| `ProtocolGraphDatabaseHandler` | `delete_node()` | `bool` | `ModelGraphDeleteResult` |
+| `ProtocolGraphDatabaseHandler` | `delete_relationship()` | `bool` | `ModelGraphDeleteResult` |
+| `ProtocolGraphDatabaseHandler` | `traverse()` | `dict[str, Any]` | `ModelGraphTraversalResult` |
+| `ProtocolVectorStoreHandler` | `health_check()` | `dict[str, Any]` | `ModelVectorHealthStatus` |
+| `ProtocolVectorStoreHandler` | `describe()` | `dict[str, Any]` | `ModelVectorHandlerMetadata` |
+| `ProtocolVectorStoreHandler` | `store_embedding()` | `str` | `ModelVectorStoreResult` |
+| `ProtocolVectorStoreHandler` | `store_embeddings_batch()` | `int` | `ModelVectorBatchStoreResult` |
+| `ProtocolVectorStoreHandler` | `query_similar()` | `list[dict]` | `ModelVectorSearchResults` |
+| `ProtocolVectorStoreHandler` | `delete_embedding()` | `bool` | `ModelVectorDeleteResult` |
+| `ProtocolVectorStoreHandler` | `create_index()` | `None` | `ModelVectorIndexResult` |
+| `ProtocolVectorStoreHandler` | `delete_index()` | `bool` | `ModelVectorIndexResult` |
+| `ProtocolEventBusProducerHandler` | `health_check()` | `dict[str, Any]` | `ModelProducerHealthStatus` |
+
+**Migration Required:**
+
+```python
+# Before (v0.4.x and earlier) - untyped dict access:
+health = await handler.health_check()
+if health.get("healthy"):
+    latency = health.get("latency_ms", 0)
+
+# After (v0.5.0+) - typed model access:
+health = await handler.health_check()
+if health.healthy:
+    latency = health.latency_ms  # IDE autocomplete, type checking
+```
+
+#### Producer Handler `send_batch()` Signature Change (OMN-710)
+
+The `send_batch()` method now accepts a `Sequence[ModelProducerMessage]` instead of raw tuples or dictionaries.
+
+**Migration Required:**
+
+```python
+# Before (v0.4.x and earlier) - raw tuples:
+await producer.send_batch([
+    ("topic", b"value1", b"key1"),
+    ("topic", b"value2", b"key2"),
+])
+
+# After (v0.5.0+) - typed ModelProducerMessage:
+from omnibase_core.models.event_bus import ModelProducerMessage
+
+messages = [
+    ModelProducerMessage(topic="topic", value=b"value1", key=b"key1"),
+    ModelProducerMessage(topic="topic", value=b"value2", key=b"key2"),
+]
+await producer.send_batch(messages)
+```
+
+**Rationale:**
+- Typed messages enable IDE autocomplete and static type checking
+- `ModelProducerMessage` supports optional `headers` and `partition` fields
+- Consistent with the typed-dynamic pattern used across all handler protocols
+
+#### Vector Store Handler `initialize()` Signature Change (OMN-710)
+
+The `initialize()` method now accepts a `ModelVectorConnectionConfig` instead of keyword arguments.
+
+**Migration Required:**
+
+```python
+# Before (v0.4.x and earlier) - keyword arguments:
+await handler.initialize(
+    url="http://localhost:6333",
+    api_key="secret-key",
+    timeout=30.0,
+)
+
+# After (v0.5.0+) - typed configuration model:
+from omnibase_core.models.vector import ModelVectorConnectionConfig
+
+config = ModelVectorConnectionConfig(
+    url="http://localhost:6333",
+    api_key="secret-key",
+    timeout=30.0,
+)
+await handler.initialize(config)
+```
+
+**Rationale:**
+- Configuration validation happens at model construction time
+- Clear documentation of available configuration options via model fields
+- Enables serialization/deserialization of configuration for persistence
+
+#### Graph Database Handler `traverse()` Filter Parameter (OMN-710)
+
+The `traverse()` method now accepts an optional `ModelGraphTraversalFilters` parameter instead of inline filter kwargs.
+
+**Migration Required:**
+
+```python
+# Before (v0.4.x and earlier) - inline filters:
+result = await handler.traverse(
+    start_node_id=node_id,
+    max_depth=2,
+    node_labels=["Person"],
+    node_properties={"active": True},
+)
+
+# After (v0.5.0+) - typed filter model:
+from omnibase_core.models.graph import ModelGraphTraversalFilters
+
+filters = ModelGraphTraversalFilters(
+    node_labels=["Person"],
+    node_properties={"active": True},
+)
+result = await handler.traverse(
+    start_node_id=node_id,
+    max_depth=2,
+    filters=filters,
+)
+```
+
 ## [0.4.0] - 2025-12-15
 
 ### Added

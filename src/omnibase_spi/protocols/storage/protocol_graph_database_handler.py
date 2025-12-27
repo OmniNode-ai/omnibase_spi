@@ -108,7 +108,7 @@ from typing import TYPE_CHECKING, Protocol, runtime_checkable
 if TYPE_CHECKING:
     # Graph database models from omnibase_core.models.graph (PR #250, OMN-1053)
     # These models replace dict[str, Any] for type-safe graph database operations.
-    # Available in omnibase_core >= 0.6.0 (pending release)
+    # Available in omnibase_core >= 0.5.6
     from omnibase_core.models.graph import (
         ModelGraphBatchResult,
         ModelGraphDatabaseNode,
