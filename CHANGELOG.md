@@ -36,13 +36,13 @@ Implementations may need to perform I/O operations to provide accurate metadata,
 
 Making `describe()` async allows implementations to gather this runtime information without blocking.
 
-**Note:** The base `ProtocolHandler.describe()` remains synchronous and returns `dict[str, Any]`. Only the specialized storage handlers have been updated to async with typed return models.
+**Note:** The base `ProtocolHandler.describe()` remains synchronous and returns `dict[str, Any]`. Only the specialized storage handlers (`ProtocolGraphDatabaseHandler`, `ProtocolVectorStoreHandler`) have been updated to async with typed return models. See the "Handler Protocol Typed Model Introduction" section below for the complete list of signature changes affecting both input parameters and return types.
 
 #### Handler Protocol Typed Model Introduction (OMN-710)
 
-Specialized handler protocols now use typed Pydantic models from `omnibase_core` instead of untyped `dict[str, Any]` returns. This provides compile-time type safety and runtime validation.
+Specialized handler protocols now use typed Pydantic models from `omnibase_core` instead of untyped `dict[str, Any]` for both input parameters and return values. This provides compile-time type safety and runtime validation.
 
-**Affected Protocols and New Types:**
+**Return Type Changes:**
 
 | Protocol | Method | Old Return Type | New Return Type |
 |----------|--------|-----------------|-----------------|
@@ -65,7 +65,18 @@ Specialized handler protocols now use typed Pydantic models from `omnibase_core`
 | `ProtocolVectorStoreHandler` | `delete_index()` | `bool` | `ModelVectorIndexResult` |
 | `ProtocolEventBusProducerHandler` | `health_check()` | `dict[str, Any]` | `ModelProducerHealthStatus` |
 
-**Migration Required:**
+**Input Parameter Type Changes:**
+
+| Protocol | Method | Parameter | Old Type | New Type |
+|----------|--------|-----------|----------|----------|
+| `ProtocolVectorStoreHandler` | `initialize()` | `connection_config` | `**kwargs` | `ModelVectorConnectionConfig` |
+| `ProtocolVectorStoreHandler` | `store_embeddings_batch()` | `embeddings` | `list[dict]` | `list[ModelEmbedding]` |
+| `ProtocolVectorStoreHandler` | `query_similar()` | `filter_metadata` | `dict[str, Any]` | `ModelVectorMetadataFilter` |
+| `ProtocolVectorStoreHandler` | `create_index()` | `index_config` | `**kwargs` | `ModelVectorIndexConfig` |
+| `ProtocolGraphDatabaseHandler` | `traverse()` | `filters` | `**kwargs` | `ModelGraphTraversalFilters` |
+| `ProtocolEventBusProducerHandler` | `send_batch()` | `messages` | `list[tuple]` | `Sequence[ModelProducerMessage]` |
+
+**Migration Required - Return Types:**
 
 ```python
 # Before (v0.4.x and earlier) - untyped dict access:
@@ -77,6 +88,47 @@ if health.get("healthy"):
 health = await handler.health_check()
 if health.healthy:
     latency = health.latency_ms  # IDE autocomplete, type checking
+```
+
+**Migration Required - Input Parameters:**
+
+```python
+# Before (v0.4.x and earlier) - untyped inputs:
+embeddings = [
+    {"id": "doc_001", "vector": [...], "metadata": {"page": 1}},
+    {"id": "doc_002", "vector": [...], "metadata": {"page": 2}},
+]
+await handler.store_embeddings_batch(embeddings=embeddings, index_name="docs")
+
+# After (v0.5.0+) - typed model inputs:
+from omnibase_core.models.vector import ModelEmbedding
+
+embeddings = [
+    ModelEmbedding(id="doc_001", vector=[...], metadata={"page": 1}),
+    ModelEmbedding(id="doc_002", vector=[...], metadata={"page": 2}),
+]
+await handler.store_embeddings_batch(embeddings=embeddings, index_name="docs")
+```
+
+```python
+# Before (v0.4.x and earlier) - untyped filter dict:
+results = await handler.query_similar(
+    query_vector=query_embedding,
+    filter_metadata={"field": "category", "operator": "eq", "value": "tech"},
+)
+
+# After (v0.5.0+) - typed filter model:
+from omnibase_core.models.vector import ModelVectorMetadataFilter
+
+filter_config = ModelVectorMetadataFilter(
+    field="category",
+    operator="eq",
+    value="tech",
+)
+results = await handler.query_similar(
+    query_vector=query_embedding,
+    filter_metadata=filter_config,
+)
 ```
 
 #### Producer Handler `send_batch()` Signature Change (OMN-710)
