@@ -79,6 +79,7 @@ __email__ = "team@omninode.ai"
 # Lazy loading configuration for exceptions
 _LAZY_EXCEPTION_MAP = {
     "ContractCompilerError": "omnibase_spi.exceptions",
+    "HandlerDiscoveryError": "omnibase_spi.exceptions",
     "HandlerInitializationError": "omnibase_spi.exceptions",
     "IdempotencyStoreError": "omnibase_spi.exceptions",
     "InvalidProtocolStateError": "omnibase_spi.exceptions",
@@ -261,6 +262,7 @@ def __dir__() -> list[str]:
     # Add exceptions
     exception_attrs = [
         "ContractCompilerError",
+        "HandlerDiscoveryError",
         "HandlerInitializationError",
         "IdempotencyStoreError",
         "InvalidProtocolStateError",
@@ -291,6 +293,7 @@ __all__ = [
     "__protocol_count__",
     # Exceptions (alphabetically ordered)
     "ContractCompilerError",
+    "HandlerDiscoveryError",
     "HandlerInitializationError",
     "IdempotencyStoreError",
     "InvalidProtocolStateError",

@@ -124,6 +124,42 @@ class HandlerInitializationError(ProtocolHandlerError):
     pass
 
 
+class HandlerDiscoveryError(ProtocolHandlerError):
+    """
+    Raised when handler discovery fails.
+
+    Indicates that a handler source could not discover or load handlers
+    due to configuration errors, missing dependencies, invalid manifests,
+    or other issues during the discovery process.
+
+    Args:
+        message: The error message describing what went wrong.
+        context: Optional dictionary containing discovery failure details.
+
+    Example:
+        raise HandlerDiscoveryError(
+            f"Failed to discover handlers from source: {source_type}"
+        )
+
+    Example with context:
+        raise HandlerDiscoveryError(
+            "Handler discovery failed",
+            context={
+                "source_type": "CONTRACT",
+                "search_paths": ["/etc/handlers/", "/opt/handlers/"],
+                "handler_type": "http",
+                "error": str(e)
+            }
+        )
+
+    Related:
+        - ProtocolHandlerSource.discover_handlers(): Method that raises this exception
+        - HandlerInitializationError: For errors during handler initialization (after discovery)
+    """
+
+    pass
+
+
 class IdempotencyStoreError(SPIError):
     """
     Errors raised by ProtocolIdempotencyStore implementations.
