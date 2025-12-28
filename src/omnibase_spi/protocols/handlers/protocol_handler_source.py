@@ -154,6 +154,11 @@ class ProtocolHandlerSource(Protocol):
             be idempotent and thread-safe if concurrent discovery is possible.
 
             Thread Safety Considerations:
+                - **BOOTSTRAP sources**: If discovery is only called during application
+                  startup (single-threaded initialization), thread safety may not be
+                  necessary.
+                - **CONTRACT and HYBRID sources**: Sources that support runtime refresh
+                  or hot-reloading SHOULD implement thread-safe discovery.
                 - Use appropriate locking (e.g., ``threading.Lock``) if discovery
                   involves shared mutable state or non-thread-safe I/O operations.
                 - If caching discovered handlers, ensure cache invalidation and

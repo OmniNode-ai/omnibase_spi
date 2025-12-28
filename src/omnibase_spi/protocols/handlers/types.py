@@ -152,6 +152,12 @@ class ProtocolHandlerDescriptor(Protocol):
         communication mechanism. Common values include: "http", "kafka",
         "postgresql", "neo4j", "redis", "grpc", "websocket", "file".
 
+        Important:
+            This value SHOULD match the ``handler_type`` property of the
+            corresponding ``ProtocolHandler`` implementation to ensure
+            consistent handler identification across the registry and
+            enable proper handler lookup by type.
+
         Returns:
             String identifier for the handler type.
         """
@@ -195,6 +201,11 @@ class ProtocolHandlerDescriptor(Protocol):
             - dependencies: Required services or handlers
             - tags: Categorization tags for filtering
 
+        Security:
+            NEVER include credentials, API keys, passwords, or other
+            sensitive data in metadata. Metadata may be logged, serialized,
+            or exposed through administrative/debugging interfaces.
+
         Returns:
             Dictionary containing handler metadata. May be empty but
             should never be None.
@@ -220,6 +231,14 @@ class ProtocolHandlerDescriptor(Protocol):
 
         When multiple handlers of the same type are registered, the
         handler with the highest priority value is selected by default.
+
+        Recommended Ranges:
+            - 0-10: Low priority (fallback handlers)
+            - 10-50: Normal priority (default implementations)
+            - 50-100: High priority (optimized/specialized handlers)
+
+        Note:
+            A default value of 10 is recommended for standard handlers.
 
         Returns:
             Integer priority value. Higher values indicate higher priority.
