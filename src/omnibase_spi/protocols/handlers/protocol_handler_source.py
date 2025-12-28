@@ -145,12 +145,20 @@ class ProtocolHandlerSource(Protocol):
             descriptors = source.discover_handlers()
 
             for desc in descriptors:
-                print(f"Found handler: {desc.handler_id} ({desc.handler_type})")
+                print(f"Found handler: {desc.name} ({desc.handler_type})")
             ```
 
         Note:
             This method may be called multiple times during the application
             lifecycle (e.g., for handler refresh). Implementations should
             be idempotent and thread-safe if concurrent discovery is possible.
+
+            Thread Safety Considerations:
+                - Use appropriate locking (e.g., ``threading.Lock``) if discovery
+                  involves shared mutable state or non-thread-safe I/O operations.
+                - If caching discovered handlers, ensure cache invalidation and
+                  updates are atomic to prevent stale or inconsistent results.
+                - Consider using ``threading.RLock`` if discovery logic may be
+                  re-entrant (e.g., discovering handlers that trigger nested discovery).
         """
         ...

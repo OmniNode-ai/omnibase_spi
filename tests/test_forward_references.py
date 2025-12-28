@@ -209,7 +209,10 @@ class TestHandlerProtocolImports:
         from omnibase_spi.protocols import handlers
 
         expected = {
+            "LiteralHandlerSourceType",
             "ProtocolHandler",
+            "ProtocolHandlerDescriptor",
+            "ProtocolHandlerSource",
         }
         for protocol_name in expected:
             assert protocol_name in handlers.__all__, f"{protocol_name} not in __all__"
