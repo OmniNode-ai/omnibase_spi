@@ -208,7 +208,10 @@ class ProtocolHandlerDescriptor(Protocol):
 
         Returns:
             Dictionary containing handler metadata. May be empty but
-            should never be None.
+            should never be None. Implementations MAY return a reference
+            to internal state or a defensive copy - callers SHOULD treat
+            the returned dictionary as read-only. Mutating the dictionary
+            may have undefined behavior.
         """
         ...
 
@@ -237,8 +240,22 @@ class ProtocolHandlerDescriptor(Protocol):
             - 10-50: Normal priority (default implementations)
             - 50-100: High priority (optimized/specialized handlers)
 
+        Important:
+            Priority values are **recommendations, not enforced constraints**.
+            The registry does not validate priority values - any integer is
+            accepted, including negative values (which would rank lower than
+            zero-priority handlers).
+
+            When multiple handlers have **equal priority**, the selection
+            order is undefined and may be implementation-specific. Callers
+            should not rely on a particular order when priorities are equal.
+            To ensure deterministic selection, assign distinct priority values.
+
         Note:
             A default value of 10 is recommended for standard handlers.
+            Priority values are relative within the same handler type;
+            comparing priorities across different handler types is not
+            meaningful.
 
         Returns:
             Integer priority value. Higher values indicate higher priority.
