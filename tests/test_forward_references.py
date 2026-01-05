@@ -52,7 +52,9 @@ CORE_MODELS_AVAILABLE = (
 )
 
 
-def _create_mock_handler_descriptor(name: str = "mock-handler") -> ModelHandlerDescriptor:
+def _create_mock_handler_descriptor(
+    name: str = "mock-handler",
+) -> ModelHandlerDescriptor:
     """Create a mock ModelHandlerDescriptor for testing."""
     return ModelHandlerDescriptor(
         handler_name=ModelIdentifier(namespace="test", name=name),
@@ -361,7 +363,9 @@ class TestRegistryProtocolImports:
         from omnibase_spi.protocols import registry
 
         expected = {
+            "ProtocolCapabilityRegistry",
             "ProtocolHandlerRegistry",
+            "ProtocolProviderRegistry",
             "ProtocolRegistryBase",
             "ProtocolVersionedRegistry",
         }
@@ -1273,7 +1277,9 @@ class TestModuleReimport:
 
             def describe(self) -> ModelHandlerDescriptor:
                 """Returns mock handler description."""
-                return _create_mock_handler_descriptor(name="mock-handler-preserves-isinstance")
+                return _create_mock_handler_descriptor(
+                    name="mock-handler-preserves-isinstance"
+                )
 
             async def health_check(self) -> dict[str, object]:
                 """Returns mock health check result."""
@@ -2160,9 +2166,7 @@ class TestProtocolSignatureValidation:
 
         # Verify only self parameter exists
         assert "self" in params, "list_keys() missing 'self' parameter"
-        assert (
-            len(params) == 1
-        ), f"list_keys() should only have 'self', got {params}"
+        assert len(params) == 1, f"list_keys() should only have 'self', got {params}"
 
         # Verify return annotation exists (should be list[str])
         assert (

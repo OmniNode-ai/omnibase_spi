@@ -444,9 +444,9 @@ class TestProtocolGraphDatabaseHandlerProtocol:
 
     def test_protocol_is_runtime_checkable(self) -> None:
         """ProtocolGraphDatabaseHandler should be runtime_checkable."""
-        assert hasattr(
-            ProtocolGraphDatabaseHandler, "_is_runtime_protocol"
-        ) or hasattr(ProtocolGraphDatabaseHandler, "__runtime_protocol__")
+        assert hasattr(ProtocolGraphDatabaseHandler, "_is_runtime_protocol") or hasattr(
+            ProtocolGraphDatabaseHandler, "__runtime_protocol__"
+        )
 
     def test_protocol_is_protocol(self) -> None:
         """ProtocolGraphDatabaseHandler should be a Protocol class."""

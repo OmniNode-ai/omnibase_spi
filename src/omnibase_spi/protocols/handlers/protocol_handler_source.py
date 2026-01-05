@@ -123,7 +123,7 @@ class ProtocolHandlerSource(Protocol):
         """
         ...
 
-    def discover_handlers(self) -> list[ProtocolHandlerDescriptor]:
+    async def discover_handlers(self) -> list[ProtocolHandlerDescriptor]:
         """Discover and return all handlers from this source.
 
         Implementations should return a list of handler descriptors for all
@@ -141,7 +141,7 @@ class ProtocolHandlerSource(Protocol):
         Example:
             ```python
             source = ContractHandlerSource(manifest_path="/etc/handlers/")
-            descriptors = source.discover_handlers()
+            descriptors = await source.discover_handlers()
 
             for desc in descriptors:
                 print(f"Found handler: {desc.name} ({desc.handler_type})")

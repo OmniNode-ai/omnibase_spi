@@ -181,9 +181,7 @@ class TestProtocolRegistryBaseProtocol:
     def test_protocol_is_protocol(self) -> None:
         """ProtocolRegistryBase should be a Protocol class."""
         # Check that ProtocolRegistryBase has Protocol in its bases
-        assert any(
-            base.__name__ == "Protocol" for base in ProtocolRegistryBase.__mro__
-        )
+        assert any(base.__name__ == "Protocol" for base in ProtocolRegistryBase.__mro__)
 
     def test_protocol_has_register_method(self) -> None:
         """ProtocolRegistryBase should define register method."""
@@ -280,9 +278,9 @@ class TestProtocolRegistryBaseGenericTypes:
 
     def test_tuple_to_dict_mapping(self) -> None:
         """Test registry with tuple→dict mapping."""
-        registry: ProtocolRegistryBase[
-            tuple[str, int], dict[str, str]
-        ] = ConcreteTupleRegistry()
+        registry: ProtocolRegistryBase[tuple[str, int], dict[str, str]] = (
+            ConcreteTupleRegistry()
+        )
 
         key1 = ("alpha", 1)
         key2 = ("beta", 2)
