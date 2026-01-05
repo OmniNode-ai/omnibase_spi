@@ -1,5 +1,4 @@
-"""
-Handler source types and descriptor protocols for ONEX SPI interfaces.
+"""Handler source types and descriptor protocols for ONEX SPI interfaces.
 
 Domain: Handler source classification and handler descriptor protocols.
 
@@ -15,6 +14,7 @@ See Also:
     - protocol_handler.py: The main ProtocolHandler interface for I/O handlers
     - docs/architecture/HANDLER_PROTOCOL_DRIVEN_ARCHITECTURE.md
     - omnibase_core: Contains concrete handler implementations and models
+
 """
 
 from __future__ import annotations
@@ -64,8 +64,7 @@ Example:
 
 @runtime_checkable
 class ProtocolHandlerDescriptor(Protocol):
-    """
-    Protocol for handler descriptors providing metadata about registered handlers.
+    """Protocol for handler descriptors providing metadata about registered handlers.
 
     A handler descriptor provides identification and metadata information about
     a handler for registration and discovery. This enables introspection,
@@ -141,12 +140,12 @@ class ProtocolHandlerDescriptor(Protocol):
     See Also:
         ProtocolHandler: The main handler interface that performs I/O operations.
         LiteralHandlerSourceType: Classification of how handlers are registered.
+
     """
 
     @property
     def handler_type(self) -> str:
-        """
-        The type identifier for this handler.
+        """The type identifier for this handler.
 
         Returns a string that categorizes the handler by its protocol or
         communication mechanism. Common values include: "http", "kafka",
@@ -160,13 +159,13 @@ class ProtocolHandlerDescriptor(Protocol):
 
         Returns:
             String identifier for the handler type.
+
         """
         ...
 
     @property
     def name(self) -> str:
-        """
-        Human-readable name or unique identifier for this handler.
+        """Human-readable name or unique identifier for this handler.
 
         The name should be descriptive enough for logging and debugging,
         and unique enough to distinguish between multiple handlers of
@@ -174,26 +173,26 @@ class ProtocolHandlerDescriptor(Protocol):
 
         Returns:
             Handler name or identifier string.
+
         """
         ...
 
     @property
     def version(self) -> str:
-        """
-        Semantic version string for this handler implementation.
+        """Semantic version string for this handler implementation.
 
         Follows semantic versioning format: "major.minor.patch".
         Used for compatibility checking and upgrade management.
 
         Returns:
             Version string (e.g., "1.0.0", "2.3.1").
+
         """
         ...
 
     @property
     def metadata(self) -> dict[str, Any]:
-        """
-        Additional key-value metadata about the handler.
+        """Additional key-value metadata about the handler.
 
         Provides extensible metadata that may include:
             - capabilities: List of supported operations
@@ -212,25 +211,25 @@ class ProtocolHandlerDescriptor(Protocol):
             to internal state or a defensive copy - callers SHOULD treat
             the returned dictionary as read-only. Mutating the dictionary
             may have undefined behavior.
+
         """
         ...
 
     @property
     def handler(self) -> ProtocolHandler:
-        """
-        The actual handler instance implementing ProtocolHandler.
+        """The actual handler instance implementing ProtocolHandler.
 
         Provides access to the handler for registration and execution.
 
         Returns:
             The handler instance.
+
         """
         ...
 
     @property
     def priority(self) -> int:
-        """
-        Priority for handler selection (higher = preferred).
+        """Priority for handler selection (higher = preferred).
 
         When multiple handlers of the same type are registered, the
         handler with the highest priority value is selected by default.
@@ -259,6 +258,7 @@ class ProtocolHandlerDescriptor(Protocol):
 
         Returns:
             Integer priority value. Higher values indicate higher priority.
+
         """
         ...
 

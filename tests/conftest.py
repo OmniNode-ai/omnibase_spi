@@ -22,6 +22,13 @@ from __future__ import annotations
 
 from typing import Any
 
+from omnibase_core.enums import (
+    EnumHandlerRole,
+    EnumHandlerType,
+    EnumHandlerTypeCategory,
+)
+from omnibase_core.models.handlers import ModelHandlerDescriptor, ModelIdentifier
+from omnibase_core.models.primitives.model_semver import ModelSemVer
 from omnibase_spi.exceptions import (
     HandlerInitializationError,
     IdempotencyStoreError,
@@ -355,14 +362,18 @@ class RealisticProtocolHandler:
             data={"operation": request.operation, "result": "completed"},
         )
 
-    def describe(self) -> dict[str, Any]:
+    def describe(self) -> ModelHandlerDescriptor:
         """Return handler metadata."""
-        return {
-            "handler_type": self.handler_type,
-            "handler_id": self._handler_id,
-            "state": self._state,
-            "capabilities": ["query", "mutate"],
-        }
+        return ModelHandlerDescriptor(
+            handler_name=ModelIdentifier(
+                namespace="test",
+                name=self._handler_id,
+            ),
+            handler_version=ModelSemVer(major=1, minor=0, patch=0),
+            handler_role=EnumHandlerRole.INFRA_HANDLER,
+            handler_type=EnumHandlerType.NAMED,
+            handler_type_category=EnumHandlerTypeCategory.EFFECT,
+        )
 
     async def health_check(self) -> dict[str, Any]:
         """Check handler health."""

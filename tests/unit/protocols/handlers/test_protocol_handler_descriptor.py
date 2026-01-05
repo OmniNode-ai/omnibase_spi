@@ -19,92 +19,11 @@ from omnibase_spi.protocols.handlers import (
     ProtocolHandlerDescriptor,
 )
 
+from .conftest import MockHandlerDescriptor, MockProtocolHandler
 
 # =============================================================================
 # Mock Implementations
 # =============================================================================
-
-
-class MockProtocolHandler:
-    """A minimal mock that satisfies ProtocolHandler protocol for testing."""
-
-    @property
-    def handler_type(self) -> str:
-        """Return handler type."""
-        return "mock"
-
-    async def initialize(self, config: Any) -> None:
-        """Initialize handler."""
-        pass
-
-    async def shutdown(self, timeout_seconds: float = 30.0) -> None:
-        """Shutdown handler."""
-        pass
-
-    async def execute(self, request: Any, operation_config: Any) -> Any:
-        """Execute operation."""
-        return {}
-
-    def describe(self) -> dict[str, Any]:
-        """Describe handler."""
-        return {"handler_type": "mock"}
-
-    async def health_check(self) -> dict[str, Any]:
-        """Check health."""
-        return {"healthy": True}
-
-
-class MockHandlerDescriptor:
-    """A class that fully implements the ProtocolHandlerDescriptor protocol."""
-
-    def __init__(
-        self,
-        handler_type: str = "http",
-        name: str = "http-rest-handler",
-        version: str = "1.2.0",
-        metadata: dict[str, Any] | None = None,
-        priority: int = 10,
-    ) -> None:
-        """Initialize the mock descriptor."""
-        self._handler_type = handler_type
-        self._name = name
-        self._version = version
-        self._metadata = metadata if metadata is not None else {
-            "capabilities": ["GET", "POST", "PUT", "DELETE"],
-            "supports_streaming": True,
-        }
-        self._priority = priority
-        self._handler = MockProtocolHandler()
-
-    @property
-    def handler_type(self) -> str:
-        """Return the type identifier for this handler."""
-        return self._handler_type
-
-    @property
-    def name(self) -> str:
-        """Return human-readable name for this handler."""
-        return self._name
-
-    @property
-    def version(self) -> str:
-        """Return semantic version string."""
-        return self._version
-
-    @property
-    def metadata(self) -> dict[str, Any]:
-        """Return additional key-value metadata."""
-        return self._metadata
-
-    @property
-    def handler(self) -> ProtocolHandler:
-        """Return the actual handler instance."""
-        return self._handler
-
-    @property
-    def priority(self) -> int:
-        """Return priority for handler selection."""
-        return self._priority
 
 
 class PartialHandlerDescriptor:
@@ -248,19 +167,19 @@ class TestMockDescriptorImplementsAllProperties:
 
     def test_mock_has_handler_type(self) -> None:
         """Mock should have handler_type property."""
-        descriptor = MockHandlerDescriptor()
+        descriptor = MockHandlerDescriptor(handler_type="http")
         assert hasattr(descriptor, "handler_type")
         assert descriptor.handler_type == "http"
 
     def test_mock_has_name(self) -> None:
         """Mock should have name property."""
-        descriptor = MockHandlerDescriptor()
+        descriptor = MockHandlerDescriptor(name="http-rest-handler")
         assert hasattr(descriptor, "name")
         assert descriptor.name == "http-rest-handler"
 
     def test_mock_has_version(self) -> None:
         """Mock should have version property."""
-        descriptor = MockHandlerDescriptor()
+        descriptor = MockHandlerDescriptor(version="1.2.0")
         assert hasattr(descriptor, "version")
         assert descriptor.version == "1.2.0"
 
@@ -307,9 +226,7 @@ class TestProtocolHandlerDescriptorPropertyTypes:
 
     def test_metadata_returns_dict(self) -> None:
         """metadata should return a dictionary."""
-        descriptor = MockHandlerDescriptor(
-            metadata={"key": "value", "count": 42}
-        )
+        descriptor = MockHandlerDescriptor(metadata={"key": "value", "count": 42})
         assert isinstance(descriptor.metadata, dict)
         assert descriptor.metadata["key"] == "value"
         assert descriptor.metadata["count"] == 42
@@ -376,9 +293,7 @@ class TestProtocolHandlerDescriptorUsagePatterns:
             MockHandlerDescriptor(name="medium", priority=50),
         ]
 
-        sorted_descriptors = sorted(
-            descriptors, key=lambda d: d.priority, reverse=True
-        )
+        sorted_descriptors = sorted(descriptors, key=lambda d: d.priority, reverse=True)
 
         assert sorted_descriptors[0].name == "high"
         assert sorted_descriptors[1].name == "medium"
