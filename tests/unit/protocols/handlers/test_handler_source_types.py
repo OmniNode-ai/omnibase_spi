@@ -85,6 +85,7 @@ class TestLiteralHandlerSourceTypeUsage:
 
     def test_exhaustive_match_pattern(self) -> None:
         """All values can be matched exhaustively."""
+
         def describe_source(source_type: LiteralHandlerSourceType) -> str:
             if source_type == "BOOTSTRAP":  # noqa: SIM116
                 return "Handlers registered at startup"
