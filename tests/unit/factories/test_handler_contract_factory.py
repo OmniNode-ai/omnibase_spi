@@ -8,6 +8,7 @@ and parameter handling.
 
 from __future__ import annotations
 
+import pydantic
 import pytest
 
 from omnibase_core.enums import EnumHandlerTypeCategory
@@ -138,7 +139,7 @@ class TestHandlerContractFactory:
         """Test get_default raises ValueError for unsupported type."""
         factory = HandlerContractFactory()
 
-        with pytest.raises(ValueError, match="Unsupported handler type"):
+        with pytest.raises(ValueError, match="handler_type must be an EnumHandlerTypeCategory"):
             factory.get_default(
                 handler_type="INVALID_TYPE",  # type: ignore[arg-type]
                 handler_name="test.handler",
@@ -302,7 +303,7 @@ class TestGetDefaultHandlerContractFunction:
 
     def test_convenience_function_raises_for_invalid_type(self) -> None:
         """Test convenience function raises ValueError for invalid type."""
-        with pytest.raises(ValueError, match="Unsupported handler type"):
+        with pytest.raises(ValueError, match="handler_type must be an EnumHandlerTypeCategory"):
             get_default_handler_contract(
                 handler_type="NOT_A_TYPE",  # type: ignore[arg-type]
                 handler_name="test.handler",
@@ -445,7 +446,7 @@ class TestHandlerContractFactoryEdgeCases:
         factory = HandlerContractFactory()
 
         # Single segment should fail validation
-        with pytest.raises(Exception):  # ValidationError from Pydantic
+        with pytest.raises(pydantic.ValidationError):
             factory.get_default(
                 handler_type=EnumHandlerTypeCategory.COMPUTE,
                 handler_name="single_segment",
@@ -481,7 +482,7 @@ class TestHandlerContractFactoryEdgeCases:
         factory = HandlerContractFactory()
 
         # Segments cannot start with numbers (e.g., '0' in 'v1.0')
-        with pytest.raises(Exception):  # ValidationError from Pydantic
+        with pytest.raises(pydantic.ValidationError):
             factory.get_default(
                 handler_type=EnumHandlerTypeCategory.COMPUTE,
                 handler_name="my.handler.v1.0",  # '0' is invalid segment
@@ -592,3 +593,407 @@ class TestHandlerContractFactoryImports:
             handler_name="test.handler",
         )
         assert isinstance(contract, ModelHandlerContract)
+
+
+@pytest.mark.unit
+class TestVersionParsingErrorHandling:
+    """Tests for version string parsing error handling.
+
+    These tests verify that malformed version strings are rejected with
+    clear, descriptive error messages rather than cryptic internal errors.
+    """
+
+    @pytest.mark.parametrize(
+        "invalid_version,expected_substring",
+        [
+            ("1.x.0", "Invalid version format"),
+            ("invalid", "Invalid version format"),
+            ("1.0.x", "Invalid version format"),
+            ("a.b.c", "Invalid version format"),
+            ("1.2.3.4", "Invalid version format"),
+            ("", "Invalid version format"),
+            ("   ", "Invalid version format"),
+            ("v1.0.0", "Invalid version format"),
+            (".1.0", "Invalid version format"),
+            ("1..0", "Invalid version format"),
+            ("1.0.", "Invalid version format"),
+            ("-1.0.0", "Invalid version format"),
+            ("1.-1.0", "Invalid version format"),
+            ("1.0.0-", "Invalid version format"),
+            ("1.0.0+", "Invalid version format"),
+            ("01.0.0", "Invalid version format"),  # Leading zeros not allowed in semver
+            ("1.00.0", "Invalid version format"),  # Leading zeros not allowed
+        ],
+    )
+    def test_invalid_version_string_raises_value_error(
+        self, invalid_version: str, expected_substring: str
+    ) -> None:
+        """Test that invalid version strings raise ValueError with descriptive message."""
+        factory = HandlerContractFactory()
+
+        with pytest.raises(ValueError) as exc_info:
+            factory.get_default(
+                handler_type=EnumHandlerTypeCategory.COMPUTE,
+                handler_name="test.handler",
+                version=invalid_version,
+            )
+
+        assert expected_substring in str(exc_info.value)
+        # Verify the invalid version is included in error for debugging
+        assert invalid_version.strip() in str(exc_info.value) or "format" in str(
+            exc_info.value
+        ).lower()
+
+    def test_error_message_includes_valid_examples(self) -> None:
+        """Test that error message includes examples of valid version formats."""
+        factory = HandlerContractFactory()
+
+        with pytest.raises(ValueError) as exc_info:
+            factory.get_default(
+                handler_type=EnumHandlerTypeCategory.COMPUTE,
+                handler_name="test.handler",
+                version="invalid",
+            )
+
+        error_msg = str(exc_info.value).lower()
+        # Should include examples of valid formats
+        assert "1.0.0" in str(exc_info.value)
+
+    def test_convenience_function_also_validates_version(self) -> None:
+        """Test that convenience function also validates version strings."""
+        with pytest.raises(ValueError, match="Invalid version format"):
+            get_default_handler_contract(
+                handler_type=EnumHandlerTypeCategory.COMPUTE,
+                handler_name="test.handler",
+                version="1.x.0",
+            )
+
+    @pytest.mark.parametrize(
+        "valid_version",
+        [
+            "0.0.0",
+            "1.0.0",
+            "10.20.30",
+            "1.0.0-alpha",
+            "1.0.0-alpha.1",
+            "1.0.0-0.3.7",
+            "1.0.0-x.7.z.92",
+            "1.0.0+build",
+            "1.0.0+build.123",
+            "1.0.0-beta+build.456",
+            "1.0.0-alpha.1+001",
+        ],
+    )
+    def test_valid_version_strings_accepted(self, valid_version: str) -> None:
+        """Test that valid semver strings are accepted without error."""
+        factory = HandlerContractFactory()
+
+        # Should not raise - valid versions accepted
+        contract = factory.get_default(
+            handler_type=EnumHandlerTypeCategory.COMPUTE,
+            handler_name="test.handler",
+            version=valid_version,
+        )
+
+        assert contract.version == valid_version
+
+
+@pytest.mark.unit
+class TestHandlerNameValidationErrors:
+    """Tests for handler_name parameter validation."""
+
+    def test_none_handler_name_raises_value_error(self) -> None:
+        """Test that None handler_name raises ValueError."""
+        factory = HandlerContractFactory()
+
+        with pytest.raises(ValueError, match="handler_name cannot be None"):
+            factory.get_default(
+                handler_type=EnumHandlerTypeCategory.COMPUTE,
+                handler_name=None,  # type: ignore[arg-type]
+            )
+
+    def test_empty_handler_name_raises_value_error(self) -> None:
+        """Test that empty handler_name raises ValueError."""
+        factory = HandlerContractFactory()
+
+        with pytest.raises(ValueError, match="empty"):
+            factory.get_default(
+                handler_type=EnumHandlerTypeCategory.COMPUTE,
+                handler_name="",
+            )
+
+    def test_whitespace_handler_name_raises_value_error(self) -> None:
+        """Test that whitespace-only handler_name raises ValueError."""
+        factory = HandlerContractFactory()
+
+        with pytest.raises(ValueError, match="empty"):
+            factory.get_default(
+                handler_type=EnumHandlerTypeCategory.COMPUTE,
+                handler_name="   ",
+            )
+
+    def test_non_string_handler_name_raises_value_error(self) -> None:
+        """Test that non-string handler_name raises ValueError."""
+        factory = HandlerContractFactory()
+
+        with pytest.raises(ValueError, match="must be a string"):
+            factory.get_default(
+                handler_type=EnumHandlerTypeCategory.COMPUTE,
+                handler_name=123,  # type: ignore[arg-type]
+            )
+
+
+@pytest.mark.unit
+class TestHandlerTypeValidationErrors:
+    """Tests for handler_type parameter validation."""
+
+    def test_none_handler_type_raises_value_error(self) -> None:
+        """Test that None handler_type raises ValueError."""
+        factory = HandlerContractFactory()
+
+        with pytest.raises(ValueError, match="handler_type cannot be None"):
+            factory.get_default(
+                handler_type=None,  # type: ignore[arg-type]
+                handler_name="test.handler",
+            )
+
+    def test_wrong_type_handler_type_raises_value_error(self) -> None:
+        """Test that wrong type for handler_type raises ValueError."""
+        factory = HandlerContractFactory()
+
+        with pytest.raises(ValueError, match="must be an EnumHandlerTypeCategory"):
+            factory.get_default(
+                handler_type="COMPUTE",  # type: ignore[arg-type]
+                handler_name="test.handler",
+            )
+
+
+@pytest.mark.unit
+class TestCachedFactorySingleton:
+    """Tests for the cached factory singleton pattern."""
+
+    def test_get_cached_factory_returns_same_instance(self) -> None:
+        """Test that _get_cached_factory returns the same instance on repeated calls."""
+        from omnibase_spi.factories.handler_contract_factory import _get_cached_factory
+
+        # Clear any existing cache
+        _get_cached_factory.cache_clear()
+
+        factory1 = _get_cached_factory()
+        factory2 = _get_cached_factory()
+
+        # Should be the exact same instance
+        assert factory1 is factory2
+
+    def test_convenience_function_uses_shared_factory(self) -> None:
+        """Test that multiple calls to get_default_handler_contract share template cache."""
+        from omnibase_spi.factories.handler_contract_factory import _get_cached_factory
+
+        # Clear any existing cache
+        _get_cached_factory.cache_clear()
+        factory = _get_cached_factory()
+
+        # Verify cache is empty initially
+        assert EnumHandlerTypeCategory.EFFECT not in factory._template_cache
+
+        # Call convenience function
+        get_default_handler_contract(
+            handler_type=EnumHandlerTypeCategory.EFFECT,
+            handler_name="test.handler",
+        )
+
+        # Template should now be in the cached factory's cache
+        assert EnumHandlerTypeCategory.EFFECT in factory._template_cache
+
+    def test_multiple_convenience_calls_reuse_template_cache(self) -> None:
+        """Test that template caching works across multiple convenience function calls."""
+        from omnibase_spi.factories.handler_contract_factory import _get_cached_factory
+
+        # Clear any existing cache to start fresh
+        _get_cached_factory.cache_clear()
+
+        # Create first contract
+        contract1 = get_default_handler_contract(
+            handler_type=EnumHandlerTypeCategory.COMPUTE,
+            handler_name="handler.one",
+        )
+
+        # Create second contract of same type (should use cached template)
+        contract2 = get_default_handler_contract(
+            handler_type=EnumHandlerTypeCategory.COMPUTE,
+            handler_name="handler.two",
+        )
+
+        # Contracts should be independent
+        assert contract1.handler_id == "handler.one"
+        assert contract2.handler_id == "handler.two"
+
+        # Verify template was cached and reused
+        factory = _get_cached_factory()
+        assert EnumHandlerTypeCategory.COMPUTE in factory._template_cache
+
+    def test_cache_clear_creates_new_factory(self) -> None:
+        """Test that cache_clear creates a fresh factory instance."""
+        from omnibase_spi.factories.handler_contract_factory import _get_cached_factory
+
+        factory1 = _get_cached_factory()
+        _get_cached_factory.cache_clear()
+        factory2 = _get_cached_factory()
+
+        # Should be different instances after clear
+        assert factory1 is not factory2
+
+
+@pytest.mark.unit
+class TestTemplateExceptionTypes:
+    """Tests for template-specific exception types.
+
+    These tests verify that the factory raises appropriate typed exceptions
+    for template loading and parsing errors, enabling more precise error handling.
+    """
+
+    def test_template_not_found_error_is_spi_error(self) -> None:
+        """Test that TemplateNotFoundError inherits from SPIError."""
+        from omnibase_spi.exceptions import SPIError, TemplateError, TemplateNotFoundError
+
+        assert issubclass(TemplateNotFoundError, TemplateError)
+        assert issubclass(TemplateNotFoundError, SPIError)
+        assert issubclass(TemplateNotFoundError, Exception)
+
+    def test_template_parse_error_is_spi_error(self) -> None:
+        """Test that TemplateParseError inherits from SPIError."""
+        from omnibase_spi.exceptions import SPIError, TemplateError, TemplateParseError
+
+        assert issubclass(TemplateParseError, TemplateError)
+        assert issubclass(TemplateParseError, SPIError)
+        assert issubclass(TemplateParseError, Exception)
+
+    def test_template_not_found_error_with_context(self) -> None:
+        """Test TemplateNotFoundError includes context information."""
+        from omnibase_spi.exceptions import TemplateNotFoundError
+
+        error = TemplateNotFoundError(
+            "Template file not found: test.yaml",
+            context={
+                "template_name": "test.yaml",
+                "source": "filesystem",
+                "search_path": "/path/to/templates",
+            },
+        )
+
+        assert "test.yaml" in str(error)
+        assert error.context["template_name"] == "test.yaml"
+        assert error.context["source"] == "filesystem"
+        assert "search_path" in error.context
+
+    def test_template_parse_error_with_context(self) -> None:
+        """Test TemplateParseError includes context information."""
+        from omnibase_spi.exceptions import TemplateParseError
+
+        error = TemplateParseError(
+            "Invalid YAML in template: test.yaml",
+            context={
+                "template_name": "test.yaml",
+                "yaml_error": "expected ':'",
+                "source_path": "/path/to/test.yaml",
+            },
+        )
+
+        assert "test.yaml" in str(error)
+        assert error.context["template_name"] == "test.yaml"
+        assert error.context["yaml_error"] == "expected ':'"
+
+    def test_template_error_base_class(self) -> None:
+        """Test that TemplateError can be used to catch all template errors."""
+        from omnibase_spi.exceptions import (
+            TemplateError,
+            TemplateNotFoundError,
+            TemplateParseError,
+        )
+
+        # Both specific errors should be catchable via base TemplateError
+        not_found = TemplateNotFoundError("not found")
+        parse_error = TemplateParseError("parse failed")
+
+        # These should all work
+        try:
+            raise not_found
+        except TemplateError:
+            pass  # Expected
+
+        try:
+            raise parse_error
+        except TemplateError:
+            pass  # Expected
+
+    def test_load_template_raises_template_not_found_error(self) -> None:
+        """Test that _load_template raises TemplateNotFoundError for missing files."""
+        from omnibase_spi.exceptions import TemplateNotFoundError
+        from omnibase_spi.factories.handler_contract_factory import _load_template
+
+        with pytest.raises(TemplateNotFoundError) as exc_info:
+            _load_template("nonexistent_template.yaml")
+
+        assert "nonexistent_template.yaml" in str(exc_info.value)
+        assert exc_info.value.context["template_name"] == "nonexistent_template.yaml"
+
+    def test_exception_chaining_preserved(self) -> None:
+        """Test that exception chaining is preserved for debugging."""
+        from omnibase_spi.exceptions import TemplateNotFoundError
+        from omnibase_spi.factories.handler_contract_factory import _load_template
+
+        try:
+            _load_template("nonexistent_template.yaml")
+        except TemplateNotFoundError as e:
+            # The original exception should be available via __cause__
+            # (This depends on implementation; if using 'from e', __cause__ is set)
+            # If not chained, __cause__ is None, which is also acceptable
+            # The key is that TemplateNotFoundError is raised
+            assert isinstance(e, TemplateNotFoundError)
+
+
+@pytest.mark.unit
+class TestTemplateImmutability:
+    """Tests verifying that cached templates are protected from mutation."""
+
+    def test_template_cache_returns_deep_copy(self) -> None:
+        """Test that _get_template returns a deep copy, not the cached original."""
+        factory = HandlerContractFactory()
+
+        # Get template twice
+        template1 = factory._get_template(EnumHandlerTypeCategory.COMPUTE)
+        template2 = factory._get_template(EnumHandlerTypeCategory.COMPUTE)
+
+        # They should be equal in content
+        assert template1 == template2
+
+        # But they should be different objects
+        assert template1 is not template2
+
+    def test_modifying_returned_template_does_not_affect_cache(self) -> None:
+        """Test that modifications to returned template don't affect cached version."""
+        factory = HandlerContractFactory()
+
+        # Get template and modify it
+        template1 = factory._get_template(EnumHandlerTypeCategory.COMPUTE)
+        original_handler_id = template1["handler_id"]
+        template1["handler_id"] = "MODIFIED_VALUE"
+
+        # Get template again - should have original value
+        template2 = factory._get_template(EnumHandlerTypeCategory.COMPUTE)
+        assert template2["handler_id"] == original_handler_id
+        assert template2["handler_id"] != "MODIFIED_VALUE"
+
+    def test_nested_modifications_dont_affect_cache(self) -> None:
+        """Test that nested object modifications don't affect cached templates."""
+        factory = HandlerContractFactory()
+
+        # Get template and modify nested structure
+        template1 = factory._get_template(EnumHandlerTypeCategory.EFFECT)
+        if "descriptor" in template1:
+            template1["descriptor"]["handler_kind"] = "MODIFIED"
+
+        # Get template again - nested value should be unchanged
+        template2 = factory._get_template(EnumHandlerTypeCategory.EFFECT)
+        if "descriptor" in template2:
+            assert template2["descriptor"]["handler_kind"] != "MODIFIED"

@@ -41,7 +41,9 @@ See Also:
 from __future__ import annotations
 
 import copy
+import functools
 import importlib.resources
+import re
 from pathlib import Path
 from typing import Any, cast
 
@@ -50,6 +52,18 @@ import yaml  # type: ignore[import-untyped]
 from omnibase_core.enums import EnumHandlerTypeCategory
 from omnibase_core.models.contracts.model_handler_contract import ModelHandlerContract
 from omnibase_core.models.primitives.model_semver import ModelSemVer
+
+from omnibase_spi.exceptions import TemplateNotFoundError, TemplateParseError
+
+# Regex pattern for validating semantic version strings.
+# Matches: major.minor.patch[-prerelease][+build]
+# Examples: "1.0.0", "2.1.0-alpha.1", "1.0.0+build.123", "3.0.0-beta+build.456"
+_SEMVER_PATTERN = re.compile(
+    r"^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)"
+    r"(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)"
+    r"(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?"
+    r"(?:\+(?P<build>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$"
+)
 
 # Mapping from handler type category to their default template YAML filenames.
 # These templates are located in the omnibase_spi.contracts.defaults package
@@ -67,6 +81,65 @@ _DEFAULT_TEMPLATE_MAP: dict[EnumHandlerTypeCategory, str] = {
 }
 
 
+def _validate_handler_name(handler_name: str | None) -> str:
+    """Validate handler_name parameter.
+
+    Args:
+        handler_name: The handler name to validate. Must be non-None and non-empty.
+
+    Returns:
+        The validated handler_name (stripped of leading/trailing whitespace).
+
+    Raises:
+        ValueError: If handler_name is None, empty, or whitespace-only.
+    """
+    if handler_name is None:
+        raise ValueError("handler_name cannot be None")
+    if not isinstance(handler_name, str):
+        raise ValueError(
+            f"handler_name must be a string, got {type(handler_name).__name__}"
+        )
+    handler_name = handler_name.strip()
+    if not handler_name:
+        raise ValueError("handler_name cannot be empty or whitespace-only")
+    return handler_name
+
+
+def _validate_version_string(version: str) -> None:
+    """Validate that a version string follows semantic versioning format.
+
+    Args:
+        version: The version string to validate.
+
+    Raises:
+        ValueError: If version string does not follow semver format.
+    """
+    if not _SEMVER_PATTERN.match(version):
+        raise ValueError(
+            f"Invalid version format: '{version}'. "
+            "Version must follow semantic versioning format (e.g., '1.0.0', "
+            "'2.1.0-alpha.1', '1.0.0+build.123')."
+        )
+
+
+def _validate_handler_type(handler_type: EnumHandlerTypeCategory | None) -> None:
+    """Validate handler_type parameter.
+
+    Args:
+        handler_type: The handler type to validate.
+
+    Raises:
+        ValueError: If handler_type is None or not an EnumHandlerTypeCategory.
+    """
+    if handler_type is None:
+        raise ValueError("handler_type cannot be None")
+    if not isinstance(handler_type, EnumHandlerTypeCategory):
+        raise ValueError(
+            f"handler_type must be an EnumHandlerTypeCategory, "
+            f"got {type(handler_type).__name__}"
+        )
+
+
 def _get_template_path(template_name: str) -> Path:
     """Get the path to a template file in the contracts/defaults directory.
 
@@ -82,7 +155,7 @@ def _get_template_path(template_name: str) -> Path:
         Absolute Path object pointing to the template file location.
 
     Raises:
-        FileNotFoundError: If the template file does not exist in the
+        TemplateNotFoundError: If the template file does not exist in the
             contracts/defaults directory.
 
     Example:
@@ -107,11 +180,17 @@ def _get_template_path(template_name: str) -> Path:
         # Fallback: read directly
         return Path(str(template_path))
     except (TypeError, AttributeError):
-        # Fallback for edge cases
+        # Fallback for edge cases where importlib.resources is not available
         package_dir = Path(__file__).parent.parent / "contracts" / "defaults"
         path = package_dir / template_name
         if not path.exists():
-            raise FileNotFoundError(f"Template not found: {template_name}") from None
+            raise TemplateNotFoundError(
+                f"Template file not found: {template_name}",
+                context={
+                    "template_name": template_name,
+                    "search_path": str(package_dir),
+                },
+            )
         return path
 
 
@@ -136,9 +215,9 @@ def _load_template(template_name: str) -> dict[str, Any]:
         "version", "permissions", "resources", etc.
 
     Raises:
-        FileNotFoundError: If the template file does not exist in the
+        TemplateNotFoundError: If the template file does not exist in the
             contracts/defaults directory.
-        yaml.YAMLError: If the template file contains invalid YAML syntax.
+        TemplateParseError: If the template file contains invalid YAML syntax.
 
     Example:
         >>> template = _load_template("default_compute_handler.yaml")
@@ -152,16 +231,64 @@ def _load_template(template_name: str) -> dict[str, Any]:
         The returned dictionary is typically modified (handler_name, version)
         before being validated as a ModelHandlerContract.
     """
+    content: str | None = None
+    source_path: str = f"importlib.resources:omnibase_spi.contracts.defaults/{template_name}"
+
+    # Try importlib.resources first (preferred for package resources)
     try:
         files = importlib.resources.files("omnibase_spi.contracts.defaults")
         template_resource = files.joinpath(template_name)
         content = template_resource.read_text(encoding="utf-8")
-        return cast(dict[str, Any], yaml.safe_load(content))
-    except (TypeError, AttributeError, FileNotFoundError):
-        # Fallback to file path
-        template_path = _get_template_path(template_name)
-        with open(template_path, encoding="utf-8") as f:
-            return cast(dict[str, Any], yaml.safe_load(f))
+    except FileNotFoundError as e:
+        # Template file not found via importlib.resources
+        raise TemplateNotFoundError(
+            f"Template file not found: {template_name}",
+            context={
+                "template_name": template_name,
+                "source": "importlib.resources",
+                "package": "omnibase_spi.contracts.defaults",
+            },
+        ) from e
+    except (TypeError, AttributeError):
+        # importlib.resources not available or incompatible, fallback to file path
+        try:
+            template_path = _get_template_path(template_name)
+            source_path = str(template_path)
+            with open(template_path, encoding="utf-8") as f:
+                content = f.read()
+        except FileNotFoundError as e:
+            raise TemplateNotFoundError(
+                f"Template file not found: {template_name}",
+                context={
+                    "template_name": template_name,
+                    "source": "filesystem",
+                    "search_path": str(
+                        Path(__file__).parent.parent / "contracts" / "defaults"
+                    ),
+                },
+            ) from e
+
+    # Parse YAML content
+    try:
+        result = yaml.safe_load(content)
+        if result is None:
+            raise TemplateParseError(
+                f"Template file is empty or contains only null: {template_name}",
+                context={
+                    "template_name": template_name,
+                    "source_path": source_path,
+                },
+            )
+        return cast(dict[str, Any], result)
+    except yaml.YAMLError as e:
+        raise TemplateParseError(
+            f"Invalid YAML in template: {template_name}",
+            context={
+                "template_name": template_name,
+                "source_path": source_path,
+                "yaml_error": str(e),
+            },
+        ) from e
 
 
 class HandlerContractFactory:
@@ -276,6 +403,9 @@ class HandlerContractFactory:
         Raises:
             ValueError: If handler_type is not one of the supported types
                 (COMPUTE, EFFECT, NONDETERMINISTIC_COMPUTE).
+            TemplateNotFoundError: If the template file for the handler type
+                cannot be found.
+            TemplateParseError: If the template file contains invalid YAML.
 
         Example:
             >>> factory = HandlerContractFactory()
@@ -340,10 +470,20 @@ class HandlerContractFactory:
             - All other fields set to template defaults
 
         Raises:
-            ValueError: If handler_type is not one of the supported types
-                (COMPUTE, EFFECT, NONDETERMINISTIC_COMPUTE).
+            ValueError: If any of the following conditions are met:
+                - handler_type is not one of the supported types
+                  (COMPUTE, EFFECT, NONDETERMINISTIC_COMPUTE)
+                - handler_type is None or not an EnumHandlerTypeCategory
+                - handler_name is None, empty, or whitespace-only
+                - version string is malformed (e.g., "1.x.0", "invalid",
+                  empty string, or doesn't follow semver format). Valid
+                  formats include: "1.0.0", "2.1.0-alpha.1", "1.0.0+build.123"
+            TemplateNotFoundError: If the template file for the handler type
+                cannot be found in the contracts/defaults directory.
+            TemplateParseError: If the template file contains invalid YAML.
             pydantic.ValidationError: If the resulting contract data fails
-                Pydantic model validation (indicates a malformed template).
+                Pydantic model validation (indicates a malformed template or
+                invalid handler_name format for handler_id requirements).
 
         Example:
             Create contracts for different handler types:
@@ -379,6 +519,12 @@ class HandlerContractFactory:
             ...     version=version
             ... )
         """
+        # Input validation - validate parameters before any processing
+        _validate_handler_type(handler_type)
+        handler_name = _validate_handler_name(handler_name)
+        if isinstance(version, str):
+            _validate_version_string(version)
+
         template = self._get_template(handler_type)
 
         # Convert string version to ModelSemVer if needed
@@ -452,6 +598,23 @@ class HandlerContractFactory:
         return list(_DEFAULT_TEMPLATE_MAP.keys())
 
 
+@functools.lru_cache(maxsize=1)
+def _get_cached_factory() -> HandlerContractFactory:
+    """Get a cached singleton factory instance.
+
+    This function returns a module-level cached HandlerContractFactory instance,
+    ensuring that repeated calls to get_default_handler_contract() benefit from
+    template caching without creating new factory instances.
+
+    The factory is cached using lru_cache, making it thread-safe for reads and
+    ensuring only one factory instance exists per process.
+
+    Returns:
+        A cached HandlerContractFactory instance.
+    """
+    return HandlerContractFactory()
+
+
 # Module-level convenience function for quick contract creation
 def get_default_handler_contract(
     handler_type: EnumHandlerTypeCategory,
@@ -460,10 +623,9 @@ def get_default_handler_contract(
 ) -> ModelHandlerContract:
     """Get a default handler contract template with a single function call.
 
-    This is a convenience function that creates a new HandlerContractFactory
-    instance and calls get_default(). Use this for one-off contract creation.
-    If creating multiple contracts, instantiate HandlerContractFactory directly
-    to benefit from template caching.
+    This convenience function uses a cached HandlerContractFactory instance,
+    ensuring that repeated calls benefit from template caching without creating
+    new factory instances on each call.
 
     This function is the recommended entry point for simple use cases where
     you need to quickly create a handler contract with sensible defaults.
@@ -486,8 +648,13 @@ def get_default_handler_contract(
         appropriate for the specified handler type.
 
     Raises:
-        ValueError: If handler_type is not one of the supported types
-            (COMPUTE, EFFECT, NONDETERMINISTIC_COMPUTE).
+        ValueError: If handler_type is None, not an EnumHandlerTypeCategory,
+            or not one of the supported types (COMPUTE, EFFECT,
+            NONDETERMINISTIC_COMPUTE). Also raised if handler_name is None,
+            empty, or whitespace-only, or if version string is not valid semver.
+        TemplateNotFoundError: If the template file for the handler type
+            cannot be found in the contracts/defaults directory.
+        TemplateParseError: If the template file contains invalid YAML.
         pydantic.ValidationError: If the resulting contract data fails
             Pydantic model validation (indicates a malformed template).
 
@@ -527,5 +694,5 @@ def get_default_handler_contract(
         - HandlerContractFactory: For creating multiple contracts with caching.
         - ModelHandlerContract: The contract model returned by this function.
     """
-    factory = HandlerContractFactory()
+    factory = _get_cached_factory()
     return factory.get_default(handler_type, handler_name, version)
