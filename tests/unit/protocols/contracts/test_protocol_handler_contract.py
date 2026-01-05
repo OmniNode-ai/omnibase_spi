@@ -306,25 +306,21 @@ class StubExecutionConstrainable:
 
     def __init__(
         self,
-        has_constraints_flag: bool = True,
         constraints: StubExecutionConstraints | None = None,
     ) -> None:
         """Initialize stub execution constrainable.
 
+        Args:
+            constraints: Optional execution constraints. When None,
+                has_constraints() returns False. When provided,
+                has_constraints() returns True.
+
         Note:
-            When has_constraints_flag is True and constraints is None,
-            a default StubExecutionConstraints is created to maintain
-            consistency with the protocol contract (has_constraints()
-            must return True iff execution_constraints is not None).
+            The constraints parameter is the single source of truth for
+            both execution_constraints property and has_constraints() method,
+            ensuring consistency with the protocol contract.
         """
-        if has_constraints_flag and constraints is None:
-            self._constraints: StubExecutionConstraints | None = (
-                StubExecutionConstraints()
-            )
-        elif has_constraints_flag:
-            self._constraints = constraints
-        else:
-            self._constraints = None
+        self._constraints = constraints
 
     @property
     def execution_constraints(self) -> StubExecutionConstraints | None:
@@ -941,24 +937,34 @@ class TestProtocolExecutionConstrainableCompliance:
     def test_has_constraints_returns_true_when_constraints_exist(self) -> None:
         """has_constraints should return True when constraints exist."""
         constraints = StubExecutionConstraints()
-        stub = StubExecutionConstrainable(
-            has_constraints_flag=True, constraints=constraints
-        )
+        stub = StubExecutionConstrainable(constraints=constraints)
         assert stub.has_constraints() is True
         assert stub.execution_constraints is not None
 
     def test_has_constraints_returns_false_when_no_constraints(self) -> None:
         """has_constraints should return False when no constraints."""
-        stub = StubExecutionConstrainable(has_constraints_flag=False)
+        stub = StubExecutionConstrainable(constraints=None)
         assert stub.has_constraints() is False
         assert stub.execution_constraints is None
+
+    def test_has_constraints_consistent_with_execution_constraints(self) -> None:
+        """has_constraints() must return True iff execution_constraints is not None."""
+        # With constraints
+        stub_with = StubExecutionConstrainable(constraints=StubExecutionConstraints())
+        assert stub_with.has_constraints() == (
+            stub_with.execution_constraints is not None
+        )
+
+        # Without constraints
+        stub_without = StubExecutionConstrainable(constraints=None)
+        assert stub_without.has_constraints() == (
+            stub_without.execution_constraints is not None
+        )
 
     def test_execution_constraints_returns_correct_type(self) -> None:
         """execution_constraints should return ProtocolExecutionConstraints or None."""
         constraints = StubExecutionConstraints(max_retries=5, timeout_seconds=60.0)
-        stub = StubExecutionConstrainable(
-            has_constraints_flag=True, constraints=constraints
-        )
+        stub = StubExecutionConstrainable(constraints=constraints)
         assert isinstance(stub.execution_constraints, ProtocolExecutionConstraints)
 
 
