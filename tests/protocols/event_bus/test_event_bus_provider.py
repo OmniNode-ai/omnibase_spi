@@ -443,7 +443,9 @@ class TestProtocolEventBusProviderMethodSignatures:
         self, compliant_provider: CompliantProvider
     ) -> None:
         """get_event_bus should accept both environment and group."""
-        bus = await compliant_provider.get_event_bus(environment="prod", group="my-service")
+        bus = await compliant_provider.get_event_bus(
+            environment="prod", group="my-service"
+        )
         assert bus is not None
 
     @pytest.mark.asyncio
@@ -451,7 +453,9 @@ class TestProtocolEventBusProviderMethodSignatures:
         self, compliant_provider: CompliantProvider
     ) -> None:
         """create_event_bus should require environment and group."""
-        bus = await compliant_provider.create_event_bus(environment="test", group="test-consumer")
+        bus = await compliant_provider.create_event_bus(
+            environment="test", group="test-consumer"
+        )
         assert bus is not None
 
     @pytest.mark.asyncio
@@ -593,7 +597,9 @@ class TestProtocolEventBusProviderContextManagerLifecycle:
     ) -> None:
         """Test typical provider lifecycle: get bus, use, close all."""
         # Get event bus
-        bus = await compliant_provider.get_event_bus(environment="test", group="test-consumer")
+        bus = await compliant_provider.get_event_bus(
+            environment="test", group="test-consumer"
+        )
         assert bus is not None
 
         # Create additional bus
@@ -610,8 +616,12 @@ class TestProtocolEventBusProviderContextManagerLifecycle:
         self, compliant_provider: CompliantProvider
     ) -> None:
         """create_event_bus should create new instances (no caching)."""
-        bus1 = await compliant_provider.create_event_bus(environment="test", group="consumer-1")
-        bus2 = await compliant_provider.create_event_bus(environment="test", group="consumer-2")
+        bus1 = await compliant_provider.create_event_bus(
+            environment="test", group="consumer-1"
+        )
+        bus2 = await compliant_provider.create_event_bus(
+            environment="test", group="consumer-2"
+        )
 
         # create_event_bus should return different instances
         # (Note: MockEventBus always returns new instances, matching expected behavior)

@@ -258,7 +258,9 @@ class TestProtocolEventBusConsumerMethodSignatures:
         self, compliant_consumer: CompliantEventBusConsumer
     ) -> None:
         """consume_messages should accept timeout_ms and max_messages."""
-        messages = await compliant_consumer.consume_messages(timeout_ms=1000, max_messages=100)
+        messages = await compliant_consumer.consume_messages(
+            timeout_ms=1000, max_messages=100
+        )
         assert isinstance(messages, list)
 
     @pytest.mark.asyncio
@@ -266,7 +268,9 @@ class TestProtocolEventBusConsumerMethodSignatures:
         self, compliant_consumer: CompliantEventBusConsumer
     ) -> None:
         """consume_messages_stream should accept batch_timeout_ms."""
-        messages = await compliant_consumer.consume_messages_stream(batch_timeout_ms=1000)
+        messages = await compliant_consumer.consume_messages_stream(
+            batch_timeout_ms=1000
+        )
         assert isinstance(messages, list)
 
     @pytest.mark.asyncio
@@ -291,7 +295,9 @@ class TestProtocolEventBusConsumerAsyncNature:
         assert protocol_method is not None
         assert inspect.iscoroutinefunction(protocol_method)
         # Check compliant implementation is async
-        assert inspect.iscoroutinefunction(CompliantEventBusConsumer.subscribe_to_topics)
+        assert inspect.iscoroutinefunction(
+            CompliantEventBusConsumer.subscribe_to_topics
+        )
 
     def test_consume_messages_is_async(self) -> None:
         """consume_messages should be async in both protocol and implementation."""

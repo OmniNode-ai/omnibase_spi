@@ -217,7 +217,7 @@ async def test_protocol_conformance() -> None:
 
 @pytest.mark.asyncio
 async def test_semver_valid_formats(
-    registry: ReferenceVersionedRegistry[str, type]
+    registry: ReferenceVersionedRegistry[str, type],
 ) -> None:
     """Test valid semantic version formats are accepted."""
     valid_versions = [
@@ -238,7 +238,7 @@ async def test_semver_valid_formats(
 
 @pytest.mark.asyncio
 async def test_semver_invalid_formats(
-    registry: ReferenceVersionedRegistry[str, type]
+    registry: ReferenceVersionedRegistry[str, type],
 ) -> None:
     """Test invalid semantic version formats are rejected."""
     invalid_versions = [
@@ -268,7 +268,7 @@ async def test_semver_invalid_formats(
 
 @pytest.mark.asyncio
 async def test_version_ordering_numeric_not_lexicographic(
-    registry: ReferenceVersionedRegistry[str, type]
+    registry: ReferenceVersionedRegistry[str, type],
 ) -> None:
     """Test version ordering uses numeric comparison, not string comparison."""
 
@@ -301,7 +301,7 @@ async def test_version_ordering_numeric_not_lexicographic(
 
 @pytest.mark.asyncio
 async def test_version_ordering_patch_component(
-    registry: ReferenceVersionedRegistry[str, type]
+    registry: ReferenceVersionedRegistry[str, type],
 ) -> None:
     """Test PATCH component ordering is numeric."""
 
@@ -327,7 +327,7 @@ async def test_version_ordering_patch_component(
 
 @pytest.mark.asyncio
 async def test_version_ordering_major_component_dominates(
-    registry: ReferenceVersionedRegistry[str, type]
+    registry: ReferenceVersionedRegistry[str, type],
 ) -> None:
     """Test MAJOR component has highest precedence in ordering."""
 
@@ -349,7 +349,7 @@ async def test_version_ordering_major_component_dominates(
 
 @pytest.mark.asyncio
 async def test_concurrent_register_version_different_versions(
-    registry: ReferenceVersionedRegistry[str, type]
+    registry: ReferenceVersionedRegistry[str, type],
 ) -> None:
     """Test concurrent registration of different versions is safe."""
 
@@ -381,7 +381,7 @@ async def test_concurrent_register_version_different_versions(
 
 @pytest.mark.asyncio
 async def test_concurrent_get_latest_while_registering(
-    registry: ReferenceVersionedRegistry[str, type]
+    registry: ReferenceVersionedRegistry[str, type],
 ) -> None:
     """Test get_latest() consistency during concurrent registrations."""
 
@@ -427,7 +427,7 @@ async def test_concurrent_get_latest_while_registering(
 
 @pytest.mark.asyncio
 async def test_concurrent_list_versions_consistency(
-    registry: ReferenceVersionedRegistry[str, type]
+    registry: ReferenceVersionedRegistry[str, type],
 ) -> None:
     """Test list_versions() returns consistent snapshot during modifications."""
 
@@ -470,7 +470,7 @@ async def test_concurrent_list_versions_consistency(
 
 @pytest.mark.asyncio
 async def test_get_latest_on_nonexistent_key(
-    registry: ReferenceVersionedRegistry[str, type]
+    registry: ReferenceVersionedRegistry[str, type],
 ) -> None:
     """Test get_latest() raises KeyError for non-existent key."""
     with pytest.raises(KeyError, match="Key not registered"):
@@ -479,7 +479,7 @@ async def test_get_latest_on_nonexistent_key(
 
 @pytest.mark.asyncio
 async def test_get_version_on_nonexistent_key(
-    registry: ReferenceVersionedRegistry[str, type]
+    registry: ReferenceVersionedRegistry[str, type],
 ) -> None:
     """Test get_version() raises KeyError for non-existent key."""
     with pytest.raises(KeyError, match="Key not registered"):
@@ -488,7 +488,7 @@ async def test_get_version_on_nonexistent_key(
 
 @pytest.mark.asyncio
 async def test_get_version_on_nonexistent_version(
-    registry: ReferenceVersionedRegistry[str, type]
+    registry: ReferenceVersionedRegistry[str, type],
 ) -> None:
     """Test get_version() raises KeyError for non-existent version."""
 
@@ -503,7 +503,7 @@ async def test_get_version_on_nonexistent_version(
 
 @pytest.mark.asyncio
 async def test_list_versions_on_nonexistent_key(
-    registry: ReferenceVersionedRegistry[str, type]
+    registry: ReferenceVersionedRegistry[str, type],
 ) -> None:
     """Test list_versions() returns empty list for non-existent key."""
     versions = await registry.list_versions("nonexistent")
@@ -512,7 +512,7 @@ async def test_list_versions_on_nonexistent_key(
 
 @pytest.mark.asyncio
 async def test_get_all_versions_on_nonexistent_key(
-    registry: ReferenceVersionedRegistry[str, type]
+    registry: ReferenceVersionedRegistry[str, type],
 ) -> None:
     """Test get_all_versions() returns empty dict for non-existent key."""
     all_versions = await registry.get_all_versions("nonexistent")
@@ -521,7 +521,7 @@ async def test_get_all_versions_on_nonexistent_key(
 
 @pytest.mark.asyncio
 async def test_is_registered_on_empty_registry(
-    registry: ReferenceVersionedRegistry[str, type]
+    registry: ReferenceVersionedRegistry[str, type],
 ) -> None:
     """Test is_registered() returns False for non-existent key."""
     assert not await registry.is_registered("nonexistent")
@@ -529,7 +529,7 @@ async def test_is_registered_on_empty_registry(
 
 @pytest.mark.asyncio
 async def test_unregister_on_empty_registry(
-    registry: ReferenceVersionedRegistry[str, type]
+    registry: ReferenceVersionedRegistry[str, type],
 ) -> None:
     """Test unregister() returns False for non-existent key (idempotent)."""
     result = await registry.unregister("nonexistent")
@@ -541,7 +541,7 @@ async def test_unregister_on_empty_registry(
 
 @pytest.mark.asyncio
 async def test_register_creates_version_0_0_1_for_new_key(
-    registry: ReferenceVersionedRegistry[str, type]
+    registry: ReferenceVersionedRegistry[str, type],
 ) -> None:
     """Test register() creates version "0.0.1" for new keys."""
 
@@ -561,7 +561,7 @@ async def test_register_creates_version_0_0_1_for_new_key(
 
 @pytest.mark.asyncio
 async def test_register_increments_patch_for_existing_key(
-    registry: ReferenceVersionedRegistry[str, type]
+    registry: ReferenceVersionedRegistry[str, type],
 ) -> None:
     """Test register() increments PATCH component for existing keys."""
 
@@ -588,7 +588,7 @@ async def test_register_increments_patch_for_existing_key(
 
 @pytest.mark.asyncio
 async def test_get_delegates_to_get_latest(
-    registry: ReferenceVersionedRegistry[str, type]
+    registry: ReferenceVersionedRegistry[str, type],
 ) -> None:
     """Test get() returns same result as get_latest()."""
 
@@ -609,7 +609,7 @@ async def test_get_delegates_to_get_latest(
 
 @pytest.mark.asyncio
 async def test_unregister_removes_all_versions(
-    registry: ReferenceVersionedRegistry[str, type]
+    registry: ReferenceVersionedRegistry[str, type],
 ) -> None:
     """Test unregister() removes ALL versions of a key."""
 
@@ -640,7 +640,7 @@ async def test_unregister_removes_all_versions(
 
 @pytest.mark.asyncio
 async def test_unregister_is_idempotent(
-    registry: ReferenceVersionedRegistry[str, type]
+    registry: ReferenceVersionedRegistry[str, type],
 ) -> None:
     """Test unregister() can be called multiple times safely."""
 
@@ -661,7 +661,7 @@ async def test_unregister_is_idempotent(
 
 @pytest.mark.asyncio
 async def test_list_keys_returns_keys_with_versions(
-    registry: ReferenceVersionedRegistry[str, type]
+    registry: ReferenceVersionedRegistry[str, type],
 ) -> None:
     """Test list_keys() returns only keys with at least one version."""
 
@@ -729,7 +729,7 @@ async def test_full_lifecycle(registry: ReferenceVersionedRegistry[str, type]) -
 
 @pytest.mark.asyncio
 async def test_mixed_concurrent_operations(
-    registry: ReferenceVersionedRegistry[str, type]
+    registry: ReferenceVersionedRegistry[str, type],
 ) -> None:
     """Test mixed concurrent reads and writes are safe."""
 

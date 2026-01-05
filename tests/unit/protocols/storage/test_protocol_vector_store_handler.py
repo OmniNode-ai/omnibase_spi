@@ -287,7 +287,9 @@ class CompliantVectorStoreHandler:
             include_vectors,
             score_threshold,
         )
-        results = [MockVectorSearchResult(f"emb-{i}", 0.9 - i * 0.05) for i in range(top_k)]
+        results = [
+            MockVectorSearchResult(f"emb-{i}", 0.9 - i * 0.05) for i in range(top_k)
+        ]
         return MockVectorSearchResults(results=results, total_results=top_k)
 
     async def delete_embedding(
@@ -425,9 +427,9 @@ class TestProtocolVectorStoreHandlerProtocol:
 
     def test_protocol_is_runtime_checkable(self) -> None:
         """ProtocolVectorStoreHandler should be runtime_checkable."""
-        assert hasattr(
-            ProtocolVectorStoreHandler, "_is_runtime_protocol"
-        ) or hasattr(ProtocolVectorStoreHandler, "__runtime_protocol__")
+        assert hasattr(ProtocolVectorStoreHandler, "_is_runtime_protocol") or hasattr(
+            ProtocolVectorStoreHandler, "__runtime_protocol__"
+        )
 
     def test_protocol_is_protocol(self) -> None:
         """ProtocolVectorStoreHandler should be a Protocol class."""
