@@ -309,9 +309,22 @@ class StubExecutionConstrainable:
         has_constraints_flag: bool = True,
         constraints: StubExecutionConstraints | None = None,
     ) -> None:
-        """Initialize stub execution constrainable."""
-        self._has_constraints = has_constraints_flag
-        self._constraints = constraints if has_constraints_flag else None
+        """Initialize stub execution constrainable.
+
+        Note:
+            When has_constraints_flag is True and constraints is None,
+            a default StubExecutionConstraints is created to maintain
+            consistency with the protocol contract (has_constraints()
+            must return True iff execution_constraints is not None).
+        """
+        if has_constraints_flag and constraints is None:
+            self._constraints: StubExecutionConstraints | None = (
+                StubExecutionConstraints()
+            )
+        elif has_constraints_flag:
+            self._constraints = constraints
+        else:
+            self._constraints = None
 
     @property
     def execution_constraints(self) -> StubExecutionConstraints | None:
@@ -319,8 +332,13 @@ class StubExecutionConstrainable:
         return self._constraints
 
     def has_constraints(self) -> bool:
-        """Check if constraints are defined."""
-        return self._has_constraints
+        """Check if constraints are defined.
+
+        Returns:
+            True if and only if execution_constraints is not None,
+            consistent with ProtocolExecutionConstrainable contract.
+        """
+        return self._constraints is not None
 
 
 # ==============================================================================
@@ -833,6 +851,7 @@ class TestProtocolHandlerContractCompliance:
         stub_without = StubHandlerContract(execution_constraints=None)
         assert stub_without.execution_constraints is None
 
+    @pytest.mark.asyncio
     async def test_validate_returns_validation_result(self) -> None:
         """validate method should return validation result."""
         stub = StubHandlerContract()
@@ -1072,6 +1091,7 @@ class TestHandlerContractUsagePatterns:
         assert len(required_caps) == 2
         assert len(optional_caps) == 1
 
+    @pytest.mark.asyncio
     async def test_contract_validation_workflow(self) -> None:
         """Test validation workflow for contracts."""
         contract = StubHandlerContract()

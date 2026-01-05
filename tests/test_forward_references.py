@@ -183,9 +183,13 @@ class TestNodeProtocolImports:
 class TestHandlerProtocolImports:
     """Test handler protocol imports without forward reference errors.
 
-    Validates that ProtocolHandler can be imported from
+    Validates that all handler protocols can be imported from
     omnibase_spi.protocols.handlers without triggering import errors
-    from forward references to Core models used in execute() signatures.
+    from forward references to Core models. This includes:
+
+    - ProtocolHandler: Main handler interface for I/O operations
+    - ProtocolHandlerSource: Handler discovery abstraction
+    - ProtocolHandlerDescriptor: Handler metadata protocol
     """
 
     def test_protocol_handler_import(self) -> None:
@@ -198,6 +202,28 @@ class TestHandlerProtocolImports:
 
         assert ProtocolHandler is not None
         _verify_runtime_checkable_protocol(ProtocolHandler)
+
+    def test_protocol_handler_source_import(self) -> None:
+        """Validate ProtocolHandlerSource import succeeds.
+
+        Handler sources provide a uniform interface for discovering handlers,
+        abstracting away the discovery mechanism (bootstrap, contract, hybrid).
+        """
+        from omnibase_spi.protocols.handlers import ProtocolHandlerSource
+
+        assert ProtocolHandlerSource is not None
+        _verify_runtime_checkable_protocol(ProtocolHandlerSource)
+
+    def test_protocol_handler_descriptor_import(self) -> None:
+        """Validate ProtocolHandlerDescriptor import succeeds.
+
+        Handler descriptors provide metadata about registered handlers for
+        registry management and handler discovery.
+        """
+        from omnibase_spi.protocols.handlers import ProtocolHandlerDescriptor
+
+        assert ProtocolHandlerDescriptor is not None
+        _verify_runtime_checkable_protocol(ProtocolHandlerDescriptor)
 
     def test_all_handler_protocols_in_module_all(self) -> None:
         """Validate all handler protocols are properly exported in __all__.
@@ -240,10 +266,17 @@ class TestHandlerProtocolImports:
 
 
 class TestContractCompilerImports:
-    """Test contract compiler protocol imports without forward reference errors.
+    """Test contract protocol imports without forward reference errors.
 
-    Validates that all contract compiler protocols can be imported from
-    omnibase_spi.protocols.contracts without forward reference errors.
+    Validates that all contract protocols (compilers and supporting types)
+    can be imported from omnibase_spi.protocols.contracts without forward
+    reference errors. This includes:
+
+    - Contract Compilers: ProtocolEffectContractCompiler,
+      ProtocolWorkflowContractCompiler, ProtocolFSMContractCompiler
+    - Handler Contracts: ProtocolHandlerContract
+    - Supporting Types: ProtocolCapabilityDependency,
+      ProtocolExecutionConstraints, ProtocolHandlerBehaviorDescriptor
     """
 
     def test_effect_contract_compiler_import(self) -> None:
@@ -276,12 +309,54 @@ class TestContractCompilerImports:
         assert ProtocolFSMContractCompiler is not None
         _verify_runtime_checkable_protocol(ProtocolFSMContractCompiler)
 
-    def test_all_contract_compilers_in_module_all(self) -> None:
-        """Validate all contract compilers are properly exported in __all__.
+    def test_handler_contract_import(self) -> None:
+        """Validate ProtocolHandlerContract import succeeds.
 
-        Ensures consumers can access all compiler protocols through the
-        contracts module's public API. This uses an explicit expected list
-        to catch any missing exports when new protocols are added.
+        Handler contracts define the type-safe interface for handler behavior
+        specifications including capabilities, constraints, and behavior descriptors.
+        """
+        from omnibase_spi.protocols.contracts import ProtocolHandlerContract
+
+        assert ProtocolHandlerContract is not None
+        _verify_runtime_checkable_protocol(ProtocolHandlerContract)
+
+    def test_capability_dependency_import(self) -> None:
+        """Validate ProtocolCapabilityDependency import succeeds.
+
+        Capability dependencies define requirements between handler capabilities.
+        """
+        from omnibase_spi.protocols.contracts import ProtocolCapabilityDependency
+
+        assert ProtocolCapabilityDependency is not None
+        _verify_runtime_checkable_protocol(ProtocolCapabilityDependency)
+
+    def test_execution_constraints_import(self) -> None:
+        """Validate ProtocolExecutionConstraints import succeeds.
+
+        Execution constraints define runtime limits and requirements for handlers.
+        """
+        from omnibase_spi.protocols.contracts import ProtocolExecutionConstraints
+
+        assert ProtocolExecutionConstraints is not None
+        _verify_runtime_checkable_protocol(ProtocolExecutionConstraints)
+
+    def test_handler_behavior_descriptor_import(self) -> None:
+        """Validate ProtocolHandlerBehaviorDescriptor import succeeds.
+
+        Behavior descriptors define expected handler behaviors and side effects.
+        """
+        from omnibase_spi.protocols.contracts import ProtocolHandlerBehaviorDescriptor
+
+        assert ProtocolHandlerBehaviorDescriptor is not None
+        _verify_runtime_checkable_protocol(ProtocolHandlerBehaviorDescriptor)
+
+    def test_all_contract_protocols_in_module_all(self) -> None:
+        """Validate all contract protocols are properly exported in __all__.
+
+        Ensures consumers can access all contract protocols (compilers and
+        supporting types) through the contracts module's public API. This uses
+        an explicit expected list to catch any missing exports when new
+        protocols are added.
         """
         from omnibase_spi.protocols import contracts
 

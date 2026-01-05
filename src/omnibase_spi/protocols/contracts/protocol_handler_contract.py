@@ -88,7 +88,7 @@ class ProtocolHandlerContract(Protocol):
                 print(f"Requires: {cap.capability_name}")
 
         # Validate the contract
-        result = contract.validate()
+        result = await contract.validate()
         if not result.is_valid:
             for error in result.errors:
                 print(f"Error: {error.message}")
@@ -260,7 +260,7 @@ class ProtocolHandlerContract(Protocol):
 
         Usage:
             ```python
-            result = contract.validate()
+            result = await contract.validate()
             if not result.is_valid:
                 for error in result.errors:
                     logger.error(f"Contract error: {error.message}")
@@ -269,6 +269,12 @@ class ProtocolHandlerContract(Protocol):
 
         Returns:
             Validation result with is_valid status and any errors.
+
+        Raises:
+            RuntimeError: If validation cannot be completed due to
+                internal errors (e.g., missing validator dependencies).
+            TypeError: If contract fields have unexpected types that
+                prevent validation from proceeding.
         """
         ...
 
