@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
+    from omnibase_core.models.handlers import ModelHandlerDescriptor
     from omnibase_core.models.protocol import (
         ModelConnectionConfig,
         ModelOperationConfig,
@@ -125,7 +126,7 @@ class ProtocolHandler(Protocol):
         """
         ...
 
-    def describe(self) -> dict[str, Any]:
+    def describe(self) -> ModelHandlerDescriptor:
         """
         Return handler metadata and capabilities.
 
@@ -134,17 +135,20 @@ class ProtocolHandler(Protocol):
         handler-specific capabilities.
 
         Returns:
-            Dictionary containing handler metadata:
+            ModelHandlerDescriptor containing handler metadata with fields:
                 - handler_type: The handler type (string representation)
                 - capabilities: List of supported operations/features
                 - version: Handler implementation version (optional)
                 - connection_info: Non-sensitive connection details (optional)
 
+            See ``omnibase_core.models.handlers.ModelHandlerDescriptor`` for
+            the complete field specification.
+
         Example:
             ```python
-            metadata = handler.describe()
-            print(f"Handler: {metadata['handler_type']}")
-            print(f"Capabilities: {metadata['capabilities']}")
+            descriptor = handler.describe()
+            print(f"Handler: {descriptor.handler_type}")
+            print(f"Capabilities: {descriptor.capabilities}")
             ```
 
         Security:
@@ -154,23 +158,8 @@ class ProtocolHandler(Protocol):
                 - Internal file paths or system configuration details
                 - PII or sensitive business data
 
-            Safe example::
-
-                {
-                    "handler_type": "postgresql",
-                    "host": "db.example.com",
-                    "port": 5432,
-                    "database": "myapp",
-                    "capabilities": ["read", "write", "transactions"]
-                }
-
-            UNSAFE example (DO NOT DO THIS)::
-
-                {
-                    "handler_type": "postgresql",
-                    "connection_string": "postgresql://admin:secret123@db.example.com:5432/mydb",
-                    "api_key": "[REDACTED]"  # Never include actual keys
-                }
+            Implementations MUST ensure that ``connection_info`` and any
+            optional fields do not expose sensitive data.
 
         Raises:
             HandlerNotInitializedError: If called before initialize().

@@ -14,6 +14,18 @@ from typing import Any
 
 import pytest
 
+from omnibase_core.enums import (
+    EnumHandlerRole,
+    EnumHandlerType,
+    EnumHandlerTypeCategory,
+)
+from omnibase_core.models.handlers import (
+    ModelHandlerDescriptor as CoreModelHandlerDescriptor,
+)
+from omnibase_core.models.handlers import (
+    ModelIdentifier,
+)
+from omnibase_core.models.primitives.model_semver import ModelSemVer
 from omnibase_spi.protocols.handlers import (
     LiteralHandlerSourceType,
     ProtocolHandler,
@@ -21,6 +33,16 @@ from omnibase_spi.protocols.handlers import (
     ProtocolHandlerSource,
 )
 
+
+def _create_mock_descriptor(name: str = "mock-handler") -> CoreModelHandlerDescriptor:
+    """Create a mock ModelHandlerDescriptor for testing."""
+    return CoreModelHandlerDescriptor(
+        handler_name=ModelIdentifier(namespace="test", name=name),
+        handler_version=ModelSemVer(major=1, minor=0, patch=0),
+        handler_role=EnumHandlerRole.INFRA_HANDLER,
+        handler_type=EnumHandlerType.NAMED,
+        handler_type_category=EnumHandlerTypeCategory.EFFECT,
+    )
 
 # =============================================================================
 # Mock Implementations
@@ -47,9 +69,9 @@ class MockProtocolHandler:
         """Execute operation."""
         return {}
 
-    def describe(self) -> dict[str, Any]:
+    def describe(self) -> CoreModelHandlerDescriptor:
         """Describe handler."""
-        return {"handler_type": "mock"}
+        return _create_mock_descriptor(name="mock-protocol-handler")
 
     async def health_check(self) -> dict[str, Any]:
         """Check health."""
