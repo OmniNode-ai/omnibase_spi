@@ -14,12 +14,10 @@ import pytest
 from omnibase_core.enums import EnumHandlerTypeCategory
 from omnibase_core.models.contracts.model_handler_contract import ModelHandlerContract
 from omnibase_core.models.primitives.model_semver import ModelSemVer
-
 from omnibase_spi.factories.handler_contract_factory import (
     HandlerContractFactory,
     get_default_handler_contract,
 )
-
 
 # =============================================================================
 # Test Classes
@@ -655,9 +653,9 @@ class TestVersionParsingErrorHandling:
                 version="invalid",
             )
 
-        error_msg = str(exc_info.value).lower()
+        error_msg = str(exc_info.value)
         # Should include examples of valid formats
-        assert "1.0.0" in str(exc_info.value)
+        assert "1.0.0" in error_msg
 
     def test_convenience_function_also_validates_version(self) -> None:
         """Test that convenience function also validates version strings."""
@@ -854,7 +852,11 @@ class TestTemplateExceptionTypes:
 
     def test_template_not_found_error_is_spi_error(self) -> None:
         """Test that TemplateNotFoundError inherits from SPIError."""
-        from omnibase_spi.exceptions import SPIError, TemplateError, TemplateNotFoundError
+        from omnibase_spi.exceptions import (
+            SPIError,
+            TemplateError,
+            TemplateNotFoundError,
+        )
 
         assert issubclass(TemplateNotFoundError, TemplateError)
         assert issubclass(TemplateNotFoundError, SPIError)

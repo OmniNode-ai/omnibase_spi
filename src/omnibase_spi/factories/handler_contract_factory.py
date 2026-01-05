@@ -13,6 +13,13 @@ Key Components:
     - get_default_handler_contract: Convenience function for quick contract creation
     - Template loading utilities: Internal functions for YAML template management
 
+Security Note:
+    The YAML templates loaded by this factory are bundled with the omnibase_spi
+    package and should be treated as trusted input. The templates are loaded using
+    yaml.safe_load() which prevents arbitrary code execution. However, if you
+    extend this factory to load templates from external sources, additional
+    validation should be implemented.
+
 Usage:
     The recommended way to use this module is via the convenience function:
 
@@ -52,7 +59,6 @@ import yaml  # type: ignore[import-untyped]
 from omnibase_core.enums import EnumHandlerTypeCategory
 from omnibase_core.models.contracts.model_handler_contract import ModelHandlerContract
 from omnibase_core.models.primitives.model_semver import ModelSemVer
-
 from omnibase_spi.exceptions import TemplateNotFoundError, TemplateParseError
 
 # Regex pattern for validating semantic version strings.
@@ -190,7 +196,7 @@ def _get_template_path(template_name: str) -> Path:
                     "template_name": template_name,
                     "search_path": str(package_dir),
                 },
-            )
+            ) from None
         return path
 
 
@@ -316,6 +322,11 @@ class HandlerContractFactory:
         This class is NOT thread-safe. If used in a multi-threaded environment,
         external synchronization should be applied or separate factory instances
         should be used per thread.
+
+    Security:
+        YAML templates are bundled with the package and treated as trusted input.
+        Templates are loaded using yaml.safe_load() to prevent code execution.
+        If extending to load external templates, implement additional validation.
 
     Attributes:
         _template_cache: Internal cache mapping handler types to loaded templates.
@@ -499,7 +510,7 @@ class HandlerContractFactory:
             >>> contract.handler_id
             'json_parser'
             >>> contract.version
-            ModelSemVer(major=1, minor=0, patch=0)
+            '1.0.0'
             >>>
             >>> # Effect handler with custom version
             >>> contract = factory.get_default(
@@ -594,6 +605,10 @@ class HandlerContractFactory:
         Note:
             The returned list order is not guaranteed. If you need consistent
             ordering, sort the result.
+
+            This method never raises exceptions. The list of supported types
+            is determined at module load time from the _DEFAULT_TEMPLATE_MAP
+            constant and is always available.
         """
         return list(_DEFAULT_TEMPLATE_MAP.keys())
 

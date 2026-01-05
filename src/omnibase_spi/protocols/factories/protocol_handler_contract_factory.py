@@ -151,5 +151,11 @@ class ProtocolHandlerContractFactory(Protocol):
             else:
                 raise RuntimeError("EFFECT handlers not supported")
             ```
+
+        Note:
+            This method does not raise exceptions. It returns an empty list if
+            no handler types are configured, though standard implementations
+            always return at least the core types (COMPUTE, EFFECT,
+            NONDETERMINISTIC_COMPUTE).
         """
         ...
