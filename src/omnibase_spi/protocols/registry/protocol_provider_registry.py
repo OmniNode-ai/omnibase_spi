@@ -174,7 +174,7 @@ class ProtocolProviderRegistry(Protocol):
         """
         ...
 
-    def get_available_capability_ids(self) -> Sequence[str]:
+    async def get_available_capability_ids(self) -> Sequence[str]:
         """
         Get all capability IDs available across registered providers.
 
@@ -199,7 +199,7 @@ class ProtocolProviderRegistry(Protocol):
             Result is a point-in-time snapshot.
 
         Example:
-            >>> cap_ids = registry.get_available_capability_ids()
+            >>> cap_ids = await registry.get_available_capability_ids()
             >>> print(f"Available capabilities: {cap_ids}")
         """
         ...

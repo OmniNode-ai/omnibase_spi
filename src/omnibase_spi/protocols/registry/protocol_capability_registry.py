@@ -100,7 +100,7 @@ class ProtocolCapabilityRegistry(Protocol):
         """
         ...
 
-    def get_capability(
+    async def get_capability(
         self,
         capability_id: str,
     ) -> ModelCapabilityMetadata | None:
@@ -117,13 +117,13 @@ class ProtocolCapabilityRegistry(Protocol):
             Result is a point-in-time snapshot.
 
         Example:
-            >>> cap = registry.get_capability("llm.completion")
+            >>> cap = await registry.get_capability("llm.completion")
             >>> if cap is not None:
             ...     print(f"Name: {cap.name}, Version: {cap.version}")
         """
         ...
 
-    def list_all(self) -> Sequence[ModelCapabilityMetadata]:
+    async def list_all(self) -> Sequence[ModelCapabilityMetadata]:
         """
         List all registered capability metadata.
 
@@ -144,7 +144,7 @@ class ProtocolCapabilityRegistry(Protocol):
             during list construction must not cause corruption.
 
         Example:
-            >>> for cap in registry.list_all():
+            >>> for cap in await registry.list_all():
             ...     print(f"{cap.capability}: {cap.description}")
         """
         ...

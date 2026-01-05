@@ -111,7 +111,7 @@ class MockCapabilityRegistry:
             )
         self._capabilities[metadata.capability] = metadata
 
-    def get_capability(
+    async def get_capability(
         self,
         capability_id: str,
     ) -> Any | None:
@@ -126,7 +126,7 @@ class MockCapabilityRegistry:
         """
         return self._capabilities.get(capability_id)
 
-    def list_all(self) -> Sequence[Any]:
+    async def list_all(self) -> Sequence[Any]:
         """
         List all registered capability metadata.
 
@@ -153,11 +153,11 @@ class NonCompliantCapabilityRegistry:
 class MethodOnlyCapabilityRegistry:
     """A class that implements only get_capability and list_all."""
 
-    def get_capability(self, capability_id: str) -> Any | None:
+    async def get_capability(self, capability_id: str) -> Any | None:
         """Return None."""
         return None
 
-    def list_all(self) -> Sequence[Any]:
+    async def list_all(self) -> Sequence[Any]:
         """Return empty list."""
         return []
 
@@ -255,14 +255,15 @@ class TestMockCapabilityRegistryImplementsAllMethods:
 class TestCapabilityRegistration:
     """Test capability registration functionality."""
 
-    def test_register_capability(self) -> None:
+    @pytest.mark.asyncio
+    async def test_register_capability(self) -> None:
         """Should successfully register a capability."""
         registry = MockCapabilityRegistry()
         metadata = MockCapabilityMetadata(capability="llm.completion")
 
         registry.register_capability(metadata)
 
-        assert registry.get_capability("llm.completion") is metadata
+        assert await registry.get_capability("llm.completion") is metadata
 
     def test_register_duplicate_raises_error(self) -> None:
         """Should raise ValueError when registering duplicate without replace."""
@@ -278,7 +279,8 @@ class TestCapabilityRegistration:
         assert "llm.completion" in str(exc_info.value)
         assert "already registered" in str(exc_info.value)
 
-    def test_register_with_replace_updates_capability(self) -> None:
+    @pytest.mark.asyncio
+    async def test_register_with_replace_updates_capability(self) -> None:
         """Should update capability when using replace=True."""
         registry = MockCapabilityRegistry()
         metadata1 = MockCapabilityMetadata(capability="llm.completion", version="1.0.0")
@@ -287,11 +289,12 @@ class TestCapabilityRegistration:
         registry.register_capability(metadata1)
         registry.register_capability(metadata2, replace=True)
 
-        result = registry.get_capability("llm.completion")
+        result = await registry.get_capability("llm.completion")
         assert result is metadata2
         assert result.version == "2.0.0"
 
-    def test_register_multiple_capabilities(self) -> None:
+    @pytest.mark.asyncio
+    async def test_register_multiple_capabilities(self) -> None:
         """Should successfully register multiple different capabilities."""
         registry = MockCapabilityRegistry()
         meta1 = MockCapabilityMetadata(capability="llm.completion")
@@ -302,17 +305,18 @@ class TestCapabilityRegistration:
         registry.register_capability(meta2)
         registry.register_capability(meta3)
 
-        assert len(registry.list_all()) == 3
-        assert registry.get_capability("llm.completion") is meta1
-        assert registry.get_capability("llm.embedding") is meta2
-        assert registry.get_capability("llm.chat") is meta3
+        assert len(await registry.list_all()) == 3
+        assert await registry.get_capability("llm.completion") is meta1
+        assert await registry.get_capability("llm.embedding") is meta2
+        assert await registry.get_capability("llm.chat") is meta3
 
 
 @pytest.mark.unit
 class TestCapabilityLookup:
     """Test capability lookup functionality."""
 
-    def test_get_capability_existing(self) -> None:
+    @pytest.mark.asyncio
+    async def test_get_capability_existing(self) -> None:
         """Should return capability when it exists."""
         registry = MockCapabilityRegistry()
         metadata = MockCapabilityMetadata(
@@ -323,26 +327,29 @@ class TestCapabilityLookup:
 
         registry.register_capability(metadata)
 
-        result = registry.get_capability("llm.completion")
+        result = await registry.get_capability("llm.completion")
         assert result is metadata
         assert result.name == "LLM Completion"
         assert result.version == "1.0.0"
 
-    def test_get_capability_nonexistent_returns_none(self) -> None:
+    @pytest.mark.asyncio
+    async def test_get_capability_nonexistent_returns_none(self) -> None:
         """Should return None for non-existent capability."""
         registry = MockCapabilityRegistry()
 
-        result = registry.get_capability("nonexistent-capability")
+        result = await registry.get_capability("nonexistent-capability")
         assert result is None
 
-    def test_list_all_empty_registry(self) -> None:
+    @pytest.mark.asyncio
+    async def test_list_all_empty_registry(self) -> None:
         """Should return empty sequence for empty registry."""
         registry = MockCapabilityRegistry()
 
-        result = registry.list_all()
+        result = await registry.list_all()
         assert len(result) == 0
 
-    def test_list_all_returns_all_capabilities(self) -> None:
+    @pytest.mark.asyncio
+    async def test_list_all_returns_all_capabilities(self) -> None:
         """Should return all registered capabilities."""
         registry = MockCapabilityRegistry()
         meta1 = MockCapabilityMetadata(capability="cap-a")
@@ -351,7 +358,7 @@ class TestCapabilityLookup:
         registry.register_capability(meta1)
         registry.register_capability(meta2)
 
-        result = registry.list_all()
+        result = await registry.list_all()
         assert len(result) == 2
         capability_ids = {c.capability for c in result}
         assert capability_ids == {"cap-a", "cap-b"}
@@ -361,17 +368,19 @@ class TestCapabilityLookup:
 class TestRegistryInvariants:
     """Test registry invariants documented in the protocol."""
 
-    def test_invariant_register_then_get(self) -> None:
+    @pytest.mark.asyncio
+    async def test_invariant_register_then_get(self) -> None:
         """After register_capability(m), get_capability(m.capability) returns m."""
         registry = MockCapabilityRegistry()
         metadata = MockCapabilityMetadata(capability="test-cap")
 
         registry.register_capability(metadata)
-        result = registry.get_capability("test-cap")
+        result = await registry.get_capability("test-cap")
 
         assert result is metadata
 
-    def test_invariant_list_all_consistent_with_get(self) -> None:
+    @pytest.mark.asyncio
+    async def test_invariant_list_all_consistent_with_get(self) -> None:
         """list_all() returns exactly the capabilities for which get_capability() returns non-None."""
         registry = MockCapabilityRegistry()
         meta1 = MockCapabilityMetadata(capability="cap-a")
@@ -382,21 +391,22 @@ class TestRegistryInvariants:
         registry.register_capability(meta2)
         registry.register_capability(meta3)
 
-        listed = registry.list_all()
+        listed = await registry.list_all()
         listed_ids = {c.capability for c in listed}
 
         # Check all listed items can be retrieved
         for cap in listed:
-            assert registry.get_capability(cap.capability) is not None
+            assert await registry.get_capability(cap.capability) is not None
 
         # Check consistency
         assert len(listed_ids) == 3
         for cap_id in ["cap-a", "cap-b", "cap-c"]:
-            result = registry.get_capability(cap_id)
+            result = await registry.get_capability(cap_id)
             if result is not None:
                 assert cap_id in listed_ids
 
-    def test_invariant_list_all_no_duplicates(self) -> None:
+    @pytest.mark.asyncio
+    async def test_invariant_list_all_no_duplicates(self) -> None:
         """list_all() should not contain duplicates."""
         registry = MockCapabilityRegistry()
         meta1 = MockCapabilityMetadata(capability="cap-a")
@@ -410,7 +420,7 @@ class TestRegistryInvariants:
             replace=True,
         )
 
-        listed = registry.list_all()
+        listed = await registry.list_all()
         capability_ids = [c.capability for c in listed]
 
         # Check no duplicates
@@ -493,15 +503,17 @@ class TestProtocolCapabilityRegistryDocumentation:
 class TestEdgeCases:
     """Test edge cases for ProtocolCapabilityRegistry."""
 
-    def test_empty_capability_id(self) -> None:
+    @pytest.mark.asyncio
+    async def test_empty_capability_id(self) -> None:
         """Should handle empty capability ID correctly."""
         registry = MockCapabilityRegistry()
         metadata = MockCapabilityMetadata(capability="")
 
         registry.register_capability(metadata)
-        assert registry.get_capability("") is metadata
+        assert await registry.get_capability("") is metadata
 
-    def test_semantic_capability_ids(self) -> None:
+    @pytest.mark.asyncio
+    async def test_semantic_capability_ids(self) -> None:
         """Should handle semantic capability IDs (e.g., 'llm.completion')."""
         registry = MockCapabilityRegistry()
         meta1 = MockCapabilityMetadata(capability="llm.completion")
@@ -512,11 +524,12 @@ class TestEdgeCases:
         registry.register_capability(meta2)
         registry.register_capability(meta3)
 
-        assert registry.get_capability("llm.completion") is meta1
-        assert registry.get_capability("llm.embedding.text") is meta2
-        assert registry.get_capability("storage.vector.upsert") is meta3
+        assert await registry.get_capability("llm.completion") is meta1
+        assert await registry.get_capability("llm.embedding.text") is meta2
+        assert await registry.get_capability("storage.vector.upsert") is meta3
 
-    def test_capability_with_all_fields(self) -> None:
+    @pytest.mark.asyncio
+    async def test_capability_with_all_fields(self) -> None:
         """Should handle capability with all metadata fields."""
         registry = MockCapabilityRegistry()
         metadata = MockCapabilityMetadata(
@@ -532,7 +545,7 @@ class TestEdgeCases:
         )
 
         registry.register_capability(metadata)
-        result = registry.get_capability("llm.completion")
+        result = await registry.get_capability("llm.completion")
 
         assert result is not None
         assert result.capability == "llm.completion"
@@ -542,7 +555,8 @@ class TestEdgeCases:
         assert result.metadata["max_tokens"] == 4096
         assert result.metadata["streaming"] is True
 
-    def test_case_sensitive_capability_ids(self) -> None:
+    @pytest.mark.asyncio
+    async def test_case_sensitive_capability_ids(self) -> None:
         """Capability IDs should be case-sensitive."""
         registry = MockCapabilityRegistry()
         meta1 = MockCapabilityMetadata(capability="LLM.Completion")
@@ -551,16 +565,17 @@ class TestEdgeCases:
         registry.register_capability(meta1)
         registry.register_capability(meta2)
 
-        assert registry.get_capability("LLM.Completion") is meta1
-        assert registry.get_capability("llm.completion") is meta2
-        assert len(registry.list_all()) == 2
+        assert await registry.get_capability("LLM.Completion") is meta1
+        assert await registry.get_capability("llm.completion") is meta2
+        assert len(await registry.list_all()) == 2
 
 
 @pytest.mark.unit
 class TestUsagePatterns:
     """Test common usage patterns for ProtocolCapabilityRegistry."""
 
-    def test_capability_discovery_pattern(self) -> None:
+    @pytest.mark.asyncio
+    async def test_capability_discovery_pattern(self) -> None:
         """Test typical capability discovery workflow."""
         registry = MockCapabilityRegistry()
 
@@ -581,13 +596,14 @@ class TestUsagePatterns:
         )
 
         # Discovery pattern: list all and filter
-        all_caps = registry.list_all()
+        all_caps = await registry.list_all()
         llm_caps = [c for c in all_caps if c.capability.startswith("llm.")]
 
         assert len(llm_caps) == 2
         assert all(c.capability.startswith("llm.") for c in llm_caps)
 
-    def test_documentation_generation_pattern(self) -> None:
+    @pytest.mark.asyncio
+    async def test_documentation_generation_pattern(self) -> None:
         """Test capability documentation generation pattern."""
         registry = MockCapabilityRegistry()
 
@@ -610,7 +626,7 @@ class TestUsagePatterns:
 
         # Documentation generation pattern
         docs = []
-        for cap in registry.list_all():
+        for cap in await registry.list_all():
             docs.append(
                 f"## {cap.name} (v{cap.version})\n"
                 f"ID: `{cap.capability}`\n"
@@ -621,7 +637,8 @@ class TestUsagePatterns:
         assert any("LLM Completion" in doc for doc in docs)
         assert any("llm.chat" in doc for doc in docs)
 
-    def test_version_update_pattern(self) -> None:
+    @pytest.mark.asyncio
+    async def test_version_update_pattern(self) -> None:
         """Test capability version update workflow."""
         registry = MockCapabilityRegistry()
 
@@ -633,7 +650,7 @@ class TestUsagePatterns:
         registry.register_capability(v1)
 
         # Check current version
-        current = registry.get_capability("llm.completion")
+        current = await registry.get_capability("llm.completion")
         assert current is not None
         assert current.version == "1.0.0"
 
@@ -645,6 +662,6 @@ class TestUsagePatterns:
         registry.register_capability(v2, replace=True)
 
         # Verify update
-        updated = registry.get_capability("llm.completion")
+        updated = await registry.get_capability("llm.completion")
         assert updated is not None
         assert updated.version == "2.0.0"
