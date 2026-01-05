@@ -121,6 +121,7 @@ ignore = [
 
 [tool.ruff.lint.isort]
 known-first-party = ["omnibase_spi", "omnibase_core"]
+combine-as-imports = true  # Allow aliased imports to be combined with non-aliased
 
 [tool.ruff.format]
 quote-style = "double"
