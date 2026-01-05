@@ -286,9 +286,13 @@ class TestContractCompilerImports:
         from omnibase_spi.protocols import contracts
 
         expected = {
+            "ProtocolCapabilityDependency",
             "ProtocolEffectContractCompiler",
-            "ProtocolWorkflowContractCompiler",
+            "ProtocolExecutionConstraints",
             "ProtocolFSMContractCompiler",
+            "ProtocolHandlerBehaviorDescriptor",
+            "ProtocolHandlerContract",
+            "ProtocolWorkflowContractCompiler",
         }
         for protocol_name in expected:
             assert protocol_name in contracts.__all__, f"{protocol_name} not in __all__"
@@ -2141,9 +2145,7 @@ class TestProtocolSignatureValidation:
 
         # Verify only self parameter exists
         assert "self" in params, "list_keys() missing 'self' parameter"
-        assert (
-            len(params) == 1
-        ), f"list_keys() should only have 'self', got {params}"
+        assert len(params) == 1, f"list_keys() should only have 'self', got {params}"
 
         # Verify return annotation exists (should be list[str])
         assert (

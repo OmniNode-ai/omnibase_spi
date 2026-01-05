@@ -136,6 +136,15 @@ class EmptyDirectoryValidator:
 
             all_files = [f for f in item.iterdir() if f.is_file()]
             files = [f for f in all_files if f.name not in self.METADATA_FILES]
+            subdirs = [
+                d
+                for d in item.iterdir()
+                if d.is_dir() and not d.is_symlink() and not self._should_exclude(d)
+            ]
+
+            # If directory has subdirectories, it's not empty (even with just __init__.py)
+            if subdirs:
+                continue
 
             if len(files) == 0:
                 self.violations.append(EmptyDirectoryViolation(item, has_init=False))
