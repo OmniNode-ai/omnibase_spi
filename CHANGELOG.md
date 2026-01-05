@@ -218,6 +218,31 @@ result = await handler.traverse(
 )
 ```
 
+### Added
+
+#### Handler Contract Factory (OMN-1120)
+- **HandlerContractFactory**: Factory class for creating default handler contracts based on handler type category
+  - Template-based approach using YAML files for safe, production-ready defaults
+  - Supports COMPUTE, EFFECT, and NONDETERMINISTIC_COMPUTE handler types
+  - Template caching for performance with deep copy protection
+  - Semantic version parsing with full semver support (prerelease, build metadata)
+- **ProtocolHandlerContractFactory**: Protocol defining the factory interface
+  - `get_default()`: Create contracts with type-safe defaults
+  - `available_types()`: Discover supported handler categories
+- **get_default_handler_contract()**: Convenience function using cached singleton factory
+- **YAML Templates**: Default contract templates in `contracts/defaults/`
+  - `default_compute_handler.yaml`: Pure computation, no I/O
+  - `default_effect_handler.yaml`: Side-effecting operations with retry policies
+  - `default_nondeterministic_compute_handler.yaml`: AI/LLM handlers with extended timeouts
+- **Template Exceptions**: New exception types for template operations
+  - `TemplateError`: Base class for template-related errors
+  - `TemplateNotFoundError`: Raised when template file is missing
+  - `TemplateParseError`: Raised when YAML parsing fails
+- **Test Coverage**: 1000+ lines of comprehensive tests
+  - Version parsing validation (semver compliance)
+  - Template caching and isolation tests
+  - Error handling coverage
+
 ## [0.4.0] - 2025-12-15
 
 ### Added

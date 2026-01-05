@@ -1,0 +1,48 @@
+# Default Handler Contract Template - EFFECT
+#
+# For side-effecting handlers (database, HTTP, file I/O, etc.).
+# NOT replay-safe without special handling.
+#
+# Usage: Extend this template via patch system for custom effect handlers.
+
+handler_id: "template.effect.default"
+name: "Default Effect Handler"
+version: "1.0.0"
+description: "Default template for side-effecting handlers"
+
+descriptor:
+  handler_kind: effect
+  purity: side_effecting
+  idempotent: false  # Conservative default - most effects are not idempotent
+  timeout_ms: 30000  # 30 second default timeout
+  retry_policy:
+    enabled: true
+    max_retries: 3
+    backoff_strategy: exponential
+    base_delay_ms: 100
+    max_delay_ms: 5000
+  concurrency_policy: serialized  # Conservative - serialize by default
+  circuit_breaker:
+    enabled: true
+    failure_threshold: 5
+    timeout_ms: 30000
+    half_open_requests: 3
+
+# Capability inputs - effect handlers typically need external resources
+capability_inputs: []  # To be specified by concrete handlers
+
+# Output capabilities
+capability_outputs:
+  - "effect.result"
+
+# Model references (to be overridden)
+input_model: "omnibase_core.models.base.BaseModel"
+output_model: "omnibase_core.models.base.BaseModel"
+
+# Execution constraints
+execution_constraints:
+  requires_before: []
+  requires_after: []
+  must_run: false
+  can_run_parallel: false  # Conservative - effects should not run in parallel
+  nondeterministic_effect: true

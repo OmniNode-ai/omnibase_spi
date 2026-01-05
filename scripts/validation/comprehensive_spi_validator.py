@@ -764,6 +764,7 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
             "omnibase_core.models",
             "omnibase_core.contracts",
             "omnibase_core.types",
+            "omnibase_core.enums",
         ]
 
         # Forbidden imports
