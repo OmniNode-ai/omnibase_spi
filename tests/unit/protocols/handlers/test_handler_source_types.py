@@ -87,15 +87,12 @@ class TestLiteralHandlerSourceTypeUsage:
         """All values can be matched exhaustively."""
 
         def describe_source(source_type: LiteralHandlerSourceType) -> str:
-            if source_type == "BOOTSTRAP":  # noqa: SIM116
-                return "Handlers registered at startup"
-            elif source_type == "CONTRACT":
-                return "Handlers from contracts"
-            elif source_type == "HYBRID":
-                return "Combined bootstrap and contract"
-            # Note: In practice, this else would be unreachable
-            # with proper type checking
-            return "Unknown"
+            descriptions: dict[LiteralHandlerSourceType, str] = {
+                "BOOTSTRAP": "Handlers registered at startup",
+                "CONTRACT": "Handlers from contracts",
+                "HYBRID": "Combined bootstrap and contract",
+            }
+            return descriptions.get(source_type, "Unknown")
 
         assert describe_source("BOOTSTRAP") == "Handlers registered at startup"
         assert describe_source("CONTRACT") == "Handlers from contracts"
