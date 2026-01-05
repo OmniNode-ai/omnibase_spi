@@ -401,6 +401,50 @@ class ProjectionReadError(SPIError):
     pass
 
 
+class SchemaError(SPIError):
+    """
+    Errors raised during database schema operations.
+
+    Raised when schema creation, validation, or migration fails. This
+    includes table creation, index management, and schema compatibility
+    checks during projector initialization.
+
+    Args:
+        message: The error message describing what went wrong.
+        context: Optional dictionary containing schema operation details.
+
+    Example:
+        raise SchemaError(
+            f"Failed to create table: {table_name}"
+        )
+
+    Example with context:
+        raise SchemaError(
+            "Schema creation failed",
+            context={
+                "table_name": "order_projections",
+                "operation": "create_table",
+                "database": "postgres",
+                "error": str(e),
+                "contract_path": "/app/contracts/orders.yaml"
+            }
+        )
+
+    Common Causes:
+        - Database connection failure during schema creation
+        - Insufficient permissions to create tables/indexes
+        - Schema incompatibility (existing table doesn't match contract)
+        - Invalid column type specifications in contract
+
+    Related:
+        - OMN-1167: Define ProtocolProjectorLoader in omnibase_spi
+        - ContractCompilerError: For contract parsing/validation errors
+        - ProjectorError: For runtime projection persistence errors
+    """
+
+    pass
+
+
 class TemplateError(SPIError):
     """
     Base exception for template loading and processing errors.

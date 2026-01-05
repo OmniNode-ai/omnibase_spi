@@ -316,6 +316,14 @@ from omnibase_spi.protocols.projections import (
     ProtocolSequenceInfo,
 )
 
+# Projectors protocols (2 protocols) - Event-to-state projection and loader
+# Note: ProtocolEventProjector here handles event-to-state projection
+# projections.ProtocolProjector handles projection persistence with ordering
+from omnibase_spi.protocols.projectors import (
+    ProtocolEventProjector,
+    ProtocolProjectorLoader,
+)
+
 # Naming consistency alias (Issue #5)
 # ProtocolEnvelope is the canonical name per roadmap specification
 ProtocolEnvelope = ProtocolOnexEnvelope
@@ -489,6 +497,7 @@ __all__ = [
     "ProtocolEventBusTransactionalProducer",
     "ProtocolEventEnvelope",
     "ProtocolEventMessage",
+    "ProtocolEventProjector",
     "ProtocolEventPublisher",
     "ProtocolEventQueryOptions",
     "ProtocolEventStore",
@@ -566,6 +575,7 @@ __all__ = [
     "ProtocolPrimitiveEffectExecutor",
     "ProtocolProjectionReader",
     "ProtocolProjector",
+    "ProtocolProjectorLoader",
     "ProtocolProviderRegistry",
     "ProtocolReducerNode",
     "ProtocolRedpandaAdapter",

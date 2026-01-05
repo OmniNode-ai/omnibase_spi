@@ -625,8 +625,6 @@ class TestProtocolImports:
         """Test import from event_bus package __init__."""
         from omnibase_spi.protocols.event_bus import (
             ProtocolEventBusClient as PackageClient,
-        )
-        from omnibase_spi.protocols.event_bus import (
             ProtocolEventBusConsumer as PackageConsumer,
         )
 
