@@ -69,6 +69,8 @@ if TYPE_CHECKING:
         ProtocolEventProjector,
     )
 
+__all__ = ["ProtocolProjectorLoader"]
+
 
 @runtime_checkable
 class ProtocolProjectorLoader(Protocol):

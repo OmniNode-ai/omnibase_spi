@@ -136,7 +136,7 @@ class MockProviderRegistry:
         """
         return list(self._providers.values())
 
-    async def get_available_capability_ids(self) -> Sequence[str]:
+    def get_available_capability_ids(self) -> Sequence[str]:
         """
         Get all capability IDs available across registered providers.
 
@@ -473,16 +473,14 @@ class TestProviderLookup:
 class TestCapabilityDiscovery:
     """Test capability discovery functionality."""
 
-    @pytest.mark.asyncio
-    async def test_get_available_capability_ids_empty(self) -> None:
+    def test_get_available_capability_ids_empty(self) -> None:
         """Should return empty sequence when no providers registered."""
         registry = MockProviderRegistry()
 
-        result = await registry.get_available_capability_ids()
+        result = registry.get_available_capability_ids()
         assert len(result) == 0
 
-    @pytest.mark.asyncio
-    async def test_get_available_capability_ids_returns_all_capabilities(self) -> None:
+    def test_get_available_capability_ids_returns_all_capabilities(self) -> None:
         """Should return all unique capabilities from all providers."""
         registry = MockProviderRegistry()
         desc1 = MockProviderDescriptor(
@@ -495,7 +493,7 @@ class TestCapabilityDiscovery:
         registry.register(desc1)
         registry.register(desc2)
 
-        result = await registry.get_available_capability_ids()
+        result = registry.get_available_capability_ids()
         assert set(result) == {"cap-a", "cap-b", "cap-c"}
 
     def test_find_by_capability_returns_matching_providers(self) -> None:

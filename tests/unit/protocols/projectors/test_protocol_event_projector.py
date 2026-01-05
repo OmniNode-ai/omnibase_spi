@@ -16,7 +16,7 @@ Note:
 
 from __future__ import annotations
 
-from typing import Any, Protocol
+from typing import Any, ClassVar, Protocol
 from uuid import UUID, uuid4
 
 import pytest
@@ -292,7 +292,7 @@ class TestProtocolEventProjectorProtocol:
     """Test suite for ProtocolEventProjector protocol definition."""
 
     # Define expected protocol members for exhaustiveness checking
-    EXPECTED_PROTOCOL_MEMBERS = {
+    EXPECTED_PROTOCOL_MEMBERS: ClassVar[set[str]] = {
         "projector_id",
         "aggregate_type",
         "consumed_events",
@@ -300,11 +300,13 @@ class TestProtocolEventProjectorProtocol:
         "get_state",
     }
 
-    def test_all_protocol_members_have_tests(self) -> None:
-        """Verify all protocol members have corresponding tests in this module.
+    def test_no_unexpected_protocol_members(self) -> None:
+        """Verify no unexpected public members were added to protocol.
 
-        This exhaustiveness check ensures that when new members are added to
-        ProtocolEventProjector, corresponding tests are also added.
+        This test catches when new members are added to ProtocolEventProjector
+        without updating EXPECTED_PROTOCOL_MEMBERS. If this test fails, either:
+        1. Add the new member to EXPECTED_PROTOCOL_MEMBERS, OR
+        2. The new member was added unintentionally and should be removed.
         """
         import inspect
 
@@ -315,11 +317,35 @@ class TestProtocolEventProjectorProtocol:
             if not name.startswith("_")
         }
 
-        # Verify our expected members match the actual protocol members
-        assert protocol_members == self.EXPECTED_PROTOCOL_MEMBERS, (
-            f"Protocol members changed! "
-            f"New members: {protocol_members - self.EXPECTED_PROTOCOL_MEMBERS}, "
-            f"Removed members: {self.EXPECTED_PROTOCOL_MEMBERS - protocol_members}"
+        unexpected = protocol_members - self.EXPECTED_PROTOCOL_MEMBERS
+        assert not unexpected, (
+            f"Unexpected protocol members found: {unexpected}. "
+            f"If these are intentional additions, update EXPECTED_PROTOCOL_MEMBERS. "
+            f"Current expected: {sorted(self.EXPECTED_PROTOCOL_MEMBERS)}"
+        )
+
+    def test_no_missing_protocol_members(self) -> None:
+        """Verify all expected members exist in protocol.
+
+        This test catches when members are removed from ProtocolEventProjector
+        without updating EXPECTED_PROTOCOL_MEMBERS. If this test fails, either:
+        1. Remove the missing member from EXPECTED_PROTOCOL_MEMBERS, OR
+        2. The member was removed unintentionally and should be restored.
+        """
+        import inspect
+
+        # Get all public members of the protocol (excluding dunder methods)
+        protocol_members = {
+            name
+            for name, _ in inspect.getmembers(ProtocolEventProjector)
+            if not name.startswith("_")
+        }
+
+        missing = self.EXPECTED_PROTOCOL_MEMBERS - protocol_members
+        assert not missing, (
+            f"Expected protocol members missing: {missing}. "
+            f"If these were intentionally removed, update EXPECTED_PROTOCOL_MEMBERS. "
+            f"Current actual members: {sorted(protocol_members)}"
         )
 
     def test_mock_implements_all_protocol_members(self) -> None:
@@ -1056,6 +1082,46 @@ class TestIdempotencyComprehensive:
 
         # All should succeed (idempotent operation)
         assert all(r.success for r in results)
+
+
+@pytest.mark.unit
+class TestProtocolEventProjectorExports:
+    """Test that ProtocolEventProjector is properly exported via __all__."""
+
+    def test_protocol_in_package_all(self) -> None:
+        """ProtocolEventProjector should be listed in projectors package __all__."""
+        from omnibase_spi.protocols import projectors
+
+        assert hasattr(projectors, "__all__"), "projectors package should have __all__"
+        assert (
+            "ProtocolEventProjector" in projectors.__all__
+        ), "ProtocolEventProjector should be in projectors.__all__"
+
+    def test_protocol_in_module_all(self) -> None:
+        """ProtocolEventProjector should be listed in module __all__."""
+        from omnibase_spi.protocols.projectors import protocol_event_projector
+
+        assert hasattr(
+            protocol_event_projector, "__all__"
+        ), "protocol_event_projector module should have __all__"
+        assert (
+            "ProtocolEventProjector" in protocol_event_projector.__all__
+        ), "ProtocolEventProjector should be in protocol_event_projector.__all__"
+
+    def test_protocol_exported_from_package(self) -> None:
+        """ProtocolEventProjector should be accessible from projectors package."""
+        from omnibase_spi.protocols.projectors import ProtocolEventProjector
+
+        assert ProtocolEventProjector is not None
+
+    def test_all_exports_match_package_contents(self) -> None:
+        """All symbols in __all__ should be importable from the package."""
+        from omnibase_spi.protocols import projectors
+
+        for symbol_name in projectors.__all__:
+            assert hasattr(
+                projectors, symbol_name
+            ), f"Symbol '{symbol_name}' listed in __all__ but not in package"
 
 
 @pytest.mark.unit

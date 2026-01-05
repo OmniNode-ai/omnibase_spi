@@ -11,7 +11,8 @@ Validates that ProtocolProjectorLoader:
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
+from uuid import UUID
 
 import pytest
 
@@ -20,8 +21,26 @@ from omnibase_spi.protocols.projectors.protocol_projector_loader import (
 )
 
 
+class MockProjectionResult:
+    """Mock projection result for testing.
+
+    Mimics the structure of ModelProjectionResult for testing purposes.
+    """
+
+    def __init__(
+        self,
+        success: bool = True,
+        skipped: bool = False,
+        reason: str | None = None,
+    ) -> None:
+        """Initialize the mock projection result."""
+        self.success = success
+        self.skipped = skipped
+        self.reason = reason
+
+
 class MockProjector:
-    """Mock projector for testing loader implementations.
+    """Mock projector implementing ProtocolEventProjector interface.
 
     This is a minimal mock that satisfies the structural requirements
     of ProtocolEventProjector for testing purposes.
@@ -29,57 +48,51 @@ class MockProjector:
 
     def __init__(self, name: str, domain: str) -> None:
         """Initialize the mock projector."""
-        self.name = name
-        self.domain = domain
+        self._name = name
+        self._domain = domain
+        self._consumed_events = ["Created", "Updated", "Deleted"]
+        self._state: dict[UUID, dict[str, Any]] = {}
 
-    async def persist(
-        self,
-        projection: Any,
-        entity_id: str,
-        domain: str,
-        sequence_info: Any,
-        *,
-        correlation_id: str | None = None,
-    ) -> Any:
-        """Mock persist method."""
-        return {"status": "applied", "entity_id": entity_id}
+    @property
+    def projector_id(self) -> str:
+        """Unique identifier for this projector."""
+        return f"{self._name}-projector-v1"
 
-    async def batch_persist(
-        self,
-        projections: Any,
-        *,
-        correlation_id: str | None = None,
-    ) -> Any:
-        """Mock batch persist method."""
-        return {"total_count": 0, "applied_count": 0, "rejected_count": 0}
+    @property
+    def aggregate_type(self) -> str:
+        """The aggregate type this projector handles."""
+        return self._domain
 
-    async def get_last_sequence(
-        self,
-        entity_id: str,
-        domain: str,
-    ) -> Any:
-        """Mock get last sequence method."""
-        return None
+    @property
+    def consumed_events(self) -> list[str]:
+        """Event types this projector consumes."""
+        return self._consumed_events
 
-    async def is_stale(
-        self,
-        entity_id: str,
-        domain: str,
-        sequence_info: Any,
-    ) -> bool:
-        """Mock is stale method."""
-        return False
+    async def project(self, event: Any) -> MockProjectionResult:
+        """Project event to persistence store.
 
-    async def cleanup_before_sequence(
-        self,
-        domain: str,
-        sequence: int,
-        *,
-        batch_size: int = 1000,
-        confirmed: bool = False,
-    ) -> int:
-        """Mock cleanup method."""
-        return 0
+        Args:
+            event: The event envelope to project.
+
+        Returns:
+            MockProjectionResult indicating projection outcome.
+        """
+        # Mock implementation - store event data in state
+        aggregate_id = getattr(event, "aggregate_id", None)
+        if aggregate_id is not None:
+            self._state[aggregate_id] = {"projected": True}
+        return MockProjectionResult(success=True)
+
+    async def get_state(self, aggregate_id: UUID) -> dict[str, Any] | None:
+        """Get current projected state for an aggregate.
+
+        Args:
+            aggregate_id: The UUID of the aggregate to retrieve.
+
+        Returns:
+            The current materialized state, or None if not found.
+        """
+        return self._state.get(aggregate_id)
 
 
 class MockProjectorLoader:
@@ -176,17 +189,19 @@ class TestProtocolProjectorLoaderProtocol:
     """Test suite for ProtocolProjectorLoader protocol compliance."""
 
     # Define expected protocol members for exhaustiveness checking
-    EXPECTED_PROTOCOL_MEMBERS = {
+    EXPECTED_PROTOCOL_MEMBERS: ClassVar[set[str]] = {
         "load_from_contract",
         "load_from_directory",
         "discover_and_load",
     }
 
-    def test_all_protocol_members_have_tests(self) -> None:
-        """Verify all protocol members have corresponding tests in this module.
+    def test_no_unexpected_protocol_members(self) -> None:
+        """Verify no unexpected public members were added to protocol.
 
-        This exhaustiveness check ensures that when new members are added to
-        ProtocolProjectorLoader, corresponding tests are also added.
+        This test catches when new members are added to ProtocolProjectorLoader
+        without updating EXPECTED_PROTOCOL_MEMBERS. If this test fails, either:
+        1. Add the new member to EXPECTED_PROTOCOL_MEMBERS, OR
+        2. The new member was added unintentionally and should be removed.
         """
         import inspect
 
@@ -197,11 +212,35 @@ class TestProtocolProjectorLoaderProtocol:
             if not name.startswith("_")
         }
 
-        # Verify our expected members match the actual protocol members
-        assert protocol_members == self.EXPECTED_PROTOCOL_MEMBERS, (
-            f"Protocol members changed! "
-            f"New members: {protocol_members - self.EXPECTED_PROTOCOL_MEMBERS}, "
-            f"Removed members: {self.EXPECTED_PROTOCOL_MEMBERS - protocol_members}"
+        unexpected = protocol_members - self.EXPECTED_PROTOCOL_MEMBERS
+        assert not unexpected, (
+            f"Unexpected protocol members found: {unexpected}. "
+            f"If these are intentional additions, update EXPECTED_PROTOCOL_MEMBERS. "
+            f"Current expected: {sorted(self.EXPECTED_PROTOCOL_MEMBERS)}"
+        )
+
+    def test_no_missing_protocol_members(self) -> None:
+        """Verify all expected members exist in protocol.
+
+        This test catches when members are removed from ProtocolProjectorLoader
+        without updating EXPECTED_PROTOCOL_MEMBERS. If this test fails, either:
+        1. Remove the missing member from EXPECTED_PROTOCOL_MEMBERS, OR
+        2. The member was removed unintentionally and should be restored.
+        """
+        import inspect
+
+        # Get all public members of the protocol (excluding dunder methods)
+        protocol_members = {
+            name
+            for name, _ in inspect.getmembers(ProtocolProjectorLoader)
+            if not name.startswith("_")
+        }
+
+        missing = self.EXPECTED_PROTOCOL_MEMBERS - protocol_members
+        assert not missing, (
+            f"Expected protocol members missing: {missing}. "
+            f"If these were intentionally removed, update EXPECTED_PROTOCOL_MEMBERS. "
+            f"Current actual members: {sorted(protocol_members)}"
         )
 
     def test_mock_implements_all_protocol_members(self) -> None:
@@ -330,7 +369,7 @@ class TestProtocolProjectorLoaderMethodSignatures:
         projector = await loader.load_from_contract(contract_path)
 
         assert projector is not None
-        assert projector.name == "test"
+        assert projector.projector_id == "test-projector-v1"
 
     @pytest.mark.asyncio
     async def test_load_from_contract_returns_projector(self) -> None:
@@ -340,10 +379,13 @@ class TestProtocolProjectorLoaderMethodSignatures:
 
         projector = await loader.load_from_contract(contract_path)
 
-        # Verify it has projector-like attributes
-        assert hasattr(projector, "persist")
-        assert hasattr(projector, "name")
-        assert projector.name == "orders"
+        # Verify it has ProtocolEventProjector interface attributes
+        assert hasattr(projector, "projector_id")
+        assert hasattr(projector, "aggregate_type")
+        assert hasattr(projector, "consumed_events")
+        assert hasattr(projector, "project")
+        assert hasattr(projector, "get_state")
+        assert projector.projector_id == "orders-projector-v1"
 
     @pytest.mark.asyncio
     async def test_load_from_directory_accepts_path(self) -> None:
@@ -1033,3 +1075,54 @@ class TestProtocolProjectorLoaderEdgeCasesExtended:
             ContractCompilerError, match="missing required 'projector' section"
         ):
             await loader.load_from_directory(contracts_dir)
+
+
+# =============================================================================
+# Export Tests (PR #54 feedback)
+# =============================================================================
+
+
+@pytest.mark.unit
+class TestProtocolProjectorLoaderExports:
+    """Test that ProtocolProjectorLoader is properly exported via __all__."""
+
+    def test_protocol_in_package_all(self) -> None:
+        """ProtocolProjectorLoader should be listed in projectors package __all__."""
+        from omnibase_spi.protocols import projectors
+
+        assert hasattr(projectors, "__all__"), "projectors package should have __all__"
+        assert (
+            "ProtocolProjectorLoader" in projectors.__all__
+        ), "ProtocolProjectorLoader should be in projectors.__all__"
+
+    def test_protocol_in_module_all(self) -> None:
+        """ProtocolProjectorLoader should be listed in module __all__."""
+        from omnibase_spi.protocols.projectors import protocol_projector_loader
+
+        assert hasattr(
+            protocol_projector_loader, "__all__"
+        ), "protocol_projector_loader module should have __all__"
+        assert (
+            "ProtocolProjectorLoader" in protocol_projector_loader.__all__
+        ), "ProtocolProjectorLoader should be in protocol_projector_loader.__all__"
+
+    def test_protocol_exported_from_package(self) -> None:
+        """ProtocolProjectorLoader should be accessible from projectors package."""
+        from omnibase_spi.protocols.projectors import ProtocolProjectorLoader
+
+        assert ProtocolProjectorLoader is not None
+
+    def test_protocol_exported_from_root_protocols_package(self) -> None:
+        """ProtocolProjectorLoader should be accessible from protocols package."""
+        from omnibase_spi.protocols import ProtocolProjectorLoader
+
+        assert ProtocolProjectorLoader is not None
+
+    def test_all_exports_match_package_contents(self) -> None:
+        """All symbols in __all__ should be importable from the package."""
+        from omnibase_spi.protocols import projectors
+
+        for symbol_name in projectors.__all__:
+            assert hasattr(
+                projectors, symbol_name
+            ), f"Symbol '{symbol_name}' listed in __all__ but not in package"
