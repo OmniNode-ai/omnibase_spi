@@ -380,9 +380,7 @@ class TestProtocolEventBusProducerHandlerSendBatch:
         self, compliant_producer: CompliantEventBusProducerHandler
     ) -> None:
         """send_batch should return an integer count."""
-        messages = [
-            MockProducerMessage(topic="t", value=b"v") for _ in range(5)
-        ]
+        messages = [MockProducerMessage(topic="t", value=b"v") for _ in range(5)]
         result = await compliant_producer.send_batch(messages)
         assert isinstance(result, int)
 
@@ -444,7 +442,9 @@ class TestProtocolEventBusProducerHandlerAsyncNature:
         protocol_method = getattr(ProtocolEventBusProducerHandler, "health_check", None)
         assert protocol_method is not None
         assert inspect.iscoroutinefunction(protocol_method)
-        assert inspect.iscoroutinefunction(CompliantEventBusProducerHandler.health_check)
+        assert inspect.iscoroutinefunction(
+            CompliantEventBusProducerHandler.health_check
+        )
 
     def test_begin_transaction_is_async(self) -> None:
         """begin_transaction should be an async method."""

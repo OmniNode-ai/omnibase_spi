@@ -726,10 +726,14 @@ class TestProtocolEventBusClientLifecycle:
     ) -> None:
         """Test consumer lifecycle: subscribe, consume, commit, close."""
         # Subscribe
-        await compliant_consumer.subscribe_to_topics(topics=["test"], group_id="test-group")
+        await compliant_consumer.subscribe_to_topics(
+            topics=["test"], group_id="test-group"
+        )
 
         # Consume
-        messages = await compliant_consumer.consume_messages(timeout_ms=100, max_messages=10)
+        messages = await compliant_consumer.consume_messages(
+            timeout_ms=100, max_messages=10
+        )
         assert isinstance(messages, list)
 
         # Commit
@@ -802,7 +806,9 @@ class TestProtocolEventBusIntegration:
         assert isinstance(is_connected, bool)
 
     @pytest.mark.asyncio
-    async def test_extended_client_creates_compliant_transactional_producer(self) -> None:
+    async def test_extended_client_creates_compliant_transactional_producer(
+        self,
+    ) -> None:
         """ExtendedClient.create_transactional_producer returns compliant producer."""
         client = CompliantEventBusExtendedClient()
         producer = await client.create_transactional_producer()
@@ -939,7 +945,9 @@ class TestProtocolEventBusIntegration:
         message = CompliantEventBusMessage()
 
         # Validate message
-        is_valid = await producer.validate_message(cast(ProtocolEventBusMessage, message))
+        is_valid = await producer.validate_message(
+            cast(ProtocolEventBusMessage, message)
+        )
         assert is_valid
 
         # Then send (if valid)
@@ -967,7 +975,9 @@ class TestCompliantEventBusMessageEdgeCases:
 
     def test_unicode_topic_encoded(self) -> None:
         """Topic with unicode characters works."""
-        msg = CompliantEventBusMessage(topic="evenements-\u65e5\u672c\u8a9e", value=b"data")
+        msg = CompliantEventBusMessage(
+            topic="evenements-\u65e5\u672c\u8a9e", value=b"data"
+        )
         assert msg.topic == "evenements-\u65e5\u672c\u8a9e"
 
     def test_none_optional_fields(self) -> None:
@@ -1976,9 +1986,7 @@ class TestNegativeAndBoundaryConditions:
 
     def test_message_with_max_int_partition(self) -> None:
         """Message with max int partition should be accepted."""
-        msg = CompliantEventBusMessage(
-            value=b"data", topic="test", partition=2**31 - 1
-        )
+        msg = CompliantEventBusMessage(value=b"data", topic="test", partition=2**31 - 1)
         assert msg.partition == 2**31 - 1
 
     def test_message_with_max_int_offset(self) -> None:
@@ -2044,18 +2052,14 @@ class TestNegativeAndBoundaryConditions:
         """Extended client create topic with zero partitions."""
         client = CompliantEventBusExtendedClient()
         # Zero partitions is passed through - implementation decides behavior
-        await client.create_topic(
-            "zero-partitions", partitions=0, replication_factor=1
-        )
+        await client.create_topic("zero-partitions", partitions=0, replication_factor=1)
 
     @pytest.mark.asyncio
     async def test_extended_client_create_topic_negative_partitions(self) -> None:
         """Extended client create topic with negative partitions."""
         client = CompliantEventBusExtendedClient()
         # Negative partitions is passed through - implementation decides behavior
-        await client.create_topic(
-            "neg-partitions", partitions=-1, replication_factor=1
-        )
+        await client.create_topic("neg-partitions", partitions=-1, replication_factor=1)
 
     @pytest.mark.asyncio
     async def test_extended_client_create_topic_zero_replication(self) -> None:

@@ -21,7 +21,6 @@ from omnibase_spi.protocols.handlers import (
     ProtocolHandlerSource,
 )
 
-
 # =============================================================================
 # Mock Implementations
 # =============================================================================
@@ -121,7 +120,7 @@ class MockHandlerSource:
         """Return the source type."""
         return self._source_type
 
-    def discover_handlers(self) -> list[ProtocolHandlerDescriptor]:
+    async def discover_handlers(self) -> list[ProtocolHandlerDescriptor]:
         """Discover and return handlers."""
         return self._handlers
 
@@ -144,7 +143,7 @@ class NonCompliantHandlerSource:
 class MethodOnlyHandlerSource:
     """A class that only implements discover_handlers, missing source_type property."""
 
-    def discover_handlers(self) -> list[ProtocolHandlerDescriptor]:
+    async def discover_handlers(self) -> list[ProtocolHandlerDescriptor]:
         """Return empty list."""
         return []
 
@@ -251,26 +250,29 @@ class TestProtocolHandlerSourceMethodSignatures:
             source = MockHandlerSource(source_type=source_type)  # type: ignore[arg-type]
             assert source.source_type == source_type
 
-    def test_discover_handlers_returns_list(self) -> None:
+    @pytest.mark.asyncio
+    async def test_discover_handlers_returns_list(self) -> None:
         """discover_handlers should return a list."""
         source = MockHandlerSource()
-        result = source.discover_handlers()
+        result = await source.discover_handlers()
         assert isinstance(result, list)
 
-    def test_discover_handlers_returns_empty_list(self) -> None:
+    @pytest.mark.asyncio
+    async def test_discover_handlers_returns_empty_list(self) -> None:
         """discover_handlers should return empty list when no handlers."""
         source = MockHandlerSource(handlers=[])
-        result = source.discover_handlers()
+        result = await source.discover_handlers()
         assert result == []
 
-    def test_discover_handlers_returns_descriptors(self) -> None:
+    @pytest.mark.asyncio
+    async def test_discover_handlers_returns_descriptors(self) -> None:
         """discover_handlers should return list of ProtocolHandlerDescriptor."""
         descriptors = [
             MockHandlerDescriptor(name="handler-1"),
             MockHandlerDescriptor(name="handler-2"),
         ]
         source = MockHandlerSource(handlers=descriptors)
-        result = source.discover_handlers()
+        result = await source.discover_handlers()
         assert len(result) == 2
         for desc in result:
             assert isinstance(desc, ProtocolHandlerDescriptor)
@@ -354,7 +356,8 @@ class TestProtocolHandlerSourceDocumentation:
 class TestProtocolHandlerSourceUsagePatterns:
     """Test common usage patterns for ProtocolHandlerSource."""
 
-    def test_multiple_sources_can_be_iterated(self) -> None:
+    @pytest.mark.asyncio
+    async def test_multiple_sources_can_be_iterated(self) -> None:
         """Multiple sources can be iterated for handler discovery."""
         bootstrap_source = MockHandlerSource(
             source_type="BOOTSTRAP",
@@ -367,7 +370,7 @@ class TestProtocolHandlerSourceUsagePatterns:
 
         all_handlers: list[ProtocolHandlerDescriptor] = []
         for source in [bootstrap_source, contract_source]:
-            all_handlers.extend(source.discover_handlers())
+            all_handlers.extend(await source.discover_handlers())
 
         assert len(all_handlers) == 2
         assert all_handlers[0].name == "bootstrap-handler"

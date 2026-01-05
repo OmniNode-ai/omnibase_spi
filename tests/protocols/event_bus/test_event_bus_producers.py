@@ -478,9 +478,7 @@ class TestProtocolEventBusBatchProducerAsyncNature:
         protocol_method = getattr(ProtocolEventBusBatchProducer, "flush_pending", None)
         assert protocol_method is not None
         assert inspect.iscoroutinefunction(protocol_method)
-        assert inspect.iscoroutinefunction(
-            CompliantEventBusBatchProducer.flush_pending
-        )
+        assert inspect.iscoroutinefunction(CompliantEventBusBatchProducer.flush_pending)
 
     def test_get_batch_metrics_is_async(self) -> None:
         """get_batch_metrics should be an async method."""

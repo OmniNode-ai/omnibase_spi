@@ -9,12 +9,11 @@ Validates that LiteralHandlerSourceType:
 
 from __future__ import annotations
 
-from typing import Literal, get_args
+from typing import get_args
 
 import pytest
 
 from omnibase_spi.protocols.handlers import LiteralHandlerSourceType
-
 
 # =============================================================================
 # Test Classes
@@ -86,20 +85,15 @@ class TestLiteralHandlerSourceTypeUsage:
 
     def test_exhaustive_match_pattern(self) -> None:
         """All values can be matched exhaustively."""
-        def describe_source(source_type: LiteralHandlerSourceType) -> str:
-            if source_type == "BOOTSTRAP":
-                return "Handlers registered at startup"
-            elif source_type == "CONTRACT":
-                return "Handlers from contracts"
-            elif source_type == "HYBRID":
-                return "Combined bootstrap and contract"
-            # Note: In practice, this else would be unreachable
-            # with proper type checking
-            return "Unknown"
+        descriptions: dict[LiteralHandlerSourceType, str] = {
+            "BOOTSTRAP": "Handlers registered at startup",
+            "CONTRACT": "Handlers from contracts",
+            "HYBRID": "Combined bootstrap and contract",
+        }
 
-        assert describe_source("BOOTSTRAP") == "Handlers registered at startup"
-        assert describe_source("CONTRACT") == "Handlers from contracts"
-        assert describe_source("HYBRID") == "Combined bootstrap and contract"
+        assert descriptions["BOOTSTRAP"] == "Handlers registered at startup"
+        assert descriptions["CONTRACT"] == "Handlers from contracts"
+        assert descriptions["HYBRID"] == "Combined bootstrap and contract"
 
     def test_can_be_used_in_list(self) -> None:
         """LiteralHandlerSourceType can be used in collections."""

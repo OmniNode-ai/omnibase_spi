@@ -84,6 +84,9 @@ class ProtocolProviderRegistry(Protocol):
             replace: If True, replace existing provider with same ID.
                     If False (default), raise ValueError on duplicate.
 
+        Returns:
+            None.
+
         Raises:
             ValueError: If provider with same ID exists and replace=False.
             RegistryError: If registration fails due to internal error.
@@ -106,6 +109,12 @@ class ProtocolProviderRegistry(Protocol):
         Args:
             provider_id: ID of the provider to remove.
 
+        Returns:
+            None.
+
+        Raises:
+            RegistryError: If unregistration fails due to internal error.
+
         Thread Safety:
             Must be safe to call concurrently with other registry methods.
 
@@ -123,6 +132,9 @@ class ProtocolProviderRegistry(Protocol):
 
         Returns:
             The provider descriptor if found, None otherwise.
+
+        Raises:
+            RegistryError: If retrieval fails due to internal error.
 
         Thread Safety:
             Result is a point-in-time snapshot. Provider may be registered
@@ -142,9 +154,15 @@ class ProtocolProviderRegistry(Protocol):
         Returns a snapshot of currently registered providers. The returned
         sequence may become stale if concurrent modifications occur.
 
+        Args:
+            None.
+
         Returns:
             Sequence of all registered provider descriptors.
             Order is implementation-specific.
+
+        Raises:
+            RegistryError: If listing fails due to internal error.
 
         Thread Safety:
             Must return a consistent snapshot. Concurrent modifications
@@ -156,23 +174,33 @@ class ProtocolProviderRegistry(Protocol):
         """
         ...
 
-    def list_capabilities(self) -> Sequence[str]:
+    def get_available_capability_ids(self) -> Sequence[str]:
         """
-        List all capabilities available across registered providers.
+        Get all capability IDs available across registered providers.
 
-        Returns the union of all capabilities offered by all registered
-        providers. This is useful for capability discovery.
+        Returns the union of all capability identifiers offered by all
+        registered providers. This is useful for capability discovery.
+
+        Note:
+            This method returns capability IDs (strings), not full metadata.
+            For capability metadata, use ProtocolCapabilityRegistry.
+
+        Args:
+            None.
 
         Returns:
             Sequence of unique capability identifiers.
             Order is implementation-specific.
 
+        Raises:
+            RegistryError: If listing fails due to internal error.
+
         Thread Safety:
             Result is a point-in-time snapshot.
 
         Example:
-            >>> caps = registry.list_capabilities()
-            >>> print(f"Available: {caps}")
+            >>> cap_ids = registry.get_available_capability_ids()
+            >>> print(f"Available capabilities: {cap_ids}")
         """
         ...
 
@@ -189,6 +217,9 @@ class ProtocolProviderRegistry(Protocol):
         Returns:
             Sequence of providers offering the capability.
             Empty sequence if no providers match.
+
+        Raises:
+            RegistryError: If search fails due to internal error.
 
         Thread Safety:
             Result is a point-in-time snapshot.
@@ -218,6 +249,9 @@ class ProtocolProviderRegistry(Protocol):
         Returns:
             Sequence of matching providers.
             Empty sequence if no providers match.
+
+        Raises:
+            RegistryError: If search fails due to internal error.
 
         Thread Safety:
             Result is a point-in-time snapshot.

@@ -237,7 +237,9 @@ class TestProtocolInheritanceStructure:
             has_runtime_check = hasattr(protocol, "_is_runtime_protocol") or hasattr(
                 protocol, "__runtime_protocol__"
             )
-            assert has_runtime_check, f"{protocol.__name__} should be @runtime_checkable"
+            assert (
+                has_runtime_check
+            ), f"{protocol.__name__} should be @runtime_checkable"
 
 
 class TestParentMethodInheritance:

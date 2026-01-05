@@ -515,7 +515,9 @@ class TestProtocolEventBusExtendedClientMethodSignatures:
     ) -> None:
         """close_client should accept optional timeout parameter."""
         await compliant_extended_client.close_client()  # Default timeout
-        await compliant_extended_client.close_client(timeout_seconds=10.0)  # Custom timeout
+        await compliant_extended_client.close_client(
+            timeout_seconds=10.0
+        )  # Custom timeout
 
 
 class TestProtocolEventBusExtendedClientAsyncNature:
@@ -524,7 +526,9 @@ class TestProtocolEventBusExtendedClientAsyncNature:
     def test_create_consumer_is_async(self) -> None:
         """create_consumer should be async in both protocol and implementation."""
         # Check protocol defines async signature
-        protocol_method = getattr(ProtocolEventBusExtendedClient, "create_consumer", None)
+        protocol_method = getattr(
+            ProtocolEventBusExtendedClient, "create_consumer", None
+        )
         assert protocol_method is not None
         assert inspect.iscoroutinefunction(protocol_method)
         # Check compliant implementation is async
@@ -552,9 +556,7 @@ class TestProtocolEventBusExtendedClientAsyncNature:
         assert protocol_method is not None
         assert inspect.iscoroutinefunction(protocol_method)
         # Check compliant implementation is async
-        assert inspect.iscoroutinefunction(
-            CompliantEventBusExtendedClient.create_topic
-        )
+        assert inspect.iscoroutinefunction(CompliantEventBusExtendedClient.create_topic)
 
     def test_list_topics_is_async(self) -> None:
         """list_topics should be async in both protocol and implementation."""
@@ -563,9 +565,7 @@ class TestProtocolEventBusExtendedClientAsyncNature:
         assert protocol_method is not None
         assert inspect.iscoroutinefunction(protocol_method)
         # Check compliant implementation is async
-        assert inspect.iscoroutinefunction(
-            CompliantEventBusExtendedClient.list_topics
-        )
+        assert inspect.iscoroutinefunction(CompliantEventBusExtendedClient.list_topics)
 
     def test_health_check_is_async(self) -> None:
         """health_check should be async in both protocol and implementation."""
@@ -574,9 +574,7 @@ class TestProtocolEventBusExtendedClientAsyncNature:
         assert protocol_method is not None
         assert inspect.iscoroutinefunction(protocol_method)
         # Check compliant implementation is async
-        assert inspect.iscoroutinefunction(
-            CompliantEventBusExtendedClient.health_check
-        )
+        assert inspect.iscoroutinefunction(CompliantEventBusExtendedClient.health_check)
 
     def test_create_transactional_producer_is_async(self) -> None:
         """create_transactional_producer should be async in both protocol and implementation."""
@@ -598,9 +596,7 @@ class TestProtocolEventBusExtendedClientAsyncNature:
         assert protocol_method is not None
         assert inspect.iscoroutinefunction(protocol_method)
         # Check compliant implementation is async
-        assert inspect.iscoroutinefunction(
-            CompliantEventBusExtendedClient.delete_topic
-        )
+        assert inspect.iscoroutinefunction(CompliantEventBusExtendedClient.delete_topic)
 
     def test_get_topic_metadata_is_async(self) -> None:
         """get_topic_metadata should be async in both protocol and implementation."""
@@ -648,9 +644,7 @@ class TestProtocolEventBusExtendedClientAsyncNature:
         assert protocol_method is not None
         assert inspect.iscoroutinefunction(protocol_method)
         # Check compliant implementation is async
-        assert inspect.iscoroutinefunction(
-            CompliantEventBusExtendedClient.close_client
-        )
+        assert inspect.iscoroutinefunction(CompliantEventBusExtendedClient.close_client)
 
 
 class TestProtocolEventBusExtendedClientEdgeCases:
@@ -771,7 +765,9 @@ class TestProtocolEventBusExtendedClientIntegration:
         assert isinstance(is_connected, bool)
 
     @pytest.mark.asyncio
-    async def test_extended_client_creates_compliant_transactional_producer(self) -> None:
+    async def test_extended_client_creates_compliant_transactional_producer(
+        self,
+    ) -> None:
         """ExtendedClient.create_transactional_producer returns compliant producer."""
         client = CompliantEventBusExtendedClient()
         producer = await client.create_transactional_producer()
@@ -913,6 +909,7 @@ class TestProtocolEventBusExtendedClientErrorHandling:
     @pytest.mark.asyncio
     async def test_error_raising_extended_client(self) -> None:
         """Test that error-raising mock can be created and raises expected errors."""
+
         # Create a simple error-raising variant inline
         class ErrorRaisingClient:
             """Extended client that raises errors for testing."""
@@ -924,9 +921,13 @@ class TestProtocolEventBusExtendedClientErrorHandling:
                 raise self._error
 
             async def create_batch_producer(self) -> ProtocolEventBusBatchProducer:
-                return cast(ProtocolEventBusBatchProducer, CompliantEventBusBatchProducer())
+                return cast(
+                    ProtocolEventBusBatchProducer, CompliantEventBusBatchProducer()
+                )
 
-            async def create_transactional_producer(self) -> ProtocolEventBusTransactionalProducer:
+            async def create_transactional_producer(
+                self,
+            ) -> ProtocolEventBusTransactionalProducer:
                 return cast(
                     ProtocolEventBusTransactionalProducer,
                     CompliantEventBusTransactionalProducer(),

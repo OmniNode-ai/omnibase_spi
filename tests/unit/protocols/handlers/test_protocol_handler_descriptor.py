@@ -19,7 +19,6 @@ from omnibase_spi.protocols.handlers import (
     ProtocolHandlerDescriptor,
 )
 
-
 # =============================================================================
 # Mock Implementations
 # =============================================================================
@@ -69,10 +68,14 @@ class MockHandlerDescriptor:
         self._handler_type = handler_type
         self._name = name
         self._version = version
-        self._metadata = metadata if metadata is not None else {
-            "capabilities": ["GET", "POST", "PUT", "DELETE"],
-            "supports_streaming": True,
-        }
+        self._metadata = (
+            metadata
+            if metadata is not None
+            else {
+                "capabilities": ["GET", "POST", "PUT", "DELETE"],
+                "supports_streaming": True,
+            }
+        )
         self._priority = priority
         self._handler = MockProtocolHandler()
 
@@ -307,9 +310,7 @@ class TestProtocolHandlerDescriptorPropertyTypes:
 
     def test_metadata_returns_dict(self) -> None:
         """metadata should return a dictionary."""
-        descriptor = MockHandlerDescriptor(
-            metadata={"key": "value", "count": 42}
-        )
+        descriptor = MockHandlerDescriptor(metadata={"key": "value", "count": 42})
         assert isinstance(descriptor.metadata, dict)
         assert descriptor.metadata["key"] == "value"
         assert descriptor.metadata["count"] == 42
@@ -376,9 +377,7 @@ class TestProtocolHandlerDescriptorUsagePatterns:
             MockHandlerDescriptor(name="medium", priority=50),
         ]
 
-        sorted_descriptors = sorted(
-            descriptors, key=lambda d: d.priority, reverse=True
-        )
+        sorted_descriptors = sorted(descriptors, key=lambda d: d.priority, reverse=True)
 
         assert sorted_descriptors[0].name == "high"
         assert sorted_descriptors[1].name == "medium"

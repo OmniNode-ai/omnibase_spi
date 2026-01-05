@@ -62,7 +62,7 @@ class ProtocolCapabilityRegistry(Protocol):
 
     Invariants:
         - After `register_capability(m)`, `get_capability(m.capability)` returns `m`
-        - `list_capabilities()` returns exactly the capabilities for which
+        - `list_all()` returns exactly the capabilities for which
           `get_capability()` returns non-None
 
     Note:
@@ -123,12 +123,17 @@ class ProtocolCapabilityRegistry(Protocol):
         """
         ...
 
-    def list_capabilities(self) -> Sequence[ModelCapabilityMetadata]:
+    def list_all(self) -> Sequence[ModelCapabilityMetadata]:
         """
         List all registered capability metadata.
 
         Returns a snapshot of all registered capability metadata. Useful
         for documentation generation or capability introspection.
+
+        Note:
+            This method follows the same pattern as
+            ProtocolProviderRegistry.list_all() - returning all entries
+            in the registry.
 
         Returns:
             Sequence of all registered capability metadata.
@@ -139,7 +144,7 @@ class ProtocolCapabilityRegistry(Protocol):
             during list construction must not cause corruption.
 
         Example:
-            >>> for cap in registry.list_capabilities():
+            >>> for cap in registry.list_all():
             ...     print(f"{cap.capability}: {cap.description}")
         """
         ...
