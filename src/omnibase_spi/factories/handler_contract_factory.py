@@ -238,7 +238,9 @@ def _load_template(template_name: str) -> dict[str, Any]:
         before being validated as a ModelHandlerContract.
     """
     content: str | None = None
-    source_path: str = f"importlib.resources:omnibase_spi.contracts.defaults/{template_name}"
+    source_path: str = (
+        f"importlib.resources:omnibase_spi.contracts.defaults/{template_name}"
+    )
 
     # Try importlib.resources first (preferred for package resources)
     try:
@@ -329,8 +331,9 @@ class HandlerContractFactory:
         If extending to load external templates, implement additional validation.
 
     Attributes:
-        _template_cache: Internal cache mapping handler types to loaded templates.
-            Populated lazily on first access to each handler type.
+        _template_cache: Class-level cache mapping handler types to loaded templates.
+            Shared across all instances, populated lazily on first access to each
+            handler type. This design avoids __init__ methods per SPI purity rules.
 
     Example:
         Basic usage with different handler types:
@@ -371,28 +374,10 @@ class HandlerContractFactory:
         - get_default_handler_contract: Module-level convenience function.
     """
 
-    def __init__(self) -> None:
-        """Initialize a new HandlerContractFactory instance.
-
-        Creates a new factory with an empty template cache. Templates are loaded
-        lazily when first requested via get_default() and cached for subsequent
-        requests.
-
-        The factory does not perform any I/O during initialization; template
-        loading is deferred until a contract is requested.
-
-        Example:
-            >>> factory = HandlerContractFactory()
-            >>> len(factory._template_cache)  # Cache starts empty
-            0
-            >>> _ = factory.get_default(
-            ...     handler_type=EnumHandlerTypeCategory.COMPUTE,
-            ...     handler_name="test"
-            ... )
-            >>> len(factory._template_cache)  # Cache now has one entry
-            1
-        """
-        self._template_cache: dict[EnumHandlerTypeCategory, dict[str, Any]] = {}
+    # Class-level template cache for lazy initialization (shared across instances).
+    # This avoids __init__ which is not allowed in SPI protocol implementations.
+    # The cache is populated lazily on first access to each handler type.
+    _template_cache: dict[EnumHandlerTypeCategory, dict[str, Any]] = {}
 
     def _get_template(self, handler_type: EnumHandlerTypeCategory) -> dict[str, Any]:
         """Retrieve the template dictionary for a handler type, using cache.

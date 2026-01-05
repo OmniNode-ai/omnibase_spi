@@ -20,6 +20,26 @@ from omnibase_spi.factories.handler_contract_factory import (
 )
 
 # =============================================================================
+# Test Fixtures
+# =============================================================================
+
+
+@pytest.fixture
+def clear_factory_cache() -> None:
+    """Clear the class-level template cache before and after tests.
+
+    Since HandlerContractFactory uses a class-level cache for SPI purity
+    (avoiding __init__ methods), tests that check caching behavior need
+    to clear this shared cache to ensure test isolation.
+    """
+    # Clear before test
+    HandlerContractFactory._template_cache.clear()
+    yield
+    # Clear after test to avoid affecting other tests
+    HandlerContractFactory._template_cache.clear()
+
+
+# =============================================================================
 # Test Classes
 # =============================================================================
 
@@ -33,8 +53,13 @@ class TestHandlerContractFactory:
         factory = HandlerContractFactory()
         assert factory is not None
 
-    def test_factory_has_empty_cache_on_init(self) -> None:
-        """Test factory initializes with empty template cache."""
+    def test_factory_has_empty_cache_on_init(self, clear_factory_cache: None) -> None:
+        """Test factory class-level cache can be cleared for testing.
+
+        Since HandlerContractFactory uses a class-level cache for SPI purity,
+        this test verifies the cache can be cleared and starts empty after clearing.
+        """
+        # After clearing via fixture, cache should be empty
         factory = HandlerContractFactory()
         assert factory._template_cache == {}
 
@@ -137,17 +162,19 @@ class TestHandlerContractFactory:
         """Test get_default raises ValueError for unsupported type."""
         factory = HandlerContractFactory()
 
-        with pytest.raises(ValueError, match="handler_type must be an EnumHandlerTypeCategory"):
+        with pytest.raises(
+            ValueError, match="handler_type must be an EnumHandlerTypeCategory"
+        ):
             factory.get_default(
                 handler_type="INVALID_TYPE",  # type: ignore[arg-type]
                 handler_name="test.handler",
             )
 
-    def test_template_caching(self) -> None:
+    def test_template_caching(self, clear_factory_cache: None) -> None:
         """Test templates are cached to avoid repeated file loads."""
         factory = HandlerContractFactory()
 
-        # Cache should be empty initially
+        # Cache should be empty initially (after clearing via fixture)
         assert EnumHandlerTypeCategory.EFFECT not in factory._template_cache
 
         # First call should load template
@@ -203,7 +230,10 @@ class TestHandlerContractFactory:
         )
 
         # Templates should differ in their descriptor configurations
-        assert compute_contract.descriptor.handler_kind != effect_contract.descriptor.handler_kind
+        assert (
+            compute_contract.descriptor.handler_kind
+            != effect_contract.descriptor.handler_kind
+        )
 
     def test_get_default_accepts_model_semver(self) -> None:
         """Test get_default accepts ModelSemVer for version."""
@@ -301,7 +331,9 @@ class TestGetDefaultHandlerContractFunction:
 
     def test_convenience_function_raises_for_invalid_type(self) -> None:
         """Test convenience function raises ValueError for invalid type."""
-        with pytest.raises(ValueError, match="handler_type must be an EnumHandlerTypeCategory"):
+        with pytest.raises(
+            ValueError, match="handler_type must be an EnumHandlerTypeCategory"
+        ):
             get_default_handler_contract(
                 handler_type="NOT_A_TYPE",  # type: ignore[arg-type]
                 handler_name="test.handler",
@@ -486,20 +518,32 @@ class TestHandlerContractFactoryEdgeCases:
                 handler_name="my.handler.v1.0",  # '0' is invalid segment
             )
 
-    def test_multiple_factory_instances_independent(self) -> None:
-        """Test multiple factory instances have independent caches."""
+    def test_multiple_factory_instances_share_cache(
+        self, clear_factory_cache: None
+    ) -> None:
+        """Test multiple factory instances share class-level cache.
+
+        HandlerContractFactory uses a class-level cache for SPI purity,
+        so all instances share the same template cache. This is the expected
+        behavior since the factory is typically used as a singleton via
+        _get_cached_factory().
+        """
         factory1 = HandlerContractFactory()
         factory2 = HandlerContractFactory()
 
-        # Load template in factory1
+        # Cache starts empty (cleared by fixture)
+        assert EnumHandlerTypeCategory.COMPUTE not in factory1._template_cache
+
+        # Load template via factory1
         factory1.get_default(
             handler_type=EnumHandlerTypeCategory.COMPUTE,
             handler_name="handler.one",
         )
 
-        # factory2 should have empty cache
+        # Both instances should see the cached template (class-level cache)
         assert EnumHandlerTypeCategory.COMPUTE in factory1._template_cache
-        assert EnumHandlerTypeCategory.COMPUTE not in factory2._template_cache
+        assert EnumHandlerTypeCategory.COMPUTE in factory2._template_cache
+        assert factory1._template_cache is factory2._template_cache
 
     def test_version_semver_format(self) -> None:
         """Test factory accepts semver-formatted versions."""
@@ -638,9 +682,10 @@ class TestVersionParsingErrorHandling:
 
         assert expected_substring in str(exc_info.value)
         # Verify the invalid version is included in error for debugging
-        assert invalid_version.strip() in str(exc_info.value) or "format" in str(
-            exc_info.value
-        ).lower()
+        assert (
+            invalid_version.strip() in str(exc_info.value)
+            or "format" in str(exc_info.value).lower()
+        )
 
     def test_error_message_includes_valid_examples(self) -> None:
         """Test that error message includes examples of valid version formats."""
@@ -783,15 +828,17 @@ class TestCachedFactorySingleton:
         # Should be the exact same instance
         assert factory1 is factory2
 
-    def test_convenience_function_uses_shared_factory(self) -> None:
+    def test_convenience_function_uses_shared_factory(
+        self, clear_factory_cache: None
+    ) -> None:
         """Test that multiple calls to get_default_handler_contract share template cache."""
         from omnibase_spi.factories.handler_contract_factory import _get_cached_factory
 
-        # Clear any existing cache
+        # Clear any existing lru_cache for the singleton factory
         _get_cached_factory.cache_clear()
         factory = _get_cached_factory()
 
-        # Verify cache is empty initially
+        # Verify cache is empty initially (class-level cache cleared by fixture)
         assert EnumHandlerTypeCategory.EFFECT not in factory._template_cache
 
         # Call convenience function
