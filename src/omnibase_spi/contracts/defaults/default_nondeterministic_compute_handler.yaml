@@ -1,0 +1,60 @@
+# Default Handler Contract Template - NONDETERMINISTIC_COMPUTE
+#
+# For LLM/AI inference handlers - computationally pure but stochastic.
+# Treated like effects for replay purposes. Supports caching.
+#
+# Usage: Extend this template via patch system for custom AI/LLM handlers.
+
+handler_id: "template.nondeterministic_compute.default"
+name: "Default Nondeterministic Compute Handler"
+version: "1.0.0"
+description: "Default template for LLM/AI inference handlers"
+
+descriptor:
+  handler_kind: compute  # Architecturally compute, but with nondeterministic behavior
+  purity: side_effecting  # Treated as side-effecting for replay purposes
+  idempotent: false  # Same input can produce different outputs
+  timeout_ms: 120000  # 2 minute default (LLM calls can be slow)
+  retry_policy:
+    enabled: true
+    max_retries: 2  # Fewer retries - LLM errors often persistent
+    backoff_strategy: exponential
+    base_delay_ms: 1000
+    max_delay_ms: 10000
+  concurrency_policy: parallel_ok  # Allow parallel LLM calls
+
+# Capability inputs - typically needs LLM provider
+# Uses ModelCapabilityDependency format with alias and capability required
+capability_inputs:
+  - alias: llm
+    capability: "inference.language_model"
+    strict: false  # Allow fallback to other providers
+    description: "Language model for inference"
+
+# Output capabilities (simple strings)
+capability_outputs:
+  - "inference.result"
+
+# Model references (to be overridden)
+input_model: "omnibase_core.models.base.BaseModel"
+output_model: "omnibase_core.models.base.BaseModel"
+
+# Execution constraints
+execution_constraints:
+  requires_before: []
+  requires_after: []
+  must_run: false
+  can_run_parallel: true
+  nondeterministic_effect: true  # Treated like effect for replay
+
+# Additional metadata for nondeterministic handlers
+tags:
+  - "nondeterministic"
+  - "llm"
+  - "ai-inference"
+
+metadata:
+  handler_category: "nondeterministic_compute"
+  caching_recommended: true
+  track_temperature: true
+  track_seed: true

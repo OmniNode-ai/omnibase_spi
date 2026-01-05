@@ -327,6 +327,9 @@ from omnibase_spi.protocols.contracts import (
     ProtocolWorkflowContractCompiler,
 )
 
+# v0.3.0 Factory protocols (1 protocol) - Handler contract factories
+from omnibase_spi.protocols.factories import ProtocolHandlerContractFactory
+
 # v0.3.0 Handler protocols (1 protocol) - DI-based protocol handlers
 from omnibase_spi.protocols.handlers import ProtocolHandler
 
@@ -485,6 +488,7 @@ __all__ = [
     "ProtocolFileReader",
     "ProtocolGraphDatabaseHandler",
     "ProtocolHandler",
+    "ProtocolHandlerContractFactory",
     "ProtocolHandlerDiscovery",
     "ProtocolHandlerInfo",
     "ProtocolHandlerRegistry",
