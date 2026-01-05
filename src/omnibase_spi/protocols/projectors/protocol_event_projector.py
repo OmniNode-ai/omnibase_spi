@@ -82,6 +82,22 @@ class ProtocolEventProjector(Protocol):
         same aggregate_id may require serialization at the
         implementation level.
 
+    Error Handling:
+        The projector uses a consistent exception hierarchy from omnibase_spi.exceptions:
+
+        - ProjectorError: Persistence layer failures. Raised when database
+          connections fail, writes timeout, or other infrastructure errors
+          occur during projection or state retrieval.
+
+        - ValueError: Invalid input validation. Raised when an event with
+          an unsupported event_type (not in consumed_events) is passed to
+          project(). Implementations may also raise this for malformed
+          event payloads.
+
+        Note: Idempotency violations (duplicate event processing) are NOT
+        errors. The project() method should return ModelProjectionResult
+        with skipped=True instead of raising an exception.
+
     Example:
         ```python
         class OrderProjector:
@@ -115,6 +131,35 @@ class ProtocolEventProjector(Protocol):
         This protocol is introduced in v0.4.2 as part of the event-sourcing
         infrastructure. It complements ProtocolProjector in projections/
         which handles the persistence ordering layer.
+
+    Performance:
+        Implementations should consider these performance characteristics:
+
+        Batch Projection:
+            When processing event backlogs or catch-up scenarios,
+            implementations may benefit from batching writes to the
+            persistence store. While project() handles single events,
+            the backing store operations can be buffered and flushed
+            periodically (e.g., every N events or every M milliseconds).
+
+        State Caching:
+            The get_state() method may be called frequently by query
+            services. Implementations should consider:
+            - In-memory caching with appropriate TTL for hot aggregates
+            - Read-through cache patterns for cold aggregates
+            - Cache invalidation on successful project() calls
+
+        Concurrent Projection:
+            - Different aggregate_ids: Safe for parallel processing
+            - Same aggregate_id: Requires serialization to maintain
+              event ordering within an aggregate
+            - Consider partitioning strategies (e.g., aggregate_id hash)
+              to enable parallel processing while preserving per-aggregate
+              ordering
+
+        Connection Pooling:
+            Persistence store connections should be pooled and reused.
+            Avoid creating new connections per project() call.
     """
 
     @property
@@ -288,5 +333,11 @@ class ProtocolEventProjector(Protocol):
             This method is read-only and has no side effects.
             It may be called frequently for queries and should
             be optimized for read performance.
+
+        Performance:
+            This method is often on the hot path for query services.
+            Consider caching strategies (see class-level Performance
+            section) and ensure the underlying persistence query is
+            indexed appropriately on aggregate_id.
         """
         ...

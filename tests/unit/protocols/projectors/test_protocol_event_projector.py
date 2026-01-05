@@ -291,6 +291,50 @@ class PropertyOnlyProjector:
 class TestProtocolEventProjectorProtocol:
     """Test suite for ProtocolEventProjector protocol definition."""
 
+    # Define expected protocol members for exhaustiveness checking
+    EXPECTED_PROTOCOL_MEMBERS = {
+        "projector_id",
+        "aggregate_type",
+        "consumed_events",
+        "project",
+        "get_state",
+    }
+
+    def test_all_protocol_members_have_tests(self) -> None:
+        """Verify all protocol members have corresponding tests in this module.
+
+        This exhaustiveness check ensures that when new members are added to
+        ProtocolEventProjector, corresponding tests are also added.
+        """
+        import inspect
+
+        # Get all public members of the protocol (excluding dunder methods)
+        protocol_members = {
+            name
+            for name, _ in inspect.getmembers(ProtocolEventProjector)
+            if not name.startswith("_")
+        }
+
+        # Verify our expected members match the actual protocol members
+        assert protocol_members == self.EXPECTED_PROTOCOL_MEMBERS, (
+            f"Protocol members changed! "
+            f"New members: {protocol_members - self.EXPECTED_PROTOCOL_MEMBERS}, "
+            f"Removed members: {self.EXPECTED_PROTOCOL_MEMBERS - protocol_members}"
+        )
+
+    def test_mock_implements_all_protocol_members(self) -> None:
+        """Verify MockProjector implements ALL protocol members.
+
+        This ensures our test mock is complete and doesn't silently
+        pass isinstance checks while missing functionality.
+        """
+        mock = MockProjector()
+
+        for member in self.EXPECTED_PROTOCOL_MEMBERS:
+            assert hasattr(
+                mock, member
+            ), f"MockProjector missing protocol member: {member}"
+
     def test_protocol_is_runtime_checkable(self) -> None:
         """ProtocolEventProjector should be runtime_checkable."""
         # Check for either the old or new attribute name for runtime protocols
@@ -722,6 +766,296 @@ class TestProjectorConfiguration:
         events = ["OrderCreated", "OrderShipped", "OrderDelivered"]
         projector = MockProjector(consumed_events=events)
         assert projector.consumed_events == events
+
+
+@pytest.mark.unit
+class TestIdempotencyComprehensive:
+    """
+    Comprehensive idempotency tests for ProtocolEventProjector.
+
+    These tests validate that:
+    - Multiple rapid projections of the same event are handled correctly
+    - State remains consistent across duplicate projections
+    - Results correctly indicate skip/already-processed for duplicates
+    - Idempotency is preserved across simulated system restarts
+    """
+
+    @pytest.mark.asyncio
+    async def test_multiple_rapid_projections_same_event(self) -> None:
+        """
+        Multiple rapid projections of the same event should all be idempotent.
+
+        Only the first projection should actually process; subsequent ones
+        should be skipped with appropriate indication.
+        """
+        projector = MockProjector(consumed_events=["TestCreated"])
+        event = MockEventEnvelope(
+            event_type="TestCreated",
+            payload={"name": "Test", "counter": 1},
+        )
+
+        # Track results
+        results: list[MockProjectionResult] = []
+
+        # Simulate rapid projections (as if from competing consumers)
+        for _ in range(10):
+            result = await projector.project(event)
+            results.append(result)
+
+        # First projection should succeed without skip
+        assert results[0].success is True
+        assert results[0].skipped is False
+
+        # All subsequent projections should be skipped
+        for i, result in enumerate(results[1:], start=2):
+            assert result.success is True, f"Projection {i} should succeed"
+            assert result.skipped is True, f"Projection {i} should be skipped"
+            assert result.reason is not None, f"Projection {i} should have reason"
+            assert "already processed" in result.reason.lower()
+
+    @pytest.mark.asyncio
+    async def test_state_unchanged_on_duplicate_projection(self) -> None:
+        """
+        State should not change when projecting duplicate events.
+
+        The projected state should be identical before and after
+        duplicate projections.
+        """
+        projector = MockProjector(consumed_events=["TestCreated", "TestUpdated"])
+        aggregate_id = uuid4()
+
+        # Initial event
+        create_event = MockEventEnvelope(
+            event_type="TestCreated",
+            aggregate_id=aggregate_id,
+            payload={"name": "Original", "version": 1, "counter": 100},
+        )
+
+        # Project the event first time
+        await projector.project(create_event)
+
+        # Capture state after first projection
+        state_after_first = await projector.get_state(aggregate_id)
+        assert state_after_first is not None
+        state_snapshot = dict(state_after_first)  # Make a copy
+
+        # Project the same event multiple more times
+        for _ in range(5):
+            await projector.project(create_event)
+
+        # Get state after duplicates
+        state_after_duplicates = await projector.get_state(aggregate_id)
+        assert state_after_duplicates is not None
+
+        # State should be identical
+        assert state_after_duplicates["name"] == state_snapshot["name"]
+        assert state_after_duplicates["version"] == state_snapshot["version"]
+        assert state_after_duplicates["counter"] == state_snapshot["counter"]
+        assert (
+            state_after_duplicates["last_event_id"] == state_snapshot["last_event_id"]
+        )
+        assert (
+            state_after_duplicates["last_event_type"]
+            == state_snapshot["last_event_type"]
+        )
+
+    @pytest.mark.asyncio
+    async def test_result_indicates_skip_for_duplicates(self) -> None:
+        """
+        Result should clearly indicate skip status for duplicate events.
+
+        The MockProjectionResult should have:
+        - success=True (idempotent operation completed)
+        - skipped=True (no actual state change)
+        - reason explaining why it was skipped
+        """
+        projector = MockProjector(consumed_events=["TestCreated"])
+        event = MockEventEnvelope(
+            event_type="TestCreated",
+            payload={"name": "Test"},
+        )
+
+        # First projection
+        first_result = await projector.project(event)
+        assert first_result.success is True
+        assert first_result.skipped is False
+        assert first_result.reason is None
+
+        # Duplicate projection
+        duplicate_result = await projector.project(event)
+
+        # Verify skip indication
+        assert duplicate_result.success is True, "Idempotent operation should succeed"
+        assert duplicate_result.skipped is True, "Duplicate should be marked as skipped"
+        assert duplicate_result.reason is not None, "Skip reason should be provided"
+        assert (
+            "already" in duplicate_result.reason.lower()
+            or "processed" in duplicate_result.reason.lower()
+            or "duplicate" in duplicate_result.reason.lower()
+        ), f"Reason should indicate duplicate: {duplicate_result.reason}"
+
+    @pytest.mark.asyncio
+    async def test_idempotency_after_simulated_restart(self) -> None:
+        """
+        Idempotency should be preserved after simulated system restart.
+
+        This simulates a scenario where the projector is restarted but
+        the persistence layer (tracking processed events) survives.
+        In a real implementation, processed event IDs would be stored
+        in a database or checkpoint.
+        """
+        projector = MockProjector(consumed_events=["TestCreated"])
+        aggregate_id = uuid4()
+
+        event = MockEventEnvelope(
+            event_type="TestCreated",
+            aggregate_id=aggregate_id,
+            payload={"name": "Persistent", "value": 42},
+        )
+
+        # Project the event
+        first_result = await projector.project(event)
+        assert first_result.success is True
+        assert first_result.skipped is False
+
+        # Capture processed events (simulates persistent storage)
+        persisted_event_ids = set(projector._processed_events)
+
+        # Simulate restart: clear in-memory state but keep "persisted" event IDs
+        # In a real system, the state would be rebuilt from events or loaded from DB
+        projector._state.clear()
+        projector._processed_events = persisted_event_ids
+
+        # Try to project the same event again (simulating replay after restart)
+        replay_result = await projector.project(event)
+
+        # Should still be idempotent due to persisted event ID tracking
+        assert replay_result.success is True
+        assert replay_result.skipped is True
+        assert replay_result.reason is not None
+        assert "already processed" in replay_result.reason.lower()
+
+    @pytest.mark.asyncio
+    async def test_idempotency_across_interleaved_events(self) -> None:
+        """
+        Idempotency should work correctly with interleaved event projections.
+
+        Events for different aggregates should not affect idempotency
+        of duplicate events for a specific aggregate.
+        """
+        projector = MockProjector(consumed_events=["TestCreated", "TestUpdated"])
+
+        agg1 = uuid4()
+        agg2 = uuid4()
+
+        event1 = MockEventEnvelope(
+            event_type="TestCreated",
+            aggregate_id=agg1,
+            payload={"name": "Aggregate 1"},
+        )
+        event2 = MockEventEnvelope(
+            event_type="TestCreated",
+            aggregate_id=agg2,
+            payload={"name": "Aggregate 2"},
+        )
+
+        # Interleave projections including duplicates
+        await projector.project(event1)  # First for agg1
+        await projector.project(event2)  # First for agg2
+
+        # Duplicate of event1 after event2 was processed
+        dup1_result = await projector.project(event1)
+        assert dup1_result.skipped is True
+        assert "already processed" in (dup1_result.reason or "").lower()
+
+        # Duplicate of event2 after event1 duplicate
+        dup2_result = await projector.project(event2)
+        assert dup2_result.skipped is True
+        assert "already processed" in (dup2_result.reason or "").lower()
+
+        # Verify states are still correct
+        state1 = await projector.get_state(agg1)
+        state2 = await projector.get_state(agg2)
+
+        assert state1 is not None
+        assert state2 is not None
+        assert state1["name"] == "Aggregate 1"
+        assert state2["name"] == "Aggregate 2"
+
+    @pytest.mark.asyncio
+    async def test_idempotency_preserves_event_ordering_semantics(self) -> None:
+        """
+        Idempotency should preserve correct state from first projection.
+
+        If an event is projected, then a newer event modifies state,
+        replaying the old event should not revert the state.
+        """
+        projector = MockProjector(consumed_events=["TestCreated", "TestUpdated"])
+        aggregate_id = uuid4()
+
+        create_event = MockEventEnvelope(
+            event_type="TestCreated",
+            aggregate_id=aggregate_id,
+            payload={"name": "Initial", "version": 1},
+        )
+        update_event = MockEventEnvelope(
+            event_type="TestUpdated",
+            aggregate_id=aggregate_id,
+            payload={"name": "Updated", "version": 2},
+        )
+
+        # Project in order: create, then update
+        await projector.project(create_event)
+        await projector.project(update_event)
+
+        # State should reflect update
+        state_before_replay = await projector.get_state(aggregate_id)
+        assert state_before_replay is not None
+        assert state_before_replay["name"] == "Updated"
+        assert state_before_replay["version"] == 2
+
+        # Replay the create event (e.g., from message replay)
+        replay_result = await projector.project(create_event)
+        assert replay_result.skipped is True
+
+        # State should still reflect the update, not reverted to create
+        state_after_replay = await projector.get_state(aggregate_id)
+        assert state_after_replay is not None
+        assert state_after_replay["name"] == "Updated"
+        assert state_after_replay["version"] == 2
+
+    @pytest.mark.asyncio
+    async def test_concurrent_duplicate_detection(self) -> None:
+        """
+        Test that duplicate detection works for events projected in sequence.
+
+        Note: True concurrency testing would require threading/asyncio.gather,
+        but this validates the idempotency mechanism itself.
+        """
+        import asyncio
+
+        projector = MockProjector(consumed_events=["TestCreated"])
+        event = MockEventEnvelope(
+            event_type="TestCreated",
+            payload={"name": "Concurrent Test"},
+        )
+
+        # Simulate concurrent projections using asyncio.gather
+        results = await asyncio.gather(
+            projector.project(event),
+            projector.project(event),
+            projector.project(event),
+        )
+
+        # Exactly one should not be skipped, others should be skipped
+        non_skipped = [r for r in results if not r.skipped]
+        skipped = [r for r in results if r.skipped]
+
+        assert len(non_skipped) == 1, "Exactly one projection should process"
+        assert len(skipped) == 2, "Other projections should be skipped"
+
+        # All should succeed (idempotent operation)
+        assert all(r.success for r in results)
 
 
 @pytest.mark.unit

@@ -92,14 +92,50 @@ class ProtocolProjectorLoader(Protocol):
         5. Return ready-to-use ProtocolEventProjector instance
 
     Error Handling:
-        - ContractValidationError: Contract syntax or semantic errors
-        - SchemaError: Database schema creation/migration failures
-        - FileNotFoundError: Contract file does not exist
+        The loader uses a consistent exception hierarchy from omnibase_spi.exceptions:
+
+        - ContractCompilerError: Contract syntax or semantic errors. Raised when
+          YAML is malformed, required fields are missing, or semantic validation
+          fails (e.g., invalid column types, missing projector name).
+
+        - SchemaError: Database schema creation/migration failures. Raised when
+          tables cannot be created, indexes fail, or the existing schema is
+          incompatible with the contract specification.
+
+        - FileNotFoundError: Contract file does not exist. Standard Python
+          exception raised when the specified contract path cannot be found.
+
+        - PermissionError: Contract file is not readable. Standard Python
+          exception raised for filesystem permission issues.
+
+        - NotADirectoryError: Path is not a directory. Standard Python exception
+          raised by load_from_directory() when given a file path.
 
     Thread Safety:
         Loaders should be thread-safe. Multiple callers can load
         projectors concurrently. Schema creation should use
         appropriate locking to prevent race conditions.
+
+    Security Considerations:
+        Implementations MUST follow these security practices:
+
+        - **YAML Safe Loading**: Use yaml.safe_load() or equivalent,
+          NEVER yaml.load() with unsafe loaders. Contract files could
+          be user-provided or from untrusted sources.
+
+        - **Path Traversal Protection**: Validate that all paths resolve
+          within expected directories. Reject paths containing ".." or
+          absolute paths that escape sandboxed locations. Use
+          Path.resolve() and verify containment.
+
+        - **Contract Validation**: Validate contract structure and values
+          before using them. Do not trust column names, table names, or
+          other string values without sanitization. SQL injection through
+          contract values is a risk if not properly parameterized.
+
+        - **Glob Pattern Safety**: When using discover_and_load(), ensure
+          patterns cannot match files outside intended directories.
+          Consider restricting patterns to relative paths only.
 
     Example Usage:
         ```python
@@ -142,7 +178,7 @@ class ProtocolProjectorLoader(Protocol):
             and configured according to the contract.
 
         Raises:
-            ContractValidationError: If the contract file contains
+            ContractCompilerError: If the contract file contains
                 invalid YAML syntax, missing required fields, or
                 semantic errors (e.g., invalid column types).
             SchemaError: If the database schema cannot be created
@@ -165,19 +201,18 @@ class ProtocolProjectorLoader(Protocol):
             - If table exists: validates columns match (no auto-migration)
             - Creates indexes if they don't exist
 
+        Security:
+            Implementations must use yaml.safe_load() and validate that
+            contract_path resolves within allowed directories.
+
         Example:
             ```python
             projector = await loader.load_from_contract(
                 Path("/app/contracts/orders.yaml")
             )
 
-            # Projector is ready to use
-            await projector.persist(
-                projection=order_data,
-                entity_id=order_id,
-                domain="orders",
-                sequence_info=seq,
-            )
+            # Projector is ready to use - project events to build read model
+            result = await projector.project(event=order_event)
             ```
         """
         ...
@@ -204,7 +239,7 @@ class ProtocolProjectorLoader(Protocol):
         Raises:
             FileNotFoundError: If directory does not exist.
             NotADirectoryError: If directory is not a directory.
-            ContractValidationError: If any contract file is invalid.
+            ContractCompilerError: If any contract file is invalid.
                 Processing stops at the first error.
             SchemaError: If schema creation fails for any projector.
 
@@ -216,6 +251,10 @@ class ProtocolProjectorLoader(Protocol):
         Error Behavior:
             By default, loading stops at the first error. Implementations
             may offer a continue_on_error option for partial loading.
+
+        Security:
+            Implementations must validate that directory resolves within
+            allowed locations. Reject symlinks pointing outside sandbox.
 
         Example:
             ```python
@@ -255,7 +294,7 @@ class ProtocolProjectorLoader(Protocol):
             file matched by multiple patterns) are deduplicated.
 
         Raises:
-            ContractValidationError: If any matched contract is invalid.
+            ContractCompilerError: If any matched contract is invalid.
             SchemaError: If schema creation fails for any projector.
 
         Pattern Matching:
@@ -268,6 +307,11 @@ class ProtocolProjectorLoader(Protocol):
         Ordering:
             Results are returned in discovery order (first pattern match
             wins for ordering, subsequent matches are deduplicated).
+
+        Security:
+            Implementations should restrict patterns to prevent matching
+            files outside intended directories. Consider rejecting
+            absolute patterns or patterns that could traverse upward.
 
         Example:
             ```python

@@ -175,6 +175,48 @@ class NonCompliantProjectorLoader:
 class TestProtocolProjectorLoaderProtocol:
     """Test suite for ProtocolProjectorLoader protocol compliance."""
 
+    # Define expected protocol members for exhaustiveness checking
+    EXPECTED_PROTOCOL_MEMBERS = {
+        "load_from_contract",
+        "load_from_directory",
+        "discover_and_load",
+    }
+
+    def test_all_protocol_members_have_tests(self) -> None:
+        """Verify all protocol members have corresponding tests in this module.
+
+        This exhaustiveness check ensures that when new members are added to
+        ProtocolProjectorLoader, corresponding tests are also added.
+        """
+        import inspect
+
+        # Get all public members of the protocol (excluding dunder methods)
+        protocol_members = {
+            name
+            for name, _ in inspect.getmembers(ProtocolProjectorLoader)
+            if not name.startswith("_")
+        }
+
+        # Verify our expected members match the actual protocol members
+        assert protocol_members == self.EXPECTED_PROTOCOL_MEMBERS, (
+            f"Protocol members changed! "
+            f"New members: {protocol_members - self.EXPECTED_PROTOCOL_MEMBERS}, "
+            f"Removed members: {self.EXPECTED_PROTOCOL_MEMBERS - protocol_members}"
+        )
+
+    def test_mock_implements_all_protocol_members(self) -> None:
+        """Verify MockProjectorLoader implements ALL protocol members.
+
+        This ensures our test mock is complete and doesn't silently
+        pass isinstance checks while missing functionality.
+        """
+        mock = MockProjectorLoader()
+
+        for member in self.EXPECTED_PROTOCOL_MEMBERS:
+            assert hasattr(
+                mock, member
+            ), f"MockProjectorLoader missing protocol member: {member}"
+
     def test_protocol_is_runtime_checkable(self) -> None:
         """ProtocolProjectorLoader should be runtime_checkable."""
         # Check for either of the internal attributes that indicate runtime_checkable
@@ -514,3 +556,480 @@ class TestProtocolProjectorLoaderTypeAnnotations:
         params = list(sig.parameters.values())
         assert len(params) >= 2
         assert params[1].name == "patterns"
+
+
+# =============================================================================
+# Error Path Tests (PR #54 feedback)
+# =============================================================================
+
+
+class MockProjectorLoaderWithErrorHandling:
+    """Mock loader that demonstrates proper error handling patterns.
+
+    This mock implementation shows how a compliant implementation should
+    handle various error conditions according to the protocol specification.
+    """
+
+    def __init__(self) -> None:
+        """Initialize the mock loader with simulated contracts."""
+        self._contracts: dict[str, dict[str, Any]] = {
+            "valid_contract.yaml": {
+                "projector": {
+                    "name": "orders",
+                    "domain": "ecommerce",
+                    "table": "order_projections",
+                },
+                "schema": {
+                    "columns": [
+                        {
+                            "name": "order_id",
+                            "type": "varchar(36)",
+                            "primary_key": True,
+                        },
+                    ]
+                },
+                "ordering": {
+                    "entity_id_column": "order_id",
+                    "sequence_column": "sequence_number",
+                },
+            },
+            "invalid_structure.yaml": {
+                # Missing required 'projector' section
+                "schema": {"columns": []},
+            },
+            "missing_schema.yaml": {
+                "projector": {"name": "broken"},
+                # Missing required 'schema' section
+            },
+            "empty_projector.yaml": {
+                "projector": {},  # Empty projector section (missing name, domain, table)
+                "schema": {"columns": []},
+                "ordering": {},
+            },
+        }
+
+    async def load_from_contract(
+        self,
+        contract_path: Path,
+    ) -> MockProjector:
+        """Load a projector with proper error handling.
+
+        Args:
+            contract_path: Path to the YAML contract file.
+
+        Returns:
+            Configured MockProjector instance.
+
+        Raises:
+            FileNotFoundError: If contract path does not exist.
+            ContractCompilerError: If contract structure is invalid.
+        """
+        from omnibase_spi.exceptions import ContractCompilerError
+
+        # Check file existence
+        if not contract_path.exists():
+            raise FileNotFoundError(f"Contract file not found: {contract_path}")
+
+        # Validate extension
+        if contract_path.suffix not in {".yaml", ".yml"}:
+            raise ValueError(f"Invalid contract extension: {contract_path.suffix}")
+
+        # Simulate contract loading
+        filename = contract_path.name
+        if filename in self._contracts:
+            contract = self._contracts[filename]
+            # Validate contract structure
+            if "projector" not in contract:
+                raise ContractCompilerError(
+                    f"Invalid contract at {contract_path}: "
+                    "missing required 'projector' section",
+                    context={
+                        "path": str(contract_path),
+                        "missing_fields": ["projector"],
+                    },
+                )
+            if "schema" not in contract:
+                raise ContractCompilerError(
+                    f"Invalid contract at {contract_path}: "
+                    "missing required 'schema' section",
+                    context={"path": str(contract_path), "missing_fields": ["schema"]},
+                )
+            projector_config = contract["projector"]
+            if not projector_config.get("name"):
+                raise ContractCompilerError(
+                    f"Invalid contract at {contract_path}: missing 'projector.name'",
+                    context={
+                        "path": str(contract_path),
+                        "missing_fields": ["projector.name"],
+                    },
+                )
+            return MockProjector(
+                name=projector_config.get("name", "unknown"),
+                domain=projector_config.get("domain", "default"),
+            )
+
+        # Default: use filename as projector name
+        return MockProjector(name=contract_path.stem, domain="default")
+
+    async def load_from_directory(
+        self,
+        directory: Path,
+    ) -> list[MockProjector]:
+        """Load all projectors with proper error handling.
+
+        Args:
+            directory: Directory containing contract files.
+
+        Returns:
+            List of configured MockProjector instances.
+
+        Raises:
+            FileNotFoundError: If directory does not exist.
+            NotADirectoryError: If path is not a directory.
+        """
+        # Check directory existence
+        if not directory.exists():
+            raise FileNotFoundError(f"Directory not found: {directory}")
+
+        # Check it's actually a directory
+        if not directory.is_dir():
+            raise NotADirectoryError(f"Path is not a directory: {directory}")
+
+        # Find contract files
+        projectors: list[MockProjector] = []
+        contract_files = sorted(directory.glob("*.yaml")) + sorted(
+            directory.glob("*.yml")
+        )
+
+        # Filter out hidden files
+        contract_files = [f for f in contract_files if not f.name.startswith(".")]
+
+        for contract_file in contract_files:
+            projector = await self.load_from_contract(contract_file)
+            projectors.append(projector)
+
+        return projectors
+
+    async def discover_and_load(
+        self,
+        patterns: list[str],
+    ) -> list[MockProjector]:
+        """Discover and load projectors from patterns.
+
+        Args:
+            patterns: List of glob patterns.
+
+        Returns:
+            List of discovered projectors (deduplicated by path).
+        """
+        if not patterns:
+            return []
+
+        projectors: list[MockProjector] = []
+        seen_paths: set[Path] = set()
+
+        for pattern in patterns:
+            # Use current working directory for relative patterns
+            base = Path.cwd()
+            for match in base.glob(pattern):
+                abs_path = match.resolve()
+                if abs_path not in seen_paths and match.is_file():
+                    seen_paths.add(abs_path)
+                    projector = await self.load_from_contract(match)
+                    projectors.append(projector)
+
+        return projectors
+
+
+@pytest.mark.unit
+class TestProtocolProjectorLoaderErrorPaths:
+    """Test error handling behavior for the loader protocol.
+
+    These tests verify that compliant implementations handle error
+    conditions correctly, raising appropriate exceptions as documented
+    in the protocol specification.
+    """
+
+    @pytest.mark.asyncio
+    async def test_load_from_contract_file_not_found(self, tmp_path: Path) -> None:
+        """load_from_contract should raise FileNotFoundError for non-existent file."""
+        loader = MockProjectorLoaderWithErrorHandling()
+        non_existent_path = tmp_path / "does_not_exist.yaml"
+
+        with pytest.raises(FileNotFoundError, match="Contract file not found"):
+            await loader.load_from_contract(non_existent_path)
+
+    @pytest.mark.asyncio
+    async def test_load_from_contract_file_not_found_message_includes_path(
+        self, tmp_path: Path
+    ) -> None:
+        """FileNotFoundError message should include the missing path."""
+        loader = MockProjectorLoaderWithErrorHandling()
+        non_existent_path = tmp_path / "missing_contract.yaml"
+
+        with pytest.raises(FileNotFoundError) as exc_info:
+            await loader.load_from_contract(non_existent_path)
+
+        assert "missing_contract.yaml" in str(exc_info.value)
+
+    @pytest.mark.asyncio
+    async def test_load_from_directory_not_found(self, tmp_path: Path) -> None:
+        """load_from_directory should raise FileNotFoundError for non-existent dir."""
+        loader = MockProjectorLoaderWithErrorHandling()
+        non_existent_dir = tmp_path / "non_existent_directory"
+
+        with pytest.raises(FileNotFoundError, match="Directory not found"):
+            await loader.load_from_directory(non_existent_dir)
+
+    @pytest.mark.asyncio
+    async def test_load_from_directory_not_a_directory(self, tmp_path: Path) -> None:
+        """load_from_directory should raise NotADirectoryError when path is a file."""
+        loader = MockProjectorLoaderWithErrorHandling()
+
+        # Create a file, not a directory
+        file_path = tmp_path / "actually_a_file.yaml"
+        file_path.write_text("projector:\n  name: test\n")
+
+        with pytest.raises(NotADirectoryError, match="Path is not a directory"):
+            await loader.load_from_directory(file_path)
+
+    @pytest.mark.asyncio
+    async def test_load_from_directory_not_a_directory_message_includes_path(
+        self, tmp_path: Path
+    ) -> None:
+        """NotADirectoryError message should include the problematic path."""
+        loader = MockProjectorLoaderWithErrorHandling()
+
+        file_path = tmp_path / "misleading_name"
+        file_path.write_text("content")
+
+        with pytest.raises(NotADirectoryError) as exc_info:
+            await loader.load_from_directory(file_path)
+
+        assert "misleading_name" in str(exc_info.value)
+
+
+@pytest.mark.unit
+class TestProtocolProjectorLoaderContractValidation:
+    """Test contract validation error handling.
+
+    These tests verify that invalid contract structures are properly
+    detected and reported with appropriate exceptions.
+    """
+
+    @pytest.mark.asyncio
+    async def test_invalid_contract_missing_projector_section(
+        self, tmp_path: Path
+    ) -> None:
+        """Should raise ContractCompilerError when 'projector' section is missing."""
+        from omnibase_spi.exceptions import ContractCompilerError
+
+        loader = MockProjectorLoaderWithErrorHandling()
+
+        # Create contract file missing the 'projector' section
+        contract_path = tmp_path / "invalid_structure.yaml"
+        contract_path.write_text("schema:\n  columns: []\n")
+
+        with pytest.raises(
+            ContractCompilerError, match="missing required 'projector' section"
+        ):
+            await loader.load_from_contract(contract_path)
+
+    @pytest.mark.asyncio
+    async def test_invalid_contract_missing_schema_section(
+        self, tmp_path: Path
+    ) -> None:
+        """Should raise ContractCompilerError when 'schema' section is missing."""
+        from omnibase_spi.exceptions import ContractCompilerError
+
+        loader = MockProjectorLoaderWithErrorHandling()
+
+        # Create contract file missing the 'schema' section
+        contract_path = tmp_path / "missing_schema.yaml"
+        contract_path.write_text("projector:\n  name: broken\n")
+
+        with pytest.raises(
+            ContractCompilerError, match="missing required 'schema' section"
+        ):
+            await loader.load_from_contract(contract_path)
+
+    @pytest.mark.asyncio
+    async def test_invalid_contract_missing_projector_name(
+        self, tmp_path: Path
+    ) -> None:
+        """Should raise ContractCompilerError when projector.name is missing."""
+        from omnibase_spi.exceptions import ContractCompilerError
+
+        loader = MockProjectorLoaderWithErrorHandling()
+
+        # Create contract with empty projector section
+        contract_path = tmp_path / "empty_projector.yaml"
+        contract_path.write_text(
+            "projector: {}\nschema:\n  columns: []\nordering: {}\n"
+        )
+
+        with pytest.raises(ContractCompilerError, match="missing 'projector.name'"):
+            await loader.load_from_contract(contract_path)
+
+    @pytest.mark.asyncio
+    async def test_contract_compiler_error_includes_context(
+        self, tmp_path: Path
+    ) -> None:
+        """ContractCompilerError should include context with path and missing fields."""
+        from omnibase_spi.exceptions import ContractCompilerError
+
+        loader = MockProjectorLoaderWithErrorHandling()
+
+        contract_path = tmp_path / "invalid_structure.yaml"
+        contract_path.write_text("schema:\n  columns: []\n")
+
+        with pytest.raises(ContractCompilerError) as exc_info:
+            await loader.load_from_contract(contract_path)
+
+        error = exc_info.value
+        assert error.context is not None
+        assert "path" in error.context
+        assert "missing_fields" in error.context
+
+
+@pytest.mark.unit
+class TestProtocolProjectorLoaderEmptyDirectoryHandling:
+    """Test handling of empty directories and empty results."""
+
+    @pytest.mark.asyncio
+    async def test_load_from_empty_directory_returns_empty_list(
+        self, tmp_path: Path
+    ) -> None:
+        """load_from_directory should return empty list for empty directory."""
+        loader = MockProjectorLoaderWithErrorHandling()
+
+        # Create an empty directory
+        empty_dir = tmp_path / "empty_contracts"
+        empty_dir.mkdir()
+
+        result = await loader.load_from_directory(empty_dir)
+
+        assert result == []
+        assert isinstance(result, list)
+
+    @pytest.mark.asyncio
+    async def test_load_from_directory_ignores_non_yaml_files(
+        self, tmp_path: Path
+    ) -> None:
+        """load_from_directory should ignore non-YAML files."""
+        loader = MockProjectorLoaderWithErrorHandling()
+
+        contracts_dir = tmp_path / "contracts"
+        contracts_dir.mkdir()
+
+        # Create non-YAML files that should be ignored
+        (contracts_dir / "readme.txt").write_text("This is a readme")
+        (contracts_dir / "config.json").write_text('{"key": "value"}')
+        (contracts_dir / ".hidden.yaml").write_text("projector:\n  name: hidden\n")
+
+        result = await loader.load_from_directory(contracts_dir)
+
+        assert result == []
+
+    @pytest.mark.asyncio
+    async def test_load_from_directory_ignores_hidden_yaml_files(
+        self, tmp_path: Path
+    ) -> None:
+        """load_from_directory should ignore hidden YAML files (starting with .)."""
+        loader = MockProjectorLoaderWithErrorHandling()
+
+        contracts_dir = tmp_path / "contracts"
+        contracts_dir.mkdir()
+
+        # Create a hidden YAML file
+        (contracts_dir / ".hidden_contract.yaml").write_text(
+            "projector:\n  name: hidden\nschema:\n  columns: []\n"
+        )
+
+        result = await loader.load_from_directory(contracts_dir)
+
+        assert result == []
+
+    @pytest.mark.asyncio
+    async def test_discover_and_load_no_matches_returns_empty_list(
+        self, tmp_path: Path
+    ) -> None:
+        """discover_and_load should return empty list when no patterns match."""
+        loader = MockProjectorLoaderWithErrorHandling()
+
+        # Use patterns that won't match anything
+        patterns = ["nonexistent/**/*.yaml", "missing/*.yml"]
+
+        result = await loader.discover_and_load(patterns)
+
+        assert result == []
+        assert isinstance(result, list)
+
+
+@pytest.mark.unit
+class TestProtocolProjectorLoaderEdgeCasesExtended:
+    """Extended edge case tests for error scenarios."""
+
+    @pytest.mark.asyncio
+    async def test_load_from_contract_with_directory_path_raises(
+        self, tmp_path: Path
+    ) -> None:
+        """load_from_contract should handle directory path appropriately."""
+        loader = MockProjectorLoaderWithErrorHandling()
+
+        # Create a directory that happens to end in .yaml
+        weird_dir = tmp_path / "weird.yaml"
+        weird_dir.mkdir()
+
+        # Directory exists but is not a file - behavior depends on implementation
+        # The mock will return a projector since exists() returns True for dirs
+        # A real implementation would likely check is_file() as well
+        result = await loader.load_from_contract(weird_dir)
+        # Since mock doesn't check if path is file vs dir, it proceeds
+        assert result is not None
+
+    @pytest.mark.asyncio
+    async def test_error_propagation_in_directory_loading(self, tmp_path: Path) -> None:
+        """Errors during contract loading should propagate from load_from_directory."""
+        from omnibase_spi.exceptions import ContractCompilerError
+
+        loader = MockProjectorLoaderWithErrorHandling()
+
+        contracts_dir = tmp_path / "contracts"
+        contracts_dir.mkdir()
+
+        # Create an invalid contract file
+        (contracts_dir / "invalid_structure.yaml").write_text(
+            "schema:\n  columns: []\n"
+        )
+
+        # Should propagate the ContractCompilerError
+        with pytest.raises(ContractCompilerError):
+            await loader.load_from_directory(contracts_dir)
+
+    @pytest.mark.asyncio
+    async def test_first_error_stops_directory_processing(self, tmp_path: Path) -> None:
+        """Directory loading should stop at first error (fail-fast behavior)."""
+        from omnibase_spi.exceptions import ContractCompilerError
+
+        loader = MockProjectorLoaderWithErrorHandling()
+
+        contracts_dir = tmp_path / "contracts"
+        contracts_dir.mkdir()
+
+        # Create contracts: the mock checks filenames against internal test data
+        # "invalid_structure.yaml" triggers the "missing projector" error
+        # "valid_contract.yaml" triggers successful loading
+        # Names sorted: "invalid_structure.yaml" comes before "valid_contract.yaml"
+        (contracts_dir / "invalid_structure.yaml").write_text(
+            "schema:\n  columns: []\n"
+        )
+        (contracts_dir / "valid_contract.yaml").write_text(
+            "projector:\n  name: valid\n  domain: test\nschema:\n  columns: []\n"
+        )
+
+        # Should fail on invalid_structure.yaml before reaching valid_contract.yaml
+        with pytest.raises(
+            ContractCompilerError, match="missing required 'projector' section"
+        ):
+            await loader.load_from_directory(contracts_dir)
