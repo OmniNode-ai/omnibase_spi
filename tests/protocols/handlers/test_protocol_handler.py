@@ -15,6 +15,15 @@ from unittest.mock import MagicMock
 
 import pytest
 
+from omnibase_core.enums import (
+    EnumHandlerRole,
+    EnumHandlerTypeCategory,
+)
+from omnibase_core.enums import (
+    EnumHandlerType as CoreEnumHandlerType,
+)
+from omnibase_core.models.handlers import ModelHandlerDescriptor, ModelIdentifier
+from omnibase_core.models.primitives.model_semver import ModelSemVer
 from omnibase_spi.protocols.handlers.protocol_handler import ProtocolHandler
 
 # Type aliases for forward references used in test mocks
@@ -25,6 +34,20 @@ ModelProtocolRequest = object
 ModelOperationConfig = object
 ModelProtocolResponse = object
 EnumHandlerType = object  # Mock for handler type enum
+
+
+def create_mock_descriptor(
+    name: str = "mock-handler",
+    namespace: str = "test",
+) -> ModelHandlerDescriptor:
+    """Create a mock ModelHandlerDescriptor for testing."""
+    return ModelHandlerDescriptor(
+        handler_name=ModelIdentifier(namespace=namespace, name=name),
+        handler_version=ModelSemVer(major=1, minor=0, patch=0),
+        handler_role=EnumHandlerRole.INFRA_HANDLER,
+        handler_type=CoreEnumHandlerType.NAMED,
+        handler_type_category=EnumHandlerTypeCategory.EFFECT,
+    )
 
 
 class CompliantHandler:
@@ -51,12 +74,9 @@ class CompliantHandler:
         """Execute a protocol operation."""
         return MagicMock()
 
-    def describe(self) -> dict[str, Any]:
+    def describe(self) -> ModelHandlerDescriptor:
         """Return handler metadata."""
-        return {
-            "handler_type": "mock",
-            "capabilities": ["test"],
-        }
+        return create_mock_descriptor(name="compliant-handler")
 
     async def health_check(self) -> dict[str, Any]:
         """Check handler health."""
@@ -101,9 +121,9 @@ class WrongSignatureHandler:
         """Execute a protocol operation."""
         return MagicMock()
 
-    def describe(self) -> dict[str, Any]:
+    def describe(self) -> ModelHandlerDescriptor:
         """Return handler metadata."""
-        return {}
+        return create_mock_descriptor(name="wrong-signature-handler")
 
     async def health_check(self) -> dict[str, Any]:
         """Check handler health."""
@@ -238,13 +258,13 @@ class TestProtocolHandlerMethodSignatures:
         handler_type = handler.handler_type
         assert handler_type is not None
 
-    def test_describe_returns_dict(self) -> None:
-        """describe method should return a dictionary."""
+    def test_describe_returns_model_handler_descriptor(self) -> None:
+        """describe method should return a ModelHandlerDescriptor."""
         handler = CompliantHandler()
         metadata = handler.describe()
-        assert isinstance(metadata, dict)
-        assert "handler_type" in metadata
-        assert "capabilities" in metadata
+        assert isinstance(metadata, ModelHandlerDescriptor)
+        assert metadata.handler_name is not None
+        assert metadata.handler_type is not None
 
     @pytest.mark.asyncio
     async def test_health_check_returns_dict(self) -> None:
@@ -361,73 +381,55 @@ class TestProtocolHandlerDocumentation:
 class TestProtocolHandlerDescribeReturnContract:
     """Test return value contracts for ProtocolHandler.describe() method."""
 
-    def test_describe_returns_dict_with_handler_type(self) -> None:
-        """describe() must return dict containing handler_type key."""
+    def test_describe_returns_model_handler_descriptor(self) -> None:
+        """describe() must return ModelHandlerDescriptor."""
         handler = CompliantHandler()
         result = handler.describe()
 
-        assert isinstance(result, dict)
-        assert "handler_type" in result
+        assert isinstance(result, ModelHandlerDescriptor)
 
-    def test_describe_handler_type_is_string(self) -> None:
-        """describe() handler_type value should be string representation."""
+    def test_describe_has_handler_type(self) -> None:
+        """describe() result should have handler_type field."""
         handler = CompliantHandler()
         result = handler.describe()
 
-        assert isinstance(result["handler_type"], str)
+        assert result.handler_type is not None
+        assert isinstance(result.handler_type, CoreEnumHandlerType)
 
-    def test_describe_returns_dict_with_capabilities(self) -> None:
-        """describe() should return dict with capabilities as list."""
+    def test_describe_has_handler_name(self) -> None:
+        """describe() result should have handler_name with namespace and name."""
         handler = CompliantHandler()
         result = handler.describe()
 
-        assert "capabilities" in result
-        assert isinstance(result["capabilities"], list)
+        assert result.handler_name is not None
+        assert isinstance(result.handler_name, ModelIdentifier)
+        assert result.handler_name.namespace is not None
+        assert result.handler_name.name is not None
 
-    def test_describe_capabilities_contains_strings(self) -> None:
-        """describe() capabilities list should contain strings."""
+    def test_describe_has_handler_version(self) -> None:
+        """describe() result should have handler_version as ModelSemVer."""
         handler = CompliantHandler()
         result = handler.describe()
 
-        capabilities = result.get("capabilities", [])
-        for cap in capabilities:
-            assert isinstance(cap, str), f"Expected string, got {type(cap)}"
+        assert result.handler_version is not None
+        assert isinstance(result.handler_version, ModelSemVer)
 
-    def test_describe_does_not_include_credentials(self) -> None:
-        """describe() must not include sensitive credential information."""
+    def test_describe_has_required_enum_fields(self) -> None:
+        """describe() result should have required enum fields."""
         handler = CompliantHandler()
         result = handler.describe()
 
-        # Check for common credential field names that should never appear
-        forbidden_keys = {
-            "password",
-            "api_key",
-            "secret",
-            "token",
-            "credential",
-            "auth_token",
-            "private_key",
-            "connection_string",
-        }
-        result_keys_lower = {k.lower() for k in result.keys()}
+        assert result.handler_role is not None
+        assert isinstance(result.handler_role, EnumHandlerRole)
+        assert result.handler_type_category is not None
+        assert isinstance(result.handler_type_category, EnumHandlerTypeCategory)
 
-        for key in forbidden_keys:
-            assert (
-                key not in result_keys_lower
-            ), f"Sensitive key '{key}' found in describe() output"
-
-    def test_describe_optional_fields_are_correct_types(self) -> None:
-        """describe() optional fields should have correct types when present."""
+    def test_describe_capabilities_is_list(self) -> None:
+        """describe() capabilities should be a list."""
         handler = CompliantHandler()
         result = handler.describe()
 
-        # version should be string when present
-        if "version" in result:
-            assert isinstance(result["version"], str)
-
-        # connection_info should be dict when present
-        if "connection_info" in result:
-            assert isinstance(result["connection_info"], dict)
+        assert isinstance(result.capabilities, list)
 
 
 class TestProtocolHandlerHealthCheckReturnContract:

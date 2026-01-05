@@ -10,97 +10,19 @@ Validates that ProtocolHandlerSource:
 
 from __future__ import annotations
 
-from typing import Any
-
 import pytest
 
 from omnibase_spi.protocols.handlers import (
     LiteralHandlerSourceType,
-    ProtocolHandler,
     ProtocolHandlerDescriptor,
     ProtocolHandlerSource,
 )
 
+from .conftest import MockHandlerDescriptor
+
 # =============================================================================
 # Mock Implementations
 # =============================================================================
-
-
-class MockProtocolHandler:
-    """A minimal mock that satisfies ProtocolHandler protocol for testing."""
-
-    @property
-    def handler_type(self) -> str:
-        """Return handler type."""
-        return "mock"
-
-    async def initialize(self, config: Any) -> None:
-        """Initialize handler."""
-        pass
-
-    async def shutdown(self, timeout_seconds: float = 30.0) -> None:
-        """Shutdown handler."""
-        pass
-
-    async def execute(self, request: Any, operation_config: Any) -> Any:
-        """Execute operation."""
-        return {}
-
-    def describe(self) -> dict[str, Any]:
-        """Describe handler."""
-        return {"handler_type": "mock"}
-
-    async def health_check(self) -> dict[str, Any]:
-        """Check health."""
-        return {"healthy": True}
-
-
-class MockHandlerDescriptor:
-    """A class that fully implements the ProtocolHandlerDescriptor protocol."""
-
-    def __init__(
-        self,
-        handler_type: str = "mock",
-        name: str = "mock-handler",
-        version: str = "1.0.0",
-        priority: int = 10,
-    ) -> None:
-        """Initialize the mock descriptor."""
-        self._handler_type = handler_type
-        self._name = name
-        self._version = version
-        self._priority = priority
-        self._handler = MockProtocolHandler()
-
-    @property
-    def handler_type(self) -> str:
-        """Return handler type."""
-        return self._handler_type
-
-    @property
-    def name(self) -> str:
-        """Return handler name."""
-        return self._name
-
-    @property
-    def version(self) -> str:
-        """Return handler version."""
-        return self._version
-
-    @property
-    def metadata(self) -> dict[str, Any]:
-        """Return handler metadata."""
-        return {"capabilities": ["read", "write"]}
-
-    @property
-    def handler(self) -> ProtocolHandler:
-        """Return handler instance."""
-        return self._handler
-
-    @property
-    def priority(self) -> int:
-        """Return handler priority."""
-        return self._priority
 
 
 class MockHandlerSource:
