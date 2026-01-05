@@ -388,6 +388,12 @@ from omnibase_spi.protocols.validation import (
     ProtocolValidator,
 )
 
+# Verification protocols (1 protocol) - Package integrity and signature verification
+from omnibase_spi.protocols.verification import (
+    LiteralHashAlgorithm,
+    ProtocolPackageVerifier,
+)
+
 # Workflow orchestration protocols (14 protocols) - Event-driven FSM coordination
 # Event sourcing, workflow state management, and distributed task scheduling
 from omnibase_spi.protocols.workflow_orchestration import (
@@ -423,6 +429,7 @@ __all__ = [
     "LiteralContainerArtifactType",
     "LiteralEffectCategory",
     "LiteralEffectId",
+    "LiteralHashAlgorithm",
     "LiteralInjectionScope",
     "LiteralOnexStatus",
     "LiteralServiceLifecycle",
@@ -553,6 +560,7 @@ __all__ = [
     "ProtocolOnexValidationReport",
     "ProtocolOnexValidationResult",
     "ProtocolOrchestratorNode",
+    "ProtocolPackageVerifier",
     "ProtocolPerformanceMetricsCollector",
     "ProtocolPersistResult",
     "ProtocolPrimitiveEffectExecutor",
