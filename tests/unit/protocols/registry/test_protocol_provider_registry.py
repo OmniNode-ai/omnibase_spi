@@ -127,7 +127,7 @@ class MockProviderRegistry:
         """
         return self._providers.get(provider_id)
 
-    async def list_all(self) -> Sequence[Any]:
+    def list_all(self) -> Sequence[Any]:
         """
         List all registered providers.
 
@@ -376,8 +376,7 @@ class TestProviderRegistration:
         assert result is descriptor2
         assert result.metadata["version"] == "2.0"
 
-    @pytest.mark.asyncio
-    async def test_register_multiple_providers(self) -> None:
+    def test_register_multiple_providers(self) -> None:
         """Should successfully register multiple different providers."""
         registry = MockProviderRegistry()
         desc1 = MockProviderDescriptor(provider_id="provider-1")
@@ -388,7 +387,7 @@ class TestProviderRegistration:
         registry.register(desc2)
         registry.register(desc3)
 
-        assert len(await registry.list_all()) == 3
+        assert len(registry.list_all()) == 3
         assert registry.get("provider-1") is desc1
         assert registry.get("provider-2") is desc2
         assert registry.get("provider-3") is desc3
@@ -448,16 +447,14 @@ class TestProviderLookup:
         result = registry.get("nonexistent-provider")
         assert result is None
 
-    @pytest.mark.asyncio
-    async def test_list_all_empty_registry(self) -> None:
+    def test_list_all_empty_registry(self) -> None:
         """Should return empty sequence for empty registry."""
         registry = MockProviderRegistry()
 
-        result = await registry.list_all()
+        result = registry.list_all()
         assert len(result) == 0
 
-    @pytest.mark.asyncio
-    async def test_list_all_returns_all_providers(self) -> None:
+    def test_list_all_returns_all_providers(self) -> None:
         """Should return all registered providers."""
         registry = MockProviderRegistry()
         desc1 = MockProviderDescriptor(provider_id="provider-1")
@@ -466,7 +463,7 @@ class TestProviderLookup:
         registry.register(desc1)
         registry.register(desc2)
 
-        result = await registry.list_all()
+        result = registry.list_all()
         assert len(result) == 2
         provider_ids = {p.provider_id for p in result}
         assert provider_ids == {"provider-1", "provider-2"}
@@ -622,8 +619,7 @@ class TestRegistryInvariants:
 
         assert result is None
 
-    @pytest.mark.asyncio
-    async def test_invariant_list_all_consistent_with_get(self) -> None:
+    def test_invariant_list_all_consistent_with_get(self) -> None:
         """list_all() returns exactly the providers for which get() returns non-None."""
         registry = MockProviderRegistry()
         desc1 = MockProviderDescriptor(provider_id="p1")
@@ -635,7 +631,7 @@ class TestRegistryInvariants:
         registry.register(desc3)
         registry.unregister("p2")
 
-        listed = await registry.list_all()
+        listed = registry.list_all()
         listed_ids = {p.provider_id for p in listed}
 
         # Check consistency with get()
