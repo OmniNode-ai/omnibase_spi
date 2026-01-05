@@ -10,6 +10,7 @@ Validates that ProtocolPackageVerifier:
 
 from __future__ import annotations
 
+import inspect
 from pathlib import Path
 from typing import get_args
 
@@ -28,17 +29,17 @@ from omnibase_spi.protocols.verification import (
 class MockPackageVerifier:
     """A class that fully implements the ProtocolPackageVerifier protocol."""
 
-    def verify_integrity(self, artifact_path: Path, expected_hash: str) -> bool:
+    async def verify_integrity(self, artifact_path: Path, expected_hash: str) -> bool:
         """Verify artifact matches expected hash."""
         return True
 
-    def verify_signature(
+    async def verify_signature(
         self, artifact_path: Path, signature: bytes, public_key: bytes
     ) -> bool:
         """Verify artifact signature using public key."""
         return True
 
-    def compute_hash(
+    async def compute_hash(
         self, artifact_path: Path, algorithm: LiteralHashAlgorithm = "SHA256"
     ) -> str:
         """Compute hash of artifact."""
@@ -48,7 +49,7 @@ class MockPackageVerifier:
 class PartialPackageVerifier:
     """A class that only implements some methods."""
 
-    def verify_integrity(self, artifact_path: Path, expected_hash: str) -> bool:
+    async def verify_integrity(self, artifact_path: Path, expected_hash: str) -> bool:
         """Verify artifact matches expected hash."""
         return True
 
@@ -64,17 +65,37 @@ class NonCompliantVerifier:
 class WrongSignatureVerifier:
     """A class with methods that have wrong signatures."""
 
-    def verify_integrity(self, path: str) -> bool:  # Wrong signature
+    async def verify_integrity(self, path: str) -> bool:  # Wrong signature
         """Wrong signature - missing expected_hash."""
         return True
 
-    def verify_signature(self, artifact_path: Path) -> bool:  # Wrong signature
+    async def verify_signature(self, artifact_path: Path) -> bool:  # Wrong signature
         """Wrong signature - missing signature and public_key."""
         return True
 
-    def compute_hash(self, artifact_path: Path) -> str:
+    async def compute_hash(self, artifact_path: Path) -> str:
         """Compute hash - missing algorithm parameter."""
         return "hash"
+
+
+class FailingVerifier:
+    """A verifier that returns failure results."""
+
+    async def verify_integrity(self, artifact_path: Path, expected_hash: str) -> bool:
+        """Always fail integrity check."""
+        return False
+
+    async def verify_signature(
+        self, artifact_path: Path, signature: bytes, public_key: bytes
+    ) -> bool:
+        """Always fail signature check."""
+        return False
+
+    async def compute_hash(
+        self, artifact_path: Path, algorithm: LiteralHashAlgorithm = "SHA256"
+    ) -> str:
+        """Return different hash for failure testing."""
+        return "b" * 64
 
 
 # =============================================================================
@@ -97,7 +118,7 @@ class TestProtocolPackageVerifierProtocol:
         from typing import Protocol
 
         assert any(
-            base is Protocol or base.__name__ == "Protocol"
+            base is Protocol or base.__name__ == "Protocol"  # type: ignore[comparison-overlap]
             for base in ProtocolPackageVerifier.__mro__
         )
 
@@ -148,6 +169,28 @@ class TestProtocolPackageVerifierCompliance:
 
 
 # =============================================================================
+# Test Classes: Async Nature
+# =============================================================================
+
+
+@pytest.mark.unit
+class TestProtocolPackageVerifierAsyncNature:
+    """Test that ProtocolPackageVerifier methods are async."""
+
+    def test_verify_integrity_is_async(self) -> None:
+        """verify_integrity should be an async method."""
+        assert inspect.iscoroutinefunction(MockPackageVerifier.verify_integrity)
+
+    def test_verify_signature_is_async(self) -> None:
+        """verify_signature should be an async method."""
+        assert inspect.iscoroutinefunction(MockPackageVerifier.verify_signature)
+
+    def test_compute_hash_is_async(self) -> None:
+        """compute_hash should be an async method."""
+        assert inspect.iscoroutinefunction(MockPackageVerifier.compute_hash)
+
+
+# =============================================================================
 # Test Classes: Method Signatures
 # =============================================================================
 
@@ -156,32 +199,36 @@ class TestProtocolPackageVerifierCompliance:
 class TestProtocolPackageVerifierMethodSignatures:
     """Test method signatures from compliant mock implementation."""
 
-    def test_verify_integrity_returns_bool(self) -> None:
+    @pytest.mark.asyncio
+    async def test_verify_integrity_returns_bool(self) -> None:
         """verify_integrity should return a boolean."""
         verifier = MockPackageVerifier()
-        result = verifier.verify_integrity(Path("/tmp/artifact.tar.gz"), "abc123")
+        result = await verifier.verify_integrity(Path("/tmp/artifact.tar.gz"), "abc123")
         assert isinstance(result, bool)
 
-    def test_verify_signature_returns_bool(self) -> None:
+    @pytest.mark.asyncio
+    async def test_verify_signature_returns_bool(self) -> None:
         """verify_signature should return a boolean."""
         verifier = MockPackageVerifier()
-        result = verifier.verify_signature(
+        result = await verifier.verify_signature(
             Path("/tmp/artifact.tar.gz"),
             b"signature_bytes",
             b"public_key_bytes",
         )
         assert isinstance(result, bool)
 
-    def test_compute_hash_returns_string(self) -> None:
+    @pytest.mark.asyncio
+    async def test_compute_hash_returns_string(self) -> None:
         """compute_hash should return a string."""
         verifier = MockPackageVerifier()
-        result = verifier.compute_hash(Path("/tmp/artifact.tar.gz"))
+        result = await verifier.compute_hash(Path("/tmp/artifact.tar.gz"))
         assert isinstance(result, str)
 
-    def test_compute_hash_with_algorithm(self) -> None:
+    @pytest.mark.asyncio
+    async def test_compute_hash_with_algorithm(self) -> None:
         """compute_hash should accept algorithm parameter."""
         verifier = MockPackageVerifier()
-        result = verifier.compute_hash(Path("/tmp/artifact.tar.gz"), "SHA256")
+        result = await verifier.compute_hash(Path("/tmp/artifact.tar.gz"), "SHA256")
         assert isinstance(result, str)
 
 
@@ -225,20 +272,22 @@ class TestLiteralHashAlgorithm:
 class TestProtocolPackageVerifierUsagePatterns:
     """Test common usage patterns for ProtocolPackageVerifier."""
 
-    def test_verification_workflow(self) -> None:
+    @pytest.mark.asyncio
+    async def test_verification_workflow(self) -> None:
         """Test typical verification workflow."""
         verifier = MockPackageVerifier()
         artifact = Path("/tmp/handler-1.0.0.tar.gz")
 
         # Compute hash
-        computed_hash = verifier.compute_hash(artifact)
+        computed_hash = await verifier.compute_hash(artifact)
         assert len(computed_hash) == 64  # SHA256 hex length
 
         # Verify integrity
-        is_valid = verifier.verify_integrity(artifact, computed_hash)
+        is_valid = await verifier.verify_integrity(artifact, computed_hash)
         assert is_valid is True
 
-    def test_signature_verification_workflow(self) -> None:
+    @pytest.mark.asyncio
+    async def test_signature_verification_workflow(self) -> None:
         """Test signature verification workflow."""
         verifier = MockPackageVerifier()
         artifact = Path("/tmp/handler-1.0.0.tar.gz")
@@ -247,8 +296,31 @@ class TestProtocolPackageVerifierUsagePatterns:
         signature = b"\x00" * 64
         public_key = b"\x00" * 32
 
-        is_valid = verifier.verify_signature(artifact, signature, public_key)
+        is_valid = await verifier.verify_signature(artifact, signature, public_key)
         assert is_valid is True
+
+    @pytest.mark.asyncio
+    async def test_failing_verifier_returns_false(self) -> None:
+        """Test that failing verifier returns False for all checks."""
+        verifier = FailingVerifier()
+        artifact = Path("/tmp/handler-1.0.0.tar.gz")
+
+        # Integrity should fail
+        is_valid = await verifier.verify_integrity(artifact, "expected_hash")
+        assert is_valid is False
+
+        # Signature should fail
+        is_valid = await verifier.verify_signature(artifact, b"sig", b"key")
+        assert is_valid is False
+
+    @pytest.mark.asyncio
+    async def test_compute_hash_returns_64_char_hex(self) -> None:
+        """Test that compute_hash returns a 64-character hex string."""
+        verifier = MockPackageVerifier()
+        hash_value = await verifier.compute_hash(Path("/tmp/artifact.tar.gz"))
+
+        assert len(hash_value) == 64
+        assert all(c in "0123456789abcdef" for c in hash_value.lower())
 
 
 # =============================================================================

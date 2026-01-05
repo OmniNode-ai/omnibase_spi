@@ -21,23 +21,23 @@ See Also:
 Example:
     ```python
     class Ed25519PackageVerifier:
-        def verify_integrity(self, artifact_path: Path, expected_hash: str) -> bool:
-            computed = self.compute_hash(artifact_path)
+        async def verify_integrity(self, artifact_path: Path, expected_hash: str) -> bool:
+            computed = await self.compute_hash(artifact_path)
             return secrets.compare_digest(computed, expected_hash.lower())
 
-        def verify_signature(
+        async def verify_signature(
             self, artifact_path: Path, signature: bytes, public_key: bytes
         ) -> bool:
             from nacl.signing import VerifyKey
             verify_key = VerifyKey(public_key)
-            file_hash = self.compute_hash(artifact_path)
+            file_hash = await self.compute_hash(artifact_path)
             try:
                 verify_key.verify(file_hash.encode(), signature)
                 return True
             except nacl.exceptions.BadSignature:
                 return False
 
-        def compute_hash(
+        async def compute_hash(
             self, artifact_path: Path, algorithm: LiteralHashAlgorithm = "SHA256"
         ) -> str:
             import hashlib
@@ -84,15 +84,15 @@ class ProtocolPackageVerifier(Protocol):
     Example:
         ```python
         class MockVerifier:
-            def verify_integrity(self, artifact_path: Path, expected_hash: str) -> bool:
+            async def verify_integrity(self, artifact_path: Path, expected_hash: str) -> bool:
                 return True  # Always passes in tests
 
-            def verify_signature(
+            async def verify_signature(
                 self, artifact_path: Path, signature: bytes, public_key: bytes
             ) -> bool:
                 return True
 
-            def compute_hash(
+            async def compute_hash(
                 self, artifact_path: Path, algorithm: LiteralHashAlgorithm = "SHA256"
             ) -> str:
                 return "a" * 64  # Mock SHA256
@@ -107,7 +107,7 @@ class ProtocolPackageVerifier(Protocol):
 
     """
 
-    def verify_integrity(self, artifact_path: Path, expected_hash: str) -> bool:
+    async def verify_integrity(self, artifact_path: Path, expected_hash: str) -> bool:
         """Verify that an artifact matches the expected hash.
 
         Computes the hash of the artifact at the given path and compares it
@@ -127,25 +127,30 @@ class ProtocolPackageVerifier(Protocol):
             PermissionError: If the artifact file cannot be read.
             OSError: If an I/O error occurs while reading the file.
 
+        Note:
+            Implementations MAY wrap OS-level exceptions in domain-specific
+            exceptions (e.g., ``VerificationIOError``) for cleaner error handling
+            at the call site.
+
         Security:
             Implementations SHOULD use constant-time comparison (e.g.,
             ``secrets.compare_digest``) to prevent timing attacks.
 
         Example:
             ```python
-            verifier = Ed25519PackageVerifier()
-            is_valid = verifier.verify_integrity(
-                Path("/packages/handler-1.0.0.tar.gz"),
-                "a1b2c3d4e5f6..."  # 64-char lowercase hex
-            )
-            if not is_valid:
-                raise SecurityError("Package integrity check failed")
+            async def verify_package(verifier: ProtocolPackageVerifier) -> None:
+                is_valid = await verifier.verify_integrity(
+                    Path("/packages/handler-1.0.0.tar.gz"),
+                    "a1b2c3d4e5f6..."  # 64-char lowercase hex
+                )
+                if not is_valid:
+                    raise SecurityError("Package integrity check failed")
             ```
 
         """
         ...
 
-    def verify_signature(
+    async def verify_signature(
         self, artifact_path: Path, signature: bytes, public_key: bytes
     ) -> bool:
         """Verify the cryptographic signature of an artifact.
@@ -171,6 +176,11 @@ class ProtocolPackageVerifier(Protocol):
             ValueError: If signature or public_key have invalid length/format.
             OSError: If an I/O error occurs while reading the file.
 
+        Note:
+            Implementations MAY wrap OS-level exceptions in domain-specific
+            exceptions (e.g., ``VerificationIOError``) for cleaner error handling
+            at the call site.
+
         Security:
             - Implementations SHOULD use Ed25519 or equivalent modern
               signature schemes
@@ -180,25 +190,25 @@ class ProtocolPackageVerifier(Protocol):
 
         Example:
             ```python
-            verifier = Ed25519PackageVerifier()
-            with open("handler-1.0.0.tar.gz.sig", "rb") as f:
-                signature = f.read()  # 64 bytes
-            with open("publisher.pub", "rb") as f:
-                public_key = f.read()  # 32 bytes
+            async def verify_package_signature(verifier: ProtocolPackageVerifier) -> None:
+                with open("handler-1.0.0.tar.gz.sig", "rb") as f:
+                    signature = f.read()  # 64 bytes
+                with open("publisher.pub", "rb") as f:
+                    public_key = f.read()  # 32 bytes
 
-            is_authentic = verifier.verify_signature(
-                Path("/packages/handler-1.0.0.tar.gz"),
-                signature,
-                public_key,
-            )
-            if not is_authentic:
-                raise SecurityError("Package signature verification failed")
+                is_authentic = await verifier.verify_signature(
+                    Path("/packages/handler-1.0.0.tar.gz"),
+                    signature,
+                    public_key,
+                )
+                if not is_authentic:
+                    raise SecurityError("Package signature verification failed")
             ```
 
         """
         ...
 
-    def compute_hash(
+    async def compute_hash(
         self, artifact_path: Path, algorithm: LiteralHashAlgorithm = "SHA256"
     ) -> str:
         """Compute the cryptographic hash of an artifact.
@@ -223,16 +233,20 @@ class ProtocolPackageVerifier(Protocol):
 
         Note:
             For large files, implementations SHOULD read in chunks to
-            avoid loading the entire file into memory.
+            avoid loading the entire file into memory. Implementations
+            MAY wrap OS-level exceptions in domain-specific exceptions
+            (e.g., ``VerificationIOError``) for cleaner error handling
+            at the call site.
 
         Example:
             ```python
-            verifier = Ed25519PackageVerifier()
-            hash_value = verifier.compute_hash(
-                Path("/packages/handler-1.0.0.tar.gz"),
-                algorithm="SHA256",
-            )
-            print(f"SHA256: {hash_value}")  # 64 lowercase hex chars
+            async def compute_artifact_hash(verifier: ProtocolPackageVerifier) -> str:
+                hash_value = await verifier.compute_hash(
+                    Path("/packages/handler-1.0.0.tar.gz"),
+                    algorithm="SHA256",
+                )
+                print(f"SHA256: {hash_value}")  # 64 lowercase hex chars
+                return hash_value
             ```
 
         """
