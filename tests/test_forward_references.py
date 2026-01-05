@@ -342,7 +342,9 @@ class TestRegistryProtocolImports:
         from omnibase_spi.protocols import registry
 
         expected = {
+            "ProtocolCapabilityRegistry",
             "ProtocolHandlerRegistry",
+            "ProtocolProviderRegistry",
             "ProtocolRegistryBase",
             "ProtocolVersionedRegistry",
         }

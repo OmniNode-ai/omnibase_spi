@@ -339,8 +339,12 @@ from omnibase_spi.protocols.nodes import (
     ProtocolReducerNode,
 )
 
-# v0.3.0 Registry protocols (1 protocol) - Handler registration
-from omnibase_spi.protocols.registry import ProtocolHandlerRegistry
+# v0.3.0 Registry protocols (3 protocols) - Handler, provider, and capability registration
+from omnibase_spi.protocols.registry import (
+    ProtocolCapabilityRegistry,
+    ProtocolHandlerRegistry,
+    ProtocolProviderRegistry,
+)
 
 # Schema protocols (2 protocols) - Schema loading and validation
 from omnibase_spi.protocols.schema import (
@@ -438,6 +442,7 @@ __all__ = [
     "ProtocolCLIResult",
     "ProtocolCLIToolDiscovery",
     "ProtocolCanonicalSerializer",
+    "ProtocolCapabilityRegistry",
     "ProtocolCircuitBreaker",
     "ProtocolCliWorkflow",
     "ProtocolClusterCoordinator",
@@ -549,6 +554,7 @@ __all__ = [
     "ProtocolPrimitiveEffectExecutor",
     "ProtocolProjectionReader",
     "ProtocolProjector",
+    "ProtocolProviderRegistry",
     "ProtocolReducerNode",
     "ProtocolRedpandaAdapter",
     "ProtocolRetryable",
