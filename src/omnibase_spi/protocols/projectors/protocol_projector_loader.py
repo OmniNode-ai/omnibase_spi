@@ -139,6 +139,11 @@ class ProtocolProjectorLoader(Protocol):
           patterns cannot match files outside intended directories.
           Consider restricting patterns to relative paths only.
 
+        - **File Permission Handling**: Check file permissions before reading.
+          Ensure contract files are readable but not writable by untrusted
+          users. Be cautious with symlinks - verify they don't point outside
+          the allowed directory sandbox.
+
     Example Usage:
         ```python
         loader = ProjectorLoader(connection_pool)

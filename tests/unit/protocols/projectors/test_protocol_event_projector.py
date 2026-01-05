@@ -287,18 +287,83 @@ class PropertyOnlyProjector:
 # =============================================================================
 
 
+def _get_protocol_public_members(protocol_class: type) -> frozenset[str]:
+    """Get all public members of a protocol class (excluding dunder methods).
+
+    Args:
+        protocol_class: The protocol class to inspect.
+
+    Returns:
+        A frozenset of public member names.
+    """
+    import inspect
+
+    return frozenset(
+        name
+        for name, _ in inspect.getmembers(protocol_class)
+        if not name.startswith("_")
+    )
+
+
 @pytest.mark.unit
 class TestProtocolEventProjectorProtocol:
     """Test suite for ProtocolEventProjector protocol definition."""
 
     # Define expected protocol members for exhaustiveness checking
-    EXPECTED_PROTOCOL_MEMBERS: ClassVar[set[str]] = {
-        "projector_id",
-        "aggregate_type",
-        "consumed_events",
-        "project",
-        "get_state",
-    }
+    # Using frozenset for immutability - this is a constant that should never change at runtime
+    EXPECTED_PROTOCOL_MEMBERS: ClassVar[frozenset[str]] = frozenset(
+        {
+            "projector_id",
+            "aggregate_type",
+            "consumed_events",
+            "project",
+            "get_state",
+        }
+    )
+
+    def test_protocol_members_match_exactly(self) -> None:
+        """Verify protocol members match expected set exactly (bidirectional).
+
+        This is the primary exhaustiveness check that validates:
+        1. No unexpected members were added to the protocol
+        2. No expected members are missing from the protocol
+
+        If this test fails, update EXPECTED_PROTOCOL_MEMBERS to match the
+        actual protocol definition, or fix the protocol if changes were unintended.
+        """
+        actual_members = _get_protocol_public_members(ProtocolEventProjector)
+        expected_members = self.EXPECTED_PROTOCOL_MEMBERS
+
+        # Check for exact match
+        if actual_members != expected_members:
+            unexpected = actual_members - expected_members
+            missing = expected_members - actual_members
+
+            diff_parts = []
+            if unexpected:
+                diff_parts.append(
+                    f"  Unexpected (in protocol but not expected): {sorted(unexpected)}"
+                )
+            if missing:
+                diff_parts.append(
+                    f"  Missing (expected but not in protocol): {sorted(missing)}"
+                )
+
+            diff_message = "\n".join(diff_parts)
+
+            pytest.fail(
+                f"Protocol members do not match expected set exactly.\n"
+                f"\n"
+                f"Expected members ({len(expected_members)}): {sorted(expected_members)}\n"
+                f"Actual members ({len(actual_members)}): {sorted(actual_members)}\n"
+                f"\n"
+                f"Differences:\n"
+                f"{diff_message}\n"
+                f"\n"
+                f"Action required:\n"
+                f"  - If changes are intentional: update EXPECTED_PROTOCOL_MEMBERS\n"
+                f"  - If changes are unintentional: revert the protocol changes"
+            )
 
     def test_no_unexpected_protocol_members(self) -> None:
         """Verify no unexpected public members were added to protocol.
@@ -308,20 +373,16 @@ class TestProtocolEventProjectorProtocol:
         1. Add the new member to EXPECTED_PROTOCOL_MEMBERS, OR
         2. The new member was added unintentionally and should be removed.
         """
-        import inspect
+        actual_members = _get_protocol_public_members(ProtocolEventProjector)
+        unexpected = actual_members - self.EXPECTED_PROTOCOL_MEMBERS
 
-        # Get all public members of the protocol (excluding dunder methods)
-        protocol_members = {
-            name
-            for name, _ in inspect.getmembers(ProtocolEventProjector)
-            if not name.startswith("_")
-        }
-
-        unexpected = protocol_members - self.EXPECTED_PROTOCOL_MEMBERS
         assert not unexpected, (
-            f"Unexpected protocol members found: {unexpected}. "
-            f"If these are intentional additions, update EXPECTED_PROTOCOL_MEMBERS. "
-            f"Current expected: {sorted(self.EXPECTED_PROTOCOL_MEMBERS)}"
+            f"Unexpected protocol members found: {sorted(unexpected)}.\n"
+            f"\n"
+            f"Expected: {sorted(self.EXPECTED_PROTOCOL_MEMBERS)}\n"
+            f"Actual:   {sorted(actual_members)}\n"
+            f"\n"
+            f"If these are intentional additions, update EXPECTED_PROTOCOL_MEMBERS."
         )
 
     def test_no_missing_protocol_members(self) -> None:
@@ -332,20 +393,16 @@ class TestProtocolEventProjectorProtocol:
         1. Remove the missing member from EXPECTED_PROTOCOL_MEMBERS, OR
         2. The member was removed unintentionally and should be restored.
         """
-        import inspect
+        actual_members = _get_protocol_public_members(ProtocolEventProjector)
+        missing = self.EXPECTED_PROTOCOL_MEMBERS - actual_members
 
-        # Get all public members of the protocol (excluding dunder methods)
-        protocol_members = {
-            name
-            for name, _ in inspect.getmembers(ProtocolEventProjector)
-            if not name.startswith("_")
-        }
-
-        missing = self.EXPECTED_PROTOCOL_MEMBERS - protocol_members
         assert not missing, (
-            f"Expected protocol members missing: {missing}. "
-            f"If these were intentionally removed, update EXPECTED_PROTOCOL_MEMBERS. "
-            f"Current actual members: {sorted(protocol_members)}"
+            f"Expected protocol members missing: {sorted(missing)}.\n"
+            f"\n"
+            f"Expected: {sorted(self.EXPECTED_PROTOCOL_MEMBERS)}\n"
+            f"Actual:   {sorted(actual_members)}\n"
+            f"\n"
+            f"If these were intentionally removed, update EXPECTED_PROTOCOL_MEMBERS."
         )
 
     def test_mock_implements_all_protocol_members(self) -> None:

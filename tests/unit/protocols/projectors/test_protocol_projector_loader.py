@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Any, ClassVar
-from uuid import UUID
+from uuid import UUID, uuid4
 
 import pytest
 
@@ -20,23 +20,105 @@ from omnibase_spi.protocols.projectors.protocol_projector_loader import (
     ProtocolProjectorLoader,
 )
 
+# =============================================================================
+# Mock Models (matching pattern from test_protocol_event_projector.py)
+# =============================================================================
+
+
+class MockEventEnvelope:
+    """Mock event envelope for testing.
+
+    Mimics the structure of ModelEventEnvelope from omnibase_core.
+    Provides the minimal interface needed for testing ProtocolProjectorLoader.
+    """
+
+    def __init__(
+        self,
+        event_id: UUID | None = None,
+        event_type: str = "TestEvent",
+        aggregate_id: UUID | None = None,
+        aggregate_type: str = "TestAggregate",
+        payload: dict[str, Any] | None = None,
+        metadata: dict[str, Any] | None = None,
+    ) -> None:
+        """Initialize the mock event envelope."""
+        self._event_id = event_id or uuid4()
+        self._event_type = event_type
+        self._aggregate_id = aggregate_id or uuid4()
+        self._aggregate_type = aggregate_type
+        self._payload = payload if payload is not None else {}
+        self._metadata = metadata if metadata is not None else {}
+
+    @property
+    def event_id(self) -> UUID:
+        """Return the unique event identifier."""
+        return self._event_id
+
+    @property
+    def event_type(self) -> str:
+        """Return the event type."""
+        return self._event_type
+
+    @property
+    def aggregate_id(self) -> UUID:
+        """Return the aggregate identifier."""
+        return self._aggregate_id
+
+    @property
+    def aggregate_type(self) -> str:
+        """Return the aggregate type."""
+        return self._aggregate_type
+
+    @property
+    def payload(self) -> dict[str, Any]:
+        """Return the event payload."""
+        return self._payload
+
+    @property
+    def metadata(self) -> dict[str, Any]:
+        """Return the event metadata."""
+        return self._metadata
+
 
 class MockProjectionResult:
     """Mock projection result for testing.
 
-    Mimics the structure of ModelProjectionResult for testing purposes.
+    Mimics the structure of ModelProjectionResult from omnibase_core.
+    Provides the minimal interface needed for testing ProtocolProjectorLoader.
     """
 
     def __init__(
         self,
         success: bool = True,
         skipped: bool = False,
+        error: str | None = None,
         reason: str | None = None,
     ) -> None:
         """Initialize the mock projection result."""
-        self.success = success
-        self.skipped = skipped
-        self.reason = reason
+        self._success = success
+        self._skipped = skipped
+        self._error = error
+        self._reason = reason
+
+    @property
+    def success(self) -> bool:
+        """Return whether projection completed successfully."""
+        return self._success
+
+    @property
+    def skipped(self) -> bool:
+        """Return whether event was skipped."""
+        return self._skipped
+
+    @property
+    def error(self) -> str | None:
+        """Return error details if projection failed."""
+        return self._error
+
+    @property
+    def reason(self) -> str | None:
+        """Return reason for skip if skipped."""
+        return self._reason
 
 
 class MockProjector:
@@ -68,7 +150,7 @@ class MockProjector:
         """Event types this projector consumes."""
         return self._consumed_events
 
-    async def project(self, event: Any) -> MockProjectionResult:
+    async def project(self, event: MockEventEnvelope) -> MockProjectionResult:
         """Project event to persistence store.
 
         Args:
@@ -78,9 +160,8 @@ class MockProjector:
             MockProjectionResult indicating projection outcome.
         """
         # Mock implementation - store event data in state
-        aggregate_id = getattr(event, "aggregate_id", None)
-        if aggregate_id is not None:
-            self._state[aggregate_id] = {"projected": True}
+        aggregate_id = event.aggregate_id
+        self._state[aggregate_id] = {"projected": True}
         return MockProjectionResult(success=True)
 
     async def get_state(self, aggregate_id: UUID) -> dict[str, Any] | None:
@@ -184,16 +265,81 @@ class NonCompliantProjectorLoader:
     pass
 
 
+def _get_protocol_public_members(protocol_class: type) -> frozenset[str]:
+    """Get all public members of a protocol class (excluding dunder methods).
+
+    Args:
+        protocol_class: The protocol class to inspect.
+
+    Returns:
+        A frozenset of public member names.
+    """
+    import inspect
+
+    return frozenset(
+        name
+        for name, _ in inspect.getmembers(protocol_class)
+        if not name.startswith("_")
+    )
+
+
 @pytest.mark.unit
 class TestProtocolProjectorLoaderProtocol:
     """Test suite for ProtocolProjectorLoader protocol compliance."""
 
     # Define expected protocol members for exhaustiveness checking
-    EXPECTED_PROTOCOL_MEMBERS: ClassVar[set[str]] = {
-        "load_from_contract",
-        "load_from_directory",
-        "discover_and_load",
-    }
+    # Using frozenset for immutability - this is a constant that should never change at runtime
+    EXPECTED_PROTOCOL_MEMBERS: ClassVar[frozenset[str]] = frozenset(
+        {
+            "load_from_contract",
+            "load_from_directory",
+            "discover_and_load",
+        }
+    )
+
+    def test_protocol_members_match_exactly(self) -> None:
+        """Verify protocol members match expected set exactly (bidirectional).
+
+        This is the primary exhaustiveness check that validates:
+        1. No unexpected members were added to the protocol
+        2. No expected members are missing from the protocol
+
+        If this test fails, update EXPECTED_PROTOCOL_MEMBERS to match the
+        actual protocol definition, or fix the protocol if changes were unintended.
+        """
+        actual_members = _get_protocol_public_members(ProtocolProjectorLoader)
+        expected_members = self.EXPECTED_PROTOCOL_MEMBERS
+
+        # Check for exact match
+        if actual_members != expected_members:
+            unexpected = actual_members - expected_members
+            missing = expected_members - actual_members
+
+            diff_parts = []
+            if unexpected:
+                diff_parts.append(
+                    f"  Unexpected (in protocol but not expected): {sorted(unexpected)}"
+                )
+            if missing:
+                diff_parts.append(
+                    f"  Missing (expected but not in protocol): {sorted(missing)}"
+                )
+
+            diff_message = "\n".join(diff_parts)
+
+            pytest.fail(
+                f"Protocol members do not match expected set exactly.\n"
+                f"\n"
+                f"Expected members ({len(expected_members)}): {sorted(expected_members)}\n"
+                f"Actual members ({len(actual_members)}): {sorted(actual_members)}\n"
+                f"\n"
+                f"Differences:\n"
+                f"{diff_message}\n"
+                f"\n"
+                f"Action required:\n"
+                f"  - If changes are intentional: update EXPECTED_PROTOCOL_MEMBERS\n"
+                f"  - If changes are unintentional: revert the protocol changes"
+            )
 
     def test_no_unexpected_protocol_members(self) -> None:
         """Verify no unexpected public members were added to protocol.
@@ -203,20 +349,16 @@ class TestProtocolProjectorLoaderProtocol:
         1. Add the new member to EXPECTED_PROTOCOL_MEMBERS, OR
         2. The new member was added unintentionally and should be removed.
         """
-        import inspect
+        actual_members = _get_protocol_public_members(ProtocolProjectorLoader)
+        unexpected = actual_members - self.EXPECTED_PROTOCOL_MEMBERS
 
-        # Get all public members of the protocol (excluding dunder methods)
-        protocol_members = {
-            name
-            for name, _ in inspect.getmembers(ProtocolProjectorLoader)
-            if not name.startswith("_")
-        }
-
-        unexpected = protocol_members - self.EXPECTED_PROTOCOL_MEMBERS
         assert not unexpected, (
-            f"Unexpected protocol members found: {unexpected}. "
-            f"If these are intentional additions, update EXPECTED_PROTOCOL_MEMBERS. "
-            f"Current expected: {sorted(self.EXPECTED_PROTOCOL_MEMBERS)}"
+            f"Unexpected protocol members found: {sorted(unexpected)}.\n"
+            f"\n"
+            f"Expected: {sorted(self.EXPECTED_PROTOCOL_MEMBERS)}\n"
+            f"Actual:   {sorted(actual_members)}\n"
+            f"\n"
+            f"If these are intentional additions, update EXPECTED_PROTOCOL_MEMBERS."
         )
 
     def test_no_missing_protocol_members(self) -> None:
@@ -227,20 +369,16 @@ class TestProtocolProjectorLoaderProtocol:
         1. Remove the missing member from EXPECTED_PROTOCOL_MEMBERS, OR
         2. The member was removed unintentionally and should be restored.
         """
-        import inspect
+        actual_members = _get_protocol_public_members(ProtocolProjectorLoader)
+        missing = self.EXPECTED_PROTOCOL_MEMBERS - actual_members
 
-        # Get all public members of the protocol (excluding dunder methods)
-        protocol_members = {
-            name
-            for name, _ in inspect.getmembers(ProtocolProjectorLoader)
-            if not name.startswith("_")
-        }
-
-        missing = self.EXPECTED_PROTOCOL_MEMBERS - protocol_members
         assert not missing, (
-            f"Expected protocol members missing: {missing}. "
-            f"If these were intentionally removed, update EXPECTED_PROTOCOL_MEMBERS. "
-            f"Current actual members: {sorted(protocol_members)}"
+            f"Expected protocol members missing: {sorted(missing)}.\n"
+            f"\n"
+            f"Expected: {sorted(self.EXPECTED_PROTOCOL_MEMBERS)}\n"
+            f"Actual:   {sorted(actual_members)}\n"
+            f"\n"
+            f"If these were intentionally removed, update EXPECTED_PROTOCOL_MEMBERS."
         )
 
     def test_mock_implements_all_protocol_members(self) -> None:
@@ -910,7 +1048,7 @@ class TestProtocolProjectorLoaderContractValidation:
             "projector: {}\nschema:\n  columns: []\nordering: {}\n"
         )
 
-        with pytest.raises(ContractCompilerError, match="missing 'projector.name'"):
+        with pytest.raises(ContractCompilerError, match=r"missing 'projector\.name'"):
             await loader.load_from_contract(contract_path)
 
     @pytest.mark.asyncio
