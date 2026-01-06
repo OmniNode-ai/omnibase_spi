@@ -354,8 +354,11 @@ class TestContractProtocolImports:
     def test_execution_constraints_import(self) -> None:
         """Validate ProtocolExecutionConstraints import succeeds.
 
-        Execution constraints define execution ordering and parallelism for handlers,
-        including requires_before/after dependencies and can_run_parallel settings.
+        Execution constraints define handler execution requirements including:
+        - Ordering dependencies (requires_before/requires_after)
+        - Parallelism control (can_run_parallel)
+        - Mandatory execution flags (must_run)
+        - Nondeterminism tracking for replay/recovery (nondeterministic_effect)
         """
         from omnibase_spi.protocols.contracts import ProtocolExecutionConstraints
 
@@ -530,8 +533,11 @@ class TestExecutionConstrainableProtocolImports:
         """Validate ProtocolExecutionConstrainable import succeeds.
 
         The execution constrainable protocol defines a mixin interface for
-        objects that can declare execution constraints such as ordering
-        dependencies and parallelism settings.
+        objects that can declare execution constraints. Constraints include:
+        - Ordering dependencies (requires_before/requires_after)
+        - Parallelism control (can_run_parallel)
+        - Mandatory execution flags (must_run)
+        - Nondeterminism tracking (nondeterministic_effect)
         """
         from omnibase_spi.protocols.protocol_execution_constrainable import (
             ProtocolExecutionConstrainable,

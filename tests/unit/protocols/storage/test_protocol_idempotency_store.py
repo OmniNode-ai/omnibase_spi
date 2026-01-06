@@ -135,6 +135,7 @@ class NonCompliantStore:
     pass
 
 
+@pytest.mark.unit
 class TestProtocolIdempotencyStoreProtocol:
     """Test suite for ProtocolIdempotencyStore protocol compliance."""
 
@@ -177,6 +178,7 @@ class TestProtocolIdempotencyStoreProtocol:
             ProtocolIdempotencyStore()  # type: ignore[misc]
 
 
+@pytest.mark.unit
 class TestProtocolIdempotencyStoreCompliance:
     """Test isinstance checks for protocol compliance."""
 
@@ -196,6 +198,7 @@ class TestProtocolIdempotencyStoreCompliance:
         assert not isinstance(store, ProtocolIdempotencyStore)
 
 
+@pytest.mark.unit
 class TestMockImplementsAllMethods:
     """Test that MockIdempotencyStore has all required methods."""
 
@@ -224,6 +227,7 @@ class TestMockImplementsAllMethods:
         assert callable(store.cleanup_expired)
 
 
+@pytest.mark.unit
 class TestProtocolIdempotencyStoreAsyncNature:
     """Test that ProtocolIdempotencyStore methods are async."""
 
@@ -252,6 +256,7 @@ class TestProtocolIdempotencyStoreAsyncNature:
         assert inspect.iscoroutinefunction(MockIdempotencyStore.cleanup_expired)
 
 
+@pytest.mark.unit
 class TestProtocolIdempotencyStoreMethodSignatures:
     """Test method signatures from compliant mock implementation."""
 
@@ -319,6 +324,7 @@ class TestProtocolIdempotencyStoreMethodSignatures:
         assert result >= 0
 
 
+@pytest.mark.unit
 class TestProtocolIdempotencyStoreImports:
     """Test protocol imports from different locations."""
 
@@ -365,6 +371,7 @@ class TestProtocolIdempotencyStoreImports:
         assert StorageProtocolIdempotencyStore is ProtocolsIdempotencyStore
 
 
+@pytest.mark.unit
 class TestProtocolIdempotencyStoreDocumentation:
     """Test that ProtocolIdempotencyStore has proper documentation."""
 
