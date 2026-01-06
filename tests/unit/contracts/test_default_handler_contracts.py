@@ -19,7 +19,6 @@ import yaml
 
 from omnibase_core.models.contracts.model_handler_contract import ModelHandlerContract
 
-
 # Path to default contract templates
 DEFAULTS_DIR = (
     Path(__file__).parent.parent.parent.parent
@@ -103,9 +102,7 @@ class TestDefaultComputeHandlerContract:
         """Test compute handler kind is set correctly."""
         assert template["descriptor"]["handler_kind"] == "compute"
 
-    def test_compute_handler_concurrency_policy(
-        self, template: dict[str, Any]
-    ) -> None:
+    def test_compute_handler_concurrency_policy(self, template: dict[str, Any]) -> None:
         """Test compute handler has parallel_ok concurrency policy."""
         assert template["descriptor"]["concurrency_policy"] == "parallel_ok"
 
@@ -141,9 +138,7 @@ class TestDefaultEffectHandlerContract:
         contract = ModelHandlerContract.model_validate(template)
         assert contract.handler_id == "template.effect.default"
 
-    def test_effect_handler_is_side_effecting(
-        self, template: dict[str, Any]
-    ) -> None:
+    def test_effect_handler_is_side_effecting(self, template: dict[str, Any]) -> None:
         """Test effect handler has side_effecting purity setting."""
         assert template["descriptor"]["purity"] == "side_effecting"
 
@@ -169,9 +164,7 @@ class TestDefaultEffectHandlerContract:
         assert retry_policy["max_retries"] == 3
         assert retry_policy["backoff_strategy"] == "exponential"
 
-    def test_effect_handler_disallows_parallel(
-        self, template: dict[str, Any]
-    ) -> None:
+    def test_effect_handler_disallows_parallel(self, template: dict[str, Any]) -> None:
         """Test effect handler disallows parallel execution (conservative)."""
         assert template["execution_constraints"]["can_run_parallel"] is False
 
@@ -185,15 +178,11 @@ class TestDefaultEffectHandlerContract:
         """Test effect handler kind is set correctly."""
         assert template["descriptor"]["handler_kind"] == "effect"
 
-    def test_effect_handler_concurrency_policy(
-        self, template: dict[str, Any]
-    ) -> None:
+    def test_effect_handler_concurrency_policy(self, template: dict[str, Any]) -> None:
         """Test effect handler has serialized concurrency policy (conservative)."""
         assert template["descriptor"]["concurrency_policy"] == "serialized"
 
-    def test_effect_handler_has_circuit_breaker(
-        self, template: dict[str, Any]
-    ) -> None:
+    def test_effect_handler_has_circuit_breaker(self, template: dict[str, Any]) -> None:
         """Test effect handler has circuit breaker configured."""
         circuit_breaker = template["descriptor"]["circuit_breaker"]
         assert circuit_breaker is not None
@@ -288,18 +277,14 @@ class TestDefaultNondeterministicComputeHandlerContract:
         assert llm_input["alias"] == "llm"
         assert llm_input["capability"] == "inference.language_model"
 
-    def test_nondeterministic_handler_has_tags(
-        self, template: dict[str, Any]
-    ) -> None:
+    def test_nondeterministic_handler_has_tags(self, template: dict[str, Any]) -> None:
         """Test nondeterministic handler has appropriate tags."""
         tags = template.get("tags", [])
         assert "nondeterministic" in tags
         assert "llm" in tags
         assert "ai-inference" in tags
 
-    def test_nondeterministic_handler_metadata(
-        self, template: dict[str, Any]
-    ) -> None:
+    def test_nondeterministic_handler_metadata(self, template: dict[str, Any]) -> None:
         """Test nondeterministic handler has expected metadata."""
         metadata = template.get("metadata", {})
         assert metadata.get("handler_category") == "nondeterministic_compute"
@@ -508,7 +493,9 @@ class TestTemplateYamlStructure:
     def test_yaml_no_tabs(self, template_path: Path) -> None:
         """Test that templates use spaces, not tabs."""
         content = template_path.read_text(encoding="utf-8")
-        assert "\t" not in content, f"Template {template_path.name} should not have tabs"
+        assert (
+            "\t" not in content
+        ), f"Template {template_path.name} should not have tabs"
 
     def test_yaml_no_trailing_whitespace_on_content_lines(
         self, template_path: Path

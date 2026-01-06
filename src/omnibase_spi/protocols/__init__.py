@@ -328,10 +328,15 @@ from omnibase_spi.protocols.projectors import (
 # ProtocolEnvelope is the canonical name per roadmap specification
 ProtocolEnvelope = ProtocolOnexEnvelope
 
-# v0.3.0 Contract compiler protocols (3 protocols) - YAML contract compilation
+# v0.3.0 Contract compiler protocols (7 protocols) - YAML contract compilation
+# Includes handler contract interface and supporting types
 from omnibase_spi.protocols.contracts import (
+    ProtocolCapabilityDependency,
     ProtocolEffectContractCompiler,
+    ProtocolExecutionConstraints,
     ProtocolFSMContractCompiler,
+    ProtocolHandlerBehaviorDescriptor,
+    ProtocolHandlerContract,
     ProtocolWorkflowContractCompiler,
 )
 
@@ -348,6 +353,11 @@ from omnibase_spi.protocols.nodes import (
     ProtocolNode,
     ProtocolOrchestratorNode,
     ProtocolReducerNode,
+)
+
+# v0.3.0 Execution constraint protocol - Mixin for constrainable objects
+from omnibase_spi.protocols.protocol_execution_constrainable import (
+    ProtocolExecutionConstrainable,
 )
 
 # v0.3.0 Registry protocols (3 protocols) - Handler, provider, and capability registration
@@ -460,6 +470,7 @@ __all__ = [
     "ProtocolCLIResult",
     "ProtocolCLIToolDiscovery",
     "ProtocolCanonicalSerializer",
+    "ProtocolCapabilityDependency",
     "ProtocolCapabilityRegistry",
     "ProtocolCircuitBreaker",
     "ProtocolCliWorkflow",
@@ -503,12 +514,16 @@ __all__ = [
     "ProtocolEventStore",
     "ProtocolEventStoreResult",
     "ProtocolEventStoreTransaction",
+    "ProtocolExecutionConstrainable",
+    "ProtocolExecutionConstraints",
     "ProtocolFSMContractCompiler",
     "ProtocolFileHandlerRegistry",
     "ProtocolFileProcessingTypeHandler",
     "ProtocolFileReader",
     "ProtocolGraphDatabaseHandler",
     "ProtocolHandler",
+    "ProtocolHandlerBehaviorDescriptor",
+    "ProtocolHandlerContract",
     "ProtocolHandlerContractFactory",
     "ProtocolHandlerDiscovery",
     "ProtocolHandlerInfo",

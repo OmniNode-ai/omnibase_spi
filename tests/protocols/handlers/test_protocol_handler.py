@@ -17,10 +17,8 @@ import pytest
 
 from omnibase_core.enums import (
     EnumHandlerRole,
-    EnumHandlerTypeCategory,
-)
-from omnibase_core.enums import (
     EnumHandlerType as CoreEnumHandlerType,
+    EnumHandlerTypeCategory,
 )
 from omnibase_core.models.handlers import ModelHandlerDescriptor, ModelIdentifier
 from omnibase_core.models.primitives.model_semver import ModelSemVer

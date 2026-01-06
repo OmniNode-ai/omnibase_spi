@@ -27,6 +27,14 @@ omnibase_infra (handlers, I/O implementations)
 - SPI → Infra: **forbidden** (no imports, even transitively)
 - Infra → SPI + Core: **expected** (implements behavior)
 
+## Git Commit Rules
+
+**NEVER use `--no-verify`** when committing. Pre-commit hooks exist to enforce code quality and architectural constraints. If a pre-commit hook fails:
+
+1. Fix the issue in your code
+2. If the issue is pre-existing (not from your changes), fix it as part of your commit or create a separate PR to address it
+3. If you believe the hook is incorrect, discuss with the team before bypassing
+
 ## What SPI Contains
 
 - **Protocol definitions** using Python `typing.Protocol`

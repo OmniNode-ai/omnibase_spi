@@ -18,7 +18,7 @@ Example:
         def source_type(self) -> LiteralHandlerSourceType:
             return "BOOTSTRAP"
 
-        def discover_handlers(self) -> list[ProtocolHandlerDescriptor]:
+        async def discover_handlers(self) -> list[ProtocolHandlerDescriptor]:
             return [HttpHandlerDescriptor(...), KafkaHandlerDescriptor(...)]
 
     class ContractHandlerSource:
@@ -26,13 +26,13 @@ Example:
         def source_type(self) -> LiteralHandlerSourceType:
             return "CONTRACT"
 
-        def discover_handlers(self) -> list[ProtocolHandlerDescriptor]:
+        async def discover_handlers(self) -> list[ProtocolHandlerDescriptor]:
             # Load handlers from contract manifests
-            return self._load_from_manifests()
+            return await self._load_from_manifests()
 
     # Runtime uses sources uniformly - no branching on source_type
     for source in [bootstrap_source, contract_source]:
-        for descriptor in source.discover_handlers():
+        for descriptor in await source.discover_handlers():
             registry.register(descriptor)
     ```
 
@@ -80,7 +80,7 @@ class ProtocolHandlerSource(Protocol):
             def source_type(self) -> LiteralHandlerSourceType:
                 return "BOOTSTRAP"
 
-            def discover_handlers(self) -> list[ProtocolHandlerDescriptor]:
+            async def discover_handlers(self) -> list[ProtocolHandlerDescriptor]:
                 return [
                     HttpHandlerDescriptor(handler=http_handler),
                     PostgresHandlerDescriptor(handler=pg_handler),
@@ -90,7 +90,7 @@ class ProtocolHandlerSource(Protocol):
         assert isinstance(source, ProtocolHandlerSource)
 
         # Runtime registers handlers uniformly
-        for descriptor in source.discover_handlers():
+        for descriptor in await source.discover_handlers():
             handler_registry.register(descriptor)
         ```
 

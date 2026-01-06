@@ -216,6 +216,7 @@ class NonCompliantReader:
     pass
 
 
+@pytest.mark.unit
 class TestProtocolProjectionReaderProtocol:
     """Test suite for ProtocolProjectionReader protocol compliance."""
 
@@ -266,6 +267,7 @@ class TestProtocolProjectionReaderProtocol:
             ProtocolProjectionReader()  # type: ignore[misc]
 
 
+@pytest.mark.unit
 class TestProtocolProjectionReaderCompliance:
     """Test isinstance checks for protocol compliance."""
 
@@ -285,6 +287,7 @@ class TestProtocolProjectionReaderCompliance:
         assert not isinstance(reader, ProtocolProjectionReader)
 
 
+@pytest.mark.unit
 class TestMockImplementsAllMethods:
     """Test that MockProjectionReader has all required methods."""
 
@@ -325,6 +328,7 @@ class TestMockImplementsAllMethods:
         assert callable(reader.get_node_capabilities)
 
 
+@pytest.mark.unit
 class TestProtocolProjectionReaderAsyncNature:
     """Test that ProtocolProjectionReader methods are async."""
 
@@ -365,6 +369,7 @@ class TestProtocolProjectionReaderAsyncNature:
         assert inspect.iscoroutinefunction(MockProjectionReader.get_node_capabilities)
 
 
+@pytest.mark.unit
 class TestProtocolProjectionReaderMethodSignatures:
     """Test method signatures from compliant mock implementation."""
 
@@ -543,6 +548,7 @@ class TestProtocolProjectionReaderMethodSignatures:
         assert "cuda-12" in result
 
 
+@pytest.mark.unit
 class TestProtocolProjectionReaderImports:
     """Test protocol imports from different locations."""
 
@@ -589,6 +595,7 @@ class TestProtocolProjectionReaderImports:
         assert ProjectionsProtocolProjectionReader is ProtocolsProjectionReader
 
 
+@pytest.mark.unit
 class TestProtocolProjectionReaderDocumentation:
     """Test that ProtocolProjectionReader has proper documentation."""
 
@@ -628,6 +635,7 @@ class TestProtocolProjectionReaderDocumentation:
         assert MockProjectionReader.get_node_capabilities.__doc__ is not None
 
 
+@pytest.mark.unit
 class TestArchitecturalConstraintDocumentation:
     """Test that the no-topic-scanning constraint is properly documented."""
 

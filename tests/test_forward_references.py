@@ -9,7 +9,7 @@ importable even when Core is not installed.
 Test Categories:
     TestNodeProtocolImports: Node protocol import validation
     TestHandlerProtocolImports: Handler protocol import validation
-    TestContractCompilerImports: Contract compiler import validation
+    TestContractProtocolImports: Contract protocol import validation
     TestRegistryProtocolImports: Registry protocol import validation
     TestRuntimeCheckableProtocols: @runtime_checkable decorator validation
     TestIsinstanceChecks: isinstance() behavior with mock implementations
@@ -204,9 +204,13 @@ class TestNodeProtocolImports:
 class TestHandlerProtocolImports:
     """Test handler protocol imports without forward reference errors.
 
-    Validates that ProtocolHandler can be imported from
+    Validates that all handler protocols can be imported from
     omnibase_spi.protocols.handlers without triggering import errors
-    from forward references to Core models used in execute() signatures.
+    from forward references to Core models. This includes:
+
+    - ProtocolHandler: Main handler interface for I/O operations
+    - ProtocolHandlerSource: Handler discovery abstraction
+    - ProtocolHandlerDescriptor: Handler metadata protocol
     """
 
     def test_protocol_handler_import(self) -> None:
@@ -219,6 +223,28 @@ class TestHandlerProtocolImports:
 
         assert ProtocolHandler is not None
         _verify_runtime_checkable_protocol(ProtocolHandler)
+
+    def test_protocol_handler_source_import(self) -> None:
+        """Validate ProtocolHandlerSource import succeeds.
+
+        Handler sources provide a uniform interface for discovering handlers,
+        abstracting away the discovery mechanism (bootstrap, contract, hybrid).
+        """
+        from omnibase_spi.protocols.handlers import ProtocolHandlerSource
+
+        assert ProtocolHandlerSource is not None
+        _verify_runtime_checkable_protocol(ProtocolHandlerSource)
+
+    def test_protocol_handler_descriptor_import(self) -> None:
+        """Validate ProtocolHandlerDescriptor import succeeds.
+
+        Handler descriptors provide metadata about registered handlers for
+        registry management and handler discovery.
+        """
+        from omnibase_spi.protocols.handlers import ProtocolHandlerDescriptor
+
+        assert ProtocolHandlerDescriptor is not None
+        _verify_runtime_checkable_protocol(ProtocolHandlerDescriptor)
 
     def test_all_handler_protocols_in_module_all(self) -> None:
         """Validate all handler protocols are properly exported in __all__.
@@ -260,11 +286,18 @@ class TestHandlerProtocolImports:
             assert obj is not None, f"{name} in __all__ but not importable"
 
 
-class TestContractCompilerImports:
-    """Test contract compiler protocol imports without forward reference errors.
+class TestContractProtocolImports:
+    """Test contract protocol imports without forward reference errors.
 
-    Validates that all contract compiler protocols can be imported from
-    omnibase_spi.protocols.contracts without forward reference errors.
+    Validates that all contract protocols (compilers and supporting types)
+    can be imported from omnibase_spi.protocols.contracts without forward
+    reference errors. This includes:
+
+    - Contract Compilers: ProtocolEffectContractCompiler,
+      ProtocolWorkflowContractCompiler, ProtocolFSMContractCompiler
+    - Handler Contracts: ProtocolHandlerContract
+    - Supporting Types: ProtocolCapabilityDependency,
+      ProtocolExecutionConstraints, ProtocolHandlerBehaviorDescriptor
     """
 
     def test_effect_contract_compiler_import(self) -> None:
@@ -297,19 +330,69 @@ class TestContractCompilerImports:
         assert ProtocolFSMContractCompiler is not None
         _verify_runtime_checkable_protocol(ProtocolFSMContractCompiler)
 
-    def test_all_contract_compilers_in_module_all(self) -> None:
-        """Validate all contract compilers are properly exported in __all__.
+    def test_handler_contract_import(self) -> None:
+        """Validate ProtocolHandlerContract import succeeds.
 
-        Ensures consumers can access all compiler protocols through the
-        contracts module's public API. This uses an explicit expected list
-        to catch any missing exports when new protocols are added.
+        Handler contracts define the type-safe interface for handler behavior
+        specifications including capabilities, constraints, and behavior descriptors.
+        """
+        from omnibase_spi.protocols.contracts import ProtocolHandlerContract
+
+        assert ProtocolHandlerContract is not None
+        _verify_runtime_checkable_protocol(ProtocolHandlerContract)
+
+    def test_capability_dependency_import(self) -> None:
+        """Validate ProtocolCapabilityDependency import succeeds.
+
+        Capability dependencies define requirements between handler capabilities.
+        """
+        from omnibase_spi.protocols.contracts import ProtocolCapabilityDependency
+
+        assert ProtocolCapabilityDependency is not None
+        _verify_runtime_checkable_protocol(ProtocolCapabilityDependency)
+
+    def test_execution_constraints_import(self) -> None:
+        """Validate ProtocolExecutionConstraints import succeeds.
+
+        Execution constraints define handler execution requirements including:
+        - Ordering dependencies (requires_before/requires_after)
+        - Parallelism control (can_run_parallel)
+        - Mandatory execution flags (must_run)
+        - Nondeterminism tracking for replay/recovery (nondeterministic_effect)
+        """
+        from omnibase_spi.protocols.contracts import ProtocolExecutionConstraints
+
+        assert ProtocolExecutionConstraints is not None
+        _verify_runtime_checkable_protocol(ProtocolExecutionConstraints)
+
+    def test_handler_behavior_descriptor_import(self) -> None:
+        """Validate ProtocolHandlerBehaviorDescriptor import succeeds.
+
+        Behavior descriptors define expected handler behaviors and side effects.
+        """
+        from omnibase_spi.protocols.contracts import ProtocolHandlerBehaviorDescriptor
+
+        assert ProtocolHandlerBehaviorDescriptor is not None
+        _verify_runtime_checkable_protocol(ProtocolHandlerBehaviorDescriptor)
+
+    def test_all_contract_protocols_in_module_all(self) -> None:
+        """Validate all contract protocols are properly exported in __all__.
+
+        Ensures consumers can access all contract protocols (compilers and
+        supporting types) through the contracts module's public API. This uses
+        an explicit expected list to catch any missing exports when new
+        protocols are added.
         """
         from omnibase_spi.protocols import contracts
 
         expected = {
+            "ProtocolCapabilityDependency",
             "ProtocolEffectContractCompiler",
-            "ProtocolWorkflowContractCompiler",
+            "ProtocolExecutionConstraints",
             "ProtocolFSMContractCompiler",
+            "ProtocolHandlerBehaviorDescriptor",
+            "ProtocolHandlerContract",
+            "ProtocolWorkflowContractCompiler",
         }
         for protocol_name in expected:
             assert protocol_name in contracts.__all__, f"{protocol_name} not in __all__"
@@ -339,7 +422,7 @@ class TestContractCompilerImports:
 class TestRegistryProtocolImports:
     """Test registry protocol imports without forward reference errors.
 
-    Validates that ProtocolHandlerRegistry can be imported from
+    Validates that all registry protocols can be imported from
     omnibase_spi.protocols.registry without forward reference errors.
     """
 
@@ -352,6 +435,50 @@ class TestRegistryProtocolImports:
 
         assert ProtocolHandlerRegistry is not None
         _verify_runtime_checkable_protocol(ProtocolHandlerRegistry)
+
+    def test_protocol_registry_base_import(self) -> None:
+        """Validate ProtocolRegistryBase import succeeds.
+
+        The base registry protocol defines common registration and lookup
+        operations shared by all registry implementations.
+        """
+        from omnibase_spi.protocols.registry import ProtocolRegistryBase
+
+        assert ProtocolRegistryBase is not None
+        _verify_runtime_checkable_protocol(ProtocolRegistryBase)
+
+    def test_protocol_versioned_registry_import(self) -> None:
+        """Validate ProtocolVersionedRegistry import succeeds.
+
+        The versioned registry protocol extends base registry with version-aware
+        handler registration and lookup capabilities.
+        """
+        from omnibase_spi.protocols.registry import ProtocolVersionedRegistry
+
+        assert ProtocolVersionedRegistry is not None
+        _verify_runtime_checkable_protocol(ProtocolVersionedRegistry)
+
+    def test_protocol_capability_registry_import(self) -> None:
+        """Validate ProtocolCapabilityRegistry import succeeds.
+
+        The capability registry protocol defines capability registration and
+        lookup operations for capability-based service discovery.
+        """
+        from omnibase_spi.protocols.registry import ProtocolCapabilityRegistry
+
+        assert ProtocolCapabilityRegistry is not None
+        _verify_runtime_checkable_protocol(ProtocolCapabilityRegistry)
+
+    def test_protocol_provider_registry_import(self) -> None:
+        """Validate ProtocolProviderRegistry import succeeds.
+
+        The provider registry protocol defines provider registration and
+        discovery operations for service provider management.
+        """
+        from omnibase_spi.protocols.registry import ProtocolProviderRegistry
+
+        assert ProtocolProviderRegistry is not None
+        _verify_runtime_checkable_protocol(ProtocolProviderRegistry)
 
     def test_all_registry_protocols_in_module_all(self) -> None:
         """Validate all registry protocols are properly exported in __all__.
@@ -394,12 +521,66 @@ class TestRegistryProtocolImports:
             assert obj is not None, f"{name} in __all__ but not importable"
 
 
+class TestExecutionConstrainableProtocolImports:
+    """Test ProtocolExecutionConstrainable import without forward reference errors.
+
+    Validates that ProtocolExecutionConstrainable can be imported from
+    omnibase_spi.protocols without forward reference errors. This protocol
+    is a mixin for objects that can declare execution constraints.
+    """
+
+    def test_protocol_execution_constrainable_import(self) -> None:
+        """Validate ProtocolExecutionConstrainable import succeeds.
+
+        The execution constrainable protocol defines a mixin interface for
+        objects that can declare execution constraints. Constraints include:
+        - Ordering dependencies (requires_before/requires_after)
+        - Parallelism control (can_run_parallel)
+        - Mandatory execution flags (must_run)
+        - Nondeterminism tracking (nondeterministic_effect)
+        """
+        from omnibase_spi.protocols.protocol_execution_constrainable import (
+            ProtocolExecutionConstrainable,
+        )
+
+        assert ProtocolExecutionConstrainable is not None
+        _verify_runtime_checkable_protocol(ProtocolExecutionConstrainable)
+
+    def test_protocol_execution_constrainable_from_root(self) -> None:
+        """Validate ProtocolExecutionConstrainable is accessible from protocols root.
+
+        Ensures the protocol is properly re-exported from the root protocols module.
+        """
+        from omnibase_spi.protocols import ProtocolExecutionConstrainable
+
+        assert ProtocolExecutionConstrainable is not None
+        _verify_runtime_checkable_protocol(ProtocolExecutionConstrainable)
+
+    def test_protocol_execution_constrainable_has_required_methods(self) -> None:
+        """Validate ProtocolExecutionConstrainable defines required interface.
+
+        The protocol must define:
+        - execution_constraints property: Returns constraints or None
+        - has_constraints method: Returns True if constraints are defined
+        """
+        from omnibase_spi.protocols.protocol_execution_constrainable import (
+            ProtocolExecutionConstrainable,
+        )
+
+        assert hasattr(
+            ProtocolExecutionConstrainable, "execution_constraints"
+        ), "Missing execution_constraints property"
+        assert hasattr(
+            ProtocolExecutionConstrainable, "has_constraints"
+        ), "Missing has_constraints method"
+
+
 class TestRuntimeCheckableProtocols:
     """Focused regression suite for @runtime_checkable protocol decorator support.
 
     This test class is intentionally parallel to the runtime checkability assertions
     in the import test classes (TestNodeProtocolImports, TestHandlerProtocolImports,
-    TestContractCompilerImports, TestRegistryProtocolImports). While those classes
+    TestContractProtocolImports, TestRegistryProtocolImports). While those classes
     validate runtime checkability as part of comprehensive import validation, this
     class provides:
 
@@ -493,6 +674,57 @@ class TestRuntimeCheckableProtocols:
             ProtocolEffectContractCompiler,
             ProtocolWorkflowContractCompiler,
             ProtocolFSMContractCompiler,
+        ]:
+            assert (
+                getattr(protocol, "_is_runtime_protocol", False) is True
+            ), f"{protocol.__name__} is not runtime_checkable"
+
+    def test_contract_types_are_runtime_checkable(self) -> None:
+        """Validate all contract type protocols have @runtime_checkable."""
+        from omnibase_spi.protocols.contracts import (
+            ProtocolCapabilityDependency,
+            ProtocolExecutionConstraints,
+            ProtocolHandlerBehaviorDescriptor,
+            ProtocolHandlerContract,
+        )
+
+        for protocol in [
+            ProtocolHandlerContract,
+            ProtocolCapabilityDependency,
+            ProtocolExecutionConstraints,
+            ProtocolHandlerBehaviorDescriptor,
+        ]:
+            assert (
+                getattr(protocol, "_is_runtime_protocol", False) is True
+            ), f"{protocol.__name__} is not runtime_checkable"
+
+    def test_protocol_execution_constrainable_is_runtime_checkable(self) -> None:
+        """Validate ProtocolExecutionConstrainable has @runtime_checkable decorator."""
+        from omnibase_spi.protocols.protocol_execution_constrainable import (
+            ProtocolExecutionConstrainable,
+        )
+
+        assert (
+            getattr(ProtocolExecutionConstrainable, "_is_runtime_protocol", False)
+            is True
+        ), "ProtocolExecutionConstrainable must be decorated with @runtime_checkable"
+
+    def test_registry_protocols_are_runtime_checkable(self) -> None:
+        """Validate all registry protocols have @runtime_checkable."""
+        from omnibase_spi.protocols.registry import (
+            ProtocolCapabilityRegistry,
+            ProtocolHandlerRegistry,
+            ProtocolProviderRegistry,
+            ProtocolRegistryBase,
+            ProtocolVersionedRegistry,
+        )
+
+        for protocol in [
+            ProtocolCapabilityRegistry,
+            ProtocolHandlerRegistry,
+            ProtocolProviderRegistry,
+            ProtocolRegistryBase,
+            ProtocolVersionedRegistry,
         ]:
             assert (
                 getattr(protocol, "_is_runtime_protocol", False) is True
@@ -1609,12 +1841,24 @@ class TestProtocolCoverage:
         "ProtocolOrchestratorNode",  # Workflow coordination
         # Handler protocols (TestHandlerProtocolImports)
         "ProtocolHandler",  # Request/response lifecycle (init/shutdown/execute)
-        # Contract compiler protocols (TestContractCompilerImports)
+        "ProtocolHandlerSource",  # Handler discovery abstraction
+        "ProtocolHandlerDescriptor",  # Handler metadata for registry
+        # Contract protocols (TestContractProtocolImports) - compilers and types
         "ProtocolEffectContractCompiler",  # Effect contract -> executable node
         "ProtocolWorkflowContractCompiler",  # Multi-step workflow compilation
         "ProtocolFSMContractCompiler",  # Finite state machine compilation
+        "ProtocolHandlerContract",  # Type-safe handler contract interface
+        "ProtocolCapabilityDependency",  # Capability requirements for handlers
+        "ProtocolExecutionConstraints",  # Execution ordering and parallelism
+        "ProtocolHandlerBehaviorDescriptor",  # Handler behavior characteristics
+        # Execution constraint protocol (standalone mixin)
+        "ProtocolExecutionConstrainable",  # Mixin for objects with constraints
         # Registry protocols (TestRegistryProtocolImports)
+        "ProtocolCapabilityRegistry",  # Capability registration and lookup
         "ProtocolHandlerRegistry",  # Handler registration/lookup CRUD
+        "ProtocolProviderRegistry",  # Provider registration and discovery
+        "ProtocolRegistryBase",  # Base registry operations
+        "ProtocolVersionedRegistry",  # Versioned handler registration
     }
 
     # -------------------------------------------------------------------------
