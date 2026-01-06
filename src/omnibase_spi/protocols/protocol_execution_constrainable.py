@@ -76,12 +76,12 @@ class ProtocolExecutionConstrainable(Protocol):
         should return None.
 
         This protocol defines execution ORDERING constraints, not resource
-        limits. Resource limits (timeout, memory, CPU) are defined in
-        ProtocolHandlerBehaviorDescriptor.
+        settings. Resource settings (such as timeout_ms and isolation_policy)
+        are defined in ProtocolHandlerBehaviorDescriptor.
 
     See Also:
         ProtocolExecutionConstraints: The constraints definition protocol.
-        ProtocolHandlerBehaviorDescriptor: Defines resource limits and policies.
+        ProtocolHandlerBehaviorDescriptor: Defines resource settings and policies.
         ProtocolHandlerContract: Contract interface that uses this protocol.
     """
 
@@ -110,8 +110,9 @@ class ProtocolExecutionConstrainable(Protocol):
             calls unless the constraints have been explicitly modified.
             Callers SHOULD treat the returned constraints as read-only.
 
-            Resource limits (timeout, memory, CPU) are defined in
-            ProtocolHandlerBehaviorDescriptor, not in execution constraints.
+            Resource settings (such as timeout_ms and isolation_policy) are
+            defined in ProtocolHandlerBehaviorDescriptor, not in execution
+            constraints.
         """
         ...
 

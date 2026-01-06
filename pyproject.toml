@@ -15,10 +15,13 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Typing :: Typed",
 ]
+# Note: omnibase-core is a workspace sibling package (not on PyPI).
+# For local development, install via: pip install -e ../omnibase_core
+# or use poetry workspace configuration.
 dependencies = [
     "typing-extensions>=4.5.0",
     "pydantic>=2.11.7",
-    "omnibase-core>=0.6.2",
+    "omnibase-core>=0.6.2",  # Workspace dependency - see note above
 ]
 
 [tool.poetry]
@@ -26,6 +29,7 @@ packages = [{include = "omnibase_spi", from = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.12"
+# Workspace sibling package - install locally with: poetry add --editable ../omnibase_core
 omnibase-core = ">=0.6.2"
 
 [tool.poetry.group.dev.dependencies]

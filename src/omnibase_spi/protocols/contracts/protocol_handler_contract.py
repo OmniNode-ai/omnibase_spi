@@ -242,8 +242,9 @@ class ProtocolHandlerContract(Protocol):
             - nondeterministic_effect: Whether this handler has nondeterministic effects
 
         Note:
-            Resource limits (timeout, memory, CPU) are defined in the
-            behavior descriptor (ProtocolHandlerBehaviorDescriptor), not here.
+            Resource settings (such as timeout_ms and isolation_policy) are
+            defined in the behavior descriptor (ProtocolHandlerBehaviorDescriptor),
+            not here. Execution constraints focus on ordering and parallelism.
 
         Returns:
             Constraints if specified, None for default constraints.
