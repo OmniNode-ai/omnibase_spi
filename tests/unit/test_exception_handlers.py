@@ -501,9 +501,9 @@ class TestExceptionPropagation:
             captured_error = e
 
         # Verify the fallback SPIError handler was reached
-        assert error_handled_by == "SPIError", (
-            f"Expected SPIError fallback, but got {error_handled_by}"
-        )
+        assert (
+            error_handled_by == "SPIError"
+        ), f"Expected SPIError fallback, but got {error_handled_by}"
 
         # Verify the captured error is actually a RegistryError
         assert captured_error is not None

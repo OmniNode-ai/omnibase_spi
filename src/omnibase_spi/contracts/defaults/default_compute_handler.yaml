@@ -1,0 +1,40 @@
+# Default Handler Contract Template - COMPUTE
+#
+# For pure computation handlers - no I/O, deterministic execution.
+# Safe to replay, no security metadata needed.
+#
+# Usage: Extend this template via patch system for custom compute handlers.
+
+handler_id: "template.compute.default"
+name: "Default Compute Handler"
+version: "1.0.0"
+description: "Default template for pure computation handlers"
+
+descriptor:
+  handler_kind: compute
+  purity: pure
+  idempotent: true
+  # No timeout needed for pure compute (bounded by input size)
+  timeout_ms: null
+  # No retry needed - pure functions should not fail
+  retry_policy: null
+  concurrency_policy: parallel_ok  # Safe to run in parallel
+
+# No capability inputs - pure compute has no external dependencies
+capability_inputs: []
+
+# Output capability (computation result)
+capability_outputs:
+  - "compute.result"
+
+# Model references (to be overridden)
+input_model: "omnibase_core.models.base.BaseModel"
+output_model: "omnibase_core.models.base.BaseModel"
+
+# Execution constraints
+execution_constraints:
+  requires_before: []
+  requires_after: []
+  must_run: false
+  can_run_parallel: true
+  nondeterministic_effect: false

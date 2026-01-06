@@ -95,9 +95,7 @@ class MockProjectionReader:
 
         for entity_id, state in domain_projections.items():
             # Simple criteria matching
-            match = all(
-                state.get(key) == value for key, value in criteria.items()
-            )
+            match = all(state.get(key) == value for key, value in criteria.items())
             if match:
                 results.append({"entity_id": entity_id, **state})
 
@@ -185,9 +183,7 @@ class MockProjectionReader:
         return status.get("capabilities", [])
 
     # Test helper methods
-    def add_entity(
-        self, domain: str, entity_id: str, state: dict[str, Any]
-    ) -> None:
+    def add_entity(self, domain: str, entity_id: str, state: dict[str, Any]) -> None:
         """Add an entity to the mock projection for testing."""
         if domain not in self._projections:
             self._projections[domain] = {}

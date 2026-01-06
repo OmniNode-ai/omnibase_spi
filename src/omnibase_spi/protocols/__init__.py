@@ -316,6 +316,14 @@ from omnibase_spi.protocols.projections import (
     ProtocolSequenceInfo,
 )
 
+# Projectors protocols (2 protocols) - Event-to-state projection and loader
+# Note: ProtocolEventProjector here handles event-to-state projection
+# projections.ProtocolProjector handles projection persistence with ordering
+from omnibase_spi.protocols.projectors import (
+    ProtocolEventProjector,
+    ProtocolProjectorLoader,
+)
+
 # Naming consistency alias (Issue #5)
 # ProtocolEnvelope is the canonical name per roadmap specification
 ProtocolEnvelope = ProtocolOnexEnvelope
@@ -331,6 +339,9 @@ from omnibase_spi.protocols.contracts import (
     ProtocolHandlerContract,
     ProtocolWorkflowContractCompiler,
 )
+
+# v0.3.0 Factory protocols (1 protocol) - Handler contract factories
+from omnibase_spi.protocols.factories import ProtocolHandlerContractFactory
 
 # v0.3.0 Handler protocols (1 protocol) - DI-based protocol handlers
 from omnibase_spi.protocols.handlers import ProtocolHandler
@@ -349,8 +360,12 @@ from omnibase_spi.protocols.protocol_execution_constrainable import (
     ProtocolExecutionConstrainable,
 )
 
-# v0.3.0 Registry protocols (1 protocol) - Handler registration
-from omnibase_spi.protocols.registry import ProtocolHandlerRegistry
+# v0.3.0 Registry protocols (3 protocols) - Handler, provider, and capability registration
+from omnibase_spi.protocols.registry import (
+    ProtocolCapabilityRegistry,
+    ProtocolHandlerRegistry,
+    ProtocolProviderRegistry,
+)
 
 # Schema protocols (2 protocols) - Schema loading and validation
 from omnibase_spi.protocols.schema import (
@@ -391,6 +406,12 @@ from omnibase_spi.protocols.validation import (
     ProtocolValidator,
 )
 
+# Verification protocols (1 protocol) - Package integrity and signature verification
+from omnibase_spi.protocols.verification import (
+    LiteralHashAlgorithm,
+    ProtocolPackageVerifier,
+)
+
 # Workflow orchestration protocols (14 protocols) - Event-driven FSM coordination
 # Event sourcing, workflow state management, and distributed task scheduling
 from omnibase_spi.protocols.workflow_orchestration import (
@@ -426,6 +447,7 @@ __all__ = [
     "LiteralContainerArtifactType",
     "LiteralEffectCategory",
     "LiteralEffectId",
+    "LiteralHashAlgorithm",
     "LiteralInjectionScope",
     "LiteralOnexStatus",
     "LiteralServiceLifecycle",
@@ -449,6 +471,7 @@ __all__ = [
     "ProtocolCLIToolDiscovery",
     "ProtocolCanonicalSerializer",
     "ProtocolCapabilityDependency",
+    "ProtocolCapabilityRegistry",
     "ProtocolCircuitBreaker",
     "ProtocolCliWorkflow",
     "ProtocolClusterCoordinator",
@@ -485,6 +508,7 @@ __all__ = [
     "ProtocolEventBusTransactionalProducer",
     "ProtocolEventEnvelope",
     "ProtocolEventMessage",
+    "ProtocolEventProjector",
     "ProtocolEventPublisher",
     "ProtocolEventQueryOptions",
     "ProtocolEventStore",
@@ -500,6 +524,7 @@ __all__ = [
     "ProtocolHandler",
     "ProtocolHandlerBehaviorDescriptor",
     "ProtocolHandlerContract",
+    "ProtocolHandlerContractFactory",
     "ProtocolHandlerDiscovery",
     "ProtocolHandlerInfo",
     "ProtocolHandlerRegistry",
@@ -559,11 +584,14 @@ __all__ = [
     "ProtocolOnexValidationReport",
     "ProtocolOnexValidationResult",
     "ProtocolOrchestratorNode",
+    "ProtocolPackageVerifier",
     "ProtocolPerformanceMetricsCollector",
     "ProtocolPersistResult",
     "ProtocolPrimitiveEffectExecutor",
     "ProtocolProjectionReader",
     "ProtocolProjector",
+    "ProtocolProjectorLoader",
+    "ProtocolProviderRegistry",
     "ProtocolReducerNode",
     "ProtocolRedpandaAdapter",
     "ProtocolRetryable",

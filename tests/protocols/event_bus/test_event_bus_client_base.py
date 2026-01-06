@@ -542,7 +542,9 @@ class TestProtocolEventBusClientAsyncNature:
         assert protocol_method is not None
         assert not inspect.iscoroutinefunction(protocol_method)
         # Check compliant implementation is sync
-        assert not inspect.iscoroutinefunction(CompliantEventBusClient.bootstrap_servers)
+        assert not inspect.iscoroutinefunction(
+            CompliantEventBusClient.bootstrap_servers
+        )
 
 
 class TestProtocolEventBusClientProviderProtocol:

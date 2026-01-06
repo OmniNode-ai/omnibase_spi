@@ -85,20 +85,15 @@ class TestLiteralHandlerSourceTypeUsage:
 
     def test_exhaustive_match_pattern(self) -> None:
         """All values can be matched exhaustively."""
+        descriptions: dict[LiteralHandlerSourceType, str] = {
+            "BOOTSTRAP": "Handlers registered at startup",
+            "CONTRACT": "Handlers from contracts",
+            "HYBRID": "Combined bootstrap and contract",
+        }
 
-        def describe_source(source_type: LiteralHandlerSourceType) -> str:
-            descriptions = {
-                "BOOTSTRAP": "Handlers registered at startup",
-                "CONTRACT": "Handlers from contracts",
-                "HYBRID": "Combined bootstrap and contract",
-            }
-            # Note: In practice, unknown keys would return "Unknown"
-            # with proper type checking, all keys should be covered
-            return descriptions.get(source_type, "Unknown")
-
-        assert describe_source("BOOTSTRAP") == "Handlers registered at startup"
-        assert describe_source("CONTRACT") == "Handlers from contracts"
-        assert describe_source("HYBRID") == "Combined bootstrap and contract"
+        assert descriptions["BOOTSTRAP"] == "Handlers registered at startup"
+        assert descriptions["CONTRACT"] == "Handlers from contracts"
+        assert descriptions["HYBRID"] == "Combined bootstrap and contract"
 
     def test_can_be_used_in_list(self) -> None:
         """LiteralHandlerSourceType can be used in collections."""

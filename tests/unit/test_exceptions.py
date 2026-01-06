@@ -94,7 +94,10 @@ class TestSPIError:
         """Verify that context uses deep copy - nested mutables are fully isolated."""
         nested_list = ["item1"]
         nested_dict = {"inner_key": "inner_value"}
-        context: dict[str, Any] = {"nested_list": nested_list, "nested_dict": nested_dict}
+        context: dict[str, Any] = {
+            "nested_list": nested_list,
+            "nested_dict": nested_dict,
+        }
         error = SPIError("Test", context=context)
 
         # Verify top-level is independent

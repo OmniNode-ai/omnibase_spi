@@ -113,6 +113,8 @@ _LAZY_PROTOCOL_MAP = {
     # Container protocols
     "ProtocolServiceRegistry": "omnibase_spi.protocols.container.protocol_service_registry",
     "ProtocolArtifactContainer": "omnibase_spi.protocols.container.protocol_artifact_container",
+    # Factory protocols
+    "ProtocolHandlerContractFactory": "omnibase_spi.protocols.factories.protocol_handler_contract_factory",
     # Validation protocols
     "ProtocolValidator": "omnibase_spi.protocols.validation.protocol_validation",
     "ProtocolValidationResult": "omnibase_spi.protocols.validation.protocol_validation",
@@ -324,6 +326,9 @@ if TYPE_CHECKING:
     from omnibase_spi.protocols.core import ProtocolLogger as ProtocolLogger
     from omnibase_spi.protocols.event_bus import (
         ProtocolEventBusProvider as ProtocolEventBusProvider,
+    )
+    from omnibase_spi.protocols.factories import (
+        ProtocolHandlerContractFactory as ProtocolHandlerContractFactory,
     )
     from omnibase_spi.protocols.mcp import ProtocolMCPRegistry as ProtocolMCPRegistry
     from omnibase_spi.protocols.mcp import (

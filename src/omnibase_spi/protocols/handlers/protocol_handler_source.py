@@ -1,5 +1,4 @@
-"""
-Protocol for handler sources in the ONEX SPI handler framework.
+"""Protocol for handler sources in the ONEX SPI handler framework.
 
 Handler sources provide a uniform interface for discovering handlers,
 abstracting away the mechanism by which handlers are obtained (hardcoded
@@ -36,6 +35,7 @@ Example:
         for descriptor in await source.discover_handlers():
             registry.register(descriptor)
     ```
+
 """
 
 from __future__ import annotations
@@ -50,8 +50,7 @@ from omnibase_spi.protocols.handlers.types import (
 
 @runtime_checkable
 class ProtocolHandlerSource(Protocol):
-    """
-    Protocol for handler sources that provide handler discovery.
+    """Protocol for handler sources that provide handler discovery.
 
     Handler sources abstract the mechanism for obtaining handlers, allowing
     the runtime to work with different discovery strategies uniformly:
@@ -99,12 +98,12 @@ class ProtocolHandlerSource(Protocol):
         - ``ProtocolHandlerDescriptor``: The descriptor type returned by sources
         - ``ProtocolHandlerRegistry``: Registry that consumes handler descriptors
         - ``LiteralHandlerSourceType``: The allowed source type values
+
     """
 
     @property
     def source_type(self) -> LiteralHandlerSourceType:
-        """
-        The type of handler source.
+        """The type of handler source.
 
         Returns the source classification for observability and debugging.
         The runtime MUST NOT branch on this value - all sources are processed
@@ -120,12 +119,12 @@ class ProtocolHandlerSource(Protocol):
             This property is intended for logging, metrics, and administrative
             tooling. It should not influence runtime behavior or handler
             selection logic.
+
         """
         ...
 
     async def discover_handlers(self) -> list[ProtocolHandlerDescriptor]:
-        """
-        Discover and return all handlers from this source.
+        """Discover and return all handlers from this source.
 
         Implementations should return a list of handler descriptors for all
         handlers available from this source. The descriptors contain the
@@ -165,5 +164,6 @@ class ProtocolHandlerSource(Protocol):
                   updates are atomic to prevent stale or inconsistent results.
                 - Consider using ``threading.RLock`` if discovery logic may be
                   re-entrant (e.g., discovering handlers that trigger nested discovery).
+
         """
         ...

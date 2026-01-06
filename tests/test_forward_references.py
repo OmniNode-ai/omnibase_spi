@@ -34,6 +34,14 @@ from typing import get_type_hints
 
 import pytest
 
+from omnibase_core.enums import (
+    EnumHandlerRole,
+    EnumHandlerType,
+    EnumHandlerTypeCategory,
+)
+from omnibase_core.models.handlers import ModelHandlerDescriptor, ModelIdentifier
+from omnibase_core.models.primitives.model_semver import ModelSemVer
+
 # Check if omnibase_core models are available for forward reference resolution tests
 # We use importlib.util.find_spec to check for module availability without importing
 CORE_MODELS_AVAILABLE = (
@@ -42,6 +50,19 @@ CORE_MODELS_AVAILABLE = (
     and importlib.util.find_spec("omnibase_core.models.protocol") is not None
     and importlib.util.find_spec("omnibase_core.models.contract") is not None
 )
+
+
+def _create_mock_handler_descriptor(
+    name: str = "mock-handler",
+) -> ModelHandlerDescriptor:
+    """Create a mock ModelHandlerDescriptor for testing."""
+    return ModelHandlerDescriptor(
+        handler_name=ModelIdentifier(namespace="test", name=name),
+        handler_version=ModelSemVer(major=1, minor=0, patch=0),
+        handler_role=EnumHandlerRole.INFRA_HANDLER,
+        handler_type=EnumHandlerType.NAMED,
+        handler_type_category=EnumHandlerTypeCategory.EFFECT,
+    )
 
 
 # =============================================================================
@@ -443,7 +464,9 @@ class TestRegistryProtocolImports:
         from omnibase_spi.protocols import registry
 
         expected = {
+            "ProtocolCapabilityRegistry",
             "ProtocolHandlerRegistry",
+            "ProtocolProviderRegistry",
             "ProtocolRegistryBase",
             "ProtocolVersionedRegistry",
         }
@@ -770,9 +793,9 @@ class TestIsinstanceChecks:
                 """Returns empty dict as placeholder response."""
                 return {}
 
-            def describe(self) -> dict[str, object]:
+            def describe(self) -> ModelHandlerDescriptor:
                 """Returns mock handler description."""
-                return {"type": "mock", "capabilities": []}
+                return _create_mock_handler_descriptor(name="mock-handler")
 
             async def health_check(self) -> dict[str, object]:
                 """Returns mock health check result."""
@@ -1215,9 +1238,9 @@ class TestModuleReimport:
             ) -> object:
                 return {}
 
-            def describe(self) -> dict[str, object]:
+            def describe(self) -> ModelHandlerDescriptor:
                 """Returns mock handler description."""
-                return {"type": "mock", "capabilities": []}
+                return _create_mock_handler_descriptor(name="mock-handler-after-reload")
 
             async def health_check(self) -> dict[str, object]:
                 """Returns mock health check result."""
@@ -1451,9 +1474,11 @@ class TestModuleReimport:
                 """Returns empty dict as placeholder response."""
                 return {}
 
-            def describe(self) -> dict[str, object]:
+            def describe(self) -> ModelHandlerDescriptor:
                 """Returns mock handler description."""
-                return {"type": "mock", "capabilities": []}
+                return _create_mock_handler_descriptor(
+                    name="mock-handler-preserves-isinstance"
+                )
 
             async def health_check(self) -> dict[str, object]:
                 """Returns mock health check result."""

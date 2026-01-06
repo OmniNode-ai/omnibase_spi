@@ -764,6 +764,7 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
             "omnibase_core.models",
             "omnibase_core.contracts",
             "omnibase_core.types",
+            "omnibase_core.enums",
         ]
 
         # Forbidden imports
@@ -1297,6 +1298,7 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
             "get_value",  # Value getter
             "get",  # Registry lookups, dict access - not network I/O
             "get_supported_effects",  # Returns list of supported effect IDs
+            "get_available_capability_ids",  # In-memory registry iteration, not I/O
             "list_keys",  # In-memory listing
             "is_registered",  # In-memory check
             "register",  # In-memory registration

@@ -399,3 +399,150 @@ class ProjectionReadError(SPIError):
     """
 
     pass
+
+
+class SchemaError(SPIError):
+    """
+    Errors raised during database schema operations.
+
+    Raised when schema creation, validation, or migration fails. This
+    includes table creation, index management, and schema compatibility
+    checks during projector initialization.
+
+    Args:
+        message: The error message describing what went wrong.
+        context: Optional dictionary containing schema operation details.
+
+    Example:
+        raise SchemaError(
+            f"Failed to create table: {table_name}"
+        )
+
+    Example with context:
+        raise SchemaError(
+            "Schema creation failed",
+            context={
+                "table_name": "order_projections",
+                "operation": "create_table",
+                "database": "postgres",
+                "error": str(e),
+                "contract_path": "/app/contracts/orders.yaml"
+            }
+        )
+
+    Common Causes:
+        - Database connection failure during schema creation
+        - Insufficient permissions to create tables/indexes
+        - Schema incompatibility (existing table doesn't match contract)
+        - Invalid column type specifications in contract
+
+    Related:
+        - OMN-1167: Define ProtocolProjectorLoader in omnibase_spi
+        - ContractCompilerError: For contract parsing/validation errors
+        - ProjectorError: For runtime projection persistence errors
+    """
+
+    pass
+
+
+class TemplateError(SPIError):
+    """
+    Base exception for template loading and processing errors.
+
+    This is the parent class for all template-related errors in the factory
+    system. Template errors occur during loading, parsing, or validation of
+    YAML template files used for handler contract generation.
+
+    Args:
+        message: The error message describing what went wrong.
+        context: Optional dictionary containing template operation details.
+
+    Example:
+        raise TemplateError(
+            "Template operation failed",
+            context={
+                "template_name": "default_compute_handler.yaml",
+                "operation": "load"
+            }
+        )
+
+    Related:
+        - TemplateNotFoundError: For missing template files
+        - TemplateParseError: For YAML syntax errors
+        - HandlerContractFactory: Factory that uses templates
+    """
+
+    pass
+
+
+class TemplateNotFoundError(TemplateError):
+    """
+    Raised when a template file cannot be found.
+
+    This exception indicates that the requested template file does not exist
+    in the expected location (omnibase_spi/contracts/defaults/). This typically
+    occurs when an unsupported handler type is requested or when template files
+    are missing from the package installation.
+
+    Args:
+        message: The error message describing what went wrong.
+        context: Optional dictionary containing template search details.
+
+    Example:
+        raise TemplateNotFoundError(
+            f"Template not found: {template_name}"
+        )
+
+    Example with context:
+        raise TemplateNotFoundError(
+            "Template file not found",
+            context={
+                "template_name": "default_compute_handler.yaml",
+                "search_paths": ["/path/to/templates/"],
+                "handler_type": "COMPUTE"
+            }
+        )
+
+    Related:
+        - TemplateError: Parent exception class
+        - HandlerContractFactory: Factory that loads templates
+    """
+
+    pass
+
+
+class TemplateParseError(TemplateError):
+    """
+    Raised when a template file contains invalid YAML.
+
+    This exception indicates that while the template file exists, its contents
+    cannot be parsed as valid YAML. This typically indicates a syntax error
+    in the template file or corrupted file contents.
+
+    Args:
+        message: The error message describing what went wrong.
+        context: Optional dictionary containing parse error details.
+
+    Example:
+        raise TemplateParseError(
+            f"Invalid YAML in template: {template_name}"
+        )
+
+    Example with context:
+        raise TemplateParseError(
+            "Failed to parse template YAML",
+            context={
+                "template_name": "default_effect_handler.yaml",
+                "error_line": 42,
+                "yaml_error": str(e),
+                "handler_type": "EFFECT"
+            }
+        )
+
+    Related:
+        - TemplateError: Parent exception class
+        - TemplateNotFoundError: For missing template files
+        - HandlerContractFactory: Factory that parses templates
+    """
+
+    pass
