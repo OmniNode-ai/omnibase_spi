@@ -21,7 +21,6 @@ from omnibase_spi.protocols.handlers import (
     ProtocolHandlerSource,
 )
 
-
 # =============================================================================
 # Mock Implementations
 # =============================================================================

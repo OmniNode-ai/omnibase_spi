@@ -10,21 +10,174 @@ of handler requirements and guarantees.
 
 Protocol Categories:
     - ProtocolHandlerBehaviorDescriptor: Describes behavioral characteristics
-      (idempotency, determinism, side effects, retry safety)
+      (handler kind, purity, idempotency, retry policy, concurrency)
     - ProtocolCapabilityDependency: Represents required or optional capabilities
-      with version constraints
-    - ProtocolExecutionConstraints: Defines resource limits and execution boundaries
-      (timeouts, retries, memory, CPU, concurrency)
+      with version constraints and selection policies
+    - ProtocolExecutionConstraints: Defines execution ordering and parallelism
+      (requires_before, requires_after, can_run_parallel)
 
 See Also:
     - protocol_handler_contract.py: The main ProtocolHandlerContract interface
     - types.py: Handler descriptor and source type definitions
     - docs/architecture/HANDLER_PROTOCOL_DRIVEN_ARCHITECTURE.md
+
+Note:
+    Property names in these protocols match corresponding field names in
+    omnibase_core models (ModelHandlerBehavior, ModelCapabilityDependency,
+    ModelExecutionConstraints) to ensure type compatibility.
 """
 
 from __future__ import annotations
 
-from typing import Protocol, runtime_checkable
+from typing import Any, Literal, Protocol, runtime_checkable
+
+# ==============================================================================
+# Supporting Protocol Types
+# ==============================================================================
+
+
+@runtime_checkable
+class ProtocolDescriptorRetryPolicy(Protocol):
+    """
+    Protocol for retry policy descriptor configuration.
+
+    Defines how failed handler executions should be retried, including
+    backoff strategies and limits. This is a descriptor protocol used
+    in handler behavior specifications.
+
+    Matches ModelDescriptorRetryPolicy in omnibase_core.
+
+    Note:
+        This differs from ProtocolRetryPolicy in types/protocol_retry_types.py,
+        which defines a comprehensive retry policy with error-specific configs.
+        This protocol is specifically for handler behavior descriptors.
+
+    Attributes:
+        enabled: Whether retry is enabled.
+        max_retries: Maximum number of retry attempts.
+        backoff_strategy: Strategy for increasing delay between retries.
+        base_delay_ms: Initial delay before first retry.
+        max_delay_ms: Maximum delay between retries.
+        jitter_factor: Random jitter factor to prevent thundering herd.
+    """
+
+    @property
+    def enabled(self) -> bool:
+        """Whether retry is enabled."""
+        ...
+
+    @property
+    def max_retries(self) -> int:
+        """Maximum number of retry attempts."""
+        ...
+
+    @property
+    def backoff_strategy(self) -> Literal["fixed", "exponential", "linear"]:
+        """Strategy for increasing delay between retries."""
+        ...
+
+    @property
+    def base_delay_ms(self) -> int:
+        """Initial delay in milliseconds before first retry."""
+        ...
+
+    @property
+    def max_delay_ms(self) -> int:
+        """Maximum delay in milliseconds between retries."""
+        ...
+
+    @property
+    def jitter_factor(self) -> float:
+        """Random jitter factor (0.0-1.0) to prevent thundering herd."""
+        ...
+
+
+@runtime_checkable
+class ProtocolDescriptorCircuitBreaker(Protocol):
+    """
+    Protocol for circuit breaker descriptor configuration.
+
+    Defines circuit breaker behavior to prevent cascading failures.
+    This is a descriptor protocol used in handler behavior specifications.
+
+    Matches ModelDescriptorCircuitBreaker in omnibase_core.
+
+    Note:
+        This differs from ProtocolCircuitBreaker in networking/protocol_circuit_breaker.py,
+        which defines a runtime circuit breaker with methods like get_state() and call().
+        This protocol is specifically for handler behavior descriptors.
+
+    Attributes:
+        enabled: Whether circuit breaker is enabled.
+        failure_threshold: Number of failures before opening circuit.
+        success_threshold: Successes needed to close circuit from half-open.
+        timeout_ms: Time in milliseconds before attempting recovery.
+        half_open_requests: Number of requests allowed in half-open state.
+    """
+
+    @property
+    def enabled(self) -> bool:
+        """Whether circuit breaker is enabled."""
+        ...
+
+    @property
+    def failure_threshold(self) -> int:
+        """Number of consecutive failures before opening the circuit."""
+        ...
+
+    @property
+    def success_threshold(self) -> int:
+        """Number of successes needed to close circuit from half-open state."""
+        ...
+
+    @property
+    def timeout_ms(self) -> int:
+        """Time in milliseconds before attempting to close the circuit."""
+        ...
+
+    @property
+    def half_open_requests(self) -> int:
+        """Number of test requests allowed when circuit is half-open."""
+        ...
+
+
+@runtime_checkable
+class ProtocolCapabilityRequirementSet(Protocol):
+    """
+    Protocol for capability requirement specifications.
+
+    Defines a structured set of requirements for capability matching.
+    Used in ProtocolCapabilityDependency to specify matching criteria.
+
+    Matches ModelRequirementSet in omnibase_core.
+
+    Attributes:
+        must: Requirements that must be satisfied.
+        prefer: Requirements that are preferred but not mandatory.
+        forbid: Requirements that must not be present.
+        hints: Additional hints for capability selection.
+    """
+
+    @property
+    def must(self) -> dict[str, Any]:
+        """Requirements that must be satisfied for capability matching."""
+        ...
+
+    @property
+    def prefer(self) -> dict[str, Any]:
+        """Requirements that are preferred but not mandatory."""
+        ...
+
+    @property
+    def forbid(self) -> dict[str, Any]:
+        """Requirements that must not be present."""
+        ...
+
+    @property
+    def hints(self) -> dict[str, Any]:
+        """Additional hints for capability selection."""
+        ...
+
 
 # ==============================================================================
 # Handler Behavior Descriptor Protocol
@@ -41,67 +194,102 @@ class ProtocolHandlerBehaviorDescriptor(Protocol):
     retrying, and scheduling. This information is critical for building
     reliable distributed systems where handler behavior must be predictable.
 
-    Behavior descriptors answer key questions about a handler:
-        - Can the operation be safely retried?
-        - Will the same input always produce the same output?
-        - Does the operation have external effects?
-        - Is the operation safe to cache?
-
-    This protocol is useful for:
-        - Retry logic implementation in orchestrators
-        - Cache invalidation strategies
-        - Idempotency key generation
-        - Side effect tracking and auditing
-        - Distributed transaction coordination
+    This protocol matches the fields of ModelHandlerBehavior in omnibase_core.
 
     Attributes:
+        handler_kind: The type of handler (compute, effect, reducer, orchestrator).
+        purity: Whether the handler is pure or has side effects.
         idempotent: Whether calling the handler multiple times with the same
             input produces the same result without additional side effects.
-        deterministic: Whether the handler produces consistent output for
-            identical input, independent of when or where it runs.
-        side_effects: Categories of side effects the handler may produce,
-            enabling effect tracking and rollback planning.
-        retry_safe: Whether the handler can be safely retried on failure
-            without causing data corruption or duplicate effects.
+        timeout_ms: Optional timeout in milliseconds for handler execution.
+        retry_policy: Optional retry policy configuration.
+        circuit_breaker: Optional circuit breaker configuration.
+        concurrency_policy: How concurrent executions should be handled.
+        isolation_policy: Resource isolation level for execution.
+        observability_level: Level of observability/tracing to apply.
+        capability_inputs: List of capability names this handler consumes.
+        capability_outputs: List of capability names this handler produces.
 
     Example:
         ```python
-        class HttpGetBehavior:
-            '''Behavior descriptor for idempotent HTTP GET operations.'''
+        class ComputeHandlerBehavior:
+            '''Behavior descriptor for a pure compute handler.'''
+
+            @property
+            def handler_kind(self) -> Literal["compute", "effect", "reducer", "orchestrator"]:
+                return "compute"
+
+            @property
+            def purity(self) -> Literal["pure", "side_effecting"]:
+                return "pure"
 
             @property
             def idempotent(self) -> bool:
-                return True  # GET requests are idempotent
+                return True
 
             @property
-            def deterministic(self) -> bool:
-                return False  # Response may change over time
+            def timeout_ms(self) -> int | None:
+                return 5000  # 5 second timeout
 
             @property
-            def side_effects(self) -> list[str]:
-                return ["network"]  # Makes network calls
+            def concurrency_policy(self) -> Literal["parallel_ok", "serialized", "singleflight"]:
+                return "parallel_ok"
 
             @property
-            def retry_safe(self) -> bool:
-                return True  # Safe to retry GET requests
+            def isolation_policy(self) -> Literal["none", "process", "container", "vm"]:
+                return "none"
 
-        behavior = HttpGetBehavior()
+            @property
+            def observability_level(self) -> Literal["minimal", "standard", "verbose"]:
+                return "standard"
+
+            @property
+            def capability_inputs(self) -> list[str]:
+                return ["text_input"]
+
+            @property
+            def capability_outputs(self) -> list[str]:
+                return ["text_output"]
+
+        behavior = ComputeHandlerBehavior()
         assert isinstance(behavior, ProtocolHandlerBehaviorDescriptor)
-
-        if behavior.retry_safe and behavior.idempotent:
-            print("Handler is safe for automatic retry with caching")
         ```
-
-    Note:
-        The relationship between properties is important:
-        - An idempotent handler is typically retry_safe
-        - A deterministic handler with no side effects is cacheable
-        - Side effects should be exhaustively listed for audit purposes
 
     See Also:
         ProtocolHandlerContract: Uses behavior descriptors for contract specs.
-        ProtocolExecutionConstraints: Defines retry limits when retry_safe is True.
+        ProtocolExecutionConstraints: Defines execution ordering.
+        ModelHandlerBehavior: The corresponding Pydantic model in omnibase_core.
     """
+
+    @property
+    def handler_kind(self) -> Literal["compute", "effect", "reducer", "orchestrator"]:
+        """
+        The type of handler.
+
+        Handler kinds determine the fundamental behavior and guarantees:
+            - compute: Pure transformations without side effects
+            - effect: Operations that interact with external systems
+            - reducer: Aggregation operations that combine multiple inputs
+            - orchestrator: Workflow coordination that manages other handlers
+
+        Returns:
+            One of "compute", "effect", "reducer", or "orchestrator".
+        """
+        ...
+
+    @property
+    def purity(self) -> Literal["pure", "side_effecting"]:
+        """
+        Whether the handler is pure or has side effects.
+
+        Purity Implications:
+            - pure: No side effects, safe to cache, memoize, or parallelize
+            - side_effecting: May have observable effects beyond return value
+
+        Returns:
+            "pure" for handlers without side effects, "side_effecting" otherwise.
+        """
+        ...
 
     @property
     def idempotent(self) -> bool:
@@ -120,13 +308,11 @@ class ProtocolHandlerBehaviorDescriptor(Protocol):
             - HTTP GET, PUT, DELETE (by specification)
             - Database SELECT queries
             - Setting a value (not incrementing)
-            - Reading from a message queue (with acknowledgment)
 
         Examples of Non-Idempotent Operations:
             - HTTP POST (creates new resource each time)
             - Incrementing a counter
             - Sending an email or notification
-            - Appending to a log
 
         Returns:
             True if the operation is idempotent, False otherwise.
@@ -134,80 +320,125 @@ class ProtocolHandlerBehaviorDescriptor(Protocol):
         ...
 
     @property
-    def deterministic(self) -> bool:
+    def timeout_ms(self) -> int | None:
         """
-        Whether the handler produces deterministic output.
+        Optional execution timeout in milliseconds.
 
-        A deterministic handler will always produce the same output given
-        the same input, regardless of when or where it runs. This property
-        is independent of side effects - a handler can be deterministic
-        but still have side effects.
+        Specifies the maximum duration a single handler execution may run
+        before being forcibly terminated. This prevents runaway operations
+        and ensures bounded execution time.
 
-        Determinism Implications:
-            - True: Results can be cached, replays produce same results
-            - False: Each execution may produce different results
-
-        Factors that Break Determinism:
-            - Current time/date usage
-            - Random number generation
-            - External service calls with variable responses
-            - System state dependencies (environment variables, etc.)
+        Common Timeout Values:
+            - 1000-5000: Fast operations, cache lookups
+            - 10000-30000: Standard API calls, database queries
+            - 60000-300000: Batch operations, file processing
+            - None: No timeout limit (use with caution)
 
         Returns:
-            True if the handler produces deterministic output, False otherwise.
+            Positive integer specifying timeout in milliseconds,
+            or None if no timeout should be enforced.
         """
         ...
 
     @property
-    def side_effects(self) -> list[str]:
+    def retry_policy(self) -> ProtocolDescriptorRetryPolicy | None:
         """
-        List of side effect categories the handler may produce.
+        Optional retry policy configuration.
 
-        Side effects represent observable interactions with the external
-        world beyond returning a value. Tracking side effects enables
-        proper rollback planning, audit logging, and transaction coordination.
-
-        Common Side Effect Categories:
-            - "network": Makes HTTP/TCP/UDP calls to external services
-            - "filesystem": Reads or writes files
-            - "database": Queries or modifies database state
-            - "message_queue": Publishes or consumes messages
-            - "cache": Reads or writes cache entries
-            - "metrics": Emits metrics or telemetry
-            - "logging": Writes to external log systems
-            - "email": Sends email notifications
-            - "webhook": Triggers external webhooks
+        Defines how failed handler executions should be retried,
+        including backoff strategy and limits.
 
         Returns:
-            List of side effect category strings. An empty list indicates
-            a pure computation with no external effects. The list should
-            be exhaustive - omitting a side effect category may lead to
-            incorrect assumptions by the runtime.
+            Retry policy configuration, or None if no retry policy.
         """
         ...
 
     @property
-    def retry_safe(self) -> bool:
+    def circuit_breaker(self) -> ProtocolDescriptorCircuitBreaker | None:
         """
-        Whether the handler is safe to retry on failure.
+        Optional circuit breaker configuration.
 
-        A retry-safe handler can be re-executed after a failure without
-        causing data corruption, duplicate effects, or inconsistent state.
-        This property is related to but distinct from idempotency.
-
-        Retry Safety vs Idempotency:
-            - Idempotent + Retry Safe: Can retry freely (most desirable)
-            - Not Idempotent + Retry Safe: May create duplicates but no corruption
-            - Idempotent + Not Retry Safe: Unusual, may indicate partial failures
-            - Not Idempotent + Not Retry Safe: Requires careful error handling
-
-        Factors Affecting Retry Safety:
-            - Atomic operations are generally retry safe
-            - Operations with multiple steps may not be retry safe
-            - External service idempotency affects retry safety
+        Defines circuit breaker behavior to prevent cascading failures
+        when a handler repeatedly fails.
 
         Returns:
-            True if the handler can be safely retried, False otherwise.
+            Circuit breaker configuration, or None if not enabled.
+        """
+        ...
+
+    @property
+    def concurrency_policy(
+        self,
+    ) -> Literal["parallel_ok", "serialized", "singleflight"]:
+        """
+        How concurrent executions should be handled.
+
+        Concurrency Policies:
+            - parallel_ok: Multiple executions can run simultaneously
+            - serialized: Executions are queued and run one at a time
+            - singleflight: Duplicate requests share a single execution
+
+        Returns:
+            The concurrency policy for this handler.
+        """
+        ...
+
+    @property
+    def isolation_policy(self) -> Literal["none", "process", "container", "vm"]:
+        """
+        Resource isolation level for handler execution.
+
+        Isolation Levels:
+            - none: Runs in the same process (default, fastest)
+            - process: Runs in a separate process
+            - container: Runs in an isolated container
+            - vm: Runs in a virtual machine (maximum isolation)
+
+        Returns:
+            The isolation policy for this handler.
+        """
+        ...
+
+    @property
+    def observability_level(self) -> Literal["minimal", "standard", "verbose"]:
+        """
+        Level of observability/tracing to apply.
+
+        Observability Levels:
+            - minimal: Basic metrics only (errors, latency)
+            - standard: Standard tracing with key events
+            - verbose: Full tracing with all intermediate states
+
+        Returns:
+            The observability level for this handler.
+        """
+        ...
+
+    @property
+    def capability_inputs(self) -> list[str]:
+        """
+        List of capability names this handler consumes.
+
+        Capability inputs declare what capabilities the handler requires
+        to function. These are used for dependency validation and
+        capability-based routing.
+
+        Returns:
+            List of capability name strings that this handler consumes.
+        """
+        ...
+
+    @property
+    def capability_outputs(self) -> list[str]:
+        """
+        List of capability names this handler produces.
+
+        Capability outputs declare what capabilities the handler provides
+        after execution. These are used for capability chaining and
+        workflow composition.
+
+        Returns:
+            List of capability name strings that this handler produces.
         """
         ...
 
@@ -227,23 +458,17 @@ class ProtocolCapabilityDependency(Protocol):
     enables dependency injection, capability checking at registration time,
     and graceful degradation when optional capabilities are unavailable.
 
-    Capability dependencies support:
-        - Required vs optional capabilities
-        - Semantic version constraints for compatibility
-        - Runtime capability discovery and injection
-        - Handler validation before execution
-
-    This protocol is useful for:
-        - Handler registration validation
-        - Dependency injection configuration
-        - Feature flag integration
-        - Graceful degradation strategies
-        - Capability-based security models
+    This protocol matches the fields of ModelCapabilityDependency in omnibase_core.
 
     Attributes:
-        capability_name: Identifier for the required capability.
-        required: Whether the capability must be present for the handler to work.
-        version_constraint: Optional semantic version constraint string.
+        alias: Local name used to reference this capability in the handler.
+        capability: The capability identifier being required.
+        requirements: Structured requirement set for capability matching.
+        selection_policy: Policy for selecting among multiple providers.
+        strict: Whether the capability must be present (True) or is optional (False).
+        version_range: Optional semantic version constraint string.
+        vendor_hints: Optional vendor-specific configuration hints.
+        description: Optional human-readable description of this dependency.
 
     Example:
         ```python
@@ -251,56 +476,71 @@ class ProtocolCapabilityDependency(Protocol):
             '''Dependency on PostgreSQL database capability.'''
 
             @property
-            def capability_name(self) -> str:
+            def alias(self) -> str:
+                return "db"  # Local reference name
+
+            @property
+            def capability(self) -> str:
                 return "database.postgresql"
 
             @property
-            def required(self) -> bool:
+            def strict(self) -> bool:
                 return True  # Handler cannot function without database
 
             @property
-            def version_constraint(self) -> str | None:
+            def version_range(self) -> str | None:
                 return ">=14.0.0"  # Requires PostgreSQL 14+
 
-        class CacheCapabilityDep:
-            '''Optional dependency on Redis cache.'''
+            @property
+            def selection_policy(self) -> Literal["auto_if_unique", "best_score", "require_explicit"]:
+                return "auto_if_unique"
 
             @property
-            def capability_name(self) -> str:
-                return "cache.redis"
+            def vendor_hints(self) -> dict[str, Any]:
+                return {"prefer_read_replica": True}
 
             @property
-            def required(self) -> bool:
-                return False  # Handler works without cache, just slower
-
-            @property
-            def version_constraint(self) -> str | None:
-                return None  # Any version acceptable
+            def description(self) -> str | None:
+                return "Primary database connection for user data"
 
         db_dep = DatabaseCapabilityDep()
-        cache_dep = CacheCapabilityDep()
-
         assert isinstance(db_dep, ProtocolCapabilityDependency)
-
-        # Runtime checks capabilities before handler execution
-        if db_dep.required and not runtime.has_capability(db_dep.capability_name):
-            raise MissingCapabilityError(db_dep.capability_name)
         ```
 
     Note:
-        Capability names should follow a hierarchical naming convention
-        (e.g., "database.postgresql", "cache.redis", "messaging.kafka")
-        to enable namespace-based capability discovery and grouping.
+        Property names match ModelCapabilityDependency in omnibase_core:
+        - `capability` (not `capability_name`)
+        - `strict` (not `required`)
+        - `version_range` (not `version_constraint`)
 
     See Also:
         ProtocolHandlerContract: Aggregates capability dependencies.
         ProtocolServiceRegistry: Provides capability discovery.
+        ModelCapabilityDependency: The corresponding Pydantic model in omnibase_core.
     """
 
     @property
-    def capability_name(self) -> str:
+    def alias(self) -> str:
         """
-        Name of the required capability.
+        Local name used to reference this capability in the handler.
+
+        The alias provides a stable local reference that the handler code
+        uses to access the capability, independent of the actual capability
+        name which may vary across environments.
+
+        Example:
+            - alias="db" for capability="database.postgresql"
+            - alias="cache" for capability="cache.redis"
+
+        Returns:
+            String identifier used locally within the handler.
+        """
+        ...
+
+    @property
+    def capability(self) -> str:
+        """
+        The capability identifier being required.
 
         The capability name serves as a unique identifier for the capability
         within the runtime environment. Names should follow a hierarchical
@@ -317,7 +557,6 @@ class ProtocolCapabilityDependency(Protocol):
             - "messaging.*": Message brokers (kafka, rabbitmq)
             - "storage.*": Object storage (s3, gcs, azure)
             - "auth.*": Authentication providers
-            - "metrics.*": Metrics and monitoring systems
 
         Returns:
             String identifier for the capability (e.g., "database.postgresql").
@@ -325,16 +564,49 @@ class ProtocolCapabilityDependency(Protocol):
         ...
 
     @property
-    def required(self) -> bool:
+    def requirements(self) -> ProtocolCapabilityRequirementSet:
         """
-        Whether this capability is required (vs optional).
+        Structured requirement set for capability matching.
 
-        Required capabilities must be available for the handler to function.
-        Optional capabilities enhance handler functionality but the handler
-        can operate without them, possibly with reduced functionality.
+        Defines must-have, preferred, forbidden, and hint requirements
+        that guide capability provider selection.
+
+        Returns:
+            Requirement set for capability matching.
+        """
+        ...
+
+    @property
+    def selection_policy(
+        self,
+    ) -> Literal["auto_if_unique", "best_score", "require_explicit"]:
+        """
+        Policy for selecting among multiple capability providers.
+
+        When multiple providers can satisfy a capability requirement,
+        this policy determines how the runtime selects one.
+
+        Selection Policies:
+            - auto_if_unique: Auto-select if exactly one provider matches
+            - best_score: Select the provider with the highest score
+            - require_explicit: Require explicit provider specification
+
+        Returns:
+            The selection policy for this capability dependency.
+        """
+        ...
+
+    @property
+    def strict(self) -> bool:
+        """
+        Whether this capability is strictly required (vs optional).
+
+        Strict capabilities must be available for the handler to function.
+        Non-strict (optional) capabilities enhance handler functionality but
+        the handler can operate without them, possibly with reduced functionality.
 
         Behavior by Setting:
-            - True (required): Handler registration fails if capability missing
+            - True (strict): Handler registration fails if capability missing
             - False (optional): Handler proceeds, may use fallback behavior
 
         Returns:
@@ -343,7 +615,7 @@ class ProtocolCapabilityDependency(Protocol):
         ...
 
     @property
-    def version_constraint(self) -> str | None:
+    def version_range(self) -> str | None:
         """
         Optional semantic version constraint for the capability.
 
@@ -370,6 +642,37 @@ class ProtocolCapabilityDependency(Protocol):
         """
         ...
 
+    @property
+    def vendor_hints(self) -> dict[str, Any]:
+        """
+        Optional vendor-specific configuration hints.
+
+        Vendor hints provide implementation-specific configuration that
+        may be used by capability providers. These are passed through
+        to the provider without interpretation by the runtime.
+
+        Example:
+            - {"prefer_read_replica": True} for database capabilities
+            - {"region": "us-east-1"} for cloud service capabilities
+
+        Returns:
+            Dictionary of vendor-specific hints. May be empty.
+        """
+        ...
+
+    @property
+    def description(self) -> str | None:
+        """
+        Optional human-readable description of this dependency.
+
+        Provides documentation about why this capability is needed
+        and how it is used by the handler.
+
+        Returns:
+            Description string, or None if not provided.
+        """
+        ...
+
 
 # ==============================================================================
 # Execution Constraints Protocol
@@ -381,231 +684,155 @@ class ProtocolExecutionConstraints(Protocol):
     """
     Protocol for defining execution constraints for a handler.
 
-    Execution constraints specify resource limits and operational boundaries
-    for handler execution. These constraints enable the runtime to enforce
-    resource governance, prevent runaway operations, and ensure fair
-    resource allocation in multi-tenant environments.
+    Execution constraints specify ordering requirements and parallelism
+    settings for handler execution. These constraints enable the runtime
+    to correctly order handler executions and determine which handlers
+    can run concurrently.
 
-    Execution constraints cover:
-        - Retry behavior (max attempts before giving up)
-        - Timeout limits (maximum execution duration)
-        - Resource limits (memory, CPU allocation)
-        - Concurrency limits (parallel execution cap)
-
-    This protocol is useful for:
-        - Resource governance and quota enforcement
-        - SLA compliance and timeout management
-        - Retry policy configuration
-        - Container/serverless resource allocation
-        - Rate limiting and backpressure
+    This protocol matches the fields of ModelExecutionConstraints in omnibase_core.
 
     Attributes:
-        max_retries: Maximum retry attempts before failure.
-        timeout_seconds: Maximum execution time allowed.
-        memory_limit_mb: Optional memory allocation limit.
-        cpu_limit: Optional CPU allocation limit.
-        concurrency_limit: Optional maximum concurrent executions.
+        requires_before: Handlers that must complete before this one starts.
+        requires_after: Handlers that must run after this one completes.
+        must_run: Whether this handler must run even if not strictly needed.
+        can_run_parallel: Whether this handler can run in parallel with others.
+        nondeterministic_effect: Whether this handler has nondeterministic effects.
 
     Example:
         ```python
-        class DefaultExecutionConstraints:
-            '''Standard execution constraints for production handlers.'''
+        class ValidateBeforeSaveConstraints:
+            '''Constraints for a handler that must run after validation.'''
 
             @property
-            def max_retries(self) -> int:
-                return 3  # Try up to 3 times
+            def requires_before(self) -> list[str]:
+                return ["validate_input"]  # Validation must complete first
 
             @property
-            def timeout_seconds(self) -> float:
-                return 30.0  # 30 second timeout
+            def requires_after(self) -> list[str]:
+                return ["notify_completion"]  # Notification runs after
 
             @property
-            def memory_limit_mb(self) -> int | None:
-                return 512  # 512MB memory limit
+            def must_run(self) -> bool:
+                return True  # Always run this handler
 
             @property
-            def cpu_limit(self) -> float | None:
-                return 1.0  # One full CPU core
+            def can_run_parallel(self) -> bool:
+                return False  # Must run sequentially
 
             @property
-            def concurrency_limit(self) -> int | None:
-                return 10  # Max 10 concurrent executions
+            def nondeterministic_effect(self) -> bool:
+                return True  # Has side effects
 
-        class HighThroughputConstraints:
-            '''Constraints for high-throughput, low-latency handlers.'''
-
-            @property
-            def max_retries(self) -> int:
-                return 1  # Fail fast, no retries
-
-            @property
-            def timeout_seconds(self) -> float:
-                return 5.0  # Strict 5 second timeout
-
-            @property
-            def memory_limit_mb(self) -> int | None:
-                return None  # No memory limit
-
-            @property
-            def cpu_limit(self) -> float | None:
-                return None  # No CPU limit
-
-            @property
-            def concurrency_limit(self) -> int | None:
-                return 100  # High concurrency allowed
-
-        constraints = DefaultExecutionConstraints()
+        constraints = ValidateBeforeSaveConstraints()
         assert isinstance(constraints, ProtocolExecutionConstraints)
-
-        # Runtime uses constraints for execution governance
-        async with timeout(constraints.timeout_seconds):
-            for attempt in range(constraints.max_retries + 1):
-                try:
-                    result = await handler.execute(input_data)
-                    break
-                except RetryableError:
-                    if attempt == constraints.max_retries:
-                        raise MaxRetriesExceededError()
         ```
 
     Note:
-        Constraints with None values indicate no limit for that resource.
-        The runtime should have sensible defaults for None values to
-        prevent resource exhaustion.
+        This protocol defines execution ORDERING constraints, not resource
+        limits. Resource limits (timeout, memory, CPU) are defined in
+        ProtocolHandlerBehaviorDescriptor.
 
     See Also:
-        ProtocolHandlerBehaviorDescriptor: Determines if retries are safe.
+        ProtocolHandlerBehaviorDescriptor: Defines resource limits and policies.
         ProtocolHandlerContract: Aggregates constraints with other specs.
+        ModelExecutionConstraints: The corresponding Pydantic model in omnibase_core.
     """
 
     @property
-    def max_retries(self) -> int:
+    def requires_before(self) -> list[str]:
         """
-        Maximum number of retry attempts.
+        Handlers that must complete before this one starts.
 
-        Specifies how many times the runtime should retry a failed handler
-        execution before giving up and propagating the error. The total
-        number of execution attempts is max_retries + 1 (initial + retries).
+        Specifies a list of handler identifiers that must successfully
+        complete before this handler can begin execution. This creates
+        explicit ordering dependencies in the execution graph.
 
-        Retry Behavior:
-            - 0: No retries, fail immediately on first error
-            - 1-3: Standard retry count for transient failures
-            - 5+: High retry count for unreliable external services
-
-        Important:
-            Only retry if the handler's behavior descriptor indicates
-            retry_safe is True. Retrying non-retry-safe handlers may
-            cause data corruption or duplicate effects.
+        Example:
+            - ["validate_input", "check_permissions"] means both must
+              complete before this handler starts
 
         Returns:
-            Non-negative integer specifying maximum retry attempts.
-            A value of 0 means no retries (single attempt only).
+            List of handler identifiers that must run first.
+            Empty list means no ordering dependencies.
         """
         ...
 
     @property
-    def timeout_seconds(self) -> float:
+    def requires_after(self) -> list[str]:
         """
-        Execution timeout in seconds.
+        Handlers that must run after this one completes.
 
-        Specifies the maximum duration a single handler execution may run
-        before being forcibly terminated. This prevents runaway operations
-        and ensures bounded execution time.
+        Specifies a list of handler identifiers that should be scheduled
+        to run after this handler completes. This is the inverse of
+        requires_before and helps with workflow construction.
 
-        Timeout Considerations:
-            - Include network latency for external service calls
-            - Account for retry delays if retries are configured
-            - Consider downstream timeout chains (avoid timeout < downstream)
-
-        Common Timeout Values:
-            - 1-5 seconds: Fast operations, cache lookups
-            - 10-30 seconds: Standard API calls, database queries
-            - 60-300 seconds: Batch operations, file processing
-            - 300+ seconds: Long-running jobs (use async patterns instead)
+        Example:
+            - ["send_notification", "update_cache"] will be scheduled
+              after this handler completes
 
         Returns:
-            Positive float specifying timeout in seconds. Must be > 0.
+            List of handler identifiers that should run after.
+            Empty list means no subsequent handlers are required.
         """
         ...
 
     @property
-    def memory_limit_mb(self) -> int | None:
+    def must_run(self) -> bool:
         """
-        Optional memory limit in megabytes.
+        Whether this handler must run even if not strictly needed.
 
-        Specifies the maximum memory allocation for handler execution.
-        Used for container resource allocation and preventing memory
-        exhaustion in shared environments.
+        When True, the handler will be included in the execution plan
+        even if its output is not required by other handlers. This is
+        useful for handlers with important side effects.
 
-        Memory Limit Usage:
-            - Container environments: Sets container memory limit
-            - Serverless: Configures function memory allocation
-            - Process isolation: Enforces memory quota
-
-        Common Memory Limits:
-            - 128-256 MB: Simple handlers, stateless operations
-            - 512-1024 MB: Standard handlers with moderate data
-            - 2048+ MB: Data-intensive handlers, large payloads
+        Use Cases:
+            - Audit logging handlers
+            - Metrics collection handlers
+            - Notification handlers
 
         Returns:
-            Positive integer specifying memory limit in megabytes,
-            or None if no limit should be enforced. A value of None
-            means the runtime default applies.
+            True if handler must always run, False if optional.
         """
         ...
 
     @property
-    def cpu_limit(self) -> float | None:
+    def can_run_parallel(self) -> bool:
         """
-        Optional CPU limit as a fraction of cores.
+        Whether this handler can run in parallel with others.
 
-        Specifies the maximum CPU allocation for handler execution.
-        Values are expressed as fractions of CPU cores.
+        When True, the runtime may execute this handler concurrently
+        with other handlers that also allow parallel execution,
+        provided there are no ordering conflicts.
 
-        CPU Limit Values:
-            - 0.1: 10% of one CPU core
-            - 0.5: Half of one CPU core
-            - 1.0: One full CPU core
-            - 2.0: Two CPU cores
-            - None: No limit (use all available)
-
-        Usage Contexts:
-            - Kubernetes: Maps to resources.limits.cpu
-            - Docker: Maps to --cpus flag
-            - Serverless: May affect pricing tier
+        Parallel Execution Considerations:
+            - True: Handler is thread-safe and has no shared mutable state
+            - False: Handler requires exclusive access to resources
 
         Returns:
-            Positive float specifying CPU limit as core fraction,
-            or None if no limit should be enforced. A value of None
-            means the runtime default applies.
+            True if parallel execution is safe, False otherwise.
         """
         ...
 
     @property
-    def concurrency_limit(self) -> int | None:
+    def nondeterministic_effect(self) -> bool:
         """
-        Optional maximum concurrent executions.
+        Whether this handler has nondeterministic effects.
 
-        Specifies the maximum number of simultaneous executions of this
-        handler. Used for rate limiting, preventing resource exhaustion,
-        and protecting downstream services.
+        A handler with nondeterministic effects may produce different
+        observable side effects on each execution, even with the same
+        input. This affects replay and recovery strategies.
 
-        Concurrency Considerations:
-            - Database handlers: Limit by connection pool size
-            - External API handlers: Limit by rate limit quota
-            - CPU-intensive handlers: Limit by available cores
-            - Memory-intensive handlers: Limit by available memory
+        Examples of Nondeterministic Effects:
+            - Sending notifications (each send is unique)
+            - Writing timestamps
+            - Generating random IDs
 
-        Common Concurrency Limits:
-            - 1: Serialize all executions (mutex behavior)
-            - 5-10: Conservative limit for shared resources
-            - 50-100: Standard limit for scalable handlers
-            - None: No limit (bounded only by system resources)
+        Examples of Deterministic Effects:
+            - Idempotent database updates
+            - Cache writes with consistent keys
 
         Returns:
-            Positive integer specifying maximum concurrent executions,
-            or None if no limit should be enforced. A value of None
-            means unlimited concurrency (bounded only by system capacity).
+            True if effects are nondeterministic, False otherwise.
         """
         ...
 
@@ -616,6 +843,9 @@ class ProtocolExecutionConstraints(Protocol):
 
 __all__ = [
     "ProtocolCapabilityDependency",
+    "ProtocolCapabilityRequirementSet",
+    "ProtocolDescriptorCircuitBreaker",
+    "ProtocolDescriptorRetryPolicy",
     "ProtocolExecutionConstraints",
     "ProtocolHandlerBehaviorDescriptor",
 ]

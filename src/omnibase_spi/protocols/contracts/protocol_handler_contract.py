@@ -13,8 +13,9 @@ Handler contracts serve as the source of truth for:
     - Capability requirements (what the handler needs to run)
     - Execution constraints (timeouts, retries, resource limits)
 
-The contract supports YAML serialization for declarative handler definitions
-and validation for ensuring contract correctness before handler registration.
+The contract supports validation for ensuring contract correctness before
+handler registration. Serialization is handled by the implementing model
+(ModelHandlerContract in omnibase_core) using Pydantic's model_dump/model_validate.
 
 See Also:
     - protocol_handler_contract_types.py: Supporting protocols (behavior, capabilities, constraints)
@@ -50,10 +51,10 @@ class ProtocolHandlerContract(Protocol):
     A handler contract defines the complete specification for a handler,
     including its identity, behavior characteristics, capability dependencies,
     and execution constraints. This protocol enables type-safe access to
-    handler contract information and supports YAML serialization.
+    handler contract information.
 
     The contract serves as the source of truth for:
-        - Handler identification (id, name, version)
+        - Handler identification (handler_id, name, version)
         - Behavior specification (idempotency, side effects, retry safety)
         - Capability requirements (what the handler needs to run)
         - Execution constraints (timeouts, retries, resource limits)
@@ -62,24 +63,23 @@ class ProtocolHandlerContract(Protocol):
         - Handler registration validation
         - Runtime capability checking
         - Contract-driven handler discovery
-        - Declarative handler configuration via YAML
         - Handler metadata introspection
 
     Attributes:
         handler_id: Unique identifier for this handler.
-        handler_name: Human-readable name for this handler.
-        handler_version: Semantic version of this handler contract.
+        name: Human-readable name for this handler.
+        version: Semantic version of this handler contract.
         descriptor: Behavior descriptor for this handler.
         capability_inputs: List of capability dependencies required by this handler.
         execution_constraints: Execution constraints for this handler.
 
     Example:
         ```python
-        # Load a handler contract from YAML
-        contract = ProtocolHandlerContract.from_yaml(yaml_content)
+        # Create a handler contract instance
+        contract: ProtocolHandlerContract = get_handler_contract()
 
         # Access contract properties
-        print(f"Handler: {contract.handler_name} v{contract.handler_version}")
+        print(f"Handler: {contract.name} v{contract.version}")
         print(f"Idempotent: {contract.descriptor.idempotent}")
 
         # Check capability requirements
@@ -93,14 +93,16 @@ class ProtocolHandlerContract(Protocol):
             for error in result.errors:
                 print(f"Error: {error.message}")
 
-        # Serialize back to YAML
-        yaml_output = contract.to_yaml()
+        # Serialize using Pydantic (on the implementing model)
+        data = contract.model_dump()  # Returns dict representation
         ```
 
     Note:
         This protocol is intended to be implemented by ModelHandlerContract
         in omnibase_core (OMN-1117). The protocol enables loose coupling
-        between SPI and Core while maintaining type safety.
+        between SPI and Core while maintaining type safety. Serialization
+        is handled by Pydantic's model_dump() and model_validate() methods
+        on the implementing model class.
 
     See Also:
         ProtocolHandlerBehaviorDescriptor: Behavior characteristics
@@ -133,7 +135,7 @@ class ProtocolHandlerContract(Protocol):
         ...
 
     @property
-    def handler_name(self) -> str:
+    def name(self) -> str:
         """
         Human-readable name for this handler.
 
@@ -153,7 +155,7 @@ class ProtocolHandlerContract(Protocol):
         ...
 
     @property
-    def handler_version(self) -> str:
+    def version(self) -> str:
         """
         Semantic version of this handler contract.
 
@@ -275,78 +277,6 @@ class ProtocolHandlerContract(Protocol):
                 internal errors (e.g., missing validator dependencies).
             TypeError: If contract fields have unexpected types that
                 prevent validation from proceeding.
-        """
-        ...
-
-    def to_yaml(self) -> str:
-        """
-        Serialize this contract to YAML format.
-
-        Converts the contract to a YAML string representation that can
-        be saved to a file or transmitted. The YAML format matches the
-        expected input format for from_yaml().
-
-        YAML Structure:
-            ```yaml
-            handler_id: "uuid-or-urn"
-            handler_name: "handler-name"
-            handler_version: "1.0.0"
-            descriptor:
-              idempotent: true
-              deterministic: false
-              side_effects: ["network", "database"]
-              retry_safe: true
-            capability_inputs:
-              - capability_name: "database.postgresql"
-                required: true
-                version_constraint: ">=14.0.0"
-            execution_constraints:
-              max_retries: 3
-              timeout_seconds: 30.0
-              memory_limit_mb: 512
-            ```
-
-        Returns:
-            YAML string representation of the contract.
-        """
-        ...
-
-    @classmethod
-    def from_yaml(cls, content: str) -> ProtocolHandlerContract:
-        """
-        Deserialize a contract from YAML content.
-
-        Parses YAML content and constructs a new contract instance.
-        The YAML structure should match the output format of to_yaml().
-
-        Args:
-            content: YAML string to parse. Must contain all required fields
-                (handler_id, handler_name, handler_version, descriptor).
-                Optional fields (capability_inputs, execution_constraints)
-                use defaults if not specified.
-
-        Returns:
-            New contract instance parsed from YAML.
-
-        Raises:
-            ValueError: If YAML is malformed or missing required fields.
-
-        Example:
-            ```python
-            yaml_content = '''
-            handler_id: "http-handler-001"
-            handler_name: "http-rest-handler"
-            handler_version: "1.0.0"
-            descriptor:
-              idempotent: true
-              deterministic: false
-              side_effects: ["network"]
-              retry_safe: true
-            '''
-
-            contract = ProtocolHandlerContract.from_yaml(yaml_content)
-            print(f"Loaded: {contract.handler_name}")
-            ```
         """
         ...
 

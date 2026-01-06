@@ -113,21 +113,143 @@ class StubValidationResult:
         )
 
 
-class StubHandlerBehaviorDescriptor:
-    """Stub implementation of ProtocolHandlerBehaviorDescriptor."""
+class StubDescriptorRetryPolicy:
+    """Stub implementation of ProtocolDescriptorRetryPolicy."""
 
     def __init__(
         self,
+        enabled: bool = True,
+        max_retries: int = 3,
+        backoff_strategy: str = "exponential",
+        base_delay_ms: int = 100,
+        max_delay_ms: int = 10000,
+        jitter_factor: float = 0.1,
+    ) -> None:
+        """Initialize stub retry policy."""
+        self._enabled = enabled
+        self._max_retries = max_retries
+        self._backoff_strategy = backoff_strategy
+        self._base_delay_ms = base_delay_ms
+        self._max_delay_ms = max_delay_ms
+        self._jitter_factor = jitter_factor
+
+    @property
+    def enabled(self) -> bool:
+        """Return whether retry is enabled."""
+        return self._enabled
+
+    @property
+    def max_retries(self) -> int:
+        """Return max retries."""
+        return self._max_retries
+
+    @property
+    def backoff_strategy(self) -> str:
+        """Return backoff strategy."""
+        return self._backoff_strategy
+
+    @property
+    def base_delay_ms(self) -> int:
+        """Return base delay in ms."""
+        return self._base_delay_ms
+
+    @property
+    def max_delay_ms(self) -> int:
+        """Return max delay in ms."""
+        return self._max_delay_ms
+
+    @property
+    def jitter_factor(self) -> float:
+        """Return jitter factor."""
+        return self._jitter_factor
+
+
+class StubDescriptorCircuitBreaker:
+    """Stub implementation of ProtocolDescriptorCircuitBreaker."""
+
+    def __init__(
+        self,
+        enabled: bool = True,
+        failure_threshold: int = 5,
+        success_threshold: int = 3,
+        timeout_ms: int = 30000,
+        half_open_requests: int = 1,
+    ) -> None:
+        """Initialize stub circuit breaker."""
+        self._enabled = enabled
+        self._failure_threshold = failure_threshold
+        self._success_threshold = success_threshold
+        self._timeout_ms = timeout_ms
+        self._half_open_requests = half_open_requests
+
+    @property
+    def enabled(self) -> bool:
+        """Return whether circuit breaker is enabled."""
+        return self._enabled
+
+    @property
+    def failure_threshold(self) -> int:
+        """Return failure threshold."""
+        return self._failure_threshold
+
+    @property
+    def success_threshold(self) -> int:
+        """Return success threshold."""
+        return self._success_threshold
+
+    @property
+    def timeout_ms(self) -> int:
+        """Return timeout in ms."""
+        return self._timeout_ms
+
+    @property
+    def half_open_requests(self) -> int:
+        """Return half open requests."""
+        return self._half_open_requests
+
+
+class StubHandlerBehaviorDescriptor:
+    """Stub implementation of ProtocolHandlerBehaviorDescriptor.
+
+    Matches the fields in ModelHandlerBehavior from omnibase_core.
+    """
+
+    def __init__(
+        self,
+        handler_kind: str = "compute",
+        purity: str = "pure",
         idempotent: bool = True,
-        deterministic: bool = True,
-        side_effects: list[str] | None = None,
-        retry_safe: bool = True,
+        timeout_ms: int | None = 5000,
+        retry_policy: StubDescriptorRetryPolicy | None = None,
+        circuit_breaker: StubDescriptorCircuitBreaker | None = None,
+        concurrency_policy: str = "parallel_ok",
+        isolation_policy: str = "none",
+        observability_level: str = "standard",
+        capability_inputs: list[str] | None = None,
+        capability_outputs: list[str] | None = None,
     ) -> None:
         """Initialize stub behavior descriptor."""
+        self._handler_kind = handler_kind
+        self._purity = purity
         self._idempotent = idempotent
-        self._deterministic = deterministic
-        self._side_effects = side_effects if side_effects is not None else ["network"]
-        self._retry_safe = retry_safe
+        self._timeout_ms = timeout_ms
+        self._retry_policy = retry_policy
+        self._circuit_breaker = circuit_breaker
+        self._concurrency_policy = concurrency_policy
+        self._isolation_policy = isolation_policy
+        self._observability_level = observability_level
+        self._capability_inputs = capability_inputs or []
+        self._capability_outputs = capability_outputs or []
+
+    @property
+    def handler_kind(self) -> str:
+        """Return handler kind."""
+        return self._handler_kind
+
+    @property
+    def purity(self) -> str:
+        """Return purity."""
+        return self._purity
 
     @property
     def idempotent(self) -> bool:
@@ -135,93 +257,196 @@ class StubHandlerBehaviorDescriptor:
         return self._idempotent
 
     @property
-    def deterministic(self) -> bool:
-        """Return whether operation is deterministic."""
-        return self._deterministic
+    def timeout_ms(self) -> int | None:
+        """Return timeout in ms."""
+        return self._timeout_ms
 
     @property
-    def side_effects(self) -> list[str]:
-        """Return list of side effect categories."""
-        return self._side_effects
+    def retry_policy(self) -> StubDescriptorRetryPolicy | None:
+        """Return retry policy."""
+        return self._retry_policy
 
     @property
-    def retry_safe(self) -> bool:
-        """Return whether operation is retry safe."""
-        return self._retry_safe
+    def circuit_breaker(self) -> StubDescriptorCircuitBreaker | None:
+        """Return circuit breaker."""
+        return self._circuit_breaker
+
+    @property
+    def concurrency_policy(self) -> str:
+        """Return concurrency policy."""
+        return self._concurrency_policy
+
+    @property
+    def isolation_policy(self) -> str:
+        """Return isolation policy."""
+        return self._isolation_policy
+
+    @property
+    def observability_level(self) -> str:
+        """Return observability level."""
+        return self._observability_level
+
+    @property
+    def capability_inputs(self) -> list[str]:
+        """Return capability inputs."""
+        return self._capability_inputs
+
+    @property
+    def capability_outputs(self) -> list[str]:
+        """Return capability outputs."""
+        return self._capability_outputs
+
+
+class StubCapabilityRequirementSet:
+    """Stub implementation of ProtocolCapabilityRequirementSet."""
+
+    def __init__(
+        self,
+        must: dict | None = None,
+        prefer: dict | None = None,
+        forbid: dict | None = None,
+        hints: dict | None = None,
+    ) -> None:
+        """Initialize stub requirement set."""
+        self._must = must or {}
+        self._prefer = prefer or {}
+        self._forbid = forbid or {}
+        self._hints = hints or {}
+
+    @property
+    def must(self) -> dict:
+        """Return must requirements."""
+        return self._must
+
+    @property
+    def prefer(self) -> dict:
+        """Return prefer requirements."""
+        return self._prefer
+
+    @property
+    def forbid(self) -> dict:
+        """Return forbid requirements."""
+        return self._forbid
+
+    @property
+    def hints(self) -> dict:
+        """Return hints."""
+        return self._hints
 
 
 class StubCapabilityDependency:
-    """Stub implementation of ProtocolCapabilityDependency."""
+    """Stub implementation of ProtocolCapabilityDependency.
+
+    Matches the fields in ModelCapabilityDependency from omnibase_core.
+    """
 
     def __init__(
         self,
-        capability_name: str = "database.postgresql",
-        required: bool = True,
-        version_constraint: str | None = ">=14.0.0",
+        alias: str = "db",
+        capability: str = "database.postgresql",
+        requirements: StubCapabilityRequirementSet | None = None,
+        selection_policy: str = "auto_if_unique",
+        strict: bool = True,
+        version_range: str | None = ">=14.0.0",
+        vendor_hints: dict | None = None,
+        description: str | None = "Primary database connection",
     ) -> None:
         """Initialize stub capability dependency."""
-        self._capability_name = capability_name
-        self._required = required
-        self._version_constraint = version_constraint
+        self._alias = alias
+        self._capability = capability
+        self._requirements = requirements or StubCapabilityRequirementSet()
+        self._selection_policy = selection_policy
+        self._strict = strict
+        self._version_range = version_range
+        self._vendor_hints = vendor_hints or {}
+        self._description = description
 
     @property
-    def capability_name(self) -> str:
+    def alias(self) -> str:
+        """Return alias."""
+        return self._alias
+
+    @property
+    def capability(self) -> str:
         """Return capability name."""
-        return self._capability_name
+        return self._capability
 
     @property
-    def required(self) -> bool:
-        """Return whether capability is required."""
-        return self._required
+    def requirements(self) -> StubCapabilityRequirementSet:
+        """Return requirements."""
+        return self._requirements
 
     @property
-    def version_constraint(self) -> str | None:
-        """Return version constraint."""
-        return self._version_constraint
+    def selection_policy(self) -> str:
+        """Return selection policy."""
+        return self._selection_policy
+
+    @property
+    def strict(self) -> bool:
+        """Return whether capability is strictly required."""
+        return self._strict
+
+    @property
+    def version_range(self) -> str | None:
+        """Return version range."""
+        return self._version_range
+
+    @property
+    def vendor_hints(self) -> dict:
+        """Return vendor hints."""
+        return self._vendor_hints
+
+    @property
+    def description(self) -> str | None:
+        """Return description."""
+        return self._description
 
 
 class StubExecutionConstraints:
-    """Stub implementation of ProtocolExecutionConstraints."""
+    """Stub implementation of ProtocolExecutionConstraints.
+
+    Matches the fields in ModelExecutionConstraints from omnibase_core.
+    """
 
     def __init__(
         self,
-        max_retries: int = 3,
-        timeout_seconds: float = 30.0,
-        memory_limit_mb: int | None = 512,
-        cpu_limit: float | None = 0.5,
-        concurrency_limit: int | None = 10,
+        requires_before: list[str] | None = None,
+        requires_after: list[str] | None = None,
+        must_run: bool = False,
+        can_run_parallel: bool = True,
+        nondeterministic_effect: bool = False,
     ) -> None:
         """Initialize stub execution constraints."""
-        self._max_retries = max_retries
-        self._timeout_seconds = timeout_seconds
-        self._memory_limit_mb = memory_limit_mb
-        self._cpu_limit = cpu_limit
-        self._concurrency_limit = concurrency_limit
+        self._requires_before = requires_before or []
+        self._requires_after = requires_after or []
+        self._must_run = must_run
+        self._can_run_parallel = can_run_parallel
+        self._nondeterministic_effect = nondeterministic_effect
 
     @property
-    def max_retries(self) -> int:
-        """Return maximum retries."""
-        return self._max_retries
+    def requires_before(self) -> list[str]:
+        """Return handlers that must run before."""
+        return self._requires_before
 
     @property
-    def timeout_seconds(self) -> float:
-        """Return timeout in seconds."""
-        return self._timeout_seconds
+    def requires_after(self) -> list[str]:
+        """Return handlers that must run after."""
+        return self._requires_after
 
     @property
-    def memory_limit_mb(self) -> int | None:
-        """Return memory limit in MB."""
-        return self._memory_limit_mb
+    def must_run(self) -> bool:
+        """Return whether handler must run."""
+        return self._must_run
 
     @property
-    def cpu_limit(self) -> float | None:
-        """Return CPU limit."""
-        return self._cpu_limit
+    def can_run_parallel(self) -> bool:
+        """Return whether handler can run in parallel."""
+        return self._can_run_parallel
 
     @property
-    def concurrency_limit(self) -> int | None:
-        """Return concurrency limit."""
-        return self._concurrency_limit
+    def nondeterministic_effect(self) -> bool:
+        """Return whether handler has nondeterministic effects."""
+        return self._nondeterministic_effect
 
 
 _UNSET = object()  # Sentinel for distinguishing None from unset
@@ -233,16 +458,16 @@ class StubHandlerContract:
     def __init__(
         self,
         handler_id: str = "handler-123",
-        handler_name: str = "test-handler",
-        handler_version: str = "1.0.0",
+        name: str = "test-handler",
+        version: str = "1.0.0",
         descriptor: StubHandlerBehaviorDescriptor | None = None,
         capability_inputs: list[StubCapabilityDependency] | None = None,
         execution_constraints: StubExecutionConstraints | None | object = _UNSET,
     ) -> None:
         """Initialize stub handler contract."""
         self._handler_id = handler_id
-        self._handler_name = handler_name
-        self._handler_version = handler_version
+        self._name = name
+        self._version = version
         self._descriptor = descriptor or StubHandlerBehaviorDescriptor()
         self._capability_inputs = (
             capability_inputs
@@ -263,14 +488,14 @@ class StubHandlerContract:
         return self._handler_id
 
     @property
-    def handler_name(self) -> str:
+    def name(self) -> str:
         """Return handler name."""
-        return self._handler_name
+        return self._name
 
     @property
-    def handler_version(self) -> str:
+    def version(self) -> str:
         """Return handler version."""
-        return self._handler_version
+        return self._version
 
     @property
     def descriptor(self) -> StubHandlerBehaviorDescriptor:
@@ -290,15 +515,6 @@ class StubHandlerContract:
     async def validate(self) -> StubValidationResult:
         """Validate the contract."""
         return StubValidationResult()
-
-    def to_yaml(self) -> str:
-        """Serialize to YAML."""
-        return f"handler_id: {self._handler_id}\nhandler_name: {self._handler_name}"
-
-    @classmethod
-    def from_yaml(cls, _content: str) -> StubHandlerContract:
-        """Deserialize from YAML."""
-        return cls()
 
 
 class StubExecutionConstrainable:
@@ -350,7 +566,14 @@ class PartialBehaviorDescriptor:
         """Return idempotent flag."""
         return True
 
-    # Missing: deterministic, side_effects, retry_safe
+    @property
+    def handler_kind(self) -> str:
+        """Return handler kind."""
+        return "compute"
+
+    # Missing: purity, timeout_ms, retry_policy, circuit_breaker,
+    # concurrency_policy, isolation_policy, observability_level,
+    # capability_inputs, capability_outputs
 
 
 class NonCompliantCapabilityDependency:
@@ -360,19 +583,19 @@ class NonCompliantCapabilityDependency:
 
 
 class PartialExecutionConstraints:
-    """Partial implementation missing optional properties."""
+    """Partial implementation missing some properties."""
 
     @property
-    def max_retries(self) -> int:
-        """Return max retries."""
-        return 3
+    def requires_before(self) -> list[str]:
+        """Return requires_before."""
+        return []
 
     @property
-    def timeout_seconds(self) -> float:
-        """Return timeout."""
-        return 30.0
+    def requires_after(self) -> list[str]:
+        """Return requires_after."""
+        return []
 
-    # Missing: memory_limit_mb, cpu_limit, concurrency_limit
+    # Missing: must_run, can_run_parallel, nondeterministic_effect
 
 
 class NonCompliantHandlerContract:
@@ -407,17 +630,37 @@ class TestProtocolHandlerBehaviorDescriptorProtocol:
         """Protocol should define idempotent property."""
         assert "idempotent" in dir(ProtocolHandlerBehaviorDescriptor)
 
-    def test_protocol_has_deterministic_property(self) -> None:
-        """Protocol should define deterministic property."""
-        assert "deterministic" in dir(ProtocolHandlerBehaviorDescriptor)
+    def test_protocol_has_handler_kind_property(self) -> None:
+        """Protocol should define handler_kind property."""
+        assert "handler_kind" in dir(ProtocolHandlerBehaviorDescriptor)
 
-    def test_protocol_has_side_effects_property(self) -> None:
-        """Protocol should define side_effects property."""
-        assert "side_effects" in dir(ProtocolHandlerBehaviorDescriptor)
+    def test_protocol_has_purity_property(self) -> None:
+        """Protocol should define purity property."""
+        assert "purity" in dir(ProtocolHandlerBehaviorDescriptor)
 
-    def test_protocol_has_retry_safe_property(self) -> None:
-        """Protocol should define retry_safe property."""
-        assert "retry_safe" in dir(ProtocolHandlerBehaviorDescriptor)
+    def test_protocol_has_timeout_ms_property(self) -> None:
+        """Protocol should define timeout_ms property."""
+        assert "timeout_ms" in dir(ProtocolHandlerBehaviorDescriptor)
+
+    def test_protocol_has_retry_policy_property(self) -> None:
+        """Protocol should define retry_policy property."""
+        assert "retry_policy" in dir(ProtocolHandlerBehaviorDescriptor)
+
+    def test_protocol_has_circuit_breaker_property(self) -> None:
+        """Protocol should define circuit_breaker property."""
+        assert "circuit_breaker" in dir(ProtocolHandlerBehaviorDescriptor)
+
+    def test_protocol_has_concurrency_policy_property(self) -> None:
+        """Protocol should define concurrency_policy property."""
+        assert "concurrency_policy" in dir(ProtocolHandlerBehaviorDescriptor)
+
+    def test_protocol_has_capability_inputs_property(self) -> None:
+        """Protocol should define capability_inputs property."""
+        assert "capability_inputs" in dir(ProtocolHandlerBehaviorDescriptor)
+
+    def test_protocol_has_capability_outputs_property(self) -> None:
+        """Protocol should define capability_outputs property."""
+        assert "capability_outputs" in dir(ProtocolHandlerBehaviorDescriptor)
 
     def test_protocol_cannot_be_instantiated(self) -> None:
         """Protocol should not be directly instantiable."""
@@ -446,30 +689,37 @@ class TestProtocolHandlerBehaviorDescriptorCompliance:
         stub2 = StubHandlerBehaviorDescriptor(idempotent=False)
         assert stub2.idempotent is False
 
-    def test_deterministic_property_returns_bool(self) -> None:
-        """deterministic property should return bool."""
-        stub = StubHandlerBehaviorDescriptor(deterministic=True)
-        assert stub.deterministic is True
-        stub2 = StubHandlerBehaviorDescriptor(deterministic=False)
-        assert stub2.deterministic is False
+    def test_handler_kind_property_returns_string(self) -> None:
+        """handler_kind property should return string."""
+        stub = StubHandlerBehaviorDescriptor(handler_kind="compute")
+        assert stub.handler_kind == "compute"
+        stub2 = StubHandlerBehaviorDescriptor(handler_kind="effect")
+        assert stub2.handler_kind == "effect"
 
-    def test_side_effects_property_returns_list(self) -> None:
-        """side_effects property should return list of strings."""
-        stub = StubHandlerBehaviorDescriptor(side_effects=["network", "database"])
-        assert stub.side_effects == ["network", "database"]
-        assert isinstance(stub.side_effects, list)
+    def test_purity_property_returns_string(self) -> None:
+        """purity property should return string."""
+        stub = StubHandlerBehaviorDescriptor(purity="pure")
+        assert stub.purity == "pure"
+        stub2 = StubHandlerBehaviorDescriptor(purity="side_effecting")
+        assert stub2.purity == "side_effecting"
 
-    def test_side_effects_can_be_empty(self) -> None:
-        """side_effects can be an empty list for pure operations."""
-        stub = StubHandlerBehaviorDescriptor(side_effects=[])
-        assert stub.side_effects == []
+    def test_capability_inputs_property_returns_list(self) -> None:
+        """capability_inputs property should return list of strings."""
+        stub = StubHandlerBehaviorDescriptor(capability_inputs=["text", "data"])
+        assert stub.capability_inputs == ["text", "data"]
+        assert isinstance(stub.capability_inputs, list)
 
-    def test_retry_safe_property_returns_bool(self) -> None:
-        """retry_safe property should return bool."""
-        stub = StubHandlerBehaviorDescriptor(retry_safe=True)
-        assert stub.retry_safe is True
-        stub2 = StubHandlerBehaviorDescriptor(retry_safe=False)
-        assert stub2.retry_safe is False
+    def test_capability_inputs_can_be_empty(self) -> None:
+        """capability_inputs can be an empty list."""
+        stub = StubHandlerBehaviorDescriptor(capability_inputs=[])
+        assert stub.capability_inputs == []
+
+    def test_timeout_ms_property_returns_int_or_none(self) -> None:
+        """timeout_ms property should return int or None."""
+        stub = StubHandlerBehaviorDescriptor(timeout_ms=5000)
+        assert stub.timeout_ms == 5000
+        stub2 = StubHandlerBehaviorDescriptor(timeout_ms=None)
+        assert stub2.timeout_ms is None
 
 
 @pytest.mark.unit
@@ -485,9 +735,9 @@ class TestProtocolHandlerBehaviorDescriptorDocumentation:
         """Docstring should mention key properties."""
         doc = ProtocolHandlerBehaviorDescriptor.__doc__ or ""
         assert "idempotent" in doc
-        assert "deterministic" in doc
-        assert "side_effects" in doc
-        assert "retry_safe" in doc
+        assert "handler_kind" in doc
+        assert "purity" in doc
+        assert "timeout_ms" in doc
 
 
 # ==============================================================================
@@ -512,17 +762,25 @@ class TestProtocolCapabilityDependencyProtocol:
             for base in ProtocolCapabilityDependency.__mro__
         )
 
-    def test_protocol_has_capability_name_property(self) -> None:
-        """Protocol should define capability_name property."""
-        assert "capability_name" in dir(ProtocolCapabilityDependency)
+    def test_protocol_has_capability_property(self) -> None:
+        """Protocol should define capability property."""
+        assert "capability" in dir(ProtocolCapabilityDependency)
 
-    def test_protocol_has_required_property(self) -> None:
-        """Protocol should define required property."""
-        assert "required" in dir(ProtocolCapabilityDependency)
+    def test_protocol_has_alias_property(self) -> None:
+        """Protocol should define alias property."""
+        assert "alias" in dir(ProtocolCapabilityDependency)
 
-    def test_protocol_has_version_constraint_property(self) -> None:
-        """Protocol should define version_constraint property."""
-        assert "version_constraint" in dir(ProtocolCapabilityDependency)
+    def test_protocol_has_strict_property(self) -> None:
+        """Protocol should define strict property."""
+        assert "strict" in dir(ProtocolCapabilityDependency)
+
+    def test_protocol_has_version_range_property(self) -> None:
+        """Protocol should define version_range property."""
+        assert "version_range" in dir(ProtocolCapabilityDependency)
+
+    def test_protocol_has_requirements_property(self) -> None:
+        """Protocol should define requirements property."""
+        assert "requirements" in dir(ProtocolCapabilityDependency)
 
     def test_protocol_cannot_be_instantiated(self) -> None:
         """Protocol should not be directly instantiable."""
@@ -544,29 +802,29 @@ class TestProtocolCapabilityDependencyCompliance:
         non_compliant = NonCompliantCapabilityDependency()
         assert not isinstance(non_compliant, ProtocolCapabilityDependency)
 
-    def test_capability_name_returns_string(self) -> None:
-        """capability_name property should return string."""
-        stub = StubCapabilityDependency(capability_name="cache.redis")
-        assert stub.capability_name == "cache.redis"
-        assert isinstance(stub.capability_name, str)
+    def test_capability_returns_string(self) -> None:
+        """capability property should return string."""
+        stub = StubCapabilityDependency(capability="cache.redis")
+        assert stub.capability == "cache.redis"
+        assert isinstance(stub.capability, str)
 
-    def test_required_returns_bool(self) -> None:
-        """required property should return bool."""
-        stub_required = StubCapabilityDependency(required=True)
-        assert stub_required.required is True
-        stub_optional = StubCapabilityDependency(required=False)
-        assert stub_optional.required is False
+    def test_strict_returns_bool(self) -> None:
+        """strict property should return bool."""
+        stub_strict = StubCapabilityDependency(strict=True)
+        assert stub_strict.strict is True
+        stub_optional = StubCapabilityDependency(strict=False)
+        assert stub_optional.strict is False
 
-    def test_version_constraint_returns_string_or_none(self) -> None:
-        """version_constraint property should return string or None."""
-        stub_with_constraint = StubCapabilityDependency(version_constraint=">=14.0.0")
-        assert stub_with_constraint.version_constraint == ">=14.0.0"
+    def test_version_range_returns_string_or_none(self) -> None:
+        """version_range property should return string or None."""
+        stub_with_constraint = StubCapabilityDependency(version_range=">=14.0.0")
+        assert stub_with_constraint.version_range == ">=14.0.0"
 
-        stub_without_constraint = StubCapabilityDependency(version_constraint=None)
-        assert stub_without_constraint.version_constraint is None
+        stub_without_constraint = StubCapabilityDependency(version_range=None)
+        assert stub_without_constraint.version_range is None
 
-    def test_version_constraint_formats(self) -> None:
-        """version_constraint should support various semver formats."""
+    def test_version_range_formats(self) -> None:
+        """version_range should support various semver formats."""
         constraints = [
             ">=1.0.0",
             ">=1.0.0,<2.0.0",
@@ -575,8 +833,8 @@ class TestProtocolCapabilityDependencyCompliance:
             "~1.2.0",
         ]
         for constraint in constraints:
-            stub = StubCapabilityDependency(version_constraint=constraint)
-            assert stub.version_constraint == constraint
+            stub = StubCapabilityDependency(version_range=constraint)
+            assert stub.version_range == constraint
 
 
 @pytest.mark.unit
@@ -588,10 +846,10 @@ class TestProtocolCapabilityDependencyDocumentation:
         assert ProtocolCapabilityDependency.__doc__ is not None
         assert len(ProtocolCapabilityDependency.__doc__.strip()) > 0
 
-    def test_docstring_mentions_capability_name(self) -> None:
-        """Docstring should mention capability_name."""
+    def test_docstring_mentions_capability(self) -> None:
+        """Docstring should mention capability."""
         doc = ProtocolCapabilityDependency.__doc__ or ""
-        assert "capability_name" in doc
+        assert "capability" in doc
 
 
 # ==============================================================================
@@ -616,25 +874,25 @@ class TestProtocolExecutionConstraintsProtocol:
             for base in ProtocolExecutionConstraints.__mro__
         )
 
-    def test_protocol_has_max_retries_property(self) -> None:
-        """Protocol should define max_retries property."""
-        assert "max_retries" in dir(ProtocolExecutionConstraints)
+    def test_protocol_has_requires_before_property(self) -> None:
+        """Protocol should define requires_before property."""
+        assert "requires_before" in dir(ProtocolExecutionConstraints)
 
-    def test_protocol_has_timeout_seconds_property(self) -> None:
-        """Protocol should define timeout_seconds property."""
-        assert "timeout_seconds" in dir(ProtocolExecutionConstraints)
+    def test_protocol_has_requires_after_property(self) -> None:
+        """Protocol should define requires_after property."""
+        assert "requires_after" in dir(ProtocolExecutionConstraints)
 
-    def test_protocol_has_memory_limit_mb_property(self) -> None:
-        """Protocol should define memory_limit_mb property."""
-        assert "memory_limit_mb" in dir(ProtocolExecutionConstraints)
+    def test_protocol_has_must_run_property(self) -> None:
+        """Protocol should define must_run property."""
+        assert "must_run" in dir(ProtocolExecutionConstraints)
 
-    def test_protocol_has_cpu_limit_property(self) -> None:
-        """Protocol should define cpu_limit property."""
-        assert "cpu_limit" in dir(ProtocolExecutionConstraints)
+    def test_protocol_has_can_run_parallel_property(self) -> None:
+        """Protocol should define can_run_parallel property."""
+        assert "can_run_parallel" in dir(ProtocolExecutionConstraints)
 
-    def test_protocol_has_concurrency_limit_property(self) -> None:
-        """Protocol should define concurrency_limit property."""
-        assert "concurrency_limit" in dir(ProtocolExecutionConstraints)
+    def test_protocol_has_nondeterministic_effect_property(self) -> None:
+        """Protocol should define nondeterministic_effect property."""
+        assert "nondeterministic_effect" in dir(ProtocolExecutionConstraints)
 
     def test_protocol_cannot_be_instantiated(self) -> None:
         """Protocol should not be directly instantiable."""
@@ -656,44 +914,37 @@ class TestProtocolExecutionConstraintsCompliance:
         partial = PartialExecutionConstraints()
         assert not isinstance(partial, ProtocolExecutionConstraints)
 
-    def test_max_retries_returns_int(self) -> None:
-        """max_retries property should return int."""
-        stub = StubExecutionConstraints(max_retries=5)
-        assert stub.max_retries == 5
-        assert isinstance(stub.max_retries, int)
+    def test_requires_before_returns_list(self) -> None:
+        """requires_before property should return list."""
+        stub = StubExecutionConstraints(requires_before=["validate", "auth"])
+        assert stub.requires_before == ["validate", "auth"]
+        assert isinstance(stub.requires_before, list)
 
-    def test_max_retries_zero_allowed(self) -> None:
-        """max_retries can be zero (no retries)."""
-        stub = StubExecutionConstraints(max_retries=0)
-        assert stub.max_retries == 0
+    def test_requires_before_can_be_empty(self) -> None:
+        """requires_before can be empty list."""
+        stub = StubExecutionConstraints(requires_before=[])
+        assert stub.requires_before == []
 
-    def test_timeout_seconds_returns_float(self) -> None:
-        """timeout_seconds property should return float."""
-        stub = StubExecutionConstraints(timeout_seconds=60.0)
-        assert stub.timeout_seconds == 60.0
-        assert isinstance(stub.timeout_seconds, float)
+    def test_must_run_returns_bool(self) -> None:
+        """must_run property should return bool."""
+        stub = StubExecutionConstraints(must_run=True)
+        assert stub.must_run is True
+        stub2 = StubExecutionConstraints(must_run=False)
+        assert stub2.must_run is False
 
-    def test_optional_properties_can_be_none(self) -> None:
-        """Optional properties can return None."""
-        stub = StubExecutionConstraints(
-            memory_limit_mb=None,
-            cpu_limit=None,
-            concurrency_limit=None,
-        )
-        assert stub.memory_limit_mb is None
-        assert stub.cpu_limit is None
-        assert stub.concurrency_limit is None
+    def test_can_run_parallel_returns_bool(self) -> None:
+        """can_run_parallel property should return bool."""
+        stub = StubExecutionConstraints(can_run_parallel=True)
+        assert stub.can_run_parallel is True
+        stub2 = StubExecutionConstraints(can_run_parallel=False)
+        assert stub2.can_run_parallel is False
 
-    def test_optional_properties_can_have_values(self) -> None:
-        """Optional properties can have values."""
-        stub = StubExecutionConstraints(
-            memory_limit_mb=1024,
-            cpu_limit=2.0,
-            concurrency_limit=50,
-        )
-        assert stub.memory_limit_mb == 1024
-        assert stub.cpu_limit == 2.0
-        assert stub.concurrency_limit == 50
+    def test_nondeterministic_effect_returns_bool(self) -> None:
+        """nondeterministic_effect property should return bool."""
+        stub = StubExecutionConstraints(nondeterministic_effect=True)
+        assert stub.nondeterministic_effect is True
+        stub2 = StubExecutionConstraints(nondeterministic_effect=False)
+        assert stub2.nondeterministic_effect is False
 
 
 @pytest.mark.unit
@@ -708,8 +959,8 @@ class TestProtocolExecutionConstraintsDocumentation:
     def test_docstring_mentions_constraints(self) -> None:
         """Docstring should mention constraint properties."""
         doc = ProtocolExecutionConstraints.__doc__ or ""
-        assert "max_retries" in doc
-        assert "timeout_seconds" in doc
+        assert "requires_before" in doc
+        assert "can_run_parallel" in doc
 
 
 # ==============================================================================
@@ -738,13 +989,13 @@ class TestProtocolHandlerContractProtocol:
         """Protocol should define handler_id property."""
         assert "handler_id" in dir(ProtocolHandlerContract)
 
-    def test_protocol_has_handler_name_property(self) -> None:
-        """Protocol should define handler_name property."""
-        assert "handler_name" in dir(ProtocolHandlerContract)
+    def test_protocol_has_name_property(self) -> None:
+        """Protocol should define name property."""
+        assert "name" in dir(ProtocolHandlerContract)
 
-    def test_protocol_has_handler_version_property(self) -> None:
-        """Protocol should define handler_version property."""
-        assert "handler_version" in dir(ProtocolHandlerContract)
+    def test_protocol_has_version_property(self) -> None:
+        """Protocol should define version property."""
+        assert "version" in dir(ProtocolHandlerContract)
 
     def test_protocol_has_descriptor_property(self) -> None:
         """Protocol should define descriptor property."""
@@ -762,15 +1013,6 @@ class TestProtocolHandlerContractProtocol:
         """Protocol should define validate method."""
         assert "validate" in dir(ProtocolHandlerContract)
         assert callable(getattr(ProtocolHandlerContract, "validate", None))
-
-    def test_protocol_has_to_yaml_method(self) -> None:
-        """Protocol should define to_yaml method."""
-        assert "to_yaml" in dir(ProtocolHandlerContract)
-        assert callable(getattr(ProtocolHandlerContract, "to_yaml", None))
-
-    def test_protocol_has_from_yaml_classmethod(self) -> None:
-        """Protocol should define from_yaml class method."""
-        assert "from_yaml" in dir(ProtocolHandlerContract)
 
     def test_protocol_cannot_be_instantiated(self) -> None:
         """Protocol should not be directly instantiable."""
@@ -798,17 +1040,17 @@ class TestProtocolHandlerContractCompliance:
         assert stub.handler_id == "custom-id-456"
         assert isinstance(stub.handler_id, str)
 
-    def test_handler_name_returns_string(self) -> None:
-        """handler_name property should return string."""
-        stub = StubHandlerContract(handler_name="my-custom-handler")
-        assert stub.handler_name == "my-custom-handler"
-        assert isinstance(stub.handler_name, str)
+    def test_name_returns_string(self) -> None:
+        """name property should return string."""
+        stub = StubHandlerContract(name="my-custom-handler")
+        assert stub.name == "my-custom-handler"
+        assert isinstance(stub.name, str)
 
-    def test_handler_version_returns_string(self) -> None:
-        """handler_version property should return string."""
-        stub = StubHandlerContract(handler_version="2.1.0")
-        assert stub.handler_version == "2.1.0"
-        assert isinstance(stub.handler_version, str)
+    def test_version_returns_string(self) -> None:
+        """version property should return string."""
+        stub = StubHandlerContract(version="2.1.0")
+        assert stub.version == "2.1.0"
+        assert isinstance(stub.version, str)
 
     def test_descriptor_returns_behavior_descriptor(self) -> None:
         """descriptor property should return behavior descriptor."""
@@ -825,8 +1067,8 @@ class TestProtocolHandlerContractCompliance:
     def test_capability_inputs_contains_dependencies(self) -> None:
         """capability_inputs should contain capability dependencies."""
         deps = [
-            StubCapabilityDependency(capability_name="database.postgresql"),
-            StubCapabilityDependency(capability_name="cache.redis", required=False),
+            StubCapabilityDependency(capability="database.postgresql"),
+            StubCapabilityDependency(capability="cache.redis", strict=False),
         ]
         stub = StubHandlerContract(capability_inputs=deps)
         caps = stub.capability_inputs
@@ -856,18 +1098,6 @@ class TestProtocolHandlerContractCompliance:
         assert hasattr(result, "errors")
         assert hasattr(result, "warnings")
 
-    def test_to_yaml_returns_string(self) -> None:
-        """to_yaml method should return string."""
-        stub = StubHandlerContract()
-        yaml_str = stub.to_yaml()
-        assert isinstance(yaml_str, str)
-        assert "handler_id" in yaml_str
-
-    def test_from_yaml_returns_contract(self) -> None:
-        """from_yaml class method should return contract instance."""
-        contract = StubHandlerContract.from_yaml("test: value")
-        assert isinstance(contract, StubHandlerContract)
-
 
 @pytest.mark.unit
 class TestProtocolHandlerContractDocumentation:
@@ -882,8 +1112,8 @@ class TestProtocolHandlerContractDocumentation:
         """Docstring should mention handler properties."""
         doc = ProtocolHandlerContract.__doc__ or ""
         assert "handler_id" in doc
-        assert "handler_name" in doc
-        assert "handler_version" in doc
+        assert "name" in doc
+        assert "version" in doc
 
 
 # ==============================================================================
@@ -963,7 +1193,7 @@ class TestProtocolExecutionConstrainableCompliance:
 
     def test_execution_constraints_returns_correct_type(self) -> None:
         """execution_constraints should return ProtocolExecutionConstraints or None."""
-        constraints = StubExecutionConstraints(max_retries=5, timeout_seconds=60.0)
+        constraints = StubExecutionConstraints(must_run=True, can_run_parallel=False)
         stub = StubExecutionConstrainable(constraints=constraints)
         assert isinstance(stub.execution_constraints, ProtocolExecutionConstraints)
 
@@ -1039,60 +1269,61 @@ class TestHandlerContractUsagePatterns:
     def test_contract_with_all_properties_set(self) -> None:
         """Test creating a fully configured contract."""
         descriptor = StubHandlerBehaviorDescriptor(
+            handler_kind="effect",
+            purity="side_effecting",
             idempotent=True,
-            deterministic=False,
-            side_effects=["network", "database"],
-            retry_safe=True,
+            timeout_ms=30000,
+            concurrency_policy="serialized",
         )
         caps = [
             StubCapabilityDependency(
-                capability_name="database.postgresql",
-                required=True,
-                version_constraint=">=14.0.0",
+                capability="database.postgresql",
+                strict=True,
+                version_range=">=14.0.0",
             ),
             StubCapabilityDependency(
-                capability_name="cache.redis",
-                required=False,
-                version_constraint=None,
+                capability="cache.redis",
+                strict=False,
+                version_range=None,
             ),
         ]
         constraints = StubExecutionConstraints(
-            max_retries=3,
-            timeout_seconds=30.0,
-            memory_limit_mb=512,
-            cpu_limit=0.5,
-            concurrency_limit=10,
+            requires_before=["validate"],
+            requires_after=["notify"],
+            must_run=True,
+            can_run_parallel=False,
+            nondeterministic_effect=True,
         )
 
         contract = StubHandlerContract(
             handler_id="http-handler-001",
-            handler_name="http-rest-handler",
-            handler_version="1.0.0",
+            name="http-rest-handler",
+            version="1.0.0",
             descriptor=descriptor,
             capability_inputs=caps,
             execution_constraints=constraints,
         )
 
         assert contract.handler_id == "http-handler-001"
-        assert contract.handler_name == "http-rest-handler"
-        assert contract.handler_version == "1.0.0"
+        assert contract.name == "http-rest-handler"
+        assert contract.version == "1.0.0"
         assert contract.descriptor.idempotent is True
-        assert contract.descriptor.deterministic is False
+        assert contract.descriptor.purity == "side_effecting"
         assert len(contract.capability_inputs) == 2
         assert contract.execution_constraints is not None
-        assert contract.execution_constraints.max_retries == 3
+        assert contract.execution_constraints.must_run is True
 
     def test_contract_capability_filtering(self) -> None:
-        """Test filtering capabilities by required status."""
+        """Test filtering capabilities by strict status."""
         caps = [
-            StubCapabilityDependency(capability_name="db", required=True),
-            StubCapabilityDependency(capability_name="cache", required=False),
-            StubCapabilityDependency(capability_name="messaging", required=True),
+            StubCapabilityDependency(capability="db", strict=True),
+            StubCapabilityDependency(capability="cache", strict=False),
+            StubCapabilityDependency(capability="messaging", strict=True),
         ]
         contract = StubHandlerContract(capability_inputs=caps)
 
-        required_caps = [c for c in contract.capability_inputs if c.required]
-        optional_caps = [c for c in contract.capability_inputs if not c.required]
+        required_caps = [c for c in contract.capability_inputs if c.strict]
+        optional_caps = [c for c in contract.capability_inputs if not c.strict]
 
         assert len(required_caps) == 2
         assert len(optional_caps) == 1
@@ -1107,43 +1338,40 @@ class TestHandlerContractUsagePatterns:
         assert len(result.errors) == 0
         assert len(result.warnings) == 0
 
-    def test_contract_yaml_roundtrip_concept(self) -> None:
-        """Test YAML serialization/deserialization concept."""
-        original = StubHandlerContract(handler_id="test-123")
-        yaml_str = original.to_yaml()
-        restored = StubHandlerContract.from_yaml(yaml_str)
-
-        # In a real implementation, these would match
-        assert isinstance(restored, StubHandlerContract)
-
     def test_behavior_descriptor_determines_cacheability(self) -> None:
         """Test using behavior descriptor to determine cacheability."""
         cacheable_descriptor = StubHandlerBehaviorDescriptor(
-            deterministic=True,
-            side_effects=[],
+            purity="pure",
+            idempotent=True,
         )
         non_cacheable_descriptor = StubHandlerBehaviorDescriptor(
-            deterministic=False,
-            side_effects=["database"],
+            purity="side_effecting",
+            idempotent=False,
         )
 
         def is_cacheable(desc: ProtocolHandlerBehaviorDescriptor) -> bool:
-            return desc.deterministic and len(desc.side_effects) == 0
+            return desc.purity == "pure" and desc.idempotent
 
         assert is_cacheable(cacheable_descriptor) is True
         assert is_cacheable(non_cacheable_descriptor) is False
 
-    def test_execution_constraints_for_retry_logic(self) -> None:
-        """Test using execution constraints for retry logic."""
-        constraints = StubExecutionConstraints(max_retries=3, timeout_seconds=30.0)
-        descriptor = StubHandlerBehaviorDescriptor(retry_safe=True)
+    def test_execution_constraints_for_ordering_logic(self) -> None:
+        """Test using execution constraints for ordering logic."""
+        constraints = StubExecutionConstraints(
+            requires_before=["validate", "auth"],
+            can_run_parallel=False,
+        )
+        descriptor = StubHandlerBehaviorDescriptor(
+            idempotent=True,
+            concurrency_policy="serialized",
+        )
 
         contract = StubHandlerContract(
             descriptor=descriptor,
             execution_constraints=constraints,
         )
 
-        # Simulate retry logic
-        if contract.descriptor.retry_safe:
-            max_attempts = contract.execution_constraints.max_retries + 1
-            assert max_attempts == 4  # 1 initial + 3 retries
+        # Simulate ordering logic
+        if not contract.execution_constraints.can_run_parallel:
+            deps = contract.execution_constraints.requires_before
+            assert len(deps) == 2  # Must run after validate and auth
