@@ -41,20 +41,16 @@ from .protocol_service_registry import (
     LiteralServiceResolutionStatus,
     ProtocolDependencyGraph,
     ProtocolInjectionContext,
+    ProtocolRegistryServiceInstance as ProtocolDIServiceInstance,
     ProtocolServiceDependency,
     ProtocolServiceFactory,
     ProtocolServiceRegistration,
+    ProtocolServiceRegistrationMetadata as ProtocolDIServiceMetadata,
     ProtocolServiceRegistry,
     ProtocolServiceRegistryConfig,
     ProtocolServiceRegistryStatus,
     ProtocolServiceValidator,
     ServiceHealthStatus,
-)
-from .protocol_service_registry import (
-    ProtocolRegistryServiceInstance as ProtocolDIServiceInstance,
-)
-from .protocol_service_registry import (
-    ProtocolServiceRegistrationMetadata as ProtocolDIServiceMetadata,
 )
 from .protocol_service_resolver import ProtocolServiceResolver
 

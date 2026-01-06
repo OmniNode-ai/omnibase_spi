@@ -1235,11 +1235,7 @@ class TestProtocolImports:
         """Test import from contract types module."""
         from omnibase_spi.protocols.contracts.protocol_handler_contract_types import (
             ProtocolCapabilityDependency as DirectCapability,
-        )
-        from omnibase_spi.protocols.contracts.protocol_handler_contract_types import (
             ProtocolExecutionConstraints as DirectConstraints,
-        )
-        from omnibase_spi.protocols.contracts.protocol_handler_contract_types import (
             ProtocolHandlerBehaviorDescriptor as DirectDescriptor,
         )
 
