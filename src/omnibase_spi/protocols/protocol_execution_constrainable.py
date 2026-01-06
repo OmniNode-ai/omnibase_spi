@@ -64,7 +64,7 @@ class ProtocolExecutionConstrainable(Protocol):
 
         if handler.has_constraints():
             constraints = handler.execution_constraints
-            print(f"Timeout: {constraints.timeout_seconds}s")
+            print(f"Can run parallel: {constraints.can_run_parallel}")
         ```
 
     Note:

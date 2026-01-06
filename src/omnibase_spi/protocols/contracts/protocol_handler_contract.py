@@ -75,26 +75,27 @@ class ProtocolHandlerContract(Protocol):
 
     Example:
         ```python
-        # Create a handler contract instance
-        contract: ProtocolHandlerContract = get_handler_contract()
+        async def inspect_contract() -> None:
+            # Create a handler contract instance
+            contract: ProtocolHandlerContract = get_handler_contract()
 
-        # Access contract properties
-        print(f"Handler: {contract.name} v{contract.version}")
-        print(f"Idempotent: {contract.descriptor.idempotent}")
+            # Access contract properties
+            print(f"Handler: {contract.name} v{contract.version}")
+            print(f"Idempotent: {contract.descriptor.idempotent}")
 
-        # Check capability requirements
-        for cap in contract.capability_inputs:
-            if cap.required:
-                print(f"Requires: {cap.capability_name}")
+            # Check capability requirements
+            for cap in contract.capability_inputs:
+                if cap.required:
+                    print(f"Requires: {cap.capability_name}")
 
-        # Validate the contract
-        result = await contract.validate()
-        if not result.is_valid:
-            for error in result.errors:
-                print(f"Error: {error.message}")
+            # Validate the contract (async operation)
+            result = await contract.validate()
+            if not result.is_valid:
+                for error in result.errors:
+                    print(f"Error: {error.message}")
 
-        # Serialize using Pydantic (on the implementing model)
-        data = contract.model_dump()  # Returns dict representation
+            # Serialize using Pydantic (on the implementing model)
+            data = contract.model_dump()  # Returns dict representation
         ```
 
     Note:
@@ -226,19 +227,23 @@ class ProtocolHandlerContract(Protocol):
         """
         Execution constraints for this handler.
 
-        Execution constraints specify resource limits and operational
-        boundaries for handler execution. These constraints enable:
-            - Timeout enforcement for bounded execution
-            - Retry limits for failure recovery
-            - Resource quotas for memory and CPU
-            - Concurrency limits for rate limiting
+        Execution constraints specify ordering requirements and parallelism
+        settings for handler execution. These constraints enable:
+            - Explicit ordering dependencies between handlers
+            - Parallel execution control
+            - Mandatory execution flags for side-effect handlers
+            - Nondeterminism tracking for replay/recovery
 
         Constraint Properties:
-            - max_retries: Maximum retry attempts
-            - timeout_seconds: Execution timeout
-            - memory_limit_mb: Memory allocation limit
-            - cpu_limit: CPU allocation limit
-            - concurrency_limit: Maximum concurrent executions
+            - requires_before: Handlers that must complete before this one starts
+            - requires_after: Handlers that must run after this one completes
+            - must_run: Whether this handler must run even if not strictly needed
+            - can_run_parallel: Whether this handler can run in parallel with others
+            - nondeterministic_effect: Whether this handler has nondeterministic effects
+
+        Note:
+            Resource limits (timeout, memory, CPU) are defined in the
+            behavior descriptor (ProtocolHandlerBehaviorDescriptor), not here.
 
         Returns:
             Constraints if specified, None for default constraints.
