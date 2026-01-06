@@ -4,9 +4,9 @@ Protocol for objects that can declare execution constraints.
 Domain: Execution constraint declaration for handlers and contracts.
 
 This module defines a mixin-style protocol for objects that can declare
-execution constraints such as timeouts, retry limits, and resource limits.
+execution constraints such as ordering dependencies and parallelism settings.
 Handlers, contracts, and other runtime objects can implement this protocol
-to declare their execution requirements.
+to declare their execution ordering requirements.
 
 See Also:
     - ProtocolExecutionConstraints: The constraints definition protocol
@@ -31,18 +31,18 @@ class ProtocolExecutionConstrainable(Protocol):
 
     This is a mixin-style protocol that can be implemented by handlers,
     contracts, or other objects that need to declare execution constraints
-    such as timeouts, retry limits, and resource limits.
+    such as ordering dependencies and parallelism settings.
 
-    Execution constraints allow the runtime to enforce limits on handler
-    execution, preventing resource exhaustion and ensuring predictable
-    behavior. When constraints are not defined (None), the runtime applies
-    default constraints appropriate for the execution context.
+    Execution constraints allow the runtime to correctly order handler
+    executions and determine which handlers can run concurrently. When
+    constraints are not defined (None), the runtime applies default
+    constraints appropriate for the execution context.
 
     This protocol enables:
-        - Timeout enforcement for long-running operations
-        - Retry limit specification for transient failures
-        - Resource limit declaration for memory/CPU bounds
-        - Constraint introspection for monitoring and debugging
+        - Explicit ordering dependencies between handlers (requires_before/after)
+        - Parallel execution control (can_run_parallel)
+        - Mandatory execution flags for side-effect handlers (must_run)
+        - Nondeterminism tracking for replay/recovery (nondeterministic_effect)
 
     Example:
         ```python
@@ -65,6 +65,7 @@ class ProtocolExecutionConstrainable(Protocol):
         if handler.has_constraints():
             constraints = handler.execution_constraints
             print(f"Can run parallel: {constraints.can_run_parallel}")
+            print(f"Must run: {constraints.must_run}")
         ```
 
     Note:
@@ -74,8 +75,13 @@ class ProtocolExecutionConstrainable(Protocol):
         if ``has_constraints()`` returns False, ``execution_constraints``
         should return None.
 
+        This protocol defines execution ORDERING constraints, not resource
+        limits. Resource limits (timeout, memory, CPU) are defined in
+        ProtocolHandlerBehaviorDescriptor.
+
     See Also:
         ProtocolExecutionConstraints: The constraints definition protocol.
+        ProtocolHandlerBehaviorDescriptor: Defines resource limits and policies.
         ProtocolHandlerContract: Contract interface that uses this protocol.
     """
 
@@ -84,12 +90,14 @@ class ProtocolExecutionConstrainable(Protocol):
         """
         Get the execution constraints for this object.
 
-        Execution constraints define limits and requirements for how this
-        object should be executed by the runtime. Common constraints include:
-            - Timeout limits (maximum execution time)
-            - Retry policies (max attempts, backoff strategy)
-            - Resource limits (memory, CPU, connections)
-            - Concurrency limits (max parallel executions)
+        Execution constraints define ordering requirements and parallelism
+        settings for how this object should be executed by the runtime.
+        Constraint properties include:
+            - requires_before: Handlers that must complete first
+            - requires_after: Handlers that must run after
+            - must_run: Whether this handler must always run
+            - can_run_parallel: Whether parallel execution is allowed
+            - nondeterministic_effect: Whether effects are nondeterministic
 
         Returns:
             Execution constraints if defined, None otherwise.
@@ -101,6 +109,9 @@ class ProtocolExecutionConstrainable(Protocol):
             Implementations SHOULD return the same instance on repeated
             calls unless the constraints have been explicitly modified.
             Callers SHOULD treat the returned constraints as read-only.
+
+            Resource limits (timeout, memory, CPU) are defined in
+            ProtocolHandlerBehaviorDescriptor, not in execution constraints.
         """
         ...
 

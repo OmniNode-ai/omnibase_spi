@@ -9,7 +9,7 @@ importable even when Core is not installed.
 Test Categories:
     TestNodeProtocolImports: Node protocol import validation
     TestHandlerProtocolImports: Handler protocol import validation
-    TestContractCompilerImports: Contract compiler import validation
+    TestContractProtocolImports: Contract protocol import validation
     TestRegistryProtocolImports: Registry protocol import validation
     TestRuntimeCheckableProtocols: @runtime_checkable decorator validation
     TestIsinstanceChecks: isinstance() behavior with mock implementations
@@ -286,7 +286,7 @@ class TestHandlerProtocolImports:
             assert obj is not None, f"{name} in __all__ but not importable"
 
 
-class TestContractCompilerImports:
+class TestContractProtocolImports:
     """Test contract protocol imports without forward reference errors.
 
     Validates that all contract protocols (compilers and supporting types)
@@ -551,7 +551,7 @@ class TestRuntimeCheckableProtocols:
 
     This test class is intentionally parallel to the runtime checkability assertions
     in the import test classes (TestNodeProtocolImports, TestHandlerProtocolImports,
-    TestContractCompilerImports, TestRegistryProtocolImports). While those classes
+    TestContractProtocolImports, TestRegistryProtocolImports). While those classes
     validate runtime checkability as part of comprehensive import validation, this
     class provides:
 
@@ -1810,7 +1810,7 @@ class TestProtocolCoverage:
         "ProtocolHandler",  # Request/response lifecycle (init/shutdown/execute)
         "ProtocolHandlerSource",  # Handler discovery abstraction
         "ProtocolHandlerDescriptor",  # Handler metadata for registry
-        # Contract protocols (TestContractCompilerImports) - compilers and types
+        # Contract protocols (TestContractProtocolImports) - compilers and types
         "ProtocolEffectContractCompiler",  # Effect contract -> executable node
         "ProtocolWorkflowContractCompiler",  # Multi-step workflow compilation
         "ProtocolFSMContractCompiler",  # Finite state machine compilation
