@@ -354,7 +354,8 @@ class TestContractProtocolImports:
     def test_execution_constraints_import(self) -> None:
         """Validate ProtocolExecutionConstraints import succeeds.
 
-        Execution constraints define runtime limits and requirements for handlers.
+        Execution constraints define execution ordering and parallelism for handlers,
+        including requires_before/after dependencies and can_run_parallel settings.
         """
         from omnibase_spi.protocols.contracts import ProtocolExecutionConstraints
 
@@ -454,6 +455,28 @@ class TestRegistryProtocolImports:
         assert ProtocolVersionedRegistry is not None
         _verify_runtime_checkable_protocol(ProtocolVersionedRegistry)
 
+    def test_protocol_capability_registry_import(self) -> None:
+        """Validate ProtocolCapabilityRegistry import succeeds.
+
+        The capability registry protocol defines capability registration and
+        lookup operations for capability-based service discovery.
+        """
+        from omnibase_spi.protocols.registry import ProtocolCapabilityRegistry
+
+        assert ProtocolCapabilityRegistry is not None
+        _verify_runtime_checkable_protocol(ProtocolCapabilityRegistry)
+
+    def test_protocol_provider_registry_import(self) -> None:
+        """Validate ProtocolProviderRegistry import succeeds.
+
+        The provider registry protocol defines provider registration and
+        discovery operations for service provider management.
+        """
+        from omnibase_spi.protocols.registry import ProtocolProviderRegistry
+
+        assert ProtocolProviderRegistry is not None
+        _verify_runtime_checkable_protocol(ProtocolProviderRegistry)
+
     def test_all_registry_protocols_in_module_all(self) -> None:
         """Validate all registry protocols are properly exported in __all__.
 
@@ -507,8 +530,8 @@ class TestExecutionConstrainableProtocolImports:
         """Validate ProtocolExecutionConstrainable import succeeds.
 
         The execution constrainable protocol defines a mixin interface for
-        objects that can declare execution constraints such as timeouts,
-        retry limits, and resource limits.
+        objects that can declare execution constraints such as ordering
+        dependencies and parallelism settings.
         """
         from omnibase_spi.protocols.protocol_execution_constrainable import (
             ProtocolExecutionConstrainable,
@@ -683,13 +706,17 @@ class TestRuntimeCheckableProtocols:
     def test_registry_protocols_are_runtime_checkable(self) -> None:
         """Validate all registry protocols have @runtime_checkable."""
         from omnibase_spi.protocols.registry import (
+            ProtocolCapabilityRegistry,
             ProtocolHandlerRegistry,
+            ProtocolProviderRegistry,
             ProtocolRegistryBase,
             ProtocolVersionedRegistry,
         )
 
         for protocol in [
+            ProtocolCapabilityRegistry,
             ProtocolHandlerRegistry,
+            ProtocolProviderRegistry,
             ProtocolRegistryBase,
             ProtocolVersionedRegistry,
         ]:
@@ -1816,12 +1843,14 @@ class TestProtocolCoverage:
         "ProtocolFSMContractCompiler",  # Finite state machine compilation
         "ProtocolHandlerContract",  # Type-safe handler contract interface
         "ProtocolCapabilityDependency",  # Capability requirements for handlers
-        "ProtocolExecutionConstraints",  # Runtime limits and requirements
+        "ProtocolExecutionConstraints",  # Execution ordering and parallelism
         "ProtocolHandlerBehaviorDescriptor",  # Handler behavior characteristics
         # Execution constraint protocol (standalone mixin)
         "ProtocolExecutionConstrainable",  # Mixin for objects with constraints
         # Registry protocols (TestRegistryProtocolImports)
+        "ProtocolCapabilityRegistry",  # Capability registration and lookup
         "ProtocolHandlerRegistry",  # Handler registration/lookup CRUD
+        "ProtocolProviderRegistry",  # Provider registration and discovery
         "ProtocolRegistryBase",  # Base registry operations
         "ProtocolVersionedRegistry",  # Versioned handler registration
     }

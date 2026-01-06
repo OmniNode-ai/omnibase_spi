@@ -9,9 +9,9 @@ execution constraints into a single, type-safe contract specification.
 
 Handler contracts serve as the source of truth for:
     - Handler identification (id, name, version)
-    - Behavior specification (idempotency, side effects, retry safety)
+    - Behavior specification (idempotency, side effects, retry safety, timeouts)
     - Capability requirements (what the handler needs to run)
-    - Execution constraints (timeouts, retries, resource limits)
+    - Execution constraints (ordering, parallelism, must-run flags)
 
 The contract supports validation for ensuring contract correctness before
 handler registration. Serialization is handled by the implementing model
@@ -55,9 +55,9 @@ class ProtocolHandlerContract(Protocol):
 
     The contract serves as the source of truth for:
         - Handler identification (handler_id, name, version)
-        - Behavior specification (idempotency, side effects, retry safety)
+        - Behavior specification (idempotency, side effects, retry safety, timeouts)
         - Capability requirements (what the handler needs to run)
-        - Execution constraints (timeouts, retries, resource limits)
+        - Execution constraints (ordering, parallelism, must-run flags)
 
     This protocol is useful for:
         - Handler registration validation
@@ -85,8 +85,8 @@ class ProtocolHandlerContract(Protocol):
 
             # Check capability requirements
             for cap in contract.capability_inputs:
-                if cap.required:
-                    print(f"Requires: {cap.capability_name}")
+                if cap.strict:
+                    print(f"Requires: {cap.capability}")
 
             # Validate the contract (async operation)
             result = await contract.validate()
@@ -94,8 +94,8 @@ class ProtocolHandlerContract(Protocol):
                 for error in result.errors:
                     print(f"Error: {error.message}")
 
-            # Serialize using Pydantic (on the implementing model)
-            data = contract.model_dump()  # Returns dict representation
+            # Note: Serialization (e.g., model_dump()) is provided by the
+            # implementing class (ModelHandlerContract), not this protocol.
         ```
 
     Note:
