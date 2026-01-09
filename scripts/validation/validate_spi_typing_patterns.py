@@ -324,16 +324,15 @@ class SPITypingValidator(ast.NodeVisitor):
         if self._has_property_decorator(node):
             return False
 
-        # Synchronous method exceptions - these are NOT I/O operations
+        # Synchronous method exceptions - these are sync by design in protocol definitions
+        # Note: Many registry methods (list_keys, is_registered, register) are async in
+        # protocol_versioned_registry.py and protocol_service_discovery.py, so NOT listed here.
+        # Only methods that are truly sync in all protocol definitions belong in this list.
         sync_exceptions = [
-            "get_metadata",  # Dictionary lookup, not I/O
-            "get_handler_descriptor",  # In-memory handler lookup, not I/O
-            "list_handler_descriptors",  # In-memory handler listing, not I/O
-            "get_available_capability_ids",  # In-memory registry iteration, not I/O
-            "get_supported_effects",  # Returns list of supported effect IDs
-            "list_keys",  # In-memory listing
-            "is_registered",  # In-memory check
-            "register",  # In-memory registration
+            "get_handler_descriptor",  # Sync in ProtocolHandlerSource (protocol_handler_source.py)
+            "list_handler_descriptors",  # Sync in ProtocolHandlerSource (protocol_handler_source.py)
+            "get_available_capability_ids",  # Sync in ProtocolProviderRegistry (protocol_provider_registry.py)
+            "get_supported_effects",  # Sync in ProtocolPrimitiveEffectExecutor (protocol_primitive_effect_executor.py)
         ]
 
         if node.name in sync_exceptions:

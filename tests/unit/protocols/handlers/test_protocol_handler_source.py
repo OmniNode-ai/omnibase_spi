@@ -78,7 +78,7 @@ class MethodOnlyHandlerSource:
         """Return empty tuple."""
         return ()
 
-    def get_handler_descriptor(self, handler_id: str) -> ModelHandlerDescriptor | None:
+    def get_handler_descriptor(self, _handler_id: str) -> ModelHandlerDescriptor | None:
         """Get a specific handler descriptor by ID."""
         return None
 
