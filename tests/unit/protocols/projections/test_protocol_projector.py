@@ -316,6 +316,7 @@ class NonCompliantProjector:
     pass
 
 
+@pytest.mark.unit
 class TestProtocolSequenceInfoProtocol:
     """Test suite for ProtocolSequenceInfo protocol compliance."""
 
@@ -348,6 +349,7 @@ class TestProtocolSequenceInfoProtocol:
         assert isinstance(seq_info, ProtocolSequenceInfo)
 
 
+@pytest.mark.unit
 class TestProtocolPersistResultProtocol:
     """Test suite for ProtocolPersistResult protocol compliance."""
 
@@ -379,6 +381,7 @@ class TestProtocolPersistResultProtocol:
         assert isinstance(result, ProtocolPersistResult)
 
 
+@pytest.mark.unit
 class TestProtocolBatchPersistResultProtocol:
     """Test suite for ProtocolBatchPersistResult protocol compliance."""
 
@@ -415,6 +418,7 @@ class TestProtocolBatchPersistResultProtocol:
         assert isinstance(result, ProtocolBatchPersistResult)
 
 
+@pytest.mark.unit
 class TestProtocolProjectorProtocol:
     """Test suite for ProtocolProjector protocol compliance."""
 
@@ -459,6 +463,7 @@ class TestProtocolProjectorProtocol:
             ProtocolProjector()  # type: ignore[misc]
 
 
+@pytest.mark.unit
 class TestProtocolProjectorCompliance:
     """Test isinstance checks for protocol compliance."""
 
@@ -478,6 +483,7 @@ class TestProtocolProjectorCompliance:
         assert not isinstance(projector, ProtocolProjector)
 
 
+@pytest.mark.unit
 class TestMockImplementsAllMethods:
     """Test that MockProjector has all required methods."""
 
@@ -512,6 +518,7 @@ class TestMockImplementsAllMethods:
         assert callable(projector.cleanup_before_sequence)
 
 
+@pytest.mark.unit
 class TestProtocolProjectorAsyncNature:
     """Test that ProtocolProjector methods are async."""
 
@@ -546,6 +553,7 @@ class TestProtocolProjectorAsyncNature:
         assert inspect.iscoroutinefunction(MockProjector.cleanup_before_sequence)
 
 
+@pytest.mark.unit
 class TestProtocolProjectorMethodSignatures:
     """Test method signatures from compliant mock implementation."""
 
@@ -777,6 +785,7 @@ class TestProtocolProjectorMethodSignatures:
         assert await projector.get_last_sequence("e4", "d1") is not None
 
 
+@pytest.mark.unit
 class TestProtocolProjectorImports:
     """Test protocol imports from different locations."""
 
@@ -823,6 +832,7 @@ class TestProtocolProjectorImports:
         assert ProjectionsProtocolProjector is ProtocolsProjector
 
 
+@pytest.mark.unit
 class TestProtocolProjectorDocumentation:
     """Test that ProtocolProjector has proper documentation."""
 
@@ -852,6 +862,7 @@ class TestProtocolProjectorDocumentation:
         assert MockProjector.cleanup_before_sequence.__doc__ is not None
 
 
+@pytest.mark.unit
 class TestSequenceInfoEdgeCases:
     """Test edge cases for sequence handling."""
 
@@ -874,6 +885,7 @@ class TestSequenceInfoEdgeCases:
         assert isinstance(seq, ProtocolSequenceInfo)
 
 
+@pytest.mark.unit
 class TestDomainIsolation:
     """Test that different domains are isolated."""
 

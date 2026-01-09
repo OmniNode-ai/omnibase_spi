@@ -54,7 +54,7 @@ Example:
 .. versionadded:: 0.3.0
     Initial implementation.
 
-.. versionchanged:: 0.4.0
+.. versionchanged:: 0.4.2
     Changed from async discover_handlers() returning list[ProtocolHandlerDescriptor]
     to sync list_handler_descriptors() returning tuple[ModelHandlerDescriptor, ...].
     Added get_handler_descriptor() for lookup by ID.
