@@ -330,8 +330,8 @@ from omnibase_spi.protocols.contracts import (
 # v0.3.0 Factory protocols (1 protocol) - Handler contract factories
 from omnibase_spi.protocols.factories import ProtocolHandlerContractFactory
 
-# v0.3.0 Handler protocols (1 protocol) - DI-based protocol handlers
-from omnibase_spi.protocols.handlers import ProtocolHandler
+# v0.3.0 Handler protocols (2 protocols) - DI-based protocol handlers and sources
+from omnibase_spi.protocols.handlers import ProtocolHandler, ProtocolHandlerSource
 
 # v0.3.0 Node protocols (5 protocols) - Standard node interfaces with unified execute()
 from omnibase_spi.protocols.nodes import (
@@ -504,6 +504,7 @@ __all__ = [
     "ProtocolHandlerDiscovery",
     "ProtocolHandlerInfo",
     "ProtocolHandlerRegistry",
+    "ProtocolHandlerSource",
     "ProtocolHealthDetails",
     "ProtocolHealthMonitor",
     "ProtocolHttpClient",
