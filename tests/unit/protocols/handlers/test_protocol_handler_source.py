@@ -10,15 +10,16 @@ Validates that ProtocolHandlerSource:
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
 
-from omnibase_spi.protocols.handlers import (
-    LiteralHandlerSourceType,
-    ProtocolHandlerDescriptor,
-    ProtocolHandlerSource,
-)
+from omnibase_spi.protocols.handlers import ProtocolHandlerSource
 
-from .conftest import MockHandlerDescriptor
+if TYPE_CHECKING:
+    from omnibase_core.models.handlers import ModelHandlerDescriptor
+
+from .conftest import _create_mock_descriptor
 
 # =============================================================================
 # Mock Implementations
@@ -30,28 +31,36 @@ class MockHandlerSource:
 
     def __init__(
         self,
-        source_type: LiteralHandlerSourceType = "BOOTSTRAP",
-        handlers: list[ProtocolHandlerDescriptor] | None = None,
+        source_type: str = "BOOTSTRAP",
+        handlers: tuple[ModelHandlerDescriptor, ...] | None = None,
     ) -> None:
         """Initialize the mock handler source."""
         self._source_type = source_type
-        self._handlers = handlers if handlers is not None else []
+        self._handlers = handlers if handlers is not None else ()
 
     @property
-    def source_type(self) -> LiteralHandlerSourceType:
+    def source_type(self) -> str:
         """Return the source type."""
         return self._source_type
 
-    async def discover_handlers(self) -> list[ProtocolHandlerDescriptor]:
-        """Discover and return handlers."""
+    def list_handler_descriptors(self) -> tuple[ModelHandlerDescriptor, ...]:
+        """List all handler descriptors from this source."""
         return self._handlers
+
+    def get_handler_descriptor(self, handler_id: str) -> ModelHandlerDescriptor | None:
+        """Get a specific handler descriptor by ID."""
+        for desc in self._handlers:
+            # Match on handler_name string representation
+            if str(desc.handler_name) == handler_id:
+                return desc
+        return None
 
 
 class PartialHandlerSource:
-    """A class that only implements source_type, missing discover_handlers."""
+    """A class that only implements source_type, missing list_handler_descriptors."""
 
     @property
-    def source_type(self) -> LiteralHandlerSourceType:
+    def source_type(self) -> str:
         """Return source type."""
         return "BOOTSTRAP"
 
@@ -63,11 +72,15 @@ class NonCompliantHandlerSource:
 
 
 class MethodOnlyHandlerSource:
-    """A class that only implements discover_handlers, missing source_type property."""
+    """A class that only implements list_handler_descriptors, missing source_type property."""
 
-    async def discover_handlers(self) -> list[ProtocolHandlerDescriptor]:
-        """Return empty list."""
-        return []
+    def list_handler_descriptors(self) -> tuple[ModelHandlerDescriptor, ...]:
+        """Return empty tuple."""
+        return ()
+
+    def get_handler_descriptor(self, handler_id: str) -> ModelHandlerDescriptor | None:
+        """Get a specific handler descriptor by ID."""
+        return None
 
 
 # =============================================================================
@@ -99,9 +112,13 @@ class TestProtocolHandlerSourceProtocol:
         """ProtocolHandlerSource should define source_type property."""
         assert "source_type" in dir(ProtocolHandlerSource)
 
-    def test_protocol_has_discover_handlers_method(self) -> None:
-        """ProtocolHandlerSource should define discover_handlers method."""
-        assert "discover_handlers" in dir(ProtocolHandlerSource)
+    def test_protocol_has_list_handler_descriptors_method(self) -> None:
+        """ProtocolHandlerSource should define list_handler_descriptors method."""
+        assert "list_handler_descriptors" in dir(ProtocolHandlerSource)
+
+    def test_protocol_has_get_handler_descriptor_method(self) -> None:
+        """ProtocolHandlerSource should define get_handler_descriptor method."""
+        assert "get_handler_descriptor" in dir(ProtocolHandlerSource)
 
     def test_protocol_cannot_be_instantiated(self) -> None:
         """ProtocolHandlerSource protocol should not be directly instantiable."""
@@ -120,7 +137,7 @@ class TestProtocolHandlerSourceCompliance:
 
     def test_compliant_class_with_handlers_passes_isinstance(self) -> None:
         """A class with handlers should pass isinstance check."""
-        handlers = [MockHandlerDescriptor()]
+        handlers = (_create_mock_descriptor("test-handler"),)
         source = MockHandlerSource(source_type="CONTRACT", handlers=handlers)
         assert isinstance(source, ProtocolHandlerSource)
 
@@ -155,49 +172,64 @@ class TestMockHandlerSourceImplementsAllMethods:
         assert hasattr(source, "source_type")
         assert source.source_type == "BOOTSTRAP"
 
-    def test_mock_has_discover_handlers_method(self) -> None:
-        """Mock should have discover_handlers method."""
+    def test_mock_has_list_handler_descriptors_method(self) -> None:
+        """Mock should have list_handler_descriptors method."""
         source = MockHandlerSource()
-        assert hasattr(source, "discover_handlers")
-        assert callable(source.discover_handlers)
+        assert hasattr(source, "list_handler_descriptors")
+        assert callable(source.list_handler_descriptors)
+
+    def test_mock_has_get_handler_descriptor_method(self) -> None:
+        """Mock should have get_handler_descriptor method."""
+        source = MockHandlerSource()
+        assert hasattr(source, "get_handler_descriptor")
+        assert callable(source.get_handler_descriptor)
 
 
 @pytest.mark.unit
 class TestProtocolHandlerSourceMethodSignatures:
     """Test method signatures from compliant mock implementation."""
 
-    def test_source_type_returns_literal_type(self) -> None:
-        """source_type should return a valid LiteralHandlerSourceType."""
+    def test_source_type_returns_string(self) -> None:
+        """source_type should return a string value."""
         for source_type in ["BOOTSTRAP", "CONTRACT", "HYBRID"]:
-            source = MockHandlerSource(source_type=source_type)  # type: ignore[arg-type]
+            source = MockHandlerSource(source_type=source_type)
             assert source.source_type == source_type
+            assert isinstance(source.source_type, str)
 
-    @pytest.mark.asyncio
-    async def test_discover_handlers_returns_list(self) -> None:
-        """discover_handlers should return a list."""
+    def test_list_handler_descriptors_returns_tuple(self) -> None:
+        """list_handler_descriptors should return a tuple."""
         source = MockHandlerSource()
-        result = await source.discover_handlers()
-        assert isinstance(result, list)
+        result = source.list_handler_descriptors()
+        assert isinstance(result, tuple)
 
-    @pytest.mark.asyncio
-    async def test_discover_handlers_returns_empty_list(self) -> None:
-        """discover_handlers should return empty list when no handlers."""
-        source = MockHandlerSource(handlers=[])
-        result = await source.discover_handlers()
-        assert result == []
+    def test_list_handler_descriptors_returns_empty_tuple(self) -> None:
+        """list_handler_descriptors should return empty tuple when no handlers."""
+        source = MockHandlerSource(handlers=())
+        result = source.list_handler_descriptors()
+        assert result == ()
 
-    @pytest.mark.asyncio
-    async def test_discover_handlers_returns_descriptors(self) -> None:
-        """discover_handlers should return list of ProtocolHandlerDescriptor."""
-        descriptors = [
-            MockHandlerDescriptor(name="handler-1"),
-            MockHandlerDescriptor(name="handler-2"),
-        ]
+    def test_list_handler_descriptors_returns_descriptors(self) -> None:
+        """list_handler_descriptors should return tuple of ModelHandlerDescriptor."""
+        descriptors = (
+            _create_mock_descriptor("handler-1"),
+            _create_mock_descriptor("handler-2"),
+        )
         source = MockHandlerSource(handlers=descriptors)
-        result = await source.discover_handlers()
+        result = source.list_handler_descriptors()
         assert len(result) == 2
-        for desc in result:
-            assert isinstance(desc, ProtocolHandlerDescriptor)
+
+    def test_get_handler_descriptor_returns_none_for_missing(self) -> None:
+        """get_handler_descriptor should return None for non-existent handler."""
+        source = MockHandlerSource()
+        result = source.get_handler_descriptor("non-existent")
+        assert result is None
+
+    def test_get_handler_descriptor_returns_descriptor_when_found(self) -> None:
+        """get_handler_descriptor should return descriptor when found."""
+        desc = _create_mock_descriptor("my-handler")
+        source = MockHandlerSource(handlers=(desc,))
+        result = source.get_handler_descriptor("test:my-handler")
+        assert result is desc
 
 
 @pytest.mark.unit
@@ -278,25 +310,22 @@ class TestProtocolHandlerSourceDocumentation:
 class TestProtocolHandlerSourceUsagePatterns:
     """Test common usage patterns for ProtocolHandlerSource."""
 
-    @pytest.mark.asyncio
-    async def test_multiple_sources_can_be_iterated(self) -> None:
+    def test_multiple_sources_can_be_iterated(self) -> None:
         """Multiple sources can be iterated for handler discovery."""
         bootstrap_source = MockHandlerSource(
             source_type="BOOTSTRAP",
-            handlers=[MockHandlerDescriptor(name="bootstrap-handler")],
+            handlers=(_create_mock_descriptor("bootstrap-handler"),),
         )
         contract_source = MockHandlerSource(
             source_type="CONTRACT",
-            handlers=[MockHandlerDescriptor(name="contract-handler")],
+            handlers=(_create_mock_descriptor("contract-handler"),),
         )
 
-        all_handlers: list[ProtocolHandlerDescriptor] = []
+        all_handlers = []
         for source in [bootstrap_source, contract_source]:
-            all_handlers.extend(await source.discover_handlers())
+            all_handlers.extend(source.list_handler_descriptors())
 
         assert len(all_handlers) == 2
-        assert all_handlers[0].name == "bootstrap-handler"
-        assert all_handlers[1].name == "contract-handler"
 
     def test_source_type_for_observability(self) -> None:
         """source_type can be used for logging/observability."""
@@ -307,3 +336,20 @@ class TestProtocolHandlerSourceUsagePatterns:
 
         source_types = [s.source_type for s in sources]
         assert source_types == ["BOOTSTRAP", "CONTRACT"]
+
+    def test_get_handler_descriptor_lookup_pattern(self) -> None:
+        """get_handler_descriptor enables targeted lookup."""
+        handlers = (
+            _create_mock_descriptor("http-handler"),
+            _create_mock_descriptor("kafka-handler"),
+        )
+        source = MockHandlerSource(handlers=handlers)
+
+        # Lookup specific handler
+        http = source.get_handler_descriptor("test:http-handler")
+        assert http is not None
+        assert str(http.handler_name) == "test:http-handler"
+
+        # Non-existent returns None
+        missing = source.get_handler_descriptor("test:missing")
+        assert missing is None

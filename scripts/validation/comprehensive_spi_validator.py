@@ -1299,7 +1299,9 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
             "get",  # Registry lookups, dict access - not network I/O
             "get_supported_effects",  # Returns list of supported effect IDs
             "get_available_capability_ids",  # In-memory registry iteration, not I/O
+            "get_handler_descriptor",  # In-memory handler lookup, not I/O
             "list_keys",  # In-memory listing
+            "list_handler_descriptors",  # In-memory handler listing, not I/O
             "is_registered",  # In-memory check
             "register",  # In-memory registration
         ]
