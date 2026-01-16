@@ -15,6 +15,7 @@ from omnibase_spi.protocols.types.protocol_core_types import LiteralOperationSta
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 
+from omnibase_spi.protocols.types.protocol_contract import ProtocolContract
 from omnibase_spi.protocols.types.protocol_mcp_types import (
     LiteralMCPSubsystemType,
     LiteralMCPToolType,
@@ -146,6 +147,78 @@ class ProtocolMCPRegistry(Protocol):
     async def get_registry_status(self) -> ProtocolMCPRegistryStatus: ...
 
     async def get_registry_metrics(self) -> ProtocolMCPRegistryMetrics: ...
+
+    # ONEX Node Registration Methods
+
+    async def register_onex_node(
+        self,
+        contract: ProtocolContract,
+        tags: list[str] | None,
+        configuration: dict[str, "ContextValue"] | None,
+    ) -> str:
+        """
+        Register an ONEX node as an MCP tool.
+
+        Converts an ONEX node contract into an MCP tool registration,
+        enabling the node to be discovered and executed through the
+        MCP protocol infrastructure.
+
+        Args:
+            contract: The ONEX node contract to register. Must satisfy
+                ProtocolContract interface with valid contract_id and metadata.
+            tags: Optional tags for tool discovery and categorization.
+                Tags enable filtering during tool discovery operations.
+            configuration: Optional configuration overrides for the
+                registered tool. Merged with contract defaults.
+
+        Returns:
+            Registration ID for the registered tool. Use this ID for
+            subsequent operations like unregistration or status queries.
+
+        Raises:
+            RegistrationError: If the contract is invalid or registration fails.
+            ValidationError: If the contract does not meet MCP tool requirements.
+        """
+        ...
+
+    async def unregister_onex_node(self, node_id: str) -> bool:
+        """
+        Unregister an ONEX node from the MCP registry.
+
+        Removes the ONEX node tool registration, making it unavailable
+        for discovery and execution through the MCP protocol.
+
+        Args:
+            node_id: The node/registration ID to unregister. This should
+                be the ID returned from register_onex_node.
+
+        Returns:
+            True if successfully unregistered, False if the node was
+            not found or could not be unregistered.
+
+        Raises:
+            RegistrationError: If unregistration fails due to system error.
+        """
+        ...
+
+    async def get_onex_node_registration(
+        self, node_id: str
+    ) -> ProtocolMCPSubsystemRegistration | None:
+        """
+        Get registration details for an ONEX node.
+
+        Retrieves the full registration information for an ONEX node
+        that was registered as an MCP tool.
+
+        Args:
+            node_id: The node/registration ID to query. This should
+                be the ID returned from register_onex_node.
+
+        Returns:
+            The subsystem registration details if found, None if the
+            node is not registered or has been unregistered.
+        """
+        ...
 
 
 @runtime_checkable
