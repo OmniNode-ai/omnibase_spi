@@ -5,9 +5,10 @@ Defines the interface for discovering and generating enum classes
 from contract definitions.
 """
 
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
+    from omnibase_core.types import JsonType
     from omnibase_spi.protocols.types.protocol_advanced_types import (
         ProtocolContractDocument,
         ProtocolSchemaDefinition,
@@ -67,7 +68,7 @@ class ProtocolEnumGenerator(Protocol):
         async def generate_enums_from_contract(
             generator: ProtocolEnumGenerator,
             contract: ProtocolContractDocument
-        ) -> list["Any"]:
+        ) -> list[object]:
             # Discover all enum definitions in contract
             enum_infos = await generator.discover_enums_from_contract(contract)
 
@@ -82,7 +83,7 @@ class ProtocolEnumGenerator(Protocol):
             # Generate AST enum class definitions
             enum_classes = generator.generate_enum_classes(unique_enums)
 
-            return enum_classes
+            return enum_classes  # Returns list of AST ClassDef nodes
         ```
 
     Key Features:
@@ -105,7 +106,7 @@ class ProtocolEnumGenerator(Protocol):
         """Discover all enum definitions from a contract document.
 
         Args:
-            contract_data: Contract data (ProtocolContractDocument or dict[str, Any])
+            contract_data: Contract data (ProtocolContractDocument or JsonType dict)
 
         Returns:
             List of discovered enum information
@@ -114,13 +115,13 @@ class ProtocolEnumGenerator(Protocol):
 
     async def discover_enums_from_schema(
         self,
-        schema: "ProtocolSchemaDefinition | dict[str, Any]",
+        schema: "ProtocolSchemaDefinition | JsonType",
         path: str | None = None,
     ) -> list["ProtocolEnumInfo"]:
         """Recursively discover enums from a schema definition.
 
         Args:
-            schema: Schema to search (ProtocolSchemaDefinition or dict[str, Any])
+            schema: Schema to search (ProtocolSchemaDefinition or JsonType dict)
             path: Current path in schema for tracking
 
         Returns:
@@ -130,7 +131,7 @@ class ProtocolEnumGenerator(Protocol):
 
     def generate_enum_name_from_values(self, enum_values: list[str]) -> str: ...
     def generate_enum_name_from_schema(
-        self, schema: "ProtocolSchemaDefinition | dict[str, Any]"
+        self, schema: "ProtocolSchemaDefinition | JsonType"
     ) -> str:
         """Generate enum name from a schema with enum values.
 
@@ -152,13 +153,13 @@ class ProtocolEnumGenerator(Protocol):
             enum_infos: List of enum information
 
         Returns:
-            Deduplicated list[Any]of enums
+            Deduplicated list of enums
         """
         ...
 
     def generate_enum_classes(
         self, enum_infos: list["ProtocolEnumInfo"]
-    ) -> list["Any"]:
+    ) -> list[object]:
         """Generate AST enum class definitions.
 
         Args:
@@ -166,7 +167,6 @@ class ProtocolEnumGenerator(Protocol):
 
         Returns:
             List of AST ClassDef nodes for enums
-                ...
         """
         ...
 
@@ -181,9 +181,7 @@ class ProtocolEnumGenerator(Protocol):
         """
         ...
 
-    def is_enum_schema(
-        self, schema: "ProtocolSchemaDefinition | dict[str, Any]"
-    ) -> bool:
+    def is_enum_schema(self, schema: "ProtocolSchemaDefinition | JsonType") -> bool:
         """Check if a schema defines an enum.
 
         Args:
@@ -195,7 +193,7 @@ class ProtocolEnumGenerator(Protocol):
         ...
 
     async def get_enum_values(
-        self, schema: "ProtocolSchemaDefinition | dict[str, Any]"
+        self, schema: "ProtocolSchemaDefinition | JsonType"
     ) -> list[str] | None:
         """Extract enum values from a schema.
 

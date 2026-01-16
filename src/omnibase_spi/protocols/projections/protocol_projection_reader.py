@@ -35,7 +35,10 @@ Related tickets:
 
 from __future__ import annotations
 
-from typing import Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
+
+if TYPE_CHECKING:
+    from omnibase_core.types import JsonType
 
 
 @runtime_checkable
@@ -107,7 +110,7 @@ class ProtocolProjectionReader(Protocol):
         self,
         entity_id: str,
         domain: str,
-    ) -> dict[str, Any] | None:
+    ) -> JsonType | None:
         """
         Get the current projected state of an entity.
 
@@ -193,11 +196,11 @@ class ProtocolProjectionReader(Protocol):
 
     async def get_by_criteria(
         self,
-        criteria: dict[str, Any],
+        criteria: JsonType,
         domain: str,
         limit: int | None = None,
         offset: int | None = None,
-    ) -> list[dict[str, Any]]:
+    ) -> list[JsonType]:
         """
         Query entities matching specified criteria.
 
@@ -278,7 +281,7 @@ class ProtocolProjectionReader(Protocol):
         self,
         node_id: str,
         domain: str | None = None,
-    ) -> dict[str, Any] | None:
+    ) -> JsonType | None:
         """
         Get the registration status of a specific node.
 
@@ -332,7 +335,7 @@ class ProtocolProjectionReader(Protocol):
         state: str | None = None,
         capabilities: list[str] | None = None,
         limit: int | None = None,
-    ) -> list[dict[str, Any]]:
+    ) -> list[JsonType]:
         """
         List registered nodes matching optional filters.
 

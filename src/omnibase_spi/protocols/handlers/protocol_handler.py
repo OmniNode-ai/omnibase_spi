@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_core.models.handlers import ModelHandlerDescriptor
@@ -12,6 +12,7 @@ if TYPE_CHECKING:
         ModelProtocolRequest,
         ModelProtocolResponse,
     )
+    from omnibase_core.types import JsonType
 
 
 @runtime_checkable
@@ -165,7 +166,7 @@ class ProtocolHandler(Protocol):
         """
         ...
 
-    async def health_check(self) -> dict[str, Any]:
+    async def health_check(self) -> JsonType:
         """Check handler health and connectivity.
 
         Performs a lightweight check to verify the handler is operational

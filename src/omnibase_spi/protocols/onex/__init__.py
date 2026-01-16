@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
-from .protocol_compute_node import ProtocolComputeNode
-from .protocol_effect_node import ProtocolEffectNode
+from .protocol_compute_node import ProtocolOnexComputeNodeLegacy
+from .protocol_effect_node import ProtocolOnexEffectNodeLegacy
 from .protocol_envelope import ProtocolEnvelope
-from .protocol_node import ProtocolNode
+from .protocol_node import ProtocolOnexNodeLegacy
+from .protocol_orchestrator_node import ProtocolOnexOrchestratorNodeLegacy
+from .protocol_reducer_node import ProtocolOnexReducerNodeLegacy
 from .protocol_reply import ProtocolReply
 from .protocol_validation import (
     ProtocolContractData,
@@ -17,18 +19,16 @@ from .protocol_validation import (
     ProtocolValidationResult,
 )
 from .protocol_version_loader import ProtocolVersionLoader
-from .protocol_orchestrator_node import ProtocolOrchestratorNode
-from .protocol_reducer_node import ProtocolReducerNode
 
 __all__ = [
-    "ProtocolComputeNode",
     "ProtocolContractData",
-    "ProtocolEffectNode",
     "ProtocolEnvelope",
     "ProtocolMetadata",
-    "ProtocolNode",
-    "ProtocolOrchestratorNode",
-    "ProtocolReducerNode",
+    "ProtocolOnexComputeNodeLegacy",
+    "ProtocolOnexEffectNodeLegacy",
+    "ProtocolOnexNodeLegacy",
+    "ProtocolOnexOrchestratorNodeLegacy",
+    "ProtocolOnexReducerNodeLegacy",
     "ProtocolReply",
     "ProtocolSchema",
     "ProtocolSecurityContext",

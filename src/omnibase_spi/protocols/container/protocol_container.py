@@ -12,7 +12,10 @@ Key Features:
     - Framework-agnostic container abstraction
 """
 
-from typing import Any, Generic, Protocol, TypeVar, runtime_checkable
+from typing import TYPE_CHECKING, Generic, Protocol, TypeVar, runtime_checkable
+
+if TYPE_CHECKING:
+    from omnibase_core.types import JsonType
 
 T = TypeVar("T", covariant=True)
 
@@ -80,7 +83,7 @@ class ProtocolContainer(Protocol, Generic[T]):
         ...
 
     @property
-    def metadata(self) -> dict[str, Any]:
+    def metadata(self) -> "JsonType":
         """
         Get container metadata.
 
@@ -100,7 +103,7 @@ class ProtocolContainer(Protocol, Generic[T]):
         """
         ...
 
-    def get_metadata(self, key: str, default: Any = None) -> Any:
+    def get_metadata(self, key: str, default: "JsonType | None" = None) -> "JsonType":
         """
         Get specific metadata field.
 

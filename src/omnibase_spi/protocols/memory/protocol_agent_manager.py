@@ -5,7 +5,10 @@ This protocol defines the interface for managing Claude Code agent instances,
 including spawning, monitoring, lifecycle management, and resource tracking.
 """
 
-from typing import Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
+
+if TYPE_CHECKING:
+    from omnibase_core.types import JsonType
 
 from omnibase_spi.protocols.memory.protocol_agent_config_interfaces import (
     ProtocolAgentConfig,
@@ -108,7 +111,7 @@ class ProtocolAgentHealthStatus(Protocol):
                 return "2024-01-15T10:30:00Z"
 
             @property
-            def metrics(self) -> dict[str, Any]:
+            def metrics(self) -> dict[str, object]:
                 return {
                     "cpu_percent": 25.5,
                     "memory_mb": 512,
@@ -133,7 +136,7 @@ class ProtocolAgentHealthStatus(Protocol):
         ...
 
     @property
-    def metrics(self) -> dict[str, Any]:
+    def metrics(self) -> "JsonType":
         """Health metrics data."""
         ...
 
@@ -322,7 +325,7 @@ class ProtocolAgentManager(Protocol):
         """
         ...
 
-    async def get_resource_usage(self, agent_id: str) -> dict[str, Any]:
+    async def get_resource_usage(self, agent_id: str) -> "JsonType":
         """
         Get resource usage metrics for an agent.
 

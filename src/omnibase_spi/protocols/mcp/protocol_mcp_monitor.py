@@ -8,9 +8,12 @@ Domain: MCP monitoring, health checks, and observability
 """
 
 from collections.abc import Callable
-from typing import Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import ContextValue
+
+if TYPE_CHECKING:
+    from omnibase_core.types import JsonType
 from omnibase_spi.protocols.types.protocol_mcp_types import (
     ProtocolMCPHealthCheck,
     ProtocolMCPSubsystemRegistration,
@@ -34,7 +37,7 @@ class ProtocolMCPHealthMonitor(Protocol):
         self,
         subsystem_id: str,
         interval_seconds: int,
-        callback: Callable[[Any], Any] | None,
+        callback: "Callable[[JsonType], JsonType] | None",
     ) -> bool: ...
 
     async def stop_health_monitoring(self, subsystem_id: str) -> bool: ...
@@ -93,7 +96,7 @@ class ProtocolMCPMonitor(Protocol):
         self,
         subsystem_id: str,
         interval_seconds: int,
-        callback: Callable[[Any], Any] | None,
+        callback: "Callable[[JsonType], JsonType] | None",
     ) -> bool: ...
 
     async def analyze_performance_trends(
@@ -106,7 +109,7 @@ class ProtocolMCPMonitor(Protocol):
 
     async def configure_alerting(
         self,
-        alert_handlers: list[Callable[[Any], Any]],
+        alert_handlers: "list[Callable[[JsonType], JsonType]]",
         thresholds: dict[str, ContextValue],
         escalation_rules: dict[str, ContextValue] | None,
     ) -> bool: ...

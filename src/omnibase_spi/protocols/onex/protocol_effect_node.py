@@ -1,12 +1,31 @@
-"""Protocol for ONEX effect nodes."""
+"""Protocol for ONEX effect nodes (legacy).
 
-from typing import Any, Protocol, runtime_checkable
+.. deprecated:: 0.3.0
+    This module contains the legacy ONEX effect node protocol.
+    For new implementations, use the canonical v0.3.0 protocol at
+    :class:`omnibase_spi.protocols.nodes.ProtocolEffectNode`.
+
+    This legacy protocol will be removed in v0.5.0.
+"""
+
+from typing import Protocol, runtime_checkable
 
 
 @runtime_checkable
-class ProtocolEffectNode(Protocol):
+class ProtocolOnexEffectNodeLegacy(Protocol):
     """
-    Protocol for ONEX effect node implementations.
+    Legacy protocol for ONEX effect node implementations.
+
+    .. deprecated:: 0.3.0
+        This protocol is deprecated. Use
+        :class:`omnibase_spi.protocols.nodes.ProtocolEffectNode` instead.
+
+        Migration path:
+            - Replace imports from ``protocols.onex`` with ``protocols.nodes``
+            - Update type hints to use ``ProtocolEffectNode``
+            - Implement the new interface methods as needed
+
+        This protocol will be removed in v0.5.0.
 
     Effect nodes perform side-effecting operations such as I/O, external API calls,
     database operations, file system access, and other interactions with external
@@ -36,7 +55,7 @@ class ProtocolEffectNode(Protocol):
 
     Example Usage:
         ```python
-        from omnibase_spi.protocols.onex import ProtocolEffectNode
+        from omnibase_spi.protocols.onex import ProtocolOnexEffectNodeLegacy
 
         class MyEffect:
             async def execute_effect(self, contract: EffectContract) -> EffectResult:
@@ -53,7 +72,7 @@ class ProtocolEffectNode(Protocol):
 
         # Runtime validation
         effect = MyEffect()
-        assert isinstance(effect, ProtocolEffectNode)
+        assert isinstance(effect, ProtocolOnexEffectNodeLegacy)
         ```
 
     Common Patterns:
@@ -64,7 +83,7 @@ class ProtocolEffectNode(Protocol):
         - Cache Operations: Redis, Memcached reads/writes
     """
 
-    async def execute_effect(self, contract: Any) -> Any:
+    async def execute_effect(self, contract: object) -> object:
         """
         Execute effect workflow.
 

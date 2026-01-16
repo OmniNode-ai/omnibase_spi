@@ -5,7 +5,7 @@ Defines the interface for building Python Abstract Syntax Tree (AST)
 nodes for code generation.
 """
 
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types.protocol_advanced_types import (
@@ -77,7 +77,7 @@ class ProtocolASTBuilder(Protocol):
         class_name: str,
         schema: "ProtocolSchemaDefinition",
         base_class: str | None = None,
-    ) -> "Any":
+    ) -> object:
         """Generate a Pydantic model class from a schema definition.
 
         Args:
@@ -95,7 +95,7 @@ class ProtocolASTBuilder(Protocol):
         field_name: str,
         field_schema: "ProtocolSchemaDefinition",
         required: bool | None = None,
-    ) -> "Any":
+    ) -> object:
         """Generate a model field annotation.
 
         Args:
@@ -112,7 +112,7 @@ class ProtocolASTBuilder(Protocol):
         self,
         class_name: str,
         enum_values: list[str],
-    ) -> "Any":
+    ) -> object:
         """Generate an enum class from values.
 
         Args:
@@ -129,7 +129,7 @@ class ProtocolASTBuilder(Protocol):
         module: str,
         names: list[str],
         alias: str | None = None,
-    ) -> "Any":
+    ) -> object:
         """Generate an import statement.
 
         Args:
@@ -142,8 +142,24 @@ class ProtocolASTBuilder(Protocol):
         """
         ...
 
-    def generate_docstring(self, text: str) -> "Any": ...
-    def generate_field_default(self, default_value: Any) -> "Any":
+    def generate_docstring(self, text: str) -> object:
+        """Generate an AST expression node for a docstring.
+
+        Creates an AST Expr node containing a Constant string node,
+        suitable for use as a docstring in classes, functions, or modules.
+
+        Args:
+            text: The docstring text content.
+
+        Returns:
+            AST Expr node containing the docstring constant.
+
+        Raises:
+            ValueError: If text is empty or contains only whitespace.
+        """
+        ...
+
+    def generate_field_default(self, default_value: object) -> object:
         """Generate default value expression for a field.
 
         Args:
@@ -158,13 +174,13 @@ class ProtocolASTBuilder(Protocol):
         self,
         field_name: str,
         validator_type: str | None = None,
-    ) -> "Any":
+    ) -> object:
         """Generate a Pydantic validator method.
 
         Args:
             field_name: Field to validate
             validator_type: Type of validator
-                ...
+
         Returns:
             AST FunctionDef for validator
         """
@@ -173,29 +189,28 @@ class ProtocolASTBuilder(Protocol):
     def generate_type_annotation(
         self,
         type_string: str,
-    ) -> "Any":
+    ) -> object:
         """Generate type annotation from string.
 
         Args:
             type_string: Type as string
 
         Returns:
-            ...
+            AST expression for the type annotation
         """
         ...
 
     def generate_module(
         self,
-        imports: list["Any"],
-        classes: list["Any"],
+        imports: list[object],
+        classes: list[object],
         module_docstring: str | None = None,
-    ) -> "Any":
+    ) -> object:
         """Generate complete module AST.
 
         Args:
-            imports: Import statements
-                ...
-            classes: Class definitions
+            imports: Import statements (AST nodes)
+            classes: Class definitions (AST nodes)
             module_docstring: Optional module docstring
 
         Returns:

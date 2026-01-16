@@ -6,7 +6,7 @@ name-based resolution, and service instance management in dependency injection
 containers.
 """
 
-from typing import Any, Protocol, TypeVar, runtime_checkable
+from typing import Protocol, TypeVar, runtime_checkable
 
 T = TypeVar("T")
 
@@ -73,7 +73,7 @@ class ProtocolServiceResolver(Protocol):
         self,
         protocol_type_or_name: type[T] | str,
         service_name: str | None = None,
-    ) -> Any:
+    ) -> object:
         """
         Get service instance for protocol type or service name.
 

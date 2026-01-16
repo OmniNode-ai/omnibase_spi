@@ -1,12 +1,9 @@
+"""Protocol for Ollama client operations with local LLM models."""
+
+from __future__ import annotations
+
 from collections.abc import Iterator
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
-
-"""
-Protocol interface for Ollama client operations.
-
-Defines the standard interface for interacting with Ollama local LLM models
-for query enhancement, answer generation, and conversational capabilities.
-"""
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types.protocol_llm_types import (
@@ -90,7 +87,7 @@ class ProtocolOllamaClient(Protocol):
 
     async def get_model_capabilities(
         self, model_name: str
-    ) -> "ProtocolOllamaCapabilities":
+    ) -> ProtocolOllamaCapabilities:
         """Get capabilities for a specific Ollama model.
 
         Args:
@@ -112,7 +109,7 @@ class ProtocolOllamaClient(Protocol):
         """
         ...
 
-    async def health_check(self) -> "ProtocolLLMHealthResponse":
+    async def health_check(self) -> ProtocolLLMHealthResponse:
         """Check health and availability of Ollama service.
 
         Returns:
@@ -132,8 +129,8 @@ class ProtocolOllamaClient(Protocol):
     async def enhance_query(
         self,
         query: str,
-        context_documents: list["ProtocolRetrievedDocument"] | None = None,
-    ) -> "ProtocolQueryEnhancementResult":
+        context_documents: list[ProtocolRetrievedDocument] | None = None,
+    ) -> ProtocolQueryEnhancementResult:
         """Enhance a natural language query for better retrieval.
 
         Args:
@@ -165,9 +162,9 @@ class ProtocolOllamaClient(Protocol):
     async def generate_answer(
         self,
         query: str,
-        context_documents: list["ProtocolRetrievedDocument"],
+        context_documents: list[ProtocolRetrievedDocument],
         sources: list[str] | None = None,
-    ) -> "ProtocolAnswerGenerationResult":
+    ) -> ProtocolAnswerGenerationResult:
         """Generate an answer from retrieved context documents.
 
         Args:
@@ -201,7 +198,7 @@ class ProtocolOllamaClient(Protocol):
     def generate_answer_stream(
         self,
         query: str,
-        context_documents: list["ProtocolRetrievedDocument"],
+        context_documents: list[ProtocolRetrievedDocument],
         sources: list[str] | None = None,
     ) -> Iterator[str]:
         """Generate streaming answer from retrieved context documents.
@@ -231,7 +228,7 @@ class ProtocolOllamaClient(Protocol):
         """
         ...
 
-    def select_best_model(self, query_type: "LiteralQueryType") -> str:
+    def select_best_model(self, query_type: LiteralQueryType) -> str:
         """Select best Ollama model for query type.
 
         Args:

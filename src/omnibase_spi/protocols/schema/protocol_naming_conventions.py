@@ -29,7 +29,7 @@ class ProtocolNamingConventions(Protocol):
             input_state: Contains conversion parameters
 
         Returns:
-            ModelOnexOutputState with converted strings
+            ProtocolOutputState with converted strings
         """
         ...
 
@@ -77,9 +77,7 @@ class ProtocolNamingConventions(Protocol):
         """
         ...
 
-    def split_into_words(
-        self, input_state: ProtocolInputState
-    ) -> ProtocolOutputState:
+    def split_into_words(self, input_state: ProtocolInputState) -> ProtocolOutputState:
         """
         Split strings into constituent words handling various naming conventions.
 
@@ -87,6 +85,6 @@ class ProtocolNamingConventions(Protocol):
             input_state: Contains string splitting parameters
 
         Returns:
-            ProtocolOutputState with word list[Any]s
+            ProtocolOutputState with word lists
         """
         ...

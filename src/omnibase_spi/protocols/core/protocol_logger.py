@@ -1,3 +1,7 @@
+"""Protocol for structured logging with distributed tracing support."""
+
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 from uuid import UUID
 
@@ -104,7 +108,7 @@ class ProtocolLogger(Protocol):
         """
         ...
 
-    async def log(self, entry: "ProtocolLogEntry") -> None:
+    async def log(self, entry: ProtocolLogEntry) -> None:
         """Log a pre-structured log entry with full metadata.
 
         Performs structured logging using a complete log entry object that includes

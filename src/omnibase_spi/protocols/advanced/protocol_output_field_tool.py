@@ -1,7 +1,9 @@
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+"""Protocols for ONEX output field generation and model representation."""
+
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    pass
+    from omnibase_core.types import JsonType
 
 
 @runtime_checkable
@@ -19,7 +21,7 @@ class ProtocolModelOnexField(Protocol):
     """
 
     field_name: str
-    field_value: Any
+    field_value: object
     field_type: str
 
 
@@ -39,7 +41,7 @@ class ProtocolOutputFieldTool(Protocol):
         async def process_field(
             tool: ProtocolOutputFieldTool,
             state: dict[str, "ContextValue"],
-            input_state: dict[str, Any]
+            input_state: "JsonType"
         ) -> "ProtocolModelOnexField":
             # Generate output field from state transformation
             field = await tool(state, input_state)
@@ -65,5 +67,24 @@ class ProtocolOutputFieldTool(Protocol):
     """
 
     async def __call__(
-        self, state: Any, input_state_dict: dict[str, Any]
-    ) -> "ProtocolModelOnexField": ...
+        self, state: object, input_state_dict: "JsonType"
+    ) -> "ProtocolModelOnexField":
+        """Generate an output field from state and input data.
+
+        Transforms the current state and input dictionary into a structured
+        ONEX field model containing the field name, value, and type information.
+
+        Args:
+            state: The current workflow state object containing context values.
+            input_state_dict: JSON-compatible input dictionary for field generation.
+
+        Returns:
+            A ProtocolModelOnexField containing field_name, field_value, and field_type.
+
+        Raises:
+            ValueError: If the input state dictionary is invalid or missing
+                required data for field generation.
+            TypeError: If state or input_state_dict are of unexpected types
+                that cannot be processed.
+        """
+        ...

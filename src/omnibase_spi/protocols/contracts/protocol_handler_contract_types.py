@@ -29,7 +29,9 @@ Note:
 
 from __future__ import annotations
 
-from typing import Any, Literal, Protocol, runtime_checkable
+from typing import Literal, Protocol, runtime_checkable
+
+from omnibase_core.types import JsonType
 
 # ==============================================================================
 # Supporting Protocol Types
@@ -63,32 +65,88 @@ class ProtocolDescriptorRetryPolicy(Protocol):
 
     @property
     def enabled(self) -> bool:
-        """Whether retry is enabled."""
+        """Whether retry is enabled.
+
+        Returns:
+            True if retry is enabled, False otherwise.
+
+        Raises:
+            This property should not raise exceptions. Implementations must
+            return a valid boolean value.
+        """
         ...
 
     @property
     def max_retries(self) -> int:
-        """Maximum number of retry attempts."""
+        """Maximum number of retry attempts.
+
+        Returns:
+            Non-negative integer specifying the maximum retry count.
+
+        Raises:
+            This property should not raise exceptions. Implementations must
+            return a valid non-negative integer.
+        """
         ...
 
     @property
     def backoff_strategy(self) -> Literal["fixed", "exponential", "linear"]:
-        """Strategy for increasing delay between retries."""
+        """Strategy for increasing delay between retries.
+
+        Backoff Strategies:
+            - fixed: Same delay between each retry attempt
+            - exponential: Delay doubles after each attempt
+            - linear: Delay increases linearly with each attempt
+
+        Returns:
+            One of "fixed", "exponential", or "linear".
+
+        Raises:
+            This property should not raise exceptions. Implementations must
+            return a valid backoff strategy literal.
+        """
         ...
 
     @property
     def base_delay_ms(self) -> int:
-        """Initial delay in milliseconds before first retry."""
+        """Initial delay in milliseconds before first retry.
+
+        Returns:
+            Positive integer specifying the base delay in milliseconds.
+
+        Raises:
+            This property should not raise exceptions. Implementations must
+            return a valid positive integer.
+        """
         ...
 
     @property
     def max_delay_ms(self) -> int:
-        """Maximum delay in milliseconds between retries."""
+        """Maximum delay in milliseconds between retries.
+
+        Returns:
+            Positive integer specifying the maximum delay cap in milliseconds.
+
+        Raises:
+            This property should not raise exceptions. Implementations must
+            return a valid positive integer.
+        """
         ...
 
     @property
     def jitter_factor(self) -> float:
-        """Random jitter factor (0.0-1.0) to prevent thundering herd."""
+        """Random jitter factor to prevent thundering herd.
+
+        Jitter adds randomness to retry delays to prevent multiple clients
+        from retrying simultaneously after a shared failure.
+
+        Returns:
+            Float between 0.0 and 1.0 representing the jitter percentage.
+
+        Raises:
+            This property should not raise exceptions. Implementations must
+            return a valid float value.
+        """
         ...
 
 
@@ -117,27 +175,80 @@ class ProtocolDescriptorCircuitBreaker(Protocol):
 
     @property
     def enabled(self) -> bool:
-        """Whether circuit breaker is enabled."""
+        """Whether circuit breaker is enabled.
+
+        Returns:
+            True if circuit breaker protection is enabled, False otherwise.
+
+        Raises:
+            This property should not raise exceptions. Implementations must
+            return a valid boolean value.
+        """
         ...
 
     @property
     def failure_threshold(self) -> int:
-        """Number of consecutive failures before opening the circuit."""
+        """Number of consecutive failures before opening the circuit.
+
+        When the failure count reaches this threshold, the circuit opens
+        and subsequent requests fail immediately without attempting execution.
+
+        Returns:
+            Positive integer specifying the failure threshold count.
+
+        Raises:
+            This property should not raise exceptions. Implementations must
+            return a valid positive integer.
+        """
         ...
 
     @property
     def success_threshold(self) -> int:
-        """Number of successes needed to close circuit from half-open state."""
+        """Number of successes needed to close circuit from half-open state.
+
+        When the circuit is half-open, this many consecutive successes
+        are required before the circuit fully closes and normal operation
+        resumes.
+
+        Returns:
+            Positive integer specifying the success threshold count.
+
+        Raises:
+            This property should not raise exceptions. Implementations must
+            return a valid positive integer.
+        """
         ...
 
     @property
     def timeout_ms(self) -> int:
-        """Time in milliseconds before attempting to close the circuit."""
+        """Time in milliseconds before attempting to close the circuit.
+
+        After the circuit opens, it remains open for this duration before
+        transitioning to half-open state where test requests are allowed.
+
+        Returns:
+            Positive integer specifying the timeout duration in milliseconds.
+
+        Raises:
+            This property should not raise exceptions. Implementations must
+            return a valid positive integer.
+        """
         ...
 
     @property
     def half_open_requests(self) -> int:
-        """Number of test requests allowed when circuit is half-open."""
+        """Number of test requests allowed when circuit is half-open.
+
+        In the half-open state, this many requests are allowed through
+        to test if the underlying service has recovered.
+
+        Returns:
+            Positive integer specifying the number of test requests allowed.
+
+        Raises:
+            This property should not raise exceptions. Implementations must
+            return a valid positive integer.
+        """
         ...
 
 
@@ -159,23 +270,55 @@ class ProtocolCapabilityRequirementSet(Protocol):
     """
 
     @property
-    def must(self) -> dict[str, Any]:
-        """Requirements that must be satisfied for capability matching."""
+    def must(self) -> JsonType:
+        """Requirements that must be satisfied for capability matching.
+
+        Returns:
+            JSON-compatible dictionary of mandatory requirements.
+
+        Raises:
+            This property should not raise exceptions. Implementations must
+            return a valid JSON-compatible value.
+        """
         ...
 
     @property
-    def prefer(self) -> dict[str, Any]:
-        """Requirements that are preferred but not mandatory."""
+    def prefer(self) -> JsonType:
+        """Requirements that are preferred but not mandatory.
+
+        Returns:
+            JSON-compatible dictionary of preferred requirements.
+
+        Raises:
+            This property should not raise exceptions. Implementations must
+            return a valid JSON-compatible value.
+        """
         ...
 
     @property
-    def forbid(self) -> dict[str, Any]:
-        """Requirements that must not be present."""
+    def forbid(self) -> JsonType:
+        """Requirements that must not be present.
+
+        Returns:
+            JSON-compatible dictionary of forbidden requirements.
+
+        Raises:
+            This property should not raise exceptions. Implementations must
+            return a valid JSON-compatible value.
+        """
         ...
 
     @property
-    def hints(self) -> dict[str, Any]:
-        """Additional hints for capability selection."""
+    def hints(self) -> JsonType:
+        """Additional hints for capability selection.
+
+        Returns:
+            JSON-compatible dictionary of selection hints.
+
+        Raises:
+            This property should not raise exceptions. Implementations must
+            return a valid JSON-compatible value.
+        """
         ...
 
 
@@ -496,7 +639,7 @@ class ProtocolCapabilityDependency(Protocol):
                 return "auto_if_unique"
 
             @property
-            def vendor_hints(self) -> dict[str, Any]:
+            def vendor_hints(self) -> "JsonType":
                 return {"prefer_read_replica": True}
 
             @property
@@ -643,7 +786,7 @@ class ProtocolCapabilityDependency(Protocol):
         ...
 
     @property
-    def vendor_hints(self) -> dict[str, Any]:
+    def vendor_hints(self) -> JsonType:
         """
         Optional vendor-specific configuration hints.
 

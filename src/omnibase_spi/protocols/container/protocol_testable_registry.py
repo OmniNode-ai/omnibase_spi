@@ -6,7 +6,10 @@ implementation-specific details. This protocol enables testing and cross-compone
 registry testing while maintaining proper architectural boundaries.
 """
 
-from typing import Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
+
+if TYPE_CHECKING:
+    from omnibase_core.types import JsonType
 
 
 @runtime_checkable
@@ -93,7 +96,7 @@ class ProtocolTestableRegistry(Protocol):
         """
         ...
 
-    async def get_node(self, node_id: str) -> dict[str, Any]:
+    async def get_node(self, node_id: str) -> "JsonType":
         """
         Get a node from the testable registry.
 

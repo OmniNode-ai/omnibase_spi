@@ -1,12 +1,29 @@
-"""Protocol for ONEX compute nodes."""
+"""Protocol for legacy ONEX compute nodes.
 
-from typing import Any, Protocol, runtime_checkable
+.. deprecated::
+    This module contains the legacy ONEX-specific compute node protocol.
+    For new implementations, use the canonical v0.3.0 protocol from
+    ``omnibase_spi.protocols.nodes.ProtocolComputeNode`` instead.
+"""
+
+from typing import Protocol, runtime_checkable
 
 
 @runtime_checkable
-class ProtocolComputeNode(Protocol):
+class ProtocolOnexComputeNodeLegacy(Protocol):
     """
-    Protocol for ONEX compute node implementations.
+    Legacy protocol for ONEX compute node implementations.
+
+    .. deprecated::
+        This is the legacy ONEX-specific compute node protocol with an
+        ``execute_compute()`` method signature. For new implementations,
+        use the canonical v0.3.0 protocol:
+        ``omnibase_spi.protocols.nodes.ProtocolComputeNode``
+
+        The v0.3.0 protocol provides:
+        - Typed ``execute()`` method with ``ModelComputeInput``/``ModelComputeOutput``
+        - Inheritance from ``ProtocolNode`` base protocol
+        - ``is_deterministic`` property for optimization hints
 
     Compute nodes perform pure computational transformations without side effects.
     They implement algorithms, data transformations, business logic, and
@@ -35,7 +52,7 @@ class ProtocolComputeNode(Protocol):
 
     Example Usage:
         ```python
-        from omnibase_spi.protocols.onex import ProtocolComputeNode
+        from omnibase_spi.protocols.onex import ProtocolOnexComputeNodeLegacy
 
         class MyCompute:
             async def execute_compute(self, contract: ComputeContract) -> ComputeResult:
@@ -52,8 +69,12 @@ class ProtocolComputeNode(Protocol):
 
         # Runtime validation
         compute = MyCompute()
-        assert isinstance(compute, ProtocolComputeNode)
+        assert isinstance(compute, ProtocolOnexComputeNodeLegacy)
         ```
+
+    See Also:
+        - ``omnibase_spi.protocols.nodes.ProtocolComputeNode``: Canonical v0.3.0 protocol
+        - ``omnibase_spi.protocols.nodes.ProtocolNode``: Base node protocol
 
     Common Patterns:
         - Data Transformation: Convert between formats or schemas
@@ -64,7 +85,7 @@ class ProtocolComputeNode(Protocol):
         - Enrichment: Add computed fields to data structures
     """
 
-    async def execute_compute(self, contract: Any) -> Any:
+    async def execute_compute(self, contract: object) -> object:
         """
         Execute compute workflow.
 

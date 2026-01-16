@@ -2091,8 +2091,27 @@ class TestProtocolCoverage:
     # These are documented here rather than failing the test to allow gradual cleanup
     KNOWN_DUPLICATE_PROTOCOLS: set[str] = {
         # ProtocolHandler exists in both discovery/ (generic handle() method) and
-        # handlers/ (initialize/shutdown/execute lifecycle) - different interfaces
+        # handlers/ (generic handler with handle() method) - different interfaces
         "ProtocolHandler",
+        # ProtocolMetadata exists in types/protocol_state_types.py (state metadata) and
+        # onex/protocol_validation.py (ONEX validation metadata) - different domains
+        "ProtocolMetadata",
+        # ProtocolSecurityContext exists in types/protocol_event_bus_types.py (event bus
+        # security) and onex/protocol_validation.py (ONEX validation security) - different
+        # domains
+        "ProtocolSecurityContext",
+        # ProtocolSystemEvent exists in types/protocol_state_types.py (state events) and
+        # types/protocol_event_bus_types.py (event bus events) - both event-related but
+        # serve different subsystems; consolidation may be considered
+        "ProtocolSystemEvent",
+        # ProtocolValidationReport exists in onex/protocol_validation.py (ONEX-specific
+        # validation reports) and validation/protocol_validation_orchestrator.py
+        # (orchestrator-specific reports) - different validation contexts
+        "ProtocolValidationReport",
+        # ProtocolValidationResult exists in onex/protocol_validation.py (ONEX-specific
+        # validation results) and validation/protocol_validation.py (general validation
+        # results) - different validation contexts
+        "ProtocolValidationResult",
     }
 
     def test_no_duplicate_protocol_definitions(self) -> None:

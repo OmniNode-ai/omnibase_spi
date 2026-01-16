@@ -1,31 +1,9 @@
-# === OmniNode:Metadata ===
-# author: OmniNode Team
-# copyright: OmniNode.ai
-# created_at: '2025-05-28T12:36:27.117773'
-# description: Stamped by ToolPython
-# entrypoint: python://protocol_directory_traverser
-# hash: 774dc0903eac6c14d4cd9a2aefb2642124debaed178d33f5e784de8bc43484b5
-# last_modified_at: '2025-05-29T14:14:00.213326+00:00'
-# lifecycle: active
-# meta_type: tool
-# metadata_version: 0.1.0
-# name: protocol_directory_traverser.py
-# namespace: python://omnibase.protocol.protocol_directory_traverser
-# owner: OmniNode Team
-# protocol_version: 0.1.0
-# runtime_language_hint: python>=3.11
-# schema_version: 0.1.0
-# state_contract: state_contract://default
-# tools: null
-# uuid: c5431a51-699a-4674-abd7-431b5ed0046a
-# version: 1.0.0
-# === /OmniNode:Metadata ===
+"""Protocol for directory traversal operations.
 
-
-"""
-Protocol for directory traversal operations.
 Defines a standardized interface for discovering and filtering files in directories.
 """
+
+from __future__ import annotations
 
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Protocol, TypeVar, runtime_checkable
@@ -50,7 +28,7 @@ class ProtocolDirectoryProcessingResult(Protocol):
     failed_files: int
     total_files: int
     processing_time_ms: float
-    file_results: list[dict[str, "ContextValue"]]
+    file_results: list[dict[str, ContextValue]]
     errors: list[str]
 
 
@@ -159,13 +137,13 @@ class ProtocolDirectoryTraverser(Protocol):
         ignore_file: str | None = None,
         dry_run: bool | None = None,
         max_file_size: int | None = None,
-    ) -> "ProtocolDirectoryProcessingResult":
+    ) -> ProtocolDirectoryProcessingResult:
         """
         Process all eligible files in a directory using the provided processor function.
 
         Args:
             directory: Directory to process
-            processor: Callable[..., Any]that processes each file and returns a result
+            processor: Function that processes each file and returns a result
             include_patterns: List of glob patterns to include
             exclude_patterns: List of glob patterns to exclude
             recursive: Whether to recursively traverse subdirectories

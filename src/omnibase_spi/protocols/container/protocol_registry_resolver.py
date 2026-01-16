@@ -1,3 +1,7 @@
+"""Protocol for dynamic registry resolution and configuration loading."""
+
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
@@ -76,7 +80,7 @@ class ProtocolRegistryResolver(Protocol):
 
     async def resolve_registry(
         self, registry_class: type, scenario_path: str | None = None
-    ) -> "ProtocolRegistry":
+    ) -> ProtocolRegistry:
         """
         Resolve a registry instance based on the provided parameters.
 

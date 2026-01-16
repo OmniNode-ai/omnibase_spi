@@ -1,31 +1,9 @@
-# === OmniNode:Metadata ===
-# author: OmniNode Team
-# copyright: OmniNode.ai
-# created_at: '2025-05-28T12:36:27.149237'
-# description: Stamped by ToolPython
-# entrypoint: python://protocol_file_discovery_source
-# hash: 1f955d05cee152b1d8c71c9c3acb4d21cff8a9d9bb41e61321744156585af270
-# last_modified_at: '2025-05-29T14:14:00.234355+00:00'
-# lifecycle: active
-# meta_type: tool
-# metadata_version: 0.1.0
-# name: protocol_file_discovery_source.py
-# namespace: python://omnibase.protocol.protocol_file_discovery_source
-# owner: OmniNode Team
-# protocol_version: 0.1.0
-# runtime_language_hint: python>=3.11
-# schema_version: 0.1.0
-# state_contract: state_contract://default
-# tools: null
-# uuid: 92b45720-e399-4b0b-bd1a-ae01bfb6be6c
-# version: 1.0.0
-# === /OmniNode:Metadata ===
+"""Protocol for file discovery sources (filesystem, .tree, hybrid, etc.).
 
-
-"""
-Protocol for file discovery sources (filesystem, .tree, hybrid, etc.).
 Defines a standardized interface for discovering and validating files for stamping/validation.
 """
+
+from __future__ import annotations
 
 from typing import Protocol, runtime_checkable
 
@@ -141,7 +119,7 @@ class ProtocolFileDiscoverySource(Protocol):
 
     async def validate_tree_sync(
         self, directory: str, tree_file: str
-    ) -> "ProtocolTreeSyncResult":
+    ) -> ProtocolTreeSyncResult:
         """
         Validate that the .tree file and filesystem are in sync.
 

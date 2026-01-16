@@ -1,12 +1,28 @@
-"""Protocol for ONEX orchestrator nodes."""
+"""Protocol for legacy ONEX orchestrator nodes.
 
-from typing import Any, Protocol, runtime_checkable
+.. deprecated::
+    This module contains the legacy ONEX-specific orchestrator protocol.
+    For v0.3.0 compliant code, use :class:`omnibase_spi.protocols.nodes.ProtocolOrchestratorNode`
+    which provides the canonical node interface with typed execute() methods.
+"""
+
+from typing import Protocol, runtime_checkable
 
 
 @runtime_checkable
-class ProtocolOrchestratorNode(Protocol):
+class ProtocolOnexOrchestratorNodeLegacy(Protocol):
     """
-    Protocol for ONEX orchestrator node implementations.
+    Legacy protocol for ONEX orchestrator node implementations.
+
+    .. deprecated::
+        This is a legacy ONEX-specific protocol with a simplified interface.
+        For new implementations, use the canonical v0.3.0 protocol:
+        :class:`omnibase_spi.protocols.nodes.ProtocolOrchestratorNode`
+
+        The v0.3.0 protocol in ``protocols.nodes`` provides:
+        - Inheritance from ProtocolNode base
+        - Typed execute() method signature
+        - Full integration with the node registry system
 
     Orchestrator nodes coordinate workflow execution across multiple nodes,
     managing task distribution, dependency resolution, and workflow state
@@ -34,7 +50,7 @@ class ProtocolOrchestratorNode(Protocol):
 
     Example Usage:
         ```python
-        from omnibase_spi.protocols.onex import ProtocolOrchestratorNode
+        from omnibase_spi.protocols.onex import ProtocolOnexOrchestratorNodeLegacy
 
         class MyOrchestrator:
             async def execute_orchestration(self, contract: WorkflowContract) -> WorkflowResult:
@@ -51,7 +67,7 @@ class ProtocolOrchestratorNode(Protocol):
 
         # Runtime validation
         orchestrator = MyOrchestrator()
-        assert isinstance(orchestrator, ProtocolOrchestratorNode)
+        assert isinstance(orchestrator, ProtocolOnexOrchestratorNodeLegacy)
         ```
 
     Integration:
@@ -60,9 +76,13 @@ class ProtocolOrchestratorNode(Protocol):
         - Dependency injection of supporting services
         - Health monitoring and metrics collection
         - Workflow event sourcing and state management
+
+    See Also:
+        - :class:`omnibase_spi.protocols.nodes.ProtocolOrchestratorNode`: Canonical v0.3.0 protocol
+        - :class:`omnibase_spi.protocols.nodes.ProtocolNode`: Base node protocol
     """
 
-    async def execute_orchestration(self, contract: Any) -> Any:
+    async def execute_orchestration(self, contract: object) -> object:
         """
         Execute orchestration workflow.
 

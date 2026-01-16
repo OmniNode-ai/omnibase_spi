@@ -9,7 +9,7 @@ Domain: Core validation orchestration and quality assurance
 Author: ONEX Framework Team
 """
 
-from typing import TYPE_CHECKING, Any, Protocol, TypeAlias, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, TypeAlias, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types.protocol_core_types import (
@@ -30,7 +30,13 @@ from omnibase_spi.protocols.types.protocol_core_types import (
     LiteralValidationSeverity,
 )
 
-ValidationTarget: TypeAlias = "ProtocolValidatable | Any"
+# ValidationTarget accepts any object for validation, not just ProtocolValidatable.
+# While ProtocolValidatable objects provide built-in validation capabilities,
+# validation rules often need to inspect arbitrary objects (configurations,
+# data structures, etc.) that don't implement the protocol. The `object` type
+# makes this explicit - validators should handle both protocol-conforming
+# objects and plain Python objects gracefully.
+ValidationTarget: TypeAlias = "ProtocolValidatable | object"
 
 
 @runtime_checkable

@@ -9,7 +9,7 @@ Domain: File Handling and Processing
 Author: ONEX Framework Team
 """
 
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.file_handling.protocol_file_type_handler import (
@@ -106,7 +106,7 @@ class ProtocolFileTypeHandlerRegistry(Protocol):
         source: str,
         priority: int | None = None,
         override: bool | None = None,
-        **handler_kwargs: Any,
+        **handler_kwargs: object,
     ) -> None:
         """
         Enhanced handler registration API supporting both extension-based and named registration.

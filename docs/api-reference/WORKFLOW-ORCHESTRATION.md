@@ -376,8 +376,12 @@ The ONEX framework defines four specialized node types for distributed workflow 
 
 ### Effect Node Protocol
 
+> **Note**: For new implementations, use the canonical v0.3.0 protocol at
+> `omnibase_spi.protocols.nodes.ProtocolEffectNode`. The legacy protocol
+> `ProtocolOnexEffectNodeLegacy` in `protocols.onex` is deprecated.
+
 ```python
-from omnibase_spi.protocols.onex import ProtocolEffectNode
+from omnibase_spi.protocols.nodes import ProtocolEffectNode
 
 @runtime_checkable
 class ProtocolEffectNode(Protocol):
@@ -407,15 +411,18 @@ class ProtocolEffectNode(Protocol):
     def node_type(self) -> str: ...
 ```
 
-### Compute Node Protocol
+### Compute Node Protocol (Legacy)
+
+> **Note**: This is the legacy ONEX-specific protocol. For new implementations,
+> use the canonical v0.3.0 protocol: `omnibase_spi.protocols.nodes.ProtocolComputeNode`
 
 ```python
-from omnibase_spi.protocols.onex import ProtocolComputeNode
+from omnibase_spi.protocols.onex import ProtocolOnexComputeNodeLegacy
 
 @runtime_checkable
-class ProtocolComputeNode(Protocol):
+class ProtocolOnexComputeNodeLegacy(Protocol):
     """
-    Protocol for ONEX compute node implementations.
+    Legacy protocol for ONEX compute node implementations.
 
     Compute nodes perform pure computational transformations without side effects.
     They implement algorithms, data transformations, business logic, and
@@ -508,9 +515,9 @@ class ProtocolOrchestratorNode(Protocol):
 ```python
 from omnibase_spi.protocols.onex import (
     ProtocolEffectNode,
-    ProtocolComputeNode,
+    ProtocolOnexComputeNodeLegacy,
     ProtocolReducerNode,
-    ProtocolOrchestratorNode
+    ProtocolOnexOrchestratorNodeLegacy,
 )
 
 # Effect Node: External API call

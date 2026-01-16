@@ -5,10 +5,10 @@ Defines the interface for analyzing, validating, and processing
 contract documents for code generation.
 """
 
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    pass
+    from omnibase_core.types import JsonType
 
 
 @runtime_checkable
@@ -174,13 +174,40 @@ class ProtocolContractModelSchema(Protocol):
     """
 
     type: str
-    properties: dict[str, Any]
+    properties: "JsonType"
     required: list[str]
     additional_properties: bool
 
-    async def validate(self, data: dict[str, Any]) -> bool: ...
+    async def validate(self, data: "JsonType") -> bool:
+        """Validate data against this schema.
 
-    async def to_dict(self) -> dict[str, Any]: ...
+        Checks that the provided data conforms to this schema's type,
+        properties, and required field constraints.
+
+        Args:
+            data: JSON-compatible data to validate against the schema.
+
+        Returns:
+            True if the data is valid according to this schema, False otherwise.
+
+        Raises:
+            May raise implementation-specific exceptions for validation errors.
+        """
+        ...
+
+    async def to_dict(self) -> "JsonType":
+        """Convert the schema to a dictionary representation.
+
+        Serializes the schema definition including type, properties,
+        required fields, and additional properties settings.
+
+        Returns:
+            JSON-compatible dictionary containing the complete schema definition.
+
+        Raises:
+            May raise implementation-specific exceptions for serialization errors.
+        """
+        ...
 
 
 @runtime_checkable
@@ -230,17 +257,56 @@ class ProtocolModelContractDocument(Protocol):
     node_version: str
     node_type: str
     description: str
-    input_state: dict[str, Any] | None
-    output_state: dict[str, Any] | None
-    definitions: dict[str, Any]
+    input_state: "JsonType | None"
+    output_state: "JsonType | None"
+    definitions: "JsonType"
 
-    async def validate(self) -> bool: ...
+    async def validate(self) -> bool:
+        """Validate the contract document structure.
+
+        Checks that the contract has valid metadata, properly formed
+        schemas, and internally consistent references.
+
+        Returns:
+            True if the contract is valid, False otherwise.
+
+        Raises:
+            May raise implementation-specific exceptions for validation errors.
+        """
+        ...
 
     async def get_schema(
         self, schema_name: str
-    ) -> "ProtocolContractModelSchema | None": ...
+    ) -> "ProtocolContractModelSchema | None":
+        """Retrieve a named schema from this contract document.
 
-    async def to_dict(self) -> dict[str, Any]: ...
+        Looks up a schema definition by name from the contract's
+        input/output states or shared definitions.
+
+        Args:
+            schema_name: Name of the schema to retrieve (e.g., 'InputState').
+
+        Returns:
+            The schema if found, None if no schema with that name exists.
+
+        Raises:
+            May raise implementation-specific exceptions for schema retrieval errors.
+        """
+        ...
+
+    async def to_dict(self) -> "JsonType":
+        """Convert the contract document to a dictionary representation.
+
+        Serializes the complete contract including node metadata, schemas,
+        and definitions for persistence or transmission.
+
+        Returns:
+            JSON-compatible dictionary containing the full contract specification.
+
+        Raises:
+            May raise implementation-specific exceptions for serialization errors.
+        """
+        ...
 
 
 @runtime_checkable
@@ -273,10 +339,14 @@ class ProtocolContractAnalyzer(Protocol):
         """Validate a contract for correctness and completeness.
 
         Args:
-            contract_path: Path to contract.yaml file
+            contract_path: Path to contract.yaml file.
 
         Returns:
-            ContractValidationResult with validation details
+            ContractValidationResult with validation details.
+
+        Raises:
+            FileNotFoundError: If contract file cannot be found.
+            ValueError: If contract contains invalid YAML or schema.
         """
         ...
 
@@ -284,10 +354,14 @@ class ProtocolContractAnalyzer(Protocol):
         """Analyze contract structure and gather statistics.
 
         Args:
-            contract_path: Path to contract.yaml file
+            contract_path: Path to contract.yaml file.
 
         Returns:
-            ContractInfo with analysis results
+            ContractInfo with analysis results.
+
+        Raises:
+            FileNotFoundError: If contract file cannot be found.
+            ValueError: If contract contains invalid YAML or schema.
         """
         ...
 
@@ -298,10 +372,13 @@ class ProtocolContractAnalyzer(Protocol):
         """Discover all $ref references in a contract.
 
         Args:
-            contract: Contract document to analyze
+            contract: Contract document to analyze.
 
         Returns:
-            List of discovered references with metadata
+            List of discovered references with metadata.
+
+        Raises:
+            ValueError: If contract contains malformed references.
         """
         ...
 
@@ -311,10 +388,13 @@ class ProtocolContractAnalyzer(Protocol):
         """Get all external file dependencies of a contract.
 
         Args:
-            contract: Contract document to analyze
+            contract: Contract document to analyze.
 
         Returns:
-            Set of external file paths referenced
+            Set of external file paths referenced.
+
+        Raises:
+            ValueError: If contract contains malformed external references.
         """
         ...
 
@@ -343,10 +423,13 @@ class ProtocolContractAnalyzer(Protocol):
         """Check for circular references in the contract.
 
         Args:
-            contract: Contract to check
+            contract: Contract to check.
 
         Returns:
-            List of circular reference paths found
+            List of circular reference paths found.
+
+        Raises:
+            ValueError: If contract contains malformed references.
         """
         ...
 
@@ -354,10 +437,13 @@ class ProtocolContractAnalyzer(Protocol):
         """Count total fields in a schema including nested objects.
 
         Args:
-            schema: Schema to count fields in
+            schema: Schema to count fields in.
 
         Returns:
-            Total field count
+            Total field count.
+
+        Raises:
+            ValueError: If schema structure is invalid or malformed.
         """
         ...
 
@@ -369,10 +455,13 @@ class ProtocolContractAnalyzer(Protocol):
         """Validate a schema object and return issues.
 
         Args:
-            schema: Schema to validate
-            location: Location path for error messages
+            schema: Schema to validate.
+            location: Location path for error messages.
 
         Returns:
-            Dict with 'errors', 'warnings', and 'info' lists
+            Dict with 'errors', 'warnings', and 'info' lists.
+
+        Raises:
+            ValueError: If schema structure is fundamentally invalid.
         """
         ...

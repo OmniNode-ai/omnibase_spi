@@ -29,6 +29,18 @@ from pathlib import Path
 import timeout_utils
 from timeout_utils import timeout_context
 
+# Known protocol name conflicts that are intentional and documented.
+# These are protocols with the same name but different signatures that serve
+# different purposes in different contexts. Add justification when adding entries.
+KNOWN_ALLOWED_CONFLICTS: set[str] = {
+    # ProtocolSystemEvent: types/protocol_state_types.py vs types/protocol_event_bus_types.py
+    # Both are event-related but serve different subsystems (state vs event bus)
+    "ProtocolSystemEvent",
+    # ProtocolValidationResult: onex/protocol_validation.py vs validation/protocol_validation.py
+    # ONEX-specific validation result vs general validation result
+    "ProtocolValidationResult",
+}
+
 
 @dataclass
 class ProtocolViolation:
@@ -780,6 +792,11 @@ def _filter_real_conflicts(
     """Filter out legitimate protocol variations from real naming conflicts."""
     if not protocols or len(protocols) < 2:
         return protocols
+
+    # Skip known allowed conflicts that are documented and intentional
+    protocol_name = protocols[0].name if protocols else ""
+    if protocol_name in KNOWN_ALLOWED_CONFLICTS:
+        return []  # Skip - this is a known, documented conflict
 
     # If protocols are in different domains, they might be legitimate variations
     domains = {p.domain for p in protocols}

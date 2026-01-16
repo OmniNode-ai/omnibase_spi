@@ -6,9 +6,12 @@ implementation-specific details. This protocol enables testing and cross-compone
 serialization while maintaining proper architectural boundaries.
 """
 
-from typing import Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import ContextValue
+
+if TYPE_CHECKING:
+    from omnibase_core.types import JsonType
 
 
 @runtime_checkable
@@ -92,22 +95,42 @@ class ProtocolCanonicalSerializer(Protocol):
     ONEX protocol interfaces.
     """
 
-    def canonicalize_metadata_block(self, metadata_block: dict[str, Any]) -> str:
-        """
-        Canonicalize a metadata block for deterministic serialization and hash computation.
-        - Accepts a dict[str, Any] or metadata block instance.
-        - Replaces volatile fields (e.g., hash, last_modified_at) with a protocol placeholder.
-        - Returns the canonical serialized string.
+    def canonicalize_metadata_block(self, metadata_block: "JsonType") -> str:
+        """Canonicalize a metadata block for deterministic serialization and hash computation.
+
+        Accepts a JsonType or metadata block instance and replaces volatile fields
+        (e.g., hash, last_modified_at) with a protocol placeholder.
+
+        Args:
+            metadata_block: The metadata block to canonicalize, as a JSON-compatible dict.
+
+        Returns:
+            The canonical serialized string representation.
+
+        Raises:
+            SPIError: When the metadata block cannot be serialized due to
+                invalid structure or unsupported content types.
         """
         ...
 
     def normalize_body(self, body: str) -> str:
-        """
-        Canonical normalization for file body content.
-        - Strips trailing spaces
-        - Normalizes all line endings to '\n'
+        """Canonical normalization for file body content.
+
+        Performs the following normalizations:
+        - Strips trailing spaces from each line
+        - Normalizes all line endings to LF ('\\n')
         - Ensures exactly one newline at EOF
-        - Asserts only '\n' line endings are present
+        - Validates only LF line endings are present
+
+        Args:
+            body: The raw body content string to normalize.
+
+        Returns:
+            The normalized body content with consistent line endings.
+
+        Raises:
+            SPIError: When the body content cannot be normalized due to
+                encoding issues or invalid content.
         """
         ...
 
@@ -122,8 +145,23 @@ class ProtocolCanonicalSerializer(Protocol):
         placeholder: str | None = None,
         **kwargs: "ContextValue",
     ) -> str:
-        """
-        Canonicalize the full content (block + body) for hash computation.
-        - Returns the canonical string to be hashed.
+        """Canonicalize the full content (block + body) for hash computation.
+
+        Combines the metadata block and body content into a single canonical
+        string suitable for deterministic hash computation.
+
+        Args:
+            block: The metadata block dictionary to canonicalize.
+            body: The body content string to normalize and include.
+            volatile_fields: Tuple of field names to replace with placeholders.
+            placeholder: Custom placeholder string for volatile fields.
+            **kwargs: Additional context values to include in canonicalization.
+
+        Returns:
+            The canonical string to be hashed.
+
+        Raises:
+            SPIError: When canonicalization fails due to invalid block structure,
+                body content issues, or incompatible context values.
         """
         ...

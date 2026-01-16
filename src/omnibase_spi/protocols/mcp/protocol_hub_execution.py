@@ -5,7 +5,7 @@ Defines the protocol interface for hub workflow execution,
 providing abstracted hub operations without direct tool imports.
 """
 
-from typing import Any, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 
@@ -75,7 +75,7 @@ class ProtocolHubExecution(Protocol):
         workflow_name: str,
         dry_run: bool | None = None,
         timeout: int | None = None,
-        parameters: dict[str, Any] | None = None,
+        parameters: dict[str, ContextValue] | None = None,
     ) -> ProtocolModelCliExecutionResult:
         """
         Execute a workflow in the specified domain hub.

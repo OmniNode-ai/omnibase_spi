@@ -4,7 +4,7 @@ Storage types for ONEX SPI interfaces.
 Domain: Storage and checkpoint management types
 """
 
-from typing import Any, Literal, Protocol, runtime_checkable
+from typing import Literal, Protocol, runtime_checkable
 from uuid import UUID
 
 from omnibase_spi.protocols.types.protocol_core_types import (
@@ -62,7 +62,7 @@ class ProtocolScalarValue(Protocol):
         ```
     """
 
-    value: Any
+    value: object
 
     async def to_primitive(self) -> str | int | float | bool | None: ...
 

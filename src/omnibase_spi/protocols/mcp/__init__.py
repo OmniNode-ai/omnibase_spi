@@ -52,14 +52,23 @@ from omnibase_spi.protocols.mcp.protocol_mcp_discovery import (
     ProtocolMCPDiscovery,
     ProtocolMCPServiceDiscovery,
 )
+from omnibase_spi.protocols.mcp.protocol_mcp_handler import (
+    ProtocolMCPHandler,
+)
 from omnibase_spi.protocols.mcp.protocol_mcp_monitor import (
     ProtocolMCPHealthMonitor,
     ProtocolMCPMonitor,
+)
+from omnibase_spi.protocols.mcp.protocol_mcp_node_adapter import (
+    ProtocolMCPNodeAdapter,
 )
 from omnibase_spi.protocols.mcp.protocol_mcp_registry import (
     ProtocolMCPRegistry,
     ProtocolMCPRegistryAdmin,
     ProtocolMCPRegistryMetricsOperations,
+)
+from omnibase_spi.protocols.mcp.protocol_mcp_schema_generator import (
+    ProtocolMCPSchemaGenerator,
 )
 from omnibase_spi.protocols.mcp.protocol_mcp_subsystem_client import (
     ProtocolMCPSubsystemClient,
@@ -80,11 +89,14 @@ from omnibase_spi.protocols.mcp.protocol_tool_discovery_service import (
 
 __all__ = [
     "ProtocolMCPDiscovery",
+    "ProtocolMCPHandler",
     "ProtocolMCPHealthMonitor",
     "ProtocolMCPMonitor",
+    "ProtocolMCPNodeAdapter",
     "ProtocolMCPRegistry",
     "ProtocolMCPRegistryAdmin",
     "ProtocolMCPRegistryMetricsOperations",
+    "ProtocolMCPSchemaGenerator",
     "ProtocolMCPServiceDiscovery",
     "ProtocolMCPSubsystemClient",
     "ProtocolMCPSubsystemConfig",

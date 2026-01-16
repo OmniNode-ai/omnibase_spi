@@ -6,8 +6,11 @@ Defines the minimal contract needed by security event collections and consumers.
 """
 
 from datetime import datetime
-from typing import Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 from uuid import UUID
+
+if TYPE_CHECKING:
+    from omnibase_core.types import JsonType
 
 
 @runtime_checkable
@@ -25,7 +28,7 @@ class ProtocolSecurityEvent(Protocol):
         ...
 
     @property
-    def event_type(self) -> Any:  # EnumSecurityEventType
+    def event_type(self) -> object:  # EnumSecurityEventType
         """Type of security event."""
         ...
 
@@ -40,7 +43,7 @@ class ProtocolSecurityEvent(Protocol):
         ...
 
     @property
-    def status(self) -> Any:  # EnumSecurityEventStatus
+    def status(self) -> object:  # EnumSecurityEventStatus
         """Event status."""
         ...
 
@@ -54,6 +57,6 @@ class ProtocolSecurityEvent(Protocol):
         """Node that generated the event."""
         ...
 
-    def model_dump(self) -> dict[str, Any]:
+    def model_dump(self) -> "JsonType":
         """Export event as dictionary."""
         ...

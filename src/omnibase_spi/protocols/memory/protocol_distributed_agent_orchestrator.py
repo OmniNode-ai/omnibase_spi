@@ -5,7 +5,7 @@ Defines the interface for orchestrating agents across multiple devices
 with location-aware routing, failover, and load balancing capabilities.
 """
 
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 from omnibase_spi.protocols.memory.protocol_agent_manager import (
     ProtocolAgentHealthStatus,
@@ -15,6 +15,8 @@ from omnibase_spi.protocols.memory.protocol_agent_manager import (
 # Protocol definitions for type checking
 if TYPE_CHECKING:
     from typing import Literal
+
+    from omnibase_core.types import JsonType
 
     EnumAgentCapability = Literal["capability_placeholder"]
 
@@ -49,7 +51,7 @@ class ProtocolDistributedAgentOrchestrator(Protocol):
         system_prompt: str | None = None,
         prefer_local: bool | None = None,
         required_capabilities: list["EnumAgentCapability"] | None = None,
-    ) -> Any:
+    ) -> object:
         """
         Route a task to the most appropriate agent.
 
@@ -88,7 +90,7 @@ class ProtocolDistributedAgentOrchestrator(Protocol):
         """
         ...
 
-    async def get_agent_summary(self) -> dict[str, Any]:
+    async def get_agent_summary(self) -> "JsonType":
         """
         Get summary of all agents and their status.
 

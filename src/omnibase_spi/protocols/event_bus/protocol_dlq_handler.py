@@ -8,7 +8,10 @@ Created: 2025-10-18
 Reference: EVENT_BUS_ARCHITECTURE.md Phase 1
 """
 
-from typing import Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
+
+if TYPE_CHECKING:
+    from omnibase_core.types import JsonType
 
 
 @runtime_checkable
@@ -124,7 +127,7 @@ class ProtocolDLQHandler(Protocol):
 
     async def reprocess_dlq(
         self, dlq_topic: str, limit: int | None = None
-    ) -> dict[str, Any]:
+    ) -> "JsonType":
         """
         Reprocess messages from specific DLQ topic.
 
@@ -155,7 +158,7 @@ class ProtocolDLQHandler(Protocol):
         """
         ...
 
-    async def get_metrics(self) -> dict[str, Any]:
+    async def get_metrics(self) -> "JsonType":
         """
         Get DLQ metrics.
 
@@ -184,7 +187,7 @@ class ProtocolDLQHandler(Protocol):
         """
         ...
 
-    async def get_dlq_summary(self) -> dict[str, Any]:
+    async def get_dlq_summary(self) -> "JsonType":
         """
         Get summary of DLQ status.
 

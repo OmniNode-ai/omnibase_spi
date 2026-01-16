@@ -225,7 +225,7 @@ class ProtocolModelJsonSerializable(Protocol):
     Marker protocol for objects that can be safely serialized to JSON.
     Used throughout ONEX for data interchange and persistence.
     Built-in types that implement this: str, int, float, bool,
-    list[Any], dict[str, Any], None.
+    list, dict, None. Use JsonType from omnibase_core.types for type hints.
 
     Key Features:
         - JSON serialization guarantee

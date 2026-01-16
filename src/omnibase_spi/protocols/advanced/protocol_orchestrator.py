@@ -1,26 +1,10 @@
-# === OmniNode:Metadata ===
-# author: OmniNode Team
-# copyright: OmniNode.ai
-# created_at: '2025-05-28T12:36:27.245096'
-# description: Stamped by ToolPython
-# entrypoint: python://protocol_orchestrator
-# hash: 97f3deb8b8a9392539a52dfda4cdc7af0929d195897f0a11b292637d0614a372
-# last_modified_at: '2025-05-29T14:14:00.303902+00:00'
-# lifecycle: active
-# meta_type: tool
-# metadata_version: 0.1.0
-# name: protocol_orchestrator.py
-# namespace: python://omnibase.protocol.protocol_orchestrator
-# owner: OmniNode Team
-# protocol_version: 0.1.0
-# runtime_language_hint: python>=3.11
-# schema_version: 0.1.0
-# state_contract: state_contract://default
-# tools: null
-# uuid: 4ea8f61f-93a5-4e91-91ad-75b22a6b4060
-# version: 1.0.0
-# === /OmniNode:Metadata ===
+"""Protocol definitions for workflow orchestration in ONEX systems.
 
+This module defines protocols for workflow graph representation, execution planning,
+and orchestration of complex multi-step workflows with dependency management.
+"""
+
+from __future__ import annotations
 
 from typing import Protocol, runtime_checkable
 
@@ -60,13 +44,40 @@ class ProtocolGraphModel(Protocol):
         - ProtocolOrchestrator: Graph execution orchestration
     """
 
-    nodes: list["ProtocolNodeModel"]
-    edges: list["ProtocolEdgeModel"]
+    nodes: list[ProtocolNodeModel]
+    edges: list[ProtocolEdgeModel]
     metadata: dict[str, object]
 
-    def validate(self) -> bool: ...
+    def validate(self) -> bool:
+        """Validate the workflow graph structure.
 
-    def to_dict(self) -> dict[str, object]: ...
+        Checks that all nodes and edges form a valid DAG with no cycles
+        and all edge references point to existing nodes.
+
+        Returns:
+            True if the graph is valid, False otherwise.
+
+        Raises:
+            SPIError: If validation encounters an unrecoverable error.
+            ValueError: If the graph contains invalid node or edge references.
+        """
+        ...
+
+    def to_dict(self) -> dict[str, object]:
+        """Convert the graph model to a dictionary representation.
+
+        Serializes the entire workflow graph including nodes, edges,
+        and metadata for persistence or transmission.
+
+        Returns:
+            Dictionary containing 'nodes', 'edges', and 'metadata' keys
+            with their respective serialized values.
+
+        Raises:
+            SPIError: If serialization fails due to invalid graph state.
+            ValueError: If nodes, edges, or metadata contain non-serializable values.
+        """
+        ...
 
 
 @runtime_checkable
@@ -107,9 +118,35 @@ class ProtocolNodeModel(Protocol):
     configuration: dict[str, object]
     dependencies: list[str]
 
-    async def get_dependencies(self) -> list[str]: ...
+    async def get_dependencies(self) -> list[str]:
+        """Get the list of node IDs this node depends on.
 
-    def validate(self) -> bool: ...
+        Returns the declared dependencies that must complete before
+        this node can begin execution.
+
+        Returns:
+            List of node IDs that this node depends on.
+
+        Raises:
+            SPIError: If dependency resolution fails.
+            RuntimeError: If the node is in an invalid state for dependency lookup.
+        """
+        ...
+
+    def validate(self) -> bool:
+        """Validate the node configuration.
+
+        Checks that the node has valid configuration parameters
+        and properly formed dependency declarations.
+
+        Returns:
+            True if the node configuration is valid, False otherwise.
+
+        Raises:
+            SPIError: If validation encounters an unrecoverable error.
+            ValueError: If configuration contains invalid values or types.
+        """
+        ...
 
 
 @runtime_checkable
@@ -150,7 +187,21 @@ class ProtocolEdgeModel(Protocol):
     edge_type: str
     metadata: dict[str, object]
 
-    def to_dict(self) -> dict[str, object]: ...
+    def to_dict(self) -> dict[str, object]:
+        """Convert the edge model to a dictionary representation.
+
+        Serializes the edge including source, target, type, and metadata
+        for persistence or transmission.
+
+        Returns:
+            Dictionary containing 'source', 'target', 'edge_type', and
+            'metadata' keys with their respective values.
+
+        Raises:
+            SPIError: If serialization fails due to invalid edge state.
+            ValueError: If metadata contains non-serializable values.
+        """
+        ...
 
 
 @runtime_checkable
@@ -189,12 +240,38 @@ class ProtocolPlanModel(Protocol):
     """
 
     plan_id: str
-    steps: list["ProtocolStepModel"]
+    steps: list[ProtocolStepModel]
     dependencies: dict[str, list[str]]
 
-    async def get_execution_order(self) -> list[str]: ...
+    async def get_execution_order(self) -> list[str]:
+        """Compute the optimal execution order for steps in this plan.
 
-    def validate(self) -> bool: ...
+        Analyzes step dependencies to produce a topologically sorted order
+        that respects all dependency constraints while maximizing parallelism.
+
+        Returns:
+            List of step IDs in valid execution order.
+
+        Raises:
+            SPIError: If execution order cannot be determined.
+            ValueError: If the plan contains circular dependencies.
+        """
+        ...
+
+    def validate(self) -> bool:
+        """Validate the execution plan structure and consistency.
+
+        Checks that all steps are valid, dependencies are resolvable,
+        and the plan can be executed without conflicts.
+
+        Returns:
+            True if the plan is valid and ready for execution.
+
+        Raises:
+            SPIError: If validation encounters an unrecoverable error.
+            ValueError: If the plan contains invalid step references or dependencies.
+        """
+        ...
 
 
 @runtime_checkable
@@ -236,7 +313,21 @@ class ProtocolStepModel(Protocol):
     operation: str
     parameters: dict[str, object]
 
-    async def execute(self) -> object: ...
+    async def execute(self) -> object:
+        """Execute this step and return the result.
+
+        Performs the operation specified by this step on the target node
+        using the configured parameters.
+
+        Returns:
+            The result of step execution, type depends on the operation.
+
+        Raises:
+            SPIError: If step execution fails.
+            RuntimeError: If the step is in an invalid state for execution.
+            TimeoutError: If step execution exceeds the configured timeout.
+        """
+        ...
 
 
 @runtime_checkable
@@ -283,9 +374,32 @@ class ProtocolOrchestratorResultModel(Protocol):
     output_data: dict[str, object]
     execution_time: float
 
-    async def get_summary(self) -> dict[str, object]: ...
+    async def get_summary(self) -> dict[str, object]:
+        """Generate a summary of the orchestration result.
 
-    def has_failures(self) -> bool: ...
+        Compiles execution statistics, timing information, and outcome
+        details into a comprehensive summary for reporting and analysis.
+
+        Returns:
+            Dictionary containing execution summary with keys for success rate,
+            timing metrics, step counts, and any error details.
+
+        Raises:
+            SPIError: If summary generation fails.
+            RuntimeError: If the result is in an incomplete state.
+        """
+        ...
+
+    def has_failures(self) -> bool:
+        """Check whether any steps failed during execution.
+
+        Provides a quick check for workflow failure without examining
+        the full failed_steps list.
+
+        Returns:
+            True if one or more steps failed during execution.
+        """
+        ...
 
 
 @runtime_checkable
@@ -338,8 +452,42 @@ class ProtocolOrchestrator(Protocol):
         - ProtocolDirectKnowledgePipeline: Workflow execution tracking
     """
 
-    def plan(self, graph: ProtocolGraphModel) -> list[ProtocolPlanModel]: ...
+    def plan(self, graph: ProtocolGraphModel) -> list[ProtocolPlanModel]:
+        """Generate execution plans from a workflow graph.
+
+        Analyzes the graph structure to produce one or more execution plans
+        that respect dependencies while optimizing for parallel execution.
+
+        Args:
+            graph: The workflow graph to plan execution for.
+
+        Returns:
+            List of execution plans that cover all nodes in the graph.
+
+        Raises:
+            SPIError: If planning fails due to invalid graph structure.
+            ValueError: If the graph is empty or contains unresolvable dependencies.
+        """
+        ...
 
     async def execute(
         self, plan: list[ProtocolPlanModel]
-    ) -> ProtocolOrchestratorResultModel: ...
+    ) -> ProtocolOrchestratorResultModel:
+        """Execute a list of workflow plans and return aggregated results.
+
+        Coordinates execution of all steps across all plans, managing
+        dependencies, parallelism, and failure handling.
+
+        Args:
+            plan: List of execution plans to execute.
+
+        Returns:
+            Aggregated result containing success status, executed steps,
+            failed steps, output data, and timing information.
+
+        Raises:
+            SPIError: If orchestration encounters an unrecoverable error.
+            RuntimeError: If execution is interrupted or cancelled.
+            TimeoutError: If overall execution exceeds the configured timeout.
+        """
+        ...

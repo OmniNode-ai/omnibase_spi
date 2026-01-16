@@ -4,7 +4,10 @@ Discovery Client Protocol for ONEX Event-Driven Service Discovery
 Defines the protocol interface for discovery client implementations.
 """
 
-from typing import Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
+
+if TYPE_CHECKING:
+    from omnibase_core.types import JsonType
 
 
 @runtime_checkable
@@ -43,7 +46,7 @@ class ProtocolDiscoveredTool(Protocol):
         ...
 
     @property
-    def metadata(self) -> dict[str, Any]:
+    def metadata(self) -> "dict[str, JsonType]":
         """Tool metadata."""
         ...
 
@@ -107,7 +110,7 @@ class ProtocolDiscoveryClient(Protocol):
 
     async def discover_tools(
         self,
-        filters: dict[str, Any] | None = None,
+        filters: "dict[str, JsonType] | None" = None,
         timeout: float | None = None,
         max_results: int | None = None,
         include_metadata: bool | None = None,
@@ -138,7 +141,7 @@ class ProtocolDiscoveryClient(Protocol):
         self,
         protocol: str,
         timeout: float | None = None,
-        **kwargs: Any,
+        **kwargs: object,
     ) -> list[ProtocolDiscoveredTool]:
         """
         Convenience method to discover tools by protocol.
@@ -157,7 +160,7 @@ class ProtocolDiscoveryClient(Protocol):
         self,
         tags: list[str],
         timeout: float | None = None,
-        **kwargs: Any,
+        **kwargs: object,
     ) -> list[ProtocolDiscoveredTool]:
         """
         Convenience method to discover tools by tags.
@@ -175,7 +178,7 @@ class ProtocolDiscoveryClient(Protocol):
     async def discover_healthy_tools(
         self,
         timeout: float | None = None,
-        **kwargs: Any,
+        **kwargs: object,
     ) -> list[ProtocolDiscoveredTool]:
         """
         Convenience method to discover only healthy tools.
@@ -213,7 +216,7 @@ class ProtocolDiscoveryClient(Protocol):
         """
         ...
 
-    async def get_client_stats(self) -> dict[str, Any]:
+    async def get_client_stats(self) -> "dict[str, JsonType]":
         """
         Get client statistics.
 

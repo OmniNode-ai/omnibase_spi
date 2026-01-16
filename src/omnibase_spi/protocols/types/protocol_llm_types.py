@@ -4,10 +4,14 @@ LLM (Large Language Model) types for ONEX SPI interfaces.
 This module defines protocol types for LLM operations including model providers,
 query processing, conversation management, and health monitoring.
 
-All types follow the zero-dependency principle and use strong typing without Any.
+All types follow the zero-dependency principle and use strong typing with JsonType
+from omnibase_core.types for flexible dictionary values.
 """
 
-from typing import Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
+
+if TYPE_CHECKING:
+    from omnibase_core.types import JsonType
 
 # Enum-like types for LLM operations
 LiteralQueryType = str
@@ -69,8 +73,8 @@ class ProtocolLLMRequest(Protocol):
         ...
 
     @property
-    def parameters(self) -> dict[str, Any]:
-        """Generation parameters."""
+    def parameters(self) -> "JsonType":
+        """Generation parameters as JSON-compatible dictionary."""
         ...
 
     @property
@@ -104,8 +108,8 @@ class ProtocolLLMResponse(Protocol):
         ...
 
     @property
-    def usage_statistics(self) -> dict[str, Any]:
-        """Usage statistics (tokens, time, etc.)."""
+    def usage_statistics(self) -> "JsonType":
+        """Usage statistics (tokens, time, etc.) as JSON-compatible dictionary."""
         ...
 
     @property
@@ -114,8 +118,8 @@ class ProtocolLLMResponse(Protocol):
         ...
 
     @property
-    def response_metadata(self) -> dict[str, Any]:
-        """Additional response metadata."""
+    def response_metadata(self) -> "JsonType":
+        """Additional response metadata as JSON-compatible dictionary."""
         ...
 
 
@@ -208,13 +212,13 @@ class ProtocolAnswerGenerationResult(Protocol):
         ...
 
     @property
-    def source_documents(self) -> list[dict[str, Any]]:
-        """Source documents used for generation."""
+    def source_documents(self) -> "list[JsonType]":
+        """Source documents used for generation as JSON-compatible objects."""
         ...
 
     @property
-    def generation_metadata(self) -> dict[str, Any]:
-        """Metadata about the generation process."""
+    def generation_metadata(self) -> "JsonType":
+        """Metadata about the generation process as JSON-compatible dictionary."""
         ...
 
 
@@ -233,8 +237,8 @@ class ProtocolConversationContext(Protocol):
         ...
 
     @property
-    def messages(self) -> list[dict[str, Any]]:
-        """Conversation message history."""
+    def messages(self) -> "list[JsonType]":
+        """Conversation message history as JSON-compatible objects."""
         ...
 
     @property
@@ -273,8 +277,8 @@ class ProtocolOllamaCapabilities(Protocol):
         ...
 
     @property
-    def system_info(self) -> dict[str, Any]:
-        """System information."""
+    def system_info(self) -> "JsonType":
+        """System information as JSON-compatible dictionary."""
         ...
 
 
@@ -306,8 +310,8 @@ class ProtocolQueryEnhancementResult(Protocol):
         ...
 
     @property
-    def enhancement_metadata(self) -> dict[str, Any]:
-        """Metadata about the enhancement process."""
+    def enhancement_metadata(self) -> "JsonType":
+        """Metadata about the enhancement process as JSON-compatible dictionary."""
         ...
 
 
@@ -331,8 +335,8 @@ class ProtocolRetrievedDocument(Protocol):
         ...
 
     @property
-    def metadata(self) -> dict[str, Any]:
-        """Document metadata."""
+    def metadata(self) -> "JsonType":
+        """Document metadata as JSON-compatible dictionary."""
         ...
 
     @property

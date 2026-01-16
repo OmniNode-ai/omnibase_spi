@@ -1,28 +1,15 @@
-# === OmniNode:Metadata ===
-# author: OmniNode Team
-# copyright: OmniNode.ai
-# created_at: '2025-05-28T13:24:08.153817'
-# description: Stamped by ToolPython
-# entrypoint: python://protocol_stamper
-# hash: 03d05f8af913336b06a9f083bcd45d5dc63dbb479b534d62047908932cbbf0ab
-# last_modified_at: '2025-05-29T14:14:00.352908+00:00'
-# lifecycle: active
-# meta_type: tool
-# metadata_version: 0.1.0
-# name: protocol_stamper.py
-# namespace: python://omnibase.protocol.protocol_stamper
-# owner: OmniNode Team
-# protocol_version: 0.1.0
-# runtime_language_hint: python>=3.11
-# schema_version: 0.1.0
-# state_contract: state_contract://default
-# tools: {}
-# uuid: 4b93002d-dee8-4272-a3b6-d17d4ce909d7
-# version: 1.0.0
-# === /OmniNode:Metadata ===
+"""Protocol for ONEX metadata stamping operations.
 
+This module defines the interface for stamping files with ONEX metadata blocks,
+including cryptographic hashes, version information, and lifecycle tracking.
+"""
 
-from typing import Any, Literal, Protocol, runtime_checkable
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Literal, Protocol, runtime_checkable
+
+if TYPE_CHECKING:
+    pass
 
 from omnibase_spi.protocols.types import ProtocolResult
 
@@ -46,9 +33,25 @@ class ProtocolTemplateTypeEnum(Protocol):
     value: str
     name: str
 
-    def __str__(self) -> str: ...
+    def __str__(self) -> str:
+        """Return string representation of the template type.
 
-    async def get_template_config(self) -> dict[str, object]: ...
+        Returns:
+            The template type value as a string (e.g., "MINIMAL", "STANDARD").
+        """
+        ...
+
+    async def get_template_config(self) -> dict[str, object]:
+        """Retrieve the configuration for this template type.
+
+        Returns:
+            Dictionary containing template configuration options including
+            fields to include, formatting options, and metadata schema.
+
+        Raises:
+            ValueError: If the template type is not recognized.
+        """
+        ...
 
 
 @runtime_checkable
@@ -97,20 +100,42 @@ class ProtocolStamper(Protocol):
     """
 
     async def stamp(self, path: str) -> ProtocolResult:
-        """Stamp an ONEX metadata file at the given path."""
+        """Stamp an ONEX metadata file at the given path.
+
+        Generates and injects ONEX metadata block into the specified file,
+        including cryptographic hash, version information, and lifecycle data.
+
+        Args:
+            path: Absolute or relative path to the file to stamp.
+
+        Returns:
+            ProtocolResult with success status and stamped metadata details
+            including the generated hash, timestamp, and version information.
+
+        Raises:
+            FileNotFoundError: If the specified path does not exist.
+            PermissionError: If the file cannot be read or written.
+            ValueError: If the file format is not supported for stamping.
+        """
         ...
 
     async def stamp_file(
         self, file_path: str, metadata_block: dict[str, Any]
     ) -> ProtocolResult:
-        """
-        Stamp the file with a metadata block, replacing any existing block.
+        """Stamp the file with a metadata block, replacing any existing block.
 
         Args:
-            file_path: Path to file to stamp
-            metadata_block: Metadata dictionary to inject
+            file_path: Path to the file to stamp.
+            metadata_block: Metadata dictionary to inject into the file.
 
         Returns:
-            ProtocolResult describing the operation result
+            ProtocolResult with success status and operation details
+            including the injected metadata summary.
+
+        Raises:
+            FileNotFoundError: If the specified file path does not exist.
+            PermissionError: If the file cannot be read or written.
+            ValueError: If the file format is not supported for stamping
+                or the metadata block is invalid.
         """
         ...

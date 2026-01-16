@@ -1,3 +1,7 @@
+"""Protocols for event bus credentials, topic configuration, and pub/sub operations."""
+
+from __future__ import annotations
+
 from collections.abc import Awaitable, Callable
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
@@ -24,7 +28,7 @@ class ProtocolEventBusCredentials(Protocol):
     """Client private key path for TLS auth."""
     ca: str | None
     """Certificate authority path for TLS verification."""
-    extra: dict[str, "ContextValue"] | None
+    extra: dict[str, ContextValue] | None
     """Additional provider-specific credential fields."""
 
     async def validate_credentials(self) -> bool:
@@ -132,7 +136,7 @@ class ProtocolTopicConfig(Protocol):
         """
         ...
 
-    def to_backend_config(self) -> dict[str, "ContextValue"]:
+    def to_backend_config(self) -> dict[str, ContextValue]:
         """Convert to backend-specific configuration dictionary.
 
         Returns:
@@ -162,7 +166,7 @@ class ProtocolEventPubSub(Protocol):
         """
         ...
 
-    async def publish(self, event: "ProtocolEvent") -> None:
+    async def publish(self, event: ProtocolEvent) -> None:
         """Publish an event to the bus.
 
         This is an async method that publishes an event and waits for
@@ -179,7 +183,7 @@ class ProtocolEventPubSub(Protocol):
         """
         ...
 
-    async def publish_async(self, event: "ProtocolEvent") -> None:
+    async def publish_async(self, event: ProtocolEvent) -> None:
         """Publish an event to the bus with fire-and-forget semantics.
 
         This method queues the event for publication without waiting for
@@ -197,7 +201,7 @@ class ProtocolEventPubSub(Protocol):
         """
         ...
 
-    async def subscribe(self, callback: Callable[["ProtocolEvent"], None]) -> None:
+    async def subscribe(self, callback: Callable[[ProtocolEvent], None]) -> None:
         """Subscribe to events with a synchronous callback.
 
         The callback will be invoked synchronously when events are received.
@@ -216,7 +220,7 @@ class ProtocolEventPubSub(Protocol):
         ...
 
     async def subscribe_async(
-        self, callback: Callable[["ProtocolEvent"], Awaitable[None]]
+        self, callback: Callable[[ProtocolEvent], Awaitable[None]]
     ) -> None:
         """Subscribe to events with an asynchronous callback.
 
@@ -235,7 +239,7 @@ class ProtocolEventPubSub(Protocol):
         """
         ...
 
-    async def unsubscribe(self, callback: Callable[["ProtocolEvent"], None]) -> None:
+    async def unsubscribe(self, callback: Callable[[ProtocolEvent], None]) -> None:
         """Unsubscribe a synchronous callback from events.
 
         Args:
@@ -250,7 +254,7 @@ class ProtocolEventPubSub(Protocol):
         ...
 
     async def unsubscribe_async(
-        self, callback: Callable[["ProtocolEvent"], Awaitable[None]]
+        self, callback: Callable[[ProtocolEvent], Awaitable[None]]
     ) -> None:
         """Unsubscribe an asynchronous callback from events.
 

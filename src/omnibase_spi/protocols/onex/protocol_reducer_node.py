@@ -1,12 +1,25 @@
-"""Protocol for ONEX reducer nodes."""
+"""Protocol for ONEX reducer nodes (legacy).
 
-from typing import Any, Protocol, runtime_checkable
+.. deprecated::
+    This module contains the legacy ONEX reducer node protocol.
+    For new implementations, use the canonical v0.3.0 protocol at
+    ``omnibase_spi.protocols.nodes.ProtocolReducerNode``.
+
+    This protocol will be removed in v0.5.0.
+"""
+
+from typing import Protocol, runtime_checkable
 
 
 @runtime_checkable
-class ProtocolReducerNode(Protocol):
+class ProtocolOnexReducerNodeLegacy(Protocol):
     """
-    Protocol for ONEX reducer node implementations.
+    Legacy protocol for ONEX reducer node implementations.
+
+    .. deprecated::
+        This protocol is deprecated. Use ``protocols.nodes.ProtocolReducerNode``
+        for the canonical v0.3.0 node interface instead. This legacy protocol
+        will be removed in v0.5.0.
 
     Reducer nodes aggregate and transform data from multiple sources,
     implementing reduction operations that combine, summarize, or synthesize
@@ -34,7 +47,7 @@ class ProtocolReducerNode(Protocol):
 
     Example Usage:
         ```python
-        from omnibase_spi.protocols.onex import ProtocolReducerNode
+        from omnibase_spi.protocols.onex import ProtocolOnexReducerNodeLegacy
 
         class MyReducer:
             async def execute_reduction(self, contract: ReductionContract) -> AggregatedResult:
@@ -51,7 +64,7 @@ class ProtocolReducerNode(Protocol):
 
         # Runtime validation
         reducer = MyReducer()
-        assert isinstance(reducer, ProtocolReducerNode)
+        assert isinstance(reducer, ProtocolOnexReducerNodeLegacy)
         ```
 
     Common Patterns:
@@ -61,7 +74,7 @@ class ProtocolReducerNode(Protocol):
         - Result Synthesis: Combine outputs into final workflow result
     """
 
-    async def execute_reduction(self, contract: Any) -> Any:
+    async def execute_reduction(self, contract: object) -> object:
         """
         Execute reduction workflow.
 
