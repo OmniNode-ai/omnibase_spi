@@ -17,7 +17,13 @@ class ProtocolNamingConventionResult(Protocol):
     warnings: list[str]
     suggested_name: str | None
 
-    def to_dict(self) -> dict[str, object]: ...
+    def to_dict(self) -> dict[str, object]:
+        """Serialize naming convention result to dictionary representation.
+
+        Returns:
+            Dictionary containing is_valid, errors, warnings, and suggested_name.
+        """
+        ...
 
 
 @runtime_checkable

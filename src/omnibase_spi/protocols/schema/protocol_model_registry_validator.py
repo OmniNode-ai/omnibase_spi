@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     )
 
 # Type alias for backward compatibility
-ProtocolModelValidationResult = "ProtocolSchemaValidationResult"
+type ProtocolModelValidationResult = ProtocolSchemaValidationResult
 
 
 @runtime_checkable

@@ -22,18 +22,30 @@ class ProtocolFixtureLoader(Protocol):
     and plugin scenarios.
     """
 
-    async def discover_fixtures(self) -> list[str]: ...
-    async def load_fixture(self, name: str) -> ProtocolFixtureData:
-        """
-        Load and return the fixture by name.
+    async def discover_fixtures(self) -> list[str]:
+        """Discover all available fixture names.
 
-        Args:
-            name: The name of the fixture to load.
+        Scans configured fixture directories (central and node-local) to
+        find all available test fixtures.
 
         Returns:
-            ...
+            List of fixture names that can be loaded via load_fixture().
+        """
+        ...
+
+    async def load_fixture(self, name: str) -> ProtocolFixtureData:
+        """Load and return the fixture by name.
+
+        Args:
+            name: The name of the fixture to load (as returned by
+                discover_fixtures).
+
+        Returns:
+            Parsed fixture data containing test inputs, expected outputs,
+            and any associated metadata for the named fixture.
+
         Raises:
             FileNotFoundError: If the fixture is not found.
-            Exception: If the fixture cannot be loaded or parsed.
+            ValueError: If the fixture cannot be parsed or is malformed.
         """
         ...

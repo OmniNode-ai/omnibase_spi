@@ -55,7 +55,13 @@ class ProtocolValidateResultModel(Protocol):
     errors: list[ProtocolValidateMessageModel]
     warnings: list[str]
 
-    def to_dict(self) -> dict[str, Any]: ...
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize validation result to dictionary representation.
+
+        Returns:
+            Dictionary containing success status, errors list, and warnings list.
+        """
+        ...
 
 
 @runtime_checkable
@@ -93,7 +99,13 @@ class ProtocolValidateMessageModel(Protocol):
     severity: str
     location: str | None
 
-    def to_dict(self) -> dict[str, Any]: ...
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize validation message to dictionary representation.
+
+        Returns:
+            Dictionary containing message, severity, and location fields.
+        """
+        ...
 
 
 @runtime_checkable
@@ -135,7 +147,16 @@ class ProtocolModelMetadataConfig(Protocol):
     config_path: str | None
     validation_rules: dict[str, Any]
 
-    async def get_config_value(self, key: str) -> Any: ...
+    async def get_config_value(self, key: str) -> Any:
+        """Retrieve a configuration value by key.
+
+        Args:
+            key: The configuration key to look up.
+
+        Returns:
+            The configuration value associated with the key, or None if not found.
+        """
+        ...
 
 
 @runtime_checkable
@@ -177,7 +198,16 @@ class ProtocolCLIArgsModel(Protocol):
     args: list[str]
     options: dict[str, Any]
 
-    async def get_option(self, key: str) -> Any: ...
+    async def get_option(self, key: str) -> Any:
+        """Retrieve a CLI option value by key.
+
+        Args:
+            key: The option key to look up.
+
+        Returns:
+            The option value associated with the key, or None if not found.
+        """
+        ...
 
 
 @runtime_checkable
@@ -195,9 +225,7 @@ class ProtocolValidate(ProtocolCLI, Protocol):
 
     logger: ProtocolLogger  # Protocol-pure logger interface
 
-    async def validate_main(
-        self, args: ProtocolCLIArgsModel
-    ) -> ProtocolOnexResult: ...
+    async def validate_main(self, args: ProtocolCLIArgsModel) -> ProtocolOnexResult: ...
 
     async def validate(
         self,

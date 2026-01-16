@@ -527,7 +527,7 @@ class ProtocolEventHeaders(Protocol):
         ...
 
 
-EventMessage = "ProtocolEventMessage"
+type EventMessage = ProtocolEventMessage
 
 
 @runtime_checkable

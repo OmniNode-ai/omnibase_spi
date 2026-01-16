@@ -44,7 +44,13 @@ class ProtocolSchemaValidationResult(Protocol):
     warnings: list[str]
     info: list[str]
 
-    def to_dict(self) -> dict[str, Any]: ...
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize validation result to dictionary representation.
+
+        Returns:
+            Dictionary containing success status, errors, warnings, and info lists.
+        """
+        ...
 
 
 @runtime_checkable

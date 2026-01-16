@@ -62,4 +62,26 @@ class ProtocolOutputFormatter(Protocol):
         self,
         data: ProtocolOutputData,
         style: ProtocolOutputFormat,
-    ) -> str: ...
+    ) -> str:
+        """
+        Format data according to the specified output style.
+
+        Transforms the input data into a formatted string representation
+        based on the provided style configuration. Supports various output
+        formats including JSON, YAML, Markdown, and custom templates.
+
+        Args:
+            data: The output data to format, containing the content
+                and metadata to be rendered.
+            style: The output format specification defining the target
+                format type, template, and rendering options.
+
+        Returns:
+            The formatted string representation of the data according
+            to the specified style.
+
+        Raises:
+            ValueError: If the data cannot be formatted with the given style.
+            TypeError: If the data or style types are incompatible.
+        """
+        ...

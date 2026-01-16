@@ -177,7 +177,14 @@ class ProtocolContractModelSchema(Protocol):
 
     async def validate(self, data: dict[str, Any]) -> bool: ...
 
-    async def to_dict(self) -> dict[str, Any]: ...
+    async def to_dict(self) -> dict[str, Any]:
+        """Serialize schema model to dictionary representation.
+
+        Returns:
+            Dictionary containing type, properties, required fields,
+            and additional_properties configuration.
+        """
+        ...
 
 
 @runtime_checkable
@@ -237,7 +244,14 @@ class ProtocolModelContractDocument(Protocol):
         self, schema_name: str
     ) -> "ProtocolContractModelSchema | None": ...
 
-    async def to_dict(self) -> dict[str, Any]: ...
+    async def to_dict(self) -> dict[str, Any]:
+        """Serialize contract document to dictionary representation.
+
+        Returns:
+            Dictionary containing node_name, node_version, node_type,
+            description, input_state, output_state, and definitions.
+        """
+        ...
 
 
 @runtime_checkable

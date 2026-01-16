@@ -55,7 +55,14 @@ class ProtocolCliExecutionResult(Protocol):
     execution_time: float
     workflow_data: dict[str, Any] | None
 
-    def to_dict(self) -> dict[str, Any]: ...
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize execution result to dictionary representation.
+
+        Returns:
+            Dictionary containing success status, exit_code, stdout, stderr,
+            execution_time, and workflow_data fields.
+        """
+        ...
 
 
 @runtime_checkable

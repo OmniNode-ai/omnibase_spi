@@ -50,7 +50,13 @@ class ProtocolGraphModel(Protocol):
 
     def validate(self) -> bool: ...
 
-    def to_dict(self) -> dict[str, object]: ...
+    def to_dict(self) -> dict[str, object]:
+        """Serialize the graph model to dictionary representation.
+
+        Returns:
+            Dictionary containing nodes, edges, and metadata for the workflow graph.
+        """
+        ...
 
 
 @runtime_checkable
@@ -134,7 +140,13 @@ class ProtocolEdgeModel(Protocol):
     edge_type: str
     metadata: dict[str, object]
 
-    def to_dict(self) -> dict[str, object]: ...
+    def to_dict(self) -> dict[str, object]:
+        """Serialize the edge model to dictionary representation.
+
+        Returns:
+            Dictionary containing source, target, edge_type, and metadata fields.
+        """
+        ...
 
 
 @runtime_checkable

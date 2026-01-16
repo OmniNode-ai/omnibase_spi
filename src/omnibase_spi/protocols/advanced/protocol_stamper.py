@@ -30,9 +30,25 @@ class ProtocolTemplateTypeEnum(Protocol):
     value: str
     name: str
 
-    def __str__(self) -> str: ...
+    def __str__(self) -> str:
+        """Return string representation of the template type.
 
-    async def get_template_config(self) -> dict[str, object]: ...
+        Returns:
+            The template type value as a string (e.g., "MINIMAL", "STANDARD").
+        """
+        ...
+
+    async def get_template_config(self) -> dict[str, object]:
+        """Retrieve the configuration for this template type.
+
+        Returns:
+            Dictionary containing template configuration options including
+            fields to include, formatting options, and metadata schema.
+
+        Raises:
+            ValueError: If the template type is not recognized.
+        """
+        ...
 
 
 @runtime_checkable
@@ -81,20 +97,42 @@ class ProtocolStamper(Protocol):
     """
 
     async def stamp(self, path: str) -> ProtocolOnexResult:
-        """Stamp an ONEX metadata file at the given path."""
+        """Stamp an ONEX metadata file at the given path.
+
+        Generates and injects ONEX metadata block into the specified file,
+        including cryptographic hash, version information, and lifecycle data.
+
+        Args:
+            path: Absolute or relative path to the file to stamp.
+
+        Returns:
+            ProtocolOnexResult with success status and stamped metadata details
+            including the generated hash, timestamp, and version information.
+
+        Raises:
+            FileNotFoundError: If the specified path does not exist.
+            PermissionError: If the file cannot be read or written.
+            ValueError: If the file format is not supported for stamping.
+        """
         ...
 
     async def stamp_file(
         self, file_path: str, metadata_block: dict[str, Any]
     ) -> ProtocolOnexResult:
-        """
-        Stamp the file with a metadata block, replacing any existing block.
+        """Stamp the file with a metadata block, replacing any existing block.
 
         Args:
-            file_path: Path to file to stamp
-            metadata_block: Metadata dictionary to inject
+            file_path: Path to the file to stamp.
+            metadata_block: Metadata dictionary to inject into the file.
 
         Returns:
-            ProtocolOnexResult describing the operation result
+            ProtocolOnexResult with success status and operation details
+            including the injected metadata summary.
+
+        Raises:
+            FileNotFoundError: If the specified file path does not exist.
+            PermissionError: If the file cannot be read or written.
+            ValueError: If the file format is not supported for stamping
+                or the metadata block is invalid.
         """
         ...
