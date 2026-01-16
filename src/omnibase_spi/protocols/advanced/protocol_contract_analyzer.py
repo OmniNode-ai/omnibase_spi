@@ -323,10 +323,14 @@ class ProtocolContractAnalyzer(Protocol):
         """Validate a contract for correctness and completeness.
 
         Args:
-            contract_path: Path to contract.yaml file
+            contract_path: Path to contract.yaml file.
 
         Returns:
-            ContractValidationResult with validation details
+            ContractValidationResult with validation details.
+
+        Raises:
+            FileNotFoundError: If contract file cannot be found.
+            ValueError: If contract contains invalid YAML or schema.
         """
         ...
 
@@ -334,10 +338,14 @@ class ProtocolContractAnalyzer(Protocol):
         """Analyze contract structure and gather statistics.
 
         Args:
-            contract_path: Path to contract.yaml file
+            contract_path: Path to contract.yaml file.
 
         Returns:
-            ContractInfo with analysis results
+            ContractInfo with analysis results.
+
+        Raises:
+            FileNotFoundError: If contract file cannot be found.
+            ValueError: If contract contains invalid YAML or schema.
         """
         ...
 
@@ -348,10 +356,13 @@ class ProtocolContractAnalyzer(Protocol):
         """Discover all $ref references in a contract.
 
         Args:
-            contract: Contract document to analyze
+            contract: Contract document to analyze.
 
         Returns:
-            List of discovered references with metadata
+            List of discovered references with metadata.
+
+        Raises:
+            ValueError: If contract contains malformed references.
         """
         ...
 
@@ -361,10 +372,13 @@ class ProtocolContractAnalyzer(Protocol):
         """Get all external file dependencies of a contract.
 
         Args:
-            contract: Contract document to analyze
+            contract: Contract document to analyze.
 
         Returns:
-            Set of external file paths referenced
+            Set of external file paths referenced.
+
+        Raises:
+            ValueError: If contract contains malformed external references.
         """
         ...
 
@@ -393,10 +407,13 @@ class ProtocolContractAnalyzer(Protocol):
         """Check for circular references in the contract.
 
         Args:
-            contract: Contract to check
+            contract: Contract to check.
 
         Returns:
-            List of circular reference paths found
+            List of circular reference paths found.
+
+        Raises:
+            ValueError: If contract contains malformed references.
         """
         ...
 
@@ -404,10 +421,13 @@ class ProtocolContractAnalyzer(Protocol):
         """Count total fields in a schema including nested objects.
 
         Args:
-            schema: Schema to count fields in
+            schema: Schema to count fields in.
 
         Returns:
-            Total field count
+            Total field count.
+
+        Raises:
+            ValueError: If schema structure is invalid or malformed.
         """
         ...
 
@@ -419,10 +439,13 @@ class ProtocolContractAnalyzer(Protocol):
         """Validate a schema object and return issues.
 
         Args:
-            schema: Schema to validate
-            location: Location path for error messages
+            schema: Schema to validate.
+            location: Location path for error messages.
 
         Returns:
-            Dict with 'errors', 'warnings', and 'info' lists
+            Dict with 'errors', 'warnings', and 'info' lists.
+
+        Raises:
+            ValueError: If schema structure is fundamentally invalid.
         """
         ...

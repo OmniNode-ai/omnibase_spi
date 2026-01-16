@@ -61,6 +61,10 @@ class ProtocolSchemaModel(Protocol):
 
         Returns:
             True if data conforms to the schema, False otherwise.
+
+        Raises:
+            ValidationError: If validation encounters an unexpected error.
+            SchemaError: If the schema definition is invalid or corrupted.
         """
         ...
 
@@ -70,6 +74,10 @@ class ProtocolSchemaModel(Protocol):
         Returns:
             Dictionary representation of the schema including id, type,
             version, and definition.
+
+        Raises:
+            SerializationError: If the schema cannot be serialized to a
+                dictionary representation.
         """
         ...
 

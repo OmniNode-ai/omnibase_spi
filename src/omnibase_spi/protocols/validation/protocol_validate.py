@@ -228,35 +228,148 @@ class ProtocolValidate(ProtocolCLI, Protocol):
     """
     Protocol for validators that check ONEX node metadata conformance.
 
+    Provides comprehensive validation of ONEX nodes including metadata
+    verification, plugin discovery, and CLI integration for validation
+    tool invocation.
+
+    Attributes:
+        logger: Protocol-pure logger interface for validation output and
+            diagnostic messages during validation operations.
+
     Example:
+        ```python
         class MyValidator(ProtocolValidate):
-            def validate(self, path: str, config: ProtocolModelMetadataConfig | None = None) -> ProtocolValidateResultModel:
+            async def validate(
+                self,
+                path: str,
+                config: ProtocolModelMetadataConfig | None = None
+            ) -> ProtocolValidateResultModel:
                 ...
-            def get_validation_errors(self) -> list[ProtocolValidateMessageModel]:
+
+            async def get_validation_errors(self) -> list[ProtocolValidateMessageModel]:
                 ...
+        ```
+
+    See Also:
+        - ProtocolValidateResultModel: Validation result container
+        - ProtocolModelMetadataConfig: Validation configuration
+        - ProtocolCLI: Base CLI interface
     """
 
     logger: ProtocolLogger  # Protocol-pure logger interface
 
-    async def validate_main(self, args: ProtocolCLIArgsModel) -> ProtocolOnexResult: ...
+    async def validate_main(self, args: ProtocolCLIArgsModel) -> ProtocolOnexResult:
+        """Execute the main validation workflow from CLI arguments.
+
+        This is the primary entry point for CLI-driven validation operations.
+        It parses the provided arguments, configures the validation context,
+        and executes the appropriate validation workflow.
+
+        Args:
+            args: Parsed CLI arguments containing command, positional args,
+                and options/flags for the validation operation.
+
+        Returns:
+            ProtocolOnexResult containing the validation outcome with status,
+            any errors or warnings, and metadata about the validation run.
+
+        Raises:
+            ValidationError: If validation encounters an unrecoverable error.
+            CLIError: If the CLI arguments are invalid or malformed.
+        """
+        ...
 
     async def validate(
         self,
         target: str,
         config: ProtocolModelMetadataConfig | None = None,
-    ) -> ProtocolValidateResultModel: ...
+    ) -> ProtocolValidateResultModel:
+        """Validate a target path against ONEX metadata requirements.
 
-    async def get_name(self) -> str: ...
+        Performs comprehensive validation of the specified target, checking
+        for metadata conformance, naming conventions, and structural requirements.
 
-    async def get_validation_errors(self) -> list[ProtocolValidateMessageModel]: ...
-    async def discover_plugins(self) -> list[ProtocolNodeMetadataBlock]:
-        """
-        Returns a list of plugin metadata blocks supported by this validator.
-            ...
-        Enables dynamic test/validator scaffolding and runtime plugin contract enforcement.
-        Compliant with ONEX execution model and Cursor Rule.
-        See ONEX protocol spec and Cursor Rule for required fields and extension policy.
+        Args:
+            target: Path to the file or directory to validate.
+            config: Optional validation configuration with custom rules.
+                If None, default validation rules are applied.
+
+        Returns:
+            ProtocolValidateResultModel containing success status, list of
+            errors, and list of warnings from the validation operation.
+
+        Raises:
+            ValidationError: If validation cannot be performed due to
+                configuration or system errors.
+            FileNotFoundError: If the target path does not exist.
         """
         ...
 
-    def validate_node(self, node: ProtocolNodeMetadataBlock) -> bool: ...
+    async def get_name(self) -> str:
+        """Retrieve the unique name identifier for this validator.
+
+        The name is used for registration, logging, and identification
+        purposes within the validation framework.
+
+        Returns:
+            The unique string identifier for this validator instance.
+
+        Raises:
+            ValidatorError: If the validator name cannot be determined.
+        """
+        ...
+
+    async def get_validation_errors(self) -> list[ProtocolValidateMessageModel]:
+        """Retrieve all validation errors accumulated during validation.
+
+        Returns the complete list of structured validation error messages
+        collected from the most recent validation operation.
+
+        Returns:
+            List of validation message models containing error details
+            including message content, severity level, and location.
+
+        Raises:
+            ValidationError: If errors cannot be retrieved from the validator state.
+        """
+        ...
+    async def discover_plugins(self) -> list[ProtocolNodeMetadataBlock]:
+        """Discover and return plugin metadata blocks supported by this validator.
+
+        Enables dynamic test/validator scaffolding and runtime plugin contract
+        enforcement. Compliant with ONEX execution model and Cursor Rule.
+
+        Returns:
+            List of ProtocolNodeMetadataBlock instances representing the
+            plugins supported by this validator.
+
+        Raises:
+            PluginDiscoveryError: If plugin discovery fails due to
+                configuration or filesystem errors.
+            ValidationError: If discovered plugin metadata is malformed
+                or does not conform to ONEX requirements.
+
+        See Also:
+            ONEX protocol spec and Cursor Rule for required fields and
+            extension policy.
+        """
+        ...
+
+    def validate_node(self, node: ProtocolNodeMetadataBlock) -> bool:
+        """Validate a single node's metadata block synchronously.
+
+        Performs validation of a node's metadata against ONEX requirements
+        without full file system traversal. This is a synchronous operation
+        for quick validation checks.
+
+        Args:
+            node: The node metadata block to validate.
+
+        Returns:
+            True if the node passes all validation checks, False otherwise.
+
+        Raises:
+            ValidationError: If the node cannot be validated due to
+                malformed metadata or internal validation errors.
+        """
+        ...
