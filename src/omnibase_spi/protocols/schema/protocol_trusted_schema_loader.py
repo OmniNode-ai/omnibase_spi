@@ -1,3 +1,5 @@
+"""Protocols for secure schema loading with path safety validation."""
+
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:

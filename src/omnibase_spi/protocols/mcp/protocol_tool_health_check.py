@@ -1,3 +1,7 @@
+"""Protocol for Kafka event bus health check operations."""
+
+from __future__ import annotations
+
 from typing import Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_mcp_types import (

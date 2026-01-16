@@ -1,26 +1,10 @@
-# === OmniNode:Metadata ===
-# author: OmniNode Team
-# copyright: OmniNode.ai
-# created_at: '2025-05-28T13:24:08.193906'
-# description: Stamped by ToolPython
-# entrypoint: python://protocol_tool
-# hash: 544c8e092f824a48bf5f1f6219080eed3abe7ac5c4702d03f55a9c9790a5865c
-# last_modified_at: '2025-05-29T14:14:00.381214+00:00'
-# lifecycle: active
-# meta_type: tool
-# metadata_version: 0.1.0
-# name: protocol_tool.py
-# namespace: python://omnibase.protocol.protocol_tool
-# owner: OmniNode Team
-# protocol_version: 0.1.0
-# runtime_language_hint: python>=3.11
-# schema_version: 0.1.0
-# state_contract: state_contract://default
-# tools: {}
-# uuid: e8651074-b687-485a-a38e-233f05375ce0
-# version: 1.0.0
-# === /OmniNode:Metadata ===
+"""Protocol for MCP tool operations with dry-run and apply modes.
 
+This module defines the interface for CLI scripts that can modify files,
+enforcing safety with dry-run as default and explicit apply mode.
+"""
+
+from __future__ import annotations
 
 from typing import Protocol, runtime_checkable
 

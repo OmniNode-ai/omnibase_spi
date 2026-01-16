@@ -1,3 +1,5 @@
+"""Protocols for ONEX output field generation and model representation."""
+
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:

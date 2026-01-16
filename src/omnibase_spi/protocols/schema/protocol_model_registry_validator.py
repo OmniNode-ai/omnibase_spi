@@ -1,3 +1,5 @@
+"""Protocols for model registry validation and health reporting."""
+
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
@@ -7,7 +9,7 @@ if TYPE_CHECKING:
     )
 
 # Type alias for backward compatibility
-ProtocolModelValidationResult = "ProtocolSchemaValidationResult"
+type ProtocolModelValidationResult = ProtocolSchemaValidationResult
 
 
 @runtime_checkable

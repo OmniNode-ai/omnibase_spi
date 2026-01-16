@@ -34,7 +34,7 @@ class ProtocolOnexOrchestratorNode(Protocol):
 
     Example Usage:
         ```python
-        from omnibase_spi.protocols.onex import ProtocolOrchestratorNode
+        from omnibase_spi.protocols.onex import ProtocolOnexOrchestratorNode
 
         class MyOrchestrator:
             async def execute_orchestration(self, contract: WorkflowContract) -> WorkflowResult:
@@ -51,7 +51,7 @@ class ProtocolOnexOrchestratorNode(Protocol):
 
         # Runtime validation
         orchestrator = MyOrchestrator()
-        assert isinstance(orchestrator, ProtocolOrchestratorNode)
+        assert isinstance(orchestrator, ProtocolOnexOrchestratorNode)
         ```
 
     Integration:

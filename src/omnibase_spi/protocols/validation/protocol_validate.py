@@ -1,26 +1,10 @@
-# === OmniNode:Metadata ===
-# author: OmniNode Team
-# copyright: OmniNode.ai
-# created_at: '2025-05-28T12:36:27.306553'
-# description: Stamped by ToolPython
-# entrypoint: python://protocol_validate
-# hash: 88bcd387819771c90df72a41a04b454ace7a2a24a936c1523ec962441e80c78c
-# last_modified_at: '2025-05-29T14:14:00.395638+00:00'
-# lifecycle: active
-# meta_type: tool
-# metadata_version: 0.1.0
-# name: protocol_validate.py
-# namespace: python://omnibase.protocol.protocol_validate
-# owner: OmniNode Team
-# protocol_version: 0.1.0
-# runtime_language_hint: python>=3.11
-# schema_version: 0.1.0
-# state_contract: state_contract://default
-# tools: null
-# uuid: a79401fb-e7c9-4265-b352-dcb2e7c29717
-# version: 1.0.0
-# === /OmniNode:Metadata ===
+"""Protocol for ONEX node metadata validation.
 
+This module defines the interface for validators that check ONEX node metadata
+conformance with comprehensive result reporting and CLI integration.
+"""
+
+from __future__ import annotations
 
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
@@ -70,7 +54,7 @@ class ProtocolValidateResultModel(Protocol):
     """
 
     success: bool
-    errors: list["ProtocolValidateMessageModel"]
+    errors: list[ProtocolValidateMessageModel]
     warnings: list[str]
 
     def to_dict(self) -> JsonType:
@@ -195,7 +179,7 @@ class ProtocolModelMetadataConfig(Protocol):
             the key does not exist in the configuration.
 
         Raises:
-            KeyError: If the key is required but not found (implementation-specific).
+            ConfigurationError: If the configuration cannot be accessed.
         """
         ...
 
@@ -253,7 +237,8 @@ class ProtocolCLIArgsModel(Protocol):
             the option was not provided on the command line.
 
         Raises:
-            KeyError: If the key is required but not found (implementation-specific).
+            KeyError: If the option key is not valid.
+            CLIError: If there's an issue accessing the CLI options.
         """
         ...
 
@@ -267,7 +252,8 @@ class ProtocolValidate(ProtocolCLI, Protocol):
     including CLI entry points, single-node validation, and plugin discovery.
 
     Attributes:
-        logger: Protocol-pure logger interface for validation output.
+        logger: Protocol-pure logger interface for validation output and
+            diagnostic messages during validation operations.
 
     Example:
         ```python
@@ -289,9 +275,9 @@ class ProtocolValidate(ProtocolCLI, Protocol):
         - ProtocolCLI: Base CLI interface
     """
 
-    logger: "ProtocolLogger"
+    logger: ProtocolLogger
 
-    async def validate_main(self, args: "ProtocolCLIArgsModel") -> ProtocolOnexResult:
+    async def validate_main(self, args: ProtocolCLIArgsModel) -> ProtocolOnexResult:
         """Execute validation from CLI arguments.
 
         Main entry point for CLI-based validation, parsing the provided
@@ -299,21 +285,22 @@ class ProtocolValidate(ProtocolCLI, Protocol):
 
         Args:
             args: Parsed CLI arguments containing command, positional args,
-                and options/flags.
+                and options/flags for the validation operation.
 
         Returns:
             ONEX result containing validation outcome, exit code, and
             any error or success messages.
 
         Raises:
-            ValidationError: If validation execution fails unexpectedly.
+            ValidationError: If validation encounters an unrecoverable error.
+            CLIError: If the CLI arguments are invalid or malformed.
         """
         ...
 
     async def validate(
         self,
         target: str,
-        config: "ProtocolModelMetadataConfig | None" = None,
+        config: ProtocolModelMetadataConfig | None = None,
     ) -> ProtocolValidateResultModel:
         """Validate a target path against ONEX metadata conformance rules.
 
@@ -329,8 +316,9 @@ class ProtocolValidate(ProtocolCLI, Protocol):
             Validation result containing success status, errors, and warnings.
 
         Raises:
+            ValidationError: If validation cannot be performed due to
+                configuration or system errors.
             FileNotFoundError: If target path does not exist.
-            ValidationError: If validation process fails unexpectedly.
         """
         ...
 
@@ -344,7 +332,7 @@ class ProtocolValidate(ProtocolCLI, Protocol):
             The validator name string.
 
         Raises:
-            RuntimeError: If validator name is not configured.
+            ValidatorError: If the validator name cannot be determined.
         """
         ...
 
@@ -358,7 +346,7 @@ class ProtocolValidate(ProtocolCLI, Protocol):
             List of validation error messages with severity and location.
 
         Raises:
-            StateError: If called before any validation has been performed.
+            ValidationError: If errors cannot be retrieved from the validator state.
         """
         ...
 
@@ -374,8 +362,10 @@ class ProtocolValidate(ProtocolCLI, Protocol):
             plugins and their capabilities.
 
         Raises:
-            PluginDiscoveryError: If plugin scanning fails due to I/O errors.
-            ConfigurationError: If plugin configuration is invalid.
+            PluginDiscoveryError: If plugin discovery fails due to
+                configuration or filesystem errors.
+            ValidationError: If discovered plugin metadata is malformed
+                or does not conform to ONEX requirements.
 
         Note:
             Compliant with ONEX execution model and Cursor Rule.
@@ -396,8 +386,7 @@ class ProtocolValidate(ProtocolCLI, Protocol):
             True if the node is valid, False otherwise.
 
         Raises:
-            ValidationError: If the node structure is malformed or cannot
-                be validated.
-            TypeError: If node is not a valid ProtocolNodeMetadataBlock.
+            ValidationError: If the node cannot be validated due to
+                malformed metadata or internal validation errors.
         """
         ...

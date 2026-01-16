@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Protocol for Database Connection abstraction.
 

@@ -34,7 +34,7 @@ class ProtocolOnexReducerNode(Protocol):
 
     Example Usage:
         ```python
-        from omnibase_spi.protocols.onex import ProtocolReducerNode
+        from omnibase_spi.protocols.onex import ProtocolOnexReducerNode
 
         class MyReducer:
             async def execute_reduction(self, contract: ReductionContract) -> AggregatedResult:
@@ -51,7 +51,7 @@ class ProtocolOnexReducerNode(Protocol):
 
         # Runtime validation
         reducer = MyReducer()
-        assert isinstance(reducer, ProtocolReducerNode)
+        assert isinstance(reducer, ProtocolOnexReducerNode)
         ```
 
     Common Patterns:

@@ -1,6 +1,3 @@
-# SPDX-FileCopyrightText: 2025 OmniNode Team <info@omninode.ai>
-#
-# SPDX-License-Identifier: Apache-2.0
 """Protocol for handler sources - canonical SPI boundary.
 
 Handler sources provide a uniform interface for discovering handler descriptors

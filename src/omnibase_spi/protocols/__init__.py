@@ -175,6 +175,14 @@ from omnibase_spi.protocols.core import (
     ProtocolVersionManager,
 )
 
+# Dashboard protocols (4 protocols) - Dashboard UI and widget rendering
+from omnibase_spi.protocols.dashboard import (
+    ProtocolDashboardEventSubscriber,
+    ProtocolDashboardService,
+    ProtocolRegistryQueryService,
+    ProtocolWidgetRenderer,
+)
+
 # Discovery protocols (3 protocols) - Node and handler discovery
 # Enables dynamic service discovery and handler registration
 from omnibase_spi.protocols.discovery import (
@@ -482,6 +490,8 @@ __all__ = [
     "ProtocolDIServiceInstance",
     "ProtocolDIServiceMetadata",
     "ProtocolDLQHandler",
+    "ProtocolDashboardEventSubscriber",
+    "ProtocolDashboardService",
     "ProtocolDatabaseConnection",
     "ProtocolDependencyGraph",
     "ProtocolDetectionMatch",
@@ -595,6 +605,7 @@ __all__ = [
     "ProtocolProviderRegistry",
     "ProtocolReducerNode",
     "ProtocolRedpandaAdapter",
+    "ProtocolRegistryQueryService",
     "ProtocolRetryable",
     "ProtocolSchemaLoader",
     "ProtocolSchemaRegistry",
@@ -627,6 +638,7 @@ __all__ = [
     "ProtocolValidator",
     "ProtocolVectorStoreHandler",
     "ProtocolVersionManager",
+    "ProtocolWidgetRenderer",
     "ProtocolWorkQueue",
     "ProtocolWorkflowContractCompiler",
     "ProtocolWorkflowEventBus",

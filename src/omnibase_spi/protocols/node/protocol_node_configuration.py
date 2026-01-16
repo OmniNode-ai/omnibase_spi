@@ -87,7 +87,17 @@ class ProtocolNodeConfiguration(Protocol):
 
     async def get_config_value(
         self, key: str, default: "ContextValue | None" = None
-    ) -> "ContextValue": ...
+    ) -> "ContextValue":
+        """Retrieve a configuration value by key with optional default.
+
+        Args:
+            key: The configuration key to look up (dot-notation supported).
+            default: Optional default value if key is not found.
+
+        Returns:
+            The configuration value associated with the key, or the default if not found.
+        """
+        ...
 
     async def get_timeout_ms(
         self, timeout_type: str, default_ms: int | None = None
