@@ -691,7 +691,7 @@ class ProtocolWorkflowInputState(Protocol):
     Protocol for workflow input state objects.
 
     Used for workflow orchestration input data and parameters.
-    Distinct from ProtocolOnexInputState which handles format conversion.
+    Distinct from ProtocolInputState which handles format conversion.
     """
 
     workflow_type: str

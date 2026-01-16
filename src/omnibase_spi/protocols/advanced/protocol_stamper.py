@@ -24,7 +24,7 @@
 
 from typing import Any, Literal, Protocol, runtime_checkable
 
-from omnibase_spi.protocols.types import ProtocolOnexResult
+from omnibase_spi.protocols.types import ProtocolResult
 
 # Protocol for template type enumeration
 LiteralTemplateType = Literal["MINIMAL", "STANDARD", "FULL", "CUSTOM"]
@@ -64,12 +64,12 @@ class ProtocolStamper(Protocol):
     Example:
         ```python
         from omnibase_spi.protocols.advanced import ProtocolStamper
-        from omnibase_spi.protocols.types import ProtocolOnexResult
+        from omnibase_spi.protocols.types import ProtocolResult
 
         async def stamp_node_file(
             stamper: ProtocolStamper,
             file_path: str
-        ) -> ProtocolOnexResult:
+        ) -> ProtocolResult:
             # Stamp file with default metadata
             result = await stamper.stamp(file_path)
 
@@ -96,13 +96,13 @@ class ProtocolStamper(Protocol):
         - ProtocolContractAnalyzer: Contract metadata extraction
     """
 
-    async def stamp(self, path: str) -> ProtocolOnexResult:
+    async def stamp(self, path: str) -> ProtocolResult:
         """Stamp an ONEX metadata file at the given path."""
         ...
 
     async def stamp_file(
         self, file_path: str, metadata_block: dict[str, Any]
-    ) -> ProtocolOnexResult:
+    ) -> ProtocolResult:
         """
         Stamp the file with a metadata block, replacing any existing block.
 
@@ -111,6 +111,6 @@ class ProtocolStamper(Protocol):
             metadata_block: Metadata dictionary to inject
 
         Returns:
-            ProtocolOnexResult describing the operation result
+            ProtocolResult describing the operation result
         """
         ...

@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 @runtime_checkable
-class ProtocolOnexContractData(Protocol):
+class ProtocolContractData(Protocol):
     """
     Protocol for ONEX contract data structure representation.
 
@@ -33,8 +33,8 @@ class ProtocolOnexContractData(Protocol):
 
     Example:
         ```python
-        validator: ProtocolOnexValidation = get_onex_validator()
-        contract = ProtocolOnexContractData(
+        validator: ProtocolValidation = get_onex_validator()
+        contract = ProtocolContractData(
             contract_version=SemVer(1, 0, 0),
             node_name="NodeDataProcessor",
             node_type="COMPUTE",
@@ -47,8 +47,8 @@ class ProtocolOnexContractData(Protocol):
         ```
 
     See Also:
-        - ProtocolOnexValidation: Validation interface
-        - ProtocolOnexValidationResult: Validation outcome
+        - ProtocolValidation: Validation interface
+        - ProtocolValidationResult: Validation outcome
     """
 
     contract_version: "ProtocolSemVer"
@@ -59,7 +59,7 @@ class ProtocolOnexContractData(Protocol):
 
 
 @runtime_checkable
-class ProtocolOnexSecurityContext(Protocol):
+class ProtocolSecurityContext(Protocol):
     """
     Protocol for ONEX security context data representation.
 
@@ -75,8 +75,8 @@ class ProtocolOnexSecurityContext(Protocol):
 
     Example:
         ```python
-        validator: ProtocolOnexValidation = get_onex_validator()
-        context = ProtocolOnexSecurityContext(
+        validator: ProtocolValidation = get_onex_validator()
+        context = ProtocolSecurityContext(
             user_id="user-123",
             session_id="session-abc",
             authentication_token="token-xyz",
@@ -89,8 +89,8 @@ class ProtocolOnexSecurityContext(Protocol):
         ```
 
     See Also:
-        - ProtocolOnexValidation: Security validation
-        - ProtocolOnexValidationResult: Validation outcome
+        - ProtocolValidation: Security validation
+        - ProtocolValidationResult: Validation outcome
     """
 
     user_id: str
@@ -100,7 +100,7 @@ class ProtocolOnexSecurityContext(Protocol):
 
 
 @runtime_checkable
-class ProtocolOnexMetadata(Protocol):
+class ProtocolMetadata(Protocol):
     """
     Protocol for ONEX tool metadata structure representation.
 
@@ -116,8 +116,8 @@ class ProtocolOnexMetadata(Protocol):
 
     Example:
         ```python
-        validator: ProtocolOnexValidation = get_onex_validator()
-        metadata = ProtocolOnexMetadata(
+        validator: ProtocolValidation = get_onex_validator()
+        metadata = ProtocolMetadata(
             tool_name="NodeValidator",
             tool_version=SemVer(1, 2, 3),
             timestamp=datetime.now().isoformat(),
@@ -129,8 +129,8 @@ class ProtocolOnexMetadata(Protocol):
         ```
 
     See Also:
-        - ProtocolOnexValidation: Metadata validation
-        - ProtocolOnexValidationResult: Validation outcome
+        - ProtocolValidation: Metadata validation
+        - ProtocolValidationResult: Validation outcome
     """
 
     tool_name: str
@@ -140,7 +140,7 @@ class ProtocolOnexMetadata(Protocol):
 
 
 @runtime_checkable
-class ProtocolOnexSchema(Protocol):
+class ProtocolSchema(Protocol):
     """
     Protocol for ONEX schema definition representation.
 
@@ -155,7 +155,7 @@ class ProtocolOnexSchema(Protocol):
 
     Example:
         ```python
-        validator: ProtocolOnexValidation = get_onex_validator()
+        validator: ProtocolValidation = get_onex_validator()
         schema = await validator.get_validation_schema("envelope_structure")
 
         print(f"Schema type: {schema.schema_type}")
@@ -164,8 +164,8 @@ class ProtocolOnexSchema(Protocol):
         ```
 
     See Also:
-        - ProtocolOnexValidation: Schema-based validation
-        - ProtocolOnexValidationResult: Validation outcome
+        - ProtocolValidation: Schema-based validation
+        - ProtocolValidationResult: Validation outcome
     """
 
     schema_type: str
@@ -174,7 +174,7 @@ class ProtocolOnexSchema(Protocol):
 
 
 @runtime_checkable
-class ProtocolOnexValidationReport(Protocol):
+class ProtocolValidationReport(Protocol):
     """
     Protocol for ONEX validation report aggregation.
 
@@ -191,7 +191,7 @@ class ProtocolOnexValidationReport(Protocol):
 
     Example:
         ```python
-        validator: ProtocolOnexValidation = get_onex_validator()
+        validator: ProtocolValidation = get_onex_validator()
         results = [
             await validator.validate_envelope(envelope),
             await validator.validate_reply(reply),
@@ -208,8 +208,8 @@ class ProtocolOnexValidationReport(Protocol):
         ```
 
     See Also:
-        - ProtocolOnexValidation: Validation operations
-        - ProtocolOnexValidationResult: Individual results
+        - ProtocolValidation: Validation operations
+        - ProtocolValidationResult: Individual results
     """
 
     total_validations: int
@@ -233,7 +233,7 @@ LiteralValidationType = Literal[
 
 
 @runtime_checkable
-class ProtocolOnexValidationResult(Protocol):
+class ProtocolValidationResult(Protocol):
     """
     Protocol for individual ONEX validation operation result.
 
@@ -251,7 +251,7 @@ class ProtocolOnexValidationResult(Protocol):
 
     Example:
         ```python
-        validator: ProtocolOnexValidation = get_onex_validator()
+        validator: ProtocolValidation = get_onex_validator()
         result = await validator.validate_envelope(envelope)
 
         print(f"Valid: {result.is_valid}")
@@ -266,8 +266,8 @@ class ProtocolOnexValidationResult(Protocol):
         ```
 
     See Also:
-        - ProtocolOnexValidation: Validation interface
-        - ProtocolOnexValidationReport: Aggregated results
+        - ProtocolValidation: Validation interface
+        - ProtocolValidationReport: Aggregated results
     """
 
     is_valid: bool
@@ -275,11 +275,11 @@ class ProtocolOnexValidationResult(Protocol):
     validation_type: LiteralValidationType
     errors: list[str]
     warnings: list[str]
-    metadata: "ProtocolOnexMetadata"
+    metadata: "ProtocolMetadata"
 
 
 @runtime_checkable
-class ProtocolOnexValidation(Protocol):
+class ProtocolValidation(Protocol):
     """
     Protocol interface for comprehensive ONEX pattern validation.
 
@@ -289,7 +289,7 @@ class ProtocolOnexValidation(Protocol):
 
     Example:
         ```python
-        validator: ProtocolOnexValidation = get_onex_validator()
+        validator: ProtocolValidation = get_onex_validator()
 
         # Validate envelope structure
         envelope_result = await validator.validate_envelope(envelope)
@@ -320,61 +320,61 @@ class ProtocolOnexValidation(Protocol):
         ```
 
     See Also:
-        - ProtocolOnexValidationResult: Individual validation results
-        - ProtocolOnexValidationReport: Aggregated validation report
-        - ProtocolOnexContractData: Contract data structure
+        - ProtocolValidationResult: Individual validation results
+        - ProtocolValidationReport: Aggregated validation report
+        - ProtocolContractData: Contract data structure
     """
 
     async def validate_envelope(
-        self, envelope: "ProtocolOnexContractData"
-    ) -> ProtocolOnexValidationResult: ...
+        self, envelope: "ProtocolContractData"
+    ) -> ProtocolValidationResult: ...
 
     async def validate_reply(
-        self, reply: "ProtocolOnexContractData"
-    ) -> ProtocolOnexValidationResult: ...
+        self, reply: "ProtocolContractData"
+    ) -> ProtocolValidationResult: ...
 
     async def validate_contract_compliance(
-        self, contract_data: "ProtocolOnexContractData"
-    ) -> ProtocolOnexValidationResult: ...
+        self, contract_data: "ProtocolContractData"
+    ) -> ProtocolValidationResult: ...
 
     async def validate_security_context(
-        self, security_context: "ProtocolOnexSecurityContext"
-    ) -> ProtocolOnexValidationResult: ...
+        self, security_context: "ProtocolSecurityContext"
+    ) -> ProtocolValidationResult: ...
 
     async def validate_metadata(
-        self, metadata: "ProtocolOnexMetadata"
-    ) -> ProtocolOnexValidationResult: ...
+        self, metadata: "ProtocolMetadata"
+    ) -> ProtocolValidationResult: ...
 
     async def validate_full_onex_pattern(
-        self, envelope: "ProtocolOnexContractData", reply: "ProtocolOnexContractData"
-    ) -> ProtocolOnexValidationResult: ...
+        self, envelope: "ProtocolContractData", reply: "ProtocolContractData"
+    ) -> ProtocolValidationResult: ...
 
     async def check_required_fields(
-        self, data: "ProtocolOnexContractData", required_fields: list[str]
+        self, data: "ProtocolContractData", required_fields: list[str]
     ) -> list[str]: ...
 
     async def validate_semantic_versioning(self, version: str) -> bool: ...
 
     async def validate_correlation_id_consistency(
-        self, envelope: "ProtocolOnexContractData", reply: "ProtocolOnexContractData"
+        self, envelope: "ProtocolContractData", reply: "ProtocolContractData"
     ) -> bool: ...
 
     async def validate_timestamp_sequence(
-        self, envelope: "ProtocolOnexContractData", reply: "ProtocolOnexContractData"
+        self, envelope: "ProtocolContractData", reply: "ProtocolContractData"
     ) -> bool: ...
 
     async def get_validation_schema(
         self, validation_type: str
-    ) -> "ProtocolOnexSchema": ...
+    ) -> "ProtocolSchema": ...
 
     async def validate_against_schema(
-        self, data: "ProtocolOnexContractData", schema: "ProtocolOnexSchema"
-    ) -> ProtocolOnexValidationResult: ...
+        self, data: "ProtocolContractData", schema: "ProtocolSchema"
+    ) -> ProtocolValidationResult: ...
 
     async def generate_validation_report(
-        self, results: list[ProtocolOnexValidationResult]
-    ) -> ProtocolOnexValidationReport: ...
+        self, results: list[ProtocolValidationResult]
+    ) -> ProtocolValidationReport: ...
 
     async def is_production_ready(
-        self, validation_results: list[ProtocolOnexValidationResult]
+        self, validation_results: list[ProtocolValidationResult]
     ) -> bool: ...

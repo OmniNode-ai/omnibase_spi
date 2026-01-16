@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 
 @runtime_checkable
-class ProtocolOnexNode(Protocol):
+class ProtocolNode(Protocol):
     """
     Protocol for ONEX node implementations.
 

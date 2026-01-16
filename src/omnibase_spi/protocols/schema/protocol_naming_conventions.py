@@ -7,7 +7,7 @@ consistent naming across all code generation tools.
 
 from typing import Protocol, runtime_checkable
 
-from omnibase_spi.protocols.types import ProtocolOnexInputState, ProtocolOnexOutputState
+from omnibase_spi.protocols.types import ProtocolInputState, ProtocolOutputState
 
 
 @runtime_checkable
@@ -20,8 +20,8 @@ class ProtocolNamingConventions(Protocol):
     """
 
     def convert_naming_convention(
-        self, input_state: ProtocolOnexInputState
-    ) -> ProtocolOnexOutputState:
+        self, input_state: ProtocolInputState
+    ) -> ProtocolOutputState:
         """
         Convert strings between different naming conventions.
 
@@ -35,8 +35,8 @@ class ProtocolNamingConventions(Protocol):
 
     async def validate_python_identifier(
         self,
-        input_state: ProtocolOnexInputState,
-    ) -> ProtocolOnexOutputState:
+        input_state: ProtocolInputState,
+    ) -> ProtocolOutputState:
         """
         Validate and sanitize Python identifiers.
 
@@ -44,13 +44,13 @@ class ProtocolNamingConventions(Protocol):
             input_state: Contains identifier validation parameters
 
         Returns:
-            ProtocolOnexOutputState with validation results
+            ProtocolOutputState with validation results
         """
         ...
 
     def generate_class_names(
-        self, input_state: ProtocolOnexInputState
-    ) -> ProtocolOnexOutputState:
+        self, input_state: ProtocolInputState
+    ) -> ProtocolOutputState:
         """
         Generate appropriate class names from various inputs.
 
@@ -58,14 +58,14 @@ class ProtocolNamingConventions(Protocol):
             input_state: Contains class name generation parameters
 
         Returns:
-            ProtocolOnexOutputState with generated class names
+            ProtocolOutputState with generated class names
         """
         ...
 
     def generate_file_names(
         self,
-        input_state: ProtocolOnexInputState,
-    ) -> ProtocolOnexOutputState:
+        input_state: ProtocolInputState,
+    ) -> ProtocolOutputState:
         """
         Generate appropriate file names from class names or other inputs.
 
@@ -73,13 +73,13 @@ class ProtocolNamingConventions(Protocol):
             input_state: Contains file name generation parameters
 
         Returns:
-            ProtocolOnexOutputState with generated file names
+            ProtocolOutputState with generated file names
         """
         ...
 
     def split_into_words(
-        self, input_state: ProtocolOnexInputState
-    ) -> ProtocolOnexOutputState:
+        self, input_state: ProtocolInputState
+    ) -> ProtocolOutputState:
         """
         Split strings into constituent words handling various naming conventions.
 
@@ -87,6 +87,6 @@ class ProtocolNamingConventions(Protocol):
             input_state: Contains string splitting parameters
 
         Returns:
-            ProtocolOnexOutputState with word list[Any]s
+            ProtocolOutputState with word list[Any]s
         """
         ...

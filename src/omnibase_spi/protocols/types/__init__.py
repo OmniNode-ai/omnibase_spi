@@ -178,8 +178,8 @@ from omnibase_spi.protocols.types.protocol_node_types import (
     ProtocolNodeResult,
 )
 
-# ONEX error protocol
-from omnibase_spi.protocols.types.protocol_onex_error import ProtocolOnexError
+# Error protocol
+from omnibase_spi.protocols.types.protocol_error import ProtocolError
 
 # Retry types
 from omnibase_spi.protocols.types.protocol_retry_types import (
@@ -206,10 +206,10 @@ from omnibase_spi.protocols.types.protocol_service_types import (
 from omnibase_spi.protocols.types.protocol_state_types import (
     ProtocolAction,
     ProtocolActionPayload,
+    ProtocolInputState,
     ProtocolMetadata,
     ProtocolMetadataOperations,
-    ProtocolOnexInputState,
-    ProtocolOnexOutputState,
+    ProtocolOutputState,
     ProtocolState,
     ProtocolSystemEvent,
 )
@@ -289,7 +289,6 @@ from omnibase_spi.protocols.types.protocol_event_bus_types import (
     ProtocolEventStringDictData,
     ProtocolEventStringListData,
     ProtocolEventSubscription,
-    ProtocolOnexEvent,
     ProtocolSecurityContext,
 )
 
@@ -311,8 +310,8 @@ from omnibase_spi.protocols.types.protocol_file_handling_types import (
     ProtocolFileTypeResult,
     ProtocolHandlerMatch,
     ProtocolHandlerMetadata,
-    ProtocolOnexResult,
     ProtocolProcessingResult,
+    ProtocolResult,
     ProtocolResultData,
     ProtocolResultOperations,
     ProtocolSerializedBlock,
@@ -463,6 +462,7 @@ __all__ = [
     "ProtocolDiscoveryServiceInstance",
     "ProtocolDiscoveryServiceMetadata",
     "ProtocolDuration",
+    "ProtocolError",
     "ProtocolErrorContext",
     "ProtocolErrorInfo",
     "ProtocolErrorResult",
@@ -497,6 +497,7 @@ __all__ = [
     "ProtocolHealthMetrics",
     "ProtocolHealthMonitoring",
     "ProtocolIdentifiable",
+    "ProtocolInputState",
     "ProtocolLogContext",
     "ProtocolLogEmitter",
     "ProtocolLogEntry",
@@ -525,11 +526,7 @@ __all__ = [
     "ProtocolNodeMetadata",
     "ProtocolNodeMetadataBlock",
     "ProtocolNodeResult",
-    "ProtocolOnexError",
-    "ProtocolOnexEvent",
-    "ProtocolOnexInputState",
-    "ProtocolOnexOutputState",
-    "ProtocolOnexResult",
+    "ProtocolOutputState",
     "ProtocolPatternChecker",
     "ProtocolPerformanceMetric",
     "ProtocolPerformanceMetrics",
@@ -538,6 +535,7 @@ __all__ = [
     "ProtocolRecoveryAction",
     "ProtocolRecoveryPoint",
     "ProtocolReplayStrategy",
+    "ProtocolResult",
     "ProtocolResultData",
     "ProtocolResultOperations",
     "ProtocolRetryAttempt",

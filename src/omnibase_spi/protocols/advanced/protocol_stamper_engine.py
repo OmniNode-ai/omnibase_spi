@@ -24,7 +24,7 @@
 
 from typing import Protocol, runtime_checkable
 
-from omnibase_spi.protocols.types import ProtocolOnexResult
+from omnibase_spi.protocols.types import ProtocolResult
 
 
 @runtime_checkable
@@ -40,12 +40,12 @@ class ProtocolStamperEngine(Protocol):
     Example:
         ```python
         from omnibase_spi.protocols.advanced import ProtocolStamperEngine
-        from omnibase_spi.protocols.types import ProtocolOnexResult
+        from omnibase_spi.protocols.types import ProtocolResult
 
         async def stamp_project(
             engine: ProtocolStamperEngine,
             project_dir: str
-        ) -> ProtocolOnexResult:
+        ) -> ProtocolResult:
             # Stamp all Python files in project recursively
             result = await engine.process_directory(
                 directory=project_dir,
@@ -88,7 +88,7 @@ class ProtocolStamperEngine(Protocol):
         force_overwrite: bool | None = None,
         author: str | None = None,
         **kwargs: object,
-    ) -> ProtocolOnexResult: ...
+    ) -> ProtocolResult: ...
 
     async def process_directory(
         self,
@@ -103,4 +103,4 @@ class ProtocolStamperEngine(Protocol):
         overwrite: bool | None = None,
         repair: bool | None = None,
         force_overwrite: bool | None = None,
-    ) -> ProtocolOnexResult: ...
+    ) -> ProtocolResult: ...

@@ -4,7 +4,7 @@ from typing import Any, Protocol, runtime_checkable
 
 
 @runtime_checkable
-class ProtocolOnexEffectNode(Protocol):
+class ProtocolEffectNode(Protocol):
     """
     Protocol for ONEX effect node implementations.
 

@@ -4,7 +4,7 @@ from typing import Any, Protocol, runtime_checkable
 
 
 @runtime_checkable
-class ProtocolOnexReducerNode(Protocol):
+class ProtocolReducerNode(Protocol):
     """
     Protocol for ONEX reducer node implementations.
 

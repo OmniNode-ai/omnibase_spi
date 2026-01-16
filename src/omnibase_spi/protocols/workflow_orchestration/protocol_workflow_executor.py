@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 if TYPE_CHECKING:
     from omnibase_spi.protocols.node.protocol_node_registry import ProtocolNodeRegistry
     from omnibase_spi.protocols.types.protocol_file_handling_types import (
-        ProtocolOnexResult,
+        ProtocolResult,
     )
 
 
@@ -33,7 +33,7 @@ class ProtocolWorkflowExecutor(Protocol):
         """
         ...
 
-    async def run(self, input_state: dict[str, Any]) -> "ProtocolOnexResult":
+    async def run(self, input_state: dict[str, Any]) -> "ProtocolResult":
         """
         Run the Workflow executor with the provided input state.
 
@@ -51,7 +51,7 @@ class ProtocolWorkflowExecutor(Protocol):
         scenario_id: str,
         correlation_id: str,
         parameters: dict[str, Any],
-    ) -> "ProtocolOnexResult":
+    ) -> "ProtocolResult":
         """
         Execute a specific operation.
 

@@ -4,7 +4,7 @@ from typing import Any, Protocol, runtime_checkable
 
 
 @runtime_checkable
-class ProtocolOnexComputeNode(Protocol):
+class ProtocolComputeNode(Protocol):
     """
     Protocol for ONEX compute node implementations.
 
@@ -35,7 +35,7 @@ class ProtocolOnexComputeNode(Protocol):
 
     Example Usage:
         ```python
-        from omnibase_spi.protocols.onex import ProtocolOnexComputeNode
+        from omnibase_spi.protocols.onex import ProtocolComputeNode
 
         class MyCompute:
             async def execute_compute(self, contract: ComputeContract) -> ComputeResult:
@@ -52,7 +52,7 @@ class ProtocolOnexComputeNode(Protocol):
 
         # Runtime validation
         compute = MyCompute()
-        assert isinstance(compute, ProtocolOnexComputeNode)
+        assert isinstance(compute, ProtocolComputeNode)
         ```
 
     Common Patterns:

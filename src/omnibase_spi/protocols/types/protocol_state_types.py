@@ -14,8 +14,8 @@ Protocols included:
 - ProtocolAction: Reducer action definitions
 - ProtocolState: Reducer state containers
 - ProtocolSystemEvent: System event definitions
-- ProtocolOnexInputState: ONEX input state for format conversion
-- ProtocolOnexOutputState: ONEX output state for conversion results
+- ProtocolInputState: ONEX input state for format conversion
+- ProtocolOutputState: ONEX output state for conversion results
 """
 
 from typing import Protocol, runtime_checkable
@@ -322,7 +322,7 @@ class ProtocolSystemEvent(Protocol):
 
 
 @runtime_checkable
-class ProtocolOnexInputState(Protocol):
+class ProtocolInputState(Protocol):
     """
     Protocol for ONEX input state in format conversion operations.
 
@@ -346,7 +346,7 @@ class ProtocolOnexInputState(Protocol):
                 return bool(self.input_string and self.source_format)
 
         input_state = JsonToYamlInput()
-        assert isinstance(input_state, ProtocolOnexInputState)
+        assert isinstance(input_state, ProtocolInputState)
         ```
     """
 
@@ -365,7 +365,7 @@ class ProtocolOnexInputState(Protocol):
 
 
 @runtime_checkable
-class ProtocolOnexOutputState(Protocol):
+class ProtocolOutputState(Protocol):
     """
     Protocol for ONEX output state from format conversion operations.
 
@@ -394,7 +394,7 @@ class ProtocolOnexOutputState(Protocol):
                 return self.conversion_success or bool(self.output_string)
 
         output_state = YamlConversionOutput()
-        assert isinstance(output_state, ProtocolOnexOutputState)
+        assert isinstance(output_state, ProtocolOutputState)
         ```
     """
 

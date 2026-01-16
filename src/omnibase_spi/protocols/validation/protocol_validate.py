@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from omnibase_spi.protocols.core.protocol_logger import ProtocolLogger
 
 from omnibase_spi.protocols.cli.protocol_cli import ProtocolCLI
-from omnibase_spi.protocols.types import ProtocolNodeMetadataBlock, ProtocolOnexResult
+from omnibase_spi.protocols.types import ProtocolNodeMetadataBlock, ProtocolResult
 
 
 # Protocol interfaces for validation results
@@ -213,7 +213,7 @@ class ProtocolValidate(ProtocolCLI, Protocol):
 
     async def validate_main(
         self, args: "ProtocolCLIArgsModel"
-    ) -> ProtocolOnexResult: ...
+    ) -> ProtocolResult: ...
 
     async def validate(
         self,

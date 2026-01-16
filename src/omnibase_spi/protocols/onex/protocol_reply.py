@@ -1,7 +1,7 @@
 """
-Onex Reply Protocol Interface
+Reply Protocol Interface
 
-Protocol interface for Onex standard reply pattern.
+Protocol interface for standard reply pattern.
 Defines the contract for response replies with status, data, and error information.
 """
 
@@ -9,8 +9,8 @@ from typing import TYPE_CHECKING, Literal, Protocol, TypeVar, runtime_checkable
 from uuid import UUID
 
 if TYPE_CHECKING:
-    from omnibase_spi.protocols.onex.protocol_onex_validation import (
-        ProtocolOnexMetadata,
+    from omnibase_spi.protocols.onex.protocol_validation import (
+        ProtocolMetadata,
     )
     from omnibase_spi.protocols.types.protocol_core_types import ProtocolDateTime
 
@@ -22,9 +22,9 @@ LiteralOnexReplyStatus = Literal[
 
 
 @runtime_checkable
-class ProtocolOnexReply(Protocol):
+class ProtocolReply(Protocol):
     """
-    Protocol interface for Onex reply pattern.
+    Protocol interface for reply pattern.
 
     All ONEX tools must implement this protocol for response reply handling.
     Provides standardized response wrapping with status and error information.
@@ -34,7 +34,7 @@ class ProtocolOnexReply(Protocol):
         self,
         data: T,
         correlation_id: UUID | None = None,
-        metadata: "ProtocolOnexMetadata | None" = None,
+        metadata: "ProtocolMetadata | None" = None,
     ) -> R: ...
 
     async def create_error_reply(
@@ -43,14 +43,14 @@ class ProtocolOnexReply(Protocol):
         error_code: str | None = None,
         error_details: str | None = None,
         correlation_id: UUID | None = None,
-        metadata: "ProtocolOnexMetadata | None" = None,
+        metadata: "ProtocolMetadata | None" = None,
     ) -> R: ...
 
     async def create_validation_error_reply(
         self,
         validation_errors: list[str],
         correlation_id: UUID | None = None,
-        metadata: "ProtocolOnexMetadata | None" = None,
+        metadata: "ProtocolMetadata | None" = None,
     ) -> R: ...
 
     def extract_data(self, reply: R) -> T | None: ...
@@ -65,7 +65,7 @@ class ProtocolOnexReply(Protocol):
 
     async def get_correlation_id(self, reply: R) -> UUID | None: ...
 
-    async def get_metadata(self, reply: R) -> "ProtocolOnexMetadata | None": ...
+    async def get_metadata(self, reply: R) -> "ProtocolMetadata | None": ...
 
     def is_success(self, reply: R) -> bool: ...
 
@@ -75,7 +75,7 @@ class ProtocolOnexReply(Protocol):
 
     async def get_processing_time(self, reply: R) -> float | None: ...
 
-    def with_metadata(self, reply: R, metadata: "ProtocolOnexMetadata") -> R: ...
+    def with_metadata(self, reply: R, metadata: "ProtocolMetadata") -> R: ...
 
     def is_onex_compliant(self, reply: R) -> bool: ...
 

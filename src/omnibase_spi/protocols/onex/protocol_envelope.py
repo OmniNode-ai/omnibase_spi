@@ -1,7 +1,7 @@
 """
-Onex Envelope Protocol Interface
+Envelope Protocol Interface
 
-Protocol interface for Onex standard envelope pattern.
+Protocol interface for standard envelope pattern.
 Defines the contract for request envelopes with metadata, correlation IDs, and security context.
 """
 
@@ -9,9 +9,9 @@ from datetime import datetime
 from typing import Protocol, TypeVar, runtime_checkable
 from uuid import UUID
 
-from omnibase_spi.protocols.onex.protocol_onex_validation import (
-    ProtocolOnexMetadata,
-    ProtocolOnexSecurityContext,
+from omnibase_spi.protocols.onex.protocol_validation import (
+    ProtocolMetadata,
+    ProtocolSecurityContext,
 )
 
 T = TypeVar("T")
@@ -19,9 +19,9 @@ E = TypeVar("E")
 
 
 @runtime_checkable
-class ProtocolOnexEnvelope(Protocol):
+class ProtocolEnvelope(Protocol):
     """
-    Protocol interface for Onex envelope pattern.
+    Protocol interface for envelope pattern.
 
     All ONEX tools must implement this protocol for request envelope handling.
     Provides standardized request wrapping with metadata and security context.
@@ -31,8 +31,8 @@ class ProtocolOnexEnvelope(Protocol):
         self,
         payload: T,
         correlation_id: UUID | None = None,
-        security_context: "ProtocolOnexSecurityContext | None" = None,
-        metadata: "ProtocolOnexMetadata | None" = None,
+        security_context: "ProtocolSecurityContext | None" = None,
+        metadata: "ProtocolMetadata | None" = None,
     ) -> E: ...
 
     async def extract_payload(self, envelope: E) -> T: ...
@@ -41,9 +41,9 @@ class ProtocolOnexEnvelope(Protocol):
 
     async def get_security_context(
         self, envelope: E
-    ) -> "ProtocolOnexSecurityContext | None": ...
+    ) -> "ProtocolSecurityContext | None": ...
 
-    async def get_metadata(self, envelope: E) -> "ProtocolOnexMetadata | None": ...
+    async def get_metadata(self, envelope: E) -> "ProtocolMetadata | None": ...
 
     async def validate_envelope(self, envelope: E) -> bool: ...
 
@@ -53,6 +53,6 @@ class ProtocolOnexEnvelope(Protocol):
 
     async def get_target_tool(self, envelope: E) -> str | None: ...
 
-    def with_metadata(self, envelope: E, metadata: "ProtocolOnexMetadata") -> E: ...
+    def with_metadata(self, envelope: E, metadata: "ProtocolMetadata") -> E: ...
 
     def is_onex_compliant(self, envelope: E) -> bool: ...

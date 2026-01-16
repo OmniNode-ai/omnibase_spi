@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from omnibase_spi.protocols.types.protocol_file_handling_types import (
         ProtocolCanHandleResult,
         ProtocolExtractedBlock,
-        ProtocolOnexResult,
+        ProtocolResult,
         ProtocolSerializedBlock,
     )
 
@@ -158,16 +158,16 @@ class ProtocolFileProcessingTypeHandler(Protocol):
 
     async def stamp(
         self, path: str, content: str, options: ProtocolStampOptions
-    ) -> ProtocolOnexResult: ...
+    ) -> ProtocolResult: ...
 
     async def pre_validate(
         self, path: str, content: str, options: ProtocolValidationOptions
-    ) -> ProtocolOnexResult | None: ...
+    ) -> ProtocolResult | None: ...
 
     async def post_validate(
         self, path: str, content: str, options: ProtocolValidationOptions
-    ) -> ProtocolOnexResult | None: ...
+    ) -> ProtocolResult | None: ...
 
     async def validate(
         self, path: str, content: str, options: ProtocolValidationOptions
-    ) -> ProtocolOnexResult: ...
+    ) -> ProtocolResult: ...

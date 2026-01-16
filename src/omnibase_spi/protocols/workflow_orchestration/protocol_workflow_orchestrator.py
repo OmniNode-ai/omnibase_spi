@@ -11,7 +11,7 @@ from uuid import UUID
 if TYPE_CHECKING:
     from omnibase_spi.protocols.node.protocol_node_registry import ProtocolNodeRegistry
     from omnibase_spi.protocols.types.protocol_file_handling_types import (
-        ProtocolOnexResult,
+        ProtocolResult,
     )
     from omnibase_spi.protocols.types.protocol_workflow_orchestration_types import (
         ProtocolHealthCheckResult,
@@ -71,7 +71,7 @@ class ProtocolWorkflowOrchestrator(Protocol):
 
     async def run(
         self, input_state: "ProtocolWorkflowInputState"
-    ) -> "ProtocolOnexResult":
+    ) -> "ProtocolResult":
         """
         Run the Workflow orchestrator with the provided input state.
 
@@ -89,7 +89,7 @@ class ProtocolWorkflowOrchestrator(Protocol):
         scenario_id: str,
         correlation_id: UUID,
         parameters: "ProtocolWorkflowParameters",
-    ) -> "ProtocolOnexResult":
+    ) -> "ProtocolResult":
         """
         Orchestrate a specific operation type within a workflow scenario.
 

@@ -340,7 +340,7 @@ class ProtocolEventSubscription(Protocol):
 
 
 @runtime_checkable
-class ProtocolOnexEvent(Protocol):
+class ProtocolSystemEvent(Protocol):
     """
     Protocol for ONEX system events.
 
@@ -373,7 +373,7 @@ class ProtocolOnexEvent(Protocol):
                 return self.event_id and self.event_type
 
         event = NodeStartedEvent()
-        assert isinstance(event, ProtocolOnexEvent)
+        assert isinstance(event, ProtocolSystemEvent)
         ```
     """
 
@@ -611,8 +611,8 @@ __all__ = [
     "ProtocolEventStringDictData",
     "ProtocolEventStringListData",
     "ProtocolEventSubscription",
-    "ProtocolOnexEvent",
     "ProtocolProgressUpdate",
     "ProtocolSecurityContext",
+    "ProtocolSystemEvent",
     "ProtocolWorkResult",
 ]

@@ -60,7 +60,7 @@ if TYPE_CHECKING:
     )
     from omnibase_spi.protocols.node.protocol_node_registry import ProtocolNodeRegistry
     from omnibase_spi.protocols.types.protocol_file_handling_types import (
-        ProtocolOnexResult,
+        ProtocolResult,
     )
     from omnibase_spi.protocols.types.protocol_workflow_orchestration_types import (
         ProtocolWorkflowEvent,
@@ -136,7 +136,7 @@ class ProtocolWorkflowEventCoordinator(Protocol):
         """
         ...
 
-    async def run(self, input_state: dict[str, ContextValue]) -> "ProtocolOnexResult":
+    async def run(self, input_state: dict[str, ContextValue]) -> "ProtocolResult":
         """Run the Workflow event coordinator with the provided input state.
 
         Args:
@@ -156,7 +156,7 @@ class ProtocolWorkflowEventCoordinator(Protocol):
         workflow_events: list["ProtocolWorkflowEvent"],
         scenario_id: str,
         correlation_id: str,
-    ) -> "ProtocolOnexResult":
+    ) -> "ProtocolResult":
         """Coordinate a list of workflow events.
 
         Args:
@@ -177,7 +177,7 @@ class ProtocolWorkflowEventCoordinator(Protocol):
         self,
         event: "ProtocolWorkflowEvent",
         correlation_id: str,
-    ) -> "ProtocolOnexResult":
+    ) -> "ProtocolResult":
         """Publish a workflow event to the event bus.
 
         Args:
@@ -198,7 +198,7 @@ class ProtocolWorkflowEventCoordinator(Protocol):
         event_types: list[str],
         callback: Callable[..., None],
         correlation_id: str,
-    ) -> "ProtocolOnexResult":
+    ) -> "ProtocolResult":
         """Subscribe to specific event types.
 
         Args:

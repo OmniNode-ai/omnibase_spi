@@ -2,38 +2,38 @@
 
 from __future__ import annotations
 
-from .protocol_compute_node import ProtocolOnexComputeNode
-from .protocol_effect_node import ProtocolOnexEffectNode
-from .protocol_onex_envelope import ProtocolOnexEnvelope
-from .protocol_onex_node import ProtocolOnexNode
-from .protocol_onex_reply import ProtocolOnexReply
-from .protocol_onex_validation import (
-    ProtocolOnexContractData,
-    ProtocolOnexMetadata,
-    ProtocolOnexSchema,
-    ProtocolOnexSecurityContext,
-    ProtocolOnexValidation,
-    ProtocolOnexValidationReport,
-    ProtocolOnexValidationResult,
+from .protocol_compute_node import ProtocolComputeNode
+from .protocol_effect_node import ProtocolEffectNode
+from .protocol_envelope import ProtocolEnvelope
+from .protocol_node import ProtocolNode
+from .protocol_reply import ProtocolReply
+from .protocol_validation import (
+    ProtocolContractData,
+    ProtocolMetadata,
+    ProtocolSchema,
+    ProtocolSecurityContext,
+    ProtocolValidation,
+    ProtocolValidationReport,
+    ProtocolValidationResult,
 )
-from .protocol_onex_version_loader import ProtocolOnexVersionLoader
-from .protocol_orchestrator_node import ProtocolOnexOrchestratorNode
-from .protocol_reducer_node import ProtocolOnexReducerNode
+from .protocol_version_loader import ProtocolVersionLoader
+from .protocol_orchestrator_node import ProtocolOrchestratorNode
+from .protocol_reducer_node import ProtocolReducerNode
 
 __all__ = [
-    "ProtocolOnexComputeNode",
-    "ProtocolOnexContractData",
-    "ProtocolOnexEffectNode",
-    "ProtocolOnexEnvelope",
-    "ProtocolOnexMetadata",
-    "ProtocolOnexNode",
-    "ProtocolOnexOrchestratorNode",
-    "ProtocolOnexReducerNode",
-    "ProtocolOnexReply",
-    "ProtocolOnexSchema",
-    "ProtocolOnexSecurityContext",
-    "ProtocolOnexValidation",
-    "ProtocolOnexValidationReport",
-    "ProtocolOnexValidationResult",
-    "ProtocolOnexVersionLoader",
+    "ProtocolComputeNode",
+    "ProtocolContractData",
+    "ProtocolEffectNode",
+    "ProtocolEnvelope",
+    "ProtocolMetadata",
+    "ProtocolNode",
+    "ProtocolOrchestratorNode",
+    "ProtocolReducerNode",
+    "ProtocolReply",
+    "ProtocolSchema",
+    "ProtocolSecurityContext",
+    "ProtocolValidation",
+    "ProtocolValidationReport",
+    "ProtocolValidationResult",
+    "ProtocolVersionLoader",
 ]

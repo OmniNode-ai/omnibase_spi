@@ -288,22 +288,18 @@ from omnibase_spi.protocols.node import (
 )
 
 # ONEX protocols (15 protocols) - ONEX platform specific protocols
+# Note: Node protocols (ProtocolComputeNode, ProtocolEffectNode, ProtocolNode,
+# ProtocolOrchestratorNode, ProtocolReducerNode) are imported from protocols.nodes
 from omnibase_spi.protocols.onex import (
-    ProtocolOnexComputeNode,
-    ProtocolOnexContractData,
-    ProtocolOnexEffectNode,
-    ProtocolOnexEnvelope,
-    ProtocolOnexMetadata,
-    ProtocolOnexNode,
-    ProtocolOnexOrchestratorNode,
-    ProtocolOnexReducerNode,
-    ProtocolOnexReply,
-    ProtocolOnexSchema,
-    ProtocolOnexSecurityContext,
-    ProtocolOnexValidation,
-    ProtocolOnexValidationReport,
-    ProtocolOnexValidationResult,
-    ProtocolOnexVersionLoader,
+    ProtocolContractData,
+    ProtocolEnvelope,
+    ProtocolMetadata,
+    ProtocolReply,
+    ProtocolSchema,
+    ProtocolSecurityContext,
+    ProtocolValidation,
+    ProtocolValidationReport,
+    ProtocolVersionLoader,
 )
 
 # Projections protocols (5 protocols) - Projection persistence and state reading
@@ -324,9 +320,8 @@ from omnibase_spi.protocols.projectors import (
     ProtocolProjectorLoader,
 )
 
-# Naming consistency alias (Issue #5)
-# ProtocolEnvelope is the canonical name per roadmap specification
-ProtocolEnvelope = ProtocolOnexEnvelope
+# Note: ProtocolEnvelope is now imported directly from protocols.onex
+# (previously was an alias: ProtocolEnvelope = ProtocolOnexEnvelope)
 
 # v0.3.0 Contract compiler protocols (7 protocols) - YAML contract compilation
 # Includes handler contract interface and supporting types
@@ -479,6 +474,7 @@ __all__ = [
     "ProtocolComputeNode",
     "ProtocolContainer",
     "ProtocolContainerService",
+    "ProtocolContractData",
     "ProtocolDIServiceInstance",
     "ProtocolDIServiceMetadata",
     "ProtocolDLQHandler",
@@ -561,6 +557,7 @@ __all__ = [
     "ProtocolMCPValidator",
     "ProtocolMemoryOrchestrator",
     "ProtocolMemoryRecord",
+    "ProtocolMetadata",
     "ProtocolMetricsCollector",
     "ProtocolModelRouter",
     "ProtocolNode",
@@ -570,20 +567,6 @@ __all__ = [
     "ProtocolNodeRunner",
     "ProtocolNodeSchedulingResult",
     "ProtocolOllamaClient",
-    "ProtocolOnexComputeNode",
-    "ProtocolOnexContractData",
-    "ProtocolOnexEffectNode",
-    "ProtocolOnexEnvelope",
-    "ProtocolOnexMetadata",
-    "ProtocolOnexNode",
-    "ProtocolOnexOrchestratorNode",
-    "ProtocolOnexReducerNode",
-    "ProtocolOnexReply",
-    "ProtocolOnexSchema",
-    "ProtocolOnexSecurityContext",
-    "ProtocolOnexValidation",
-    "ProtocolOnexValidationReport",
-    "ProtocolOnexValidationResult",
     "ProtocolOrchestratorNode",
     "ProtocolPackageVerifier",
     "ProtocolPerformanceMetricsCollector",
@@ -595,9 +578,12 @@ __all__ = [
     "ProtocolProviderRegistry",
     "ProtocolReducerNode",
     "ProtocolRedpandaAdapter",
+    "ProtocolReply",
     "ProtocolRetryable",
+    "ProtocolSchema",
     "ProtocolSchemaLoader",
     "ProtocolSchemaRegistry",
+    "ProtocolSecurityContext",
     "ProtocolSecurityEvent",
     "ProtocolSequenceInfo",
     "ProtocolServiceDependency",
@@ -616,16 +602,18 @@ __all__ = [
     "ProtocolTaskSchedulingCriteria",
     "ProtocolTimeBasedOperations",
     "ProtocolToolDiscoveryService",
-    "ProtocolOnexVersionLoader",
     "ProtocolTrustedSchemaLoader",
     "ProtocolUriParser",
     "ProtocolUtilsNodeConfiguration",
+    "ProtocolValidation",
     "ProtocolValidationDecorator",
     "ProtocolValidationError",
     "ProtocolValidationOptions",
+    "ProtocolValidationReport",
     "ProtocolValidationResult",
     "ProtocolValidator",
     "ProtocolVectorStoreHandler",
+    "ProtocolVersionLoader",
     "ProtocolVersionManager",
     "ProtocolWorkQueue",
     "ProtocolWorkflowContractCompiler",
