@@ -296,7 +296,7 @@ class ProtocolVelocityTracker(Protocol):
             work_session_id: Optional work session ID
 
         Returns:
-            Task[Any]timer ID
+            Task timer ID
         """
         ...
 

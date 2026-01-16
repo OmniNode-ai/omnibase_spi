@@ -152,7 +152,7 @@ class ProtocolEnumGenerator(Protocol):
             enum_infos: List of enum information
 
         Returns:
-            Deduplicated list[Any]of enums
+            Deduplicated list of enums
         """
         ...
 
