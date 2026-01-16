@@ -28,6 +28,7 @@ from typing import Any
 
 import timeout_utils
 from timeout_utils import timeout_context
+from validation_constants import KNOWN_ALLOWED_CONFLICTS
 
 
 @dataclass
@@ -574,6 +575,11 @@ def _filter_real_conflicts(protocols: list[ProtocolInfo]) -> list[ProtocolInfo]:
     """Filter out legitimate protocol variations from real naming conflicts."""
     if not protocols or len(protocols) < 2:
         return protocols
+
+    # Skip known allowed conflicts that are documented and intentional
+    protocol_name = protocols[0].name if protocols else ""
+    if protocol_name in KNOWN_ALLOWED_CONFLICTS:
+        return []  # Skip - this is a known, documented conflict
 
     # If protocols are in different domains with different purposes, they might be legitimate
     domains = {p.domain for p in protocols}

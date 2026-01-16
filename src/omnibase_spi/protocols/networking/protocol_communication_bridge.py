@@ -13,7 +13,9 @@ from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types.protocol_core_types import ContextValue
-    from omnibase_spi.protocols.types.protocol_event_bus_types import ProtocolOnexEvent
+    from omnibase_spi.protocols.types.protocol_event_bus_types import (
+        ProtocolEventBusSystemEvent,
+    )
 
 
 @runtime_checkable
@@ -378,7 +380,7 @@ class ProtocolCommunicationBridge(Protocol):
         """
         ...
 
-    async def publish_to_event_bus(self, event: "ProtocolOnexEvent") -> bool:
+    async def publish_to_event_bus(self, event: "ProtocolEventBusSystemEvent") -> bool:
         """
         Publish event to ONEX Event Bus.
 
@@ -396,7 +398,7 @@ class ProtocolCommunicationBridge(Protocol):
     async def subscribe_to_onex_events(
         self,
         event_types: list[str],
-    ) -> "AsyncIterator[ProtocolOnexEvent]":
+    ) -> "AsyncIterator[ProtocolEventBusSystemEvent]":
         """
         Subscribe to ONEX Event Bus for specific event types.
 
@@ -474,7 +476,7 @@ class ProtocolCommunicationBridge(Protocol):
 
     async def transform_onex_to_agent_message(
         self,
-        onex_event: "ProtocolOnexEvent",
+        onex_event: "ProtocolEventBusSystemEvent",
     ) -> dict[str, str] | None:
         """
         Transform ONEX event to external agent message format.
@@ -490,7 +492,7 @@ class ProtocolCommunicationBridge(Protocol):
     async def transform_agent_to_onex_event(
         self,
         agent_event: "ProtocolBridgeAgentMessage",
-    ) -> "ProtocolOnexEvent | None":
+    ) -> "ProtocolEventBusSystemEvent | None":
         """
         Transform external agent event to ONEX event format.
 

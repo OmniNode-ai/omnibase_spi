@@ -376,13 +376,18 @@ The ONEX framework defines four specialized node types for distributed workflow 
 
 ### Effect Node Protocol
 
+> **Note**: For new implementations, use the canonical v0.3.0 protocol at
+> `omnibase_spi.protocols.nodes.ProtocolEffectNode`. The legacy protocol
+> `ProtocolOnexEffectNodeLegacy` in `protocols.onex` is deprecated.
+
 ```python
-from omnibase_spi.protocols.onex import ProtocolEffectNode
+from omnibase_spi.protocols.nodes import ProtocolEffectNode
+from omnibase_core.models.effect import ModelEffectInput, ModelEffectOutput
 
 @runtime_checkable
 class ProtocolEffectNode(Protocol):
     """
-    Protocol for ONEX effect node implementations.
+    Protocol for ONEX effect node implementations (v0.3.0).
 
     Effect nodes perform side-effecting operations such as I/O, external API calls,
     database operations, file system access, and other interactions with external
@@ -398,7 +403,11 @@ class ProtocolEffectNode(Protocol):
         - Third-party service interactions
     """
 
-    async def execute_effect(self, contract: Any) -> Any: ...
+    async def initialize(self) -> None: ...
+
+    async def shutdown(self, timeout_seconds: float = 30.0) -> None: ...
+
+    async def execute(self, input_data: ModelEffectInput) -> ModelEffectOutput: ...
 
     @property
     def node_id(self) -> str: ...
@@ -407,15 +416,18 @@ class ProtocolEffectNode(Protocol):
     def node_type(self) -> str: ...
 ```
 
-### Compute Node Protocol
+### Compute Node Protocol (Legacy)
+
+> **Note**: This is the legacy ONEX-specific protocol. For new implementations,
+> use the canonical v0.3.0 protocol: `omnibase_spi.protocols.nodes.ProtocolComputeNode`
 
 ```python
-from omnibase_spi.protocols.onex import ProtocolComputeNode
+from omnibase_spi.protocols.onex import ProtocolOnexComputeNodeLegacy
 
 @runtime_checkable
-class ProtocolComputeNode(Protocol):
+class ProtocolOnexComputeNodeLegacy(Protocol):
     """
-    Protocol for ONEX compute node implementations.
+    Legacy protocol for ONEX compute node implementations.
 
     Compute nodes perform pure computational transformations without side effects.
     They implement algorithms, data transformations, business logic, and
@@ -441,13 +453,18 @@ class ProtocolComputeNode(Protocol):
 
 ### Reducer Node Protocol
 
+> **Note**: For new implementations, use the canonical v0.3.0 protocol at
+> `omnibase_spi.protocols.nodes.ProtocolReducerNode`. The legacy protocol
+> `ProtocolOnexReducerNodeLegacy` in `protocols.onex` is deprecated.
+
 ```python
-from omnibase_spi.protocols.onex import ProtocolReducerNode
+from omnibase_spi.protocols.nodes import ProtocolReducerNode
+from omnibase_core.models.reducer import ModelReductionInput, ModelReductionOutput
 
 @runtime_checkable
 class ProtocolReducerNode(Protocol):
     """
-    Protocol for ONEX reducer node implementations.
+    Protocol for ONEX reducer node implementations (v0.3.0).
 
     Reducer nodes aggregate and transform data from multiple sources,
     implementing reduction operations that combine, summarize, or synthesize
@@ -462,7 +479,7 @@ class ProtocolReducerNode(Protocol):
         - Metrics and summary computation
     """
 
-    async def execute_reduction(self, contract: Any) -> Any: ...
+    async def execute(self, input_data: ModelReductionInput) -> ModelReductionOutput: ...
 
     @property
     def node_id(self) -> str: ...
@@ -471,15 +488,22 @@ class ProtocolReducerNode(Protocol):
     def node_type(self) -> str: ...
 ```
 
-### Orchestrator Node Protocol
+### Orchestrator Node Protocol (Legacy)
+
+> **Note**: This is the legacy ONEX-specific protocol. For new implementations,
+> use the canonical v0.3.0 protocol: `omnibase_spi.protocols.nodes.ProtocolOrchestratorNode`
 
 ```python
-from omnibase_spi.protocols.onex import ProtocolOrchestratorNode
+from omnibase_spi.protocols.onex import ProtocolOnexOrchestratorNodeLegacy
 
 @runtime_checkable
-class ProtocolOrchestratorNode(Protocol):
+class ProtocolOnexOrchestratorNodeLegacy(Protocol):
     """
-    Protocol for ONEX orchestrator node implementations.
+    Legacy protocol for ONEX orchestrator node implementations.
+
+    .. deprecated::
+        For v0.3.0 compliant code, use :class:`omnibase_spi.protocols.nodes.ProtocolOrchestratorNode`
+        which provides the canonical node interface with typed execute() methods.
 
     Orchestrator nodes coordinate workflow execution across multiple nodes,
     managing task distribution, dependency resolution, and workflow state
@@ -494,7 +518,7 @@ class ProtocolOrchestratorNode(Protocol):
         - Workflow lifecycle management
     """
 
-    async def execute_orchestration(self, contract: Any) -> Any: ...
+    async def execute_orchestration(self, contract: object) -> object: ...
 
     @property
     def node_id(self) -> str: ...
@@ -503,18 +527,108 @@ class ProtocolOrchestratorNode(Protocol):
     def node_type(self) -> str: ...
 ```
 
-### Node Type Usage Example
+### Node Type Usage Example (v0.3.0)
+
+For new implementations, use the canonical v0.3.0 protocols from `omnibase_spi.protocols.nodes`:
 
 ```python
-from omnibase_spi.protocols.onex import (
+from omnibase_spi.protocols.nodes import (
     ProtocolEffectNode,
     ProtocolComputeNode,
     ProtocolReducerNode,
-    ProtocolOrchestratorNode
+    ProtocolOrchestratorNode,
 )
+from omnibase_core.models.effect import ModelEffectInput, ModelEffectOutput
+from omnibase_core.models.compute import ModelComputeInput, ModelComputeOutput
+from omnibase_core.models.reducer import ModelReductionInput, ModelReductionOutput
+from omnibase_core.models.orchestrator import ModelOrchestrationInput, ModelOrchestrationOutput
 
 # Effect Node: External API call
 class APICallEffect:
+    async def initialize(self) -> None:
+        # Set up HTTP client, connections, etc.
+        pass
+
+    async def shutdown(self, timeout_seconds: float = 30.0) -> None:
+        # Clean up resources
+        pass
+
+    async def execute(self, input_data: ModelEffectInput) -> ModelEffectOutput:
+        response = await http_client.post(input_data.url, data=input_data.payload)
+        return ModelEffectOutput(result=response)
+
+    @property
+    def node_id(self) -> str:
+        return "effect-api-call-1"
+
+    @property
+    def node_type(self) -> str:
+        return "effect"
+
+# Compute Node: Data transformation
+class DataTransformCompute:
+    async def execute(self, input_data: ModelComputeInput) -> ModelComputeOutput:
+        result = transform_data(input_data.data)
+        return ModelComputeOutput(result=result)
+
+    @property
+    def node_id(self) -> str:
+        return "compute-transform-1"
+
+    @property
+    def node_type(self) -> str:
+        return "compute"
+
+    @property
+    def is_deterministic(self) -> bool:
+        return True
+
+# Reducer Node: Result aggregation
+class ResultAggregationReducer:
+    async def execute(self, input_data: ModelReductionInput) -> ModelReductionOutput:
+        result = aggregate_results(input_data.partial_results)
+        return ModelReductionOutput(result=result)
+
+    @property
+    def node_id(self) -> str:
+        return "reducer-aggregation-1"
+
+    @property
+    def node_type(self) -> str:
+        return "reducer"
+
+# Orchestrator Node: Workflow coordination
+class WorkflowCoordinator:
+    async def execute(self, input_data: ModelOrchestrationInput) -> ModelOrchestrationOutput:
+        effect_result = await effect_node.execute(input_data.effect_input)
+        compute_result = await compute_node.execute(input_data.compute_input)
+        final_result = await reducer_node.execute(input_data.reducer_input)
+        return ModelOrchestrationOutput(result=final_result)
+
+    @property
+    def node_id(self) -> str:
+        return "orchestrator-workflow-1"
+
+    @property
+    def node_type(self) -> str:
+        return "orchestrator"
+```
+
+### Legacy Node Type Usage Example
+
+> **Deprecated**: The following example uses legacy protocols from `protocols.onex`.
+> For new implementations, use the v0.3.0 protocols shown above.
+
+```python
+from omnibase_spi.protocols.onex import (
+    ProtocolOnexEffectNodeLegacy,
+    ProtocolOnexComputeNodeLegacy,
+    ProtocolOnexReducerNodeLegacy,
+    ProtocolOnexOrchestratorNodeLegacy,
+)
+
+# Legacy Effect Node
+class LegacyAPICallEffect:
     async def execute_effect(self, contract):
         response = await http_client.post(contract.url, data=contract.payload)
         return response
@@ -527,8 +641,8 @@ class APICallEffect:
     def node_type(self) -> str:
         return "effect"
 
-# Compute Node: Data transformation
-class DataTransformCompute:
+# Legacy Compute Node
+class LegacyDataTransformCompute:
     async def execute_compute(self, contract):
         return transform_data(contract.input_data)
 
@@ -539,35 +653,6 @@ class DataTransformCompute:
     @property
     def node_type(self) -> str:
         return "compute"
-
-# Reducer Node: Result aggregation
-class ResultAggregationReducer:
-    async def execute_reduction(self, contract):
-        return aggregate_results(contract.partial_results)
-
-    @property
-    def node_id(self) -> str:
-        return "reducer-aggregation-1"
-
-    @property
-    def node_type(self) -> str:
-        return "reducer"
-
-# Orchestrator Node: Workflow coordination
-class WorkflowOrchestrator:
-    async def execute_orchestration(self, contract):
-        effect_result = await effect_node.execute_effect(contract.effect_contract)
-        compute_result = await compute_node.execute_compute(contract.compute_contract)
-        final_result = await reducer_node.execute_reduction(contract.reduce_contract)
-        return final_result
-
-    @property
-    def node_id(self) -> str:
-        return "orchestrator-workflow-1"
-
-    @property
-    def node_type(self) -> str:
-        return "orchestrator"
 ```
 
 ## Type Definitions
@@ -1082,23 +1167,19 @@ from omnibase_spi.exceptions import (
     ProtocolHandlerError,
     InvalidProtocolStateError,
 )
+from omnibase_core.models.effect import ModelEffectInput, ModelEffectOutput
+from omnibase_core.models.compute import ModelComputeInput, ModelComputeOutput
 
-async def execute_node_safely(
-    node: ProtocolEffectNode | ProtocolComputeNode,
-    contract: Any,
-) -> Any:
-    """Execute a node with comprehensive error handling."""
+async def execute_effect_node_safely(
+    node: ProtocolEffectNode,
+    input_data: ModelEffectInput,
+) -> ModelEffectOutput:
+    """Execute an effect node with comprehensive error handling."""
     node_id = node.node_id
     node_type = node.node_type
 
     try:
-        if node_type == "effect":
-            result = await node.execute_effect(contract)
-        elif node_type == "compute":
-            result = await node.execute_compute(contract)
-        else:
-            raise ValueError(f"Unknown node type: {node_type}")
-
+        result = await node.execute(input_data)
         logger.debug(f"Node {node_id} executed successfully")
         return result
 
@@ -1128,13 +1209,34 @@ async def execute_node_safely(
         # Node execution timed out
         logger.error(f"Node {node_id} timed out: {e}")
         raise ProtocolHandlerError(
-            f"Node execution timed out",
+            "Node execution timed out",
             context={
                 "node_id": node_id,
                 "node_type": node_type,
                 "timeout": "exceeded",
             }
         )
+
+
+async def execute_compute_node_safely(
+    node: ProtocolComputeNode,
+    input_data: ModelComputeInput,
+) -> ModelComputeOutput:
+    """Execute a compute node with comprehensive error handling."""
+    node_id = node.node_id
+
+    try:
+        result = await node.execute(input_data)
+        logger.debug(f"Node {node_id} executed successfully")
+        return result
+
+    except InvalidProtocolStateError as e:
+        logger.error(f"Node {node_id} in invalid state: {e}")
+        raise
+
+    except ProtocolHandlerError as e:
+        logger.error(f"Node {node_id} execution failed: {e}")
+        raise
 ```
 
 ### Event Replay Error Handling
@@ -1191,26 +1293,22 @@ async def replay_workflow_safely(
 ### Workflow Persistence Error Handling
 
 ```python
-from omnibase_spi.protocols.workflow_orchestration import ProtocolWorkflowPersistence
+from omnibase_spi.protocols.workflow_orchestration import ProtocolLiteralWorkflowStateStore
 from omnibase_spi.exceptions import HandlerInitializationError
 
 async def save_workflow_with_retry(
-    persistence: ProtocolWorkflowPersistence,
-    workflow_type: str,
-    instance_id: UUID,
-    state: ProtocolWorkflowState,
+    state_store: ProtocolLiteralWorkflowStateStore,
+    workflow_instance: ProtocolWorkflowSnapshot,
     max_retries: int = 3,
 ) -> bool:
     """Save workflow state with retry logic for transient failures."""
     for attempt in range(max_retries):
         try:
-            success = await persistence.save_workflow_state(
-                workflow_type=workflow_type,
-                instance_id=instance_id,
-                state=state,
+            success = await state_store.save_workflow_instance(
+                workflow_instance=workflow_instance,
             )
             if success:
-                logger.debug(f"Workflow state saved: {instance_id}")
+                logger.debug(f"Workflow state saved: {workflow_instance.instance_id}")
             return success
 
         except HandlerInitializationError as e:

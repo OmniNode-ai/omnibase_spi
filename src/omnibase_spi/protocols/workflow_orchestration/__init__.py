@@ -49,13 +49,16 @@ from .protocol_workflow_reducer import ProtocolWorkflowReducer
 # Type alias for backward compatibility
 ProtocolReducer = ProtocolWorkflowReducer
 
+# Workflow orchestration and coordination protocols
 # Work queue protocols
 from .protocol_work_queue import (
     LiteralAssignmentStrategy,
     LiteralWorkQueuePriority,
     ProtocolWorkQueue,
 )
+from .protocol_workflow_event_coordinator import ProtocolWorkflowEventCoordinator
 from .protocol_workflow_manageable import ProtocolWorkflowManageable
+from .protocol_workflow_orchestrator import ProtocolWorkflowOrchestrator
 
 __all__ = [
     "LiteralAssignmentStrategy",
@@ -67,17 +70,18 @@ __all__ = [
     "ProtocolLiteralWorkflowStateProjection",
     "ProtocolLiteralWorkflowStateStore",
     "ProtocolNodeSchedulingResult",
-    # Type alias for backward compatibility
-    "ProtocolReducer",
+    "ProtocolReducer",  # Type alias for backward compatibility
     "ProtocolSnapshotStore",
     "ProtocolTaskSchedulingCriteria",
     "ProtocolWorkQueue",
     "ProtocolWorkflowEventBus",
+    "ProtocolWorkflowEventCoordinator",
     "ProtocolWorkflowEventHandler",
     "ProtocolWorkflowEventMessage",
     "ProtocolWorkflowManageable",
     "ProtocolWorkflowNodeCapability",
     "ProtocolWorkflowNodeInfo",
     "ProtocolWorkflowNodeRegistry",
+    "ProtocolWorkflowOrchestrator",
     "ProtocolWorkflowReducer",
 ]

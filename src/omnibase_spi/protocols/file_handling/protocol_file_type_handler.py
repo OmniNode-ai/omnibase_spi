@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from omnibase_spi.protocols.types.protocol_file_handling_types import (
         ProtocolCanHandleResult,
         ProtocolExtractedBlock,
-        ProtocolOnexResult,
+        ProtocolResult,
         ProtocolSerializedBlock,
     )
 
@@ -160,7 +160,7 @@ class ProtocolFileProcessingTypeHandler(Protocol):
 
     async def stamp(
         self, path: str, content: str, options: ProtocolStampOptions
-    ) -> ProtocolOnexResult:
+    ) -> ProtocolResult:
         """Stamp a file with ONEX metadata block.
 
         Applies the stamping workflow to inject or update ONEX metadata
@@ -190,12 +190,12 @@ class ProtocolFileProcessingTypeHandler(Protocol):
 
     async def pre_validate(
         self, path: str, content: str, options: ProtocolValidationOptions
-    ) -> ProtocolOnexResult | None: ...
+    ) -> ProtocolResult | None: ...
 
     async def post_validate(
         self, path: str, content: str, options: ProtocolValidationOptions
-    ) -> ProtocolOnexResult | None: ...
+    ) -> ProtocolResult | None: ...
 
     async def validate(
         self, path: str, content: str, options: ProtocolValidationOptions
-    ) -> ProtocolOnexResult: ...
+    ) -> ProtocolResult: ...

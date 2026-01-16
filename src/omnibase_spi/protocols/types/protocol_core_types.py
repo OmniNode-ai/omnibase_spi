@@ -143,12 +143,12 @@ from omnibase_spi.protocols.types.protocol_service_types import (
 from omnibase_spi.protocols.types.protocol_state_types import (
     ProtocolAction,
     ProtocolActionPayload,
+    ProtocolInputState,
     ProtocolMetadata,
     ProtocolMetadataOperations,
-    ProtocolOnexInputState,
-    ProtocolOnexOutputState,
+    ProtocolOutputState,
     ProtocolState,
-    ProtocolSystemEvent,
+    ProtocolStateSystemEvent,
 )
 
 # Re-export from validation types
@@ -242,8 +242,8 @@ __all__ = [
     "ProtocolNodeMetadata",
     "ProtocolNodeMetadataBlock",
     "ProtocolNodeResult",
-    "ProtocolOnexInputState",
-    "ProtocolOnexOutputState",
+    "ProtocolInputState",
+    "ProtocolOutputState",
     "ProtocolPatternChecker",
     "ProtocolPerformanceMetric",
     "ProtocolPerformanceMetrics",
@@ -263,7 +263,7 @@ __all__ = [
     "ProtocolState",
     "ProtocolSupportedMetadataType",
     "ProtocolSupportedPropertyValue",
-    "ProtocolSystemEvent",
+    "ProtocolStateSystemEvent",
     "ProtocolTimeBased",
     "ProtocolTimeout",
     "ProtocolTraceSpan",

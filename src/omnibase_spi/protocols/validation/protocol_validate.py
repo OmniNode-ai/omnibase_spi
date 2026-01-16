@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from omnibase_spi.protocols.core.protocol_logger import ProtocolLogger
 
 from omnibase_spi.protocols.cli.protocol_cli import ProtocolCLI
-from omnibase_spi.protocols.types import ProtocolNodeMetadataBlock, ProtocolOnexResult
+from omnibase_spi.protocols.types import ProtocolNodeMetadataBlock, ProtocolResult
 
 
 # Protocol interfaces for validation results
@@ -277,7 +277,7 @@ class ProtocolValidate(ProtocolCLI, Protocol):
 
     logger: ProtocolLogger
 
-    async def validate_main(self, args: ProtocolCLIArgsModel) -> ProtocolOnexResult:
+    async def validate_main(self, args: ProtocolCLIArgsModel) -> ProtocolResult:
         """Execute validation from CLI arguments.
 
         Main entry point for CLI-based validation, parsing the provided
@@ -288,7 +288,7 @@ class ProtocolValidate(ProtocolCLI, Protocol):
                 and options/flags for the validation operation.
 
         Returns:
-            ONEX result containing validation outcome, exit code, and
+            Result containing validation outcome, exit code, and
             any error or success messages.
 
         Raises:

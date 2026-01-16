@@ -2,38 +2,51 @@
 
 from __future__ import annotations
 
-from .protocol_compute_node import ProtocolOnexComputeNode
-from .protocol_effect_node import ProtocolOnexEffectNode
-from .protocol_onex_envelope import ProtocolOnexEnvelope
-from .protocol_onex_node import ProtocolOnexNode
-from .protocol_onex_reply import ProtocolOnexReply
-from .protocol_onex_validation import (
-    ProtocolOnexContractData,
+from .protocol_compute_node import ProtocolOnexComputeNodeLegacy
+from .protocol_effect_node import ProtocolOnexEffectNodeLegacy
+from .protocol_envelope import ProtocolEnvelope
+from .protocol_node import ProtocolOnexNodeLegacy
+from .protocol_orchestrator_node import ProtocolOnexOrchestratorNodeLegacy
+from .protocol_reducer_node import ProtocolOnexReducerNodeLegacy
+from .protocol_reply import ProtocolReply
+from .protocol_validation import (
+    ProtocolContractData,
+    ProtocolCorrelatedData,
     ProtocolOnexMetadata,
-    ProtocolOnexSchema,
     ProtocolOnexSecurityContext,
-    ProtocolOnexValidation,
     ProtocolOnexValidationReport,
     ProtocolOnexValidationResult,
+    ProtocolSchema,
+    ProtocolValidation,
 )
-from .protocol_onex_version_loader import ProtocolToolToolOnexVersionLoader
-from .protocol_orchestrator_node import ProtocolOnexOrchestratorNode
-from .protocol_reducer_node import ProtocolOnexReducerNode
+from .protocol_version_loader import ProtocolVersionLoader
+
+# Short aliases for backward compatibility and convenience
+# These allow importing via short names from the main protocols __init__.py
+ProtocolMetadata = ProtocolOnexMetadata
+ProtocolSecurityContext = ProtocolOnexSecurityContext
+ProtocolValidationReport = ProtocolOnexValidationReport
+ProtocolValidationResult = ProtocolOnexValidationResult
 
 __all__ = [
-    "ProtocolOnexComputeNode",
-    "ProtocolOnexContractData",
-    "ProtocolOnexEffectNode",
-    "ProtocolOnexEnvelope",
+    "ProtocolContractData",
+    "ProtocolCorrelatedData",
+    "ProtocolEnvelope",
+    "ProtocolMetadata",  # Alias for ProtocolOnexMetadata
+    "ProtocolOnexComputeNodeLegacy",
+    "ProtocolOnexEffectNodeLegacy",
     "ProtocolOnexMetadata",
-    "ProtocolOnexNode",
-    "ProtocolOnexOrchestratorNode",
-    "ProtocolOnexReducerNode",
-    "ProtocolOnexReply",
-    "ProtocolOnexSchema",
+    "ProtocolOnexNodeLegacy",
+    "ProtocolOnexOrchestratorNodeLegacy",
+    "ProtocolOnexReducerNodeLegacy",
     "ProtocolOnexSecurityContext",
-    "ProtocolOnexValidation",
     "ProtocolOnexValidationReport",
     "ProtocolOnexValidationResult",
-    "ProtocolToolToolOnexVersionLoader",
+    "ProtocolReply",
+    "ProtocolSchema",
+    "ProtocolSecurityContext",  # Alias for ProtocolOnexSecurityContext
+    "ProtocolValidation",
+    "ProtocolValidationReport",  # Alias for ProtocolOnexValidationReport
+    "ProtocolValidationResult",  # Alias for ProtocolOnexValidationResult
+    "ProtocolVersionLoader",
 ]

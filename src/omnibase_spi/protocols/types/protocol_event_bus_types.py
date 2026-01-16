@@ -340,12 +340,17 @@ class ProtocolEventSubscription(Protocol):
 
 
 @runtime_checkable
-class ProtocolOnexEvent(Protocol):
+class ProtocolEventBusSystemEvent(Protocol):
     """
-    Protocol for ONEX system events.
+    Protocol for ONEX event bus system events.
 
     Extended event protocol with full metadata support for ONEX platform
-    events. Includes payload, correlation tracking, and rich metadata.
+    events over the event bus. Includes payload, correlation tracking,
+    and rich metadata for cross-service communication.
+
+    Note:
+        For simple state management events without correlation tracking,
+        use ProtocolStateSystemEvent from protocol_state_types.
 
     Attributes:
         event_id: Unique identifier for this event.
@@ -373,7 +378,7 @@ class ProtocolOnexEvent(Protocol):
                 return self.event_id and self.event_type
 
         event = NodeStartedEvent()
-        assert isinstance(event, ProtocolOnexEvent)
+        assert isinstance(event, ProtocolEventBusSystemEvent)
         ```
     """
 
@@ -611,8 +616,8 @@ __all__ = [
     "ProtocolEventStringDictData",
     "ProtocolEventStringListData",
     "ProtocolEventSubscription",
-    "ProtocolOnexEvent",
     "ProtocolProgressUpdate",
     "ProtocolSecurityContext",
+    "ProtocolEventBusSystemEvent",
     "ProtocolWorkResult",
 ]

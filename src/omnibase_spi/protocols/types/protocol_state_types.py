@@ -13,9 +13,9 @@ Protocols included:
 - ProtocolActionPayload: Action payload with operation parameters
 - ProtocolAction: Reducer action definitions
 - ProtocolState: Reducer state containers
-- ProtocolSystemEvent: System event definitions
-- ProtocolOnexInputState: ONEX input state for format conversion
-- ProtocolOnexOutputState: ONEX output state for conversion results
+- ProtocolStateSystemEvent: State management system event definitions
+- ProtocolInputState: ONEX input state for format conversion
+- ProtocolOutputState: ONEX output state for conversion results
 """
 
 from typing import Protocol, runtime_checkable
@@ -270,13 +270,17 @@ class ProtocolState(Protocol):
 
 
 @runtime_checkable
-class ProtocolSystemEvent(Protocol):
+class ProtocolStateSystemEvent(Protocol):
     """
-    Protocol for system-level events and notifications.
+    Protocol for state management system events and notifications.
 
     Represents internal system events with type, payload, and source
-    identification. Used for event-driven communication between
-    ONEX components.
+    identification. Used for state-driven communication between
+    ONEX components, particularly in reducer patterns and node results.
+
+    Note:
+        For event bus communication with correlation tracking and rich metadata,
+        use ProtocolEventBusSystemEvent from protocol_event_bus_types.
 
     Attributes:
         type: Event type identifier (e.g., "service.started", "node.failed").
@@ -302,7 +306,7 @@ class ProtocolSystemEvent(Protocol):
                 return self.timestamp > 0
 
         event = ServiceStartedEvent()
-        assert isinstance(event, ProtocolSystemEvent)
+        assert isinstance(event, ProtocolStateSystemEvent)
         ```
     """
 
@@ -322,7 +326,7 @@ class ProtocolSystemEvent(Protocol):
 
 
 @runtime_checkable
-class ProtocolOnexInputState(Protocol):
+class ProtocolInputState(Protocol):
     """
     Protocol for ONEX input state in format conversion operations.
 
@@ -346,7 +350,7 @@ class ProtocolOnexInputState(Protocol):
                 return bool(self.input_string and self.source_format)
 
         input_state = JsonToYamlInput()
-        assert isinstance(input_state, ProtocolOnexInputState)
+        assert isinstance(input_state, ProtocolInputState)
         ```
     """
 
@@ -365,7 +369,7 @@ class ProtocolOnexInputState(Protocol):
 
 
 @runtime_checkable
-class ProtocolOnexOutputState(Protocol):
+class ProtocolOutputState(Protocol):
     """
     Protocol for ONEX output state from format conversion operations.
 
@@ -394,7 +398,7 @@ class ProtocolOnexOutputState(Protocol):
                 return self.conversion_success or bool(self.output_string)
 
         output_state = YamlConversionOutput()
-        assert isinstance(output_state, ProtocolOnexOutputState)
+        assert isinstance(output_state, ProtocolOutputState)
         ```
     """
 

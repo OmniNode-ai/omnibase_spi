@@ -8,7 +8,7 @@ from typing import Protocol, runtime_checkable
 
 
 @runtime_checkable
-class ProtocolOnexError(Protocol):
+class ProtocolError(Protocol):
     """
     Protocol for ONEX error objects.
 

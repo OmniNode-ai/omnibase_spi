@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 @runtime_checkable
-class ProtocolProtocolEnumInfo(Protocol):
+class ProtocolEnumInfo(Protocol):
     """
     Protocol for enum discovery and metadata information.
 
@@ -102,7 +102,7 @@ class ProtocolEnumGenerator(Protocol):
 
     async def discover_enums_from_contract(
         self, contract_data: "ProtocolContractDocument"
-    ) -> list["ProtocolProtocolEnumInfo"]:
+    ) -> list["ProtocolEnumInfo"]:
         """Discover all enum definitions from a contract document.
 
         Args:
@@ -117,7 +117,7 @@ class ProtocolEnumGenerator(Protocol):
         self,
         schema: "ProtocolSchemaDefinition | JsonType",
         path: str | None = None,
-    ) -> list["ProtocolProtocolEnumInfo"]:
+    ) -> list["ProtocolEnumInfo"]:
         """Recursively discover enums from a schema definition.
 
         Args:
@@ -145,8 +145,8 @@ class ProtocolEnumGenerator(Protocol):
         ...
 
     def deduplicate_enums(
-        self, enum_infos: list["ProtocolProtocolEnumInfo"]
-    ) -> list["ProtocolProtocolEnumInfo"]:
+        self, enum_infos: list["ProtocolEnumInfo"]
+    ) -> list["ProtocolEnumInfo"]:
         """Remove duplicate enums based on their values.
 
         Args:
@@ -158,7 +158,7 @@ class ProtocolEnumGenerator(Protocol):
         ...
 
     def generate_enum_classes(
-        self, enum_infos: list["ProtocolProtocolEnumInfo"]
+        self, enum_infos: list["ProtocolEnumInfo"]
     ) -> list[object]:
         """Generate AST enum class definitions.
 

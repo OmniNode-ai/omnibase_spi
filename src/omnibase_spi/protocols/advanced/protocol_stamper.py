@@ -6,12 +6,12 @@ including cryptographic hashes, version information, and lifecycle tracking.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Literal, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    from omnibase_core.types import JsonType
+    pass
 
-from omnibase_spi.protocols.types import ProtocolOnexResult
+from omnibase_spi.protocols.types import ProtocolResult
 
 # Protocol for template type enumeration
 LiteralTemplateType = Literal["MINIMAL", "STANDARD", "FULL", "CUSTOM"]
@@ -67,12 +67,12 @@ class ProtocolStamper(Protocol):
     Example:
         ```python
         from omnibase_spi.protocols.advanced import ProtocolStamper
-        from omnibase_spi.protocols.types import ProtocolOnexResult
+        from omnibase_spi.protocols.types import ProtocolResult
 
         async def stamp_node_file(
             stamper: ProtocolStamper,
             file_path: str
-        ) -> ProtocolOnexResult:
+        ) -> ProtocolResult:
             # Stamp file with default metadata
             result = await stamper.stamp(file_path)
 
@@ -99,7 +99,7 @@ class ProtocolStamper(Protocol):
         - ProtocolContractAnalyzer: Contract metadata extraction
     """
 
-    async def stamp(self, path: str) -> ProtocolOnexResult:
+    async def stamp(self, path: str) -> ProtocolResult:
         """Stamp an ONEX metadata file at the given path.
 
         Generates and injects ONEX metadata block into the specified file,
@@ -109,7 +109,7 @@ class ProtocolStamper(Protocol):
             path: Absolute or relative path to the file to stamp.
 
         Returns:
-            ProtocolOnexResult with success status and stamped metadata details
+            ProtocolResult with success status and stamped metadata details
             including the generated hash, timestamp, and version information.
 
         Raises:
@@ -120,8 +120,8 @@ class ProtocolStamper(Protocol):
         ...
 
     async def stamp_file(
-        self, file_path: str, metadata_block: dict[str, JsonType]
-    ) -> ProtocolOnexResult:
+        self, file_path: str, metadata_block: dict[str, Any]
+    ) -> ProtocolResult:
         """Stamp the file with a metadata block, replacing any existing block.
 
         Args:
@@ -129,7 +129,7 @@ class ProtocolStamper(Protocol):
             metadata_block: Metadata dictionary to inject into the file.
 
         Returns:
-            ProtocolOnexResult with success status and operation details
+            ProtocolResult with success status and operation details
             including the injected metadata summary.
 
         Raises:

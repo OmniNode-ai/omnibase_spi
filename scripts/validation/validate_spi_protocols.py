@@ -28,6 +28,7 @@ from pathlib import Path
 
 import timeout_utils
 from timeout_utils import timeout_context
+from validation_constants import KNOWN_ALLOWED_CONFLICTS
 
 
 @dataclass
@@ -709,25 +710,45 @@ def validate_protocol_duplicates(
             unique_signatures = {p.signature_hash for p in conflicting_protocols}
             if len(unique_signatures) > 1:  # Different signatures
                 # Check if these are legitimate variations or real conflicts
-                real_conflicts = _filter_real_conflicts(
+                real_conflicts, is_known_allowed = _filter_real_conflicts(
                     conflicting_protocols, strict_mode
                 )
 
                 if len(real_conflicts) > 1:
-                    for protocol in real_conflicts[1:]:  # Skip first as reference
+                    if is_known_allowed:
+                        # Known allowed conflict - report as info for verification in strict mode
+                        locations = [
+                            f"{p.file_path}:{p.line_number}" for p in real_conflicts
+                        ]
                         violations.append(
                             ProtocolViolation(
-                                file_path=protocol.file_path,
-                                line_number=protocol.line_number,
+                                file_path=real_conflicts[0].file_path,
+                                line_number=real_conflicts[0].line_number,
                                 column_offset=0,
-                                violation_type="protocol_name_conflict",
-                                violation_code="SPI011",
-                                message=f"Protocol '{protocol.name}' has naming conflict with different signature (domains: {[p.domain for p in real_conflicts]})",
-                                severity="error",
-                                suggestion="Rename protocol to be more domain-specific or merge interfaces",
+                                violation_type="known_allowed_conflict",
+                                violation_code="SPI012",
+                                message=f"Protocol '{real_conflicts[0].name}' is in KNOWN_ALLOWED_CONFLICTS allowlist. Verify this is still intentional. Locations: {locations}",
+                                severity="info",
+                                suggestion="Review KNOWN_ALLOWED_CONFLICTS in validate_spi_protocols.py to ensure this conflict is still intentional and documented",
                                 auto_fixable=False,
                             )
                         )
+                    else:
+                        # Real conflict - report as error
+                        for protocol in real_conflicts[1:]:  # Skip first as reference
+                            violations.append(
+                                ProtocolViolation(
+                                    file_path=protocol.file_path,
+                                    line_number=protocol.line_number,
+                                    column_offset=0,
+                                    violation_type="protocol_name_conflict",
+                                    violation_code="SPI011",
+                                    message=f"Protocol '{protocol.name}' has naming conflict with different signature (domains: {[p.domain for p in real_conflicts]})",
+                                    severity="error",
+                                    suggestion="Rename protocol to be more domain-specific or merge interfaces",
+                                    auto_fixable=False,
+                                )
+                            )
 
     return violations
 
@@ -776,10 +797,26 @@ def _filter_real_duplicates(
 
 def _filter_real_conflicts(
     protocols: list[ProtocolInfo], strict_mode: bool
-) -> list[ProtocolInfo]:
-    """Filter out legitimate protocol variations from real naming conflicts."""
+) -> tuple[list[ProtocolInfo], bool]:
+    """Filter out legitimate protocol variations from real naming conflicts.
+
+    Returns:
+        Tuple of (protocols_to_report, is_known_allowed_conflict).
+        The second element is True if this is a known allowed conflict that
+        should be reported as info-level in strict mode.
+    """
     if not protocols or len(protocols) < 2:
-        return protocols
+        return protocols, False
+
+    # Check for known allowed conflicts that are documented and intentional
+    protocol_name = protocols[0].name if protocols else ""
+    if protocol_name in KNOWN_ALLOWED_CONFLICTS:
+        if strict_mode:
+            # In strict mode, report known conflicts for user verification
+            return protocols, True
+        else:
+            # In non-strict mode, skip known conflicts
+            return [], False
 
     # If protocols are in different domains, they might be legitimate variations
     domains = {p.domain for p in protocols}
@@ -787,7 +824,7 @@ def _filter_real_conflicts(
 
     # If all protocols are in different domains, this might be acceptable
     if len(domains) == len(protocols) and not strict_mode:
-        return []  # No conflicts - they're domain-specific variations
+        return [], False  # No conflicts - they're domain-specific variations
 
     # If protocols have different purposes (types), might be acceptable
     if len(protocol_types) > 1 and not strict_mode:
@@ -806,10 +843,10 @@ def _filter_real_conflicts(
                 break
 
         if base_protocols_overlap:
-            return []  # No conflicts - they're related protocols
+            return [], False  # No conflicts - they're related protocols
 
     # In strict mode or when protocols are too similar, report as conflicts
-    return protocols
+    return protocols, False
 
 
 def validate_file(
@@ -875,6 +912,7 @@ def print_validation_report(
     # Summary statistics
     error_count = sum(1 for v in violations if v.severity == "error")
     warning_count = sum(1 for v in violations if v.severity == "warning")
+    info_count = sum(1 for v in violations if v.severity == "info")
     total_protocols = len(protocols)
 
     print("\n📊 VALIDATION SUMMARY:")
@@ -882,6 +920,7 @@ def print_validation_report(
     print(f"   Total violations: {len(violations)}")
     print(f"   Errors: {error_count}")
     print(f"   Warnings: {warning_count}")
+    print(f"   Info (known conflicts for review): {info_count}")
 
     if violations:
         print("\n🚨 VIOLATIONS FOUND:")
@@ -897,7 +936,12 @@ def print_validation_report(
             )
 
             for violation in type_violations[:3]:  # Show first 3 of each type
-                severity_icon = "❌" if violation.severity == "error" else "⚠️"
+                if violation.severity == "error":
+                    severity_icon = "❌"
+                elif violation.severity == "warning":
+                    severity_icon = "⚠️"
+                else:  # info
+                    severity_icon = "(i)"  # ASCII to avoid RUF001 (ambiguous unicode)
                 print(
                     f"      {severity_icon} {violation.file_path}:{violation.line_number}"
                 )

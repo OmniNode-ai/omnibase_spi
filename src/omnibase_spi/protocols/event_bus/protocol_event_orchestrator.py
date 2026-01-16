@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from omnibase_spi.protocols.types.protocol_event_bus_types import (
         ProtocolAgentEvent,
         ProtocolEventBusAgentStatus,
-        ProtocolOnexEvent,
+        ProtocolEventBusSystemEvent,
         ProtocolProgressUpdate,
         ProtocolWorkResult,
     )
@@ -210,7 +210,7 @@ class ProtocolEventOrchestrator(Protocol):
 
     async def subscribe_to_orchestration_events(
         self,
-    ) -> AsyncIterator["ProtocolOnexEvent"]:
+    ) -> AsyncIterator["ProtocolEventBusSystemEvent"]:
         """
         Subscribe to orchestration events for monitoring.
 

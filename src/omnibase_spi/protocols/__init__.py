@@ -154,6 +154,20 @@ from omnibase_spi.protocols.container import (  # Phase 3 additions
     ServiceHealthStatus,
 )
 
+# Note: ProtocolEnvelope is now imported directly from protocols.onex
+# (previously was an alias: ProtocolEnvelope = ProtocolOnexEnvelope)
+# v0.3.0 Contract compiler protocols (7 protocols) - YAML contract compilation
+# Includes handler contract interface and supporting types
+from omnibase_spi.protocols.contracts import (
+    ProtocolCapabilityDependency,
+    ProtocolEffectContractCompiler,
+    ProtocolExecutionConstraints,
+    ProtocolFSMContractCompiler,
+    ProtocolHandlerBehaviorDescriptor,
+    ProtocolHandlerContract,
+    ProtocolWorkflowContractCompiler,
+)
+
 # Core protocols (16 protocols) - Fundamental system contracts
 # Includes serialization, logging, health monitoring, and service discovery
 from omnibase_spi.protocols.core import (
@@ -183,9 +197,10 @@ from omnibase_spi.protocols.dashboard import (
     ProtocolWidgetRenderer,
 )
 
-# Discovery protocols (3 protocols) - Node and handler discovery
+# Discovery protocols (4 protocols) - Node and handler discovery
 # Enables dynamic service discovery and handler registration
 from omnibase_spi.protocols.discovery import (
+    ProtocolBaseHandler,
     ProtocolFileHandlerRegistry,
     ProtocolHandlerDiscovery,
     ProtocolHandlerInfo,
@@ -229,6 +244,9 @@ from omnibase_spi.protocols.event_bus import (
     ProtocolSyncEventBus,
 )
 
+# v0.3.0 Factory protocols (1 protocol) - Handler contract factories
+from omnibase_spi.protocols.factories import ProtocolHandlerContractFactory
+
 # File handling protocols (4 protocols) - File processing and ONEX metadata
 # Handles file type detection, processing, and metadata stamping
 from omnibase_spi.protocols.file_handling import (
@@ -237,6 +255,9 @@ from omnibase_spi.protocols.file_handling import (
     ProtocolStampOptions,
     ProtocolValidationOptions,
 )
+
+# v0.3.0 Handler protocols (2 protocols) - DI-based protocol handlers and sources
+from omnibase_spi.protocols.handlers import ProtocolHandler, ProtocolHandlerSource
 
 # LLM protocols (4 protocols) - Large Language Model integration
 # LLM provider interfaces, model routing, and semantic processing
@@ -295,23 +316,28 @@ from omnibase_spi.protocols.node import (
     ProtocolUtilsNodeConfiguration,
 )
 
+# v0.3.0 Node protocols (5 protocols) - Standard node interfaces with unified execute()
+from omnibase_spi.protocols.nodes import (
+    ProtocolComputeNode,
+    ProtocolEffectNode,
+    ProtocolNode,
+    ProtocolOrchestratorNode,
+    ProtocolReducerNode,
+)
+
 # ONEX protocols (15 protocols) - ONEX platform specific protocols
+# Note: Node protocols (ProtocolComputeNode, ProtocolEffectNode, ProtocolNode,
+# ProtocolOrchestratorNode, ProtocolReducerNode) are imported from protocols.nodes
 from omnibase_spi.protocols.onex import (
-    ProtocolOnexComputeNode,
-    ProtocolOnexContractData,
-    ProtocolOnexEffectNode,
-    ProtocolOnexEnvelope,
+    ProtocolContractData,
+    ProtocolEnvelope,
     ProtocolOnexMetadata,
-    ProtocolOnexNode,
-    ProtocolOnexOrchestratorNode,
-    ProtocolOnexReducerNode,
-    ProtocolOnexReply,
-    ProtocolOnexSchema,
     ProtocolOnexSecurityContext,
-    ProtocolOnexValidation,
     ProtocolOnexValidationReport,
-    ProtocolOnexValidationResult,
-    ProtocolToolToolOnexVersionLoader,
+    ProtocolReply,
+    ProtocolSchema,
+    ProtocolValidation,
+    ProtocolVersionLoader,
 )
 
 # Projections protocols (5 protocols) - Projection persistence and state reading
@@ -330,37 +356,6 @@ from omnibase_spi.protocols.projections import (
 from omnibase_spi.protocols.projectors import (
     ProtocolEventProjector,
     ProtocolProjectorLoader,
-)
-
-# Naming consistency alias (Issue #5)
-# ProtocolEnvelope is the canonical name per roadmap specification
-ProtocolEnvelope = ProtocolOnexEnvelope
-
-# v0.3.0 Contract compiler protocols (7 protocols) - YAML contract compilation
-# Includes handler contract interface and supporting types
-from omnibase_spi.protocols.contracts import (
-    ProtocolCapabilityDependency,
-    ProtocolEffectContractCompiler,
-    ProtocolExecutionConstraints,
-    ProtocolFSMContractCompiler,
-    ProtocolHandlerBehaviorDescriptor,
-    ProtocolHandlerContract,
-    ProtocolWorkflowContractCompiler,
-)
-
-# v0.3.0 Factory protocols (1 protocol) - Handler contract factories
-from omnibase_spi.protocols.factories import ProtocolHandlerContractFactory
-
-# v0.3.0 Handler protocols (2 protocols) - DI-based protocol handlers and sources
-from omnibase_spi.protocols.handlers import ProtocolHandler, ProtocolHandlerSource
-
-# v0.3.0 Node protocols (5 protocols) - Standard node interfaces with unified execute()
-from omnibase_spi.protocols.nodes import (
-    ProtocolComputeNode,
-    ProtocolEffectNode,
-    ProtocolNode,
-    ProtocolOrchestratorNode,
-    ProtocolReducerNode,
 )
 
 # v0.3.0 Execution constraint protocol - Mixin for constrainable objects
@@ -471,6 +466,7 @@ __all__ = [
     "ProtocolArtifactMetadata",
     "ProtocolAsyncEventBus",
     "ProtocolAuditLogger",
+    "ProtocolBaseHandler",
     "ProtocolBatchPersistResult",
     "ProtocolCLI",
     "ProtocolCLIDirFixtureCase",
@@ -487,6 +483,7 @@ __all__ = [
     "ProtocolComputeNode",
     "ProtocolContainer",
     "ProtocolContainerService",
+    "ProtocolContractData",
     "ProtocolDIServiceInstance",
     "ProtocolDIServiceMetadata",
     "ProtocolDLQHandler",
@@ -571,6 +568,7 @@ __all__ = [
     "ProtocolMCPValidator",
     "ProtocolMemoryOrchestrator",
     "ProtocolMemoryRecord",
+    "ProtocolOnexMetadata",
     "ProtocolMetricsCollector",
     "ProtocolModelRouter",
     "ProtocolNode",
@@ -580,20 +578,6 @@ __all__ = [
     "ProtocolNodeRunner",
     "ProtocolNodeSchedulingResult",
     "ProtocolOllamaClient",
-    "ProtocolOnexComputeNode",
-    "ProtocolOnexContractData",
-    "ProtocolOnexEffectNode",
-    "ProtocolOnexEnvelope",
-    "ProtocolOnexMetadata",
-    "ProtocolOnexNode",
-    "ProtocolOnexOrchestratorNode",
-    "ProtocolOnexReducerNode",
-    "ProtocolOnexReply",
-    "ProtocolOnexSchema",
-    "ProtocolOnexSecurityContext",
-    "ProtocolOnexValidation",
-    "ProtocolOnexValidationReport",
-    "ProtocolOnexValidationResult",
     "ProtocolOrchestratorNode",
     "ProtocolPackageVerifier",
     "ProtocolPerformanceMetricsCollector",
@@ -606,9 +590,12 @@ __all__ = [
     "ProtocolReducerNode",
     "ProtocolRedpandaAdapter",
     "ProtocolRegistryQueryService",
+    "ProtocolReply",
     "ProtocolRetryable",
+    "ProtocolSchema",
     "ProtocolSchemaLoader",
     "ProtocolSchemaRegistry",
+    "ProtocolOnexSecurityContext",
     "ProtocolSecurityEvent",
     "ProtocolSequenceInfo",
     "ProtocolServiceDependency",
@@ -627,16 +614,18 @@ __all__ = [
     "ProtocolTaskSchedulingCriteria",
     "ProtocolTimeBasedOperations",
     "ProtocolToolDiscoveryService",
-    "ProtocolToolToolOnexVersionLoader",
     "ProtocolTrustedSchemaLoader",
     "ProtocolUriParser",
     "ProtocolUtilsNodeConfiguration",
+    "ProtocolValidation",
     "ProtocolValidationDecorator",
     "ProtocolValidationError",
     "ProtocolValidationOptions",
+    "ProtocolOnexValidationReport",
     "ProtocolValidationResult",
     "ProtocolValidator",
     "ProtocolVectorStoreHandler",
+    "ProtocolVersionLoader",
     "ProtocolVersionManager",
     "ProtocolWidgetRenderer",
     "ProtocolWorkQueue",

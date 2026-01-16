@@ -256,7 +256,7 @@ class ProtocolResultData(Protocol):
 
 
 @runtime_checkable
-class ProtocolOnexResult(Protocol):
+class ProtocolResult(Protocol):
     """
     Protocol for standardized ONEX operation results.
 
@@ -282,7 +282,7 @@ class ProtocolOnexResult(Protocol):
             timestamp: ProtocolDateTime = datetime_impl
 
         result = SuccessfulResult()
-        assert isinstance(result, ProtocolOnexResult)
+        assert isinstance(result, ProtocolResult)
         ```
     """
 
@@ -310,18 +310,18 @@ class ProtocolResultOperations(Protocol):
     Example:
         ```python
         class ResultService:
-            def format_result(self, result: ProtocolOnexResult) -> str:
+            def format_result(self, result: ProtocolResult) -> str:
                 status = "OK" if result.success else "FAILED"
                 return f"[{status}] {result.message}"
 
             async def merge_results(
-                self, results: list[ProtocolOnexResult]
-            ) -> ProtocolOnexResult:
+                self, results: list[ProtocolResult]
+            ) -> ProtocolResult:
                 success = all(r.success for r in results)
                 return MergedResultImpl(success=success, ...)
 
             async def validate_result(
-                self, result: ProtocolOnexResult
+                self, result: ProtocolResult
             ) -> bool:
                 return result.success or result.error_code is not None
 
@@ -330,10 +330,10 @@ class ProtocolResultOperations(Protocol):
         ```
     """
 
-    def format_result(self, result: "ProtocolOnexResult") -> str: ...
+    def format_result(self, result: "ProtocolResult") -> str: ...
 
     async def merge_results(
-        self, results: list["ProtocolOnexResult"]
-    ) -> ProtocolOnexResult: ...
+        self, results: list["ProtocolResult"]
+    ) -> ProtocolResult: ...
 
-    async def validate_result(self, result: "ProtocolOnexResult") -> bool: ...
+    async def validate_result(self, result: "ProtocolResult") -> bool: ...

@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from omnibase_core.types import JsonType
     from omnibase_spi.protocols.node.protocol_node_registry import ProtocolNodeRegistry
     from omnibase_spi.protocols.types.protocol_file_handling_types import (
-        ProtocolOnexResult,
+        ProtocolResult,
     )
 
 
@@ -34,7 +34,7 @@ class ProtocolWorkflowExecutor(Protocol):
         """
         ...
 
-    async def run(self, input_state: dict[str, "JsonType"]) -> "ProtocolOnexResult":
+    async def run(self, input_state: dict[str, "JsonType"]) -> "ProtocolResult":
         """
         Run the Workflow executor with the provided input state.
 
@@ -52,7 +52,7 @@ class ProtocolWorkflowExecutor(Protocol):
         scenario_id: str,
         correlation_id: str,
         parameters: dict[str, "JsonType"],
-    ) -> "ProtocolOnexResult":
+    ) -> "ProtocolResult":
         """
         Execute a specific operation.
 

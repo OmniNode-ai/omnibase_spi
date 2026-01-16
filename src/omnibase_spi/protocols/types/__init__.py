@@ -130,6 +130,9 @@ from omnibase_spi.protocols.types.protocol_connection_types import (
 # Contract protocol
 from omnibase_spi.protocols.types.protocol_contract import ProtocolContract
 
+# Error protocol
+from omnibase_spi.protocols.types.protocol_error import ProtocolError
+
 # Error types
 from omnibase_spi.protocols.types.protocol_error_types import (
     ProtocolErrorContext,
@@ -178,9 +181,6 @@ from omnibase_spi.protocols.types.protocol_node_types import (
     ProtocolNodeResult,
 )
 
-# ONEX error protocol
-from omnibase_spi.protocols.types.protocol_onex_error import ProtocolOnexError
-
 # Retry types
 from omnibase_spi.protocols.types.protocol_retry_types import (
     ProtocolDuration,
@@ -206,12 +206,12 @@ from omnibase_spi.protocols.types.protocol_service_types import (
 from omnibase_spi.protocols.types.protocol_state_types import (
     ProtocolAction,
     ProtocolActionPayload,
+    ProtocolInputState,
     ProtocolMetadata,
     ProtocolMetadataOperations,
-    ProtocolOnexInputState,
-    ProtocolOnexOutputState,
+    ProtocolOutputState,
     ProtocolState,
-    ProtocolSystemEvent,
+    ProtocolStateSystemEvent,
 )
 
 # Storage types
@@ -281,6 +281,7 @@ from omnibase_spi.protocols.types.protocol_event_bus_types import (
     ProtocolCompletionData,
     ProtocolEvent,
     ProtocolEventBusConnectionCredentials,
+    ProtocolEventBusSystemEvent,
     ProtocolEventData,
     ProtocolEventHeaders,
     ProtocolEventMessage,
@@ -289,7 +290,6 @@ from omnibase_spi.protocols.types.protocol_event_bus_types import (
     ProtocolEventStringDictData,
     ProtocolEventStringListData,
     ProtocolEventSubscription,
-    ProtocolOnexEvent,
     ProtocolSecurityContext,
 )
 
@@ -311,8 +311,8 @@ from omnibase_spi.protocols.types.protocol_file_handling_types import (
     ProtocolFileTypeResult,
     ProtocolHandlerMatch,
     ProtocolHandlerMetadata,
-    ProtocolOnexResult,
     ProtocolProcessingResult,
+    ProtocolResult,
     ProtocolResultData,
     ProtocolResultOperations,
     ProtocolSerializedBlock,
@@ -463,12 +463,14 @@ __all__ = [
     "ProtocolDiscoveryServiceInstance",
     "ProtocolDiscoveryServiceMetadata",
     "ProtocolDuration",
+    "ProtocolError",
     "ProtocolErrorContext",
     "ProtocolErrorInfo",
     "ProtocolErrorResult",
     "ProtocolEvent",
     "ProtocolEventBusAgentStatus",
     "ProtocolEventBusConnectionCredentials",
+    "ProtocolEventBusSystemEvent",
     "ProtocolEventData",
     "ProtocolEventHeaders",
     "ProtocolEventMessage",
@@ -497,6 +499,7 @@ __all__ = [
     "ProtocolHealthMetrics",
     "ProtocolHealthMonitoring",
     "ProtocolIdentifiable",
+    "ProtocolInputState",
     "ProtocolLogContext",
     "ProtocolLogEmitter",
     "ProtocolLogEntry",
@@ -525,11 +528,7 @@ __all__ = [
     "ProtocolNodeMetadata",
     "ProtocolNodeMetadataBlock",
     "ProtocolNodeResult",
-    "ProtocolOnexError",
-    "ProtocolOnexEvent",
-    "ProtocolOnexInputState",
-    "ProtocolOnexOutputState",
-    "ProtocolOnexResult",
+    "ProtocolOutputState",
     "ProtocolPatternChecker",
     "ProtocolPerformanceMetric",
     "ProtocolPerformanceMetrics",
@@ -538,6 +537,7 @@ __all__ = [
     "ProtocolRecoveryAction",
     "ProtocolRecoveryPoint",
     "ProtocolReplayStrategy",
+    "ProtocolResult",
     "ProtocolResultData",
     "ProtocolResultOperations",
     "ProtocolRetryAttempt",
@@ -556,6 +556,7 @@ __all__ = [
     "ProtocolServiceInstance",
     "ProtocolServiceMetadata",
     "ProtocolState",
+    "ProtocolStateSystemEvent",
     "ProtocolStorageConfiguration",
     "ProtocolStorageCredentials",
     "ProtocolStorageHealthStatus",
@@ -564,7 +565,6 @@ __all__ = [
     "ProtocolStringFileContent",
     "ProtocolSupportedMetadataType",
     "ProtocolSupportedPropertyValue",
-    "ProtocolSystemEvent",
     "ProtocolTaskConfiguration",
     "ProtocolTaskDependency",
     "ProtocolTaskResult",
