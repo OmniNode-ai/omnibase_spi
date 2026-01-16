@@ -6,6 +6,7 @@ Defines the contract for validating Onex patterns and contract compliance.
 """
 
 from typing import TYPE_CHECKING, Literal, Protocol, runtime_checkable
+from uuid import UUID
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types.protocol_core_types import (
@@ -56,6 +57,43 @@ class ProtocolContractData(Protocol):
     node_type: str
     input_model: str
     output_model: str
+
+
+@runtime_checkable
+class ProtocolCorrelatedData(Protocol):
+    """
+    Protocol for data structures that participate in correlation tracking.
+
+    Defines the essential elements needed for validating correlation ID
+    consistency and timestamp sequences between related messages such
+    as envelopes and replies in the ONEX request-response pattern.
+
+    Attributes:
+        correlation_id: UUID for tracking related requests and responses
+        timestamp: Timestamp when the data was created or processed
+
+    Example:
+        ```python
+        validator: ProtocolValidation = get_onex_validator()
+
+        # Validate correlation IDs match between envelope and reply
+        is_consistent = await validator.validate_correlation_id_consistency(
+            envelope, reply
+        )
+
+        # Validate reply timestamp follows envelope timestamp
+        is_ordered = await validator.validate_timestamp_sequence(
+            envelope, reply
+        )
+        ```
+
+    See Also:
+        - ProtocolValidation: Validation interface using this protocol
+        - ProtocolContractData: Contract data structure
+    """
+
+    correlation_id: UUID
+    timestamp: "ProtocolDateTime"
 
 
 @runtime_checkable
@@ -343,6 +381,7 @@ class ProtocolValidation(Protocol):
         - ProtocolOnexValidationResult: Individual validation results
         - ProtocolOnexValidationReport: Aggregated validation report
         - ProtocolContractData: Contract data structure
+        - ProtocolCorrelatedData: Data with correlation_id and timestamp for validation
     """
 
     async def validate_envelope(
@@ -458,14 +497,14 @@ class ProtocolValidation(Protocol):
         ...
 
     async def validate_correlation_id_consistency(
-        self, envelope: "ProtocolContractData", reply: "ProtocolContractData"
+        self, envelope: "ProtocolCorrelatedData", reply: "ProtocolCorrelatedData"
     ) -> bool:
         """
         Validate correlation ID consistency between envelope and reply.
 
         Args:
-            envelope: The envelope contract data.
-            reply: The reply contract data.
+            envelope: The envelope data with correlation_id and timestamp.
+            reply: The reply data with correlation_id and timestamp.
 
         Returns:
             True if correlation IDs match, False otherwise.
@@ -473,14 +512,14 @@ class ProtocolValidation(Protocol):
         ...
 
     async def validate_timestamp_sequence(
-        self, envelope: "ProtocolContractData", reply: "ProtocolContractData"
+        self, envelope: "ProtocolCorrelatedData", reply: "ProtocolCorrelatedData"
     ) -> bool:
         """
         Validate that reply timestamp follows envelope timestamp.
 
         Args:
-            envelope: The envelope contract data.
-            reply: The reply contract data.
+            envelope: The envelope data with correlation_id and timestamp.
+            reply: The reply data with correlation_id and timestamp.
 
         Returns:
             True if timestamps are in correct sequence, False otherwise.

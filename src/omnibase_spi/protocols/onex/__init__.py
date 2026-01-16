@@ -11,6 +11,7 @@ from .protocol_reducer_node import ProtocolOnexReducerNodeLegacy
 from .protocol_reply import ProtocolReply
 from .protocol_validation import (
     ProtocolContractData,
+    ProtocolCorrelatedData,
     ProtocolOnexMetadata,
     ProtocolOnexSecurityContext,
     ProtocolOnexValidationReport,
@@ -29,6 +30,7 @@ ProtocolValidationResult = ProtocolOnexValidationResult
 
 __all__ = [
     "ProtocolContractData",
+    "ProtocolCorrelatedData",
     "ProtocolEnvelope",
     "ProtocolMetadata",  # Alias for ProtocolOnexMetadata
     "ProtocolOnexComputeNodeLegacy",

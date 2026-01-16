@@ -46,6 +46,10 @@ class ProtocolReply(Protocol):
 
         Returns:
             R: The created success reply.
+
+        Raises:
+            ValidationError: If the data fails validation.
+            TypeError: If data is not of an acceptable type.
         """
         ...
 
@@ -69,6 +73,10 @@ class ProtocolReply(Protocol):
 
         Returns:
             R: The created error reply.
+
+        Raises:
+            ValueError: If error_message is empty or None.
+            TypeError: If error_message is not a string.
         """
         ...
 
@@ -88,6 +96,10 @@ class ProtocolReply(Protocol):
 
         Returns:
             R: The created validation error reply.
+
+        Raises:
+            ValueError: If validation_errors is empty.
+            TypeError: If validation_errors is not a list of strings.
         """
         ...
 
@@ -233,6 +245,10 @@ class ProtocolReply(Protocol):
 
         Returns:
             R: A new reply with the updated metadata.
+
+        Raises:
+            ValidationError: If the metadata fails validation.
+            TypeError: If reply or metadata is not of the expected type.
         """
         ...
 
@@ -257,5 +273,9 @@ class ProtocolReply(Protocol):
 
         Returns:
             bool: True if the reply is valid.
+
+        Raises:
+            ValidationError: If reply structure is malformed and cannot be validated.
+            TypeError: If the reply is not of the expected type.
         """
         ...

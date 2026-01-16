@@ -45,6 +45,10 @@ class ProtocolEnvelope(Protocol):
 
         Returns:
             E: The created envelope containing the payload.
+
+        Raises:
+            ValidationError: If the payload fails validation.
+            TypeError: If payload is not of an acceptable type.
         """
         ...
 
@@ -57,6 +61,10 @@ class ProtocolEnvelope(Protocol):
 
         Returns:
             T: The extracted payload data.
+
+        Raises:
+            ValueError: If the envelope is invalid or has no payload.
+            TypeError: If the envelope is not of the expected type.
         """
         ...
 
@@ -107,6 +115,10 @@ class ProtocolEnvelope(Protocol):
 
         Returns:
             bool: True if the envelope is valid, False otherwise.
+
+        Raises:
+            ValidationError: If envelope structure is malformed and cannot be validated.
+            TypeError: If the envelope is not of the expected type.
         """
         ...
 
@@ -119,6 +131,10 @@ class ProtocolEnvelope(Protocol):
 
         Returns:
             datetime: The envelope creation timestamp.
+
+        Raises:
+            ValueError: If the envelope has no timestamp or timestamp is invalid.
+            TypeError: If the envelope is not of the expected type.
         """
         ...
 
@@ -156,6 +172,10 @@ class ProtocolEnvelope(Protocol):
 
         Returns:
             E: A new envelope with the updated metadata.
+
+        Raises:
+            ValidationError: If the metadata fails validation.
+            TypeError: If envelope or metadata is not of the expected type.
         """
         ...
 

@@ -88,6 +88,6 @@ class ProtocolNamingConventions(Protocol):
             input_state: Contains the string to split and any format hints.
 
         Returns:
-            ProtocolOutputState containing a list of extracted words.
+            ProtocolOutputState with the `result` field containing the extracted word list
         """
         ...

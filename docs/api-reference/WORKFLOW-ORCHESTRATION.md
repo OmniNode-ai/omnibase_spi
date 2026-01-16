@@ -518,9 +518,9 @@ class ProtocolOnexOrchestratorNodeLegacy(Protocol):
 
 ```python
 from omnibase_spi.protocols.onex import (
-    ProtocolEffectNode,
+    ProtocolOnexEffectNodeLegacy,
     ProtocolOnexComputeNodeLegacy,
-    ProtocolReducerNode,
+    ProtocolOnexReducerNodeLegacy,
     ProtocolOnexOrchestratorNodeLegacy,
 )
 

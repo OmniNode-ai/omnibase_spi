@@ -2,12 +2,15 @@
 
 .. deprecated:: 0.3.0
     This module contains the legacy ProtocolOnexNodeLegacy protocol.
-    For new implementations, use the canonical v0.3.0 protocol at
-    :class:`omnibase_spi.protocols.nodes.ProtocolNode` instead.
+    For new implementations, use the specialized v0.3.0 node protocols:
+    - :class:`omnibase_spi.protocols.nodes.ProtocolComputeNode` for pure transformations
+    - :class:`omnibase_spi.protocols.nodes.ProtocolEffectNode` for side-effecting operations
+    - :class:`omnibase_spi.protocols.nodes.ProtocolReducerNode` for aggregations
+    - :class:`omnibase_spi.protocols.nodes.ProtocolOrchestratorNode` for workflow coordination
 
-    The canonical ProtocolNode provides a cleaner interface with:
-    - Async execute() method instead of sync run()
-    - Better separation of concerns
+    The v0.3.0 node protocols provide a cleaner interface with:
+    - Async execute() method with typed input/output models
+    - Better separation of concerns (compute vs effect vs orchestration)
     - Alignment with the v0.3.0 node architecture
 """
 
@@ -28,7 +31,7 @@ class ProtocolOnexNodeLegacy(Protocol):
     Legacy protocol for ONEX node implementations.
 
     .. deprecated:: 0.3.0
-        Use :class:`omnibase_spi.protocols.nodes.ProtocolNode` instead.
+        Use a specialized node protocol instead (e.g., ProtocolComputeNode, ProtocolEffectNode).
         This protocol is maintained for backward compatibility with existing
         node_loader.py implementations but will be removed in v0.5.0.
 
@@ -49,17 +52,28 @@ class ProtocolOnexNodeLegacy(Protocol):
         - get_output_type() -> get_output_model() for clarity
 
     Migration Guide:
-        For existing implementations, migrate to the canonical protocol:
+        For existing implementations, migrate to one of the specialized node protocols.
+        The base ProtocolNode provides only identity/metadata; use a specialized protocol
+        for execution behavior:
+
         ```python
         # Old (ProtocolOnexNodeLegacy)
         class MyNode(ProtocolOnexNodeLegacy):
             def run(self, *args, **kwargs) -> ContextValue: ...
 
-        # New (protocols.nodes.ProtocolNode)
-        from omnibase_spi.protocols.nodes import ProtocolNode
+        # New - For pure transformations (no side effects):
+        from omnibase_spi.protocols.nodes import ProtocolComputeNode
+        from omnibase_core.models.compute import ModelComputeInput, ModelComputeOutput
 
-        class MyNode(ProtocolNode):
-            async def execute(self, input_data: ModelNodeInput) -> ModelNodeOutput: ...
+        class MyNode(ProtocolComputeNode):
+            async def execute(self, input_data: ModelComputeInput) -> ModelComputeOutput: ...
+
+        # New - For side-effecting operations (I/O, API calls, etc.):
+        from omnibase_spi.protocols.nodes import ProtocolEffectNode
+        from omnibase_core.models.effect import ModelEffectInput, ModelEffectOutput
+
+        class MyNode(ProtocolEffectNode):
+            async def execute(self, input_data: ModelEffectInput) -> ModelEffectOutput: ...
         ```
     """
 
