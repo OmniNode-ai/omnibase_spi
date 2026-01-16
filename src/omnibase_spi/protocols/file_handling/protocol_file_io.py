@@ -104,6 +104,9 @@ class ProtocolFileIO(Protocol):
             path: The file path to write YAML content to.
             data: The data to serialize and write as YAML.
 
+        Returns:
+            None
+
         Raises:
             PermissionError: When write access to the file is denied.
             SerializationError: When the data cannot be serialized to YAML.
@@ -116,6 +119,9 @@ class ProtocolFileIO(Protocol):
         Args:
             path: The file path to write JSON content to.
             data: The data to serialize and write as JSON.
+
+        Returns:
+            None
 
         Raises:
             PermissionError: When write access to the file is denied.
@@ -188,6 +194,9 @@ class ProtocolFileIO(Protocol):
             path: The file path to write text content to.
             data: The text content to write.
 
+        Returns:
+            None
+
         Raises:
             PermissionError: When write access to the file is denied.
         """
@@ -213,6 +222,9 @@ class ProtocolFileIO(Protocol):
         Args:
             path: The file path to write binary content to.
             data: The binary content to write.
+
+        Returns:
+            None
 
         Raises:
             PermissionError: When write access to the file is denied.

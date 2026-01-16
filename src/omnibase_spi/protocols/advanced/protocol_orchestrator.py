@@ -64,9 +64,28 @@ class ProtocolGraphModel(Protocol):
     edges: list["ProtocolEdgeModel"]
     metadata: dict[str, object]
 
-    def validate(self) -> bool: ...
+    def validate(self) -> bool:
+        """Validate the workflow graph structure.
 
-    def to_dict(self) -> dict[str, object]: ...
+        Checks that all nodes and edges form a valid DAG with no cycles
+        and all edge references point to existing nodes.
+
+        Returns:
+            True if the graph is valid, False otherwise.
+        """
+        ...
+
+    def to_dict(self) -> dict[str, object]:
+        """Convert the graph model to a dictionary representation.
+
+        Serializes the entire workflow graph including nodes, edges,
+        and metadata for persistence or transmission.
+
+        Returns:
+            Dictionary containing 'nodes', 'edges', and 'metadata' keys
+            with their respective serialized values.
+        """
+        ...
 
 
 @runtime_checkable
@@ -107,9 +126,27 @@ class ProtocolNodeModel(Protocol):
     configuration: dict[str, object]
     dependencies: list[str]
 
-    async def get_dependencies(self) -> list[str]: ...
+    async def get_dependencies(self) -> list[str]:
+        """Get the list of node IDs this node depends on.
 
-    def validate(self) -> bool: ...
+        Returns the declared dependencies that must complete before
+        this node can begin execution.
+
+        Returns:
+            List of node IDs that this node depends on.
+        """
+        ...
+
+    def validate(self) -> bool:
+        """Validate the node configuration.
+
+        Checks that the node has valid configuration parameters
+        and properly formed dependency declarations.
+
+        Returns:
+            True if the node configuration is valid, False otherwise.
+        """
+        ...
 
 
 @runtime_checkable
@@ -150,7 +187,17 @@ class ProtocolEdgeModel(Protocol):
     edge_type: str
     metadata: dict[str, object]
 
-    def to_dict(self) -> dict[str, object]: ...
+    def to_dict(self) -> dict[str, object]:
+        """Convert the edge model to a dictionary representation.
+
+        Serializes the edge including source, target, type, and metadata
+        for persistence or transmission.
+
+        Returns:
+            Dictionary containing 'source', 'target', 'edge_type', and
+            'metadata' keys with their respective values.
+        """
+        ...
 
 
 @runtime_checkable

@@ -152,6 +152,10 @@ class ProtocolRetryable(Protocol):
 
         Returns:
             The calculated delay in milliseconds for the next retry.
+
+        Raises:
+            ValueError: When attempt_number is less than 1 or delay parameters
+                are negative.
         """
         ...
 
@@ -163,6 +167,10 @@ class ProtocolRetryable(Protocol):
 
         Args:
             attempt: The retry attempt details to record.
+
+        Raises:
+            SPIError: When the attempt data cannot be recorded due to
+                storage or validation errors.
         """
         ...
 
@@ -175,6 +183,10 @@ class ProtocolRetryable(Protocol):
         Returns:
             Dictionary containing retry metrics with string keys and
             context-appropriate values.
+
+        Raises:
+            SPIError: When metrics cannot be retrieved due to storage
+                or connection errors.
         """
         ...
 
@@ -183,6 +195,10 @@ class ProtocolRetryable(Protocol):
 
         Clears all consumed budget and resets counters, allowing
         fresh retry attempts after budget exhaustion.
+
+        Raises:
+            SPIError: When the budget cannot be reset due to storage
+                or state management errors.
         """
         ...
 
@@ -192,6 +208,10 @@ class ProtocolRetryable(Protocol):
         Returns:
             Dictionary with budget information including remaining attempts,
             consumed budget, and total budget capacity.
+
+        Raises:
+            SPIError: When the budget status cannot be retrieved due to
+                storage or state management errors.
         """
         ...
 
@@ -229,5 +249,9 @@ class ProtocolRetryable(Protocol):
 
         Returns:
             List of currently configured retry conditions.
+
+        Raises:
+            SPIError: When the conditions cannot be retrieved due to
+                storage or state management errors.
         """
         ...

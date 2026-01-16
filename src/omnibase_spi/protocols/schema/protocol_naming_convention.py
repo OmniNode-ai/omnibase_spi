@@ -27,14 +27,36 @@ from typing import Protocol, runtime_checkable
 
 @runtime_checkable
 class ProtocolNamingConventionResult(Protocol):
-    """Protocol for naming convention validation results."""
+    """
+    Protocol for naming convention validation results.
+
+    Captures the outcome of validating a name against ONEX naming
+    conventions including validity status, any errors or warnings,
+    and a suggested correction if the name is invalid.
+
+    Attributes:
+        is_valid: Whether the name conforms to naming conventions
+        errors: List of critical naming convention violations
+        warnings: List of non-critical naming suggestions
+        suggested_name: Suggested valid name if original is invalid
+    """
 
     is_valid: bool
     errors: list[str]
     warnings: list[str]
     suggested_name: str | None
 
-    def to_dict(self) -> dict[str, object]: ...
+    def to_dict(self) -> dict[str, object]:
+        """Convert the validation result to a dictionary representation.
+
+        Serializes the result including validity status, messages,
+        and suggested corrections for logging or API responses.
+
+        Returns:
+            Dictionary containing 'is_valid', 'errors', 'warnings',
+            and 'suggested_name' keys with their respective values.
+        """
+        ...
 
 
 @runtime_checkable

@@ -104,16 +104,16 @@ class ProtocolHandler(Protocol):
         """Initialize connection pool and resources."""
         ...
 
+    async def shutdown(self, timeout_seconds: float = 30.0) -> None:
+        """Release resources gracefully."""
+        ...
+
     async def execute(
         self,
         request: ModelProtocolRequest,
         operation_config: ModelOperationConfig,
     ) -> ModelProtocolResponse:
         """Execute operation and return response."""
-        ...
-
-    async def shutdown(self, timeout_seconds: float = 30.0) -> None:
-        """Release resources gracefully."""
         ...
 
     def describe(self) -> ModelHandlerDescriptor:

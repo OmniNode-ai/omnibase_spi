@@ -34,7 +34,16 @@ class ProtocolLogContext(Protocol):
         logger.info("Operation completed", context=context.to_dict())
     """
 
-    def to_dict(self) -> dict[str, "ContextValue"]: ...
+    def to_dict(self) -> dict[str, "ContextValue"]:
+        """Convert the log context to a dictionary representation.
+
+        Serializes all context key-value pairs for use in log entries
+        or transmission to logging backends.
+
+        Returns:
+            Dictionary mapping context keys to their typed values.
+        """
+        ...
 
 
 @runtime_checkable

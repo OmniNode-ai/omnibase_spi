@@ -43,7 +43,17 @@ class ProtocolSchemaValidationResult(Protocol):
     warnings: list[str]
     info: list[str]
 
-    def to_dict(self) -> "JsonType": ...
+    def to_dict(self) -> "JsonType":
+        """Convert the validation result to a JSON-compatible dictionary.
+
+        Serializes the validation result including success status and all
+        message categories for logging, reporting, or API responses.
+
+        Returns:
+            JSON-compatible dictionary containing 'success', 'errors',
+            'warnings', and 'info' keys with their respective values.
+        """
+        ...
 
 
 @runtime_checkable
@@ -164,6 +174,9 @@ class ProtocolTrustedSchemaLoader(Protocol):
         Removes all cached schemas from memory, forcing subsequent
         loads to read from disk. Use when schemas may have changed
         on disk or to free memory.
+
+        Returns:
+            None. This method operates via side effect only.
         """
         ...
 

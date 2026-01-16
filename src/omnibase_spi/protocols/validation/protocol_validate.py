@@ -72,7 +72,17 @@ class ProtocolValidateResultModel(Protocol):
     errors: list["ProtocolValidateMessageModel"]
     warnings: list[str]
 
-    def to_dict(self) -> "JsonType": ...
+    def to_dict(self) -> "JsonType":
+        """Convert the validation result to a dictionary representation.
+
+        Serializes the result including success status, errors, and warnings
+        for logging, reporting, or API responses.
+
+        Returns:
+            JSON-compatible dictionary containing 'success', 'errors',
+            and 'warnings' keys with their respective values.
+        """
+        ...
 
 
 @runtime_checkable
@@ -110,7 +120,17 @@ class ProtocolValidateMessageModel(Protocol):
     severity: str
     location: str | None
 
-    def to_dict(self) -> "JsonType": ...
+    def to_dict(self) -> "JsonType":
+        """Convert the validation message to a dictionary representation.
+
+        Serializes the message including content, severity level, and
+        optional location for structured logging or error reporting.
+
+        Returns:
+            JSON-compatible dictionary containing 'message', 'severity',
+            and 'location' keys with their respective values.
+        """
+        ...
 
 
 @runtime_checkable

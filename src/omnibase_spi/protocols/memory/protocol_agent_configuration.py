@@ -415,14 +415,18 @@ class ProtocolAgentConfigurationLegacy(Protocol):
 
         Args:
             agent_id: Agent identifier
-            format_type: Export format (yaml, json, toml)
+            format_type: Export format. Supported values:
+                - "yaml": YAML format (human-readable, supports comments)
+                - "json": JSON format (widely compatible, strict syntax)
+                - "toml": TOML format (configuration-focused, typed values)
+                - None: Uses implementation default (typically "yaml")
 
         Returns:
             Serialized configuration in specified format
 
         Raises:
             ConfigurationError: If export fails
-            UnsupportedFormatError: If format is not supported
+            UnsupportedFormatError: If format_type is not one of the supported values
         """
         ...
 
@@ -438,7 +442,11 @@ class ProtocolAgentConfigurationLegacy(Protocol):
         Args:
             agent_id: Agent identifier
             config_data: Serialized configuration data
-            format_type: Import format (yaml, json, toml)
+            format_type: Import format. Supported values:
+                - "yaml": YAML format (human-readable, supports comments)
+                - "json": JSON format (widely compatible, strict syntax)
+                - "toml": TOML format (configuration-focused, typed values)
+                - None: Auto-detect format from config_data content
 
         Returns:
             Imported and validated agent configuration
@@ -446,6 +454,6 @@ class ProtocolAgentConfigurationLegacy(Protocol):
         Raises:
             ConfigurationError: If import fails
             ValidationError: If imported configuration is invalid
-            UnsupportedFormatError: If format is not supported
+            UnsupportedFormatError: If format_type is not one of the supported values
         """
         ...

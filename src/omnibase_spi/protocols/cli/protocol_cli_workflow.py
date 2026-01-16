@@ -58,7 +58,17 @@ class ProtocolCliExecutionResult(Protocol):
     execution_time: float
     workflow_data: dict[str, "JsonType"] | None
 
-    def to_dict(self) -> "JsonType": ...
+    def to_dict(self) -> "JsonType":
+        """Convert the workflow result to a dictionary representation.
+
+        Serializes the execution result including success status, output,
+        timing, and workflow data for logging or API responses.
+
+        Returns:
+            JSON-compatible dictionary containing 'success', 'exit_code',
+            'stdout', 'stderr', 'execution_time', and 'workflow_data' keys.
+        """
+        ...
 
 
 @runtime_checkable

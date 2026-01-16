@@ -53,13 +53,11 @@ See Also:
 from collections.abc import Awaitable, Callable
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
+from omnibase_spi.protocols.event_bus.protocol_kafka_adapter import ProtocolKafkaConfig
 from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 
 if TYPE_CHECKING:
     from omnibase_core.types import JsonType
-    from omnibase_spi.protocols.event_bus.protocol_kafka_adapter import (
-        ProtocolKafkaConfig,
-    )
     from omnibase_spi.protocols.types.protocol_event_bus_types import (
         ProtocolEventMessage,
     )
@@ -218,7 +216,7 @@ class ProtocolRedpandaAdapter(Protocol):
         ...
 
     @property
-    def config(self) -> "ProtocolKafkaConfig | None":
+    def config(self) -> ProtocolKafkaConfig | None:
         """Optional Kafka configuration overrides.
 
         Returns:
@@ -227,7 +225,7 @@ class ProtocolRedpandaAdapter(Protocol):
         ...
 
     @property
-    def kafka_config(self) -> "ProtocolKafkaConfig":
+    def kafka_config(self) -> ProtocolKafkaConfig:
         """Complete Kafka configuration with Redpanda optimizations.
 
         Returns:

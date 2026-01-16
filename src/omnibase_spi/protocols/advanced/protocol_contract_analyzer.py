@@ -178,9 +178,30 @@ class ProtocolContractModelSchema(Protocol):
     required: list[str]
     additional_properties: bool
 
-    async def validate(self, data: "JsonType") -> bool: ...
+    async def validate(self, data: "JsonType") -> bool:
+        """Validate data against this schema.
 
-    async def to_dict(self) -> "JsonType": ...
+        Checks that the provided data conforms to this schema's type,
+        properties, and required field constraints.
+
+        Args:
+            data: JSON-compatible data to validate against the schema.
+
+        Returns:
+            True if the data is valid according to this schema, False otherwise.
+        """
+        ...
+
+    async def to_dict(self) -> "JsonType":
+        """Convert the schema to a dictionary representation.
+
+        Serializes the schema definition including type, properties,
+        required fields, and additional properties settings.
+
+        Returns:
+            JSON-compatible dictionary containing the complete schema definition.
+        """
+        ...
 
 
 @runtime_checkable
@@ -234,13 +255,43 @@ class ProtocolModelContractDocument(Protocol):
     output_state: "JsonType | None"
     definitions: "JsonType"
 
-    async def validate(self) -> bool: ...
+    async def validate(self) -> bool:
+        """Validate the contract document structure.
+
+        Checks that the contract has valid metadata, properly formed
+        schemas, and internally consistent references.
+
+        Returns:
+            True if the contract is valid, False otherwise.
+        """
+        ...
 
     async def get_schema(
         self, schema_name: str
-    ) -> "ProtocolContractModelSchema | None": ...
+    ) -> "ProtocolContractModelSchema | None":
+        """Retrieve a named schema from this contract document.
 
-    async def to_dict(self) -> "JsonType": ...
+        Looks up a schema definition by name from the contract's
+        input/output states or shared definitions.
+
+        Args:
+            schema_name: Name of the schema to retrieve (e.g., 'InputState').
+
+        Returns:
+            The schema if found, None if no schema with that name exists.
+        """
+        ...
+
+    async def to_dict(self) -> "JsonType":
+        """Convert the contract document to a dictionary representation.
+
+        Serializes the complete contract including node metadata, schemas,
+        and definitions for persistence or transmission.
+
+        Returns:
+            JSON-compatible dictionary containing the full contract specification.
+        """
+        ...
 
 
 @runtime_checkable

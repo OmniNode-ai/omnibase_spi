@@ -78,5 +78,11 @@ class ProtocolOutputFieldTool(Protocol):
 
         Returns:
             A ProtocolModelOnexField containing field_name, field_value, and field_type.
+
+        Raises:
+            ValueError: If the input state dictionary is invalid or missing
+                required data for field generation.
+            TypeError: If state or input_state_dict are of unexpected types
+                that cannot be processed.
         """
         ...
