@@ -39,7 +39,7 @@ if TYPE_CHECKING:
             - ProtocolLLMToolProvider: Tool provider composition protocol
         """
 
-        pass
+        ...
 
 
 @runtime_checkable
