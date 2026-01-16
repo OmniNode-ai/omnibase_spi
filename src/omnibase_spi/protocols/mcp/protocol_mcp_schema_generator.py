@@ -7,9 +7,7 @@ Provides schema generation capabilities for input/output models and parameter de
 Domain: MCP schema generation and tool definition support
 """
 
-from typing import Protocol, runtime_checkable
-
-from omnibase_spi.protocols.types.protocol_core_types import ContextValue
+from typing import Any, Protocol, runtime_checkable
 
 
 @runtime_checkable
@@ -76,7 +74,7 @@ class ProtocolMCPSchemaGenerator(Protocol):
 
     async def generate_input_schema(
         self, input_model: str, mappings: list[str] | None = None
-    ) -> dict[str, ContextValue]:
+    ) -> dict[str, Any]:
         """
         Generate a JSON schema for an MCP tool input model.
 
@@ -122,9 +120,7 @@ class ProtocolMCPSchemaGenerator(Protocol):
         """
         ...
 
-    async def generate_output_schema(
-        self, output_model: str
-    ) -> dict[str, ContextValue]:
+    async def generate_output_schema(self, output_model: str) -> dict[str, Any]:
         """
         Generate a JSON schema for an MCP tool output model.
 
@@ -159,9 +155,7 @@ class ProtocolMCPSchemaGenerator(Protocol):
         """
         ...
 
-    async def validate_schema(
-        self, schema: dict[str, ContextValue]
-    ) -> bool:
+    async def validate_schema(self, schema: dict[str, Any]) -> bool:
         """
         Validate a generated JSON schema for correctness.
 
@@ -201,8 +195,8 @@ class ProtocolMCPSchemaGenerator(Protocol):
         ...
 
     async def generate_parameter_schemas(
-        self, parameters: list[dict[str, ContextValue]]
-    ) -> list[dict[str, ContextValue]]:
+        self, parameters: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
         """
         Generate JSON schemas for multiple parameters in batch.
 
