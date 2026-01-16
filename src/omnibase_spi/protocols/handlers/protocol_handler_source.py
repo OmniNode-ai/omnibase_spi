@@ -160,7 +160,7 @@ class ProtocolHandlerSource(Protocol):
         """
         ...
 
-    def list_handler_descriptors(self) -> tuple["ModelHandlerDescriptor", ...]:
+    def list_handler_descriptors(self) -> tuple[ModelHandlerDescriptor, ...]:
         """List all handler descriptors from this source.
 
         Implementations should return a tuple of handler descriptors for all
@@ -193,7 +193,7 @@ class ProtocolHandlerSource(Protocol):
 
     def get_handler_descriptor(
         self, handler_id: str
-    ) -> "ModelHandlerDescriptor | None":
+    ) -> ModelHandlerDescriptor | None:
         """Get a specific handler descriptor by ID.
 
         Retrieves a single handler descriptor by its unique identifier.
