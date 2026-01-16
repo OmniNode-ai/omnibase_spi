@@ -143,7 +143,53 @@ src/omnibase_spi/
 | Node protocols | `Protocol{Type}Node` | `ProtocolComputeNode` |
 | Compiler protocols | `Protocol{Type}ContractCompiler` | `ProtocolEffectContractCompiler` |
 | Handler protocols | `Protocol{Type}Handler` | `ProtocolHandler` |
+| MCP protocols | `ProtocolMCP{Function}` | `ProtocolMCPRegistry`, `ProtocolMCPHandler` |
 | Exceptions | `{Type}Error` | `SPIError`, `RegistryError` |
+
+## MCP (Model Context Protocol) Integration
+
+The `protocols/mcp/` directory contains protocols for integrating ONEX nodes with the Model Context Protocol (MCP) tooling ecosystem.
+
+### Core MCP Protocols
+
+| Protocol | Purpose |
+|----------|---------|
+| `ProtocolMCPRegistry` | Central registry for subsystem and tool management, including ONEX node registration |
+| `ProtocolMCPHandler` | Handles MCP tool listing (`handle_list_tools`) and calling (`handle_call_tool`) |
+| `ProtocolMCPNodeAdapter` | Adapts ONEX nodes to MCP tools - converts contracts to tool definitions |
+| `ProtocolMCPSchemaGenerator` | Generates JSON schemas for MCP tool inputs/outputs |
+| `ProtocolMCPToolProxy` | Tool execution proxy and routing |
+| `ProtocolMCPValidator` | Validation framework for MCP operations |
+| `ProtocolMCPDiscovery` | Service discovery for MCP coordination |
+| `ProtocolMCPMonitor` | Health monitoring and metrics collection |
+
+### ONEX Integration Methods
+
+The `ProtocolMCPRegistry` includes methods for ONEX node integration:
+
+```python
+# Register an ONEX node as an MCP tool
+async def register_onex_node(
+    self,
+    contract: ProtocolContract,
+    tags: list[str] | None,
+    configuration: dict[str, ContextValue] | None,
+) -> str: ...
+
+# Unregister an ONEX node
+async def unregister_onex_node(self, node_id: str) -> bool: ...
+
+# Get registration details
+async def get_onex_node_registration(
+    self, node_id: str
+) -> ProtocolMCPSubsystemRegistration | None: ...
+```
+
+### MCP Type Protocols
+
+MCP-related type protocols are in `protocols/types/`:
+- `protocol_mcp_types.py` - Registry, subsystem, health, validation types
+- `protocol_mcp_tool_types.py` - Tool definitions, parameters, execution tracking
 
 ## Protocol Requirements
 
