@@ -66,32 +66,64 @@ class ProtocolDescriptorRetryPolicy(Protocol):
 
     @property
     def enabled(self) -> bool:
-        """Whether retry is enabled."""
+        """Whether retry is enabled.
+
+        Returns:
+            True if retry is enabled, False otherwise.
+        """
         ...
 
     @property
     def max_retries(self) -> int:
-        """Maximum number of retry attempts."""
+        """Maximum number of retry attempts.
+
+        Returns:
+            Non-negative integer specifying the maximum retry count.
+        """
         ...
 
     @property
     def backoff_strategy(self) -> Literal["fixed", "exponential", "linear"]:
-        """Strategy for increasing delay between retries."""
+        """Strategy for increasing delay between retries.
+
+        Backoff Strategies:
+            - fixed: Same delay between each retry attempt
+            - exponential: Delay doubles after each attempt
+            - linear: Delay increases linearly with each attempt
+
+        Returns:
+            One of "fixed", "exponential", or "linear".
+        """
         ...
 
     @property
     def base_delay_ms(self) -> int:
-        """Initial delay in milliseconds before first retry."""
+        """Initial delay in milliseconds before first retry.
+
+        Returns:
+            Positive integer specifying the base delay in milliseconds.
+        """
         ...
 
     @property
     def max_delay_ms(self) -> int:
-        """Maximum delay in milliseconds between retries."""
+        """Maximum delay in milliseconds between retries.
+
+        Returns:
+            Positive integer specifying the maximum delay cap in milliseconds.
+        """
         ...
 
     @property
     def jitter_factor(self) -> float:
-        """Random jitter factor (0.0-1.0) to prevent thundering herd."""
+        """Random jitter factor to prevent thundering herd.
+
+        Jitter adds randomness to retry delays to prevent multiple clients
+        from retrying simultaneously after a shared failure.
+
+        Returns:
+            Float between 0.0 and 1.0 representing the jitter percentage.
+        """
         ...
 
 
@@ -120,27 +152,60 @@ class ProtocolDescriptorCircuitBreaker(Protocol):
 
     @property
     def enabled(self) -> bool:
-        """Whether circuit breaker is enabled."""
+        """Whether circuit breaker is enabled.
+
+        Returns:
+            True if circuit breaker protection is enabled, False otherwise.
+        """
         ...
 
     @property
     def failure_threshold(self) -> int:
-        """Number of consecutive failures before opening the circuit."""
+        """Number of consecutive failures before opening the circuit.
+
+        When the failure count reaches this threshold, the circuit opens
+        and subsequent requests fail immediately without attempting execution.
+
+        Returns:
+            Positive integer specifying the failure threshold count.
+        """
         ...
 
     @property
     def success_threshold(self) -> int:
-        """Number of successes needed to close circuit from half-open state."""
+        """Number of successes needed to close circuit from half-open state.
+
+        When the circuit is half-open, this many consecutive successes
+        are required before the circuit fully closes and normal operation
+        resumes.
+
+        Returns:
+            Positive integer specifying the success threshold count.
+        """
         ...
 
     @property
     def timeout_ms(self) -> int:
-        """Time in milliseconds before attempting to close the circuit."""
+        """Time in milliseconds before attempting to close the circuit.
+
+        After the circuit opens, it remains open for this duration before
+        transitioning to half-open state where test requests are allowed.
+
+        Returns:
+            Positive integer specifying the timeout duration in milliseconds.
+        """
         ...
 
     @property
     def half_open_requests(self) -> int:
-        """Number of test requests allowed when circuit is half-open."""
+        """Number of test requests allowed when circuit is half-open.
+
+        In the half-open state, this many requests are allowed through
+        to test if the underlying service has recovered.
+
+        Returns:
+            Positive integer specifying the number of test requests allowed.
+        """
         ...
 
 

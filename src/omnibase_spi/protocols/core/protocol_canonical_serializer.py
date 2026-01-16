@@ -106,6 +106,10 @@ class ProtocolCanonicalSerializer(Protocol):
 
         Returns:
             The canonical serialized string representation.
+
+        Raises:
+            SPIError: When the metadata block cannot be serialized due to
+                invalid structure or unsupported content types.
         """
         ...
 
@@ -123,6 +127,10 @@ class ProtocolCanonicalSerializer(Protocol):
 
         Returns:
             The normalized body content with consistent line endings.
+
+        Raises:
+            SPIError: When the body content cannot be normalized due to
+                encoding issues or invalid content.
         """
         ...
 
@@ -151,5 +159,9 @@ class ProtocolCanonicalSerializer(Protocol):
 
         Returns:
             The canonical string to be hashed.
+
+        Raises:
+            SPIError: When canonicalization fails due to invalid block structure,
+                body content issues, or incompatible context values.
         """
         ...

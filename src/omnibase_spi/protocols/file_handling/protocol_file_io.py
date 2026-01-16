@@ -78,7 +78,8 @@ class ProtocolFileIO(Protocol):
 
         Raises:
             FileNotFoundError: When the specified file does not exist.
-            YAMLParseError: When the file contains invalid YAML syntax.
+            ValueError: When the file contains invalid YAML syntax.
+            PermissionError: When read access to the file is denied.
         """
         ...
 
@@ -93,7 +94,8 @@ class ProtocolFileIO(Protocol):
 
         Raises:
             FileNotFoundError: When the specified file does not exist.
-            JSONDecodeError: When the file contains invalid JSON syntax.
+            ValueError: When the file contains invalid JSON syntax.
+            PermissionError: When read access to the file is denied.
         """
         ...
 
@@ -109,7 +111,8 @@ class ProtocolFileIO(Protocol):
 
         Raises:
             PermissionError: When write access to the file is denied.
-            SerializationError: When the data cannot be serialized to YAML.
+            TypeError: When the data cannot be serialized to YAML.
+            OSError: When the file cannot be written due to I/O errors.
         """
         ...
 
@@ -125,7 +128,8 @@ class ProtocolFileIO(Protocol):
 
         Raises:
             PermissionError: When write access to the file is denied.
-            SerializationError: When the data cannot be serialized to JSON.
+            TypeError: When the data cannot be serialized to JSON.
+            OSError: When the file cannot be written due to I/O errors.
         """
         ...
 
@@ -137,6 +141,10 @@ class ProtocolFileIO(Protocol):
 
         Returns:
             True if the path exists, False otherwise.
+
+        Raises:
+            PermissionError: When the path cannot be accessed due to permissions.
+            OSError: When an I/O error occurs during the check.
         """
         ...
 
@@ -149,6 +157,10 @@ class ProtocolFileIO(Protocol):
         Returns:
             True if the path is a regular file, False if it is a directory
             or does not exist.
+
+        Raises:
+            PermissionError: When the path cannot be accessed due to permissions.
+            OSError: When an I/O error occurs during the check.
         """
         ...
 

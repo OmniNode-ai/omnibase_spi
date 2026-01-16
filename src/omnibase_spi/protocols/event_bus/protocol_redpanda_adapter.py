@@ -28,9 +28,9 @@ Example:
     # Get Redpanda adapter
     adapter: ProtocolRedpandaAdapter = get_redpanda_adapter()
 
-    # Access Redpanda-specific optimizations
-    optimizations = adapter.redpanda_optimized_defaults
-    print(f"Batch size: {optimizations.get('batch_size')}")
+    # Access Redpanda-specific optimizations (type-safe)
+    config = adapter.redpanda_config
+    print(f"Batch size: {config.batch_size_bytes} bytes")
 
     # Publish event (Kafka-compatible interface)
     await adapter.publish(
@@ -54,7 +54,6 @@ from collections.abc import Awaitable, Callable
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 from omnibase_spi.protocols.event_bus.protocol_kafka_adapter import ProtocolKafkaConfig
-from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 
 if TYPE_CHECKING:
     from omnibase_core.types import JsonType
@@ -64,6 +63,86 @@ if TYPE_CHECKING:
 
 # Type aliases to avoid namespace violations (PEP 695)
 type EventBusHeaders = "JsonType"  # Generic headers type
+
+
+@runtime_checkable
+class ProtocolRedpandaConfig(Protocol):
+    """Protocol for Redpanda-specific configuration with performance optimizations.
+
+    Extends the Kafka configuration pattern with Redpanda-specific optimization
+    parameters. Provides type-safe access to Redpanda tuning parameters that
+    differ from standard Kafka defaults.
+
+    Attributes:
+        batch_size_bytes: Optimal batch size in bytes (1MB default for Redpanda)
+        compression_type: Compression algorithm (lz4, snappy, zstd, none)
+        linger_ms: Batch linger time in milliseconds for throughput optimization
+        buffer_memory_bytes: Producer buffer memory in bytes
+        fetch_min_bytes: Consumer minimum fetch size
+        max_poll_records: Maximum records per poll operation
+        acks: Acknowledgment level (0, 1, or 'all')
+        enable_idempotence: Whether to enable idempotent producer
+        max_in_flight_requests: Maximum in-flight requests per connection
+
+    Example:
+        ```python
+        adapter: ProtocolRedpandaAdapter = get_redpanda_adapter()
+        config = adapter.redpanda_config
+
+        print(f"Batch size: {config.batch_size_bytes} bytes")
+        print(f"Compression: {config.compression_type}")
+        print(f"Linger: {config.linger_ms}ms")
+        ```
+
+    See Also:
+        - ProtocolKafkaConfig: Base Kafka configuration protocol
+        - ProtocolRedpandaAdapter: Redpanda adapter using this config
+    """
+
+    @property
+    def batch_size_bytes(self) -> int:
+        """Optimal batch size in bytes (1MB default for Redpanda)."""
+        ...
+
+    @property
+    def compression_type(self) -> str:
+        """Compression algorithm (lz4, snappy, zstd, none)."""
+        ...
+
+    @property
+    def linger_ms(self) -> int:
+        """Batch linger time in milliseconds for throughput optimization."""
+        ...
+
+    @property
+    def buffer_memory_bytes(self) -> int:
+        """Producer buffer memory in bytes."""
+        ...
+
+    @property
+    def fetch_min_bytes(self) -> int:
+        """Consumer minimum fetch size in bytes."""
+        ...
+
+    @property
+    def max_poll_records(self) -> int:
+        """Maximum records per poll operation."""
+        ...
+
+    @property
+    def acks(self) -> str:
+        """Acknowledgment level (0, 1, or 'all')."""
+        ...
+
+    @property
+    def enable_idempotence(self) -> bool:
+        """Whether to enable idempotent producer for exactly-once semantics."""
+        ...
+
+    @property
+    def max_in_flight_requests(self) -> int:
+        """Maximum in-flight requests per connection."""
+        ...
 
 
 @runtime_checkable
@@ -160,29 +239,50 @@ class ProtocolRedpandaAdapter(Protocol):
     """
 
     @property
-    def redpanda_optimized_defaults(self) -> dict[str, "ContextValue"]:
+    def redpanda_config(self) -> ProtocolRedpandaConfig:
+        """Get Redpanda-specific configuration with type-safe access.
+
+        Returns Redpanda-specific configuration with strongly-typed properties
+        for optimization settings, compression, and performance tuning.
+
+        Returns:
+            ProtocolRedpandaConfig: Type-safe Redpanda configuration object
+
+        Example:
+            ```python
+            config = adapter.redpanda_config
+
+            # Type-safe access to optimization settings
+            print(f"Batch size: {config.batch_size_bytes} bytes")
+            print(f"Compression: {config.compression_type}")
+            print(f"Linger: {config.linger_ms}ms")
+            print(f"Idempotent: {config.enable_idempotence}")
+            ```
+        """
+        ...
+
+    @property
+    def redpanda_optimized_defaults(self) -> ProtocolRedpandaConfig:
         """Get Redpanda-specific optimization defaults.
 
         Returns Redpanda-specific configuration optimizations including enhanced
         batch sizes, compression settings, and performance tuning parameters.
 
+        .. deprecated:: 0.4.0
+            Use :attr:`redpanda_config` instead for type-safe access.
+
         Returns:
-            Dictionary of Redpanda optimization settings:
-            - batch_size: Optimal batch size (1MB default)
-            - compression_type: Compression algorithm (lz4)
-            - linger_ms: Batch linger time for throughput
-            - buffer_memory: Producer buffer memory
-            - fetch_min_bytes: Consumer fetch minimum
-            - max_poll_records: Max records per poll
+            ProtocolRedpandaConfig: Redpanda optimization settings with typed properties
 
         Example:
             ```python
-            defaults = adapter.redpanda_optimized_defaults
+            # Preferred: use redpanda_config
+            config = adapter.redpanda_config
+            print(f"Batch size: {config.batch_size_bytes} bytes")
 
-            # Check optimization settings
-            print(f"Batch size: {defaults['batch_size']}")
-            print(f"Compression: {defaults['compression_type']}")
-            print(f"Linger: {defaults['linger_ms']}ms")
+            # Deprecated: redpanda_optimized_defaults (same return type)
+            defaults = adapter.redpanda_optimized_defaults
+            print(f"Compression: {defaults.compression_type}")
             ```
         """
         ...

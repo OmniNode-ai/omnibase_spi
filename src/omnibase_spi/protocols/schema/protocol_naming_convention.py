@@ -52,9 +52,15 @@ class ProtocolNamingConventionResult(Protocol):
         Serializes the result including validity status, messages,
         and suggested corrections for logging or API responses.
 
+        Args:
+            None.
+
         Returns:
             Dictionary containing 'is_valid', 'errors', 'warnings',
             and 'suggested_name' keys with their respective values.
+
+        Raises:
+            None. This method performs pure serialization without I/O.
         """
         ...
 
@@ -64,10 +70,49 @@ class ProtocolNamingConvention(Protocol):
     """
     Protocol for ONEX naming convention enforcement.
 
+    Provides validation of identifiers, file names, and other strings
+    against ONEX platform naming conventions. Implementations should
+    check for proper casing, allowed characters, length limits, and
+    reserved word conflicts.
+
     Example:
-        class MyNamingConvention:
-            def validate_name(self, name: str) -> ProtocolNamingConventionResult:
-                ...
+        ```python
+        convention: ProtocolNamingConvention = get_naming_convention()
+
+        # Validate a node name
+        result = await convention.validate_name("my_compute_node")
+
+        if result.is_valid:
+            print("Name is valid")
+        else:
+            for error in result.errors:
+                print(f"Error: {error}")
+            if result.suggested_name:
+                print(f"Suggestion: {result.suggested_name}")
+        ```
+
+    See Also:
+        - ProtocolNamingConventionResult: Validation result structure
+        - ProtocolSchemaLoader: Schema loading with naming validation
     """
 
-    async def validate_name(self, name: str) -> ProtocolNamingConventionResult: ...
+    async def validate_name(self, name: str) -> ProtocolNamingConventionResult:
+        """Validate a name against ONEX naming conventions.
+
+        Checks the provided name for compliance with platform naming
+        rules including character restrictions, casing conventions,
+        length limits, and reserved word conflicts.
+
+        Args:
+            name: The name string to validate against naming conventions.
+
+        Returns:
+            Validation result containing validity status, any errors
+            or warnings, and a suggested valid name if the original
+            is invalid.
+
+        Raises:
+            None. Validation errors are returned in the result object
+            rather than raised as exceptions.
+        """
+        ...
