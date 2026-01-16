@@ -16,7 +16,7 @@ from .protocol_onex_validation import (
     ProtocolOnexValidationReport,
     ProtocolOnexValidationResult,
 )
-from .protocol_onex_version_loader import ProtocolToolToolOnexVersionLoader
+from .protocol_onex_version_loader import ProtocolOnexVersionLoader
 from .protocol_orchestrator_node import ProtocolOnexOrchestratorNode
 from .protocol_reducer_node import ProtocolOnexReducerNode
 
@@ -35,5 +35,5 @@ __all__ = [
     "ProtocolOnexValidation",
     "ProtocolOnexValidationReport",
     "ProtocolOnexValidationResult",
-    "ProtocolToolToolOnexVersionLoader",
+    "ProtocolOnexVersionLoader",
 ]

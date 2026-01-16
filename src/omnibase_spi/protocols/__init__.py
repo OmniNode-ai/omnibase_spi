@@ -303,7 +303,7 @@ from omnibase_spi.protocols.onex import (
     ProtocolOnexValidation,
     ProtocolOnexValidationReport,
     ProtocolOnexValidationResult,
-    ProtocolToolToolOnexVersionLoader,
+    ProtocolOnexVersionLoader,
 )
 
 # Projections protocols (5 protocols) - Projection persistence and state reading
@@ -616,7 +616,7 @@ __all__ = [
     "ProtocolTaskSchedulingCriteria",
     "ProtocolTimeBasedOperations",
     "ProtocolToolDiscoveryService",
-    "ProtocolToolToolOnexVersionLoader",
+    "ProtocolOnexVersionLoader",
     "ProtocolTrustedSchemaLoader",
     "ProtocolUriParser",
     "ProtocolUtilsNodeConfiguration",

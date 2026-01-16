@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 
 
 @runtime_checkable
-class ProtocolToolToolOnexVersionLoader(Protocol):
+class ProtocolOnexVersionLoader(Protocol):
     """
     Protocol for loading ONEX version information from .onexversion files.
     """

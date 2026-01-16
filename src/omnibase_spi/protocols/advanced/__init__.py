@@ -5,7 +5,7 @@ from .protocol_ast_builder import ProtocolASTBuilder
 from .protocol_contract_analyzer import ProtocolContractAnalyzer
 from .protocol_coverage_provider import ProtocolCoverageProvider
 from .protocol_direct_knowledge_pipeline import ProtocolDirectKnowledgePipeline
-from .protocol_enum_generator import ProtocolEnumGenerator
+from .protocol_enum_generator import ProtocolEnumGenerator, ProtocolEnumInfo
 from .protocol_fixture_loader import ProtocolFixtureLoader
 from .protocol_log_format_handler import ProtocolLogFormatHandler
 from .protocol_orchestrator import ProtocolOrchestrator
@@ -21,6 +21,7 @@ __all__ = [
     "ProtocolCoverageProvider",
     "ProtocolDirectKnowledgePipeline",
     "ProtocolEnumGenerator",
+    "ProtocolEnumInfo",
     "ProtocolFixtureLoader",
     "ProtocolLogFormatHandler",
     "ProtocolOrchestrator",
