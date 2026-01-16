@@ -175,9 +175,31 @@ class ProtocolContractModelSchema(Protocol):
     required: list[str]
     additional_properties: bool
 
-    async def validate(self, data: dict[str, Any]) -> bool: ...
+    async def validate(self, data: dict[str, Any]) -> bool:
+        """Validate data against this schema.
 
-    async def to_dict(self) -> dict[str, Any]: ...
+        Args:
+            data: Dictionary of data to validate against the schema.
+
+        Returns:
+            True if data conforms to schema, False otherwise.
+
+        Raises:
+            May raise implementation-specific exceptions for validation errors.
+        """
+        ...
+
+    async def to_dict(self) -> dict[str, Any]:
+        """Serialize schema model to dictionary representation.
+
+        Returns:
+            Dictionary containing type, properties, required fields,
+            and additional_properties configuration.
+
+        Raises:
+            May raise implementation-specific exceptions for serialization errors.
+        """
+        ...
 
 
 @runtime_checkable
@@ -231,13 +253,44 @@ class ProtocolModelContractDocument(Protocol):
     output_state: dict[str, Any] | None
     definitions: dict[str, Any]
 
-    async def validate(self) -> bool: ...
+    async def validate(self) -> bool:
+        """Validate the contract document for correctness.
+
+        Returns:
+            True if the contract is valid, False otherwise.
+
+        Raises:
+            May raise implementation-specific exceptions for validation errors.
+        """
+        ...
 
     async def get_schema(
         self, schema_name: str
-    ) -> "ProtocolContractModelSchema | None": ...
+    ) -> "ProtocolContractModelSchema | None":
+        """Retrieve a named schema from the contract definitions.
 
-    async def to_dict(self) -> dict[str, Any]: ...
+        Args:
+            schema_name: Name of the schema to retrieve (e.g., "InputState").
+
+        Returns:
+            The schema model if found, None otherwise.
+
+        Raises:
+            May raise implementation-specific exceptions for schema retrieval errors.
+        """
+        ...
+
+    async def to_dict(self) -> dict[str, Any]:
+        """Serialize contract document to dictionary representation.
+
+        Returns:
+            Dictionary containing node_name, node_version, node_type,
+            description, input_state, output_state, and definitions.
+
+        Raises:
+            May raise implementation-specific exceptions for serialization errors.
+        """
+        ...
 
 
 @runtime_checkable
@@ -270,10 +323,14 @@ class ProtocolContractAnalyzer(Protocol):
         """Validate a contract for correctness and completeness.
 
         Args:
-            contract_path: Path to contract.yaml file
+            contract_path: Path to contract.yaml file.
 
         Returns:
-            ContractValidationResult with validation details
+            ContractValidationResult with validation details.
+
+        Raises:
+            FileNotFoundError: If contract file cannot be found.
+            ValueError: If contract contains invalid YAML or schema.
         """
         ...
 
@@ -281,10 +338,14 @@ class ProtocolContractAnalyzer(Protocol):
         """Analyze contract structure and gather statistics.
 
         Args:
-            contract_path: Path to contract.yaml file
+            contract_path: Path to contract.yaml file.
 
         Returns:
-            ContractInfo with analysis results
+            ContractInfo with analysis results.
+
+        Raises:
+            FileNotFoundError: If contract file cannot be found.
+            ValueError: If contract contains invalid YAML or schema.
         """
         ...
 
@@ -295,10 +356,13 @@ class ProtocolContractAnalyzer(Protocol):
         """Discover all $ref references in a contract.
 
         Args:
-            contract: Contract document to analyze
+            contract: Contract document to analyze.
 
         Returns:
-            List of discovered references with metadata
+            List of discovered references with metadata.
+
+        Raises:
+            ValueError: If contract contains malformed references.
         """
         ...
 
@@ -308,10 +372,13 @@ class ProtocolContractAnalyzer(Protocol):
         """Get all external file dependencies of a contract.
 
         Args:
-            contract: Contract document to analyze
+            contract: Contract document to analyze.
 
         Returns:
-            Set of external file paths referenced
+            Set of external file paths referenced.
+
+        Raises:
+            ValueError: If contract contains malformed external references.
         """
         ...
 
@@ -340,10 +407,13 @@ class ProtocolContractAnalyzer(Protocol):
         """Check for circular references in the contract.
 
         Args:
-            contract: Contract to check
+            contract: Contract to check.
 
         Returns:
-            List of circular reference paths found
+            List of circular reference paths found.
+
+        Raises:
+            ValueError: If contract contains malformed references.
         """
         ...
 
@@ -351,10 +421,13 @@ class ProtocolContractAnalyzer(Protocol):
         """Count total fields in a schema including nested objects.
 
         Args:
-            schema: Schema to count fields in
+            schema: Schema to count fields in.
 
         Returns:
-            Total field count
+            Total field count.
+
+        Raises:
+            ValueError: If schema structure is invalid or malformed.
         """
         ...
 
@@ -366,10 +439,13 @@ class ProtocolContractAnalyzer(Protocol):
         """Validate a schema object and return issues.
 
         Args:
-            schema: Schema to validate
-            location: Location path for error messages
+            schema: Schema to validate.
+            location: Location path for error messages.
 
         Returns:
-            Dict with 'errors', 'warnings', and 'info' lists
+            Dict with 'errors', 'warnings', and 'info' lists.
+
+        Raises:
+            ValueError: If schema structure is fundamentally invalid.
         """
         ...

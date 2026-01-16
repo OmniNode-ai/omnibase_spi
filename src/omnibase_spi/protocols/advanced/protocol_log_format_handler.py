@@ -1,28 +1,4 @@
-# === OmniNode:Metadata ===
-# author: OmniNode Team
-# copyright: OmniNode.ai
-# created_at: '2025-05-28T12:36:26.149166'
-# description: Stamped by ToolPython
-# entrypoint: python://protocol_log_format_handler
-# hash: ce792d7ed723a0235c76ef431237a88bc92d40fcc58f431f327de69ef2a74ce1
-# last_modified_at: '2025-05-29T14:13:59.295043+00:00'
-# lifecycle: active
-# meta_type: tool
-# metadata_version: 0.1.0
-# name: protocol_log_format_handler.py
-# namespace: python://omnibase.protocol.protocol_log_format_handler
-# owner: OmniNode Team
-# protocol_version: 0.1.0
-# runtime_language_hint: python>=3.11
-# schema_version: 0.1.0
-# state_contract: state_contract://default
-# tools: null
-# uuid: 10ed3ed0-4cba-40d3-837f-41854d2a1a64
-# version: 1.0.0
-# === /OmniNode:Metadata ===
-
-"""
-Protocol for pluggable log format handlers in ONEX nodes.
+"""Protocol for pluggable log format handlers in ONEX nodes.
 
 This protocol defines the interface that all log format handlers must implement
 for consistent, extensible formatting capabilities for different output formats
@@ -30,6 +6,8 @@ for consistent, extensible formatting capabilities for different output formats
 
 Following the established ONEX architecture patterns for pluggable handlers.
 """
+
+from __future__ import annotations
 
 from typing import Any, Protocol, runtime_checkable
 

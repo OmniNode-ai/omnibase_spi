@@ -1,10 +1,11 @@
-#!/usr/bin/env python3
 """
 ONEX Workflow Testing Protocol Interfaces
 
 This module defines protocol interfaces for the ONEX workflow testing system,
 ensuring consistent behavior across different implementations with strict SPI purity.
 """
+
+from __future__ import annotations
 
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
@@ -23,9 +24,9 @@ class ProtocolWorkflowTestingExecutor(Protocol):
 
     async def execute_workflow_testing(
         self,
-        configuration: dict[str, "ContextValue"],
+        configuration: dict[str, ContextValue],
         test_context: LiteralTestContext = "LOCAL_DEVELOPMENT",
-    ) -> dict[str, "ContextValue"]:
+    ) -> dict[str, ContextValue]:
         """
         Execute complete workflow testing based on configuration.
 
@@ -40,7 +41,7 @@ class ProtocolWorkflowTestingExecutor(Protocol):
 
     def validate_test_configuration(
         self,
-        configuration: dict[str, "ContextValue"],
+        configuration: dict[str, ContextValue],
     ) -> list[str]:
         """
         Validate workflow testing configuration for completeness and correctness.
@@ -62,7 +63,7 @@ class ProtocolWorkflowTestingExecutor(Protocol):
         """
         ...
 
-    def health_check(self) -> dict[str, "ContextValue"]:
+    def health_check(self) -> dict[str, ContextValue]:
         """
         Perform health check for the workflow testing executor.
 
@@ -78,7 +79,7 @@ class ProtocolMockEventBus(Protocol):
 
     def configure_mock_event_bus(
         self,
-        config: dict[str, "ContextValue"],
+        config: dict[str, ContextValue],
     ) -> bool:
         """
         Configure mock event bus for testing scenarios.
@@ -93,7 +94,7 @@ class ProtocolMockEventBus(Protocol):
 
     def simulate_event_sequence(
         self,
-        events: list[dict[str, "ContextValue"]],
+        events: list[dict[str, ContextValue]],
     ) -> bool:
         """
         Simulate a sequence of events for testing.
@@ -106,7 +107,7 @@ class ProtocolMockEventBus(Protocol):
         """
         ...
 
-    async def get_published_events(self) -> list[dict[str, "ContextValue"]]:
+    async def get_published_events(self) -> list[dict[str, ContextValue]]:
         """
         Get list of events published during testing.
 
@@ -122,7 +123,7 @@ class ProtocolMockRegistry(Protocol):
 
     def configure_mock_registry(
         self,
-        config: dict[str, "ContextValue"],
+        config: dict[str, ContextValue],
     ) -> bool:
         """
         Configure mock service registry for testing scenarios.
@@ -138,7 +139,7 @@ class ProtocolMockRegistry(Protocol):
     def register_mock_service(
         self,
         service_name: str,
-        service_config: dict[str, "ContextValue"],
+        service_config: dict[str, ContextValue],
     ) -> bool:
         """
         Register a mock service for testing.
@@ -155,7 +156,7 @@ class ProtocolMockRegistry(Protocol):
     async def get_mock_service(
         self,
         service_name: str,
-    ) -> dict[str, "ContextValue"] | None:
+    ) -> dict[str, ContextValue] | None:
         """
         Get mock service configuration.
 
@@ -233,8 +234,8 @@ class ProtocolAccommodationManager(Protocol):
         self,
         strategy: LiteralAccommodationStrategy,
         dependencies: list[str],
-        configuration: dict[str, "ContextValue"],
-    ) -> dict[str, "ContextValue"]:
+        configuration: dict[str, ContextValue],
+    ) -> dict[str, ContextValue]:
         """
         Apply accommodation strategy for test dependencies.
 
@@ -251,7 +252,7 @@ class ProtocolAccommodationManager(Protocol):
     def create_accommodation_override(
         self,
         dependency_name: str,
-        override_config: dict[str, "ContextValue"],
+        override_config: dict[str, ContextValue],
     ) -> bool:
         """
         Create accommodation override for specific dependency.
@@ -267,7 +268,7 @@ class ProtocolAccommodationManager(Protocol):
 
     def validate_accommodation(
         self,
-        accommodation_config: dict[str, "ContextValue"],
+        accommodation_config: dict[str, ContextValue],
     ) -> list[str]:
         """
         Validate accommodation configuration.
@@ -287,7 +288,7 @@ class ProtocolServiceAvailabilityManager(Protocol):
 
     def configure_service_availability(
         self,
-        availability_map: dict[str, "ContextValue"],
+        availability_map: dict[str, ContextValue],
     ) -> bool:
         """
         Configure service availability for testing scenarios.
@@ -322,7 +323,7 @@ class ProtocolServiceAvailabilityManager(Protocol):
     async def get_service_status(
         self,
         service_name: str,
-    ) -> dict[str, "ContextValue"]:
+    ) -> dict[str, ContextValue]:
         """
         Get current status of a service.
 
@@ -341,7 +342,7 @@ class ProtocolWorkflowTestingOrchestrator(Protocol):
 
     def setup_test_environment(
         self,
-        test_configuration: dict[str, "ContextValue"],
+        test_configuration: dict[str, ContextValue],
     ) -> bool:
         """
         Set up complete test environment.
@@ -356,9 +357,9 @@ class ProtocolWorkflowTestingOrchestrator(Protocol):
 
     async def execute_test_workflow(
         self,
-        workflow_config: dict[str, "ContextValue"],
+        workflow_config: dict[str, ContextValue],
         test_context: LiteralTestContext,
-    ) -> dict[str, "ContextValue"]:
+    ) -> dict[str, ContextValue]:
         """
         Execute a specific test workflow.
 
@@ -382,8 +383,8 @@ class ProtocolWorkflowTestingOrchestrator(Protocol):
 
     def generate_test_report(
         self,
-        test_results: dict[str, "ContextValue"],
-    ) -> dict[str, "ContextValue"]:
+        test_results: dict[str, ContextValue],
+    ) -> dict[str, ContextValue]:
         """
         Generate comprehensive test report.
 

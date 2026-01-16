@@ -1,3 +1,7 @@
+"""Protocols for secure schema loading with path safety validation."""
+
+from __future__ import annotations
+
 from typing import Any, Protocol, runtime_checkable
 
 
@@ -40,7 +44,13 @@ class ProtocolSchemaValidationResult(Protocol):
     warnings: list[str]
     info: list[str]
 
-    def to_dict(self) -> dict[str, Any]: ...
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize validation result to dictionary representation.
+
+        Returns:
+            Dictionary containing success status, errors, warnings, and info lists.
+        """
+        ...
 
 
 @runtime_checkable
@@ -91,13 +101,13 @@ class ProtocolTrustedSchemaLoader(Protocol):
 
     async def load_schema_safely(
         self, schema_path: str
-    ) -> "ProtocolSchemaValidationResult":
+    ) -> ProtocolSchemaValidationResult:
         """Safely load a schema file with security validation"""
         ...
 
     async def resolve_ref_safely(
         self, ref_string: str
-    ) -> "ProtocolSchemaValidationResult":
+    ) -> ProtocolSchemaValidationResult:
         """Safely resolve a $ref string with security validation"""
         ...
 

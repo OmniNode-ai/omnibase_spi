@@ -1,3 +1,7 @@
+"""Protocol for universal LLM provider operations with model-agnostic interface."""
+
+from __future__ import annotations
+
 from collections.abc import AsyncGenerator, Iterator
 from typing import (
     TYPE_CHECKING,
@@ -5,13 +9,6 @@ from typing import (
     Protocol,
     runtime_checkable,
 )
-
-"""
-Universal LLM provider protocol for model-agnostic operations.
-
-Defines the standard interface that all LLM providers must implement
-for seamless provider switching and intelligent routing.
-"""
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types.protocol_llm_types import (
@@ -125,7 +122,7 @@ class ProtocolLLMProvider(Protocol):
         """
         ...
 
-    def configure(self, config: "ProtocolProviderConfig") -> None:
+    def configure(self, config: ProtocolProviderConfig) -> None:
         """Configure the provider with connection and authentication details.
 
         Args:
@@ -171,7 +168,7 @@ class ProtocolLLMProvider(Protocol):
 
     async def get_model_capabilities(
         self, model_name: str
-    ) -> "ProtocolModelCapabilities":
+    ) -> ProtocolModelCapabilities:
         """Get capabilities information for a specific model.
 
         Args:
@@ -194,7 +191,7 @@ class ProtocolLLMProvider(Protocol):
         """
         ...
 
-    def validate_request(self, request: "ProtocolLLMRequest") -> bool:
+    def validate_request(self, request: ProtocolLLMRequest) -> bool:
         """Validate that the request is compatible with this provider.
 
         Args:
@@ -214,7 +211,7 @@ class ProtocolLLMProvider(Protocol):
         """
         ...
 
-    async def generate(self, request: "ProtocolLLMRequest") -> "ProtocolLLMResponse":
+    async def generate(self, request: ProtocolLLMRequest) -> ProtocolLLMResponse:
         """Generate a response using this provider (synchronous-style).
 
         Args:
@@ -240,7 +237,7 @@ class ProtocolLLMProvider(Protocol):
         """
         ...
 
-    def generate_stream(self, request: "ProtocolLLMRequest") -> Iterator[str]:
+    def generate_stream(self, request: ProtocolLLMRequest) -> Iterator[str]:
         """Generate a streaming response using this provider (synchronous).
 
         Args:
@@ -263,8 +260,8 @@ class ProtocolLLMProvider(Protocol):
         ...
 
     async def generate_async(
-        self, request: "ProtocolLLMRequest"
-    ) -> "ProtocolLLMResponse":
+        self, request: ProtocolLLMRequest
+    ) -> ProtocolLLMResponse:
         """Generate a response asynchronously using this provider.
 
         Args:
@@ -292,7 +289,7 @@ class ProtocolLLMProvider(Protocol):
 
     def generate_stream_async(
         self,
-        request: "ProtocolLLMRequest",
+        request: ProtocolLLMRequest,
     ) -> AsyncGenerator[str, None]:
         """Generate a streaming response asynchronously using this provider.
 
@@ -315,7 +312,7 @@ class ProtocolLLMProvider(Protocol):
         """
         ...
 
-    def estimate_cost(self, request: "ProtocolLLMRequest") -> float:
+    def estimate_cost(self, request: ProtocolLLMRequest) -> float:
         """Estimate the cost for this request with this provider.
 
         Args:
@@ -335,7 +332,7 @@ class ProtocolLLMProvider(Protocol):
         """
         ...
 
-    async def health_check(self) -> "ProtocolLLMHealthResponse":
+    async def health_check(self) -> ProtocolLLMHealthResponse:
         """Perform a health check on the provider.
 
         Returns:

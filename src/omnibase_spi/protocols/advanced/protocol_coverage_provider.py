@@ -1,3 +1,7 @@
+"""Protocol for test coverage providers with multi-format support."""
+
+from __future__ import annotations
+
 from typing import Protocol, runtime_checkable
 
 

@@ -90,9 +90,7 @@ class MockHandlerDescriptor:
         self._name = name
         self._version = version
         self._metadata = (
-            metadata
-            if metadata is not None
-            else {"capabilities": ["read", "write"]}
+            metadata if metadata is not None else {"capabilities": ["read", "write"]}
         )
         self._priority = priority
         self._handler = MockProtocolHandler()

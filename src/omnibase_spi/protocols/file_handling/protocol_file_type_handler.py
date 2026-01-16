@@ -1,3 +1,5 @@
+"""Protocols for file type handling, stamping, and validation in the ONEX ecosystem."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
@@ -158,7 +160,33 @@ class ProtocolFileProcessingTypeHandler(Protocol):
 
     async def stamp(
         self, path: str, content: str, options: ProtocolStampOptions
-    ) -> ProtocolOnexResult: ...
+    ) -> ProtocolOnexResult:
+        """Stamp a file with ONEX metadata block.
+
+        Applies the stamping workflow to inject or update ONEX metadata
+        in the specified file. The operation extracts existing metadata
+        (if any), serializes the new metadata block, and injects it into
+        the file content according to the file type's conventions.
+
+        Args:
+            path: The file path being stamped. Used for file type detection
+                and error reporting.
+            content: The current content of the file to be stamped.
+            options: Stamping configuration options controlling behavior:
+                - force: Override existing stamps even if valid
+                - backup: Create backup before modifying
+                - dry_run: Validate without making changes
+
+        Returns:
+            A result object containing the stamped content on success,
+            or error details on failure. The result includes validation
+            status and any warnings or errors encountered.
+
+        Raises:
+            SPIError: When stamping fails due to invalid file content,
+                unsupported file format, or serialization errors.
+        """
+        ...
 
     async def pre_validate(
         self, path: str, content: str, options: ProtocolValidationOptions

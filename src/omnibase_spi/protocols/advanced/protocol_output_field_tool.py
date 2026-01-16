@@ -1,3 +1,7 @@
+"""Protocols for ONEX output field generation and model representation."""
+
+from __future__ import annotations
+
 from typing import Any, Protocol, runtime_checkable
 
 
@@ -63,4 +67,4 @@ class ProtocolOutputFieldTool(Protocol):
 
     async def __call__(
         self, state: Any, input_state_dict: dict[str, Any]
-    ) -> "ProtocolModelOnexField": ...
+    ) -> ProtocolModelOnexField: ...

@@ -1,31 +1,9 @@
-# === OmniNode:Metadata ===
-# author: OmniNode Team
-# copyright: OmniNode.ai
-# created_at: '2025-05-28T13:24:08.142263'
-# description: Stamped by ToolPython
-# entrypoint: python://protocol_schema_loader
-# hash: 54d22bb99ec2490ef26d82ee55400b98fa3774a1cf59e9e600ee05023501e133
-# last_modified_at: '2025-05-29T14:14:00.338636+00:00'
-# lifecycle: active
-# meta_type: tool
-# metadata_version: 0.1.0
-# name: protocol_schema_loader.py
-# namespace: python://omnibase.protocol.protocol_schema_loader
-# owner: OmniNode Team
-# protocol_version: 0.1.0
-# runtime_language_hint: python>=3.11
-# schema_version: 0.1.0
-# state_contract: state_contract://default
-# tools: {}
-# uuid: 5563978b-75f9-4c23-bca7-70ba09837d66
-# version: 1.0.0
-# === /OmniNode:Metadata ===
+"""ProtocolSchemaLoader: Protocol for all ONEX schema loader implementations.
 
-
-"""
-ProtocolSchemaLoader: Protocol for all ONEX schema loader implementations.
 Defines the canonical loader interface for node metadata and JSON schema files.
 """
+
+from __future__ import annotations
 
 from typing import Protocol, runtime_checkable
 
@@ -75,11 +53,45 @@ class ProtocolSchemaModel(Protocol):
     version: str
     definition: dict[str, object]
 
-    def validate(self, data: dict[str, object]) -> bool: ...
+    def validate(self, data: dict[str, object]) -> bool:
+        """Validate data against this schema.
 
-    def to_dict(self) -> dict[str, object]: ...
+        Args:
+            data: Dictionary of data to validate against the schema.
 
-    async def get_schema_path(self) -> str: ...
+        Returns:
+            True if data conforms to the schema, False otherwise.
+
+        Raises:
+            ValidationError: If validation encounters an unexpected error.
+            SchemaError: If the schema definition is invalid or corrupted.
+        """
+        ...
+
+    def to_dict(self) -> dict[str, object]:
+        """Serialize the schema model to a dictionary.
+
+        Returns:
+            Dictionary representation of the schema including id, type,
+            version, and definition.
+
+        Raises:
+            SerializationError: If the schema cannot be serialized to a
+                dictionary representation.
+        """
+        ...
+
+    async def get_schema_path(self) -> str:
+        """Get the filesystem path where this schema was loaded from.
+
+        Returns:
+            Absolute path to the schema file.
+
+        Raises:
+            ValueError: If the schema was not loaded from a file or path
+                is unavailable.
+        """
+        ...
 
 
 @runtime_checkable
@@ -89,10 +101,49 @@ class ProtocolSchemaLoader(Protocol):
     All methods use str objects and return strongly-typed models as appropriate.
     """
 
-    async def load_onex_yaml(self, path: str) -> ProtocolNodeMetadataBlock: ...
+    async def load_onex_yaml(self, path: str) -> ProtocolNodeMetadataBlock:
+        """Load and parse an ONEX YAML metadata file.
 
-    async def load_json_schema(self, path: str) -> ProtocolSchemaModel: ...
+        Args:
+            path: Filesystem path to the .onex.yaml file.
+
+        Returns:
+            Parsed node metadata block with all ONEX properties.
+
+        Raises:
+            FileNotFoundError: If the specified path does not exist.
+            ValueError: If the YAML content is malformed or invalid.
+        """
+        ...
+
+    async def load_json_schema(self, path: str) -> ProtocolSchemaModel:
+        """Load and parse a JSON Schema file.
+
+        Args:
+            path: Filesystem path to the JSON schema file.
+
+        Returns:
+            Loaded schema model with validation capabilities.
+
+        Raises:
+            FileNotFoundError: If the specified path does not exist.
+            ValueError: If the JSON schema is malformed or invalid.
+        """
+        ...
 
     async def load_schema_for_node(
         self, node: ProtocolNodeMetadataBlock
-    ) -> ProtocolSchemaModel: ...
+    ) -> ProtocolSchemaModel:
+        """Load the JSON schema associated with a node's metadata.
+
+        Args:
+            node: Node metadata block containing schema reference.
+
+        Returns:
+            Loaded schema model for the node's input/output validation.
+
+        Raises:
+            FileNotFoundError: If the referenced schema does not exist.
+            ValueError: If the node has no schema reference or schema is invalid.
+        """
+        ...

@@ -1,30 +1,10 @@
-# === OmniNode:Metadata ===
-# author: OmniNode Team
-# copyright: OmniNode.ai
-# created_at: '2025-05-28T13:24:08.122722'
-# description: Stamped by ToolPython
-# entrypoint: python://protocol_cli
-# hash: d1ed8d5010052c5eb8c2189bb4780e6b8e8f54ef9efcdd98e65ddc6c92d7876e
-# last_modified_at: '2025-05-29T14:14:00.206328+00:00'
-# lifecycle: active
-# meta_type: tool
-# metadata_version: 0.1.0
-# name: protocol_cli.py
-# namespace: python://omnibase.protocol.protocol_cli
-# owner: OmniNode Team
-# protocol_version: 0.1.0
-# resource: python://omnibase.spi.protocol.cli
-# tags: ['cli', 'protocol', 'tool']
-# tool_type: protocol
-# version: 0.1.0
-# === OmniNode:Metadata ===
-
-"""
-CLI Protocol for ONEX Systems
+"""CLI Protocol for ONEX Systems.
 
 Defines the protocol interface for CLI operations with strict SPI purity compliance.
 Provides standardized contract for argument parsing, logging, and CLI result handling.
 """
+
+from __future__ import annotations
 
 from typing import Any, Protocol, runtime_checkable
 
@@ -175,7 +155,7 @@ class ProtocolCLI(Protocol):
     description: str
     logger: ProtocolLogger
 
-    async def get_parser(self) -> "Any":
+    async def get_parser(self) -> Any:
         """
         Get the argument parser for this CLI.
 
@@ -192,7 +172,7 @@ class ProtocolCLI(Protocol):
         """
         ...
 
-    async def main(self, argv: list[str] | None = None) -> "ProtocolCLIResult":
+    async def main(self, argv: list[str] | None = None) -> ProtocolCLIResult:
         """
         Main entry point for CLI execution.
 
@@ -212,7 +192,7 @@ class ProtocolCLI(Protocol):
         """
         ...
 
-    async def run(self, args: list[str]) -> "ProtocolCLIResult":
+    async def run(self, args: list[str]) -> ProtocolCLIResult:
         """
         Execute CLI with pre-parsed arguments.
 
@@ -234,7 +214,7 @@ class ProtocolCLI(Protocol):
 
     def describe_flags(
         self, output_format: str | None = None
-    ) -> list["ProtocolCLIFlagDescription"]:
+    ) -> list[ProtocolCLIFlagDescription]:
         """
         Get descriptions of all available CLI flags and arguments.
 
@@ -260,7 +240,7 @@ class ProtocolCLI(Protocol):
 
     async def execute_command(
         self, command: str, args: list[str]
-    ) -> "ProtocolCLIResult":
+    ) -> ProtocolCLIResult:
         """
         Execute a specific CLI command with the given arguments.
 
