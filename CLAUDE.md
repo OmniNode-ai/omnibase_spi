@@ -131,6 +131,7 @@ src/omnibase_spi/
 │   ├── workflow_orchestration/  # Workflow protocols
 │   ├── event_bus/       # Event bus protocols
 │   ├── mcp/             # MCP integration protocols
+│   ├── dashboard/       # Dashboard UI and widget protocols
 │   └── [22 more domains]
 ├── exceptions.py        # SPIError hierarchy
 └── py.typed
@@ -143,6 +144,10 @@ src/omnibase_spi/
 | Node protocols | `Protocol{Type}Node` | `ProtocolComputeNode` |
 | Compiler protocols | `Protocol{Type}ContractCompiler` | `ProtocolEffectContractCompiler` |
 | Handler protocols | `Protocol{Type}Handler` | `ProtocolHandler` |
+| Service protocols | `Protocol{Domain}Service` | `ProtocolDashboardService` |
+| Renderer protocols | `Protocol{Type}Renderer` | `ProtocolWidgetRenderer` |
+| Subscriber protocols | `Protocol{Domain}EventSubscriber` | `ProtocolDashboardEventSubscriber` |
+| Query protocols | `Protocol{Domain}QueryService` | `ProtocolRegistryQueryService` |
 | Exceptions | `{Type}Error` | `SPIError`, `RegistryError` |
 
 ## Protocol Requirements
@@ -186,7 +191,7 @@ class ProtocolComputeNode(Protocol):
 
 - **Current Version**: 0.3.0
 - **Python Support**: 3.12+
-- **Protocol Count**: 176+ protocols across 22 domains
+- **Protocol Count**: 180+ protocols across 23 domains
 
 ## Validation Scripts
 
@@ -209,7 +214,7 @@ These validators will be replaced by `omnibase_core.validation` once the circula
 ## See Also
 
 - **[docs/README.md](docs/README.md)** - Complete documentation hub
-- **[docs/api-reference/README.md](docs/api-reference/README.md)** - All 176+ protocols across 22 domains
+- **[docs/api-reference/README.md](docs/api-reference/README.md)** - All 180+ protocols across 23 domains
 - **[docs/GLOSSARY.md](docs/GLOSSARY.md)** - Terminology definitions (Protocol, Handler, Node, Contract)
 - **[docs/QUICK-START.md](docs/QUICK-START.md)** - Get up and running quickly
 - **[docs/developer-guide/README.md](docs/developer-guide/README.md)** - Development workflow
