@@ -5,7 +5,10 @@ Defines the protocol interface for CLI workflow discovery and execution,
 providing abstracted workflow operations without direct tool imports.
 """
 
-from typing import Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
+
+if TYPE_CHECKING:
+    from omnibase_core.types import JsonType
 
 
 @runtime_checkable
@@ -53,14 +56,17 @@ class ProtocolCliExecutionResult(Protocol):
     stdout: str
     stderr: str
     execution_time: float
-    workflow_data: dict[str, Any] | None
+    workflow_data: dict[str, "JsonType"] | None
 
-    def to_dict(self) -> dict[str, Any]:
-        """Serialize execution result to dictionary representation.
+    def to_dict(self) -> "JsonType":
+        """Convert the workflow result to a dictionary representation.
+
+        Serializes the execution result including success status, output,
+        timing, and workflow data for logging or API responses.
 
         Returns:
-            Dictionary containing success status, exit_code, stdout, stderr,
-            execution_time, and workflow_data fields.
+            JSON-compatible dictionary containing 'success', 'exit_code',
+            'stdout', 'stderr', 'execution_time', and 'workflow_data' keys.
         """
         ...
 
@@ -126,7 +132,7 @@ class ProtocolCliWorkflow(Protocol):
         workflow_name: str,
         dry_run: bool | None = None,
         timeout: int | None = None,
-        parameters: dict[str, Any] | None = None,
+        parameters: dict[str, "JsonType"] | None = None,
     ) -> ProtocolCliExecutionResult:
         """
         Execute a workflow in the specified domain.

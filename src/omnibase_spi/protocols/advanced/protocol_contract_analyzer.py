@@ -5,7 +5,10 @@ Defines the interface for analyzing, validating, and processing
 contract documents for code generation.
 """
 
-from typing import Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
+
+if TYPE_CHECKING:
+    from omnibase_core.types import JsonType
 
 
 @runtime_checkable
@@ -171,30 +174,35 @@ class ProtocolContractModelSchema(Protocol):
     """
 
     type: str
-    properties: dict[str, Any]
+    properties: "JsonType"
     required: list[str]
     additional_properties: bool
 
-    async def validate(self, data: dict[str, Any]) -> bool:
+    async def validate(self, data: "JsonType") -> bool:
         """Validate data against this schema.
 
+        Checks that the provided data conforms to this schema's type,
+        properties, and required field constraints.
+
         Args:
-            data: Dictionary of data to validate against the schema.
+            data: JSON-compatible data to validate against the schema.
 
         Returns:
-            True if data conforms to schema, False otherwise.
+            True if the data is valid according to this schema, False otherwise.
 
         Raises:
             May raise implementation-specific exceptions for validation errors.
         """
         ...
 
-    async def to_dict(self) -> dict[str, Any]:
-        """Serialize schema model to dictionary representation.
+    async def to_dict(self) -> "JsonType":
+        """Convert the schema to a dictionary representation.
+
+        Serializes the schema definition including type, properties,
+        required fields, and additional properties settings.
 
         Returns:
-            Dictionary containing type, properties, required fields,
-            and additional_properties configuration.
+            JSON-compatible dictionary containing the complete schema definition.
 
         Raises:
             May raise implementation-specific exceptions for serialization errors.
@@ -249,12 +257,15 @@ class ProtocolModelContractDocument(Protocol):
     node_version: str
     node_type: str
     description: str
-    input_state: dict[str, Any] | None
-    output_state: dict[str, Any] | None
-    definitions: dict[str, Any]
+    input_state: "JsonType | None"
+    output_state: "JsonType | None"
+    definitions: "JsonType"
 
     async def validate(self) -> bool:
-        """Validate the contract document for correctness.
+        """Validate the contract document structure.
+
+        Checks that the contract has valid metadata, properly formed
+        schemas, and internally consistent references.
 
         Returns:
             True if the contract is valid, False otherwise.
@@ -267,25 +278,30 @@ class ProtocolModelContractDocument(Protocol):
     async def get_schema(
         self, schema_name: str
     ) -> "ProtocolContractModelSchema | None":
-        """Retrieve a named schema from the contract definitions.
+        """Retrieve a named schema from this contract document.
+
+        Looks up a schema definition by name from the contract's
+        input/output states or shared definitions.
 
         Args:
-            schema_name: Name of the schema to retrieve (e.g., "InputState").
+            schema_name: Name of the schema to retrieve (e.g., 'InputState').
 
         Returns:
-            The schema model if found, None otherwise.
+            The schema if found, None if no schema with that name exists.
 
         Raises:
             May raise implementation-specific exceptions for schema retrieval errors.
         """
         ...
 
-    async def to_dict(self) -> dict[str, Any]:
-        """Serialize contract document to dictionary representation.
+    async def to_dict(self) -> "JsonType":
+        """Convert the contract document to a dictionary representation.
+
+        Serializes the complete contract including node metadata, schemas,
+        and definitions for persistence or transmission.
 
         Returns:
-            Dictionary containing node_name, node_version, node_type,
-            description, input_state, output_state, and definitions.
+            JSON-compatible dictionary containing the full contract specification.
 
         Raises:
             May raise implementation-specific exceptions for serialization errors.

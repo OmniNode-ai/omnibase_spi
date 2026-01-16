@@ -81,20 +81,58 @@ Asynchronous publish-subscribe pattern for decoupled inter-service communication
 ### ProtocolHandler Example
 
 ```python
-from typing import Protocol, runtime_checkable
-from omnibase_core.models.protocol import (
-    ModelConnectionConfig,
-    ModelOperationConfig,
-    ModelProtocolRequest,
-    ModelProtocolResponse,
-)
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
+
+if TYPE_CHECKING:
+    from omnibase_core.models.handlers import ModelHandlerDescriptor
+    from omnibase_core.models.protocol import (
+        ModelConnectionConfig,
+        ModelOperationConfig,
+        ModelProtocolRequest,
+        ModelProtocolResponse,
+    )
+    from omnibase_core.types import JsonType
 
 @runtime_checkable
 class ProtocolHandler(Protocol):
-    """Request-response handler for external I/O."""
+    """Request-response handler for external I/O operations.
+
+    Implementations provide protocol-specific handling for HTTP, databases,
+    message queues, and other external systems. Handlers manage connection
+    pooling, retries, and resource lifecycle.
+    """
+
+    @property
+    def handler_type(self) -> str:
+        """The type of handler as a string identifier.
+
+        Returns:
+            Lowercase string identifier (e.g., "http", "postgresql", "kafka").
+        """
+        ...
 
     async def initialize(self, config: ModelConnectionConfig) -> None:
-        """Initialize connection pool and resources."""
+        """Initialize connection pool and resources.
+
+        Args:
+            config: Connection configuration including URL, auth, pool settings.
+
+        Raises:
+            HandlerInitializationError: If initialization fails.
+        """
+        ...
+
+    async def shutdown(self, timeout_seconds: float = 30.0) -> None:
+        """Release resources and close connections gracefully.
+
+        Args:
+            timeout_seconds: Maximum time to wait for shutdown. Defaults to 30.0.
+
+        Raises:
+            TimeoutError: If shutdown does not complete within timeout.
+        """
         ...
 
     async def execute(
@@ -102,24 +140,72 @@ class ProtocolHandler(Protocol):
         request: ModelProtocolRequest,
         operation_config: ModelOperationConfig,
     ) -> ModelProtocolResponse:
-        """Execute operation and return response."""
+        """Execute a protocol-specific operation.
+
+        Args:
+            request: Protocol-agnostic request model.
+            operation_config: Operation-specific configuration.
+
+        Returns:
+            Protocol-agnostic response model.
+
+        Raises:
+            ProtocolHandlerError: If execution fails.
+        """
         ...
 
-    async def shutdown(self, timeout_seconds: float = 30.0) -> None:
-        """Release resources gracefully."""
+    def describe(self) -> ModelHandlerDescriptor:
+        """Return handler metadata and capabilities.
+
+        Returns:
+            Descriptor with handler_type, capabilities, and connection info.
+
+        Raises:
+            HandlerNotInitializedError: If called before initialize().
+        """
         ...
 
-    async def health_check(self) -> dict[str, Any]:
-        """Check connectivity and health status."""
+    async def health_check(self) -> JsonType:
+        """Check handler health and connectivity.
+
+        Returns:
+            Dictionary with 'healthy' (bool), 'latency_ms' (optional),
+            and 'last_error' (optional) fields.
+
+        Raises:
+            HandlerNotInitializedError: If called before initialize().
+        """
         ...
 
 
-# Usage in an effect node
+# Usage in an effect node with proper lifecycle management
 class UserServiceEffectNode:
-    def __init__(self, http_handler: ProtocolHandler):
+    """Effect node demonstrating handler lifecycle and usage."""
+
+    def __init__(self, http_handler: ProtocolHandler) -> None:
         self._handler = http_handler
+        self._config = ModelOperationConfig(timeout_seconds=30.0)
+
+    async def start(self, connection_config: ModelConnectionConfig) -> None:
+        """Initialize the handler before use."""
+        await self._handler.initialize(connection_config)
+
+    async def stop(self) -> None:
+        """Shutdown the handler and release resources."""
+        await self._handler.shutdown()
 
     async def fetch_user(self, user_id: str) -> User:
+        """Fetch a user by ID from the external service.
+
+        Args:
+            user_id: The unique identifier of the user.
+
+        Returns:
+            User model populated from the API response.
+
+        Raises:
+            ProtocolHandlerError: If the API call fails.
+        """
         request = ModelProtocolRequest(
             method="GET",
             path=f"/users/{user_id}",
@@ -131,19 +217,52 @@ class UserServiceEffectNode:
 ### ProtocolEventBus Example
 
 ```python
-from typing import Awaitable, Callable, Protocol, runtime_checkable
-from omnibase_core.models.runtime import ModelOnexEnvelope
+from __future__ import annotations
+
+from collections.abc import Awaitable, Callable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from uuid import uuid4
+
+from omnibase_spi.protocols.types.protocol_event_bus_types import ProtocolEventMessage
+
+if TYPE_CHECKING:
+    from omnibase_core.models.runtime import ModelOnexEnvelope
+    from omnibase_core.types import JsonType
 
 @runtime_checkable
 class ProtocolEventBusBase(Protocol):
-    """Pub/sub event bus for async messaging."""
+    """Pub/sub event bus for async messaging.
+
+    Provides envelope-based messaging with correlation ID tracking,
+    consumer subscriptions, and health monitoring for cross-service
+    communication.
+    """
+
+    async def publish(self, event: ProtocolEventMessage) -> None:
+        """Publish a basic event message.
+
+        Args:
+            event: The event message to publish.
+
+        Raises:
+            SPIError: If publishing fails.
+        """
+        ...
 
     async def publish_envelope(
         self,
         envelope: ModelOnexEnvelope,
         topic: str,
     ) -> None:
-        """Publish envelope to topic (fire-and-forget)."""
+        """Publish envelope to topic (fire-and-forget).
+
+        Args:
+            envelope: The ONEX envelope with payload and metadata.
+            topic: The Kafka topic or channel to publish to.
+
+        Raises:
+            SPIError: If publishing fails or topic is invalid.
+        """
         ...
 
     async def subscribe(
@@ -151,24 +270,71 @@ class ProtocolEventBusBase(Protocol):
         topic: str,
         handler: Callable[[ModelOnexEnvelope], Awaitable[None]],
     ) -> None:
-        """Subscribe to topic with handler callback."""
+        """Subscribe to topic with handler callback.
+
+        Args:
+            topic: The Kafka topic or channel to subscribe to.
+            handler: Async callback receiving ModelOnexEnvelope instances.
+
+        Raises:
+            SPIError: If subscription fails or topic is invalid.
+        """
         ...
 
-    async def start_consuming(self) -> None:
-        """Start consuming from subscribed topics."""
+    async def start_consuming(self, timeout_seconds: float | None = None) -> None:
+        """Start consuming from subscribed topics.
+
+        Args:
+            timeout_seconds: Maximum time to consume before returning.
+                If None, runs indefinitely until stop_consuming() is called.
+
+        Raises:
+            SPIError: If consumer initialization fails.
+        """
         ...
 
-    async def health_check(self) -> bool:
-        """Check broker connectivity."""
+    async def stop_consuming(self, timeout_seconds: float = 30.0) -> None:
+        """Stop consuming and gracefully shut down the consumer.
+
+        Args:
+            timeout_seconds: Maximum time to wait for shutdown. Defaults to 30.0.
+
+        Raises:
+            SPIError: If shutdown fails or times out.
+        """
+        ...
+
+    async def health_check(self) -> JsonType:
+        """Check broker connectivity and health status.
+
+        Returns:
+            Dictionary with 'healthy' (bool), 'latency_ms' (optional),
+            and 'last_error' (optional) fields.
+
+        Raises:
+            SPIError: If health check cannot be performed.
+        """
         ...
 
 
 # Usage for event publishing
 class OrderService:
-    def __init__(self, event_bus: ProtocolEventBusBase):
+    """Service demonstrating event publishing pattern."""
+
+    def __init__(
+        self,
+        event_bus: ProtocolEventBusBase,
+        repository: OrderRepository,
+    ) -> None:
         self._bus = event_bus
+        self._repository = repository
 
     async def create_order(self, order: Order) -> None:
+        """Create an order and publish the event.
+
+        Args:
+            order: The order to create.
+        """
         # Save order to database
         await self._repository.save(order)
 
@@ -181,16 +347,28 @@ class OrderService:
         await self._bus.publish_envelope(envelope, "orders.events")
 
 
-# Usage for event consumption
+# Usage for event consumption with lifecycle management
 class InventoryService:
-    def __init__(self, event_bus: ProtocolEventBusBase):
+    """Service demonstrating event consumption with proper lifecycle."""
+
+    def __init__(self, event_bus: ProtocolEventBusBase) -> None:
         self._bus = event_bus
 
     async def start(self) -> None:
+        """Start consuming events from subscribed topics."""
         await self._bus.subscribe("orders.events", self._handle_order_event)
         await self._bus.start_consuming()
 
+    async def stop(self) -> None:
+        """Stop consuming and release resources."""
+        await self._bus.stop_consuming()
+
     async def _handle_order_event(self, envelope: ModelOnexEnvelope) -> None:
+        """Handle incoming order events.
+
+        Args:
+            envelope: The event envelope containing order data.
+        """
         if envelope.event_type == "omninode.orders.event.order_created.v1":
             await self._reserve_inventory(envelope.payload)
 ```
@@ -201,17 +379,46 @@ Many systems use both patterns together:
 
 ```python
 class PaymentService:
-    """Uses both handler (for payment gateway) and event bus (for notifications)."""
+    """Uses both handler (for payment gateway) and event bus (for notifications).
+
+    Demonstrates combining request-response pattern (ProtocolHandler) for
+    synchronous API calls with fire-and-forget pattern (ProtocolEventBus)
+    for async event publishing.
+    """
 
     def __init__(
         self,
         payment_handler: ProtocolHandler,  # Direct calls to payment gateway
         event_bus: ProtocolEventBusBase,   # Publish payment events
-    ):
+    ) -> None:
         self._handler = payment_handler
         self._bus = event_bus
+        self._config = ModelOperationConfig(timeout_seconds=30.0)
+
+    async def start(self, connection_config: ModelConnectionConfig) -> None:
+        """Initialize the payment handler before processing payments.
+
+        Args:
+            connection_config: Configuration for the payment gateway connection.
+        """
+        await self._handler.initialize(connection_config)
+
+    async def stop(self) -> None:
+        """Shutdown the payment handler and release resources."""
+        await self._handler.shutdown()
 
     async def process_payment(self, payment: Payment) -> PaymentResult:
+        """Process a payment and publish the result event.
+
+        Args:
+            payment: The payment to process.
+
+        Returns:
+            PaymentResult with transaction details.
+
+        Raises:
+            ProtocolHandlerError: If the payment gateway call fails.
+        """
         # 1. Call payment gateway via handler (need response)
         request = ModelProtocolRequest(
             method="POST",

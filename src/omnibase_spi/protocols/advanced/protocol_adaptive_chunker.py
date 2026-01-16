@@ -4,7 +4,7 @@ Protocol interface for adaptive chunkers in ONEX.
 Defines the contract for LangExtract-enhanced adaptive chunking tools.
 """
 
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types.protocol_advanced_types import (
@@ -67,7 +67,7 @@ class ProtocolAdaptiveChunker(Protocol):
         content: str,
         config: "ProtocolIndexingConfiguration",
         intelligence_result: "ProtocolIntelligenceResult | None" = None,
-        entities: list[Any] | None = None,
+        entities: list[object] | None = None,
     ) -> tuple[list["ProtocolAdaptiveChunk"], "ProtocolChunkingQualityMetrics"]:
         """
         Perform LangExtract-enhanced adaptive chunking.

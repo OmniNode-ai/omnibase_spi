@@ -49,14 +49,13 @@ class ProtocolGraphModel(Protocol):
     metadata: dict[str, object]
 
     def validate(self) -> bool:
-        """Validate the graph structure for consistency and correctness.
+        """Validate the workflow graph structure.
 
-        Checks that the graph contains valid nodes, edges, and that all edge
-        references point to existing nodes with no cycles that would prevent
-        execution.
+        Checks that all nodes and edges form a valid DAG with no cycles
+        and all edge references point to existing nodes.
 
         Returns:
-            True if the graph is valid and ready for execution planning.
+            True if the graph is valid, False otherwise.
 
         Raises:
             SPIError: If validation encounters an unrecoverable error.
@@ -65,10 +64,14 @@ class ProtocolGraphModel(Protocol):
         ...
 
     def to_dict(self) -> dict[str, object]:
-        """Serialize the graph model to dictionary representation.
+        """Convert the graph model to a dictionary representation.
+
+        Serializes the entire workflow graph including nodes, edges,
+        and metadata for persistence or transmission.
 
         Returns:
-            Dictionary containing nodes, edges, and metadata for the workflow graph.
+            Dictionary containing 'nodes', 'edges', and 'metadata' keys
+            with their respective serialized values.
 
         Raises:
             SPIError: If serialization fails due to invalid graph state.
@@ -116,13 +119,13 @@ class ProtocolNodeModel(Protocol):
     dependencies: list[str]
 
     async def get_dependencies(self) -> list[str]:
-        """Retrieve the list of node IDs this node depends on.
+        """Get the list of node IDs this node depends on.
 
-        Asynchronously fetches dependency information, which may involve
-        resolving dynamic dependencies or querying external registries.
+        Returns the declared dependencies that must complete before
+        this node can begin execution.
 
         Returns:
-            List of node IDs that must complete before this node can execute.
+            List of node IDs that this node depends on.
 
         Raises:
             SPIError: If dependency resolution fails.
@@ -131,13 +134,13 @@ class ProtocolNodeModel(Protocol):
         ...
 
     def validate(self) -> bool:
-        """Validate the node configuration and structure.
+        """Validate the node configuration.
 
-        Checks that the node has valid identification, type, configuration
-        parameters, and that declared dependencies are well-formed.
+        Checks that the node has valid configuration parameters
+        and properly formed dependency declarations.
 
         Returns:
-            True if the node is valid and ready for execution.
+            True if the node configuration is valid, False otherwise.
 
         Raises:
             SPIError: If validation encounters an unrecoverable error.
@@ -185,10 +188,14 @@ class ProtocolEdgeModel(Protocol):
     metadata: dict[str, object]
 
     def to_dict(self) -> dict[str, object]:
-        """Serialize the edge model to dictionary representation.
+        """Convert the edge model to a dictionary representation.
+
+        Serializes the edge including source, target, type, and metadata
+        for persistence or transmission.
 
         Returns:
-            Dictionary containing source, target, edge_type, and metadata fields.
+            Dictionary containing 'source', 'target', 'edge_type', and
+            'metadata' keys with their respective values.
 
         Raises:
             SPIError: If serialization fails due to invalid edge state.

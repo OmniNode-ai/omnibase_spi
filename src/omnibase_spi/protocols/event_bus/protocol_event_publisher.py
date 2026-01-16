@@ -8,11 +8,14 @@ Created: 2025-10-18
 Reference: EVENT_BUS_ARCHITECTURE.md Phase 1
 """
 
-from typing import Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if __name__ != "__main__":
     # Avoid circular imports in runtime
     from omnibase_spi.protocols.types.protocol_core_types import ContextValue
+
+if TYPE_CHECKING:
+    from omnibase_core.types import JsonType
 
 
 @runtime_checkable
@@ -78,7 +81,7 @@ class ProtocolEventPublisher(Protocol):
     async def publish(
         self,
         event_type: str,
-        payload: Any,
+        payload: "JsonType",
         correlation_id: str | None = None,
         causation_id: str | None = None,
         metadata: dict[str, "ContextValue"] | None = None,
@@ -123,7 +126,7 @@ class ProtocolEventPublisher(Protocol):
         """
         ...
 
-    async def get_metrics(self) -> dict[str, Any]:
+    async def get_metrics(self) -> "JsonType":
         """
         Get publisher metrics.
 

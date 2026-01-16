@@ -1,11 +1,11 @@
 """
 Protocol definition for generic handlers.
 
-This protocol replaces Any type usage when referring to handler objects
-by providing a proper protocol interface.
+This protocol provides a proper protocol interface for handler objects,
+enabling type-safe handler patterns without relying on untyped signatures.
 """
 
-from typing import Any, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 
 @runtime_checkable
@@ -25,7 +25,7 @@ class ProtocolHandler(Protocol):
         ```python
         # Implementing a custom handler
         class FileProcessHandler:
-            async def handle(self, file_path: str, options: dict[str, Any]) -> bool:
+            async def handle(self, file_path: str, options: dict[str, object]) -> bool:
                 # Process file
                 return self._process_file(file_path, options)
 
@@ -40,7 +40,9 @@ class ProtocolHandler(Protocol):
             return obj
 
         # Handler chaining
-        async def chain_handlers(handlers: list["ProtocolHandler"], *args: Any) -> bool:
+        async def chain_handlers(
+            handlers: list["ProtocolHandler"], *args: object
+        ) -> bool:
             for handler in handlers:
                 if not await handler.handle(*args):
                     return False
@@ -74,4 +76,4 @@ class ProtocolHandler(Protocol):
         - ProtocolEventHandler: Event-specific handling patterns
     """
 
-    async def handle(self, *args: Any, **kwargs: Any) -> bool: ...
+    async def handle(self, *args: object, **kwargs: object) -> bool: ...

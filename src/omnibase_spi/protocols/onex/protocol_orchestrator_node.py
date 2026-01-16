@@ -1,6 +1,6 @@
 """Protocol for ONEX orchestrator nodes."""
 
-from typing import Any, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 
 @runtime_checkable
@@ -62,7 +62,7 @@ class ProtocolOnexOrchestratorNode(Protocol):
         - Workflow event sourcing and state management
     """
 
-    async def execute_orchestration(self, contract: Any) -> Any:
+    async def execute_orchestration(self, contract: object) -> object:
         """
         Execute orchestration workflow.
 

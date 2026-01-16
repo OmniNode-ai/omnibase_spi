@@ -6,7 +6,7 @@ into node input state objects for seamless CLI-to-node integration.
 
 from __future__ import annotations
 
-from typing import Any, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 
 @runtime_checkable
@@ -26,7 +26,7 @@ class ProtocolNodeCliAdapter(Protocol):
         async def execute_node_from_cli(
             adapter: ProtocolNodeCliAdapter,
             cli_args: list[str]
-        ) -> Any:
+        ) -> object:
             # Parse CLI arguments into node input state
             input_state = adapter.parse_cli_args(cli_args)
 
@@ -51,4 +51,4 @@ class ProtocolNodeCliAdapter(Protocol):
         - ProtocolCLIToolDiscovery: CLI tool discovery and registration
     """
 
-    def parse_cli_args(self, cli_args: list[str]) -> Any: ...
+    def parse_cli_args(self, cli_args: list[str]) -> object: ...

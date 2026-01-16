@@ -52,16 +52,16 @@ See Also:
 """
 
 from collections.abc import Awaitable, Callable
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
+    from omnibase_core.types import JsonType
     from omnibase_spi.protocols.types.protocol_event_bus_types import (
         ProtocolEventMessage,
     )
 
-# Type aliases to avoid namespace violations
-EventBusHeaders = Any  # Generic headers type
-EventMessage = Any  # Generic event message type
+# Type aliases to avoid namespace violations (PEP 695)
+type EventBusHeaders = "JsonType"  # Generic headers type
 
 
 @runtime_checkable
@@ -223,7 +223,7 @@ class ProtocolKafkaAdapter(Protocol):
         topic: str,
         key: bytes | None,
         value: bytes,
-        headers: EventBusHeaders,
+        headers: "EventBusHeaders",
     ) -> None:
         """
         Publish event message to Kafka topic.
@@ -233,6 +233,9 @@ class ProtocolKafkaAdapter(Protocol):
             key: Optional message key for partitioning.
             value: Message payload as bytes.
             headers: Event headers/metadata.
+
+        Returns:
+            None. The method completes when the message is successfully published.
 
         Raises:
             PublishError: If message publication fails.
@@ -270,6 +273,9 @@ class ProtocolKafkaAdapter(Protocol):
         Args:
             timeout_seconds: Maximum time to wait for cleanup to complete.
                 Defaults to 30.0 seconds.
+
+        Returns:
+            None. The method completes when all resources are released.
 
         Raises:
             TimeoutError: If cleanup does not complete within the specified timeout.

@@ -4,7 +4,10 @@ Protocol for ONEX contract objects.
 Domain: Core system protocols (contract management)
 """
 
-from typing import Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
+
+if TYPE_CHECKING:
+    from omnibase_core.types import JsonType
 
 
 @runtime_checkable
@@ -56,7 +59,7 @@ class ProtocolContract(Protocol):
         ...
 
     @property
-    def metadata(self) -> dict[str, Any]:
+    def metadata(self) -> "JsonType":
         """
         Get contract metadata.
 
@@ -65,7 +68,7 @@ class ProtocolContract(Protocol):
         """
         ...
 
-    def to_dict(self) -> dict[str, Any]:
+    def to_dict(self) -> "JsonType":
         """
         Serialize contract to dictionary.
 
@@ -76,7 +79,7 @@ class ProtocolContract(Protocol):
         ...
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "ProtocolContract":
+    def from_dict(cls, data: "JsonType") -> "ProtocolContract":
         """
         Deserialize contract from dictionary.
 

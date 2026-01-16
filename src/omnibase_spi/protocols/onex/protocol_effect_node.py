@@ -1,6 +1,6 @@
 """Protocol for ONEX effect nodes."""
 
-from typing import Any, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 
 @runtime_checkable
@@ -64,7 +64,7 @@ class ProtocolOnexEffectNode(Protocol):
         - Cache Operations: Redis, Memcached reads/writes
     """
 
-    async def execute_effect(self, contract: Any) -> Any:
+    async def execute_effect(self, contract: object) -> object:
         """
         Execute effect workflow.
 

@@ -1,10 +1,9 @@
 """Protocols for model registry validation and health reporting."""
 
-from __future__ import annotations
-
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
+    from omnibase_core.types import JsonType
     from omnibase_spi.protocols.schema.protocol_trusted_schema_loader import (
         ProtocolSchemaValidationResult,
     )
@@ -56,7 +55,17 @@ class ProtocolRegistryHealthReport(Protocol):
     validation_errors: list[str]
     performance_metrics: dict[str, float]
 
-    async def get_summary(self) -> dict[str, Any]: ...
+    async def get_summary(self) -> "JsonType":
+        """Get a summary of the registry health status.
+
+        Produces a condensed summary of the health report suitable for
+        logging, dashboards, or quick status checks.
+
+        Returns:
+            JSON-compatible dictionary containing summary information
+            including health status, counts, and key metrics.
+        """
+        ...
 
 
 @runtime_checkable
@@ -106,46 +115,131 @@ class ProtocolModelRegistryValidator(Protocol):
         - ProtocolSchemaValidationResult: Validation results
     """
 
-    async def validate_action_registry(self) -> ProtocolSchemaValidationResult:
-        """Validate action registry for conflicts and compliance"""
+    async def validate_action_registry(self) -> "ProtocolSchemaValidationResult":
+        """Validate action registry for conflicts and compliance.
+
+        Checks the action registry for duplicate action names, invalid
+        action definitions, and compliance with schema requirements.
+
+        Returns:
+            Validation result containing success status and any
+            errors, warnings, or informational messages.
+        """
         ...
 
-    async def validate_event_type_registry(self) -> ProtocolSchemaValidationResult:
-        """Validate event type registry for conflicts and compliance"""
+    async def validate_event_type_registry(self) -> "ProtocolSchemaValidationResult":
+        """Validate event type registry for conflicts and compliance.
+
+        Checks the event type registry for duplicate event types, invalid
+        event definitions, and compliance with schema requirements.
+
+        Returns:
+            Validation result containing success status and any
+            errors, warnings, or informational messages.
+        """
         ...
 
-    async def validate_capability_registry(self) -> ProtocolSchemaValidationResult:
-        """Validate capability registry for conflicts and compliance"""
+    async def validate_capability_registry(self) -> "ProtocolSchemaValidationResult":
+        """Validate capability registry for conflicts and compliance.
+
+        Checks the capability registry for duplicate capabilities, invalid
+        capability definitions, and compliance with schema requirements.
+
+        Returns:
+            Validation result containing success status and any
+            errors, warnings, or informational messages.
+        """
         ...
 
     async def validate_node_reference_registry(
         self,
-    ) -> ProtocolSchemaValidationResult:
-        """Validate node reference registry for conflicts and compliance"""
+    ) -> "ProtocolSchemaValidationResult":
+        """Validate node reference registry for conflicts and compliance.
+
+        Checks the node reference registry for duplicate node references,
+        invalid reference definitions, and compliance with schema requirements.
+
+        Returns:
+            Validation result containing success status and any
+            errors, warnings, or informational messages.
+        """
         ...
 
-    async def validate_all_registries(self) -> ProtocolSchemaValidationResult:
-        """Validate all dynamic registries comprehensively"""
+    async def validate_all_registries(self) -> "ProtocolSchemaValidationResult":
+        """Validate all dynamic registries comprehensively.
+
+        Performs validation on all registry types (action, event type,
+        capability, and node reference) and aggregates the results.
+
+        Returns:
+            Validation result containing success status and any
+            errors, warnings, or informational messages from all registries.
+        """
         ...
 
     async def detect_conflicts(self) -> list[str]:
-        """Detect conflicts across all registries"""
+        """Detect conflicts across all registries.
+
+        Scans all registries for naming conflicts, duplicate definitions,
+        and cross-registry inconsistencies.
+
+        Returns:
+            List of conflict description strings, empty if no conflicts found.
+        """
         ...
 
     async def verify_contract_compliance(
         self, contract_path: str
-    ) -> ProtocolSchemaValidationResult:
-        """Verify a contract file complies with schema requirements"""
+    ) -> "ProtocolSchemaValidationResult":
+        """Verify a contract file complies with schema requirements.
+
+        Loads the contract from the specified path and validates it against
+        the schema requirements for model contracts.
+
+        Args:
+            contract_path: Path to the contract file to validate.
+
+        Returns:
+            Validation result containing success status and any
+            errors, warnings, or informational messages.
+
+        Raises:
+            FileNotFoundError: If the contract file does not exist.
+        """
         ...
 
-    def lock_verified_models(self) -> dict[str, Any]:
-        """Lock verified models with version/timestamp/trust tags"""
+    def lock_verified_models(self) -> "JsonType":
+        """Lock verified models with version/timestamp/trust tags.
+
+        Creates a snapshot of all verified models with metadata including
+        version, timestamp, and trust level tags for immutability tracking.
+
+        Returns:
+            JSON-compatible dictionary containing the locked model snapshot
+            with version, timestamp, and trust metadata.
+        """
         ...
 
     async def get_registry_health(self) -> ProtocolRegistryHealthReport:
-        """Get overall health status of all registries"""
+        """Get overall health status of all registries.
+
+        Collects health metrics from all registries and produces a
+        comprehensive health report including status, counts, and metrics.
+
+        Returns:
+            Health report containing overall status, registry counts,
+            conflict counts, validation errors, and performance metrics.
+        """
         ...
 
-    async def audit_model_integrity(self) -> ProtocolSchemaValidationResult:
-        """Audit integrity of all registered models"""
+    async def audit_model_integrity(self) -> "ProtocolSchemaValidationResult":
+        """Audit integrity of all registered models.
+
+        Performs a deep integrity check on all registered models including
+        hash verification, dependency validation, and consistency checks.
+
+        Returns:
+            Validation result containing success status and any
+            errors, warnings, or informational messages from the audit.
+        """
         ...

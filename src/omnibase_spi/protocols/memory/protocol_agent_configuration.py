@@ -5,7 +5,10 @@ This protocol defines the interface for managing Claude Code agent configuration
 including validation, persistence, versioning, and security.
 """
 
-from typing import Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
+
+if TYPE_CHECKING:
+    from omnibase_core.types import JsonType
 
 
 @runtime_checkable
@@ -22,17 +25,29 @@ class ProtocolLegacyConfigValidationResult(Protocol):
 
     @property
     def is_valid(self) -> bool:
-        """Whether the validation passed without errors."""
+        """Whether the validation passed without errors.
+
+        Returns:
+            True if validation passed with no errors, False otherwise.
+        """
         ...
 
     @property
     def errors(self) -> list[str]:
-        """List of validation errors found."""
+        """List of validation errors found.
+
+        Returns:
+            List of error messages describing validation failures.
+        """
         ...
 
     @property
     def warnings(self) -> list[str]:
-        """List of validation warnings found."""
+        """List of validation warnings found.
+
+        Returns:
+            List of warning messages for non-critical issues.
+        """
         ...
 
 
@@ -51,22 +66,38 @@ class ProtocolLegacyAgentConfigData(Protocol):
 
     @property
     def agent_id(self) -> str:
-        """Unique identifier for the agent."""
+        """Unique identifier for the agent.
+
+        Returns:
+            String identifier uniquely identifying this agent.
+        """
         ...
 
     @property
     def agent_type(self) -> str:
-        """Type classification of the agent."""
+        """Type classification of the agent.
+
+        Returns:
+            String describing the agent's type classification.
+        """
         ...
 
     @property
-    def configuration(self) -> dict[str, Any]:
-        """Agent configuration data."""
+    def configuration(self) -> "JsonType":
+        """Agent configuration data.
+
+        Returns:
+            JSON-compatible dictionary containing agent configuration settings.
+        """
         ...
 
     @property
-    def security_context(self) -> dict[str, Any]:
-        """Security context for agent operations."""
+    def security_context(self) -> "JsonType":
+        """Security context for agent operations.
+
+        Returns:
+            JSON-compatible dictionary containing security context and permissions.
+        """
         ...
 
 
@@ -157,7 +188,7 @@ class ProtocolAgentConfigurationLegacy(Protocol):
     async def update_configuration(
         self,
         agent_id: str,
-        updates: dict[str, Any],
+        updates: "JsonType",
     ) -> ProtocolLegacyAgentConfigData:
         """
         Update specific fields in an agent configuration.
@@ -199,7 +230,7 @@ class ProtocolAgentConfigurationLegacy(Protocol):
         self,
         agent_id: str,
         template_name: str,
-        overrides: dict[str, Any] | None = None,
+        overrides: "JsonType | None" = None,
     ) -> ProtocolLegacyAgentConfigData:
         """
         Apply a configuration template to create agent configuration.
@@ -259,7 +290,7 @@ class ProtocolAgentConfigurationLegacy(Protocol):
         """
         ...
 
-    async def get_configuration_history(self, agent_id: str) -> list[dict[str, Any]]:
+    async def get_configuration_history(self, agent_id: str) -> "list[JsonType]":
         """
         Get configuration change history for an agent.
 
@@ -384,14 +415,18 @@ class ProtocolAgentConfigurationLegacy(Protocol):
 
         Args:
             agent_id: Agent identifier
-            format_type: Export format (yaml, json, toml)
+            format_type: Export format. Supported values:
+                - "yaml": YAML format (human-readable, supports comments)
+                - "json": JSON format (widely compatible, strict syntax)
+                - "toml": TOML format (configuration-focused, typed values)
+                - None: Uses implementation default (typically "yaml")
 
         Returns:
             Serialized configuration in specified format
 
         Raises:
             ConfigurationError: If export fails
-            UnsupportedFormatError: If format is not supported
+            UnsupportedFormatError: If format_type is not one of the supported values
         """
         ...
 
@@ -407,7 +442,11 @@ class ProtocolAgentConfigurationLegacy(Protocol):
         Args:
             agent_id: Agent identifier
             config_data: Serialized configuration data
-            format_type: Import format (yaml, json, toml)
+            format_type: Import format. Supported values:
+                - "yaml": YAML format (human-readable, supports comments)
+                - "json": JSON format (widely compatible, strict syntax)
+                - "toml": TOML format (configuration-focused, typed values)
+                - None: Auto-detect format from config_data content
 
         Returns:
             Imported and validated agent configuration
@@ -415,6 +454,6 @@ class ProtocolAgentConfigurationLegacy(Protocol):
         Raises:
             ConfigurationError: If import fails
             ValidationError: If imported configuration is invalid
-            UnsupportedFormatError: If format is not supported
+            UnsupportedFormatError: If format_type is not one of the supported values
         """
         ...

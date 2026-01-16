@@ -593,7 +593,6 @@ type EventMessage = ProtocolEventMessage
 # Re-export all for backward compatibility
 __all__ = [
     # Core event types (defined in this file)
-    "EventMessage",
     "EventStatus",
     "LiteralAuthStatus",
     "LiteralEventPriority",

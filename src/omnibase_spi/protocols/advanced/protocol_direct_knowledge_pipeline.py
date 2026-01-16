@@ -6,9 +6,10 @@ and write directly to PostgreSQL for debug logs, velocity tracking, PR descripti
 and agent actions using strong typing throughout.
 """
 
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
+    from omnibase_core.types import JsonType
     from omnibase_spi.protocols.types.protocol_advanced_types import (
         ProtocolAgentAction,
         ProtocolAgentDebugIntelligence,
@@ -304,7 +305,7 @@ class ProtocolVelocityTracker(Protocol):
         self,
         timer_id: str,
         success: bool,
-        metrics: dict[str, Any] | None = None,
+        metrics: "JsonType | None" = None,
     ) -> None:
         """
         Complete a task timer and store velocity data.
@@ -316,7 +317,7 @@ class ProtocolVelocityTracker(Protocol):
         """
         ...
 
-    async def get_current_velocity(self, agent_id: str) -> dict[str, Any]:
+    async def get_current_velocity(self, agent_id: str) -> "JsonType":
         """
         Get current velocity metrics for an agent.
 
@@ -363,8 +364,8 @@ class ProtocolAgentActionTracker(Protocol):
         self,
         tracking_id: str,
         success: bool,
-        output_data: dict[str, Any],
-        reasoning: dict[str, Any] | None = None,
+        output_data: "JsonType",
+        reasoning: "JsonType | None" = None,
     ) -> None:
         """
         Complete action tracking and store results.
@@ -381,7 +382,7 @@ class ProtocolAgentActionTracker(Protocol):
         self,
         agent_id: str,
         action_type: str | None = None,
-    ) -> list[dict[str, Any]]:
+    ) -> "list[JsonType]":
         """
         Get patterns in agent actions for learning.
 

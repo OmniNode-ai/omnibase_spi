@@ -19,9 +19,10 @@ See Also:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Literal, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Literal, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
+    from omnibase_core.types import JsonType
     from omnibase_spi.protocols.handlers.protocol_handler import ProtocolHandler
 
 # ==============================================================================
@@ -112,7 +113,7 @@ class ProtocolHandlerDescriptor(Protocol):
                 return "1.2.0"
 
             @property
-            def metadata(self) -> dict[str, Any]:
+            def metadata(self) -> dict[str, object]:
                 return {
                     "capabilities": ["GET", "POST", "PUT", "DELETE"],
                     "supports_streaming": True,
@@ -191,7 +192,7 @@ class ProtocolHandlerDescriptor(Protocol):
         ...
 
     @property
-    def metadata(self) -> dict[str, Any]:
+    def metadata(self) -> JsonType:
         """Additional key-value metadata about the handler.
 
         Provides extensible metadata that may include:

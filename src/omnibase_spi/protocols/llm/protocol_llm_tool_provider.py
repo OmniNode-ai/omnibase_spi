@@ -5,7 +5,7 @@ Defines the interface for providing LLM tools including model router and provide
 without direct imports, enabling proper dependency injection and registry patterns.
 """
 
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     # Forward reference for LLM provider to maintain namespace isolation
@@ -53,7 +53,9 @@ class ProtocolModelRouter(Protocol):
 
     Example:
         ```python
-        async def route_request(router: ProtocolModelRouter, request: Any) -> Any:
+        async def route_request(
+            router: ProtocolModelRouter, request: object
+        ) -> object:
             # Router intelligently selects best provider
             response = await router.generate(request)
 
@@ -77,7 +79,7 @@ class ProtocolModelRouter(Protocol):
         - ProtocolLLMRequest: Request structure for routing
     """
 
-    async def generate(self, request: Any) -> Any:
+    async def generate(self, request: object) -> object:
         """Generate response using the model router."""
         ...
 

@@ -6,7 +6,10 @@ including cryptographic hashes, version information, and lifecycle tracking.
 
 from __future__ import annotations
 
-from typing import Any, Literal, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Literal, Protocol, runtime_checkable
+
+if TYPE_CHECKING:
+    from omnibase_core.types import JsonType
 
 from omnibase_spi.protocols.types import ProtocolOnexResult
 
@@ -117,7 +120,7 @@ class ProtocolStamper(Protocol):
         ...
 
     async def stamp_file(
-        self, file_path: str, metadata_block: dict[str, Any]
+        self, file_path: str, metadata_block: dict[str, JsonType]
     ) -> ProtocolOnexResult:
         """Stamp the file with a metadata block, replacing any existing block.
 

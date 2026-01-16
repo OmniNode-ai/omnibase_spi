@@ -54,13 +54,16 @@ class ProtocolSchemaModel(Protocol):
     definition: dict[str, object]
 
     def validate(self, data: dict[str, object]) -> bool:
-        """Validate data against this schema.
+        """Validate data against this schema definition.
+
+        Checks that the provided data conforms to this schema's
+        type constraints and property definitions.
 
         Args:
             data: Dictionary of data to validate against the schema.
 
         Returns:
-            True if data conforms to the schema, False otherwise.
+            True if the data is valid according to this schema, False otherwise.
 
         Raises:
             ValidationError: If validation encounters an unexpected error.
@@ -69,11 +72,14 @@ class ProtocolSchemaModel(Protocol):
         ...
 
     def to_dict(self) -> dict[str, object]:
-        """Serialize the schema model to a dictionary.
+        """Convert the schema model to a dictionary representation.
+
+        Serializes the schema including ID, type, version, and definition
+        for persistence or transmission.
 
         Returns:
-            Dictionary representation of the schema including id, type,
-            version, and definition.
+            Dictionary containing 'schema_id', 'schema_type', 'version',
+            and 'definition' keys with their respective values.
 
         Raises:
             SerializationError: If the schema cannot be serialized to a
@@ -82,10 +88,10 @@ class ProtocolSchemaModel(Protocol):
         ...
 
     async def get_schema_path(self) -> str:
-        """Get the filesystem path where this schema was loaded from.
+        """Get the file path where this schema is stored.
 
         Returns:
-            Absolute path to the schema file.
+            Absolute path to the schema file on disk.
 
         Raises:
             ValueError: If the schema was not loaded from a file or path

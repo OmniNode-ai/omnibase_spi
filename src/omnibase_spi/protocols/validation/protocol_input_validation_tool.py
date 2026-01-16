@@ -9,9 +9,10 @@ Domain: Validation and Input Processing
 Author: ONEX Framework Team
 """
 
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
+    from omnibase_core.types import JsonType
     from omnibase_spi.protocols.types import ProtocolSemVer
 
 
@@ -45,12 +46,12 @@ class ProtocolKafkaEventBusInputState(Protocol):
     """
 
     event_type: str
-    payload: dict[str, Any]
+    payload: "JsonType"
     headers: dict[str, str]
     timestamp: int
 
     def validate(self) -> bool: ...
-    def to_dict(self) -> dict[str, Any]:
+    def to_dict(self) -> "JsonType":
         """
         Convert the input state to a dictionary representation.
 
@@ -91,9 +92,9 @@ class ProtocolKafkaEventBusOutputState(Protocol):
     success: bool
     error_message: str | None
     processed_events: int
-    output_data: dict[str, Any]
+    output_data: "JsonType"
 
-    def to_dict(self) -> dict[str, Any]:
+    def to_dict(self) -> "JsonType":
         """
         Convert the output state to a dictionary representation.
 
@@ -161,15 +162,15 @@ class ProtocolInputValidationTool(Protocol):
 
     async def validate_input_state(
         self,
-        input_state: dict[str, Any],
+        input_state: "JsonType",
         semver: "ProtocolSemVer",
-        event_bus: Any,
+        event_bus: object,
     ) -> tuple[
         ProtocolKafkaEventBusInputState | None, ProtocolKafkaEventBusOutputState | None
     ]:
         """
             ...
-        Validates the input_state dict[str, Any] against ProtocolEventBusInputState.
+        Validates the input_state JsonType against ProtocolEventBusInputState.
 
         Performs comprehensive validation of input state data including:
         - Schema validation and type checking

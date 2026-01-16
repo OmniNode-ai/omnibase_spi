@@ -6,9 +6,11 @@ without requiring hardcoded imports in the core registry. It enables plugin-base
 architecture where handlers can be discovered dynamically.
 """
 
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
+    from omnibase_core.types import JsonType
+
     # Forward reference for file type handler protocol
     @runtime_checkable
     class ProtocolFileTypeHandler(Protocol):
@@ -53,7 +55,7 @@ class ProtocolHandlerInfo(Protocol):
     priority: int
     extensions: list[str]
     special_files: list[str]
-    metadata: dict[str, Any]
+    metadata: "dict[str, JsonType]"
 
 
 @runtime_checkable

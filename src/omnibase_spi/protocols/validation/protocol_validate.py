@@ -6,7 +6,9 @@ conformance with comprehensive result reporting and CLI integration.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
+
+from omnibase_core.types import JsonType
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.core.protocol_logger import ProtocolLogger
@@ -55,14 +57,19 @@ class ProtocolValidateResultModel(Protocol):
     errors: list[ProtocolValidateMessageModel]
     warnings: list[str]
 
-    def to_dict(self) -> dict[str, Any]:
-        """Serialize validation result to dictionary representation.
+    def to_dict(self) -> JsonType:
+        """Convert the validation result to a dictionary representation.
+
+        Serializes the result including success status, errors, and warnings
+        for logging, reporting, or API responses.
 
         Returns:
-            Dictionary containing success status, errors list, and warnings list.
+            JSON-compatible dictionary containing 'success', 'errors',
+            and 'warnings' keys with their respective values.
 
         Raises:
-            SerializationError: If the result cannot be serialized to dictionary format.
+            SerializationError: If errors or warnings cannot be serialized
+                to JSON-compatible format.
         """
         ...
 
@@ -102,14 +109,19 @@ class ProtocolValidateMessageModel(Protocol):
     severity: str
     location: str | None
 
-    def to_dict(self) -> dict[str, Any]:
-        """Serialize validation message to dictionary representation.
+    def to_dict(self) -> JsonType:
+        """Convert the validation message to a dictionary representation.
+
+        Serializes the message including content, severity level, and
+        optional location for structured logging or error reporting.
 
         Returns:
-            Dictionary containing message, severity, and location fields.
+            JSON-compatible dictionary containing 'message', 'severity',
+            and 'location' keys with their respective values.
 
         Raises:
-            SerializationError: If the message cannot be serialized to dictionary format.
+            SerializationError: If message content cannot be serialized
+                to JSON-compatible format.
         """
         ...
 
@@ -151,16 +163,20 @@ class ProtocolModelMetadataConfig(Protocol):
     """
 
     config_path: str | None
-    validation_rules: dict[str, Any]
+    validation_rules: JsonType
 
-    async def get_config_value(self, key: str) -> Any:
-        """Retrieve a configuration value by key.
+    async def get_config_value(self, key: str) -> JsonType | None:
+        """Retrieve a specific configuration value by key.
+
+        Accesses the validation_rules dictionary or other configuration
+        sources to return the value for the specified key.
 
         Args:
             key: The configuration key to look up.
 
         Returns:
-            The configuration value associated with the key, or None if not found.
+            The configuration value for the specified key, or None if
+            the key does not exist in the configuration.
 
         Raises:
             ConfigurationError: If the configuration cannot be accessed.
@@ -205,16 +221,20 @@ class ProtocolCLIArgsModel(Protocol):
 
     command: str
     args: list[str]
-    options: dict[str, Any]
+    options: JsonType
 
-    async def get_option(self, key: str) -> Any:
-        """Retrieve a CLI option value by key.
+    async def get_option(self, key: str) -> JsonType | None:
+        """Retrieve a specific CLI option value by key.
+
+        Accesses the parsed options dictionary to return the value
+        for the specified option/flag key.
 
         Args:
-            key: The option key to look up.
+            key: The option key to look up (e.g., 'strict', 'config').
 
         Returns:
-            The option value associated with the key, or None if not found.
+            The option value for the specified key, or None if
+            the option was not provided on the command line.
 
         Raises:
             KeyError: If the option key is not valid.
@@ -228,9 +248,8 @@ class ProtocolValidate(ProtocolCLI, Protocol):
     """
     Protocol for validators that check ONEX node metadata conformance.
 
-    Provides comprehensive validation of ONEX nodes including metadata
-    verification, plugin discovery, and CLI integration for validation
-    tool invocation.
+    Provides a comprehensive interface for validating ONEX node metadata
+    including CLI entry points, single-node validation, and plugin discovery.
 
     Attributes:
         logger: Protocol-pure logger interface for validation output and
@@ -241,7 +260,7 @@ class ProtocolValidate(ProtocolCLI, Protocol):
         class MyValidator(ProtocolValidate):
             async def validate(
                 self,
-                path: str,
+                target: str,
                 config: ProtocolModelMetadataConfig | None = None
             ) -> ProtocolValidateResultModel:
                 ...
@@ -251,27 +270,26 @@ class ProtocolValidate(ProtocolCLI, Protocol):
         ```
 
     See Also:
-        - ProtocolValidateResultModel: Validation result container
+        - ProtocolValidateResultModel: Validation result structure
         - ProtocolModelMetadataConfig: Validation configuration
         - ProtocolCLI: Base CLI interface
     """
 
-    logger: ProtocolLogger  # Protocol-pure logger interface
+    logger: ProtocolLogger
 
     async def validate_main(self, args: ProtocolCLIArgsModel) -> ProtocolOnexResult:
-        """Execute the main validation workflow from CLI arguments.
+        """Execute validation from CLI arguments.
 
-        This is the primary entry point for CLI-driven validation operations.
-        It parses the provided arguments, configures the validation context,
-        and executes the appropriate validation workflow.
+        Main entry point for CLI-based validation, parsing the provided
+        arguments and executing the appropriate validation workflow.
 
         Args:
             args: Parsed CLI arguments containing command, positional args,
                 and options/flags for the validation operation.
 
         Returns:
-            ProtocolOnexResult containing the validation outcome with status,
-            any errors or warnings, and metadata about the validation run.
+            ONEX result containing validation outcome, exit code, and
+            any error or success messages.
 
         Raises:
             ValidationError: If validation encounters an unrecoverable error.
@@ -284,35 +302,34 @@ class ProtocolValidate(ProtocolCLI, Protocol):
         target: str,
         config: ProtocolModelMetadataConfig | None = None,
     ) -> ProtocolValidateResultModel:
-        """Validate a target path against ONEX metadata requirements.
+        """Validate a target path against ONEX metadata conformance rules.
 
-        Performs comprehensive validation of the specified target, checking
-        for metadata conformance, naming conventions, and structural requirements.
+        Performs validation of the specified target (file or directory)
+        using the provided configuration or default validation rules.
 
         Args:
             target: Path to the file or directory to validate.
-            config: Optional validation configuration with custom rules.
-                If None, default validation rules are applied.
+            config: Optional validation configuration. If None, uses
+                implementation defaults.
 
         Returns:
-            ProtocolValidateResultModel containing success status, list of
-            errors, and list of warnings from the validation operation.
+            Validation result containing success status, errors, and warnings.
 
         Raises:
             ValidationError: If validation cannot be performed due to
                 configuration or system errors.
-            FileNotFoundError: If the target path does not exist.
+            FileNotFoundError: If target path does not exist.
         """
         ...
 
     async def get_name(self) -> str:
-        """Retrieve the unique name identifier for this validator.
+        """Get the name of this validator.
 
-        The name is used for registration, logging, and identification
-        purposes within the validation framework.
+        Returns the human-readable name identifying this validator
+        implementation for logging and reporting purposes.
 
         Returns:
-            The unique string identifier for this validator instance.
+            The validator name string.
 
         Raises:
             ValidatorError: If the validator name cannot be determined.
@@ -320,28 +337,29 @@ class ProtocolValidate(ProtocolCLI, Protocol):
         ...
 
     async def get_validation_errors(self) -> list[ProtocolValidateMessageModel]:
-        """Retrieve all validation errors accumulated during validation.
+        """Get all validation errors from the last validation run.
 
-        Returns the complete list of structured validation error messages
-        collected from the most recent validation operation.
+        Returns the accumulated error messages from the most recent
+        validation operation for detailed error reporting.
 
         Returns:
-            List of validation message models containing error details
-            including message content, severity level, and location.
+            List of validation error messages with severity and location.
 
         Raises:
             ValidationError: If errors cannot be retrieved from the validator state.
         """
         ...
+
     async def discover_plugins(self) -> list[ProtocolNodeMetadataBlock]:
         """Discover and return plugin metadata blocks supported by this validator.
 
-        Enables dynamic test/validator scaffolding and runtime plugin contract
-        enforcement. Compliant with ONEX execution model and Cursor Rule.
+        Scans for available validation plugins and returns their metadata
+        blocks for dynamic test/validator scaffolding and runtime plugin
+        contract enforcement.
 
         Returns:
-            List of ProtocolNodeMetadataBlock instances representing the
-            plugins supported by this validator.
+            List of plugin metadata blocks describing available validation
+            plugins and their capabilities.
 
         Raises:
             PluginDiscoveryError: If plugin discovery fails due to
@@ -349,24 +367,23 @@ class ProtocolValidate(ProtocolCLI, Protocol):
             ValidationError: If discovered plugin metadata is malformed
                 or does not conform to ONEX requirements.
 
-        See Also:
-            ONEX protocol spec and Cursor Rule for required fields and
-            extension policy.
+        Note:
+            Compliant with ONEX execution model and Cursor Rule.
+            See ONEX protocol spec for required fields and extension policy.
         """
         ...
 
-    def validate_node(self, node: ProtocolNodeMetadataBlock) -> bool:
-        """Validate a single node's metadata block synchronously.
+    async def validate_node(self, node: ProtocolNodeMetadataBlock) -> bool:
+        """Validate a single node metadata block.
 
-        Performs validation of a node's metadata against ONEX requirements
-        without full file system traversal. This is a synchronous operation
-        for quick validation checks.
+        Checks whether the provided node metadata block conforms to
+        ONEX metadata requirements and validation rules.
 
         Args:
             node: The node metadata block to validate.
 
         Returns:
-            True if the node passes all validation checks, False otherwise.
+            True if the node is valid, False otherwise.
 
         Raises:
             ValidationError: If the node cannot be validated due to

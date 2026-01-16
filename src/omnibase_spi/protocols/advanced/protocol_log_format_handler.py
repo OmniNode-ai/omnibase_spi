@@ -7,9 +7,10 @@ for consistent, extensible formatting capabilities for different output formats
 Following the established ONEX architecture patterns for pluggable handlers.
 """
 
-from __future__ import annotations
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
-from typing import Any, Protocol, runtime_checkable
+if TYPE_CHECKING:
+    from omnibase_core.types import JsonType
 
 # Import LoggerInputState from the canonical location for type hinting.
 # Nodes should import their own input state model as needed.
@@ -67,7 +68,7 @@ class ProtocolLogFormatHandler(Protocol):
         """Return True if this handler can process the given format."""
         ...
 
-    def format_log_entry(self, input_state: Any, log_entry: dict[str, Any]) -> str:
+    def format_log_entry(self, input_state: object, log_entry: "JsonType") -> str:
         """
         Format a log entry according to this handler's output format.
 
@@ -92,7 +93,7 @@ class ProtocolLogFormatHandler(Protocol):
         """
         ...
 
-    async def get_format_metadata(self) -> dict[str, Any]:
+    async def get_format_metadata(self) -> "JsonType":
         """
         Get metadata about this format handler.
 

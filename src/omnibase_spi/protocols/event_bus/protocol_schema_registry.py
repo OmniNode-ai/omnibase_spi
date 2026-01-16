@@ -8,7 +8,10 @@ Created: 2025-10-18
 Reference: EVENT_BUS_ARCHITECTURE.md Phase 1
 """
 
-from typing import Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
+
+if TYPE_CHECKING:
+    from omnibase_core.types import JsonType
 
 
 @runtime_checkable
@@ -72,7 +75,7 @@ class ProtocolSchemaRegistry(Protocol):
     """
 
     async def register_schema(
-        self, subject: str, schema: dict[str, Any], schema_type: str
+        self, subject: str, schema: "JsonType", schema_type: str
     ) -> int:
         """
         Register schema with Schema Registry.
@@ -110,7 +113,7 @@ class ProtocolSchemaRegistry(Protocol):
         """
         ...
 
-    async def get_schema(self, subject: str, version: str) -> dict[str, Any] | None:
+    async def get_schema(self, subject: str, version: str) -> "JsonType | None":
         """
         Get schema from Schema Registry.
 
@@ -137,7 +140,7 @@ class ProtocolSchemaRegistry(Protocol):
         ...
 
     async def validate_event(
-        self, subject: str, event_data: dict[str, Any]
+        self, subject: str, event_data: "JsonType"
     ) -> tuple[bool, str | None]:
         """
         Validate event data against schema.

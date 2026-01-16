@@ -35,10 +35,13 @@ class ProtocolLogContext(Protocol):
     """
 
     def to_dict(self) -> dict[str, "ContextValue"]:
-        """Serialize log context to dictionary representation.
+        """Convert the log context to a dictionary representation.
+
+        Serializes all context key-value pairs for use in log entries
+        or transmission to logging backends.
 
         Returns:
-            Dictionary containing the structured context data with ContextValue types.
+            Dictionary mapping context keys to their typed values.
         """
         ...
 
