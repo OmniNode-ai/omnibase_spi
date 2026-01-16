@@ -93,9 +93,9 @@ class ProtocolMCPSchemaGenerator(Protocol):
 
         Returns:
             A dictionary representing the JSON schema for the input model.
-            The schema contains ContextValue entries for type-safe handling
-            and includes standard JSON Schema properties like "type",
-            "properties", "required", and "description".
+            The schema includes standard JSON Schema properties like "type",
+            "properties", "required", and "description". Values are standard
+            JSON-compatible types (str, int, bool, list, dict, None).
 
         Raises:
             ValueError: If the input_model identifier is invalid or not found.
@@ -135,9 +135,9 @@ class ProtocolMCPSchemaGenerator(Protocol):
 
         Returns:
             A dictionary representing the JSON schema for the output model.
-            The schema contains ContextValue entries for type-safe handling
-            and includes standard JSON Schema properties like "type",
-            "properties", and "description".
+            The schema includes standard JSON Schema properties like "type",
+            "properties", and "description". Values are standard
+            JSON-compatible types (str, int, bool, list, dict, None).
 
         Raises:
             ValueError: If the output_model identifier is invalid or not found.
