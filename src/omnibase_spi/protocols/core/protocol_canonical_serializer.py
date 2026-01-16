@@ -96,21 +96,33 @@ class ProtocolCanonicalSerializer(Protocol):
     """
 
     def canonicalize_metadata_block(self, metadata_block: "JsonType") -> str:
-        """
-        Canonicalize a metadata block for deterministic serialization and hash computation.
-        - Accepts a JsonType or metadata block instance.
-        - Replaces volatile fields (e.g., hash, last_modified_at) with a protocol placeholder.
-        - Returns the canonical serialized string.
+        """Canonicalize a metadata block for deterministic serialization and hash computation.
+
+        Accepts a JsonType or metadata block instance and replaces volatile fields
+        (e.g., hash, last_modified_at) with a protocol placeholder.
+
+        Args:
+            metadata_block: The metadata block to canonicalize, as a JSON-compatible dict.
+
+        Returns:
+            The canonical serialized string representation.
         """
         ...
 
     def normalize_body(self, body: str) -> str:
-        """
-        Canonical normalization for file body content.
-        - Strips trailing spaces
-        - Normalizes all line endings to '\n'
+        """Canonical normalization for file body content.
+
+        Performs the following normalizations:
+        - Strips trailing spaces from each line
+        - Normalizes all line endings to LF ('\\n')
         - Ensures exactly one newline at EOF
-        - Asserts only '\n' line endings are present
+        - Validates only LF line endings are present
+
+        Args:
+            body: The raw body content string to normalize.
+
+        Returns:
+            The normalized body content with consistent line endings.
         """
         ...
 
@@ -125,8 +137,19 @@ class ProtocolCanonicalSerializer(Protocol):
         placeholder: str | None = None,
         **kwargs: "ContextValue",
     ) -> str:
-        """
-        Canonicalize the full content (block + body) for hash computation.
-        - Returns the canonical string to be hashed.
+        """Canonicalize the full content (block + body) for hash computation.
+
+        Combines the metadata block and body content into a single canonical
+        string suitable for deterministic hash computation.
+
+        Args:
+            block: The metadata block dictionary to canonicalize.
+            body: The body content string to normalize and include.
+            volatile_fields: Tuple of field names to replace with placeholders.
+            placeholder: Custom placeholder string for volatile fields.
+            **kwargs: Additional context values to include in canonicalization.
+
+        Returns:
+            The canonical string to be hashed.
         """
         ...

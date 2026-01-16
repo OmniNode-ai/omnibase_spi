@@ -68,24 +68,82 @@ class ProtocolFileIO(Protocol):
     """
 
     async def read_yaml(self, path: str) -> "JsonType":
-        """Read YAML content from a file path."""
+        """Read and parse YAML content from a file.
+
+        Args:
+            path: The file path to read YAML content from.
+
+        Returns:
+            Parsed YAML content as a JSON-compatible type (dict, list, or scalar).
+
+        Raises:
+            FileNotFoundError: When the specified file does not exist.
+            YAMLParseError: When the file contains invalid YAML syntax.
+        """
         ...
 
-    async def read_json(self, path: str) -> "JsonType": ...
+    async def read_json(self, path: str) -> "JsonType":
+        """Read and parse JSON content from a file.
+
+        Args:
+            path: The file path to read JSON content from.
+
+        Returns:
+            Parsed JSON content as a JSON-compatible type (dict, list, or scalar).
+
+        Raises:
+            FileNotFoundError: When the specified file does not exist.
+            JSONDecodeError: When the file contains invalid JSON syntax.
+        """
+        ...
+
     async def write_yaml(self, path: str, data: "JsonType") -> None:
-        """Write YAML content to a file path."""
+        """Write data to a file in YAML format.
+
+        Args:
+            path: The file path to write YAML content to.
+            data: The data to serialize and write as YAML.
+
+        Raises:
+            PermissionError: When write access to the file is denied.
+            SerializationError: When the data cannot be serialized to YAML.
+        """
         ...
 
     async def write_json(self, path: str, data: "JsonType") -> None:
-        """Write JSON content to a file path."""
+        """Write data to a file in JSON format.
+
+        Args:
+            path: The file path to write JSON content to.
+            data: The data to serialize and write as JSON.
+
+        Raises:
+            PermissionError: When write access to the file is denied.
+            SerializationError: When the data cannot be serialized to JSON.
+        """
         ...
 
     async def exists(self, path: str) -> bool:
-        """Check if a file exists."""
+        """Check if a file or directory exists at the given path.
+
+        Args:
+            path: The file or directory path to check.
+
+        Returns:
+            True if the path exists, False otherwise.
+        """
         ...
 
     async def is_file(self, path: str) -> bool:
-        """Check if a path is a file."""
+        """Check if the path points to a regular file.
+
+        Args:
+            path: The path to check.
+
+        Returns:
+            True if the path is a regular file, False if it is a directory
+            or does not exist.
+        """
         ...
 
     async def list_files(
@@ -93,18 +151,70 @@ class ProtocolFileIO(Protocol):
         directory: str,
         pattern: str | None = None,
     ) -> list[str]:
-        """List files in a directory, optionally filtered by pattern."""
+        """List files in a directory, optionally filtered by a glob pattern.
+
+        Args:
+            directory: The directory path to list files from.
+            pattern: Optional glob pattern to filter files (e.g., '*.py', '*.yaml').
+
+        Returns:
+            List of file paths matching the criteria.
+
+        Raises:
+            FileNotFoundError: When the specified directory does not exist.
+            NotADirectoryError: When the path is not a directory.
+        """
         ...
 
     async def read_text(self, path: str) -> str:
-        """Read plain text content from a file path."""
+        """Read plain text content from a file.
+
+        Args:
+            path: The file path to read text content from.
+
+        Returns:
+            The file content as a string.
+
+        Raises:
+            FileNotFoundError: When the specified file does not exist.
+            UnicodeDecodeError: When the file cannot be decoded as text.
+        """
         ...
 
-    async def write_text(self, path: str, data: str) -> None: ...
+    async def write_text(self, path: str, data: str) -> None:
+        """Write plain text content to a file.
+
+        Args:
+            path: The file path to write text content to.
+            data: The text content to write.
+
+        Raises:
+            PermissionError: When write access to the file is denied.
+        """
+        ...
+
     async def read_bytes(self, path: str) -> bytes:
-        """Read binary content from a file path."""
+        """Read binary content from a file.
+
+        Args:
+            path: The file path to read binary content from.
+
+        Returns:
+            The file content as bytes.
+
+        Raises:
+            FileNotFoundError: When the specified file does not exist.
+        """
         ...
 
     async def write_bytes(self, path: str, data: bytes) -> None:
-        """Write binary content to a file path."""
+        """Write binary content to a file.
+
+        Args:
+            path: The file path to write binary content to.
+            data: The binary content to write.
+
+        Raises:
+            PermissionError: When write access to the file is denied.
+        """
         ...

@@ -142,7 +142,20 @@ class ProtocolASTBuilder(Protocol):
         """
         ...
 
-    def generate_docstring(self, text: str) -> object: ...
+    def generate_docstring(self, text: str) -> object:
+        """Generate an AST expression node for a docstring.
+
+        Creates an AST Expr node containing a Constant string node,
+        suitable for use as a docstring in classes, functions, or modules.
+
+        Args:
+            text: The docstring text content.
+
+        Returns:
+            AST Expr node containing the docstring constant.
+        """
+        ...
+
     def generate_field_default(self, default_value: object) -> object:
         """Generate default value expression for a field.
 

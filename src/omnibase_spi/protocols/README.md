@@ -82,16 +82,23 @@ Asynchronous publish-subscribe pattern for decoupled inter-service communication
 
 ```python
 from typing import Protocol, runtime_checkable
+from omnibase_core.models.handlers import ModelHandlerDescriptor
 from omnibase_core.models.protocol import (
     ModelConnectionConfig,
     ModelOperationConfig,
     ModelProtocolRequest,
     ModelProtocolResponse,
 )
+from omnibase_core.types import JsonType
 
 @runtime_checkable
 class ProtocolHandler(Protocol):
     """Request-response handler for external I/O."""
+
+    @property
+    def handler_type(self) -> str:
+        """The type of handler as a string identifier."""
+        ...
 
     async def initialize(self, config: ModelConnectionConfig) -> None:
         """Initialize connection pool and resources."""
@@ -109,7 +116,11 @@ class ProtocolHandler(Protocol):
         """Release resources gracefully."""
         ...
 
-    async def health_check(self) -> dict[str, object]:
+    def describe(self) -> ModelHandlerDescriptor:
+        """Return handler metadata and capabilities."""
+        ...
+
+    async def health_check(self) -> JsonType:
         """Check connectivity and health status."""
         ...
 

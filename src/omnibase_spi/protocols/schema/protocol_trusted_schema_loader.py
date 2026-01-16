@@ -89,29 +89,91 @@ class ProtocolTrustedSchemaLoader(Protocol):
     """
 
     def is_path_safe(self, path_str: str) -> tuple[bool, str]:
-        """Check if a path is safe for schema loading"""
+        """Check if a path is safe for schema loading.
+
+        Validates that the given path does not attempt path traversal
+        attacks and is within approved root directories.
+
+        Args:
+            path_str: The path to validate for safety.
+
+        Returns:
+            Tuple of (is_safe, message) where is_safe indicates whether
+            the path is safe to load, and message provides details about
+            any security concerns if unsafe.
+        """
         ...
 
     async def load_schema_safely(
         self, schema_path: str
     ) -> "ProtocolSchemaValidationResult":
-        """Safely load a schema file with security validation"""
+        """Safely load a schema file with security validation.
+
+        Loads the schema from the given path after validating that
+        the path is within approved roots and does not contain
+        path traversal attempts.
+
+        Args:
+            schema_path: Path to the schema file to load.
+
+        Returns:
+            Validation result containing success status and any
+            errors, warnings, or informational messages.
+
+        Raises:
+            SecurityError: If the path fails safety validation.
+        """
         ...
 
     async def resolve_ref_safely(
         self, ref_string: str
     ) -> "ProtocolSchemaValidationResult":
-        """Safely resolve a $ref string with security validation"""
+        """Safely resolve a $ref string with security validation.
+
+        Resolves JSON Schema $ref references while ensuring the
+        referenced paths are within approved roots.
+
+        Args:
+            ref_string: The $ref string to resolve (e.g., "#/definitions/User").
+
+        Returns:
+            Validation result containing success status and any
+            errors, warnings, or informational messages.
+
+        Raises:
+            SecurityError: If the reference points to an unapproved location.
+        """
         ...
 
     async def get_security_audit(self) -> "list[JsonType]":
-        """Get security audit trail"""
+        """Get security audit trail.
+
+        Retrieves the audit log of all security-related operations
+        performed by this loader, including path validations and
+        access attempts.
+
+        Returns:
+            List of audit entries as JSON-compatible dictionaries,
+            each containing timestamp, operation type, and result.
+        """
         ...
 
     def clear_cache(self) -> None:
-        """Clear schema cache"""
+        """Clear schema cache.
+
+        Removes all cached schemas from memory, forcing subsequent
+        loads to read from disk. Use when schemas may have changed
+        on disk or to free memory.
+        """
         ...
 
     async def get_approved_roots(self) -> list[str]:
-        """Get list of approved schema root paths"""
+        """Get list of approved schema root paths.
+
+        Returns the list of directory paths that are approved for
+        schema loading. Only schemas within these roots can be loaded.
+
+        Returns:
+            List of absolute paths to approved schema root directories.
+        """
         ...

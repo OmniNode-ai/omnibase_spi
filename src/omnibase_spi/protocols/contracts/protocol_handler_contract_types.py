@@ -163,22 +163,38 @@ class ProtocolCapabilityRequirementSet(Protocol):
 
     @property
     def must(self) -> JsonType:
-        """Requirements that must be satisfied for capability matching."""
+        """Requirements that must be satisfied for capability matching.
+
+        Returns:
+            JSON-compatible dictionary of mandatory requirements.
+        """
         ...
 
     @property
     def prefer(self) -> JsonType:
-        """Requirements that are preferred but not mandatory."""
+        """Requirements that are preferred but not mandatory.
+
+        Returns:
+            JSON-compatible dictionary of preferred requirements.
+        """
         ...
 
     @property
     def forbid(self) -> JsonType:
-        """Requirements that must not be present."""
+        """Requirements that must not be present.
+
+        Returns:
+            JSON-compatible dictionary of forbidden requirements.
+        """
         ...
 
     @property
     def hints(self) -> JsonType:
-        """Additional hints for capability selection."""
+        """Additional hints for capability selection.
+
+        Returns:
+            JSON-compatible dictionary of selection hints.
+        """
         ...
 
 

@@ -57,14 +57,15 @@ from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 
 if TYPE_CHECKING:
     from omnibase_core.types import JsonType
+    from omnibase_spi.protocols.event_bus.protocol_kafka_adapter import (
+        ProtocolKafkaConfig,
+    )
     from omnibase_spi.protocols.types.protocol_event_bus_types import (
         ProtocolEventMessage,
     )
 
 # Type aliases to avoid namespace violations (PEP 695)
 type EventBusHeaders = "JsonType"  # Generic headers type
-type EventMessage = "JsonType"  # Generic event message type
-type KafkaConfig = "JsonType"  # Generic Kafka configuration type
 
 
 @runtime_checkable
@@ -217,7 +218,7 @@ class ProtocolRedpandaAdapter(Protocol):
         ...
 
     @property
-    def config(self) -> "KafkaConfig | None":
+    def config(self) -> "ProtocolKafkaConfig | None":
         """Optional Kafka configuration overrides.
 
         Returns:
@@ -226,7 +227,7 @@ class ProtocolRedpandaAdapter(Protocol):
         ...
 
     @property
-    def kafka_config(self) -> "KafkaConfig":
+    def kafka_config(self) -> "ProtocolKafkaConfig":
         """Complete Kafka configuration with Redpanda optimizations.
 
         Returns:

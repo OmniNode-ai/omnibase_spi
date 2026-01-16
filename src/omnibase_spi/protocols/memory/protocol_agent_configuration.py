@@ -25,17 +25,29 @@ class ProtocolLegacyConfigValidationResult(Protocol):
 
     @property
     def is_valid(self) -> bool:
-        """Whether the validation passed without errors."""
+        """Whether the validation passed without errors.
+
+        Returns:
+            True if validation passed with no errors, False otherwise.
+        """
         ...
 
     @property
     def errors(self) -> list[str]:
-        """List of validation errors found."""
+        """List of validation errors found.
+
+        Returns:
+            List of error messages describing validation failures.
+        """
         ...
 
     @property
     def warnings(self) -> list[str]:
-        """List of validation warnings found."""
+        """List of validation warnings found.
+
+        Returns:
+            List of warning messages for non-critical issues.
+        """
         ...
 
 
@@ -54,22 +66,38 @@ class ProtocolLegacyAgentConfigData(Protocol):
 
     @property
     def agent_id(self) -> str:
-        """Unique identifier for the agent."""
+        """Unique identifier for the agent.
+
+        Returns:
+            String identifier uniquely identifying this agent.
+        """
         ...
 
     @property
     def agent_type(self) -> str:
-        """Type classification of the agent."""
+        """Type classification of the agent.
+
+        Returns:
+            String describing the agent's type classification.
+        """
         ...
 
     @property
     def configuration(self) -> "JsonType":
-        """Agent configuration data."""
+        """Agent configuration data.
+
+        Returns:
+            JSON-compatible dictionary containing agent configuration settings.
+        """
         ...
 
     @property
     def security_context(self) -> "JsonType":
-        """Security context for agent operations."""
+        """Security context for agent operations.
+
+        Returns:
+            JSON-compatible dictionary containing security context and permissions.
+        """
         ...
 
 

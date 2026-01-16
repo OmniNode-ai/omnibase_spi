@@ -62,7 +62,6 @@ if TYPE_CHECKING:
 
 # Type aliases to avoid namespace violations (PEP 695)
 type EventBusHeaders = "JsonType"  # Generic headers type
-type EventMessage = "JsonType"  # Generic event message type
 
 
 @runtime_checkable

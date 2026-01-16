@@ -66,4 +66,17 @@ class ProtocolOutputFieldTool(Protocol):
 
     async def __call__(
         self, state: object, input_state_dict: "JsonType"
-    ) -> "ProtocolModelOnexField": ...
+    ) -> "ProtocolModelOnexField":
+        """Generate an output field from state and input data.
+
+        Transforms the current state and input dictionary into a structured
+        ONEX field model containing the field name, value, and type information.
+
+        Args:
+            state: The current workflow state object containing context values.
+            input_state_dict: JSON-compatible input dictionary for field generation.
+
+        Returns:
+            A ProtocolModelOnexField containing field_name, field_value, and field_type.
+        """
+        ...

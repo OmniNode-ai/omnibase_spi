@@ -104,7 +104,7 @@ class ProtocolStamper(Protocol):
         ...
 
     async def stamp_file(
-        self, file_path: str, metadata_block: "JsonType"
+        self, file_path: str, metadata_block: "dict[str, JsonType]"
     ) -> ProtocolOnexResult:
         """
         Stamp the file with a metadata block, replacing any existing block.
