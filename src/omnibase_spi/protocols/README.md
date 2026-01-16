@@ -81,15 +81,19 @@ Asynchronous publish-subscribe pattern for decoupled inter-service communication
 ### ProtocolHandler Example
 
 ```python
-from typing import Protocol, runtime_checkable
-from omnibase_core.models.handlers import ModelHandlerDescriptor
-from omnibase_core.models.protocol import (
-    ModelConnectionConfig,
-    ModelOperationConfig,
-    ModelProtocolRequest,
-    ModelProtocolResponse,
-)
-from omnibase_core.types import JsonType
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
+
+if TYPE_CHECKING:
+    from omnibase_core.models.handlers import ModelHandlerDescriptor
+    from omnibase_core.models.protocol import (
+        ModelConnectionConfig,
+        ModelOperationConfig,
+        ModelProtocolRequest,
+        ModelProtocolResponse,
+    )
+    from omnibase_core.types import JsonType
 
 @runtime_checkable
 class ProtocolHandler(Protocol):
@@ -213,13 +217,17 @@ class UserServiceEffectNode:
 ### ProtocolEventBus Example
 
 ```python
+from __future__ import annotations
+
 from collections.abc import Awaitable, Callable
-from typing import Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 from uuid import uuid4
 
-from omnibase_core.models.runtime import ModelOnexEnvelope
-from omnibase_core.types import JsonType
 from omnibase_spi.protocols.types.protocol_event_bus_types import ProtocolEventMessage
+
+if TYPE_CHECKING:
+    from omnibase_core.models.runtime import ModelOnexEnvelope
+    from omnibase_core.types import JsonType
 
 @runtime_checkable
 class ProtocolEventBusBase(Protocol):

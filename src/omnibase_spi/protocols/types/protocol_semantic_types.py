@@ -8,10 +8,9 @@ All types follow the zero-dependency principle and use strong typing with JsonTy
 from omnibase_core.types for flexible dictionary values.
 """
 
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
-if TYPE_CHECKING:
-    from omnibase_core.types import JsonType
+from omnibase_core.types import JsonType
 
 
 @runtime_checkable

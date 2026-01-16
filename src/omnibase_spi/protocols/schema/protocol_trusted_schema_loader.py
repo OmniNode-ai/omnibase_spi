@@ -52,6 +52,9 @@ class ProtocolSchemaValidationResult(Protocol):
         Returns:
             JSON-compatible dictionary containing 'success', 'errors',
             'warnings', and 'info' keys with their respective values.
+
+        Raises:
+            SPIError: When serialization fails due to invalid message content.
         """
         ...
 
@@ -113,6 +116,9 @@ class ProtocolTrustedSchemaLoader(Protocol):
             Tuple of (is_safe, message) where is_safe indicates whether
             the path is safe to load, and message provides details about
             any security concerns if unsafe.
+
+        Raises:
+            SPIError: When path validation fails due to system errors.
         """
         ...
 
@@ -168,6 +174,9 @@ class ProtocolTrustedSchemaLoader(Protocol):
             List of audit entries as JSON-compatible dictionaries, each
             containing timestamp, operation type, and result. Returns
             empty list if no audit entries exist.
+
+        Raises:
+            SPIError: When audit retrieval fails due to storage errors.
         """
         ...
 
@@ -177,6 +186,10 @@ class ProtocolTrustedSchemaLoader(Protocol):
         Removes all cached schemas from memory, forcing subsequent
         loads to read from disk. Use when schemas may have changed
         on disk or to free memory.
+
+        Raises:
+            SPIError: When cache clearing fails due to concurrent access
+                or resource cleanup errors.
         """
         ...
 

@@ -181,7 +181,7 @@ class ProtocolModelMetadataConfig(Protocol):
     config_path: str | None
     validation_rules: JsonType
 
-    async def get_config_value(self, key: str) -> JsonType:
+    async def get_config_value(self, key: str) -> JsonType | None:
         """Retrieve a specific configuration value by key.
 
         Accesses the validation_rules dictionary or other configuration
@@ -239,7 +239,7 @@ class ProtocolCLIArgsModel(Protocol):
     args: list[str]
     options: JsonType
 
-    async def get_option(self, key: str) -> JsonType:
+    async def get_option(self, key: str) -> JsonType | None:
         """Retrieve a specific CLI option value by key.
 
         Accesses the parsed options dictionary to return the value

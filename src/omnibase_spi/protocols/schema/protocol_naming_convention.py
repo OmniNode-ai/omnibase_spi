@@ -55,6 +55,9 @@ class ProtocolNamingConventionResult(Protocol):
         Returns:
             Dictionary containing 'is_valid', 'errors', 'warnings',
             and 'suggested_name' keys with their respective values.
+
+        Raises:
+            SPIError: When serialization fails due to invalid message content.
         """
         ...
 
@@ -105,5 +108,8 @@ class ProtocolNamingConvention(Protocol):
             Validation result containing validity status, any errors
             or warnings, and a suggested valid name if the original
             is invalid.
+
+        Raises:
+            SPIError: When validation fails due to internal processing errors.
         """
         ...
