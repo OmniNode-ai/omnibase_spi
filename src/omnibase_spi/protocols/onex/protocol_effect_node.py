@@ -36,7 +36,7 @@ class ProtocolOnexEffectNode(Protocol):
 
     Example Usage:
         ```python
-        from omnibase_spi.protocols.onex import ProtocolEffectNode
+        from omnibase_spi.protocols.onex import ProtocolOnexEffectNode
 
         class MyEffect:
             async def execute_effect(self, contract: EffectContract) -> EffectResult:
@@ -53,7 +53,7 @@ class ProtocolOnexEffectNode(Protocol):
 
         # Runtime validation
         effect = MyEffect()
-        assert isinstance(effect, ProtocolEffectNode)
+        assert isinstance(effect, ProtocolOnexEffectNode)
         ```
 
     Common Patterns:

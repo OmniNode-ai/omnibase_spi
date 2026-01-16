@@ -2,7 +2,7 @@
 
 ## Overview
 
-Complete API reference documentation for all **176 protocols** across **22 specialized domains** in the omnibase-spi package. This reference provides detailed documentation for every public interface in the Service Provider Interface layer.
+Complete API reference documentation for all **180+ protocols** across **23 specialized domains** in the omnibase-spi package. This reference provides detailed documentation for every public interface in the Service Provider Interface layer.
 
 ## Protocol Architecture
 
@@ -111,7 +111,7 @@ The API reference is organized by domain, matching the package structure:
 - **Type definitions are integrated within each protocol domain**
 - **All types follow consistent naming conventions**
 - **Comprehensive type coverage across all 176 protocols**
-- **Type Protocols (14)**: ProtocolContract, ProtocolOnexError, and domain-specific type definitions
+- **Type Protocols (14)**: ProtocolContract, ProtocolErrorInfo, and domain-specific type definitions
 - **ONEX Node Types (4)**: ProtocolEffectNode, ProtocolComputeNode, ProtocolReducerNode, ProtocolOrchestratorNode
 
 ## Protocol Documentation Standards
@@ -275,8 +275,8 @@ Common patterns documented throughout:
 
 ## Protocol Statistics
 
-- **Total Protocols**: 176+ protocol files
-- **Domain Coverage**: 22+ specialized domains
+- **Total Protocols**: 180+ protocol files
+- **Domain Coverage**: 23 specialized domains
 - **Type Definitions**: 14 comprehensive type modules
 - **Enterprise Features**: Health monitoring, metrics, circuit breakers
 - **Architecture Patterns**: Event sourcing, dependency injection, distributed coordination
@@ -408,7 +408,7 @@ async def use_handler(
 **Use Case**: Create effect nodes that receive handlers via dependency injection, enabling testability and protocol flexibility.
 
 **Protocols Involved**:
-- `ProtocolOnexEffectNode` - Effect node interface for side-effecting operations
+- `ProtocolEffectNode` - Effect node interface for side-effecting operations
 - `ProtocolHandler` - Injected handler for I/O operations
 - `ProtocolServiceRegistry` - Dependency resolution
 
@@ -416,8 +416,8 @@ async def use_handler(
 from typing import Any
 
 from omnibase_spi.protocols import (
+    ProtocolEffectNode,
     ProtocolHandler,
-    ProtocolOnexEffectNode,
     ProtocolServiceRegistry,
 )
 from omnibase_spi.exceptions import (
@@ -660,7 +660,7 @@ from omnibase_spi.exceptions import (
 from omnibase_spi.protocols import (
     ProtocolHandler,
     ProtocolHandlerRegistry,
-    ProtocolOnexOrchestratorNode,
+    ProtocolOrchestratorNode,
 )
 
 # Assume a structured logger is available (e.g., structlog)
@@ -741,7 +741,7 @@ def resolve_with_fallback(
 
 
 async def safe_workflow_execution(
-    orchestrator: ProtocolOnexOrchestratorNode,
+    orchestrator: ProtocolOrchestratorNode,
     contract: Any,
 ) -> Any:
     """
@@ -788,20 +788,20 @@ async def safe_workflow_execution(
 **Use Case**: Coordinate multiple node types through an orchestrator to execute complex multi-step workflows.
 
 **Protocols Involved**:
-- `ProtocolOnexOrchestratorNode` - Workflow coordination
-- `ProtocolOnexComputeNode` - Pure transformations
-- `ProtocolOnexEffectNode` - Side-effecting operations
-- `ProtocolOnexReducerNode` - Result aggregation
+- `ProtocolOrchestratorNode` - Workflow coordination
+- `ProtocolComputeNode` - Pure transformations
+- `ProtocolEffectNode` - Side-effecting operations
+- `ProtocolReducerNode` - Result aggregation
 - `ProtocolServiceRegistry` - Node resolution
 
 ```python
 from typing import Any
 
 from omnibase_spi.protocols import (
-    ProtocolOnexComputeNode,
-    ProtocolOnexEffectNode,
-    ProtocolOnexOrchestratorNode,
-    ProtocolOnexReducerNode,
+    ProtocolComputeNode,
+    ProtocolEffectNode,
+    ProtocolOrchestratorNode,
+    ProtocolReducerNode,
     ProtocolServiceRegistry,
 )
 from omnibase_spi.exceptions import SPIError
@@ -820,9 +820,9 @@ class DataProcessingOrchestrator:
 
     def __init__(
         self,
-        compute_node: ProtocolOnexComputeNode,
-        effect_node: ProtocolOnexEffectNode,
-        reducer_node: ProtocolOnexReducerNode,
+        compute_node: ProtocolComputeNode,
+        effect_node: ProtocolEffectNode,
+        reducer_node: ProtocolReducerNode,
     ) -> None:
         self._compute = compute_node
         self._effect = effect_node
@@ -906,17 +906,17 @@ async def create_orchestrator(
     """
     # Resolve nodes from service registry
     compute_node = await service_registry.resolve_service(
-        interface=ProtocolOnexComputeNode,
+        interface=ProtocolComputeNode,
         context={"node_type": "compute:transform"},
     )
 
     effect_node = await service_registry.resolve_service(
-        interface=ProtocolOnexEffectNode,
+        interface=ProtocolEffectNode,
         context={"node_type": "effect:http"},
     )
 
     reducer_node = await service_registry.resolve_service(
-        interface=ProtocolOnexReducerNode,
+        interface=ProtocolReducerNode,
         context={"node_type": "reducer:aggregation"},
     )
 
@@ -941,10 +941,10 @@ def validate_node_types(
         TypeError: If any object does not implement its required protocol.
     """
     validations = [
-        (compute, ProtocolOnexComputeNode, "compute"),
-        (effect, ProtocolOnexEffectNode, "effect"),
-        (reducer, ProtocolOnexReducerNode, "reducer"),
-        (orchestrator, ProtocolOnexOrchestratorNode, "orchestrator"),
+        (compute, ProtocolComputeNode, "compute"),
+        (effect, ProtocolEffectNode, "effect"),
+        (reducer, ProtocolReducerNode, "reducer"),
+        (orchestrator, ProtocolOrchestratorNode, "orchestrator"),
     ]
     for obj, protocol, name in validations:
         if not isinstance(obj, protocol):
