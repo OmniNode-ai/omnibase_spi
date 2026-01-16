@@ -13,9 +13,9 @@ from uuid import UUID
 from omnibase_spi.protocols.types.protocol_core_types import LiteralOperationStatus
 
 if TYPE_CHECKING:
+    from omnibase_spi.protocols.types.protocol_contract import ProtocolContract
     from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 
-from omnibase_spi.protocols.types.protocol_contract import ProtocolContract
 from omnibase_spi.protocols.types.protocol_mcp_types import (
     LiteralMCPSubsystemType,
     LiteralMCPToolType,
@@ -152,7 +152,7 @@ class ProtocolMCPRegistry(Protocol):
 
     async def register_onex_node(
         self,
-        contract: ProtocolContract,
+        contract: "ProtocolContract",
         tags: list[str] | None,
         configuration: dict[str, "ContextValue"] | None,
     ) -> str:

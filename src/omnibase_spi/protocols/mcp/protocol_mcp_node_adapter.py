@@ -11,13 +11,13 @@ Domain: MCP tool adaptation and ONEX node integration
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 from uuid import UUID
 
-from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 from omnibase_spi.protocols.types.protocol_mcp_tool_types import (
     ProtocolMCPToolDefinition,
 )
 
 if TYPE_CHECKING:
     from omnibase_core.contracts.contract_base import ModelContractBase
+    from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 
 
 @runtime_checkable
@@ -123,9 +123,9 @@ class ProtocolMCPNodeAdapter(Protocol):
     async def invoke_node_as_tool(
         self,
         tool_name: str,
-        parameters: dict[str, ContextValue],
+        parameters: dict[str, "ContextValue"],
         correlation_id: UUID,
-    ) -> dict[str, ContextValue]:
+    ) -> dict[str, "ContextValue"]:
         """
         Invoke an ONEX node using MCP tool invocation semantics.
 
