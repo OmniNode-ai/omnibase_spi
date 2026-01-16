@@ -7,7 +7,7 @@ All node runner implementations must conform to this interface.
 Domain: Node - Runtime execution protocols
 """
 
-from typing import Any, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 
 @runtime_checkable
@@ -67,7 +67,7 @@ class ProtocolNodeRunner(Protocol):
         - Event-driven status reporting
     """
 
-    async def run(self, *args: Any, **kwargs: Any) -> Any:
+    async def run(self, *args: object, **kwargs: object) -> object:
         """
         Execute the node with provided arguments.
 
@@ -76,7 +76,7 @@ class ProtocolNodeRunner(Protocol):
             **kwargs: Variable keyword arguments for node configuration
 
         Returns:
-            Any: Execution result, which can vary by node type and implementation
+            object: Execution result, which can vary by node type and implementation
 
         Raises:
             NodeExecutionError: If node execution fails

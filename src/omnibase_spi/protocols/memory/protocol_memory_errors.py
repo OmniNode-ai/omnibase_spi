@@ -405,7 +405,7 @@ class ProtocolMemoryTimeoutError(ProtocolMemoryError, Protocol):
     Attributes:
         timeout_seconds: The timeout threshold that was exceeded.
         operation_type: Type of operation that timed out.
-        partial_results: Any results obtained before timeout.
+        partial_results: Results obtained before timeout, if available.
 
     Example:
         ```python

@@ -7,7 +7,7 @@ performance observability and optimization.
 """
 
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types.protocol_core_types import (
@@ -115,7 +115,7 @@ class ProtocolPerformanceMetricsCollector(Protocol):
         self,
         service_name: str,
         collection_interval_seconds: int,
-        alert_callback: Callable[..., Any] | None,
+        alert_callback: Callable[..., object] | None,
     ) -> str: ...
 
     async def stop_real_time_monitoring(self, monitoring_session_id: str) -> bool: ...

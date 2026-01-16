@@ -5,7 +5,15 @@ This protocol defines the interface for managing pools of Claude Code agents,
 including dynamic scaling, load balancing, and resource optimization.
 """
 
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
+
+if TYPE_CHECKING:
+    from typing import Literal
+
+    from omnibase_core.types import JsonType
+
+    PoolScalingPolicy = Literal["manual", "auto_scale", "predictive", "reactive"]
+    PoolHealthStatus = Literal["healthy", "degraded", "critical", "failing"]
 
 
 @runtime_checkable
@@ -26,7 +34,7 @@ class ProtocolMemoryOperation(Protocol):
         ```python
         class WriteOperation:
             operation_type: str = "write"
-            data: dict[str, Any] = {"key": "user_123", "value": {"name": "Alice"}}
+            data: dict[str, object] = {"key": "user_123", "value": {"name": "Alice"}}
             timestamp: str = "2024-01-15T10:30:00Z"
 
         op = WriteOperation()
@@ -41,7 +49,7 @@ class ProtocolMemoryOperation(Protocol):
         ...
 
     @property
-    def data(self) -> dict[str, Any]:
+    def data(self) -> "JsonType":
         """Operation data."""
         ...
 
@@ -70,12 +78,12 @@ class ProtocolMemoryResponseV2(Protocol):
         ```python
         class SuccessResponse:
             success: bool = True
-            data: Any = {"user_id": "123", "status": "active"}
+            data: object = {"user_id": "123", "status": "active"}
             error: str | None = None
 
         class ErrorResponse:
             success: bool = False
-            data: Any = None
+            data: object | None = None
             error: str | None = "Key not found: user_456"
 
         resp = SuccessResponse()
@@ -90,7 +98,7 @@ class ProtocolMemoryResponseV2(Protocol):
         ...
 
     @property
-    def data(self) -> Any:
+    def data(self) -> "JsonType":
         """Response data."""
         ...
 
@@ -118,12 +126,12 @@ class ProtocolMemoryStreamingResponse(Protocol):
         ```python
         class StreamChunk:
             chunk_id: str = "chunk_003"
-            data: Any = {"records": [{"id": 1}, {"id": 2}]}
+            data: object = {"records": [{"id": 1}, {"id": 2}]}
             is_last: bool = False
 
         class FinalChunk:
             chunk_id: str = "chunk_004"
-            data: Any = {"records": [{"id": 3}]}
+            data: object = {"records": [{"id": 3}]}
             is_last: bool = True
 
         chunk = StreamChunk()
@@ -138,7 +146,7 @@ class ProtocolMemoryStreamingResponse(Protocol):
         ...
 
     @property
-    def data(self) -> Any:
+    def data(self) -> "JsonType":
         """Chunk data."""
         ...
 
@@ -167,7 +175,7 @@ class ProtocolMemoryStreamingRequest(Protocol):
         class ScanStreamRequest:
             stream_id: str = "stream_abc123"
             operation: str = "scan"
-            parameters: dict[str, Any] = {
+            parameters: dict[str, object] = {
                 "prefix": "user_",
                 "batch_size": 100,
                 "timeout_ms": 30000
@@ -190,7 +198,7 @@ class ProtocolMemoryStreamingRequest(Protocol):
         ...
 
     @property
-    def parameters(self) -> dict[str, Any]:
+    def parameters(self) -> "JsonType":
         """Stream parameters."""
         ...
 
@@ -214,7 +222,7 @@ class ProtocolMemorySecurityPolicy(Protocol):
         ```python
         class RestrictivePolicy:
             policy_id: str = "policy_prod_001"
-            rules: list[dict[str, Any]] = [
+            rules: list[dict[str, object]] = [
                 {"pattern": "secret_*", "action": "deny", "principals": ["*"]},
                 {"pattern": "user_*", "action": "allow", "principals": ["admin"]}
             ]
@@ -232,7 +240,7 @@ class ProtocolMemorySecurityPolicy(Protocol):
         ...
 
     @property
-    def rules(self) -> list[dict[str, Any]]:
+    def rules(self) -> "list[JsonType]":
         """Policy rules."""
         ...
 
@@ -261,7 +269,7 @@ class ProtocolMemoryComposable(Protocol):
         class TransactionalUpdate:
             components: list[str] = ["cache_layer", "persistent_store"]
             operations: list[str] = ["validate", "write_cache", "write_store", "commit"]
-            metadata: dict[str, Any] = {
+            metadata: dict[str, object] = {
                 "transaction_id": "tx_789",
                 "isolation_level": "serializable"
             }
@@ -283,7 +291,7 @@ class ProtocolMemoryComposable(Protocol):
         ...
 
     @property
-    def metadata(self) -> dict[str, Any]:
+    def metadata(self) -> "JsonType":
         """Operation metadata."""
         ...
 
@@ -310,7 +318,7 @@ class ProtocolMemoryErrorHandling(Protocol):
             error_type: str = "timeout"
             severity: str = "medium"
             recovery_strategy: str = "retry_with_backoff"
-            context: dict[str, Any] = {
+            context: dict[str, object] = {
                 "operation": "read",
                 "key": "user_123",
                 "elapsed_ms": 5000,
@@ -339,16 +347,9 @@ class ProtocolMemoryErrorHandling(Protocol):
         ...
 
     @property
-    def context(self) -> dict[str, Any]:
+    def context(self) -> "JsonType":
         """Error context."""
         ...
-
-
-if TYPE_CHECKING:
-    from typing import Literal
-
-    PoolScalingPolicy = Literal["manual", "auto_scale", "predictive", "reactive"]
-    PoolHealthStatus = Literal["healthy", "degraded", "critical", "failing"]
 
 
 @runtime_checkable
@@ -418,7 +419,7 @@ class ProtocolAgentPool(Protocol):
         """
         ...
 
-    async def get_pool_status(self, pool_name: str) -> dict[str, Any]:
+    async def get_pool_status(self, pool_name: str) -> "JsonType":
         """
         Get current status of a pool.
 
@@ -561,7 +562,7 @@ class ProtocolAgentPool(Protocol):
         """
         ...
 
-    async def get_pool_metrics(self, pool_name: str) -> dict[str, Any]:
+    async def get_pool_metrics(self, pool_name: str) -> "JsonType":
         """
         Get performance metrics for a pool.
 

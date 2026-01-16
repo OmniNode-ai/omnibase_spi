@@ -5,7 +5,10 @@ This protocol defines the interface for managing Claude Code agent configuration
 including validation, persistence, versioning, and security.
 """
 
-from typing import Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
+
+if TYPE_CHECKING:
+    from omnibase_core.types import JsonType
 
 
 @runtime_checkable
@@ -60,12 +63,12 @@ class ProtocolLegacyAgentConfigData(Protocol):
         ...
 
     @property
-    def configuration(self) -> dict[str, Any]:
+    def configuration(self) -> "JsonType":
         """Agent configuration data."""
         ...
 
     @property
-    def security_context(self) -> dict[str, Any]:
+    def security_context(self) -> "JsonType":
         """Security context for agent operations."""
         ...
 
@@ -157,7 +160,7 @@ class ProtocolAgentConfigurationLegacy(Protocol):
     async def update_configuration(
         self,
         agent_id: str,
-        updates: dict[str, Any],
+        updates: "JsonType",
     ) -> ProtocolLegacyAgentConfigData:
         """
         Update specific fields in an agent configuration.
@@ -199,7 +202,7 @@ class ProtocolAgentConfigurationLegacy(Protocol):
         self,
         agent_id: str,
         template_name: str,
-        overrides: dict[str, Any] | None = None,
+        overrides: "JsonType | None" = None,
     ) -> ProtocolLegacyAgentConfigData:
         """
         Apply a configuration template to create agent configuration.
@@ -259,7 +262,7 @@ class ProtocolAgentConfigurationLegacy(Protocol):
         """
         ...
 
-    async def get_configuration_history(self, agent_id: str) -> list[dict[str, Any]]:
+    async def get_configuration_history(self, agent_id: str) -> "list[JsonType]":
         """
         Get configuration change history for an agent.
 

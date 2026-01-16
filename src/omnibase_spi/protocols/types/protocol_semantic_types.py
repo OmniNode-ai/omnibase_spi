@@ -4,10 +4,14 @@ Semantic processing types for ONEX SPI interfaces.
 This module defines protocol types for semantic processing operations including
 retrieval systems, preprocessing, and natural language processing capabilities.
 
-All types follow the zero-dependency principle and use strong typing without Any.
+All types follow the zero-dependency principle and use strong typing with JsonType
+from omnibase_core.types for flexible dictionary values.
 """
 
-from typing import Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
+
+if TYPE_CHECKING:
+    from omnibase_core.types import JsonType
 
 
 @runtime_checkable
@@ -24,13 +28,13 @@ class ProtocolRetrievalInputState(Protocol):
         ...
 
     @property
-    def search_parameters(self) -> dict[str, Any]:
-        """Search configuration parameters."""
+    def search_parameters(self) -> "JsonType":
+        """Search configuration parameters as JSON-compatible dictionary."""
         ...
 
     @property
-    def filters(self) -> dict[str, Any] | None:
-        """Optional filters to apply to search results."""
+    def filters(self) -> "JsonType | None":
+        """Optional filters to apply to search results as JSON-compatible dictionary."""
         ...
 
     @property
@@ -54,8 +58,8 @@ class ProtocolRetrievalOutputState(Protocol):
     """
 
     @property
-    def results(self) -> list[dict[str, Any]]:
-        """List of retrieved documents with metadata."""
+    def results(self) -> "list[JsonType]":
+        """List of retrieved documents with metadata as JSON-compatible objects."""
         ...
 
     @property
@@ -68,8 +72,8 @@ class ProtocolRetrievalOutputState(Protocol):
         ...
 
     @property
-    def search_parameters(self) -> dict[str, Any]:
-        """Search parameters used."""
+    def search_parameters(self) -> "JsonType":
+        """Search parameters used as JSON-compatible dictionary."""
         ...
 
     @property
@@ -93,8 +97,8 @@ class ProtocolPreprocessingInputState(Protocol):
     """
 
     @property
-    def documents(self) -> list[dict[str, Any]]:
-        """List of documents to preprocess."""
+    def documents(self) -> "list[JsonType]":
+        """List of documents to preprocess as JSON-compatible objects."""
         ...
 
     @property
@@ -113,8 +117,8 @@ class ProtocolPreprocessingInputState(Protocol):
         ...
 
     @property
-    def preprocessing_options(self) -> dict[str, Any]:
-        """Additional preprocessing options."""
+    def preprocessing_options(self) -> "JsonType":
+        """Additional preprocessing options as JSON-compatible dictionary."""
         ...
 
 
@@ -128,13 +132,13 @@ class ProtocolPreprocessingOutputState(Protocol):
     """
 
     @property
-    def processed_documents(self) -> list[dict[str, Any]]:
-        """List of processed documents."""
+    def processed_documents(self) -> "list[JsonType]":
+        """List of processed documents as JSON-compatible objects."""
         ...
 
     @property
-    def chunks(self) -> list[dict[str, Any]]:
-        """List of document chunks."""
+    def chunks(self) -> "list[JsonType]":
+        """List of document chunks as JSON-compatible objects."""
         ...
 
     @property
@@ -143,8 +147,8 @@ class ProtocolPreprocessingOutputState(Protocol):
         ...
 
     @property
-    def preprocessing_metadata(self) -> dict[str, Any]:
-        """Metadata about the preprocessing process."""
+    def preprocessing_metadata(self) -> "JsonType":
+        """Metadata about the preprocessing process as JSON-compatible dictionary."""
         ...
 
     @property

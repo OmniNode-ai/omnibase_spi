@@ -22,7 +22,10 @@
 # === /OmniNode:Metadata ===
 
 
-from typing import Any, Literal, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Literal, Protocol, runtime_checkable
+
+if TYPE_CHECKING:
+    from omnibase_core.types import JsonType
 
 from omnibase_spi.protocols.types import ProtocolOnexResult
 
@@ -101,7 +104,7 @@ class ProtocolStamper(Protocol):
         ...
 
     async def stamp_file(
-        self, file_path: str, metadata_block: dict[str, Any]
+        self, file_path: str, metadata_block: "JsonType"
     ) -> ProtocolOnexResult:
         """
         Stamp the file with a metadata block, replacing any existing block.

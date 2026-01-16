@@ -22,7 +22,7 @@ This module supports two messaging patterns:
 from __future__ import annotations
 
 from collections.abc import Awaitable, Callable
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import LiteralLogLevel
 from omnibase_spi.protocols.types.protocol_event_bus_types import ProtocolEventMessage
@@ -31,6 +31,7 @@ if TYPE_CHECKING:
     # Forward reference to avoid circular import: ModelOnexEnvelope is defined
     # in omnibase_core.models.runtime but used in type hints here.
     from omnibase_core.models.runtime import ModelOnexEnvelope
+    from omnibase_core.types import JsonType
 
 
 @runtime_checkable
@@ -184,7 +185,7 @@ class ProtocolEventBusBase(Protocol):
         """
         ...
 
-    async def health_check(self) -> dict[str, Any]:
+    async def health_check(self) -> JsonType:
         """
         Check the health status of the event bus connection.
 

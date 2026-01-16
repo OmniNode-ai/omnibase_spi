@@ -70,7 +70,7 @@ Related tickets:
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import Any, Literal, Protocol, runtime_checkable
+from typing import Literal, Protocol, runtime_checkable
 
 
 @runtime_checkable
@@ -306,7 +306,7 @@ class ProtocolProjector(Protocol):
 
     async def persist(
         self,
-        projection: Any,
+        projection: object,
         entity_id: str,
         domain: str,
         sequence_info: ProtocolSequenceInfo,
@@ -375,7 +375,7 @@ class ProtocolProjector(Protocol):
 
     async def batch_persist(
         self,
-        projections: Sequence[tuple[Any, str, str, ProtocolSequenceInfo]],
+        projections: Sequence[tuple[object, str, str, ProtocolSequenceInfo]],
         *,
         correlation_id: str | None = None,
     ) -> ProtocolBatchPersistResult:

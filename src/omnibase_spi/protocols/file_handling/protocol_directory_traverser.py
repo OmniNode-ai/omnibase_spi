@@ -165,7 +165,7 @@ class ProtocolDirectoryTraverser(Protocol):
 
         Args:
             directory: Directory to process
-            processor: Callable[..., Any]that processes each file and returns a result
+            processor: Function that processes each file and returns a result
             include_patterns: List of glob patterns to include
             exclude_patterns: List of glob patterns to exclude
             recursive: Whether to recursively traverse subdirectories

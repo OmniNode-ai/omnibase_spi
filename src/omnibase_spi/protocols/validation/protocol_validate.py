@@ -22,9 +22,10 @@
 # === /OmniNode:Metadata ===
 
 
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
+    from omnibase_core.types import JsonType
     from omnibase_spi.protocols.core.protocol_logger import ProtocolLogger
 
 from omnibase_spi.protocols.cli.protocol_cli import ProtocolCLI
@@ -71,7 +72,7 @@ class ProtocolValidateResultModel(Protocol):
     errors: list["ProtocolValidateMessageModel"]
     warnings: list[str]
 
-    def to_dict(self) -> dict[str, Any]: ...
+    def to_dict(self) -> "JsonType": ...
 
 
 @runtime_checkable
@@ -109,7 +110,7 @@ class ProtocolValidateMessageModel(Protocol):
     severity: str
     location: str | None
 
-    def to_dict(self) -> dict[str, Any]: ...
+    def to_dict(self) -> "JsonType": ...
 
 
 @runtime_checkable
@@ -149,9 +150,9 @@ class ProtocolModelMetadataConfig(Protocol):
     """
 
     config_path: str | None
-    validation_rules: dict[str, Any]
+    validation_rules: "JsonType"
 
-    async def get_config_value(self, key: str) -> Any: ...
+    async def get_config_value(self, key: str) -> "JsonType": ...
 
 
 @runtime_checkable
@@ -191,9 +192,9 @@ class ProtocolCLIArgsModel(Protocol):
 
     command: str
     args: list[str]
-    options: dict[str, Any]
+    options: "JsonType"
 
-    async def get_option(self, key: str) -> Any: ...
+    async def get_option(self, key: str) -> "JsonType": ...
 
 
 @runtime_checkable

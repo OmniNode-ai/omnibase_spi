@@ -1,6 +1,6 @@
 """Protocol for ONEX reducer nodes."""
 
-from typing import Any, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 
 @runtime_checkable
@@ -61,7 +61,7 @@ class ProtocolOnexReducerNode(Protocol):
         - Result Synthesis: Combine outputs into final workflow result
     """
 
-    async def execute_reduction(self, contract: Any) -> Any:
+    async def execute_reduction(self, contract: object) -> object:
         """
         Execute reduction workflow.
 

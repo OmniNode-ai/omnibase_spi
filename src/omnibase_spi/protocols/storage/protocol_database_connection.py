@@ -6,7 +6,7 @@ Provides a clean interface for database operations with proper fallback
 strategies and connection management.
 """
 
-from typing import Any, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_storage_types import (
     ProtocolConnectionInfo,
@@ -15,6 +15,9 @@ from omnibase_spi.protocols.types.protocol_storage_types import (
     ProtocolServiceHealth,
     ProtocolTransactionResult,
 )
+
+# Type alias for database parameter values
+DbParamType = str | int | float | bool | bytes | None
 
 
 @runtime_checkable
@@ -32,12 +35,12 @@ class ProtocolDatabaseConnection(Protocol):
             @property
             def connection_string(self) -> str: ...
             @property
-            def connection(self) -> Any | None: ...
+            def connection(self) -> object | None: ...
 
             async def connect(self) -> bool: ...
             async def disconnect(self, timeout_seconds: float = 30.0) -> None: ...
             async def execute_query(
-                self, query: str, parameters: tuple[Any, ...] | None
+                self, query: str, parameters: tuple[DbParamType, ...] | None
             ) -> ProtocolQueryResult: ...
     """
 
@@ -66,7 +69,7 @@ class ProtocolDatabaseConnection(Protocol):
     async def execute_query(
         self,
         query: str,
-        parameters: tuple[Any, ...] | None = None,
+        parameters: tuple[DbParamType, ...] | None = None,
     ) -> ProtocolQueryResult:
         """
         Execute a SELECT query and return results.
@@ -84,7 +87,7 @@ class ProtocolDatabaseConnection(Protocol):
     async def execute_command(
         self,
         command: str,
-        parameters: tuple[Any, ...] | None = None,
+        parameters: tuple[DbParamType, ...] | None = None,
     ) -> ProtocolQueryResult:
         """
         Execute an INSERT, UPDATE, or DELETE command.
@@ -101,7 +104,7 @@ class ProtocolDatabaseConnection(Protocol):
 
     async def execute_transaction(
         self,
-        commands: list[tuple[str, tuple[Any, ...] | None]],
+        commands: list[tuple[str, tuple[DbParamType, ...] | None]],
     ) -> ProtocolTransactionResult:
         """
         Execute multiple commands in a transaction.

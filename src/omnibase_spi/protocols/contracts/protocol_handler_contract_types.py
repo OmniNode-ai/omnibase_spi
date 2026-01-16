@@ -29,7 +29,10 @@ Note:
 
 from __future__ import annotations
 
-from typing import Any, Literal, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Literal, Protocol, runtime_checkable
+
+if TYPE_CHECKING:
+    from omnibase_core.types import JsonType
 
 # ==============================================================================
 # Supporting Protocol Types
@@ -159,22 +162,22 @@ class ProtocolCapabilityRequirementSet(Protocol):
     """
 
     @property
-    def must(self) -> dict[str, Any]:
+    def must(self) -> JsonType:
         """Requirements that must be satisfied for capability matching."""
         ...
 
     @property
-    def prefer(self) -> dict[str, Any]:
+    def prefer(self) -> JsonType:
         """Requirements that are preferred but not mandatory."""
         ...
 
     @property
-    def forbid(self) -> dict[str, Any]:
+    def forbid(self) -> JsonType:
         """Requirements that must not be present."""
         ...
 
     @property
-    def hints(self) -> dict[str, Any]:
+    def hints(self) -> JsonType:
         """Additional hints for capability selection."""
         ...
 
@@ -496,7 +499,7 @@ class ProtocolCapabilityDependency(Protocol):
                 return "auto_if_unique"
 
             @property
-            def vendor_hints(self) -> dict[str, Any]:
+            def vendor_hints(self) -> "JsonType":
                 return {"prefer_read_replica": True}
 
             @property
@@ -643,7 +646,7 @@ class ProtocolCapabilityDependency(Protocol):
         ...
 
     @property
-    def vendor_hints(self) -> dict[str, Any]:
+    def vendor_hints(self) -> JsonType:
         """
         Optional vendor-specific configuration hints.
 

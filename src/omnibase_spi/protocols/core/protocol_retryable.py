@@ -6,7 +6,7 @@ management across all ONEX services with consistent patterns.
 """
 
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types.protocol_core_types import (
@@ -62,7 +62,7 @@ class ProtocolRetryable(Protocol):
     """
 
     async def execute_with_retry(
-        self, operation: Callable[..., Any], config: "ProtocolRetryConfig"
+        self, operation: Callable[..., object], config: "ProtocolRetryConfig"
     ) -> "ProtocolRetryResult": ...
 
     def configure_retry_policy(self, policy: "ProtocolRetryPolicy") -> bool: ...

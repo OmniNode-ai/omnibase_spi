@@ -5,9 +5,10 @@ This protocol defines the interface for tools that execute specific
 operations within workflows, such as model generation and bootstrap validation.
 """
 
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
+    from omnibase_core.types import JsonType
     from omnibase_spi.protocols.node.protocol_node_registry import ProtocolNodeRegistry
     from omnibase_spi.protocols.types.protocol_file_handling_types import (
         ProtocolOnexResult,
@@ -33,7 +34,7 @@ class ProtocolWorkflowExecutor(Protocol):
         """
         ...
 
-    async def run(self, input_state: dict[str, Any]) -> "ProtocolOnexResult":
+    async def run(self, input_state: dict[str, "JsonType"]) -> "ProtocolOnexResult":
         """
         Run the Workflow executor with the provided input state.
 
@@ -50,7 +51,7 @@ class ProtocolWorkflowExecutor(Protocol):
         operation_type: str,
         scenario_id: str,
         correlation_id: str,
-        parameters: dict[str, Any],
+        parameters: dict[str, "JsonType"],
     ) -> "ProtocolOnexResult":
         """
         Execute a specific operation.
@@ -80,7 +81,7 @@ class ProtocolWorkflowExecutor(Protocol):
 
     async def get_supported_operations(self) -> list[str]:
         """
-        Get list[Any]of supported operation types.
+        Get list of supported operation types.
 
         Returns:
             List of supported operation type strings
@@ -90,7 +91,7 @@ class ProtocolWorkflowExecutor(Protocol):
     def validate_parameters(
         self,
         operation_type: str,
-        parameters: dict[str, Any],
+        parameters: dict[str, "JsonType"],
     ) -> list[str]:
         """
         Validate parameters for a specific operation.
@@ -104,7 +105,7 @@ class ProtocolWorkflowExecutor(Protocol):
         """
         ...
 
-    def health_check(self) -> dict[str, Any]:
+    def health_check(self) -> "JsonType":
         """
         Perform health check for the Workflow executor.
 

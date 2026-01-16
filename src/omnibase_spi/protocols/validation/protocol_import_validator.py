@@ -6,9 +6,10 @@ dependencies across ONEX repositories, providing standardized validation
 capabilities for NodeImportValidatorCompute implementations.
 """
 
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
+    from omnibase_core.types import JsonType
     from omnibase_spi.protocols.validation.protocol_validation import (
         ProtocolValidationResult,
     )
@@ -98,7 +99,7 @@ class ProtocolImportAnalysis(Protocol):
     is_valid: bool
     security_risk: str
     dependency_level: int
-    analysis_details: dict[str, Any]
+    analysis_details: "JsonType"
 
     async def get_risk_summary(self) -> str: ...
 
@@ -120,7 +121,7 @@ class ProtocolImportValidator(Protocol):
     dependency_analysis_enabled: bool
 
     async def validate_import(
-        self, import_path: str, description: str, context: dict[str, Any] | None = None
+        self, import_path: str, description: str, context: "JsonType | None" = None
     ) -> "ProtocolValidationResult": ...
 
     async def validate_from_import(
@@ -128,11 +129,11 @@ class ProtocolImportValidator(Protocol):
         from_path: str,
         import_items: str,
         description: str,
-        context: dict[str, Any] | None = None,
+        context: "JsonType | None" = None,
     ) -> "ProtocolValidationResult": ...
 
     async def validate_import_security(
-        self, import_path: str, context: dict[str, Any] | None = None
+        self, import_path: str, context: "JsonType | None" = None
     ) -> ProtocolImportAnalysis: ...
 
     async def validate_dependency_chain(
@@ -143,7 +144,7 @@ class ProtocolImportValidator(Protocol):
         self, repository_path: str, patterns: list[str] | None = None
     ) -> list["ProtocolValidationResult"]: ...
 
-    async def get_validation_summary(self) -> dict[str, Any]: ...
+    async def get_validation_summary(self) -> "JsonType": ...
 
     async def configure_validation(
         self, config: "ProtocolImportValidationConfig"

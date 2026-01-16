@@ -9,7 +9,6 @@ Focuses purely on dependency injection patterns rather than artifact or service 
 
 from typing import (
     TYPE_CHECKING,
-    Any,
     Literal,
     Protocol,
     TypeVar,
@@ -99,7 +98,7 @@ class ProtocolServiceDependency(Protocol):
             is_required: bool | None = None
             is_circular: bool | None = None
             injection_point: str | None = None
-            default_value: Any | None = None
+            default_value: object | None = None
             metadata: dict[str, "ContextValue"] = {"timeout": 30}
 
             async def validate_dependency(self) -> bool:
@@ -128,7 +127,7 @@ class ProtocolServiceDependency(Protocol):
     is_required: bool
     is_circular: bool
     injection_point: str
-    default_value: Any | None
+    default_value: "ContextValue | None"
     metadata: dict[str, "ContextValue"]
 
     async def validate_dependency(self) -> bool: ...
@@ -227,7 +226,7 @@ class ProtocolRegistryServiceInstance(Protocol):
 
     instance_id: str
     service_registration_id: str
-    instance: Any
+    instance: object
     lifecycle: LiteralServiceLifecycle
     scope: LiteralInjectionScope
     created_at: "ProtocolDateTime"
@@ -453,7 +452,7 @@ class ProtocolServiceValidator(Protocol):
         @runtime_checkable
         class ServiceValidatorImpl:
             async def validate_service(
-                self, service: Any, interface: Type[Any]
+                self, service: object, interface: type[object]
             ) -> "ProtocolValidationResult":
                 # Check if service implements all required methods
                 if not isinstance(service, interface):
@@ -505,7 +504,7 @@ class ProtocolServiceValidator(Protocol):
     """
 
     async def validate_service(
-        self, service: Any, interface: type[Any]
+        self, service: object, interface: type[object]
     ) -> "ProtocolValidationResult": ...
 
     async def validate_dependencies(
@@ -548,8 +547,8 @@ class ProtocolServiceFactory(Protocol):
                 return instance
 
             async def _resolve_dependencies(
-                self, interface: Type[T], context: dict[str, "ContextValue"]
-            ) -> dict[str, Any]:
+                self, interface: type[T], context: dict[str, "ContextValue"]
+            ) -> dict[str, object]:
                 # Analyze constructor parameters and resolve dependencies
                 signature = inspect.signature(interface.__init__)
                 dependencies = {}
@@ -585,7 +584,7 @@ class ProtocolServiceFactory(Protocol):
         self, interface: type[T], context: dict[str, "ContextValue"]
     ) -> T: ...
 
-    async def dispose_instance(self, instance: Any) -> None: ...
+    async def dispose_instance(self, instance: object) -> None: ...
 
 
 @runtime_checkable

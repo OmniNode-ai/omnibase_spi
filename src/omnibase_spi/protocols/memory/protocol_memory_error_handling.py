@@ -8,7 +8,7 @@ and comprehensive error recovery for memory operations.
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 from uuid import UUID
 
 if TYPE_CHECKING:
@@ -173,10 +173,10 @@ class ProtocolMemoryErrorHandler(Protocol):
 
     async def execute_retry(
         self,
-        operation_func: Callable[..., Any],
+        operation_func: Callable[..., object],
         context: ProtocolOperationContext,
         retry_policy: ProtocolMemoryRetryPolicy,
-    ) -> Any: ...
+    ) -> object: ...
 
     async def execute_compensation(self, context: ProtocolOperationContext) -> bool: ...
 

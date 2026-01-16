@@ -1,7 +1,7 @@
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    pass
+    from omnibase_core.types import JsonType
 
 
 @runtime_checkable
@@ -19,7 +19,7 @@ class ProtocolModelOnexField(Protocol):
     """
 
     field_name: str
-    field_value: Any
+    field_value: object
     field_type: str
 
 
@@ -39,7 +39,7 @@ class ProtocolOutputFieldTool(Protocol):
         async def process_field(
             tool: ProtocolOutputFieldTool,
             state: dict[str, "ContextValue"],
-            input_state: dict[str, Any]
+            input_state: "JsonType"
         ) -> "ProtocolModelOnexField":
             # Generate output field from state transformation
             field = await tool(state, input_state)
@@ -65,5 +65,5 @@ class ProtocolOutputFieldTool(Protocol):
     """
 
     async def __call__(
-        self, state: Any, input_state_dict: dict[str, Any]
+        self, state: object, input_state_dict: "JsonType"
     ) -> "ProtocolModelOnexField": ...

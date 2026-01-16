@@ -1,4 +1,7 @@
-from typing import Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
+
+if TYPE_CHECKING:
+    from omnibase_core.types import JsonType
 
 
 @runtime_checkable
@@ -40,7 +43,7 @@ class ProtocolSchemaValidationResult(Protocol):
     warnings: list[str]
     info: list[str]
 
-    def to_dict(self) -> dict[str, Any]: ...
+    def to_dict(self) -> "JsonType": ...
 
 
 @runtime_checkable
@@ -101,7 +104,7 @@ class ProtocolTrustedSchemaLoader(Protocol):
         """Safely resolve a $ref string with security validation"""
         ...
 
-    async def get_security_audit(self) -> list[dict[str, Any]]:
+    async def get_security_audit(self) -> "list[JsonType]":
         """Get security audit trail"""
         ...
 
@@ -110,5 +113,5 @@ class ProtocolTrustedSchemaLoader(Protocol):
         ...
 
     async def get_approved_roots(self) -> list[str]:
-        """Get list[Any]of approved schema root paths"""
+        """Get list of approved schema root paths"""
         ...

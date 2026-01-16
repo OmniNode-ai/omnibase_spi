@@ -109,7 +109,7 @@ class ProtocolHandler(Protocol):
         """Release resources gracefully."""
         ...
 
-    async def health_check(self) -> dict[str, Any]:
+    async def health_check(self) -> dict[str, object]:
         """Check connectivity and health status."""
         ...
 

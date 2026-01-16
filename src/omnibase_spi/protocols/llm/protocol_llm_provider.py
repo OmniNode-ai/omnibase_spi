@@ -1,7 +1,6 @@
 from collections.abc import AsyncGenerator, Iterator
 from typing import (
     TYPE_CHECKING,
-    Any,
     Protocol,
     runtime_checkable,
 )
@@ -14,6 +13,7 @@ for seamless provider switching and intelligent routing.
 """
 
 if TYPE_CHECKING:
+    from omnibase_core.types import JsonType
     from omnibase_spi.protocols.types.protocol_llm_types import (
         ProtocolLLMHealthResponse,
         ProtocolLLMRequest,
@@ -352,7 +352,7 @@ class ProtocolLLMProvider(Protocol):
         """
         ...
 
-    async def get_provider_info(self) -> dict[str, Any]:
+    async def get_provider_info(self) -> "JsonType":
         """Get comprehensive provider information.
 
         Returns:

@@ -6,9 +6,12 @@ implementation-specific details. This protocol enables testing and cross-compone
 serialization while maintaining proper architectural boundaries.
 """
 
-from typing import Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import ContextValue
+
+if TYPE_CHECKING:
+    from omnibase_core.types import JsonType
 
 
 @runtime_checkable
@@ -92,10 +95,10 @@ class ProtocolCanonicalSerializer(Protocol):
     ONEX protocol interfaces.
     """
 
-    def canonicalize_metadata_block(self, metadata_block: dict[str, Any]) -> str:
+    def canonicalize_metadata_block(self, metadata_block: "JsonType") -> str:
         """
         Canonicalize a metadata block for deterministic serialization and hash computation.
-        - Accepts a dict[str, Any] or metadata block instance.
+        - Accepts a JsonType or metadata block instance.
         - Replaces volatile fields (e.g., hash, last_modified_at) with a protocol placeholder.
         - Returns the canonical serialized string.
         """

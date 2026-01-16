@@ -1,6 +1,7 @@
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
+    from omnibase_core.types import JsonType
     from omnibase_spi.protocols.schema.protocol_trusted_schema_loader import (
         ProtocolSchemaValidationResult,
     )
@@ -52,7 +53,7 @@ class ProtocolRegistryHealthReport(Protocol):
     validation_errors: list[str]
     performance_metrics: dict[str, float]
 
-    async def get_summary(self) -> dict[str, Any]: ...
+    async def get_summary(self) -> "JsonType": ...
 
 
 @runtime_checkable
@@ -134,7 +135,7 @@ class ProtocolModelRegistryValidator(Protocol):
         """Verify a contract file complies with schema requirements"""
         ...
 
-    def lock_verified_models(self) -> dict[str, Any]:
+    def lock_verified_models(self) -> "JsonType":
         """Lock verified models with version/timestamp/trust tags"""
         ...
 

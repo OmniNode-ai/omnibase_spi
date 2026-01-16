@@ -5,7 +5,7 @@ Domain: Dependency injection and service container protocols
 """
 
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Any, Literal, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Literal, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types.protocol_core_types import (
@@ -43,7 +43,7 @@ class ProtocolDIContainer(Protocol):
             _services: dict = {}
 
             def register(
-                self, service_key: str, service_instance: Callable[..., Any]
+                self, service_key: str, service_instance: Callable[..., object]
             ) -> None:
                 self._services[service_key] = service_instance
 
@@ -62,7 +62,7 @@ class ProtocolDIContainer(Protocol):
     """
 
     def register(
-        self, service_key: str, service_instance: Callable[..., Any]
+        self, service_key: str, service_instance: Callable[..., object]
     ) -> None: ...
 
     async def get_service(self, service_key: str) -> object: ...

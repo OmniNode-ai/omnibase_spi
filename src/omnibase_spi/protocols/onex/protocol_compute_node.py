@@ -1,6 +1,6 @@
 """Protocol for ONEX compute nodes."""
 
-from typing import Any, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 
 @runtime_checkable
@@ -64,7 +64,7 @@ class ProtocolOnexComputeNode(Protocol):
         - Enrichment: Add computed fields to data structures
     """
 
-    async def execute_compute(self, contract: Any) -> Any:
+    async def execute_compute(self, contract: object) -> object:
         """
         Execute compute workflow.
 

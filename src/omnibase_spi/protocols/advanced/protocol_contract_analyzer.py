@@ -5,10 +5,10 @@ Defines the interface for analyzing, validating, and processing
 contract documents for code generation.
 """
 
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    pass
+    from omnibase_core.types import JsonType
 
 
 @runtime_checkable
@@ -174,13 +174,13 @@ class ProtocolContractModelSchema(Protocol):
     """
 
     type: str
-    properties: dict[str, Any]
+    properties: "JsonType"
     required: list[str]
     additional_properties: bool
 
-    async def validate(self, data: dict[str, Any]) -> bool: ...
+    async def validate(self, data: "JsonType") -> bool: ...
 
-    async def to_dict(self) -> dict[str, Any]: ...
+    async def to_dict(self) -> "JsonType": ...
 
 
 @runtime_checkable
@@ -230,9 +230,9 @@ class ProtocolModelContractDocument(Protocol):
     node_version: str
     node_type: str
     description: str
-    input_state: dict[str, Any] | None
-    output_state: dict[str, Any] | None
-    definitions: dict[str, Any]
+    input_state: "JsonType | None"
+    output_state: "JsonType | None"
+    definitions: "JsonType"
 
     async def validate(self) -> bool: ...
 
@@ -240,7 +240,7 @@ class ProtocolModelContractDocument(Protocol):
         self, schema_name: str
     ) -> "ProtocolContractModelSchema | None": ...
 
-    async def to_dict(self) -> dict[str, Any]: ...
+    async def to_dict(self) -> "JsonType": ...
 
 
 @runtime_checkable

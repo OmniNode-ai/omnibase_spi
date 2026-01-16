@@ -5,9 +5,10 @@ Defines the contract for tools that implement DPR-style multi-vector
 document indexing with passage-level granularity and document context.
 """
 
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
+    from omnibase_core.types import JsonType
     from omnibase_spi.protocols.types.protocol_advanced_types import (
         ProtocolInputDocument,
         ProtocolMultiVectorDocument,
@@ -117,28 +118,28 @@ class ProtocolMultiVectorIndexer(Protocol):
         """
         ...
 
-    async def optimize_index(self) -> dict[str, Any]:
+    async def optimize_index(self) -> "JsonType":
         """
         Optimize the multi-vector index for better performance.
-            ...
+
         Returns:
             Dictionary with optimization statistics
         """
         ...
 
-    async def get_index_statistics(self) -> dict[str, Any]:
+    async def get_index_statistics(self) -> "JsonType":
         """
         Get statistics about the multi-vector index.
-            ...
+
         Returns:
             Dictionary with index statistics and metrics
         """
         ...
 
-    async def health_check(self) -> dict[str, Any]:
+    async def health_check(self) -> "JsonType":
         """
         Perform health check for the indexer.
-            ...
+
         Returns:
             Dictionary with health status information
         """

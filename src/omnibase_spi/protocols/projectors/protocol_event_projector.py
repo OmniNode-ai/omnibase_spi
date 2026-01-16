@@ -37,12 +37,13 @@ Note:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 from uuid import UUID
 
 if TYPE_CHECKING:
     from omnibase_core.models.events import ModelEventEnvelope
     from omnibase_core.models.projectors import ModelProjectionResult
+    from omnibase_core.types import JsonType
 
 __all__ = ["ProtocolEventProjector"]
 
@@ -295,7 +296,7 @@ class ProtocolEventProjector(Protocol):
     async def get_state(
         self,
         aggregate_id: UUID,
-    ) -> Any | None:
+    ) -> JsonType | None:
         """Get current projected state for an aggregate.
 
         Retrieves the materialized state for a specific aggregate.
@@ -315,7 +316,7 @@ class ProtocolEventProjector(Protocol):
             The current materialized state for the aggregate, or
             None if no events have been projected for this aggregate.
 
-            The return type is Any because the specific state type
+            The return type is JsonType because the specific state type
             depends on the domain. Implementations should document
             their concrete return type.
 
