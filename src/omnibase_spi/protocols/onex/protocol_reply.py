@@ -112,6 +112,9 @@ class ProtocolReply(Protocol):
 
         Returns:
             T | None: The extracted data if present, None for error replies.
+
+        Raises:
+            TypeError: If reply is not of the expected type.
         """
         ...
 
@@ -124,6 +127,10 @@ class ProtocolReply(Protocol):
 
         Returns:
             LiteralOnexReplyStatus: The reply status.
+
+        Raises:
+            TypeError: If reply is not of the expected type.
+            AttributeError: If reply does not have a status attribute.
         """
         ...
 
@@ -136,6 +143,9 @@ class ProtocolReply(Protocol):
 
         Returns:
             str | None: The error message if present.
+
+        Raises:
+            TypeError: If reply is not of the expected type.
         """
         ...
 
@@ -148,6 +158,9 @@ class ProtocolReply(Protocol):
 
         Returns:
             str | None: The error code if present.
+
+        Raises:
+            TypeError: If reply is not of the expected type.
         """
         ...
 
@@ -160,6 +173,9 @@ class ProtocolReply(Protocol):
 
         Returns:
             str | None: The error details if present.
+
+        Raises:
+            TypeError: If reply is not of the expected type.
         """
         ...
 
@@ -172,6 +188,9 @@ class ProtocolReply(Protocol):
 
         Returns:
             UUID | None: The correlation ID if present.
+
+        Raises:
+            TypeError: If reply is not of the expected type.
         """
         ...
 
@@ -184,6 +203,9 @@ class ProtocolReply(Protocol):
 
         Returns:
             ProtocolOnexMetadata | None: The metadata if present.
+
+        Raises:
+            TypeError: If reply is not of the expected type.
         """
         ...
 
@@ -196,6 +218,9 @@ class ProtocolReply(Protocol):
 
         Returns:
             bool: True if the reply indicates success.
+
+        Raises:
+            TypeError: If reply is not of the expected type.
         """
         ...
 
@@ -208,6 +233,9 @@ class ProtocolReply(Protocol):
 
         Returns:
             bool: True if the reply indicates an error.
+
+        Raises:
+            TypeError: If reply is not of the expected type.
         """
         ...
 
@@ -220,6 +248,10 @@ class ProtocolReply(Protocol):
 
         Returns:
             ProtocolDateTime: The reply timestamp.
+
+        Raises:
+            TypeError: If reply is not of the expected type.
+            AttributeError: If reply does not have a timestamp attribute.
         """
         ...
 
@@ -232,6 +264,9 @@ class ProtocolReply(Protocol):
 
         Returns:
             float | None: The processing time in seconds if available.
+
+        Raises:
+            TypeError: If reply is not of the expected type.
         """
         ...
 
@@ -261,6 +296,9 @@ class ProtocolReply(Protocol):
 
         Returns:
             bool: True if the reply is ONEX compliant.
+
+        Raises:
+            TypeError: If reply is not of the expected type.
         """
         ...
 

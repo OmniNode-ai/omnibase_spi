@@ -28,15 +28,7 @@ from pathlib import Path
 
 import timeout_utils
 from timeout_utils import timeout_context
-
-# Known protocol name conflicts that are intentional and documented.
-# These are protocols with the same name but different signatures that serve
-# different purposes in different contexts. Add justification when adding entries.
-KNOWN_ALLOWED_CONFLICTS: set[str] = {
-    # ProtocolValidationResult: onex/protocol_validation.py vs validation/protocol_validation.py
-    # ONEX-specific validation result vs general validation result
-    "ProtocolValidationResult",
-}
+from validation_constants import KNOWN_ALLOWED_CONFLICTS
 
 
 @dataclass
@@ -949,7 +941,7 @@ def print_validation_report(
                 elif violation.severity == "warning":
                     severity_icon = "⚠️"
                 else:  # info
-                    severity_icon = "ℹ️"
+                    severity_icon = "(i)"  # ASCII to avoid RUF001 (ambiguous unicode)
                 print(
                     f"      {severity_icon} {violation.file_path}:{violation.line_number}"
                 )

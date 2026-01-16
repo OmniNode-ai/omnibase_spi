@@ -90,8 +90,61 @@ class ProtocolCorrelatedData(Protocol):
     See Also:
         - ProtocolValidation: Validation interface using this protocol
         - ProtocolContractData: Contract data structure
+        - ProtocolEnvelopeData: Combined envelope data with correlation
     """
 
+    correlation_id: UUID
+    timestamp: "ProtocolDateTime"
+
+
+@runtime_checkable
+class ProtocolEnvelopeData(Protocol):
+    """
+    Protocol for complete ONEX envelope/reply data structure representation.
+
+    Combines contract data fields with correlation tracking fields to provide
+    a complete representation of an ONEX envelope or reply for validation.
+    This protocol should be used when validating envelopes or replies that
+    need both contract compliance checking and correlation/timestamp validation.
+
+    Attributes:
+        contract_version: Semantic version of the contract
+        node_name: Unique identifier for the node
+        node_type: ONEX node type classification
+        input_model: Name of the input data model
+        output_model: Name of the output data model
+        correlation_id: UUID for tracking related requests and responses
+        timestamp: Timestamp when the data was created or processed
+
+    Example:
+        ```python
+        validator: ProtocolValidation = get_onex_validator()
+        envelope = get_envelope_data()  # ProtocolEnvelopeData
+
+        # Full ONEX pattern validation
+        result = await validator.validate_full_onex_pattern(envelope, reply)
+
+        # Correlation validation (uses same envelope object)
+        is_consistent = await validator.validate_correlation_id_consistency(
+            envelope, reply
+        )
+        is_ordered = await validator.validate_timestamp_sequence(envelope, reply)
+        ```
+
+    See Also:
+        - ProtocolContractData: Contract-only data structure
+        - ProtocolCorrelatedData: Correlation-only data structure
+        - ProtocolValidation: Validation interface
+    """
+
+    # Contract fields
+    contract_version: "ProtocolSemVer"
+    node_name: str
+    node_type: str
+    input_model: str
+    output_model: str
+
+    # Correlation fields
     correlation_id: UUID
     timestamp: "ProtocolDateTime"
 
@@ -380,35 +433,42 @@ class ProtocolValidation(Protocol):
     See Also:
         - ProtocolOnexValidationResult: Individual validation results
         - ProtocolOnexValidationReport: Aggregated validation report
-        - ProtocolContractData: Contract data structure
-        - ProtocolCorrelatedData: Data with correlation_id and timestamp for validation
+        - ProtocolEnvelopeData: Complete envelope/reply data with contract and correlation fields
+        - ProtocolContractData: Contract-only data structure
+        - ProtocolCorrelatedData: Correlation-only data with correlation_id and timestamp
     """
 
     async def validate_envelope(
-        self, envelope: "ProtocolContractData"
+        self, envelope: "ProtocolEnvelopeData"
     ) -> ProtocolOnexValidationResult:
         """
         Validate an ONEX envelope structure.
 
         Args:
-            envelope: The envelope contract data to validate.
+            envelope: The envelope data to validate (includes contract and correlation fields).
 
         Returns:
             Validation result with compliance status and any errors.
+
+        Raises:
+            TypeError: If envelope is not of the expected type.
         """
         ...
 
     async def validate_reply(
-        self, reply: "ProtocolContractData"
+        self, reply: "ProtocolEnvelopeData"
     ) -> ProtocolOnexValidationResult:
         """
         Validate an ONEX reply structure.
 
         Args:
-            reply: The reply contract data to validate.
+            reply: The reply data to validate (includes contract and correlation fields).
 
         Returns:
             Validation result with compliance status and any errors.
+
+        Raises:
+            TypeError: If reply is not of the expected type.
         """
         ...
 
@@ -423,6 +483,9 @@ class ProtocolValidation(Protocol):
 
         Returns:
             Validation result with compliance level and any violations.
+
+        Raises:
+            TypeError: If contract_data is not of the expected type.
         """
         ...
 
@@ -437,6 +500,9 @@ class ProtocolValidation(Protocol):
 
         Returns:
             Validation result indicating security context validity.
+
+        Raises:
+            TypeError: If security_context is not of the expected type.
         """
         ...
 
@@ -451,21 +517,30 @@ class ProtocolValidation(Protocol):
 
         Returns:
             Validation result with any metadata issues found.
+
+        Raises:
+            TypeError: If metadata is not of the expected type.
         """
         ...
 
     async def validate_full_onex_pattern(
-        self, envelope: "ProtocolContractData", reply: "ProtocolContractData"
+        self, envelope: "ProtocolEnvelopeData", reply: "ProtocolEnvelopeData"
     ) -> ProtocolOnexValidationResult:
         """
         Validate a complete ONEX envelope-reply pattern.
 
+        Performs comprehensive validation including contract compliance,
+        correlation ID consistency, and timestamp sequence validation.
+
         Args:
-            envelope: The envelope contract data.
-            reply: The reply contract data.
+            envelope: The envelope data (includes contract and correlation fields).
+            reply: The reply data (includes contract and correlation fields).
 
         Returns:
             Validation result for the complete pattern.
+
+        Raises:
+            TypeError: If envelope or reply is not of the expected type.
         """
         ...
 
@@ -481,6 +556,9 @@ class ProtocolValidation(Protocol):
 
         Returns:
             List of missing field names, empty if all present.
+
+        Raises:
+            TypeError: If data is not of the expected type.
         """
         ...
 
@@ -493,6 +571,9 @@ class ProtocolValidation(Protocol):
 
         Returns:
             True if the version follows semver format, False otherwise.
+
+        Raises:
+            TypeError: If version is not a string.
         """
         ...
 
@@ -508,6 +589,9 @@ class ProtocolValidation(Protocol):
 
         Returns:
             True if correlation IDs match, False otherwise.
+
+        Raises:
+            TypeError: If envelope or reply is not of the expected type.
         """
         ...
 
@@ -523,6 +607,9 @@ class ProtocolValidation(Protocol):
 
         Returns:
             True if timestamps are in correct sequence, False otherwise.
+
+        Raises:
+            TypeError: If envelope or reply is not of the expected type.
         """
         ...
 
@@ -535,6 +622,10 @@ class ProtocolValidation(Protocol):
 
         Returns:
             The schema definition for the requested validation type.
+
+        Raises:
+            KeyError: If validation_type is not a recognized schema type.
+            TypeError: If validation_type is not a string.
         """
         ...
 
@@ -550,6 +641,9 @@ class ProtocolValidation(Protocol):
 
         Returns:
             Validation result with schema compliance details.
+
+        Raises:
+            TypeError: If data or schema is not of the expected type.
         """
         ...
 
@@ -564,6 +658,9 @@ class ProtocolValidation(Protocol):
 
         Returns:
             Aggregated report with summary statistics.
+
+        Raises:
+            TypeError: If results is not a list of ProtocolOnexValidationResult.
         """
         ...
 
@@ -578,5 +675,8 @@ class ProtocolValidation(Protocol):
 
         Returns:
             True if all validations pass production criteria, False otherwise.
+
+        Raises:
+            TypeError: If validation_results is not a list of ProtocolOnexValidationResult.
         """
         ...

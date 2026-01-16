@@ -58,22 +58,84 @@ class ProtocolOnexNodeLegacy(Protocol):
 
         ```python
         # Old (ProtocolOnexNodeLegacy)
+        from omnibase_spi.protocols.types.protocol_core_types import ContextValue
+
         class MyNode(ProtocolOnexNodeLegacy):
-            def run(self, *args, **kwargs) -> ContextValue: ...
+            def run(
+                self, *args: ContextValue, **kwargs: ContextValue
+            ) -> ContextValue: ...
 
         # New - For pure transformations (no side effects):
-        from omnibase_spi.protocols.nodes import ProtocolComputeNode
-        from omnibase_core.models.compute import ModelComputeInput, ModelComputeOutput
+        from typing import TYPE_CHECKING
 
-        class MyNode(ProtocolComputeNode):
-            async def execute(self, input_data: ModelComputeInput) -> ModelComputeOutput: ...
+        if TYPE_CHECKING:
+            from omnibase_core.models.compute import (
+                ModelComputeInput,
+                ModelComputeOutput,
+            )
+
+        class MyComputeNode:
+            '''Implements ProtocolComputeNode interface.'''
+
+            @property
+            def node_id(self) -> str:
+                return "my_node.v1"
+
+            @property
+            def node_type(self) -> str:
+                return "compute"
+
+            @property
+            def version(self) -> str:
+                return "1.0.0"
+
+            @property
+            def is_deterministic(self) -> bool:
+                return True
+
+            async def execute(
+                self, input_data: "ModelComputeInput"
+            ) -> "ModelComputeOutput":
+                # Implementation here
+                ...
 
         # New - For side-effecting operations (I/O, API calls, etc.):
-        from omnibase_spi.protocols.nodes import ProtocolEffectNode
-        from omnibase_core.models.effect import ModelEffectInput, ModelEffectOutput
+        from typing import TYPE_CHECKING
 
-        class MyNode(ProtocolEffectNode):
-            async def execute(self, input_data: ModelEffectInput) -> ModelEffectOutput: ...
+        if TYPE_CHECKING:
+            from omnibase_core.models.effect import (
+                ModelEffectInput,
+                ModelEffectOutput,
+            )
+
+        class MyEffectNode:
+            '''Implements ProtocolEffectNode interface.'''
+
+            @property
+            def node_id(self) -> str:
+                return "my_effect_node.v1"
+
+            @property
+            def node_type(self) -> str:
+                return "effect"
+
+            @property
+            def version(self) -> str:
+                return "1.0.0"
+
+            async def initialize(self) -> None:
+                # Set up connections, load resources
+                ...
+
+            async def shutdown(self, timeout_seconds: float = 30.0) -> None:
+                # Clean up connections, flush pending operations
+                ...
+
+            async def execute(
+                self, input_data: "ModelEffectInput"
+            ) -> "ModelEffectOutput":
+                # Implementation here
+                ...
         ```
     """
 
@@ -106,6 +168,9 @@ class ProtocolOnexNodeLegacy(Protocol):
 
         Returns:
             ProtocolNodeConfiguration: The node's configuration object.
+
+        Raises:
+            NodeNotInitializedError: If the node is not properly initialized.
         """
         ...
 
@@ -118,6 +183,9 @@ class ProtocolOnexNodeLegacy(Protocol):
 
         Returns:
             type[ContextValue]: The input model type class.
+
+        Raises:
+            NodeNotInitializedError: If the node is not properly initialized.
         """
         ...
 
@@ -130,5 +198,8 @@ class ProtocolOnexNodeLegacy(Protocol):
 
         Returns:
             type[ContextValue]: The output model type class.
+
+        Raises:
+            NodeNotInitializedError: If the node is not properly initialized.
         """
         ...

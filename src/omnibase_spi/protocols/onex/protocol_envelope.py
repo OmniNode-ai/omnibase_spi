@@ -5,14 +5,16 @@ Protocol interface for standard envelope pattern.
 Defines the contract for request envelopes with metadata, correlation IDs, and security context.
 """
 
-from datetime import datetime
-from typing import Protocol, TypeVar, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, TypeVar, runtime_checkable
 from uuid import UUID
 
 from omnibase_spi.protocols.onex.protocol_validation import (
     ProtocolOnexMetadata,
     ProtocolOnexSecurityContext,
 )
+
+if TYPE_CHECKING:
+    from omnibase_spi.protocols.types.protocol_core_types import ProtocolDateTime
 
 T = TypeVar("T")
 E = TypeVar("E")
@@ -77,6 +79,9 @@ class ProtocolEnvelope(Protocol):
 
         Returns:
             UUID | None: The correlation ID if present, None otherwise.
+
+        Raises:
+            TypeError: If the envelope is not of the expected type.
         """
         ...
 
@@ -91,6 +96,9 @@ class ProtocolEnvelope(Protocol):
 
         Returns:
             ProtocolOnexSecurityContext | None: The security context if present.
+
+        Raises:
+            TypeError: If the envelope is not of the expected type.
         """
         ...
 
@@ -103,6 +111,9 @@ class ProtocolEnvelope(Protocol):
 
         Returns:
             ProtocolOnexMetadata | None: The metadata if present.
+
+        Raises:
+            TypeError: If the envelope is not of the expected type.
         """
         ...
 
@@ -122,7 +133,7 @@ class ProtocolEnvelope(Protocol):
         """
         ...
 
-    async def get_timestamp(self, envelope: E) -> datetime:
+    async def get_timestamp(self, envelope: E) -> "ProtocolDateTime":
         """
         Get the creation timestamp from an envelope.
 
@@ -130,7 +141,7 @@ class ProtocolEnvelope(Protocol):
             envelope: The envelope to get the timestamp from.
 
         Returns:
-            datetime: The envelope creation timestamp.
+            ProtocolDateTime: The envelope creation timestamp.
 
         Raises:
             ValueError: If the envelope has no timestamp or timestamp is invalid.
@@ -147,6 +158,9 @@ class ProtocolEnvelope(Protocol):
 
         Returns:
             str | None: The source tool identifier if present.
+
+        Raises:
+            TypeError: If the envelope is not of the expected type.
         """
         ...
 
@@ -159,6 +173,9 @@ class ProtocolEnvelope(Protocol):
 
         Returns:
             str | None: The target tool identifier if present.
+
+        Raises:
+            TypeError: If the envelope is not of the expected type.
         """
         ...
 
@@ -188,5 +205,8 @@ class ProtocolEnvelope(Protocol):
 
         Returns:
             bool: True if the envelope is ONEX compliant, False otherwise.
+
+        Raises:
+            TypeError: If the envelope is not of the expected type.
         """
         ...

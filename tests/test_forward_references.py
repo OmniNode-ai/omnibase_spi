@@ -2090,9 +2090,9 @@ class TestProtocolCoverage:
     # Known duplicate protocol definitions in the codebase
     # These are documented here rather than failing the test to allow gradual cleanup
     KNOWN_DUPLICATE_PROTOCOLS: set[str] = {
-        # ProtocolHandler exists in both discovery/ (generic handle() method) and
-        # handlers/ (generic handler with handle() method) - different interfaces
-        "ProtocolHandler",
+        # ProtocolHandler collision RESOLVED: discovery version renamed to ProtocolBaseHandler
+        # See: src/omnibase_spi/protocols/discovery/protocol_base_handler.py
+        #
         # ProtocolMetadata exists in types/protocol_state_types.py (state metadata) and
         # onex/protocol_validation.py (ONEX validation metadata) - different domains
         "ProtocolMetadata",

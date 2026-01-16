@@ -28,15 +28,7 @@ from typing import Any
 
 import timeout_utils
 from timeout_utils import timeout_context
-
-# Known protocol name conflicts that are intentional and documented.
-# These are protocols with the same name but different signatures that serve
-# different purposes in different contexts. Add justification when adding entries.
-KNOWN_ALLOWED_CONFLICTS: set[str] = {
-    # ProtocolValidationResult: onex/protocol_validation.py vs validation/protocol_validation.py
-    # ONEX-specific validation result vs general validation result
-    "ProtocolValidationResult",
-}
+from validation_constants import KNOWN_ALLOWED_CONFLICTS
 
 
 @dataclass

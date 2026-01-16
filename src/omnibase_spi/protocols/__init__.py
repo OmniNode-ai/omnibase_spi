@@ -197,9 +197,10 @@ from omnibase_spi.protocols.dashboard import (
     ProtocolWidgetRenderer,
 )
 
-# Discovery protocols (3 protocols) - Node and handler discovery
+# Discovery protocols (4 protocols) - Node and handler discovery
 # Enables dynamic service discovery and handler registration
 from omnibase_spi.protocols.discovery import (
+    ProtocolBaseHandler,
     ProtocolFileHandlerRegistry,
     ProtocolHandlerDiscovery,
     ProtocolHandlerInfo,
@@ -465,6 +466,7 @@ __all__ = [
     "ProtocolArtifactMetadata",
     "ProtocolAsyncEventBus",
     "ProtocolAuditLogger",
+    "ProtocolBaseHandler",
     "ProtocolBatchPersistResult",
     "ProtocolCLI",
     "ProtocolCLIDirFixtureCase",
