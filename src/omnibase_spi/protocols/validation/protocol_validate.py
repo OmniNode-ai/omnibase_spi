@@ -24,8 +24,9 @@
 
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
+from omnibase_core.types import JsonType
+
 if TYPE_CHECKING:
-    from omnibase_core.types import JsonType
     from omnibase_spi.protocols.core.protocol_logger import ProtocolLogger
 
 from omnibase_spi.protocols.cli.protocol_cli import ProtocolCLI
@@ -72,7 +73,7 @@ class ProtocolValidateResultModel(Protocol):
     errors: list["ProtocolValidateMessageModel"]
     warnings: list[str]
 
-    def to_dict(self) -> "JsonType":
+    def to_dict(self) -> JsonType:
         """Convert the validation result to a dictionary representation.
 
         Serializes the result including success status, errors, and warnings
@@ -81,6 +82,10 @@ class ProtocolValidateResultModel(Protocol):
         Returns:
             JSON-compatible dictionary containing 'success', 'errors',
             and 'warnings' keys with their respective values.
+
+        Raises:
+            SerializationError: If errors or warnings cannot be serialized
+                to JSON-compatible format.
         """
         ...
 
@@ -120,7 +125,7 @@ class ProtocolValidateMessageModel(Protocol):
     severity: str
     location: str | None
 
-    def to_dict(self) -> "JsonType":
+    def to_dict(self) -> JsonType:
         """Convert the validation message to a dictionary representation.
 
         Serializes the message including content, severity level, and
@@ -129,6 +134,10 @@ class ProtocolValidateMessageModel(Protocol):
         Returns:
             JSON-compatible dictionary containing 'message', 'severity',
             and 'location' keys with their respective values.
+
+        Raises:
+            SerializationError: If message content cannot be serialized
+                to JSON-compatible format.
         """
         ...
 
@@ -170,9 +179,9 @@ class ProtocolModelMetadataConfig(Protocol):
     """
 
     config_path: str | None
-    validation_rules: "JsonType"
+    validation_rules: JsonType
 
-    async def get_config_value(self, key: str) -> "JsonType":
+    async def get_config_value(self, key: str) -> JsonType:
         """Retrieve a specific configuration value by key.
 
         Accesses the validation_rules dictionary or other configuration
@@ -228,9 +237,9 @@ class ProtocolCLIArgsModel(Protocol):
 
     command: str
     args: list[str]
-    options: "JsonType"
+    options: JsonType
 
-    async def get_option(self, key: str) -> "JsonType":
+    async def get_option(self, key: str) -> JsonType:
         """Retrieve a specific CLI option value by key.
 
         Accesses the parsed options dictionary to return the value
@@ -354,5 +363,10 @@ class ProtocolValidate(ProtocolCLI, Protocol):
 
         Returns:
             True if the node is valid, False otherwise.
+
+        Raises:
+            ValidationError: If the node structure is malformed or cannot
+                be validated.
+            TypeError: If node is not a valid ProtocolNodeMetadataBlock.
         """
         ...

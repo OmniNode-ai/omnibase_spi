@@ -217,6 +217,7 @@ from collections.abc import Awaitable, Callable
 from typing import Protocol, runtime_checkable
 from omnibase_core.models.runtime import ModelOnexEnvelope
 from omnibase_core.types import JsonType
+from omnibase_spi.protocols.types.protocol_event_bus_types import ProtocolEventMessage
 
 @runtime_checkable
 class ProtocolEventBusBase(Protocol):
@@ -226,6 +227,17 @@ class ProtocolEventBusBase(Protocol):
     consumer subscriptions, and health monitoring for cross-service
     communication.
     """
+
+    async def publish(self, event: ProtocolEventMessage) -> None:
+        """Publish a basic event message.
+
+        Args:
+            event: The event message to publish.
+
+        Raises:
+            SPIError: If publishing fails.
+        """
+        ...
 
     async def publish_envelope(
         self,
@@ -299,9 +311,13 @@ class ProtocolEventBusBase(Protocol):
 class OrderService:
     """Service demonstrating event publishing pattern."""
 
-    def __init__(self, event_bus: ProtocolEventBusBase) -> None:
+    def __init__(
+        self,
+        event_bus: ProtocolEventBusBase,
+        repository: OrderRepository,
+    ) -> None:
         self._bus = event_bus
-        self._repository: OrderRepository  # Injected dependency
+        self._repository = repository
 
     async def create_order(self, order: Order) -> None:
         """Create an order and publish the event.

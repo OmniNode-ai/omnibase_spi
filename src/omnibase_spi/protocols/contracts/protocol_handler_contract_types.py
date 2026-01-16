@@ -123,6 +123,10 @@ class ProtocolDescriptorRetryPolicy(Protocol):
 
         Returns:
             Float between 0.0 and 1.0 representing the jitter percentage.
+
+        Raises:
+            This property should not raise exceptions. Implementations must
+            return a valid float value.
         """
         ...
 
@@ -205,6 +209,10 @@ class ProtocolDescriptorCircuitBreaker(Protocol):
 
         Returns:
             Positive integer specifying the number of test requests allowed.
+
+        Raises:
+            This property should not raise exceptions. Implementations must
+            return a valid positive integer.
         """
         ...
 
@@ -232,6 +240,10 @@ class ProtocolCapabilityRequirementSet(Protocol):
 
         Returns:
             JSON-compatible dictionary of mandatory requirements.
+
+        Raises:
+            This property should not raise exceptions. Implementations must
+            return a valid JSON-compatible value.
         """
         ...
 
@@ -241,6 +253,10 @@ class ProtocolCapabilityRequirementSet(Protocol):
 
         Returns:
             JSON-compatible dictionary of preferred requirements.
+
+        Raises:
+            This property should not raise exceptions. Implementations must
+            return a valid JSON-compatible value.
         """
         ...
 
@@ -250,6 +266,10 @@ class ProtocolCapabilityRequirementSet(Protocol):
 
         Returns:
             JSON-compatible dictionary of forbidden requirements.
+
+        Raises:
+            This property should not raise exceptions. Implementations must
+            return a valid JSON-compatible value.
         """
         ...
 
@@ -259,6 +279,10 @@ class ProtocolCapabilityRequirementSet(Protocol):
 
         Returns:
             JSON-compatible dictionary of selection hints.
+
+        Raises:
+            This property should not raise exceptions. Implementations must
+            return a valid JSON-compatible value.
         """
         ...
 

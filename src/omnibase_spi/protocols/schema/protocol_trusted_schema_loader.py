@@ -49,15 +49,13 @@ class ProtocolSchemaValidationResult(Protocol):
         Serializes the validation result including success status and all
         message categories for logging, reporting, or API responses.
 
-        Args:
-            None.
-
         Returns:
-            JSON-compatible dictionary containing 'success', 'errors',
-            'warnings', and 'info' keys with their respective values.
+            JsonType: JSON-compatible dictionary containing 'success', 'errors',
+                'warnings', and 'info' keys with their respective values.
 
-        Raises:
-            None. This method performs pure serialization without I/O.
+        Note:
+            This method performs pure serialization without I/O and does not
+            raise exceptions.
         """
         ...
 
@@ -114,12 +112,13 @@ class ProtocolTrustedSchemaLoader(Protocol):
             path_str: The path to validate for safety.
 
         Returns:
-            Tuple of (is_safe, message) where is_safe indicates whether
-            the path is safe to load, and message provides details about
-            any security concerns if unsafe.
+            tuple[bool, str]: Tuple of (is_safe, message) where is_safe
+                indicates whether the path is safe to load, and message
+                provides details about any security concerns if unsafe.
 
-        Raises:
-            None. Returns safety status via tuple rather than raising.
+        Note:
+            This method returns safety status via tuple rather than raising
+            exceptions, allowing callers to handle unsafe paths gracefully.
         """
         ...
 
@@ -171,15 +170,10 @@ class ProtocolTrustedSchemaLoader(Protocol):
         performed by this loader, including path validations and
         access attempts.
 
-        Args:
-            None.
-
         Returns:
-            List of audit entries as JSON-compatible dictionaries,
-            each containing timestamp, operation type, and result.
-
-        Raises:
-            None. Returns empty list if no audit entries exist.
+            list[JsonType]: List of audit entries as JSON-compatible
+                dictionaries, each containing timestamp, operation type,
+                and result. Returns empty list if no audit entries exist.
         """
         ...
 
@@ -190,14 +184,9 @@ class ProtocolTrustedSchemaLoader(Protocol):
         loads to read from disk. Use when schemas may have changed
         on disk or to free memory.
 
-        Args:
-            None.
-
-        Returns:
-            None. This method operates via side effect only.
-
-        Raises:
-            None. Cache clearing always succeeds.
+        Note:
+            This method operates via side effect only and always succeeds.
+            No exceptions are raised during cache clearing operations.
         """
         ...
 

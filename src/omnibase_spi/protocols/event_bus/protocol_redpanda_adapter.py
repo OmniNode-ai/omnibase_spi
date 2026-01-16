@@ -53,16 +53,16 @@ See Also:
 from collections.abc import Awaitable, Callable
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
+from omnibase_core.types import JsonType
 from omnibase_spi.protocols.event_bus.protocol_kafka_adapter import ProtocolKafkaConfig
 
 if TYPE_CHECKING:
-    from omnibase_core.types import JsonType
     from omnibase_spi.protocols.types.protocol_event_bus_types import (
         ProtocolEventMessage,
     )
 
-# Type aliases to avoid namespace violations (PEP 695)
-type EventBusHeaders = "JsonType"  # Generic headers type
+# Type aliases for event bus headers with proper type safety (PEP 695)
+type EventBusHeaders = JsonType
 
 
 @runtime_checkable
@@ -141,7 +141,16 @@ class ProtocolRedpandaConfig(Protocol):
 
     @property
     def max_in_flight_requests(self) -> int:
-        """Maximum in-flight requests per connection."""
+        """Maximum in-flight requests per connection.
+
+        Returns:
+            int: Maximum number of unacknowledged requests the client will send
+                per broker connection before blocking.
+
+        Note:
+            Lower values reduce memory usage but may impact throughput.
+            Redpanda default is typically 5 for idempotent producers.
+        """
         ...
 
 

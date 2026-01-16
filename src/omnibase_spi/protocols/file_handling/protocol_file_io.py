@@ -181,6 +181,8 @@ class ProtocolFileIO(Protocol):
         Raises:
             FileNotFoundError: When the specified directory does not exist.
             NotADirectoryError: When the path is not a directory.
+            PermissionError: When the directory cannot be accessed due to permissions.
+            OSError: When an I/O error occurs during the listing operation.
         """
         ...
 
@@ -195,7 +197,9 @@ class ProtocolFileIO(Protocol):
 
         Raises:
             FileNotFoundError: When the specified file does not exist.
+            PermissionError: When read access to the file is denied.
             UnicodeDecodeError: When the file cannot be decoded as text.
+            OSError: When an I/O error occurs during the read operation.
         """
         ...
 
@@ -211,6 +215,7 @@ class ProtocolFileIO(Protocol):
 
         Raises:
             PermissionError: When write access to the file is denied.
+            OSError: When the file cannot be written due to I/O errors.
         """
         ...
 
@@ -225,6 +230,8 @@ class ProtocolFileIO(Protocol):
 
         Raises:
             FileNotFoundError: When the specified file does not exist.
+            PermissionError: When read access to the file is denied.
+            OSError: When an I/O error occurs during the read operation.
         """
         ...
 
@@ -240,5 +247,6 @@ class ProtocolFileIO(Protocol):
 
         Raises:
             PermissionError: When write access to the file is denied.
+            OSError: When the file cannot be written due to I/O errors.
         """
         ...

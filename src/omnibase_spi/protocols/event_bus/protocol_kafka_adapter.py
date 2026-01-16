@@ -234,6 +234,9 @@ class ProtocolKafkaAdapter(Protocol):
             value: Message payload as bytes.
             headers: Event headers/metadata.
 
+        Returns:
+            None. The method completes when the message is successfully published.
+
         Raises:
             PublishError: If message publication fails.
         """
@@ -270,6 +273,9 @@ class ProtocolKafkaAdapter(Protocol):
         Args:
             timeout_seconds: Maximum time to wait for cleanup to complete.
                 Defaults to 30.0 seconds.
+
+        Returns:
+            None. The method completes when all resources are released.
 
         Raises:
             TimeoutError: If cleanup does not complete within the specified timeout.

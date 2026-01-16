@@ -153,6 +153,9 @@ class ProtocolASTBuilder(Protocol):
 
         Returns:
             AST Expr node containing the docstring constant.
+
+        Raises:
+            ValueError: If text is empty or contains only whitespace.
         """
         ...
 
