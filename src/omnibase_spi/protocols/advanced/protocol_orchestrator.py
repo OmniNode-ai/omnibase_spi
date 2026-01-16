@@ -55,6 +55,10 @@ class ProtocolGraphModel(Protocol):
 
         Returns:
             Dictionary containing nodes, edges, and metadata for the workflow graph.
+
+        Raises:
+            SPIError: If serialization fails due to invalid graph state.
+            ValueError: If nodes, edges, or metadata contain non-serializable values.
         """
         ...
 
@@ -145,6 +149,10 @@ class ProtocolEdgeModel(Protocol):
 
         Returns:
             Dictionary containing source, target, edge_type, and metadata fields.
+
+        Raises:
+            SPIError: If serialization fails due to invalid edge state.
+            ValueError: If metadata contains non-serializable values.
         """
         ...
 

@@ -60,6 +60,9 @@ class ProtocolValidateResultModel(Protocol):
 
         Returns:
             Dictionary containing success status, errors list, and warnings list.
+
+        Raises:
+            SerializationError: If the result cannot be serialized to dictionary format.
         """
         ...
 
@@ -104,6 +107,9 @@ class ProtocolValidateMessageModel(Protocol):
 
         Returns:
             Dictionary containing message, severity, and location fields.
+
+        Raises:
+            SerializationError: If the message cannot be serialized to dictionary format.
         """
         ...
 
@@ -155,6 +161,9 @@ class ProtocolModelMetadataConfig(Protocol):
 
         Returns:
             The configuration value associated with the key, or None if not found.
+
+        Raises:
+            ConfigurationError: If the configuration cannot be accessed.
         """
         ...
 
@@ -206,6 +215,10 @@ class ProtocolCLIArgsModel(Protocol):
 
         Returns:
             The option value associated with the key, or None if not found.
+
+        Raises:
+            KeyError: If the option key is not valid.
+            CLIError: If there's an issue accessing the CLI options.
         """
         ...
 

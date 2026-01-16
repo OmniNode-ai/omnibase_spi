@@ -78,6 +78,10 @@ class ProtocolSchemaModel(Protocol):
 
         Returns:
             Absolute path to the schema file.
+
+        Raises:
+            ValueError: If the schema was not loaded from a file or path
+                is unavailable.
         """
         ...
 

@@ -175,7 +175,19 @@ class ProtocolContractModelSchema(Protocol):
     required: list[str]
     additional_properties: bool
 
-    async def validate(self, data: dict[str, Any]) -> bool: ...
+    async def validate(self, data: dict[str, Any]) -> bool:
+        """Validate data against this schema.
+
+        Args:
+            data: Dictionary of data to validate against the schema.
+
+        Returns:
+            True if data conforms to schema, False otherwise.
+
+        Raises:
+            May raise implementation-specific exceptions for validation errors.
+        """
+        ...
 
     async def to_dict(self) -> dict[str, Any]:
         """Serialize schema model to dictionary representation.
@@ -183,6 +195,9 @@ class ProtocolContractModelSchema(Protocol):
         Returns:
             Dictionary containing type, properties, required fields,
             and additional_properties configuration.
+
+        Raises:
+            May raise implementation-specific exceptions for serialization errors.
         """
         ...
 
@@ -238,11 +253,32 @@ class ProtocolModelContractDocument(Protocol):
     output_state: dict[str, Any] | None
     definitions: dict[str, Any]
 
-    async def validate(self) -> bool: ...
+    async def validate(self) -> bool:
+        """Validate the contract document for correctness.
+
+        Returns:
+            True if the contract is valid, False otherwise.
+
+        Raises:
+            May raise implementation-specific exceptions for validation errors.
+        """
+        ...
 
     async def get_schema(
         self, schema_name: str
-    ) -> "ProtocolContractModelSchema | None": ...
+    ) -> "ProtocolContractModelSchema | None":
+        """Retrieve a named schema from the contract definitions.
+
+        Args:
+            schema_name: Name of the schema to retrieve (e.g., "InputState").
+
+        Returns:
+            The schema model if found, None otherwise.
+
+        Raises:
+            May raise implementation-specific exceptions for schema retrieval errors.
+        """
+        ...
 
     async def to_dict(self) -> dict[str, Any]:
         """Serialize contract document to dictionary representation.
@@ -250,6 +286,9 @@ class ProtocolModelContractDocument(Protocol):
         Returns:
             Dictionary containing node_name, node_version, node_type,
             description, input_state, output_state, and definitions.
+
+        Raises:
+            May raise implementation-specific exceptions for serialization errors.
         """
         ...
 
