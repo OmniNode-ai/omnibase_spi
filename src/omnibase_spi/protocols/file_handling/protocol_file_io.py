@@ -80,6 +80,7 @@ class ProtocolFileIO(Protocol):
             FileNotFoundError: When the specified file does not exist.
             ValueError: When the file contains invalid YAML syntax.
             PermissionError: When read access to the file is denied.
+            OSError: When an I/O error occurs during the read operation.
         """
         ...
 
@@ -96,6 +97,7 @@ class ProtocolFileIO(Protocol):
             FileNotFoundError: When the specified file does not exist.
             ValueError: When the file contains invalid JSON syntax.
             PermissionError: When read access to the file is denied.
+            OSError: When an I/O error occurs during the read operation.
         """
         ...
 

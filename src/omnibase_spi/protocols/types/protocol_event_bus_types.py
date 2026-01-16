@@ -527,9 +527,6 @@ class ProtocolEventHeaders(Protocol):
         ...
 
 
-EventMessage = "ProtocolEventMessage"
-
-
 @runtime_checkable
 class ProtocolEventMessage(Protocol):
     """
@@ -592,7 +589,6 @@ class ProtocolEventMessage(Protocol):
 # Re-export all for backward compatibility
 __all__ = [
     # Core event types (defined in this file)
-    "EventMessage",
     "EventStatus",
     "LiteralAuthStatus",
     "LiteralEventPriority",

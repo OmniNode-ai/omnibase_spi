@@ -251,6 +251,9 @@ class ProtocolCLIArgsModel(Protocol):
         Returns:
             The option value for the specified key, or None if
             the option was not provided on the command line.
+
+        Raises:
+            KeyError: If the key is required but not found (implementation-specific).
         """
         ...
 
@@ -321,6 +324,9 @@ class ProtocolValidate(ProtocolCLI, Protocol):
 
         Returns:
             The validator name string.
+
+        Raises:
+            RuntimeError: If validator name is not configured.
         """
         ...
 
@@ -332,6 +338,9 @@ class ProtocolValidate(ProtocolCLI, Protocol):
 
         Returns:
             List of validation error messages with severity and location.
+
+        Raises:
+            StateError: If called before any validation has been performed.
         """
         ...
 
@@ -346,13 +355,17 @@ class ProtocolValidate(ProtocolCLI, Protocol):
             List of plugin metadata blocks describing available validation
             plugins and their capabilities.
 
+        Raises:
+            PluginDiscoveryError: If plugin scanning fails due to I/O errors.
+            ConfigurationError: If plugin configuration is invalid.
+
         Note:
             Compliant with ONEX execution model and Cursor Rule.
             See ONEX protocol spec for required fields and extension policy.
         """
         ...
 
-    def validate_node(self, node: ProtocolNodeMetadataBlock) -> bool:
+    async def validate_node(self, node: ProtocolNodeMetadataBlock) -> bool:
         """Validate a single node metadata block.
 
         Checks whether the provided node metadata block conforms to

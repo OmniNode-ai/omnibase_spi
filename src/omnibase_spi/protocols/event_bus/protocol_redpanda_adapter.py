@@ -167,6 +167,30 @@ class ProtocolRedpandaAdapter(Protocol):
     including reduced memory footprint, improved batch processing, and optimized defaults
     for cloud-native deployments.
 
+    Attributes:
+        redpanda_config: Type-safe Redpanda-specific configuration with optimization
+            parameters including batch size, compression, and performance settings.
+        redpanda_optimized_defaults: Deprecated alias for redpanda_config. Use
+            redpanda_config for type-safe access to Redpanda optimizations.
+        bootstrap_servers: Comma-separated list of Redpanda broker addresses.
+        environment: Environment name (dev, staging, prod) for topic isolation.
+        group: Consumer group identifier for coordination.
+        config: Optional Kafka configuration overrides, or None for defaults.
+        kafka_config: Complete Kafka configuration with Redpanda optimizations.
+
+    Args:
+        None: Protocol classes do not take constructor arguments. Implementations
+            receive configuration through their own constructors.
+
+    Returns:
+        None: Protocol classes are type specifications, not instantiated directly.
+
+    Raises:
+        PublishError: When event publication fails (from publish method).
+        SubscriptionError: When topic subscription fails (from subscribe method).
+        ConnectionError: When broker connection cannot be established.
+        TimeoutError: When operations exceed configured timeout (from close method).
+
     Example:
         ```python
         from omnibase_spi.protocols.event_bus import ProtocolRedpandaAdapter

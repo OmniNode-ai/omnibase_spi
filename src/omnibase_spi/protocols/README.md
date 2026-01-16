@@ -215,6 +215,8 @@ class UserServiceEffectNode:
 ```python
 from collections.abc import Awaitable, Callable
 from typing import Protocol, runtime_checkable
+from uuid import uuid4
+
 from omnibase_core.models.runtime import ModelOnexEnvelope
 from omnibase_core.types import JsonType
 from omnibase_spi.protocols.types.protocol_event_bus_types import ProtocolEventMessage

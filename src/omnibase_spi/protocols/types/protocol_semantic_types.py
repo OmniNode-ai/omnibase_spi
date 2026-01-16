@@ -26,8 +26,14 @@ class ProtocolRetrievalInputState(Protocol):
     async def query(self) -> str:
         """The search query string.
 
+        Args:
+            None.
+
         Returns:
             The query string to use for search operations.
+
+        Raises:
+            None.
         """
         ...
 
@@ -98,8 +104,14 @@ class ProtocolRetrievalOutputState(Protocol):
     async def query(self) -> str:
         """Original query string.
 
+        Args:
+            None.
+
         Returns:
             The query string that was used for this search.
+
+        Raises:
+            None.
         """
         ...
 

@@ -49,13 +49,15 @@ class ProtocolSchemaValidationResult(Protocol):
         Serializes the validation result including success status and all
         message categories for logging, reporting, or API responses.
 
+        Args:
+            None.
+
         Returns:
             JsonType: JSON-compatible dictionary containing 'success', 'errors',
                 'warnings', and 'info' keys with their respective values.
 
-        Note:
-            This method performs pure serialization without I/O and does not
-            raise exceptions.
+        Raises:
+            None. This method performs pure serialization without I/O.
         """
         ...
 
@@ -116,9 +118,10 @@ class ProtocolTrustedSchemaLoader(Protocol):
                 indicates whether the path is safe to load, and message
                 provides details about any security concerns if unsafe.
 
-        Note:
-            This method returns safety status via tuple rather than raising
-            exceptions, allowing callers to handle unsafe paths gracefully.
+        Raises:
+            None. This method returns safety status via tuple rather than
+            raising exceptions, allowing callers to handle unsafe paths
+            gracefully.
         """
         ...
 
@@ -170,10 +173,16 @@ class ProtocolTrustedSchemaLoader(Protocol):
         performed by this loader, including path validations and
         access attempts.
 
+        Args:
+            None.
+
         Returns:
             list[JsonType]: List of audit entries as JSON-compatible
                 dictionaries, each containing timestamp, operation type,
                 and result. Returns empty list if no audit entries exist.
+
+        Raises:
+            None. Returns empty list if no audit entries exist.
         """
         ...
 
@@ -184,9 +193,14 @@ class ProtocolTrustedSchemaLoader(Protocol):
         loads to read from disk. Use when schemas may have changed
         on disk or to free memory.
 
-        Note:
-            This method operates via side effect only and always succeeds.
-            No exceptions are raised during cache clearing operations.
+        Args:
+            None.
+
+        Returns:
+            None.
+
+        Raises:
+            None. This method always succeeds.
         """
         ...
 
