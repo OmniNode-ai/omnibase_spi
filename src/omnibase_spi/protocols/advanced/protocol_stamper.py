@@ -1,26 +1,10 @@
-# === OmniNode:Metadata ===
-# author: OmniNode Team
-# copyright: OmniNode.ai
-# created_at: '2025-05-28T13:24:08.153817'
-# description: Stamped by ToolPython
-# entrypoint: python://protocol_stamper
-# hash: 03d05f8af913336b06a9f083bcd45d5dc63dbb479b534d62047908932cbbf0ab
-# last_modified_at: '2025-05-29T14:14:00.352908+00:00'
-# lifecycle: active
-# meta_type: tool
-# metadata_version: 0.1.0
-# name: protocol_stamper.py
-# namespace: python://omnibase.protocol.protocol_stamper
-# owner: OmniNode Team
-# protocol_version: 0.1.0
-# runtime_language_hint: python>=3.11
-# schema_version: 0.1.0
-# state_contract: state_contract://default
-# tools: {}
-# uuid: 4b93002d-dee8-4272-a3b6-d17d4ce909d7
-# version: 1.0.0
-# === /OmniNode:Metadata ===
+"""Protocol for ONEX metadata stamping operations.
 
+This module defines the interface for stamping files with ONEX metadata blocks,
+including cryptographic hashes, version information, and lifecycle tracking.
+"""
+
+from __future__ import annotations
 
 from typing import Any, Literal, Protocol, runtime_checkable
 

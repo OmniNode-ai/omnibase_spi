@@ -11,24 +11,24 @@ version: "1.0.0"
 description: "Default template for LLM/AI inference handlers"
 
 descriptor:
-  handler_kind: compute  # Architecturally compute, but with nondeterministic behavior
-  purity: side_effecting  # Treated as side-effecting for replay purposes
-  idempotent: false  # Same input can produce different outputs
-  timeout_ms: 120000  # 2 minute default (LLM calls can be slow)
+  handler_kind: compute # Architecturally compute, but with nondeterministic behavior
+  purity: side_effecting # Treated as side-effecting for replay purposes
+  idempotent: false # Same input can produce different outputs
+  timeout_ms: 120000 # 2 minute default (LLM calls can be slow)
   retry_policy:
     enabled: true
-    max_retries: 2  # Fewer retries - LLM errors often persistent
+    max_retries: 2 # Fewer retries - LLM errors often persistent
     backoff_strategy: exponential
     base_delay_ms: 1000
     max_delay_ms: 10000
-  concurrency_policy: parallel_ok  # Allow parallel LLM calls
+  concurrency_policy: parallel_ok # Allow parallel LLM calls
 
 # Capability inputs - typically needs LLM provider
 # Uses ModelCapabilityDependency format with alias and capability required
 capability_inputs:
   - alias: llm
     capability: "inference.language_model"
-    strict: false  # Allow fallback to other providers
+    strict: false # Allow fallback to other providers
     description: "Language model for inference"
 
 # Output capabilities (simple strings)
@@ -45,7 +45,7 @@ execution_constraints:
   requires_after: []
   must_run: false
   can_run_parallel: true
-  nondeterministic_effect: true  # Treated like effect for replay
+  nondeterministic_effect: true # Treated like effect for replay
 
 # Additional metadata for nondeterministic handlers
 tags:

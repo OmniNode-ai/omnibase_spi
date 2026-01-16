@@ -13,15 +13,15 @@ description: "Default template for side-effecting handlers"
 descriptor:
   handler_kind: effect
   purity: side_effecting
-  idempotent: false  # Conservative default - most effects are not idempotent
-  timeout_ms: 30000  # 30 second default timeout
+  idempotent: false # Conservative default - most effects are not idempotent
+  timeout_ms: 30000 # 30 second default timeout
   retry_policy:
     enabled: true
     max_retries: 3
     backoff_strategy: exponential
     base_delay_ms: 100
     max_delay_ms: 5000
-  concurrency_policy: serialized  # Conservative - serialize by default
+  concurrency_policy: serialized # Conservative - serialize by default
   circuit_breaker:
     enabled: true
     failure_threshold: 5
@@ -29,7 +29,7 @@ descriptor:
     half_open_requests: 3
 
 # Capability inputs - effect handlers typically need external resources
-capability_inputs: []  # To be specified by concrete handlers
+capability_inputs: [] # To be specified by concrete handlers
 
 # Output capabilities
 capability_outputs:
@@ -44,5 +44,5 @@ execution_constraints:
   requires_before: []
   requires_after: []
   must_run: false
-  can_run_parallel: false  # Conservative - effects should not run in parallel
+  can_run_parallel: false # Conservative - effects should not run in parallel
   nondeterministic_effect: true

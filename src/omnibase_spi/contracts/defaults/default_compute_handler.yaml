@@ -18,7 +18,7 @@ descriptor:
   timeout_ms: null
   # No retry needed - pure functions should not fail
   retry_policy: null
-  concurrency_policy: parallel_ok  # Safe to run in parallel
+  concurrency_policy: parallel_ok # Safe to run in parallel
 
 # No capability inputs - pure compute has no external dependencies
 capability_inputs: []

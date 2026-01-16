@@ -1,3 +1,7 @@
+"""Protocols for model registry validation and health reporting."""
+
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
@@ -102,25 +106,25 @@ class ProtocolModelRegistryValidator(Protocol):
         - ProtocolSchemaValidationResult: Validation results
     """
 
-    async def validate_action_registry(self) -> "ProtocolSchemaValidationResult":
+    async def validate_action_registry(self) -> ProtocolSchemaValidationResult:
         """Validate action registry for conflicts and compliance"""
         ...
 
-    async def validate_event_type_registry(self) -> "ProtocolSchemaValidationResult":
+    async def validate_event_type_registry(self) -> ProtocolSchemaValidationResult:
         """Validate event type registry for conflicts and compliance"""
         ...
 
-    async def validate_capability_registry(self) -> "ProtocolSchemaValidationResult":
+    async def validate_capability_registry(self) -> ProtocolSchemaValidationResult:
         """Validate capability registry for conflicts and compliance"""
         ...
 
     async def validate_node_reference_registry(
         self,
-    ) -> "ProtocolSchemaValidationResult":
+    ) -> ProtocolSchemaValidationResult:
         """Validate node reference registry for conflicts and compliance"""
         ...
 
-    async def validate_all_registries(self) -> "ProtocolSchemaValidationResult":
+    async def validate_all_registries(self) -> ProtocolSchemaValidationResult:
         """Validate all dynamic registries comprehensively"""
         ...
 
@@ -130,7 +134,7 @@ class ProtocolModelRegistryValidator(Protocol):
 
     async def verify_contract_compliance(
         self, contract_path: str
-    ) -> "ProtocolSchemaValidationResult":
+    ) -> ProtocolSchemaValidationResult:
         """Verify a contract file complies with schema requirements"""
         ...
 
@@ -142,6 +146,6 @@ class ProtocolModelRegistryValidator(Protocol):
         """Get overall health status of all registries"""
         ...
 
-    async def audit_model_integrity(self) -> "ProtocolSchemaValidationResult":
+    async def audit_model_integrity(self) -> ProtocolSchemaValidationResult:
         """Audit integrity of all registered models"""
         ...

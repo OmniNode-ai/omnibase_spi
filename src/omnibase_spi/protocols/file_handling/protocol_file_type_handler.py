@@ -1,3 +1,5 @@
+"""Protocols for file type handling, stamping, and validation in the ONEX ecosystem."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Protocol, runtime_checkable

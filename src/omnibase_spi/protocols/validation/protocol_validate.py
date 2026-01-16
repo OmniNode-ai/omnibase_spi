@@ -1,26 +1,10 @@
-# === OmniNode:Metadata ===
-# author: OmniNode Team
-# copyright: OmniNode.ai
-# created_at: '2025-05-28T12:36:27.306553'
-# description: Stamped by ToolPython
-# entrypoint: python://protocol_validate
-# hash: 88bcd387819771c90df72a41a04b454ace7a2a24a936c1523ec962441e80c78c
-# last_modified_at: '2025-05-29T14:14:00.395638+00:00'
-# lifecycle: active
-# meta_type: tool
-# metadata_version: 0.1.0
-# name: protocol_validate.py
-# namespace: python://omnibase.protocol.protocol_validate
-# owner: OmniNode Team
-# protocol_version: 0.1.0
-# runtime_language_hint: python>=3.11
-# schema_version: 0.1.0
-# state_contract: state_contract://default
-# tools: null
-# uuid: a79401fb-e7c9-4265-b352-dcb2e7c29717
-# version: 1.0.0
-# === /OmniNode:Metadata ===
+"""Protocol for ONEX node metadata validation.
 
+This module defines the interface for validators that check ONEX node metadata
+conformance with comprehensive result reporting and CLI integration.
+"""
+
+from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
@@ -68,7 +52,7 @@ class ProtocolValidateResultModel(Protocol):
     """
 
     success: bool
-    errors: list["ProtocolValidateMessageModel"]
+    errors: list[ProtocolValidateMessageModel]
     warnings: list[str]
 
     def to_dict(self) -> dict[str, Any]: ...
@@ -209,16 +193,16 @@ class ProtocolValidate(ProtocolCLI, Protocol):
                 ...
     """
 
-    logger: "ProtocolLogger"  # Protocol-pure logger interface
+    logger: ProtocolLogger  # Protocol-pure logger interface
 
     async def validate_main(
-        self, args: "ProtocolCLIArgsModel"
+        self, args: ProtocolCLIArgsModel
     ) -> ProtocolOnexResult: ...
 
     async def validate(
         self,
         target: str,
-        config: "ProtocolModelMetadataConfig | None" = None,
+        config: ProtocolModelMetadataConfig | None = None,
     ) -> ProtocolValidateResultModel: ...
 
     async def get_name(self) -> str: ...

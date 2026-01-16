@@ -1,10 +1,11 @@
-#!/usr/bin/env python3
 """
 Protocol for Database Connection abstraction.
 
 Provides a clean interface for database operations with proper fallback
 strategies and connection management.
 """
+
+from __future__ import annotations
 
 from typing import Any, Protocol, runtime_checkable
 
