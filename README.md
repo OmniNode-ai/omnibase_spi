@@ -78,7 +78,7 @@ from omnibase_spi.exceptions import (
 - **Contract Compilers**: Effect, Workflow, and FSM contract compilation protocols
 - **Handler Registry**: `ProtocolHandlerRegistry` for dependency injection and handler lookup
 - **Exception Hierarchy**: Structured `SPIError` base with specialized subclasses
-- **176+ Protocols**: Comprehensive coverage across 22 specialized domains
+- **180+ Protocols**: Comprehensive coverage across 32 specialized domains
 
 ## Architecture
 
@@ -147,14 +147,14 @@ src/omnibase_spi/
 |   +-- event_bus/           # Event bus protocols
 |   +-- workflow_orchestration/  # Workflow protocols
 |   +-- mcp/                 # MCP integration protocols
-|   +-- [22 more domains]
+|   +-- [28 more domains]
 +-- exceptions.py            # SPIError hierarchy
 +-- py.typed                 # PEP 561 marker
 ```
 
 ## Protocol Overview
 
-The ONEX SPI provides **176+ protocols** across **22 specialized domains**:
+The ONEX SPI provides **180+ protocols** across **32 specialized domains**:
 
 | Domain | Protocols | Description |
 |--------|-----------|-------------|
@@ -168,7 +168,7 @@ The ONEX SPI provides **176+ protocols** across **22 specialized domains**:
 | MCP Integration | 15 | Multi-subsystem tool coordination |
 | Memory | 15 | Workflow state persistence |
 | Core System | 16 | Logging, health monitoring, error handling |
-| Plus 12 more domains | 72+ | Validation, networking, file handling, etc. |
+| Plus 22 more domains | 76+ | Validation, networking, file handling, etc. |
 
 ## Key Features
 
@@ -299,7 +299,7 @@ poetry run pre-commit run --all-files
 ## Documentation
 
 - **[Complete Documentation](docs/README.md)** - Comprehensive protocol documentation
-- **[API Reference](docs/api-reference/README.md)** - All 176+ protocols across 22 domains
+- **[API Reference](docs/api-reference/README.md)** - All 180+ protocols across 32 domains
 - **[Quick Start Guide](docs/QUICK-START.md)** - Get up and running in minutes
 - **[Developer Guide](docs/developer-guide/README.md)** - Development workflow and best practices
 - **[Architecture Overview](docs/architecture/README.md)** - Design principles and patterns

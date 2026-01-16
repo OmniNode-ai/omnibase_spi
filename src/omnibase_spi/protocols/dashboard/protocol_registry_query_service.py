@@ -22,7 +22,7 @@ Key Features:
 Related Protocols:
     - ProtocolHandlerRegistry: Write operations for registry management
     - ProtocolServiceRegistry: Service-level dependency injection
-    - ProtocolNodeCapabilityDescriptor: Capability definitions
+    - ProtocolNodeCapability: Capability definitions (in protocol_workflow_execution_types)
 
 Note:
     This protocol intentionally separates read concerns from write concerns

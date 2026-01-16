@@ -132,7 +132,7 @@ src/omnibase_spi/
 │   ├── event_bus/       # Event bus protocols
 │   ├── mcp/             # MCP integration protocols
 │   ├── dashboard/       # Dashboard UI and widget protocols
-│   └── [22 more domains]
+│   └── [23 more domains]
 ├── exceptions.py        # SPIError hierarchy
 └── py.typed
 ```
@@ -191,7 +191,7 @@ class ProtocolComputeNode(Protocol):
 
 - **Current Version**: 0.3.0
 - **Python Support**: 3.12+
-- **Protocol Count**: 180+ protocols across 23 domains
+- **Protocol Count**: 180+ protocols across 32 domains
 
 ## Validation Scripts
 
@@ -214,7 +214,7 @@ These validators will be replaced by `omnibase_core.validation` once the circula
 ## See Also
 
 - **[docs/README.md](docs/README.md)** - Complete documentation hub
-- **[docs/api-reference/README.md](docs/api-reference/README.md)** - All 180+ protocols across 23 domains
+- **[docs/api-reference/README.md](docs/api-reference/README.md)** - All 180+ protocols across 32 domains
 - **[docs/GLOSSARY.md](docs/GLOSSARY.md)** - Terminology definitions (Protocol, Handler, Node, Contract)
 - **[docs/QUICK-START.md](docs/QUICK-START.md)** - Get up and running quickly
 - **[docs/developer-guide/README.md](docs/developer-guide/README.md)** - Development workflow

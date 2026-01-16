@@ -41,9 +41,9 @@ Example:
     ```
 
 See Also:
-    - ProtocolDashboardMetricsProvider: Metrics data for dashboards.
-    - ProtocolDashboardDataProvider: Historical and aggregate data access.
-    - ProtocolDashboardConfigProvider: Dashboard configuration management.
+    - ProtocolDashboardService: Dashboard lifecycle management.
+    - ProtocolRegistryQueryService: Read-only registry queries for dashboard display.
+    - ProtocolWidgetRenderer: Widget rendering for dashboard components.
 """
 
 from __future__ import annotations
@@ -105,8 +105,8 @@ class ProtocolDashboardEventSubscriber(Protocol):
         delivered to the callback.
 
     See Also:
-        - ProtocolDashboardMetricsProvider: For metrics data access.
-        - ProtocolDashboardDataProvider: For historical data queries.
+        - ProtocolDashboardService: For dashboard lifecycle management.
+        - ProtocolRegistryQueryService: For read-only registry queries.
         - ProtocolKafkaAdapter: Underlying event bus adapter.
     """
 
