@@ -69,6 +69,10 @@ class ProtocolDescriptorRetryPolicy(Protocol):
 
         Returns:
             True if retry is enabled, False otherwise.
+
+        Raises:
+            This property should not raise exceptions. Implementations must
+            return a valid boolean value.
         """
         ...
 
@@ -78,6 +82,10 @@ class ProtocolDescriptorRetryPolicy(Protocol):
 
         Returns:
             Non-negative integer specifying the maximum retry count.
+
+        Raises:
+            This property should not raise exceptions. Implementations must
+            return a valid non-negative integer.
         """
         ...
 
@@ -92,6 +100,10 @@ class ProtocolDescriptorRetryPolicy(Protocol):
 
         Returns:
             One of "fixed", "exponential", or "linear".
+
+        Raises:
+            This property should not raise exceptions. Implementations must
+            return a valid backoff strategy literal.
         """
         ...
 
@@ -101,6 +113,10 @@ class ProtocolDescriptorRetryPolicy(Protocol):
 
         Returns:
             Positive integer specifying the base delay in milliseconds.
+
+        Raises:
+            This property should not raise exceptions. Implementations must
+            return a valid positive integer.
         """
         ...
 
@@ -110,6 +126,10 @@ class ProtocolDescriptorRetryPolicy(Protocol):
 
         Returns:
             Positive integer specifying the maximum delay cap in milliseconds.
+
+        Raises:
+            This property should not raise exceptions. Implementations must
+            return a valid positive integer.
         """
         ...
 
@@ -159,6 +179,10 @@ class ProtocolDescriptorCircuitBreaker(Protocol):
 
         Returns:
             True if circuit breaker protection is enabled, False otherwise.
+
+        Raises:
+            This property should not raise exceptions. Implementations must
+            return a valid boolean value.
         """
         ...
 
@@ -171,6 +195,10 @@ class ProtocolDescriptorCircuitBreaker(Protocol):
 
         Returns:
             Positive integer specifying the failure threshold count.
+
+        Raises:
+            This property should not raise exceptions. Implementations must
+            return a valid positive integer.
         """
         ...
 
@@ -184,6 +212,10 @@ class ProtocolDescriptorCircuitBreaker(Protocol):
 
         Returns:
             Positive integer specifying the success threshold count.
+
+        Raises:
+            This property should not raise exceptions. Implementations must
+            return a valid positive integer.
         """
         ...
 
@@ -196,6 +228,10 @@ class ProtocolDescriptorCircuitBreaker(Protocol):
 
         Returns:
             Positive integer specifying the timeout duration in milliseconds.
+
+        Raises:
+            This property should not raise exceptions. Implementations must
+            return a valid positive integer.
         """
         ...
 

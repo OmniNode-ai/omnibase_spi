@@ -9,10 +9,9 @@ Domain: File Handling and I/O Operations
 Author: ONEX Framework Team
 """
 
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
-if TYPE_CHECKING:
-    from omnibase_core.types import JsonType
+from omnibase_core.types import JsonType
 
 
 @runtime_checkable
@@ -67,7 +66,7 @@ class ProtocolFileIO(Protocol):
         - Compatible with both sync and async patterns
     """
 
-    async def read_yaml(self, path: str) -> "JsonType":
+    async def read_yaml(self, path: str) -> JsonType:
         """Read and parse YAML content from a file.
 
         Args:
@@ -84,7 +83,7 @@ class ProtocolFileIO(Protocol):
         """
         ...
 
-    async def read_json(self, path: str) -> "JsonType":
+    async def read_json(self, path: str) -> JsonType:
         """Read and parse JSON content from a file.
 
         Args:
@@ -101,7 +100,7 @@ class ProtocolFileIO(Protocol):
         """
         ...
 
-    async def write_yaml(self, path: str, data: "JsonType") -> None:
+    async def write_yaml(self, path: str, data: JsonType) -> None:
         """Write data to a file in YAML format.
 
         Args:
@@ -118,7 +117,7 @@ class ProtocolFileIO(Protocol):
         """
         ...
 
-    async def write_json(self, path: str, data: "JsonType") -> None:
+    async def write_json(self, path: str, data: JsonType) -> None:
         """Write data to a file in JSON format.
 
         Args:

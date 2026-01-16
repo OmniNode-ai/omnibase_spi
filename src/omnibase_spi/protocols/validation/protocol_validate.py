@@ -263,15 +263,33 @@ class ProtocolValidate(ProtocolCLI, Protocol):
     """
     Protocol for validators that check ONEX node metadata conformance.
 
+    Provides a comprehensive interface for validating ONEX node metadata
+    including CLI entry points, single-node validation, and plugin discovery.
+
+    Attributes:
+        logger: Protocol-pure logger interface for validation output.
+
     Example:
+        ```python
         class MyValidator(ProtocolValidate):
-            def validate(self, path: str, config: ProtocolModelMetadataConfig | None = None) -> ProtocolValidateResultModel:
+            async def validate(
+                self,
+                target: str,
+                config: ProtocolModelMetadataConfig | None = None
+            ) -> ProtocolValidateResultModel:
                 ...
-            def get_validation_errors(self) -> list[ProtocolValidateMessageModel]:
+
+            async def get_validation_errors(self) -> list[ProtocolValidateMessageModel]:
                 ...
+        ```
+
+    See Also:
+        - ProtocolValidateResultModel: Validation result structure
+        - ProtocolModelMetadataConfig: Validation configuration
+        - ProtocolCLI: Base CLI interface
     """
 
-    logger: "ProtocolLogger"  # Protocol-pure logger interface
+    logger: "ProtocolLogger"
 
     async def validate_main(self, args: "ProtocolCLIArgsModel") -> ProtocolOnexResult:
         """Execute validation from CLI arguments.

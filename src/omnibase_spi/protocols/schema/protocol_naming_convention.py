@@ -52,15 +52,9 @@ class ProtocolNamingConventionResult(Protocol):
         Serializes the result including validity status, messages,
         and suggested corrections for logging or API responses.
 
-        Args:
-            None.
-
         Returns:
             Dictionary containing 'is_valid', 'errors', 'warnings',
             and 'suggested_name' keys with their respective values.
-
-        Raises:
-            None. This method performs pure serialization without I/O.
         """
         ...
 
@@ -101,7 +95,8 @@ class ProtocolNamingConvention(Protocol):
 
         Checks the provided name for compliance with platform naming
         rules including character restrictions, casing conventions,
-        length limits, and reserved word conflicts.
+        length limits, and reserved word conflicts. Validation errors
+        are returned in the result object rather than raised as exceptions.
 
         Args:
             name: The name string to validate against naming conventions.
@@ -110,9 +105,5 @@ class ProtocolNamingConvention(Protocol):
             Validation result containing validity status, any errors
             or warnings, and a suggested valid name if the original
             is invalid.
-
-        Raises:
-            None. Validation errors are returned in the result object
-            rather than raised as exceptions.
         """
         ...

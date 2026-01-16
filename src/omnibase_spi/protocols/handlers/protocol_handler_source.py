@@ -191,9 +191,7 @@ class ProtocolHandlerSource(Protocol):
         """
         ...
 
-    def get_handler_descriptor(
-        self, handler_id: str
-    ) -> ModelHandlerDescriptor | None:
+    def get_handler_descriptor(self, handler_id: str) -> ModelHandlerDescriptor | None:
         """Get a specific handler descriptor by ID.
 
         Retrieves a single handler descriptor by its unique identifier.

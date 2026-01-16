@@ -101,42 +101,74 @@ class ProtocolRedpandaConfig(Protocol):
 
     @property
     def batch_size_bytes(self) -> int:
-        """Optimal batch size in bytes (1MB default for Redpanda)."""
+        """Optimal batch size in bytes (1MB default for Redpanda).
+
+        Returns:
+            Batch size in bytes for producer batching optimization.
+        """
         ...
 
     @property
     def compression_type(self) -> str:
-        """Compression algorithm (lz4, snappy, zstd, none)."""
+        """Compression algorithm (lz4, snappy, zstd, none).
+
+        Returns:
+            Compression type string: "lz4", "snappy", "zstd", or "none".
+        """
         ...
 
     @property
     def linger_ms(self) -> int:
-        """Batch linger time in milliseconds for throughput optimization."""
+        """Batch linger time in milliseconds for throughput optimization.
+
+        Returns:
+            Linger time in milliseconds before sending batched messages.
+        """
         ...
 
     @property
     def buffer_memory_bytes(self) -> int:
-        """Producer buffer memory in bytes."""
+        """Producer buffer memory in bytes.
+
+        Returns:
+            Total memory available to the producer for buffering.
+        """
         ...
 
     @property
     def fetch_min_bytes(self) -> int:
-        """Consumer minimum fetch size in bytes."""
+        """Consumer minimum fetch size in bytes.
+
+        Returns:
+            Minimum bytes broker should accumulate before returning fetch response.
+        """
         ...
 
     @property
     def max_poll_records(self) -> int:
-        """Maximum records per poll operation."""
+        """Maximum records per poll operation.
+
+        Returns:
+            Maximum number of records returned in a single poll call.
+        """
         ...
 
     @property
     def acks(self) -> str:
-        """Acknowledgment level (0, 1, or 'all')."""
+        """Acknowledgment level (0, 1, or 'all').
+
+        Returns:
+            Acknowledgment setting: "0" (none), "1" (leader), or "all" (replicas).
+        """
         ...
 
     @property
     def enable_idempotence(self) -> bool:
-        """Whether to enable idempotent producer for exactly-once semantics."""
+        """Whether to enable idempotent producer for exactly-once semantics.
+
+        Returns:
+            True if idempotent producer is enabled, False otherwise.
+        """
         ...
 
     @property

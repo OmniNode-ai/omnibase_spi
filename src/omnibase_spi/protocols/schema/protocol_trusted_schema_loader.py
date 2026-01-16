@@ -49,15 +49,9 @@ class ProtocolSchemaValidationResult(Protocol):
         Serializes the validation result including success status and all
         message categories for logging, reporting, or API responses.
 
-        Args:
-            None.
-
         Returns:
-            JsonType: JSON-compatible dictionary containing 'success', 'errors',
-                'warnings', and 'info' keys with their respective values.
-
-        Raises:
-            None. This method performs pure serialization without I/O.
+            JSON-compatible dictionary containing 'success', 'errors',
+            'warnings', and 'info' keys with their respective values.
         """
         ...
 
@@ -108,20 +102,17 @@ class ProtocolTrustedSchemaLoader(Protocol):
         """Check if a path is safe for schema loading.
 
         Validates that the given path does not attempt path traversal
-        attacks and is within approved root directories.
+        attacks and is within approved root directories. Returns safety
+        status via tuple rather than raising exceptions, allowing callers
+        to handle unsafe paths gracefully.
 
         Args:
             path_str: The path to validate for safety.
 
         Returns:
-            tuple[bool, str]: Tuple of (is_safe, message) where is_safe
-                indicates whether the path is safe to load, and message
-                provides details about any security concerns if unsafe.
-
-        Raises:
-            None. This method returns safety status via tuple rather than
-            raising exceptions, allowing callers to handle unsafe paths
-            gracefully.
+            Tuple of (is_safe, message) where is_safe indicates whether
+            the path is safe to load, and message provides details about
+            any security concerns if unsafe.
         """
         ...
 
@@ -173,16 +164,10 @@ class ProtocolTrustedSchemaLoader(Protocol):
         performed by this loader, including path validations and
         access attempts.
 
-        Args:
-            None.
-
         Returns:
-            list[JsonType]: List of audit entries as JSON-compatible
-                dictionaries, each containing timestamp, operation type,
-                and result. Returns empty list if no audit entries exist.
-
-        Raises:
-            None. Returns empty list if no audit entries exist.
+            List of audit entries as JSON-compatible dictionaries, each
+            containing timestamp, operation type, and result. Returns
+            empty list if no audit entries exist.
         """
         ...
 
@@ -192,15 +177,6 @@ class ProtocolTrustedSchemaLoader(Protocol):
         Removes all cached schemas from memory, forcing subsequent
         loads to read from disk. Use when schemas may have changed
         on disk or to free memory.
-
-        Args:
-            None.
-
-        Returns:
-            None.
-
-        Raises:
-            None. This method always succeeds.
         """
         ...
 
@@ -209,14 +185,9 @@ class ProtocolTrustedSchemaLoader(Protocol):
 
         Returns the list of directory paths that are approved for
         schema loading. Only schemas within these roots can be loaded.
-
-        Args:
-            None.
+        Returns empty list if no roots are configured.
 
         Returns:
             List of absolute paths to approved schema root directories.
-
-        Raises:
-            None. Returns empty list if no roots are configured.
         """
         ...
