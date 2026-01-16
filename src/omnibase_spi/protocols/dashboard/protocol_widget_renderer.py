@@ -163,7 +163,7 @@ class ProtocolWidgetRenderer(Protocol):
         """
         ...
 
-    def can_render(self, widget_type: EnumWidgetType) -> bool:
+    async def can_render(self, widget_type: EnumWidgetType) -> bool:
         """Check if this renderer can handle the given widget type.
 
         Convenience method to check widget type compatibility before
