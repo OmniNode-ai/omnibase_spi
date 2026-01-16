@@ -38,23 +38,23 @@ class ProtocolMCPSchemaGenerator(Protocol):
         generator: ProtocolMCPSchemaGenerator = get_schema_generator()
 
         # Generate input schema for a tool
-        input_schema = generator.generate_input_schema(
+        input_schema = await generator.generate_input_schema(
             input_model="ProcessDataInput",
             mappings=["input_file:required", "options:optional"]
         )
 
         # Generate output schema
-        output_schema = generator.generate_output_schema(
+        output_schema = await generator.generate_output_schema(
             output_model="ProcessDataOutput"
         )
 
         # Validate the generated schema
-        if generator.validate_schema(input_schema):
+        if await generator.validate_schema(input_schema):
             # Schema is valid, proceed with registration
             register_tool(input_schema, output_schema)
 
         # Generate schemas for multiple parameters at once
-        param_schemas = generator.generate_parameter_schemas(
+        param_schemas = await generator.generate_parameter_schemas(
             parameters=[
                 {"name": "query", "type": "string", "required": True},
                 {"name": "limit", "type": "integer", "required": False},
@@ -74,7 +74,7 @@ class ProtocolMCPSchemaGenerator(Protocol):
         - ProtocolMCPRegistry: For registering tools with generated schemas
     """
 
-    def generate_input_schema(
+    async def generate_input_schema(
         self, input_model: str, mappings: list[str] | None = None
     ) -> dict[str, ContextValue]:
         """
@@ -107,10 +107,10 @@ class ProtocolMCPSchemaGenerator(Protocol):
         Example:
             ```python
             # Generate schema with default mappings
-            schema = generator.generate_input_schema("UserInput")
+            schema = await generator.generate_input_schema("UserInput")
 
             # Generate schema with explicit field mappings
-            schema = generator.generate_input_schema(
+            schema = await generator.generate_input_schema(
                 input_model="SearchQuery",
                 mappings=[
                     "query:required",
@@ -122,7 +122,7 @@ class ProtocolMCPSchemaGenerator(Protocol):
         """
         ...
 
-    def generate_output_schema(
+    async def generate_output_schema(
         self, output_model: str
     ) -> dict[str, ContextValue]:
         """
@@ -151,7 +151,7 @@ class ProtocolMCPSchemaGenerator(Protocol):
         Example:
             ```python
             # Generate output schema
-            schema = generator.generate_output_schema("SearchResult")
+            schema = await generator.generate_output_schema("SearchResult")
 
             # Use schema for response validation
             validate_response(response_data, schema)
@@ -159,7 +159,7 @@ class ProtocolMCPSchemaGenerator(Protocol):
         """
         ...
 
-    def validate_schema(
+    async def validate_schema(
         self, schema: dict[str, ContextValue]
     ) -> bool:
         """
@@ -183,9 +183,9 @@ class ProtocolMCPSchemaGenerator(Protocol):
 
         Example:
             ```python
-            schema = generator.generate_input_schema("MyInput")
+            schema = await generator.generate_input_schema("MyInput")
 
-            if generator.validate_schema(schema):
+            if await generator.validate_schema(schema):
                 print("Schema is valid")
             else:
                 print("Schema validation failed")
@@ -200,7 +200,7 @@ class ProtocolMCPSchemaGenerator(Protocol):
         """
         ...
 
-    def generate_parameter_schemas(
+    async def generate_parameter_schemas(
         self, parameters: list[dict[str, ContextValue]]
     ) -> list[dict[str, ContextValue]]:
         """
@@ -257,7 +257,7 @@ class ProtocolMCPSchemaGenerator(Protocol):
                 }
             ]
 
-            schemas = generator.generate_parameter_schemas(parameters)
+            schemas = await generator.generate_parameter_schemas(parameters)
             for schema in schemas:
                 print(f"Generated schema: {schema}")
             ```
