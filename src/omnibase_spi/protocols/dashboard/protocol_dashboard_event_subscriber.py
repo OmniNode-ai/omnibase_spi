@@ -170,8 +170,8 @@ class ProtocolDashboardEventSubscriber(Protocol):
                 The callback receives the topic name and event payload.
 
         Raises:
-            SubscriptionError: If subscription to any topic fails.
-            ConnectionError: If unable to connect to the event bus.
+            SPIError: If subscription to any topic fails.
+            OSError: If unable to connect to the event bus.
             ValueError: If topics sequence is empty or callback is None.
 
         Example:

@@ -129,7 +129,7 @@ class ProtocolRegistryQueryService(Protocol):
             Order is implementation-specific but should be consistent.
 
         Raises:
-            RegistryQueryError: If the registry cannot be queried due to
+            RegistryError: If the registry cannot be queried due to
                 connection issues or internal errors.
 
         Example:
@@ -167,7 +167,7 @@ class ProtocolRegistryQueryService(Protocol):
             The sequence may be empty if no capabilities are defined.
 
         Raises:
-            RegistryQueryError: If the registry cannot be queried due to
+            RegistryError: If the registry cannot be queried due to
                 connection issues or internal errors.
 
         Example:
@@ -207,7 +207,7 @@ class ProtocolRegistryQueryService(Protocol):
             None if the node does not exist or has no contract.
 
         Raises:
-            RegistryQueryError: If the registry cannot be queried due to
+            RegistryError: If the registry cannot be queried due to
                 connection issues or internal errors.
             ValueError: If node_id is empty or malformed.
 
@@ -248,7 +248,7 @@ class ProtocolRegistryQueryService(Protocol):
             None if no node with the given identifier exists.
 
         Raises:
-            RegistryQueryError: If the registry cannot be queried due to
+            RegistryError: If the registry cannot be queried due to
                 connection issues or internal errors.
             ValueError: If node_id is empty or malformed.
 
@@ -303,7 +303,7 @@ class ProtocolRegistryQueryService(Protocol):
             Order is implementation-specific but should be consistent.
 
         Raises:
-            RegistryQueryError: If the registry cannot be queried due to
+            RegistryError: If the registry cannot be queried due to
                 connection issues or internal errors.
             ValueError: If filter_criteria contains invalid keys or values.
 

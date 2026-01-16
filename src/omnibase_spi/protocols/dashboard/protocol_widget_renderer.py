@@ -93,23 +93,23 @@ class ProtocolWidgetRenderer(Protocol):
 
 
         class HtmlWidgetRenderer:
-            def get_supported_types(self) -> Sequence[EnumWidgetType]:
+            async def get_supported_types(self) -> Sequence[EnumWidgetType]:
                 return [
                     EnumWidgetType.CHART,
                     EnumWidgetType.TABLE,
                     EnumWidgetType.METRIC,
                 ]
 
-            def can_render(self, widget_type: EnumWidgetType) -> bool:
-                supported = self.get_supported_types()
+            async def can_render(self, widget_type: EnumWidgetType) -> bool:
+                supported = await self.get_supported_types()
                 return widget_type in supported
 
-            def render_widget(
+            async def render_widget(
                 self,
                 widget: ModelWidgetDefinition,
                 data: Any,
             ) -> str:
-                if not self.can_render(widget.widget_type):
+                if not await self.can_render(widget.widget_type):
                     return f"<div>Unsupported widget: {widget.widget_type}</div>"
 
                 if widget.widget_type == EnumWidgetType.CHART:
@@ -123,8 +123,8 @@ class ProtocolWidgetRenderer(Protocol):
         renderer: ProtocolWidgetRenderer = HtmlWidgetRenderer()
 
         for widget in dashboard.widgets:
-            if renderer.can_render(widget.widget_type):
-                html = renderer.render_widget(widget, widget_data[widget.id])
+            if await renderer.can_render(widget.widget_type):
+                html = await renderer.render_widget(widget, widget_data[widget.id])
                 output.append(html)
         ```
 
@@ -134,7 +134,7 @@ class ProtocolWidgetRenderer(Protocol):
         - Output format depends on frontend technology choice
     """
 
-    def get_supported_types(self) -> Sequence[EnumWidgetType]:
+    async def get_supported_types(self) -> Sequence[EnumWidgetType]:
         """Get the widget types this renderer supports.
 
         Returns the sequence of widget types that this renderer can
@@ -152,7 +152,7 @@ class ProtocolWidgetRenderer(Protocol):
 
         Example:
             ```python
-            def get_supported_types(self) -> Sequence[EnumWidgetType]:
+            async def get_supported_types(self) -> Sequence[EnumWidgetType]:
                 return [
                     EnumWidgetType.CHART,
                     EnumWidgetType.TABLE,
@@ -184,14 +184,14 @@ class ProtocolWidgetRenderer(Protocol):
 
         Example:
             ```python
-            def can_render(self, widget_type: EnumWidgetType) -> bool:
-                supported = self.get_supported_types()
+            async def can_render(self, widget_type: EnumWidgetType) -> bool:
+                supported = await self.get_supported_types()
                 return widget_type in supported
             ```
         """
         ...
 
-    def render_widget(
+    async def render_widget(
         self,
         widget: ModelWidgetDefinition,
         data: Any,
@@ -227,12 +227,13 @@ class ProtocolWidgetRenderer(Protocol):
                 - Any: Framework-specific data for component renderers
 
         Raises:
-            WidgetRenderError: If rendering fails due to invalid widget
-                definition or incompatible data format.
+            SPIError: If rendering fails due to invalid widget definition
+                or incompatible data format. Implementations may raise
+                a rendering-specific subclass.
 
         Example:
             ```python
-            def render_widget(
+            async def render_widget(
                 self,
                 widget: ModelWidgetDefinition,
                 data: Any,

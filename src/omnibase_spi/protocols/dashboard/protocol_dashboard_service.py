@@ -192,8 +192,9 @@ class ProtocolDashboardService(Protocol):
             for the complete field specification.
 
         Raises:
-            DashboardConfigurationError: If configuration is invalid
-                or cannot be loaded.
+            SPIError: If configuration is invalid or cannot be loaded.
+                Implementations may raise a subclass such as a
+                configuration-specific error.
 
         Example:
             ```python
@@ -225,10 +226,10 @@ class ProtocolDashboardService(Protocol):
             - Dashboard will receive lifecycle events
 
         Raises:
-            DashboardRegistrationError: If registration fails due to
-                infrastructure issues (network, registry unavailable).
-            DashboardConfigurationError: If the dashboard configuration
-                is invalid for registration.
+            RegistryError: If registration fails due to infrastructure
+                issues (network, registry unavailable).
+            SPIError: If the dashboard configuration is invalid for
+                registration.
 
         Example:
             ```python
@@ -264,8 +265,8 @@ class ProtocolDashboardService(Protocol):
             - Dashboard will stop receiving lifecycle events
 
         Raises:
-            DashboardRegistrationError: If unregistration fails due to
-                infrastructure issues (network, registry unavailable).
+            RegistryError: If unregistration fails due to infrastructure
+                issues (network, registry unavailable).
 
         Example:
             ```python

@@ -132,7 +132,7 @@ src/omnibase_spi/
 │   ├── event_bus/       # Event bus protocols
 │   ├── mcp/             # MCP integration protocols
 │   ├── dashboard/       # Dashboard UI and widget protocols
-│   └── [23 more domains]
+│   └── [25 more domains]
 ├── exceptions.py        # SPIError hierarchy
 └── py.typed
 ```
