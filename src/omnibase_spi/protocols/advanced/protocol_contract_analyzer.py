@@ -5,10 +5,7 @@ Defines the interface for analyzing, validating, and processing
 contract documents for code generation.
 """
 
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
-
-if TYPE_CHECKING:
-    pass
+from typing import Any, Protocol, runtime_checkable
 
 
 @runtime_checkable
