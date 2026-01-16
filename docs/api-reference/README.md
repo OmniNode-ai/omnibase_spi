@@ -2,7 +2,7 @@
 
 ## Overview
 
-Complete API reference documentation for all **180+ protocols** across **32 specialized domains** in the omnibase-spi package. This reference provides detailed documentation for every public interface in the Service Provider Interface layer.
+Complete API reference documentation for all **180+ protocols** across **23 specialized domains** in the omnibase-spi package. This reference provides detailed documentation for every public interface in the Service Provider Interface layer.
 
 ## Protocol Architecture
 
@@ -276,7 +276,7 @@ Common patterns documented throughout:
 ## Protocol Statistics
 
 - **Total Protocols**: 180+ protocol files
-- **Domain Coverage**: 32 specialized domains
+- **Domain Coverage**: 23 specialized domains
 - **Type Definitions**: 14 comprehensive type modules
 - **Enterprise Features**: Health monitoring, metrics, circuit breakers
 - **Architecture Patterns**: Event sourcing, dependency injection, distributed coordination

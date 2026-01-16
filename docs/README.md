@@ -6,7 +6,7 @@ Welcome to the comprehensive documentation for **omnibase-spi**, the Service Pro
 
 ## Architecture Overview
 
-The ONEX SPI follows a **protocol-first design** with **180+ protocols** across **32 specialized domains**. This enterprise-grade architecture provides:
+The ONEX SPI follows a **protocol-first design** with **180+ protocols** across **23 specialized domains**. This enterprise-grade architecture provides:
 
 - **Zero Implementation Dependencies**: Pure protocol contracts only
 - **Runtime Type Safety**: Full `@runtime_checkable` protocol support
@@ -243,7 +243,7 @@ Common patterns documented throughout:
 ## Protocol Statistics
 
 - **Total Protocols**: 180+ protocol files
-- **Domain Coverage**: 32 specialized domains
+- **Domain Coverage**: 23 specialized domains
 - **Type Definitions**: 14 comprehensive type modules
 - **Enterprise Features**: Health monitoring, metrics, circuit breakers
 - **Architecture Patterns**: Event sourcing, dependency injection, distributed coordination
@@ -288,7 +288,7 @@ For quick contributions:
 - **Python Support**: 3.12+
 - **Architecture**: Protocol-first SPI with zero runtime dependencies
 - **Documentation Updated**: 2025-12-06
-- **Protocol Count**: 180+ protocols across 32 domains
+- **Protocol Count**: 180+ protocols across 23 domains
 
 ## ONEX Ecosystem
 

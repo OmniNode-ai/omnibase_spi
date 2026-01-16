@@ -14,7 +14,7 @@ The ONEX SPI follows a **protocol-first design** with enterprise-grade features:
 
 ### Protocol Architecture
 
-**180+ protocols** across **32 specialized domains**:
+**180+ protocols** across **23 specialized domains**:
 
 - **Core System** (16 protocols) - Logging, health monitoring, error handling
 - **Container Management** (21 protocols) - Dependency injection, lifecycle management
