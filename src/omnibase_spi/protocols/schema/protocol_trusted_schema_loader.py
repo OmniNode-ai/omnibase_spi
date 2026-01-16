@@ -110,5 +110,5 @@ class ProtocolTrustedSchemaLoader(Protocol):
         ...
 
     async def get_approved_roots(self) -> list[str]:
-        """Get list[Any]of approved schema root paths"""
+        """Get list of approved schema root paths"""
         ...

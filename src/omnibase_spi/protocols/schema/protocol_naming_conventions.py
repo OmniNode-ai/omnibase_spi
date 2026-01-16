@@ -87,6 +87,6 @@ class ProtocolNamingConventions(Protocol):
             input_state: Contains string splitting parameters
 
         Returns:
-            ProtocolOnexOutputState with word list[Any]s
+            ProtocolOnexOutputState with word lists
         """
         ...

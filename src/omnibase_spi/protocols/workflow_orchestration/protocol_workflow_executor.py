@@ -80,7 +80,7 @@ class ProtocolWorkflowExecutor(Protocol):
 
     async def get_supported_operations(self) -> list[str]:
         """
-        Get list[Any]of supported operation types.
+        Get list of supported operation types.
 
         Returns:
             List of supported operation type strings
