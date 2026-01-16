@@ -22,7 +22,7 @@ from omnibase_spi.protocols.types.protocol_base_types import (
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types.protocol_core_types import (
         ProtocolErrorInfo,
-        ProtocolSystemEvent,
+        ProtocolStateSystemEvent,
     )
 
 
@@ -253,7 +253,7 @@ class ProtocolNodeResult(Protocol):
     trust_score: float
     provenance: list[str]
     metadata: dict[str, "ContextValue"]
-    events: list["ProtocolSystemEvent"]
+    events: list["ProtocolStateSystemEvent"]
     state_delta: dict[str, "ContextValue"]
 
     async def validate_result(self) -> bool: ...

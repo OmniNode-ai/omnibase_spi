@@ -481,12 +481,16 @@ class ProtocolReducerNode(Protocol):
 ### Orchestrator Node Protocol
 
 ```python
-from omnibase_spi.protocols.onex import ProtocolOrchestratorNode
+from omnibase_spi.protocols.onex import ProtocolOnexOrchestratorNodeLegacy
 
 @runtime_checkable
-class ProtocolOrchestratorNode(Protocol):
+class ProtocolOnexOrchestratorNodeLegacy(Protocol):
     """
-    Protocol for ONEX orchestrator node implementations.
+    Legacy protocol for ONEX orchestrator node implementations.
+
+    .. deprecated::
+        For v0.3.0 compliant code, use :class:`omnibase_spi.protocols.nodes.ProtocolOrchestratorNode`
+        which provides the canonical node interface with typed execute() methods.
 
     Orchestrator nodes coordinate workflow execution across multiple nodes,
     managing task distribution, dependency resolution, and workflow state
@@ -501,7 +505,7 @@ class ProtocolOrchestratorNode(Protocol):
         - Workflow lifecycle management
     """
 
-    async def execute_orchestration(self, contract: Any) -> Any: ...
+    async def execute_orchestration(self, contract: object) -> object: ...
 
     @property
     def node_id(self) -> str: ...

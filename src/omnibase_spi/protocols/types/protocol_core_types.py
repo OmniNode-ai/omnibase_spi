@@ -148,7 +148,7 @@ from omnibase_spi.protocols.types.protocol_state_types import (
     ProtocolMetadataOperations,
     ProtocolOutputState,
     ProtocolState,
-    ProtocolSystemEvent,
+    ProtocolStateSystemEvent,
 )
 
 # Re-export from validation types
@@ -263,7 +263,7 @@ __all__ = [
     "ProtocolState",
     "ProtocolSupportedMetadataType",
     "ProtocolSupportedPropertyValue",
-    "ProtocolSystemEvent",
+    "ProtocolStateSystemEvent",
     "ProtocolTimeBased",
     "ProtocolTimeout",
     "ProtocolTraceSpan",

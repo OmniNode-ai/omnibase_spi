@@ -48,7 +48,7 @@ class ProtocolContractData(Protocol):
 
     See Also:
         - ProtocolValidation: Validation interface
-        - ProtocolValidationResult: Validation outcome
+        - ProtocolOnexValidationResult: Validation outcome
     """
 
     contract_version: "ProtocolSemVer"
@@ -59,13 +59,18 @@ class ProtocolContractData(Protocol):
 
 
 @runtime_checkable
-class ProtocolSecurityContext(Protocol):
+class ProtocolOnexSecurityContext(Protocol):
     """
     Protocol for ONEX security context data representation.
 
     Encapsulates security-related information for ONEX operations
     including user identification, session tracking, authentication
     credentials, and security profile classification.
+
+    Note:
+        This protocol is distinct from ProtocolSecurityContext in
+        protocol_event_bus_types.py which handles event bus authentication.
+        This protocol is specific to ONEX validation operations.
 
     Attributes:
         user_id: Unique identifier for the user
@@ -76,7 +81,7 @@ class ProtocolSecurityContext(Protocol):
     Example:
         ```python
         validator: ProtocolValidation = get_onex_validator()
-        context = ProtocolSecurityContext(
+        context = ProtocolOnexSecurityContext(
             user_id="user-123",
             session_id="session-abc",
             authentication_token="token-xyz",
@@ -90,7 +95,7 @@ class ProtocolSecurityContext(Protocol):
 
     See Also:
         - ProtocolValidation: Security validation
-        - ProtocolValidationResult: Validation outcome
+        - ProtocolOnexValidationResult: Validation outcome
     """
 
     user_id: str
@@ -100,13 +105,18 @@ class ProtocolSecurityContext(Protocol):
 
 
 @runtime_checkable
-class ProtocolMetadata(Protocol):
+class ProtocolOnexMetadata(Protocol):
     """
     Protocol for ONEX tool metadata structure representation.
 
     Captures metadata about the ONEX tool generating or processing
     data including identification, versioning, timing, and
     environment context for validation and auditing.
+
+    Note:
+        This protocol is distinct from ProtocolMetadata in
+        protocol_state_types.py which handles general state metadata.
+        This protocol is specific to ONEX tool validation metadata.
 
     Attributes:
         tool_name: Name of the ONEX tool
@@ -117,7 +127,7 @@ class ProtocolMetadata(Protocol):
     Example:
         ```python
         validator: ProtocolValidation = get_onex_validator()
-        metadata = ProtocolMetadata(
+        metadata = ProtocolOnexMetadata(
             tool_name="NodeValidator",
             tool_version=SemVer(1, 2, 3),
             timestamp=datetime.now().isoformat(),
@@ -130,7 +140,7 @@ class ProtocolMetadata(Protocol):
 
     See Also:
         - ProtocolValidation: Metadata validation
-        - ProtocolValidationResult: Validation outcome
+        - ProtocolOnexValidationResult: Validation outcome
     """
 
     tool_name: str
@@ -165,7 +175,7 @@ class ProtocolSchema(Protocol):
 
     See Also:
         - ProtocolValidation: Schema-based validation
-        - ProtocolValidationResult: Validation outcome
+        - ProtocolOnexValidationResult: Validation outcome
     """
 
     schema_type: str
@@ -174,13 +184,18 @@ class ProtocolSchema(Protocol):
 
 
 @runtime_checkable
-class ProtocolValidationReport(Protocol):
+class ProtocolOnexValidationReport(Protocol):
     """
     Protocol for ONEX validation report aggregation.
 
     Provides comprehensive summary of multiple validation operations
     including pass/fail counts, overall status determination, and
     human-readable summary for reporting and compliance tracking.
+
+    Note:
+        This protocol is distinct from ProtocolValidationReport in
+        protocol_validation_orchestrator.py which is for general validation
+        orchestration reports. This protocol is specific to ONEX validation.
 
     Attributes:
         total_validations: Total number of validation operations
@@ -209,7 +224,7 @@ class ProtocolValidationReport(Protocol):
 
     See Also:
         - ProtocolValidation: Validation operations
-        - ProtocolValidationResult: Individual results
+        - ProtocolOnexValidationResult: Individual results
     """
 
     total_validations: int
@@ -233,13 +248,18 @@ LiteralValidationType = Literal[
 
 
 @runtime_checkable
-class ProtocolValidationResult(Protocol):
+class ProtocolOnexValidationResult(Protocol):
     """
     Protocol for individual ONEX validation operation result.
 
     Captures the complete outcome of a single validation operation
     including validity status, compliance level classification,
     validation type, issues found, and associated metadata.
+
+    Note:
+        This protocol is distinct from ProtocolValidationResult in
+        protocol_validation.py which is for general protocol validation.
+        This protocol is specific to ONEX validation operations.
 
     Attributes:
         is_valid: Whether validation passed
@@ -267,7 +287,7 @@ class ProtocolValidationResult(Protocol):
 
     See Also:
         - ProtocolValidation: Validation interface
-        - ProtocolValidationReport: Aggregated results
+        - ProtocolOnexValidationReport: Aggregated results
     """
 
     is_valid: bool
@@ -275,7 +295,7 @@ class ProtocolValidationResult(Protocol):
     validation_type: LiteralValidationType
     errors: list[str]
     warnings: list[str]
-    metadata: "ProtocolMetadata"
+    metadata: "ProtocolOnexMetadata"
 
 
 @runtime_checkable
@@ -320,61 +340,204 @@ class ProtocolValidation(Protocol):
         ```
 
     See Also:
-        - ProtocolValidationResult: Individual validation results
-        - ProtocolValidationReport: Aggregated validation report
+        - ProtocolOnexValidationResult: Individual validation results
+        - ProtocolOnexValidationReport: Aggregated validation report
         - ProtocolContractData: Contract data structure
     """
 
     async def validate_envelope(
         self, envelope: "ProtocolContractData"
-    ) -> ProtocolValidationResult: ...
+    ) -> ProtocolOnexValidationResult:
+        """
+        Validate an ONEX envelope structure.
+
+        Args:
+            envelope: The envelope contract data to validate.
+
+        Returns:
+            Validation result with compliance status and any errors.
+        """
+        ...
 
     async def validate_reply(
         self, reply: "ProtocolContractData"
-    ) -> ProtocolValidationResult: ...
+    ) -> ProtocolOnexValidationResult:
+        """
+        Validate an ONEX reply structure.
+
+        Args:
+            reply: The reply contract data to validate.
+
+        Returns:
+            Validation result with compliance status and any errors.
+        """
+        ...
 
     async def validate_contract_compliance(
         self, contract_data: "ProtocolContractData"
-    ) -> ProtocolValidationResult: ...
+    ) -> ProtocolOnexValidationResult:
+        """
+        Validate contract data against ONEX compliance rules.
+
+        Args:
+            contract_data: The contract data to validate.
+
+        Returns:
+            Validation result with compliance level and any violations.
+        """
+        ...
 
     async def validate_security_context(
-        self, security_context: "ProtocolSecurityContext"
-    ) -> ProtocolValidationResult: ...
+        self, security_context: "ProtocolOnexSecurityContext"
+    ) -> ProtocolOnexValidationResult:
+        """
+        Validate a security context for ONEX operations.
+
+        Args:
+            security_context: The security context to validate.
+
+        Returns:
+            Validation result indicating security context validity.
+        """
+        ...
 
     async def validate_metadata(
-        self, metadata: "ProtocolMetadata"
-    ) -> ProtocolValidationResult: ...
+        self, metadata: "ProtocolOnexMetadata"
+    ) -> ProtocolOnexValidationResult:
+        """
+        Validate ONEX tool metadata.
+
+        Args:
+            metadata: The metadata to validate.
+
+        Returns:
+            Validation result with any metadata issues found.
+        """
+        ...
 
     async def validate_full_onex_pattern(
         self, envelope: "ProtocolContractData", reply: "ProtocolContractData"
-    ) -> ProtocolValidationResult: ...
+    ) -> ProtocolOnexValidationResult:
+        """
+        Validate a complete ONEX envelope-reply pattern.
+
+        Args:
+            envelope: The envelope contract data.
+            reply: The reply contract data.
+
+        Returns:
+            Validation result for the complete pattern.
+        """
+        ...
 
     async def check_required_fields(
         self, data: "ProtocolContractData", required_fields: list[str]
-    ) -> list[str]: ...
+    ) -> list[str]:
+        """
+        Check for missing required fields in contract data.
 
-    async def validate_semantic_versioning(self, version: str) -> bool: ...
+        Args:
+            data: The contract data to check.
+            required_fields: List of field names that must be present.
+
+        Returns:
+            List of missing field names, empty if all present.
+        """
+        ...
+
+    async def validate_semantic_versioning(self, version: str) -> bool:
+        """
+        Validate that a version string follows semantic versioning.
+
+        Args:
+            version: The version string to validate.
+
+        Returns:
+            True if the version follows semver format, False otherwise.
+        """
+        ...
 
     async def validate_correlation_id_consistency(
         self, envelope: "ProtocolContractData", reply: "ProtocolContractData"
-    ) -> bool: ...
+    ) -> bool:
+        """
+        Validate correlation ID consistency between envelope and reply.
+
+        Args:
+            envelope: The envelope contract data.
+            reply: The reply contract data.
+
+        Returns:
+            True if correlation IDs match, False otherwise.
+        """
+        ...
 
     async def validate_timestamp_sequence(
         self, envelope: "ProtocolContractData", reply: "ProtocolContractData"
-    ) -> bool: ...
+    ) -> bool:
+        """
+        Validate that reply timestamp follows envelope timestamp.
 
-    async def get_validation_schema(
-        self, validation_type: str
-    ) -> "ProtocolSchema": ...
+        Args:
+            envelope: The envelope contract data.
+            reply: The reply contract data.
+
+        Returns:
+            True if timestamps are in correct sequence, False otherwise.
+        """
+        ...
+
+    async def get_validation_schema(self, validation_type: str) -> "ProtocolSchema":
+        """
+        Get the validation schema for a specific validation type.
+
+        Args:
+            validation_type: The type of validation schema to retrieve.
+
+        Returns:
+            The schema definition for the requested validation type.
+        """
+        ...
 
     async def validate_against_schema(
         self, data: "ProtocolContractData", schema: "ProtocolSchema"
-    ) -> ProtocolValidationResult: ...
+    ) -> ProtocolOnexValidationResult:
+        """
+        Validate contract data against a specific schema.
+
+        Args:
+            data: The contract data to validate.
+            schema: The schema to validate against.
+
+        Returns:
+            Validation result with schema compliance details.
+        """
+        ...
 
     async def generate_validation_report(
-        self, results: list[ProtocolValidationResult]
-    ) -> ProtocolValidationReport: ...
+        self, results: list[ProtocolOnexValidationResult]
+    ) -> ProtocolOnexValidationReport:
+        """
+        Generate an aggregated validation report from multiple results.
+
+        Args:
+            results: List of individual validation results.
+
+        Returns:
+            Aggregated report with summary statistics.
+        """
+        ...
 
     async def is_production_ready(
-        self, validation_results: list[ProtocolValidationResult]
-    ) -> bool: ...
+        self, validation_results: list[ProtocolOnexValidationResult]
+    ) -> bool:
+        """
+        Check if validation results indicate production readiness.
+
+        Args:
+            validation_results: List of validation results to evaluate.
+
+        Returns:
+            True if all validations pass production criteria, False otherwise.
+        """
+        ...

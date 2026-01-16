@@ -10,8 +10,8 @@ from typing import Protocol, TypeVar, runtime_checkable
 from uuid import UUID
 
 from omnibase_spi.protocols.onex.protocol_validation import (
-    ProtocolMetadata,
-    ProtocolSecurityContext,
+    ProtocolOnexMetadata,
+    ProtocolOnexSecurityContext,
 )
 
 T = TypeVar("T")
@@ -31,8 +31,8 @@ class ProtocolEnvelope(Protocol):
         self,
         payload: T,
         correlation_id: UUID | None = None,
-        security_context: "ProtocolSecurityContext | None" = None,
-        metadata: "ProtocolMetadata | None" = None,
+        security_context: "ProtocolOnexSecurityContext | None" = None,
+        metadata: "ProtocolOnexMetadata | None" = None,
     ) -> E:
         """
         Create a new envelope wrapping the given payload.
@@ -74,7 +74,7 @@ class ProtocolEnvelope(Protocol):
 
     async def get_security_context(
         self, envelope: E
-    ) -> "ProtocolSecurityContext | None":
+    ) -> "ProtocolOnexSecurityContext | None":
         """
         Get the security context from an envelope.
 
@@ -82,11 +82,11 @@ class ProtocolEnvelope(Protocol):
             envelope: The envelope to get the security context from.
 
         Returns:
-            ProtocolSecurityContext | None: The security context if present.
+            ProtocolOnexSecurityContext | None: The security context if present.
         """
         ...
 
-    async def get_metadata(self, envelope: E) -> "ProtocolMetadata | None":
+    async def get_metadata(self, envelope: E) -> "ProtocolOnexMetadata | None":
         """
         Get the metadata from an envelope.
 
@@ -94,7 +94,7 @@ class ProtocolEnvelope(Protocol):
             envelope: The envelope to get the metadata from.
 
         Returns:
-            ProtocolMetadata | None: The metadata if present.
+            ProtocolOnexMetadata | None: The metadata if present.
         """
         ...
 
@@ -146,7 +146,7 @@ class ProtocolEnvelope(Protocol):
         """
         ...
 
-    def with_metadata(self, envelope: E, metadata: "ProtocolMetadata") -> E:
+    def with_metadata(self, envelope: E, metadata: "ProtocolOnexMetadata") -> E:
         """
         Create a new envelope with updated metadata.
 

@@ -79,12 +79,15 @@ class ProtocolNamingConventions(Protocol):
 
     def split_into_words(self, input_state: ProtocolInputState) -> ProtocolOutputState:
         """
-        Split strings into constituent words handling various naming conventions.
+        Split a string into its constituent words.
+
+        Handles various naming conventions including camelCase, PascalCase,
+        snake_case, kebab-case, and mixed formats.
 
         Args:
-            input_state: Contains string splitting parameters
+            input_state: Contains the string to split and any format hints.
 
         Returns:
-            ProtocolOutputState with word lists
+            ProtocolOutputState containing a list of extracted words.
         """
         ...

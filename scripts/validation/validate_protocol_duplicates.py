@@ -33,10 +33,6 @@ from timeout_utils import timeout_context
 # These are protocols with the same name but different signatures that serve
 # different purposes in different contexts. Add justification when adding entries.
 KNOWN_ALLOWED_CONFLICTS: set[str] = {
-    # ProtocolSystemEvent: types/protocol_state_types.py vs types/protocol_event_bus_types.py
-    # Both are event-related but serve different subsystems (state vs event bus)
-    # TODO: Consider consolidation in future refactoring
-    "ProtocolSystemEvent",
     # ProtocolValidationResult: onex/protocol_validation.py vs validation/protocol_validation.py
     # ONEX-specific validation result vs general validation result
     "ProtocolValidationResult",

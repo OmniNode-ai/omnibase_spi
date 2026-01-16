@@ -13,7 +13,7 @@ Protocols included:
 - ProtocolActionPayload: Action payload with operation parameters
 - ProtocolAction: Reducer action definitions
 - ProtocolState: Reducer state containers
-- ProtocolSystemEvent: System event definitions
+- ProtocolStateSystemEvent: State management system event definitions
 - ProtocolInputState: ONEX input state for format conversion
 - ProtocolOutputState: ONEX output state for conversion results
 """
@@ -270,13 +270,17 @@ class ProtocolState(Protocol):
 
 
 @runtime_checkable
-class ProtocolSystemEvent(Protocol):
+class ProtocolStateSystemEvent(Protocol):
     """
-    Protocol for system-level events and notifications.
+    Protocol for state management system events and notifications.
 
     Represents internal system events with type, payload, and source
-    identification. Used for event-driven communication between
-    ONEX components.
+    identification. Used for state-driven communication between
+    ONEX components, particularly in reducer patterns and node results.
+
+    Note:
+        For event bus communication with correlation tracking and rich metadata,
+        use ProtocolEventBusSystemEvent from protocol_event_bus_types.
 
     Attributes:
         type: Event type identifier (e.g., "service.started", "node.failed").
@@ -302,7 +306,7 @@ class ProtocolSystemEvent(Protocol):
                 return self.timestamp > 0
 
         event = ServiceStartedEvent()
-        assert isinstance(event, ProtocolSystemEvent)
+        assert isinstance(event, ProtocolStateSystemEvent)
         ```
     """
 

@@ -2100,10 +2100,6 @@ class TestProtocolCoverage:
         # security) and onex/protocol_validation.py (ONEX validation security) - different
         # domains
         "ProtocolSecurityContext",
-        # ProtocolSystemEvent exists in types/protocol_state_types.py (state events) and
-        # types/protocol_event_bus_types.py (event bus events) - both event-related but
-        # serve different subsystems; consolidation may be considered
-        "ProtocolSystemEvent",
         # ProtocolValidationReport exists in onex/protocol_validation.py (ONEX-specific
         # validation reports) and validation/protocol_validation_orchestrator.py
         # (orchestrator-specific reports) - different validation contexts

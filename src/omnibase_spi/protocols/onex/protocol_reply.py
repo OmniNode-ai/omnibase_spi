@@ -10,7 +10,7 @@ from uuid import UUID
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.onex.protocol_validation import (
-        ProtocolMetadata,
+        ProtocolOnexMetadata,
     )
     from omnibase_spi.protocols.types.protocol_core_types import ProtocolDateTime
 
@@ -34,7 +34,7 @@ class ProtocolReply(Protocol):
         self,
         data: T,
         correlation_id: UUID | None = None,
-        metadata: "ProtocolMetadata | None" = None,
+        metadata: "ProtocolOnexMetadata | None" = None,
     ) -> R:
         """
         Create a success reply with the given data.
@@ -55,7 +55,7 @@ class ProtocolReply(Protocol):
         error_code: str | None = None,
         error_details: str | None = None,
         correlation_id: UUID | None = None,
-        metadata: "ProtocolMetadata | None" = None,
+        metadata: "ProtocolOnexMetadata | None" = None,
     ) -> R:
         """
         Create an error reply with the given error information.
@@ -76,7 +76,7 @@ class ProtocolReply(Protocol):
         self,
         validation_errors: list[str],
         correlation_id: UUID | None = None,
-        metadata: "ProtocolMetadata | None" = None,
+        metadata: "ProtocolOnexMetadata | None" = None,
     ) -> R:
         """
         Create a validation error reply with the given errors.
@@ -163,7 +163,7 @@ class ProtocolReply(Protocol):
         """
         ...
 
-    async def get_metadata(self, reply: R) -> "ProtocolMetadata | None":
+    async def get_metadata(self, reply: R) -> "ProtocolOnexMetadata | None":
         """
         Get the metadata from a reply.
 
@@ -171,7 +171,7 @@ class ProtocolReply(Protocol):
             reply: The reply to get the metadata from.
 
         Returns:
-            ProtocolMetadata | None: The metadata if present.
+            ProtocolOnexMetadata | None: The metadata if present.
         """
         ...
 
@@ -223,7 +223,7 @@ class ProtocolReply(Protocol):
         """
         ...
 
-    def with_metadata(self, reply: R, metadata: "ProtocolMetadata") -> R:
+    def with_metadata(self, reply: R, metadata: "ProtocolOnexMetadata") -> R:
         """
         Create a new reply with updated metadata.
 

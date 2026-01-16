@@ -11,29 +11,40 @@ from .protocol_reducer_node import ProtocolOnexReducerNodeLegacy
 from .protocol_reply import ProtocolReply
 from .protocol_validation import (
     ProtocolContractData,
-    ProtocolMetadata,
+    ProtocolOnexMetadata,
+    ProtocolOnexSecurityContext,
+    ProtocolOnexValidationReport,
+    ProtocolOnexValidationResult,
     ProtocolSchema,
-    ProtocolSecurityContext,
     ProtocolValidation,
-    ProtocolValidationReport,
-    ProtocolValidationResult,
 )
 from .protocol_version_loader import ProtocolVersionLoader
+
+# Short aliases for backward compatibility and convenience
+# These allow importing via short names from the main protocols __init__.py
+ProtocolMetadata = ProtocolOnexMetadata
+ProtocolSecurityContext = ProtocolOnexSecurityContext
+ProtocolValidationReport = ProtocolOnexValidationReport
+ProtocolValidationResult = ProtocolOnexValidationResult
 
 __all__ = [
     "ProtocolContractData",
     "ProtocolEnvelope",
-    "ProtocolMetadata",
+    "ProtocolMetadata",  # Alias for ProtocolOnexMetadata
     "ProtocolOnexComputeNodeLegacy",
     "ProtocolOnexEffectNodeLegacy",
+    "ProtocolOnexMetadata",
     "ProtocolOnexNodeLegacy",
     "ProtocolOnexOrchestratorNodeLegacy",
     "ProtocolOnexReducerNodeLegacy",
+    "ProtocolOnexSecurityContext",
+    "ProtocolOnexValidationReport",
+    "ProtocolOnexValidationResult",
     "ProtocolReply",
     "ProtocolSchema",
-    "ProtocolSecurityContext",
+    "ProtocolSecurityContext",  # Alias for ProtocolOnexSecurityContext
     "ProtocolValidation",
-    "ProtocolValidationReport",
-    "ProtocolValidationResult",
+    "ProtocolValidationReport",  # Alias for ProtocolOnexValidationReport
+    "ProtocolValidationResult",  # Alias for ProtocolOnexValidationResult
     "ProtocolVersionLoader",
 ]
