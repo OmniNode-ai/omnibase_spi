@@ -308,6 +308,13 @@ from omnibase_spi.protocols.networking import (
     ProtocolHttpExtendedClient,
 )
 
+# Observability protocols (3 protocols) - Hot path metrics and logging sinks
+from omnibase_spi.protocols.observability import (
+    ProtocolHotPathLoggingSink,
+    ProtocolHotPathMetricsSink,
+    ProtocolObservabilitySinkFactory,
+)
+
 # Node protocols (4 protocols) - Node management, configuration, and registry
 from omnibase_spi.protocols.node import (
     ProtocolNodeConfiguration,
@@ -541,6 +548,8 @@ __all__ = [
     "ProtocolHttpClient",
     "ProtocolHttpEventBusAdapter",
     "ProtocolHttpExtendedClient",
+    "ProtocolHotPathLoggingSink",
+    "ProtocolHotPathMetricsSink",
     "ProtocolHybridRetriever",
     "ProtocolIdempotencyStore",
     "ProtocolInjectionContext",
@@ -578,6 +587,7 @@ __all__ = [
     "ProtocolNodeRunner",
     "ProtocolNodeSchedulingResult",
     "ProtocolOllamaClient",
+    "ProtocolObservabilitySinkFactory",
     "ProtocolOrchestratorNode",
     "ProtocolPackageVerifier",
     "ProtocolPerformanceMetricsCollector",
