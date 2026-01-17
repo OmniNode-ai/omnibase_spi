@@ -1300,6 +1300,7 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
             "get_supported_effects",  # Returns list of supported effect IDs
             "get_available_capability_ids",  # In-memory registry iteration, not I/O
             "get_handler_descriptor",  # In-memory handler lookup, not I/O
+            "get_policy",  # Hot-path metrics sink - returns cached policy, no I/O
             "list_keys",  # In-memory listing
             "list_handler_descriptors",  # In-memory handler listing, not I/O
             "is_registered",  # In-memory check
