@@ -308,13 +308,6 @@ from omnibase_spi.protocols.networking import (
     ProtocolHttpExtendedClient,
 )
 
-# Observability protocols (3 protocols) - Hot path metrics and logging sinks
-from omnibase_spi.protocols.observability import (
-    ProtocolHotPathLoggingSink,
-    ProtocolHotPathMetricsSink,
-    ProtocolObservabilitySinkFactory,
-)
-
 # Node protocols (4 protocols) - Node management, configuration, and registry
 from omnibase_spi.protocols.node import (
     ProtocolNodeConfiguration,
@@ -330,6 +323,13 @@ from omnibase_spi.protocols.nodes import (
     ProtocolNode,
     ProtocolOrchestratorNode,
     ProtocolReducerNode,
+)
+
+# Observability protocols (3 protocols) - Hot path metrics and logging sinks
+from omnibase_spi.protocols.observability import (
+    ProtocolHotPathLoggingSink,
+    ProtocolHotPathMetricsSink,
+    ProtocolObservabilitySinkFactory,
 )
 
 # ONEX protocols (15 protocols) - ONEX platform specific protocols
@@ -545,11 +545,11 @@ __all__ = [
     "ProtocolHandlerSource",
     "ProtocolHealthDetails",
     "ProtocolHealthMonitor",
+    "ProtocolHotPathLoggingSink",
+    "ProtocolHotPathMetricsSink",
     "ProtocolHttpClient",
     "ProtocolHttpEventBusAdapter",
     "ProtocolHttpExtendedClient",
-    "ProtocolHotPathLoggingSink",
-    "ProtocolHotPathMetricsSink",
     "ProtocolHybridRetriever",
     "ProtocolIdempotencyStore",
     "ProtocolInjectionContext",
@@ -577,7 +577,6 @@ __all__ = [
     "ProtocolMCPValidator",
     "ProtocolMemoryOrchestrator",
     "ProtocolMemoryRecord",
-    "ProtocolOnexMetadata",
     "ProtocolMetricsCollector",
     "ProtocolModelRouter",
     "ProtocolNode",
@@ -586,8 +585,11 @@ __all__ = [
     "ProtocolNodeRegistry",
     "ProtocolNodeRunner",
     "ProtocolNodeSchedulingResult",
-    "ProtocolOllamaClient",
     "ProtocolObservabilitySinkFactory",
+    "ProtocolOllamaClient",
+    "ProtocolOnexMetadata",
+    "ProtocolOnexSecurityContext",
+    "ProtocolOnexValidationReport",
     "ProtocolOrchestratorNode",
     "ProtocolPackageVerifier",
     "ProtocolPerformanceMetricsCollector",
@@ -605,7 +607,6 @@ __all__ = [
     "ProtocolSchema",
     "ProtocolSchemaLoader",
     "ProtocolSchemaRegistry",
-    "ProtocolOnexSecurityContext",
     "ProtocolSecurityEvent",
     "ProtocolSequenceInfo",
     "ProtocolServiceDependency",
@@ -631,7 +632,6 @@ __all__ = [
     "ProtocolValidationDecorator",
     "ProtocolValidationError",
     "ProtocolValidationOptions",
-    "ProtocolOnexValidationReport",
     "ProtocolValidationResult",
     "ProtocolValidator",
     "ProtocolVectorStoreHandler",

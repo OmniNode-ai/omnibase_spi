@@ -76,6 +76,7 @@ class ProtocolObservabilitySinkFactory(Protocol):
 
     Example:
         ```python
+        from omnibase_core.enums import EnumLogLevel
         from omnibase_spi.protocols.observability import (
             ProtocolObservabilitySinkFactory,
         )
@@ -89,14 +90,14 @@ class ProtocolObservabilitySinkFactory(Protocol):
 
         # Use sinks unconditionally - no None checks needed
         # If disabled, these are NoOp implementations
-        metrics_sink.record_counter("requests", 1)
-        logging_sink.log_debug("Processing request")
+        metrics_sink.increment_counter("requests", {"handler": "example"}, 1)
+        logging_sink.emit(EnumLogLevel.DEBUG, "Processing request", {})
 
         # In hot path code, no branching required:
         async def process_hot_path(data: bytes) -> bytes:
-            metrics_sink.record_histogram("payload_size", len(data))
+            metrics_sink.observe_histogram("payload_size", {}, len(data))
             result = transform(data)
-            metrics_sink.record_counter("transformations", 1)
+            metrics_sink.increment_counter("transformations", {}, 1)
             return result
         ```
 
@@ -133,17 +134,21 @@ class ProtocolObservabilitySinkFactory(Protocol):
             None - if metrics are disabled, a NoOp sink is returned that safely
             ignores all metric recording calls.
 
+        Raises:
+            This method does not raise exceptions. If configuration is invalid,
+            a NoOp sink is returned instead.
+
         Example:
             ```python
             # Metrics enabled - returns real sink
             enabled_config = ModelMetricsSubcontract(enabled=True, ...)
             real_sink = factory.create_metrics_sink(enabled_config)
-            real_sink.record_counter("ops", 1)  # Recorded to backend
+            real_sink.increment_counter("ops", {}, 1)  # Recorded to backend
 
             # Metrics disabled - returns NoOp sink
             disabled_config = ModelMetricsSubcontract(enabled=False)
             noop_sink = factory.create_metrics_sink(disabled_config)
-            noop_sink.record_counter("ops", 1)  # No-op, returns immediately
+            noop_sink.increment_counter("ops", {}, 1)  # No-op, returns immediately
             ```
 
         Note:
@@ -181,17 +186,23 @@ class ProtocolObservabilitySinkFactory(Protocol):
             None - if logging is disabled, a NoOp sink is returned that safely
             ignores all log calls.
 
+        Raises:
+            This method does not raise exceptions. If configuration is invalid,
+            a NoOp sink is returned instead.
+
         Example:
             ```python
+            from omnibase_core.enums import EnumLogLevel
+
             # Logging enabled - returns real sink
             enabled_config = ModelLoggingSubcontract(enabled=True, level="DEBUG")
             real_sink = factory.create_logging_sink(enabled_config)
-            real_sink.log_debug("Processing started")  # Written to output
+            real_sink.emit(EnumLogLevel.DEBUG, "Processing started", {})  # Written
 
             # Logging disabled - returns NoOp sink
             disabled_config = ModelLoggingSubcontract(enabled=False)
             noop_sink = factory.create_logging_sink(disabled_config)
-            noop_sink.log_debug("Processing started")  # No-op, discarded
+            noop_sink.emit(EnumLogLevel.DEBUG, "Processing started", {})  # No-op
             ```
 
         Note:
