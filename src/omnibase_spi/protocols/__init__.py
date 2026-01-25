@@ -259,6 +259,9 @@ from omnibase_spi.protocols.file_handling import (
 # v0.3.0 Handler protocols (2 protocols) - DI-based protocol handlers and sources
 from omnibase_spi.protocols.handlers import ProtocolHandler, ProtocolHandlerSource
 
+# Intelligence protocols (1 protocol) - Intent classification and analysis
+from omnibase_spi.protocols.intelligence import ProtocolIntentClassifier
+
 # LLM protocols (4 protocols) - Large Language Model integration
 # LLM provider interfaces, model routing, and semantic processing
 from omnibase_spi.protocols.llm import (
@@ -553,6 +556,7 @@ __all__ = [
     "ProtocolHybridRetriever",
     "ProtocolIdempotencyStore",
     "ProtocolInjectionContext",
+    "ProtocolIntentClassifier",
     "ProtocolKafkaAdapter",
     "ProtocolKeyValueStore",
     "ProtocolLLMProvider",
