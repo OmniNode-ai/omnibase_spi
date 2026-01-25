@@ -18,6 +18,7 @@ import pytest
 import yaml
 
 from omnibase_core.models.contracts.model_handler_contract import ModelHandlerContract
+from omnibase_core.models.primitives.model_semver import ModelSemVer
 
 # Path to default contract templates
 DEFAULTS_DIR = (
@@ -63,7 +64,7 @@ class TestDefaultComputeHandlerContract:
 
     def test_template_has_required_fields(self, template: dict[str, Any]) -> None:
         """Test template has all required top-level fields."""
-        required_fields = ["handler_id", "name", "version", "descriptor"]
+        required_fields = ["handler_id", "name", "contract_version", "descriptor"]
         for field in required_fields:
             assert field in template, f"Missing required field: {field}"
 
@@ -98,9 +99,9 @@ class TestDefaultComputeHandlerContract:
         """Test compute handler has no retry policy (pure functions should not fail)."""
         assert template["descriptor"]["retry_policy"] is None
 
-    def test_compute_handler_kind(self, template: dict[str, Any]) -> None:
-        """Test compute handler kind is set correctly."""
-        assert template["descriptor"]["handler_kind"] == "compute"
+    def test_compute_handler_node_archetype(self, template: dict[str, Any]) -> None:
+        """Test compute handler node_archetype is set correctly."""
+        assert template["descriptor"]["node_archetype"] == "compute"
 
     def test_compute_handler_concurrency_policy(self, template: dict[str, Any]) -> None:
         """Test compute handler has parallel_ok concurrency policy."""
@@ -129,7 +130,7 @@ class TestDefaultEffectHandlerContract:
 
     def test_template_has_required_fields(self, template: dict[str, Any]) -> None:
         """Test template has all required top-level fields."""
-        required_fields = ["handler_id", "name", "version", "descriptor"]
+        required_fields = ["handler_id", "name", "contract_version", "descriptor"]
         for field in required_fields:
             assert field in template, f"Missing required field: {field}"
 
@@ -174,9 +175,9 @@ class TestDefaultEffectHandlerContract:
         """Test effect handler is marked as nondeterministic effect."""
         assert template["execution_constraints"]["nondeterministic_effect"] is True
 
-    def test_effect_handler_kind(self, template: dict[str, Any]) -> None:
-        """Test effect handler kind is set correctly."""
-        assert template["descriptor"]["handler_kind"] == "effect"
+    def test_effect_handler_node_archetype(self, template: dict[str, Any]) -> None:
+        """Test effect handler node_archetype is set correctly."""
+        assert template["descriptor"]["node_archetype"] == "effect"
 
     def test_effect_handler_concurrency_policy(self, template: dict[str, Any]) -> None:
         """Test effect handler has serialized concurrency policy (conservative)."""
@@ -206,7 +207,7 @@ class TestDefaultNondeterministicComputeHandlerContract:
 
     def test_template_has_required_fields(self, template: dict[str, Any]) -> None:
         """Test template has all required top-level fields."""
-        required_fields = ["handler_id", "name", "version", "descriptor"]
+        required_fields = ["handler_id", "name", "contract_version", "descriptor"]
         for field in required_fields:
             assert field in template, f"Missing required field: {field}"
 
@@ -235,11 +236,11 @@ class TestDefaultNondeterministicComputeHandlerContract:
         """Test nondeterministic handler is marked as nondeterministic effect."""
         assert template["execution_constraints"]["nondeterministic_effect"] is True
 
-    def test_nondeterministic_handler_kind_is_compute(
+    def test_nondeterministic_handler_node_archetype_is_compute(
         self, template: dict[str, Any]
     ) -> None:
-        """Test nondeterministic handler kind is compute (architecturally)."""
-        assert template["descriptor"]["handler_kind"] == "compute"
+        """Test nondeterministic handler node_archetype is compute (architecturally)."""
+        assert template["descriptor"]["node_archetype"] == "compute"
 
     def test_nondeterministic_handler_purity_is_side_effecting(
         self, template: dict[str, Any]
@@ -308,10 +309,14 @@ class TestDefaultContractConservativeDefaults:
         """Load each template."""
         return load_yaml_template(request.param)
 
-    def test_all_templates_have_version(self, template: dict[str, Any]) -> None:
-        """Test all templates have version field."""
-        assert "version" in template
-        assert template["version"] == "1.0.0"
+    def test_all_templates_have_contract_version(self, template: dict[str, Any]) -> None:
+        """Test all templates have contract_version field with semver structure."""
+        assert "contract_version" in template
+        cv = template["contract_version"]
+        assert isinstance(cv, dict)
+        assert cv["major"] == 1
+        assert cv["minor"] == 0
+        assert cv["patch"] == 0
 
     def test_all_templates_have_descriptor(self, template: dict[str, Any]) -> None:
         """Test all templates have descriptor section."""
@@ -405,7 +410,7 @@ class TestYamlTemplateSchemaCompliance:
 
         assert contract.handler_id == "template.compute.default"
         assert contract.name == "Default Compute Handler"
-        assert contract.version == "1.0.0"
+        assert str(contract.contract_version) == "1.0.0"
         assert contract.descriptor is not None
         assert contract.capability_outputs == ["compute.result"]
 
@@ -416,7 +421,7 @@ class TestYamlTemplateSchemaCompliance:
 
         assert contract.handler_id == "template.effect.default"
         assert contract.name == "Default Effect Handler"
-        assert contract.version == "1.0.0"
+        assert str(contract.contract_version) == "1.0.0"
         assert contract.descriptor is not None
         assert contract.capability_outputs == ["effect.result"]
 
@@ -427,7 +432,7 @@ class TestYamlTemplateSchemaCompliance:
 
         assert contract.handler_id == "template.nondeterministic_compute.default"
         assert contract.name == "Default Nondeterministic Compute Handler"
-        assert contract.version == "1.0.0"
+        assert str(contract.contract_version) == "1.0.0"
         assert contract.descriptor is not None
         assert contract.capability_outputs == ["inference.result"]
         assert len(contract.capability_inputs) == 1

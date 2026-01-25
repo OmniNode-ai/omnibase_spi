@@ -7,11 +7,14 @@
 
 handler_id: "template.compute.default"
 name: "Default Compute Handler"
-version: "1.0.0"
+contract_version:
+  major: 1
+  minor: 0
+  patch: 0
 description: "Default template for pure computation handlers"
 
 descriptor:
-  handler_kind: compute
+  node_archetype: compute
   purity: pure
   idempotent: true
   # No timeout needed for pure compute (bounded by input size)

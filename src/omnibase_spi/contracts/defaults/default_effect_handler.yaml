@@ -7,11 +7,14 @@
 
 handler_id: "template.effect.default"
 name: "Default Effect Handler"
-version: "1.0.0"
+contract_version:
+  major: 1
+  minor: 0
+  patch: 0
 description: "Default template for side-effecting handlers"
 
 descriptor:
-  handler_kind: effect
+  node_archetype: effect
   purity: side_effecting
   idempotent: false # Conservative default - most effects are not idempotent
   timeout_ms: 30000 # 30 second default timeout
