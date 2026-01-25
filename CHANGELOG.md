@@ -243,6 +243,31 @@ result = await handler.traverse(
   - Template caching and isolation tests
   - Error handling coverage
 
+## [0.6.0] - 2026-01-25
+
+### Added
+- `ProtocolIntentGraph` protocol for intent graph persistence abstraction [OMN-1479]
+  - `store_intent()` - Store intent classification to graph database
+  - `get_session_intents()` - Query intents for a session
+  - `health_check()` - Health check for graph connectivity
+- New `protocols/intelligence/` domain with intent-related protocols
+- Comprehensive test suite for ProtocolIntentGraph (20+ tests)
+
+### Changed
+- Bumped `omnibase-core` dependency to >=0.9.4 for intent event models
+
+## [0.5.0] - 2026-01-25
+
+### Added
+- `ProtocolIntentClassifier` protocol for intent classification abstraction [OMN-1478]
+  - `classify()` - Classify user prompt into intent category
+  - `get_supported_intents()` - List available intent types
+  - `validate_intent()` - Validate intent classification result
+- New `protocols/intelligence/` domain for intelligence-related protocols
+
+### Changed
+- Bumped `omnibase-core` dependency to >=0.9.3 for intent models
+
 ## [0.4.0] - 2025-12-15
 
 ### Added
@@ -456,6 +481,8 @@ result = await handler.traverse(
 
 | Version | Total Protocols | Test Coverage | Validation Status |
 |---------|-----------------|---------------|-------------------|
+| 0.6.0   | 182+            | 340+ tests    | All passing       |
+| 0.5.0   | 180+            | 320+ tests    | All passing       |
 | 0.4.0   | 178+            | 300+ tests    | All passing       |
 | 0.3.0   | 176+            | 268 tests     | All passing       |
 | 0.2.0   | 176             | 210 tests     | All passing       |
