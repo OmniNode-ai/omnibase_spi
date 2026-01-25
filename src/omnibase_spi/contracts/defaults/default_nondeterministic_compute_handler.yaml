@@ -7,11 +7,14 @@
 
 handler_id: "template.nondeterministic_compute.default"
 name: "Default Nondeterministic Compute Handler"
-version: "1.0.0"
+contract_version:
+  major: 1
+  minor: 0
+  patch: 0
 description: "Default template for LLM/AI inference handlers"
 
 descriptor:
-  handler_kind: compute # Architecturally compute, but with nondeterministic behavior
+  node_archetype: compute # Architecturally compute, but with nondeterministic behavior
   purity: side_effecting # Treated as side-effecting for replay purposes
   idempotent: false # Same input can produce different outputs
   timeout_ms: 120000 # 2 minute default (LLM calls can be slow)
