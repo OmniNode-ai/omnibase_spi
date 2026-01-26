@@ -1,6 +1,6 @@
 [project]
 name = "omnibase_spi"
-version = "0.6.0"
+version = "0.6.1"
 description = "ONEX Service Provider Interface - Protocol definitions"
 authors = [{name = "OmniNode Team", email = "team@omninode.ai"}]
 license = {text = "MIT"}
@@ -21,7 +21,7 @@ classifiers = [
 dependencies = [
     "typing-extensions>=4.5.0",
     "pydantic>=2.11.7",
-    "omnibase-core>=0.9.4",  # Workspace dependency - see note above
+    "omnibase-core>=0.9.6",  # Workspace dependency - see note above
 ]
 
 [tool.poetry]
@@ -30,7 +30,7 @@ packages = [{include = "omnibase_spi", from = "src"}]
 [tool.poetry.dependencies]
 python = "^3.12"
 # Workspace sibling package - install locally with: poetry add --editable ../omnibase_core
-omnibase-core = ">=0.9.4"
+omnibase-core = ">=0.9.6"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.13.0"
