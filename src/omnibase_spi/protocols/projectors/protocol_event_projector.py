@@ -8,7 +8,7 @@ Architectural Context:
     In the ONEX event-driven architecture, projectors serve as the bridge
     between event streams and queryable read models:
 
-    1. Events flow through the event bus (via ModelEventEnvelope)
+    1. Events flow through the event bus (via ModelEnvelope)
     2. Projectors consume specific event types they are configured to handle
     3. Projectors materialize state to their target persistence store
     4. Orchestrators and services query this materialized state
@@ -41,7 +41,7 @@ from typing import TYPE_CHECKING, Protocol, runtime_checkable
 from uuid import UUID
 
 if TYPE_CHECKING:
-    from omnibase_core.models.events import ModelEventEnvelope
+    from omnibase_core.models.common import ModelEnvelope
     from omnibase_core.models.projectors import ModelProjectionResult
     from omnibase_core.types import JsonType
 
@@ -52,12 +52,12 @@ __all__ = ["ProtocolEventProjector"]
 class ProtocolEventProjector(Protocol):
     """Interface for event-to-state projection.
 
-    Projectors consume ModelEventEnvelope streams and materialize
+    Projectors consume ModelEnvelope streams and materialize
     state to a persistence store. They are strictly read-model
     builders with no side effects beyond their target store.
 
     Execution Model:
-        1. Event bus delivers ModelEventEnvelope to projector
+        1. Event bus delivers ModelEnvelope to projector
         2. Projector checks if event type is in consumed_events
         3. Projector extracts aggregate_id and payload from event
         4. Projector applies business logic to update state
@@ -114,7 +114,7 @@ class ProtocolEventProjector(Protocol):
             def consumed_events(self) -> list[str]:
                 return ["OrderCreated", "OrderShipped", "OrderCancelled"]
 
-            async def project(self, event: ModelEventEnvelope) -> ModelProjectionResult:
+            async def project(self, event: ModelEnvelope) -> ModelProjectionResult:
                 # Extract and apply event to state
                 order_id = event.aggregate_id
                 if event.event_type == "OrderCreated":
@@ -234,7 +234,7 @@ class ProtocolEventProjector(Protocol):
 
     async def project(
         self,
-        event: ModelEventEnvelope,
+        event: ModelEnvelope,
     ) -> ModelProjectionResult:
         """Project event to persistence store.
 
@@ -280,7 +280,7 @@ class ProtocolEventProjector(Protocol):
 
         Example:
             ```python
-            async def project(self, event: ModelEventEnvelope) -> ModelProjectionResult:
+            async def project(self, event: ModelEnvelope) -> ModelProjectionResult:
                 if event.event_type not in self.consumed_events:
                     return ModelProjectionResult(skipped=True, reason="Unknown event")
 

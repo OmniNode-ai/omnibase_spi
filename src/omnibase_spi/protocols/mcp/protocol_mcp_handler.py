@@ -155,9 +155,7 @@ class ProtocolMCPHandler(Protocol):
         """
         ...
 
-    async def handle_get_tool(
-        self, tool_name: str
-    ) -> ProtocolMCPToolDefinition | None:
+    async def handle_get_tool(self, tool_name: str) -> ProtocolMCPToolDefinition | None:
         """
         Get a specific tool definition by name.
 
