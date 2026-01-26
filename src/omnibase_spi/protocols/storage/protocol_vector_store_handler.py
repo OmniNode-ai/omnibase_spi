@@ -146,7 +146,7 @@ if TYPE_CHECKING:
         ModelVectorSearchResults,
         ModelVectorStoreResult,
     )
-    from omnibase_core.types import JsonValue
+    from omnibase_core.types import JsonType
 
 
 @runtime_checkable
@@ -301,7 +301,7 @@ class ProtocolVectorStoreHandler(Protocol):
         self,
         embedding_id: str,
         vector: list[float],
-        metadata: Mapping[str, JsonValue] | None = None,
+        metadata: Mapping[str, JsonType] | None = None,
         index_name: str | None = None,
     ) -> ModelVectorStoreResult:
         """

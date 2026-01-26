@@ -11,7 +11,7 @@ This module supports two messaging patterns:
    - Suitable for internal, non-serialized event passing
    - Used by sync/async bus variants
 
-2. **Envelope-Based Messaging** (ModelOnexEnvelope):
+2. **Envelope-Based Messaging** (ModelEnvelope):
    - Structured envelope format with metadata, correlation IDs, and routing
    - Full serialization/deserialization support for Kafka transport
    - Consumer subscription model with handler callbacks
@@ -28,9 +28,9 @@ from omnibase_spi.protocols.types.protocol_core_types import LiteralLogLevel
 from omnibase_spi.protocols.types.protocol_event_bus_types import ProtocolEventMessage
 
 if TYPE_CHECKING:
-    # Forward reference to avoid circular import: ModelOnexEnvelope is defined
-    # in omnibase_core.models.runtime but used in type hints here.
-    from omnibase_core.models.runtime import ModelOnexEnvelope
+    # Forward reference to avoid circular import: ModelEnvelope is defined
+    # in omnibase_core.models.common but used in type hints here.
+    from omnibase_core.models.common import ModelEnvelope
     from omnibase_core.types import JsonType
 
 
@@ -51,7 +51,7 @@ class ProtocolEventBusBase(Protocol):
 
     **Envelope-Based Messaging**:
         Use publish_envelope(), subscribe(), and start_consuming() for
-        structured ModelOnexEnvelope messages. Provides:
+        structured ModelEnvelope messages. Provides:
         - Correlation ID tracking across service boundaries
         - Full metadata preservation (timestamps, routing keys)
         - Kafka-compatible serialization format
@@ -79,7 +79,7 @@ class ProtocolEventBusBase(Protocol):
 
     async def publish_envelope(
         self,
-        envelope: ModelOnexEnvelope,
+        envelope: ModelEnvelope,
         topic: str,
     ) -> None:
         """
@@ -103,7 +103,7 @@ class ProtocolEventBusBase(Protocol):
     async def subscribe(
         self,
         topic: str,
-        handler: Callable[[ModelOnexEnvelope], Awaitable[None]],
+        handler: Callable[[ModelEnvelope], Awaitable[None]],
     ) -> None:
         """
         Subscribe to a topic with an envelope handler.
@@ -114,7 +114,7 @@ class ProtocolEventBusBase(Protocol):
 
         Args:
             topic: The Kafka topic or channel to subscribe to.
-            handler: Async callback function that receives ModelOnexEnvelope
+            handler: Async callback function that receives ModelEnvelope
                 instances. Handler should process envelope.payload for
                 the actual event data.
 

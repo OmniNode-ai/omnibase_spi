@@ -19,10 +19,7 @@ import pytest
 from omnibase_spi.protocols.intelligence import ProtocolIntentClassifier
 
 if TYPE_CHECKING:
-    from omnibase_core.models.intelligence import (
-        ModelIntentClassificationInput,
-        ModelIntentClassificationOutput,
-    )
+    pass
 
 
 # =============================================================================
@@ -147,9 +144,9 @@ class TestProtocolIntentClassifierProtocol:
         or __runtime_protocol__ attribute set to True.
         """
         # Check for either the old or new attribute name for runtime protocols
-        assert hasattr(
-            ProtocolIntentClassifier, "_is_runtime_protocol"
-        ) or hasattr(ProtocolIntentClassifier, "__runtime_protocol__")
+        assert hasattr(ProtocolIntentClassifier, "_is_runtime_protocol") or hasattr(
+            ProtocolIntentClassifier, "__runtime_protocol__"
+        )
 
     def test_protocol_is_protocol(self) -> None:
         """ProtocolIntentClassifier should be a Protocol class."""

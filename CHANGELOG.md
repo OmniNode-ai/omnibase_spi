@@ -243,6 +243,21 @@ result = await handler.traverse(
   - Template caching and isolation tests
   - Error handling coverage
 
+## [0.6.1] - 2026-01-26
+
+### Added
+
+- `ProtocolPatternExtractor` protocol for pattern extraction abstraction [OMN-1580]
+  - `extract_patterns()` - Extract patterns from session data
+  - Supports 4 pattern kinds: FILE_ACCESS, ERROR, ARCHITECTURE, TOOL_USAGE
+  - Uses typed `ModelPatternExtractionInput` and `ModelPatternExtractionOutput` from Core
+  - Includes pattern filtering by kind, confidence thresholds, and time windows
+  - Structured error surface (warnings/errors in output, not exceptions)
+
+### Changed
+
+- Bumped `omnibase-core` dependency to >=0.9.6 for pattern extraction models
+
 ## [0.6.0] - 2026-01-25
 
 ### Added
@@ -481,6 +496,7 @@ result = await handler.traverse(
 
 | Version | Total Protocols | Test Coverage | Validation Status |
 |---------|-----------------|---------------|-------------------|
+| 0.6.1   | 183+            | 345+ tests    | All passing       |
 | 0.6.0   | 182+            | 340+ tests    | All passing       |
 | 0.5.0   | 180+            | 320+ tests    | All passing       |
 | 0.4.0   | 178+            | 300+ tests    | All passing       |

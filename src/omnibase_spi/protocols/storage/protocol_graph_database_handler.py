@@ -120,7 +120,7 @@ if TYPE_CHECKING:
         ModelGraphTraversalFilters,
         ModelGraphTraversalResult,
     )
-    from omnibase_core.types import JsonValue
+    from omnibase_core.types import JsonType
 
 
 @runtime_checkable
@@ -151,7 +151,7 @@ class ProtocolGraphDatabaseHandler(Protocol):
         ```python
         from collections.abc import Mapping
         from omnibase_core.models.graph import ModelGraphQueryResult
-        from omnibase_core.types import JsonValue
+        from omnibase_core.types import JsonType
 
         class Neo4jHandler:
             '''Neo4j graph database handler implementation.'''
@@ -167,7 +167,7 @@ class ProtocolGraphDatabaseHandler(Protocol):
             async def execute_query(
                 self,
                 query: str,
-                parameters: Mapping[str, JsonValue] | None = None,
+                parameters: Mapping[str, JsonType] | None = None,
             ) -> ModelGraphQueryResult:
                 # Execute Cypher query via Bolt protocol
                 async with self._driver.session() as session:
@@ -225,7 +225,7 @@ class ProtocolGraphDatabaseHandler(Protocol):
         connection_uri: str,
         auth: tuple[str, str] | None = None,
         *,
-        options: Mapping[str, JsonValue] | None = None,
+        options: Mapping[str, JsonType] | None = None,
     ) -> None:
         """
         Initialize the graph database connection.
@@ -250,7 +250,7 @@ class ProtocolGraphDatabaseHandler(Protocol):
                 - This field is opaque backend-defined configuration
                 - Core logic MUST NOT depend on specific keys
                 - Adapters MAY validate and normalize for backend requirements
-                - Payloads MUST be JSON-serializable (JsonValue type enforces this)
+                - Payloads MUST be JSON-serializable (JsonType type enforces this)
                 - Recommended constraints: max_keys=100, max_depth=5
 
         Raises:
@@ -292,7 +292,7 @@ class ProtocolGraphDatabaseHandler(Protocol):
     async def execute_query(
         self,
         query: str,
-        parameters: Mapping[str, JsonValue] | None = None,
+        parameters: Mapping[str, JsonType] | None = None,
     ) -> ModelGraphQueryResult:
         """
         Execute a Cypher or graph query language query.
@@ -342,7 +342,7 @@ class ProtocolGraphDatabaseHandler(Protocol):
                 - This field contains user-provided query parameters
                 - Core logic MUST NOT depend on specific keys
                 - Adapters MAY validate and normalize for backend requirements
-                - Payloads MUST be JSON-serializable (JsonValue type enforces this)
+                - Payloads MUST be JSON-serializable (JsonType type enforces this)
 
         Returns:
             ModelGraphQueryResult containing:
@@ -370,7 +370,7 @@ class ProtocolGraphDatabaseHandler(Protocol):
 
     async def execute_query_batch(
         self,
-        queries: list[tuple[str, Mapping[str, JsonValue] | None]],
+        queries: list[tuple[str, Mapping[str, JsonType] | None]],
         transaction: bool = True,
     ) -> ModelGraphBatchResult:
         """
@@ -389,7 +389,7 @@ class ProtocolGraphDatabaseHandler(Protocol):
                 - Parameters contain user-provided query values
                 - Core logic MUST NOT depend on specific keys
                 - Adapters MAY validate and normalize for backend requirements
-                - Payloads MUST be JSON-serializable (JsonValue type enforces this)
+                - Payloads MUST be JSON-serializable (JsonType type enforces this)
 
             transaction: If True and handler supports transactions, execute
                 all queries within a single transaction. If any query fails,
@@ -425,7 +425,7 @@ class ProtocolGraphDatabaseHandler(Protocol):
     async def create_node(
         self,
         labels: list[str],
-        properties: Mapping[str, JsonValue],
+        properties: Mapping[str, JsonType],
     ) -> ModelGraphDatabaseNode:
         """
         Create a new node in the graph.
@@ -444,7 +444,7 @@ class ProtocolGraphDatabaseHandler(Protocol):
                 - This field contains user-defined node properties
                 - Core logic MUST NOT depend on specific keys
                 - Adapters MAY validate and normalize for backend requirements
-                - Payloads MUST be JSON-serializable (JsonValue type enforces this)
+                - Payloads MUST be JSON-serializable (JsonType type enforces this)
                 - Recommended constraints: max_keys=100, max_depth=5
 
         Returns:
@@ -479,7 +479,7 @@ class ProtocolGraphDatabaseHandler(Protocol):
         from_node_id: str | int,
         to_node_id: str | int,
         relationship_type: str,
-        properties: Mapping[str, JsonValue] | None = None,
+        properties: Mapping[str, JsonType] | None = None,
     ) -> ModelGraphRelationship:
         """
         Create a relationship between two nodes.
@@ -502,7 +502,7 @@ class ProtocolGraphDatabaseHandler(Protocol):
                 - This field contains user-defined relationship properties
                 - Core logic MUST NOT depend on specific keys
                 - Adapters MAY validate and normalize for backend requirements
-                - Payloads MUST be JSON-serializable (JsonValue type enforces this)
+                - Payloads MUST be JSON-serializable (JsonType type enforces this)
                 - Recommended constraints: max_keys=100, max_depth=5
 
         Returns:

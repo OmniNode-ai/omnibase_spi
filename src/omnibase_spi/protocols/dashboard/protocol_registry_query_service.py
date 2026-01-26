@@ -36,7 +36,7 @@ from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    from omnibase_core.models.contracts import ModelContract
+    from omnibase_core.models.contracts import ModelContractBase
     from omnibase_core.models.dashboard import ModelCapabilityView, ModelNodeView
 
 
@@ -60,7 +60,7 @@ class ProtocolRegistryQueryService(Protocol):
 
         if TYPE_CHECKING:
             from omnibase_core.models.dashboard import ModelNodeView, ModelCapabilityView
-            from omnibase_core.models.contracts import ModelContract
+            from omnibase_core.models.contracts import ModelContractBase
 
         class RegistryQueryServiceImpl:
             '''Concrete implementation of ProtocolRegistryQueryService.'''
@@ -80,7 +80,7 @@ class ProtocolRegistryQueryService(Protocol):
 
             async def get_node_contract(
                 self, node_id: str
-            ) -> ModelContract | None:
+            ) -> ModelContractBase | None:
                 handler = await self._registry.get_handler(node_id)
                 return handler.contract if handler else None
 
@@ -190,7 +190,7 @@ class ProtocolRegistryQueryService(Protocol):
         """
         ...
 
-    async def get_node_contract(self, node_id: str) -> ModelContract | None:
+    async def get_node_contract(self, node_id: str) -> ModelContractBase | None:
         """
         Retrieve the contract for a specific node.
 
@@ -203,7 +203,7 @@ class ProtocolRegistryQueryService(Protocol):
                 Must be a valid node identifier from the registry.
 
         Returns:
-            ModelContract if the node exists and has a contract defined.
+            ModelContractBase if the node exists and has a contract defined.
             None if the node does not exist or has no contract.
 
         Raises:

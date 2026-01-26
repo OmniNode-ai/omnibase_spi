@@ -69,9 +69,7 @@ class ProtocolWorkflowOrchestrator(Protocol):
         """
         ...
 
-    async def run(
-        self, input_state: "ProtocolWorkflowInputState"
-    ) -> "ProtocolResult":
+    async def run(self, input_state: "ProtocolWorkflowInputState") -> "ProtocolResult":
         """
         Run the Workflow orchestrator with the provided input state.
 

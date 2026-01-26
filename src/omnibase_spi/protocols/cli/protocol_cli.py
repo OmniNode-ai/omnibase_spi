@@ -238,9 +238,7 @@ class ProtocolCLI(Protocol):
         """
         ...
 
-    async def execute_command(
-        self, command: str, args: list[str]
-    ) -> ProtocolCLIResult:
+    async def execute_command(self, command: str, args: list[str]) -> ProtocolCLIResult:
         """
         Execute a specific CLI command with the given arguments.
 

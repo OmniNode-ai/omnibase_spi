@@ -8,8 +8,8 @@ from omnibase_spi.protocols.nodes.base import ProtocolNode
 
 if TYPE_CHECKING:
     from omnibase_core.models.orchestrator import (
-        ModelOrchestrationInput,
-        ModelOrchestrationOutput,
+        ModelOrchestratorInput,
+        ModelOrchestratorOutput,
     )
 
 
@@ -36,8 +36,8 @@ class ProtocolOrchestratorNode(ProtocolNode, Protocol):
 
     async def execute(
         self,
-        input_data: ModelOrchestrationInput,
-    ) -> ModelOrchestrationOutput:
+        input_data: ModelOrchestratorInput,
+    ) -> ModelOrchestratorOutput:
         """
         Execute orchestration.
 

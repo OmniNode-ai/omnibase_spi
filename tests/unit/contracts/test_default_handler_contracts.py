@@ -18,7 +18,6 @@ import pytest
 import yaml
 
 from omnibase_core.models.contracts.model_handler_contract import ModelHandlerContract
-from omnibase_core.models.primitives.model_semver import ModelSemVer
 
 # Path to default contract templates
 DEFAULTS_DIR = (
@@ -309,7 +308,9 @@ class TestDefaultContractConservativeDefaults:
         """Load each template."""
         return load_yaml_template(request.param)
 
-    def test_all_templates_have_contract_version(self, template: dict[str, Any]) -> None:
+    def test_all_templates_have_contract_version(
+        self, template: dict[str, Any]
+    ) -> None:
         """Test all templates have contract_version field with semver structure."""
         assert "contract_version" in template
         cv = template["contract_version"]
