@@ -12,7 +12,8 @@ These tests verify the interface contract for OMN-1615.
 """
 
 import inspect
-from typing import Protocol
+import types
+from typing import Protocol, Union, get_args, get_origin
 
 import pytest
 
@@ -36,8 +37,9 @@ class TestProtocolEventPublisherSignature:
 
     def test_protocol_is_protocol(self) -> None:
         """ProtocolEventPublisher should be a Protocol class."""
+        # Check by name to avoid mypy comparison-overlap error with typing special forms
         assert any(
-            base is Protocol or base.__name__ == "Protocol"
+            getattr(base, "__name__", "") == "Protocol"
             for base in ProtocolEventPublisher.__mro__
         )
 
@@ -73,14 +75,19 @@ class TestProtocolEventPublisherSignature:
 
         sig = inspect.signature(publish_method)
         topic_param = sig.parameters["topic"]
-
-        # Check annotation contains str and allows None
         annotation = topic_param.annotation
-        annotation_str = str(annotation)
 
-        # Should be str | None (Union[str, None])
-        assert "str" in annotation_str
-        assert "None" in annotation_str or topic_param.default is None
+        # Handle both Union[str, None] and str | None syntax
+        origin = get_origin(annotation)
+        if origin is Union or origin is types.UnionType:
+            args = get_args(annotation)
+            assert str in args, "topic annotation should include str"
+            assert type(None) in args, "topic annotation should include None"
+        else:
+            # Fallback to string check for edge cases
+            annotation_str = str(annotation)
+            assert "str" in annotation_str
+            assert "None" in annotation_str or topic_param.default is None
 
     def test_publish_has_partition_key_parameter(self) -> None:
         """publish method should accept a partition_key parameter."""
@@ -101,14 +108,19 @@ class TestProtocolEventPublisherSignature:
 
         sig = inspect.signature(publish_method)
         partition_key_param = sig.parameters["partition_key"]
-
-        # Check annotation contains str and allows None
         annotation = partition_key_param.annotation
-        annotation_str = str(annotation)
 
-        # Should be str | None (Union[str, None])
-        assert "str" in annotation_str
-        assert "None" in annotation_str or partition_key_param.default is None
+        # Handle both Union[str, None] and str | None syntax
+        origin = get_origin(annotation)
+        if origin is Union or origin is types.UnionType:
+            args = get_args(annotation)
+            assert str in args, "partition_key annotation should include str"
+            assert type(None) in args, "partition_key annotation should include None"
+        else:
+            # Fallback to string check for edge cases
+            annotation_str = str(annotation)
+            assert "str" in annotation_str
+            assert "None" in annotation_str or partition_key_param.default is None
 
     def test_publish_returns_bool(self) -> None:
         """publish method should have bool return type annotation."""
@@ -120,6 +132,32 @@ class TestProtocolEventPublisherSignature:
 
         # Return annotation should be bool
         assert return_annotation is bool
+
+    def test_publish_event_type_is_required(self) -> None:
+        """event_type parameter should be required (no default value)."""
+        publish_method = getattr(ProtocolEventPublisher, "publish", None)
+        assert publish_method is not None
+
+        sig = inspect.signature(publish_method)
+        event_type_param = sig.parameters["event_type"]
+
+        # Required parameters have Parameter.empty as default
+        assert event_type_param.default is inspect.Parameter.empty, (
+            "event_type should be required (no default value)"
+        )
+
+    def test_publish_payload_is_required(self) -> None:
+        """payload parameter should be required (no default value)."""
+        publish_method = getattr(ProtocolEventPublisher, "publish", None)
+        assert publish_method is not None
+
+        sig = inspect.signature(publish_method)
+        payload_param = sig.parameters["payload"]
+
+        # Required parameters have Parameter.empty as default
+        assert payload_param.default is inspect.Parameter.empty, (
+            "payload should be required (no default value)"
+        )
 
     def test_publish_signature_complete(self) -> None:
         """Verify publish method has all expected parameters."""

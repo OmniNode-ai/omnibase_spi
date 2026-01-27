@@ -89,7 +89,7 @@ class ProtocolEventPublisher(Protocol):
         partition_key: str | None = None,
     ) -> bool:
         """
-        Publish event to Kafka with retry and circuit breaker.
+        Publish event with retry and circuit breaker.
 
         Args:
             event_type: Fully-qualified event type (e.g., "omninode.codegen.request.validate.v1").
