@@ -12,12 +12,11 @@ These tests verify the interface contract for OMN-1615.
 """
 
 import inspect
-from typing import Protocol, Union, get_type_hints
+from typing import Protocol
 
 import pytest
 
 from omnibase_spi.protocols.event_bus import ProtocolEventPublisher
-
 
 # =============================================================================
 # Protocol Definition Tests
@@ -65,8 +64,7 @@ class TestProtocolEventPublisherSignature:
 
         topic_param = sig.parameters["topic"]
         # Verify it has a default value (meaning it's optional)
-        assert topic_param.default is not inspect.Parameter.empty or \
-            topic_param.default is None
+        assert topic_param.default is None, "topic should default to None"
 
     def test_publish_topic_allows_str_or_none(self) -> None:
         """publish topic parameter should accept str | None."""
@@ -94,8 +92,7 @@ class TestProtocolEventPublisherSignature:
 
         partition_key_param = sig.parameters["partition_key"]
         # Verify it has a default value (meaning it's optional)
-        assert partition_key_param.default is not inspect.Parameter.empty or \
-            partition_key_param.default is None
+        assert partition_key_param.default is None, "partition_key should default to None"
 
     def test_publish_partition_key_allows_str_or_none(self) -> None:
         """publish partition_key parameter should accept str | None."""
