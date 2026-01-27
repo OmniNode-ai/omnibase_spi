@@ -13,7 +13,7 @@ These tests verify the interface contract for OMN-1615.
 
 import inspect
 import types
-from typing import Protocol, Union, get_args, get_origin
+from typing import Union, get_args, get_origin
 
 import pytest
 
