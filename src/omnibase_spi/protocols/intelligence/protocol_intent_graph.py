@@ -1,5 +1,3 @@
-# SPDX-License-Identifier: MIT
-# Copyright (c) 2025 OmniNode Team
 """Protocol for intent graph persistence operations.
 
 This module defines the protocol for storing and retrieving intent classification

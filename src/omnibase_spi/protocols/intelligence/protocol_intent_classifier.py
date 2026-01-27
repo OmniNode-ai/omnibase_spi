@@ -1,5 +1,3 @@
-# SPDX-License-Identifier: MIT
-# Copyright (c) 2025 OmniNode Team
 """Protocol for intent classification operations.
 
 This module defines the protocol for classifying user intents from text content.
