@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.2] - 2026-01-27
+
+### Added
+
+- **ProtocolEventPublisher semantics documentation** (OMN-1615): Codified topic override and partition_key semantics in protocol docstrings
+- **Publisher Protocol Policy** in EVENT-BUS.md: Documents canonical interface rule forbidding handler-local publish protocols
+- **Protocol signature tests**: 18 unit tests verifying ProtocolEventPublisher interface contract
+- **SPDX header prevention hook**: Pre-commit hook to prevent SPDX license headers from being (re)introduced
+
+### Changed
+
+- Made ProtocolEventPublisher docstring transport-agnostic (removed Kafka-specific wording)
+- Enhanced publish() method documentation with routing behavior and partition_key responsibility boundaries
+
+### Removed
+
+- SPDX license headers from 10 files (centralized LICENSE file is the single source of truth)
+
 ### Breaking Changes
 
 #### Handler Protocol `describe()` Method Now Async (OMN-710)

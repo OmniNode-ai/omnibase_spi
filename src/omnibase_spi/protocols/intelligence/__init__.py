@@ -1,5 +1,3 @@
-# SPDX-License-Identifier: MIT
-# Copyright (c) 2025 OmniNode Team
 """Intelligence protocols for intent classification and analysis.
 
 This module exports protocols related to intelligence operations including

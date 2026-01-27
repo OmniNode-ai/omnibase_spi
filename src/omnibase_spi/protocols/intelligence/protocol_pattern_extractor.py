@@ -1,5 +1,3 @@
-# SPDX-License-Identifier: MIT
-# Copyright (c) 2025 OmniNode Team
 """Protocol for pattern extraction operations.
 
 This module defines the protocol for extracting patterns from session data.
