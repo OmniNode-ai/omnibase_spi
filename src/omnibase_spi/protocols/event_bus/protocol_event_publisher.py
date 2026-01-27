@@ -92,13 +92,22 @@ class ProtocolEventPublisher(Protocol):
         Publish event to Kafka with retry and circuit breaker.
 
         Args:
-            event_type: Fully-qualified event type (e.g., "omninode.codegen.request.validate.v1")
+            event_type: Fully-qualified event type (e.g., "omninode.codegen.request.validate.v1").
+                Used for schema validation and default topic routing when `topic` is None.
             payload: Event payload (dict or Pydantic model)
             correlation_id: Optional correlation ID (generated if not provided)
             causation_id: Optional causation ID for event sourcing
             metadata: Optional event metadata
-            topic: Optional topic override (defaults to event_type)
-            partition_key: Optional partition key for ordering
+            topic: Optional explicit topic override. When provided, the publisher MUST
+                use this topic instead of deriving it from `event_type`. When None,
+                standard routing rules apply (typically derived from `event_type`).
+            partition_key: Optional partition key for message ordering. This is a
+                string value at the SPI layer. The infrastructure layer is responsible
+                for encoding this to bytes using canonical UTF-8 encoding before
+                sending to Kafka. Handlers and callers should NOT perform byte
+                encoding - that is exclusively the infra layer's responsibility.
+                Messages with the same partition_key are guaranteed to be delivered
+                to the same partition, ensuring ordering.
 
         Returns:
             True if published successfully, False otherwise
@@ -106,8 +115,25 @@ class ProtocolEventPublisher(Protocol):
         Raises:
             RuntimeError: If circuit breaker is open
 
+        Routing Behavior:
+            The topic routing follows these rules in order of precedence:
+
+            1. **Explicit Override**: If `topic` is not None, the publisher MUST
+               publish to the specified topic, bypassing any default routing logic.
+               This allows callers to route events to specific topics regardless of
+               the event_type.
+
+            2. **Standard Routing**: If `topic` is None, the publisher derives the
+               target topic from `event_type` using its configured routing rules.
+               Typically this maps the event_type directly to a topic name, but
+               implementations may apply transformations (e.g., environment prefixes).
+
+            This design allows both convention-based routing (via event_type) and
+            explicit routing (via topic override) to coexist.
+
         Example:
             ```python
+            # Standard routing - topic derived from event_type
             success = await publisher.publish(
                 event_type="omninode.intelligence.event.quality_assessed.v1",
                 payload={
@@ -116,6 +142,14 @@ class ProtocolEventPublisher(Protocol):
                     "onex_compliance": 0.92
                 },
                 correlation_id="request-123"
+            )
+
+            # Explicit topic override - ignores default routing
+            success = await publisher.publish(
+                event_type="omninode.intelligence.event.quality_assessed.v1",
+                payload={"entity_id": "file.py", "quality_score": 0.87},
+                topic="custom-analytics-topic",
+                partition_key="file.py"  # Ensures ordering by entity
             )
 
             if success:

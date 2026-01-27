@@ -23,6 +23,122 @@ This separation ensures:
 - **Pluggable backends** - Implementations can be swapped without changing application code
 - **Testability** - In-memory implementations for testing, production backends for deployment
 
+## Publisher Protocol Policy
+
+### Canonical Interface
+
+`ProtocolEventPublisher` is the **canonical publish interface** for all event publishing in the ONEX platform.
+
+**Rule**: Handlers MUST depend on `ProtocolEventPublisher` from `omnibase_spi.protocols.event_bus`. Handler-local publish protocols (e.g., `ProtocolKafkaPublisher`) are **forbidden**.
+
+```python
+# CORRECT: Use the canonical SPI protocol
+from omnibase_spi.protocols.event_bus import ProtocolEventPublisher
+
+class MyHandler:
+    def __init__(self, publisher: ProtocolEventPublisher) -> None:
+        self._publisher = publisher
+
+# FORBIDDEN: Do NOT define handler-local publish protocols
+# class ProtocolKafkaPublisher(Protocol):  # NO! Use ProtocolEventPublisher
+#     async def publish_to_kafka(self, ...) -> None: ...
+```
+
+### Architecture Layers
+
+| Layer | Responsibility | Interface |
+|-------|---------------|-----------|
+| **Handler** | Business logic, event creation | Uses `ProtocolEventPublisher` |
+| **SPI** | Semantic publishing contract | Defines `ProtocolEventPublisher` |
+| **Infra** | Transport (bytes, connections) | Implements `ProtocolEventPublisher` |
+
+```text
+┌─────────────────────────────────────────────────────────────┐
+│  Application Handlers (omniagent, omniintelligence)         │
+│  ┌───────────────────────────────────────────────────────┐  │
+│  │  - Create events with business semantics              │  │
+│  │  - Depend on ProtocolEventPublisher from SPI          │  │
+│  │  - NO local publish protocol definitions              │  │
+│  └───────────────────────────────────────────────────────┘  │
+│                           │                                  │
+│                           ▼ uses                             │
+├─────────────────────────────────────────────────────────────┤
+│  SPI (omnibase_spi)                                         │
+│  ┌───────────────────────────────────────────────────────┐  │
+│  │  ProtocolEventPublisher                               │  │
+│  │  - publish(event_type, payload, correlation_id, ...) │  │
+│  │  - get_metrics()                                      │  │
+│  │  - close()                                            │  │
+│  └───────────────────────────────────────────────────────┘  │
+│                           │                                  │
+│                           ▼ implements                       │
+├─────────────────────────────────────────────────────────────┤
+│  Infra (omnibase_infra)                                     │
+│  ┌───────────────────────────────────────────────────────┐  │
+│  │  KafkaEventPublisher, RedpandaEventPublisher, etc.    │  │
+│  │  - Handle bytes, connections, retry, circuit breaker  │  │
+│  │  - Backend-specific transport logic                   │  │
+│  └───────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Why This Matters
+
+Defining handler-local publish protocols creates the **3-interface problem**:
+
+1. **Interface drift**: Each handler defines slightly different publish semantics
+2. **Adapter proliferation**: Each local protocol needs its own test adapter
+3. **Maintenance burden**: Changes to publishing logic must be replicated across handlers
+
+By enforcing `ProtocolEventPublisher` as the single canonical interface:
+
+- **One interface, one set of adapters**: Official implementations in `omnibase_infra`
+- **Consistent semantics**: All handlers use identical publish behavior
+- **Simplified testing**: One mock/fake publisher works everywhere
+- **Clear dependency direction**: Handlers -> SPI -> Infra (never reversed)
+
+### Correct Usage Pattern
+
+```python
+from omnibase_spi.protocols.event_bus import ProtocolEventPublisher
+
+class AgentEventHandler:
+    """Handler that publishes events using the canonical interface."""
+
+    def __init__(self, publisher: ProtocolEventPublisher) -> None:
+        self._publisher = publisher
+
+    async def handle_agent_completed(
+        self,
+        agent_id: str,
+        result: dict,
+        correlation_id: str,
+    ) -> None:
+        """Publish agent completion event."""
+        await self._publisher.publish(
+            event_type="agent.completed.v1",
+            payload={"agent_id": agent_id, "result": result},
+            correlation_id=correlation_id,
+            topic="agent-events",
+        )
+```
+
+### Exceptions
+
+If a handler truly needs raw Kafka bytes access (e.g., custom serialization, direct partition control, or low-level protocol manipulation), that handler IS infrastructure and belongs in `omnibase_infra`, not in application code.
+
+**Examples of infra-level concerns** (belong in `omnibase_infra`):
+- Custom binary serialization formats
+- Direct partition assignment algorithms
+- Protocol-specific header manipulation
+- Raw bytes streaming
+
+**Examples of application-level concerns** (use `ProtocolEventPublisher`):
+- Publishing domain events (user created, order placed)
+- Emitting telemetry and metrics
+- Sending notifications and alerts
+- Triggering downstream workflows
+
 ## Protocol Architecture
 
 The event bus domain consists of **24 specialized protocols** organized into these categories:
