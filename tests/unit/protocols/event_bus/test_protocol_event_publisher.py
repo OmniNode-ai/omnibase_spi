@@ -30,10 +30,29 @@ class TestProtocolEventPublisherSignature:
 
     def test_protocol_is_runtime_checkable(self) -> None:
         """ProtocolEventPublisher should be decorated with @runtime_checkable."""
-        # Check for runtime protocol attribute (varies by Python version)
-        assert hasattr(
-            ProtocolEventPublisher, "_is_runtime_protocol"
-        ) or hasattr(ProtocolEventPublisher, "__protocol_attrs__")
+        # Create a mock class that implements ALL the protocol's methods
+        # isinstance() only works with @runtime_checkable protocols
+        class _MockPublisher:
+            async def publish(
+                self,
+                event_type: str,
+                payload: dict,
+                correlation_id: str | None = None,
+                causation_id: str | None = None,
+                metadata: dict | None = None,
+                topic: str | None = None,
+                partition_key: str | None = None,
+            ) -> bool:
+                return True
+
+            async def get_metrics(self) -> dict:
+                return {}
+
+            async def close(self, timeout_seconds: float = 30.0) -> None:
+                pass
+
+        # This will raise TypeError if @runtime_checkable is missing
+        assert isinstance(_MockPublisher(), ProtocolEventPublisher)
 
     def test_protocol_is_protocol(self) -> None:
         """ProtocolEventPublisher should be a Protocol class."""
