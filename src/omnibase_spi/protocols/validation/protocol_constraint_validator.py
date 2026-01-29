@@ -11,7 +11,7 @@ Validation Categories:
 
 Example:
     >>> class MyConstraintValidator:
-    ...     def validate(
+    ...     async def validate(
     ...         self, profile: ModelExecutionProfile, constraints: list[ModelExecutionConstraints]
     ...     ) -> ModelValidationResult:
     ...         # Implementation here
@@ -63,13 +63,13 @@ class ProtocolConstraintValidator(Protocol):
         ...     profile: ModelExecutionProfile,
         ...     constraints: list[ModelExecutionConstraints],
         ... ) -> None:
-        ...     result = validator.validate(profile, constraints)
+        ...     result = await validator.validate(profile, constraints)
         ...     if not result.is_valid:
         ...         for issue in result.issues:
         ...             print(f"Conflict: {issue}")
         ...
         ...     # Can also detect cycles independently
-        ...     cycles = validator.detect_cycles(constraints)
+        ...     cycles = await validator.detect_cycles(constraints)
         ...     for cycle in cycles:
         ...         print(f"Cycle detected: {cycle.cycle_path}")
 
@@ -86,7 +86,7 @@ class ProtocolConstraintValidator(Protocol):
         - OMN-1128: Contract Validation Pipeline integration.
     """
 
-    def validate(
+    async def validate(
         self,
         profile: ModelExecutionProfile,
         constraints: list[ModelExecutionConstraints],
@@ -126,7 +126,7 @@ class ProtocolConstraintValidator(Protocol):
         Example:
             >>> profile = get_execution_profile()
             >>> constraints = load_handler_constraints()
-            >>> result = validator.validate(profile, constraints)
+            >>> result = await validator.validate(profile, constraints)
             >>> if not result.is_valid:
             ...     print(f"Found {len(result.issues)} conflicts")
             ...     for conflict in result.issues:
@@ -134,7 +134,7 @@ class ProtocolConstraintValidator(Protocol):
         """
         ...
 
-    def detect_cycles(
+    async def detect_cycles(
         self,
         constraints: list[ModelExecutionConstraints],
     ) -> list[ModelExecutionConflict]:
@@ -179,7 +179,7 @@ class ProtocolConstraintValidator(Protocol):
         """
         ...
 
-    def validate_phase_constraints(
+    async def validate_phase_constraints(
         self,
         profile: ModelExecutionProfile,
         constraints: list[ModelExecutionConstraints],
@@ -199,7 +199,7 @@ class ProtocolConstraintValidator(Protocol):
         """
         ...
 
-    def validate_determinism(
+    async def validate_determinism(
         self,
         profile: ModelExecutionProfile,
         constraints: list[ModelExecutionConstraints],
