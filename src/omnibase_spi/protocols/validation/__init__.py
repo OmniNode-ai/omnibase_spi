@@ -32,7 +32,6 @@ Note: This module contains ONLY Protocol definitions. Concrete implementations
 will be provided by ONEX validation nodes in omnibase_core.
 """
 
-# Constraint validation protocol
 # ONEX validation node protocols (new)
 from .protocol_compliance_validator import (
     ProtocolArchitectureCompliance,
