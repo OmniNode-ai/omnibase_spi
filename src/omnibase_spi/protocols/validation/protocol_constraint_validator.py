@@ -172,7 +172,7 @@ class ProtocolConstraintValidator(Protocol):
             ...     ModelExecutionConstraints(id="b", requires_before=["c"]),
             ...     ModelExecutionConstraints(id="c", requires_before=["a"]),  # Creates cycle!
             ... ]
-            >>> cycles = validator.detect_cycles(constraints)
+            >>> cycles = await validator.detect_cycles(constraints)
             >>> assert len(cycles) == 1
             >>> assert cycles[0].conflict_type == "cycle"
             >>> assert set(cycles[0].cycle_path) == {"a", "b", "c"}
