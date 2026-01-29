@@ -25,23 +25,26 @@ if TYPE_CHECKING:
 # =============================================================================
 
 
-class MockIntentStoredEvent:
-    """Mock that simulates ModelIntentStoredEvent from omnibase_core.
+class MockIntentStorageResult:
+    """Mock that simulates ModelIntentStorageResult from omnibase_core.
 
     Provides the minimal interface needed for testing ProtocolIntentGraph.
+    The new API returns a storage result instead of a stored event.
     """
 
     def __init__(
         self,
-        event_id: str = "event-123",
+        intent_id: str = "intent-123",
         session_id: str = "session-456",
+        success: bool = True,
         timestamp: str | None = None,
         correlation_id: str | None = None,
         metadata: dict[str, Any] | None = None,
     ) -> None:
-        """Initialize the mock event."""
-        self.event_id = event_id
+        """Initialize the mock storage result."""
+        self.intent_id = intent_id
         self.session_id = session_id
+        self.success = success
         self.timestamp = timestamp or "2025-01-25T12:00:00Z"
         self.correlation_id = correlation_id
         self.metadata = metadata or {}
@@ -87,6 +90,25 @@ class MockIntentRecordPayload:
         self.metadata = metadata or {}
 
 
+class MockIntentQueryResult:
+    """Mock that simulates ModelIntentQueryResult from omnibase_core.
+
+    Provides the minimal interface needed for testing ProtocolIntentGraph.
+    The new API returns a query result wrapper instead of a raw list.
+    """
+
+    def __init__(
+        self,
+        intents: list[MockIntentRecordPayload] | None = None,
+        total_count: int | None = None,
+        session_id: str | None = None,
+    ) -> None:
+        """Initialize the mock query result."""
+        self.intents = intents or []
+        self.total_count = total_count if total_count is not None else len(self.intents)
+        self.session_id = session_id
+
+
 # =============================================================================
 # Mock Implementations
 # =============================================================================
@@ -102,28 +124,28 @@ class MockIntentGraph:
     def __init__(self) -> None:
         """Initialize the mock intent graph."""
         self._intents: dict[str, list[MockIntentRecordPayload]] = {}
-        self._event_counter: int = 0
+        self._intent_counter: int = 0
 
     async def store_intent(
         self,
         session_id: str,
         intent_data: Any,  # Would be ModelIntentClassificationInput
-        correlation_id: str | None = None,
-    ) -> Any:  # Would be ModelIntentStoredEvent
+        correlation_id: str,
+    ) -> Any:  # Would be ModelIntentStorageResult
         """Store an intent classification result in the graph.
 
         Args:
             session_id: Unique identifier for the session.
             intent_data: The intent classification input.
-            correlation_id: Optional identifier for distributed tracing.
+            correlation_id: Correlation ID for tracing (required).
 
         Returns:
-            Event confirming the intent was stored.
+            Storage result indicating success/failure and the intent ID.
         """
         if session_id not in self._intents:
             self._intents[session_id] = []
 
-        self._event_counter += 1
+        self._intent_counter += 1
         record = MockIntentRecordPayload(
             intent_category="code_generation",  # Default for testing
             confidence=0.95,
@@ -131,10 +153,11 @@ class MockIntentGraph:
         )
         self._intents[session_id].append(record)
 
-        return MockIntentStoredEvent(
-            event_id=f"event-{self._event_counter}",
+        return MockIntentStorageResult(
+            intent_id=f"intent-{self._intent_counter}",
             session_id=session_id,
-            correlation_id=correlation_id or f"corr-{self._event_counter}",
+            success=True,
+            correlation_id=correlation_id,
         )
 
     async def get_session_intents(
@@ -142,7 +165,7 @@ class MockIntentGraph:
         session_id: str,
         min_confidence: float = 0.0,
         limit: int | None = None,
-    ) -> list[Any]:  # Would be list[IntentRecordPayload]
+    ) -> Any:  # Would be ModelIntentQueryResult
         """Retrieve stored intents for a session.
 
         Args:
@@ -151,7 +174,7 @@ class MockIntentGraph:
             limit: Maximum number of intents to return.
 
         Returns:
-            List of intent records matching the criteria.
+            Query result containing matching intent records.
         """
         intents = self._intents.get(session_id, [])
 
@@ -162,7 +185,10 @@ class MockIntentGraph:
         if limit is not None:
             filtered = filtered[:limit]
 
-        return filtered
+        return MockIntentQueryResult(
+            intents=filtered,
+            session_id=session_id,
+        )
 
     async def health_check(self) -> bool:
         """Check if the intent graph service is healthy.
@@ -186,10 +212,10 @@ class PartialGraph:
         self,
         session_id: str,
         intent_data: Any,
-        correlation_id: str | None = None,
+        correlation_id: str,
     ) -> Any:
         """Only has store_intent, missing other methods."""
-        return MockIntentStoredEvent()
+        return MockIntentStorageResult()
 
     # Missing get_session_intents and health_check
 
@@ -201,19 +227,19 @@ class PartialGraphMissingHealthCheck:
         self,
         session_id: str,
         intent_data: Any,
-        correlation_id: str | None = None,
+        correlation_id: str,
     ) -> Any:
         """Store an intent."""
-        return MockIntentStoredEvent()
+        return MockIntentStorageResult()
 
     async def get_session_intents(
         self,
         session_id: str,
         min_confidence: float = 0.0,
         limit: int | None = None,
-    ) -> list[Any]:
+    ) -> Any:
         """Get session intents."""
-        return []
+        return MockIntentQueryResult()
 
     # Missing health_check
 
@@ -225,19 +251,19 @@ class SyncGraph:
         self,
         session_id: str,
         intent_data: Any,
-        correlation_id: str | None = None,
+        correlation_id: str,
     ) -> Any:
         """Sync method - should be async."""
-        return MockIntentStoredEvent()
+        return MockIntentStorageResult()
 
     def get_session_intents(
         self,
         session_id: str,
         min_confidence: float = 0.0,
         limit: int | None = None,
-    ) -> list[Any]:
+    ) -> Any:
         """Sync method - should be async."""
-        return []
+        return MockIntentQueryResult()
 
     def health_check(self) -> bool:
         """Sync method - should be async."""
@@ -390,7 +416,7 @@ class TestMockIntentGraphImplementation:
 
     @pytest.mark.asyncio
     async def test_mock_store_intent_returns_result(self) -> None:
-        """Mock store_intent should return a stored event."""
+        """Mock store_intent should return a storage result."""
         graph = MockIntentGraph()
         intent_data = MockIntentClassificationInput(
             content="Generate a Python function",
@@ -404,27 +430,28 @@ class TestMockIntentGraphImplementation:
         )
 
         assert result is not None
-        assert result.event_id is not None
+        assert result.intent_id is not None
         assert result.session_id == "test-session"
         assert result.correlation_id == "test-corr-123"
+        assert result.success is True
 
     @pytest.mark.asyncio
-    async def test_mock_store_intent_generates_correlation_id(self) -> None:
-        """Mock store_intent should generate correlation_id if not provided."""
+    async def test_mock_store_intent_preserves_correlation_id(self) -> None:
+        """Mock store_intent should preserve the provided correlation_id."""
         graph = MockIntentGraph()
         intent_data = MockIntentClassificationInput(content="Test content")
 
         result = await graph.store_intent(
             session_id="test-session",
             intent_data=intent_data,
+            correlation_id="preserved-corr-id",
         )
 
-        assert result.correlation_id is not None
-        assert len(result.correlation_id) > 0
+        assert result.correlation_id == "preserved-corr-id"
 
     @pytest.mark.asyncio
-    async def test_mock_get_session_intents_returns_list(self) -> None:
-        """Mock get_session_intents should return a list of intents."""
+    async def test_mock_get_session_intents_returns_query_result(self) -> None:
+        """Mock get_session_intents should return a query result with intents."""
         graph = MockIntentGraph()
 
         # Store some intents first
@@ -433,27 +460,30 @@ class TestMockIntentGraphImplementation:
             await graph.store_intent(
                 session_id="test-session",
                 intent_data=intent_data,
+                correlation_id=f"corr-{i}",
             )
 
         # Retrieve intents
-        intents = await graph.get_session_intents("test-session")
+        result = await graph.get_session_intents("test-session")
 
-        assert intents is not None
-        assert isinstance(intents, list)
-        assert len(intents) == 3
+        assert result is not None
+        assert hasattr(result, "intents")
+        assert isinstance(result.intents, list)
+        assert len(result.intents) == 3
 
     @pytest.mark.asyncio
     async def test_mock_get_session_intents_returns_empty_for_unknown_session(
         self,
     ) -> None:
-        """Mock get_session_intents should return empty list for unknown session."""
+        """Mock get_session_intents should return empty intents for unknown session."""
         graph = MockIntentGraph()
 
-        intents = await graph.get_session_intents("nonexistent-session")
+        result = await graph.get_session_intents("nonexistent-session")
 
-        assert intents is not None
-        assert isinstance(intents, list)
-        assert len(intents) == 0
+        assert result is not None
+        assert hasattr(result, "intents")
+        assert isinstance(result.intents, list)
+        assert len(result.intents) == 0
 
     @pytest.mark.asyncio
     async def test_mock_get_session_intents_filters_by_min_confidence(self) -> None:
@@ -463,15 +493,19 @@ class TestMockIntentGraphImplementation:
         # Store intents (mock uses default 0.95 confidence)
         for i in range(3):
             intent_data = MockIntentClassificationInput(content=f"Test {i}")
-            await graph.store_intent(session_id="test-session", intent_data=intent_data)
+            await graph.store_intent(
+                session_id="test-session",
+                intent_data=intent_data,
+                correlation_id=f"corr-{i}",
+            )
 
         # All intents have 0.95 confidence, so filtering at 0.9 returns all
-        intents = await graph.get_session_intents("test-session", min_confidence=0.9)
-        assert len(intents) == 3
+        result = await graph.get_session_intents("test-session", min_confidence=0.9)
+        assert len(result.intents) == 3
 
         # Filtering at 0.99 returns none (since mock uses 0.95)
-        intents = await graph.get_session_intents("test-session", min_confidence=0.99)
-        assert len(intents) == 0
+        result = await graph.get_session_intents("test-session", min_confidence=0.99)
+        assert len(result.intents) == 0
 
     @pytest.mark.asyncio
     async def test_mock_get_session_intents_respects_limit(self) -> None:
@@ -481,15 +515,19 @@ class TestMockIntentGraphImplementation:
         # Store 5 intents
         for i in range(5):
             intent_data = MockIntentClassificationInput(content=f"Test {i}")
-            await graph.store_intent(session_id="test-session", intent_data=intent_data)
+            await graph.store_intent(
+                session_id="test-session",
+                intent_data=intent_data,
+                correlation_id=f"corr-{i}",
+            )
 
         # Request only 2
-        intents = await graph.get_session_intents("test-session", limit=2)
-        assert len(intents) == 2
+        result = await graph.get_session_intents("test-session", limit=2)
+        assert len(result.intents) == 2
 
         # Request all (no limit)
-        intents = await graph.get_session_intents("test-session")
-        assert len(intents) == 5
+        result = await graph.get_session_intents("test-session")
+        assert len(result.intents) == 5
 
     @pytest.mark.asyncio
     async def test_mock_health_check_returns_bool(self) -> None:
@@ -596,15 +634,23 @@ class TestIntentGraphSessionIsolation:
         intent_data1 = MockIntentClassificationInput(content="Session 1 content")
         intent_data2 = MockIntentClassificationInput(content="Session 2 content")
 
-        await graph.store_intent(session_id="session-1", intent_data=intent_data1)
-        await graph.store_intent(session_id="session-2", intent_data=intent_data2)
+        await graph.store_intent(
+            session_id="session-1",
+            intent_data=intent_data1,
+            correlation_id="corr-1",
+        )
+        await graph.store_intent(
+            session_id="session-2",
+            intent_data=intent_data2,
+            correlation_id="corr-2",
+        )
 
         # Verify isolation
-        session1_intents = await graph.get_session_intents("session-1")
-        session2_intents = await graph.get_session_intents("session-2")
+        session1_result = await graph.get_session_intents("session-1")
+        session2_result = await graph.get_session_intents("session-2")
 
-        assert len(session1_intents) == 1
-        assert len(session2_intents) == 1
+        assert len(session1_result.intents) == 1
+        assert len(session2_result.intents) == 1
 
     @pytest.mark.asyncio
     async def test_multiple_intents_same_session(self) -> None:
@@ -617,11 +663,12 @@ class TestIntentGraphSessionIsolation:
             await graph.store_intent(
                 session_id="multi-intent-session",
                 intent_data=intent_data,
+                correlation_id=f"corr-{i}",
             )
 
         # Verify all intents are present
-        intents = await graph.get_session_intents("multi-intent-session")
-        assert len(intents) == 3
+        result = await graph.get_session_intents("multi-intent-session")
+        assert len(result.intents) == 3
 
 
 @pytest.mark.unit
@@ -643,31 +690,35 @@ class TestIntentGraphCorrelationTracking:
         assert result.correlation_id == "my-correlation-123"
 
     @pytest.mark.asyncio
-    async def test_correlation_id_auto_generated_when_not_provided(self) -> None:
-        """Correlation ID should be auto-generated when not provided."""
+    async def test_correlation_id_is_required(self) -> None:
+        """Correlation ID is required and must be provided."""
         graph = MockIntentGraph()
         intent_data = MockIntentClassificationInput(content="Test content")
 
+        # correlation_id is now a required parameter
         result = await graph.store_intent(
             session_id="test-session",
             intent_data=intent_data,
-            # No correlation_id provided
+            correlation_id="required-corr-id",
         )
 
-        assert result.correlation_id is not None
-        assert len(result.correlation_id) > 0
+        assert result.correlation_id == "required-corr-id"
 
     @pytest.mark.asyncio
-    async def test_each_store_gets_unique_event_id(self) -> None:
-        """Each store operation should generate a unique event ID."""
+    async def test_each_store_gets_unique_intent_id(self) -> None:
+        """Each store operation should generate a unique intent ID."""
         graph = MockIntentGraph()
         intent_data = MockIntentClassificationInput(content="Test content")
 
         result1 = await graph.store_intent(
-            session_id="test-session", intent_data=intent_data
+            session_id="test-session",
+            intent_data=intent_data,
+            correlation_id="corr-1",
         )
         result2 = await graph.store_intent(
-            session_id="test-session", intent_data=intent_data
+            session_id="test-session",
+            intent_data=intent_data,
+            correlation_id="corr-2",
         )
 
-        assert result1.event_id != result2.event_id
+        assert result1.intent_id != result2.intent_id

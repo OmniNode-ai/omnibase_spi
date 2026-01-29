@@ -1,19 +1,11 @@
 """Protocol for intent graph persistence operations.
 
-This module defines the protocol for storing and retrieving intent classification
-results. Implementations provide persistence abstraction, allowing omniintelligence
-to remain memory-agnostic while supporting optional intent storage.
+This module defines the protocol for storing and retrieving intent classifications
+from a graph database. Implementations handle the actual storage mechanism
+(e.g., Memgraph, Neo4j) while consumers depend only on this protocol.
 
-The intent graph tracks:
-- Session-scoped intent history
-- Intent classification results with confidence scores
-- Correlation IDs for distributed tracing
-
-Note:
-    This protocol references types from omnibase_core.models.events that will be
-    created as part of OMN-1479 implementation:
-    - IntentRecordPayload: Payload for stored intent records
-    - ModelIntentStoredEvent: Event emitted when an intent is stored
+This protocol enables dependency inversion - intelligence services can
+use intent persistence without knowing the storage implementation.
 
 Example:
     >>> class MyIntentGraph:
@@ -21,13 +13,19 @@ Example:
     ...         self,
     ...         session_id: str,
     ...         intent_data: ModelIntentClassificationInput,
-    ...         correlation_id: str | None = None,
-    ...     ) -> ModelIntentStoredEvent:
+    ...         correlation_id: str,
+    ...     ) -> ModelIntentStorageResult:
     ...         # Implementation here
     ...         ...
     >>>
     >>> # Check protocol compliance
     >>> assert isinstance(MyIntentGraph(), ProtocolIntentGraph)
+
+See Also:
+    ModelIntentClassificationInput: Input data for intent storage.
+    ModelIntentStorageResult: Result of storage operations.
+    ModelIntentQueryResult: Result of query operations.
+    OMN-1457: AdapterIntentGraph implementation in omnimemory.
 """
 
 from __future__ import annotations
@@ -35,8 +33,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    from omnibase_core.models.events import IntentRecordPayload, ModelIntentStoredEvent
-    from omnibase_core.models.intelligence import ModelIntentClassificationInput
+    from omnibase_core.models.intelligence import (
+        ModelIntentClassificationInput,
+        ModelIntentQueryResult,
+        ModelIntentStorageResult,
+    )
 
 __all__ = ["ProtocolIntentGraph"]
 
@@ -45,55 +46,53 @@ __all__ = ["ProtocolIntentGraph"]
 class ProtocolIntentGraph(Protocol):
     """Protocol for intent graph persistence operations.
 
-    Defines the interface for storing and retrieving intent classification
-    results. This abstraction allows the intelligence layer to optionally
-    persist intent data without coupling to specific storage implementations.
+    Defines the capability for storing and retrieving intent classifications
+    from a graph database. Implementations handle the actual storage mechanism
+    (e.g., Memgraph, Neo4j) while consumers depend only on this protocol.
 
-    Use cases:
-    - Session history tracking for context-aware responses
-    - Intent pattern analysis across sessions
-    - Debugging and observability of classification decisions
-    - Replay and audit capabilities
+    This protocol enables dependency inversion - intelligence services can
+    use intent persistence without knowing the storage implementation.
 
     Example:
-        >>> async def example():
-        ...     graph: ProtocolIntentGraph = get_intent_graph()
-        ...     # Store a new intent
-        ...     event = await graph.store_intent(session_id, intent_data)
-        ...     # Retrieve session intents
-        ...     intents = await graph.get_session_intents(session_id, min_confidence=0.7)
-        ...     print(f"Found {len(intents)} high-confidence intents")
+        ```python
+        graph: ProtocolIntentGraph = get_intent_graph()
+
+        # Store an intent
+        result = await graph.store_intent(
+            session_id="session-123",
+            intent_data=classification_input,
+            correlation_id="corr-456",
+        )
+
+        # Query intents
+        intents = await graph.get_session_intents(
+            session_id="session-123",
+            min_confidence=0.7,
+        )
+        ```
+
+    See Also:
+        ModelIntentClassificationInput: Input data for intent storage.
+        ModelIntentStorageResult: Result of storage operations.
+        ModelIntentQueryResult: Result of query operations.
+        OMN-1457: AdapterIntentGraph implementation in omnimemory.
     """
 
     async def store_intent(
         self,
         session_id: str,
         intent_data: ModelIntentClassificationInput,
-        correlation_id: str | None = None,
-    ) -> ModelIntentStoredEvent:
-        """Store an intent classification result in the graph.
-
-        Persists the intent data associated with a session for later retrieval.
-        The correlation_id enables distributed tracing across service boundaries.
+        correlation_id: str,
+    ) -> ModelIntentStorageResult:
+        """Store an intent classification in the graph.
 
         Args:
-            session_id: Unique identifier for the session. Used to group related
-                intents together for retrieval.
-            intent_data: The intent classification input containing content,
-                context, and optional correlation metadata.
-            correlation_id: Optional identifier for distributed tracing. If not
-                provided, implementations may generate one.
+            session_id: Unique identifier for the user session.
+            intent_data: The classified intent data to store.
+            correlation_id: Correlation ID for tracing.
 
         Returns:
-            Event confirming the intent was stored, containing:
-                - event_id: Unique identifier for this storage event
-                - session_id: The session the intent was stored under
-                - timestamp: When the intent was stored
-                - correlation_id: Tracing identifier (provided or generated)
-
-        Raises:
-            May raise implementation-specific exceptions for storage failures,
-            invalid session IDs, or serialization errors.
+            Storage result indicating success/failure and the intent ID.
         """
         ...
 
@@ -102,51 +101,23 @@ class ProtocolIntentGraph(Protocol):
         session_id: str,
         min_confidence: float = 0.0,
         limit: int | None = None,
-    ) -> list[IntentRecordPayload]:
-        """Retrieve stored intents for a session.
-
-        Fetches intent records matching the session ID with optional filtering
-        by confidence threshold and result limiting.
+    ) -> ModelIntentQueryResult:
+        """Retrieve intents for a session.
 
         Args:
-            session_id: Unique identifier for the session to query.
-            min_confidence: Minimum confidence threshold (0.0 to 1.0). Only
-                intents with confidence >= this value are returned. Defaults
-                to 0.0 (no filtering).
-            limit: Maximum number of intents to return. If None, returns all
-                matching intents. Results are typically ordered by timestamp
-                (most recent first).
+            session_id: The session to query intents for.
+            min_confidence: Minimum confidence threshold (0.0 to 1.0).
+            limit: Maximum number of intents to return, or None for all.
 
         Returns:
-            List of intent records matching the criteria. Each record contains:
-                - intent_category: The classified intent type
-                - confidence: Classification confidence score
-                - timestamp: When the intent was classified
-                - content_hash: Hash of the original content (for deduplication)
-                - metadata: Additional classification metadata
-
-        Raises:
-            May raise implementation-specific exceptions for invalid session IDs,
-            query failures, or deserialization errors.
+            Query result containing matching intent records.
         """
         ...
 
     async def health_check(self) -> bool:
         """Check if the intent graph storage is healthy and accessible.
 
-        Performs a lightweight check to verify the underlying storage
-        is reachable and operational. Used for service health monitoring
-        and circuit breaker patterns.
-
         Returns:
-            True if the storage is healthy and accessible, False otherwise.
-            Implementations should not raise exceptions; connection or
-            operational issues should result in False.
-
-        Example:
-            >>> async def monitor():
-            ...     graph: ProtocolIntentGraph = get_intent_graph()
-            ...     if not await graph.health_check():
-            ...         logger.warning("Intent graph storage unavailable")
+            True if the storage is healthy, False otherwise.
         """
         ...

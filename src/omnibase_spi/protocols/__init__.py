@@ -414,9 +414,10 @@ from omnibase_spi.protocols.storage import (
     ProtocolVectorStoreHandler,
 )
 
-# Validation protocols (4 protocols) - Input validation and error handling
+# Validation protocols (5 protocols) - Input validation and error handling
 # Provides structured validation with error reporting and compliance checking
 from omnibase_spi.protocols.validation import (
+    ProtocolConstraintValidator,
     ProtocolValidationDecorator,
     ProtocolValidationError,
     ProtocolValidationResult,
@@ -496,6 +497,7 @@ __all__ = [
     "ProtocolCommunicationBridge",
     "ProtocolComputeNode",
     "ProtocolContainer",
+    "ProtocolConstraintValidator",
     "ProtocolContainerService",
     "ProtocolContractData",
     "ProtocolDIServiceInstance",

@@ -41,6 +41,7 @@ from .protocol_compliance_validator import (
     ProtocolComplianceViolation,
     ProtocolONEXStandards,
 )
+from .protocol_constraint_validator import ProtocolConstraintValidator
 from .protocol_import_validator import (
     ProtocolImportAnalysis,
     ProtocolImportValidationConfig,
@@ -79,6 +80,7 @@ __all__ = [
     "ProtocolComplianceRule",
     "ProtocolComplianceValidator",
     "ProtocolComplianceViolation",
+    "ProtocolConstraintValidator",
     "ProtocolImportAnalysis",
     "ProtocolImportValidationConfig",
     "ProtocolImportValidator",
