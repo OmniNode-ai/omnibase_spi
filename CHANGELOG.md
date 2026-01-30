@@ -532,6 +532,8 @@ result = await handler.traverse(
 | Version | Total Protocols | Test Coverage | Validation Status |
 |---------|-----------------|---------------|-------------------|
 | 0.6.4   | 183+            | 345+ tests    | All passing       |
+| 0.6.3   | 183+            | 345+ tests    | All passing       |
+| 0.6.2   | 183+            | 345+ tests    | All passing       |
 | 0.6.1   | 183+            | 345+ tests    | All passing       |
 | 0.6.0   | 182+            | 340+ tests    | All passing       |
 | 0.5.0   | 180+            | 320+ tests    | All passing       |

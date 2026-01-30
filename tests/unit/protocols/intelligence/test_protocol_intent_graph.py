@@ -151,9 +151,15 @@ class MockIntentGraph:
             self._intents[session_id] = []
 
         self._intent_counter += 1
+        # Note: content_hash is not explicitly set here because the new API accepts
+        # classification OUTPUT (category, confidence, keywords), not raw INPUT content.
+        # Classification happens upstream, so we don't have access to the original
+        # content to hash. MockIntentRecordPayload provides a default value ("abc123")
+        # for testing purposes. Real implementations would compute the hash upstream
+        # when the content is classified.
         record = MockIntentRecordPayload(
-            intent_category=getattr(intent_data, "intent_category", "code_generation"),
-            confidence=getattr(intent_data, "confidence", 0.95),
+            intent_category=intent_data.intent_category,
+            confidence=intent_data.confidence,
         )
         self._intents[session_id].append(record)
 
