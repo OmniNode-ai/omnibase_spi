@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.3] - 2026-01-30
+
+### Changed
+
+- Bumped version to 0.6.3
+- Updated `omnibase-core` dependency to >=0.9.10
+
 ## [0.6.2] - 2026-01-27
 
 ### Added
