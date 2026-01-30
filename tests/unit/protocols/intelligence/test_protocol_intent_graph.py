@@ -50,22 +50,26 @@ class MockIntentStorageResult:
         self.metadata = metadata or {}
 
 
-class MockIntentClassificationInput:
-    """Mock that simulates ModelIntentClassificationInput from omnibase_core.
+class MockIntentClassificationOutput:
+    """Mock that simulates ModelIntentClassificationOutput from omnibase_core.
 
     Provides the minimal interface needed for testing ProtocolIntentGraph.
+    The storage boundary accepts classification output (category, confidence,
+    keywords), not raw input. Classification happens upstream.
     """
 
     def __init__(
         self,
-        content: str = "",
-        correlation_id: str | None = None,
-        context: dict[str, Any] | None = None,
+        success: bool = True,
+        intent_category: str = "code_generation",
+        confidence: float = 0.95,
+        keywords: list[str] | None = None,
     ) -> None:
-        """Initialize the mock input."""
-        self.content = content
-        self.correlation_id = correlation_id
-        self.context = context or {}
+        """Initialize the mock output."""
+        self.success = success
+        self.intent_category = intent_category
+        self.confidence = confidence
+        self.keywords = keywords or []
 
 
 class MockIntentRecordPayload:
@@ -129,14 +133,15 @@ class MockIntentGraph:
     async def store_intent(
         self,
         session_id: str,
-        intent_data: Any,  # Would be ModelIntentClassificationInput
+        intent_data: Any,  # Would be ModelIntentClassificationOutput
         correlation_id: str,
     ) -> Any:  # Would be ModelIntentStorageResult
         """Store an intent classification result in the graph.
 
         Args:
             session_id: Unique identifier for the session.
-            intent_data: The intent classification input.
+            intent_data: The classification output to store (category, confidence,
+                keywords). Classification happens upstream.
             correlation_id: Correlation ID for tracing (required).
 
         Returns:
@@ -147,9 +152,8 @@ class MockIntentGraph:
 
         self._intent_counter += 1
         record = MockIntentRecordPayload(
-            intent_category="code_generation",  # Default for testing
-            confidence=0.95,
-            content_hash=str(hash(getattr(intent_data, "content", ""))),
+            intent_category=getattr(intent_data, "intent_category", "code_generation"),
+            confidence=getattr(intent_data, "confidence", 0.95),
         )
         self._intents[session_id].append(record)
 
@@ -418,9 +422,10 @@ class TestMockIntentGraphImplementation:
     async def test_mock_store_intent_returns_result(self) -> None:
         """Mock store_intent should return a storage result."""
         graph = MockIntentGraph()
-        intent_data = MockIntentClassificationInput(
-            content="Generate a Python function",
-            correlation_id="test-corr-123",
+        intent_data = MockIntentClassificationOutput(
+            intent_category="code_generation",
+            confidence=0.95,
+            keywords=["python", "function"],
         )
 
         result = await graph.store_intent(
@@ -439,7 +444,10 @@ class TestMockIntentGraphImplementation:
     async def test_mock_store_intent_preserves_correlation_id(self) -> None:
         """Mock store_intent should preserve the provided correlation_id."""
         graph = MockIntentGraph()
-        intent_data = MockIntentClassificationInput(content="Test content")
+        intent_data = MockIntentClassificationOutput(
+            intent_category="debugging",
+            confidence=0.85,
+        )
 
         result = await graph.store_intent(
             session_id="test-session",
@@ -456,7 +464,10 @@ class TestMockIntentGraphImplementation:
 
         # Store some intents first
         for i in range(3):
-            intent_data = MockIntentClassificationInput(content=f"Test content {i}")
+            intent_data = MockIntentClassificationOutput(
+                intent_category=f"category_{i}",
+                confidence=0.9,
+            )
             await graph.store_intent(
                 session_id="test-session",
                 intent_data=intent_data,
@@ -490,9 +501,12 @@ class TestMockIntentGraphImplementation:
         """Mock get_session_intents should filter by min_confidence."""
         graph = MockIntentGraph()
 
-        # Store intents (mock uses default 0.95 confidence)
+        # Store intents (mock uses the confidence from output data)
         for i in range(3):
-            intent_data = MockIntentClassificationInput(content=f"Test {i}")
+            intent_data = MockIntentClassificationOutput(
+                intent_category=f"category_{i}",
+                confidence=0.95,
+            )
             await graph.store_intent(
                 session_id="test-session",
                 intent_data=intent_data,
@@ -503,7 +517,7 @@ class TestMockIntentGraphImplementation:
         result = await graph.get_session_intents("test-session", min_confidence=0.9)
         assert len(result.intents) == 3
 
-        # Filtering at 0.99 returns none (since mock uses 0.95)
+        # Filtering at 0.99 returns none (since confidence is 0.95)
         result = await graph.get_session_intents("test-session", min_confidence=0.99)
         assert len(result.intents) == 0
 
@@ -514,7 +528,10 @@ class TestMockIntentGraphImplementation:
 
         # Store 5 intents
         for i in range(5):
-            intent_data = MockIntentClassificationInput(content=f"Test {i}")
+            intent_data = MockIntentClassificationOutput(
+                intent_category=f"category_{i}",
+                confidence=0.9,
+            )
             await graph.store_intent(
                 session_id="test-session",
                 intent_data=intent_data,
@@ -631,8 +648,14 @@ class TestIntentGraphSessionIsolation:
         graph = MockIntentGraph()
 
         # Store intents in different sessions
-        intent_data1 = MockIntentClassificationInput(content="Session 1 content")
-        intent_data2 = MockIntentClassificationInput(content="Session 2 content")
+        intent_data1 = MockIntentClassificationOutput(
+            intent_category="code_generation",
+            confidence=0.9,
+        )
+        intent_data2 = MockIntentClassificationOutput(
+            intent_category="debugging",
+            confidence=0.85,
+        )
 
         await graph.store_intent(
             session_id="session-1",
@@ -659,7 +682,10 @@ class TestIntentGraphSessionIsolation:
 
         # Store multiple intents in same session
         for i in range(3):
-            intent_data = MockIntentClassificationInput(content=f"Content {i}")
+            intent_data = MockIntentClassificationOutput(
+                intent_category=f"category_{i}",
+                confidence=0.9,
+            )
             await graph.store_intent(
                 session_id="multi-intent-session",
                 intent_data=intent_data,
@@ -679,7 +705,10 @@ class TestIntentGraphCorrelationTracking:
     async def test_correlation_id_preserved(self) -> None:
         """Correlation ID passed to store_intent should be preserved in result."""
         graph = MockIntentGraph()
-        intent_data = MockIntentClassificationInput(content="Test content")
+        intent_data = MockIntentClassificationOutput(
+            intent_category="code_generation",
+            confidence=0.9,
+        )
 
         result = await graph.store_intent(
             session_id="test-session",
@@ -693,7 +722,10 @@ class TestIntentGraphCorrelationTracking:
     async def test_correlation_id_is_required(self) -> None:
         """Correlation ID is required and must be provided."""
         graph = MockIntentGraph()
-        intent_data = MockIntentClassificationInput(content="Test content")
+        intent_data = MockIntentClassificationOutput(
+            intent_category="debugging",
+            confidence=0.85,
+        )
 
         # correlation_id is now a required parameter
         result = await graph.store_intent(
@@ -708,7 +740,10 @@ class TestIntentGraphCorrelationTracking:
     async def test_each_store_gets_unique_intent_id(self) -> None:
         """Each store operation should generate a unique intent ID."""
         graph = MockIntentGraph()
-        intent_data = MockIntentClassificationInput(content="Test content")
+        intent_data = MockIntentClassificationOutput(
+            intent_category="code_generation",
+            confidence=0.9,
+        )
 
         result1 = await graph.store_intent(
             session_id="test-session",
