@@ -7,12 +7,17 @@ from a graph database. Implementations handle the actual storage mechanism
 This protocol enables dependency inversion - intelligence services can
 use intent persistence without knowing the storage implementation.
 
+Note:
+    The storage boundary accepts **classification output** (category, confidence,
+    keywords), not raw input. Classification happens upstream; this protocol
+    persists the results.
+
 Example:
     >>> class MyIntentGraph:
     ...     async def store_intent(
     ...         self,
     ...         session_id: str,
-    ...         intent_data: ModelIntentClassificationInput,
+    ...         intent_data: ModelIntentClassificationOutput,
     ...         correlation_id: str,
     ...     ) -> ModelIntentStorageResult:
     ...         # Implementation here
@@ -22,7 +27,7 @@ Example:
     >>> assert isinstance(MyIntentGraph(), ProtocolIntentGraph)
 
 See Also:
-    ModelIntentClassificationInput: Input data for intent storage.
+    ModelIntentClassificationOutput: Classification result to store.
     ModelIntentStorageResult: Result of storage operations.
     ModelIntentQueryResult: Result of query operations.
     OMN-1457: AdapterIntentGraph implementation in omnimemory.
@@ -34,7 +39,7 @@ from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_core.models.intelligence import (
-        ModelIntentClassificationInput,
+        ModelIntentClassificationOutput,
         ModelIntentQueryResult,
         ModelIntentStorageResult,
     )
@@ -53,14 +58,19 @@ class ProtocolIntentGraph(Protocol):
     This protocol enables dependency inversion - intelligence services can
     use intent persistence without knowing the storage implementation.
 
+    Note:
+        The storage boundary accepts **classification output** (category,
+        confidence, keywords), not raw input. Classification happens upstream;
+        this protocol persists the results.
+
     Example:
         ```python
         graph: ProtocolIntentGraph = get_intent_graph()
 
-        # Store an intent
+        # Store an intent (classification already happened upstream)
         result = await graph.store_intent(
             session_id="session-123",
-            intent_data=classification_input,
+            intent_data=classification_output,
             correlation_id="corr-456",
         )
 
@@ -72,7 +82,7 @@ class ProtocolIntentGraph(Protocol):
         ```
 
     See Also:
-        ModelIntentClassificationInput: Input data for intent storage.
+        ModelIntentClassificationOutput: Classification result to store.
         ModelIntentStorageResult: Result of storage operations.
         ModelIntentQueryResult: Result of query operations.
         OMN-1457: AdapterIntentGraph implementation in omnimemory.
@@ -81,14 +91,16 @@ class ProtocolIntentGraph(Protocol):
     async def store_intent(
         self,
         session_id: str,
-        intent_data: ModelIntentClassificationInput,
+        intent_data: ModelIntentClassificationOutput,
         correlation_id: str,
     ) -> ModelIntentStorageResult:
         """Store an intent classification in the graph.
 
         Args:
             session_id: Unique identifier for the user session.
-            intent_data: The classified intent data to store.
+            intent_data: The classification output to store (category, confidence,
+                keywords). Classification happens upstream; this method persists
+                the result.
             correlation_id: Correlation ID for tracing.
 
         Returns:

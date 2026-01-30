@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.4] - 2026-01-30
+
+### Changed
+
+- **ProtocolIntentGraph semantic fix** (OMN-1729): Updated `store_intent()` to accept `ModelIntentClassificationOutput` instead of `ModelIntentClassificationInput`
+  - Storage boundary now correctly accepts classification **output** (category, confidence, keywords)
+  - Classification happens upstream; this protocol persists the results
+  - Docstrings updated to reflect semantic change
+- Updated `omnibase-core` dependency to >=0.9.11
+
 ## [0.6.3] - 2026-01-30
 
 ### Changed
@@ -521,6 +531,9 @@ result = await handler.traverse(
 
 | Version | Total Protocols | Test Coverage | Validation Status |
 |---------|-----------------|---------------|-------------------|
+| 0.6.4   | 183+            | 345+ tests    | All passing       |
+| 0.6.3   | 183+            | 345+ tests    | All passing       |
+| 0.6.2   | 183+            | 345+ tests    | All passing       |
 | 0.6.1   | 183+            | 345+ tests    | All passing       |
 | 0.6.0   | 182+            | 340+ tests    | All passing       |
 | 0.5.0   | 180+            | 320+ tests    | All passing       |
