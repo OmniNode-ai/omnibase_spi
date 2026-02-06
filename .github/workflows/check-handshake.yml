@@ -1,0 +1,33 @@
+name: Check Architecture Handshake
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - '.claude/architecture-handshake.md'
+      - '.github/workflows/check-handshake.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - '.claude/architecture-handshake.md'
+      - '.github/workflows/check-handshake.yml'
+  workflow_dispatch:
+
+jobs:
+  check-handshake:
+    name: Check architecture handshake
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Checkout omnibase_core
+        uses: actions/checkout@v4
+        with:
+          repository: OmniNode-ai/omnibase_core
+          path: omnibase_core
+
+      - name: Check architecture handshake
+        run: ./omnibase_core/architecture-handshakes/check-handshake.sh
