@@ -46,9 +46,14 @@ installed_by: jonah
 | Type | Convention | Example |
 |------|------------|---------|
 | Node protocols | `Protocol{Type}Node` | `ProtocolComputeNode` |
+| Compiler protocols | `Protocol{Type}ContractCompiler` | `ProtocolEffectContractCompiler` |
 | Handler protocols | `Protocol{Type}Handler` | `ProtocolHandler` |
 | Service protocols | `Protocol{Domain}Service` | `ProtocolDashboardService` |
 | MCP protocols | `ProtocolMCP{Function}` | `ProtocolMCPRegistry` |
+| Renderer protocols | `Protocol{Type}Renderer` | `ProtocolWidgetRenderer` |
+| Subscriber protocols | `Protocol{Domain}EventSubscriber` | `ProtocolDashboardEventSubscriber` |
+| Query protocols | `Protocol{Domain}QueryService` | `ProtocolRegistryQueryService` |
+| Exceptions | `{Type}Error` | `SPIError`, `RegistryError` |
 
 ## Layer Boundaries
 
