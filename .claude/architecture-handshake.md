@@ -9,7 +9,7 @@ installed_by: jonah
 # OmniNode Architecture – Constraint Map (omnibase_spi)
 
 > **Role**: Service Provider Interface – protocol contracts and exceptions
-> **Handshake Version**: 0.1.0
+> **Handshake Version**: 0.1.0 (constraint map format; source_version in metadata tracks omnibase_core release)
 
 ## Core Principles
 
