@@ -1,10 +1,10 @@
-"""Tests for pipeline serialization helpers."""
+"""Tests for pipeline wire codec helpers."""
 
 import json
 
 import pytest
 
-from omnibase_spi.contracts.pipeline.serialization import (
+from omnibase_spi.contracts.pipeline.contract_wire_codec import (
     from_json,
     from_yaml,
     to_json,

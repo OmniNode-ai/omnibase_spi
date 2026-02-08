@@ -16,6 +16,12 @@ CONTRACTS_ROOT = (
 
 FORBIDDEN_PREFIXES = ("omnibase_core", "omnibase_infra", "omniclaude")
 
+# Utility modules that start with "contract_" but are NOT Pydantic model files.
+_NON_MODEL_UTILITIES = frozenset({
+    "contract_wire_codec.py",
+    "contract_schema_compat.py",
+})
+
 
 def _collect_python_files() -> list[pathlib.Path]:
     """Collect all .py files under the contracts directory."""
@@ -64,7 +70,7 @@ class TestSchemaVersionPresent:
         [
             f
             for f in _collect_python_files()
-            if f.name.startswith("contract_") and not f.name.startswith("__")
+            if f.name.startswith("contract_") and not f.name.startswith("__") and f.name not in _NON_MODEL_UTILITIES
         ],
         ids=lambda p: str(p.relative_to(CONTRACTS_ROOT)),
     )
@@ -85,7 +91,7 @@ class TestFrozenConfig:
         [
             f
             for f in _collect_python_files()
-            if f.name.startswith("contract_") and not f.name.startswith("__")
+            if f.name.startswith("contract_") and not f.name.startswith("__") and f.name not in _NON_MODEL_UTILITIES
         ],
         ids=lambda p: str(p.relative_to(CONTRACTS_ROOT)),
     )
@@ -106,7 +112,7 @@ class TestExtraAllow:
         [
             f
             for f in _collect_python_files()
-            if f.name.startswith("contract_") and not f.name.startswith("__")
+            if f.name.startswith("contract_") and not f.name.startswith("__") and f.name not in _NON_MODEL_UTILITIES
         ],
         ids=lambda p: str(p.relative_to(CONTRACTS_ROOT)),
     )

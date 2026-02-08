@@ -1,8 +1,8 @@
-"""Tests for pipeline versioning helpers."""
+"""Tests for pipeline schema compatibility helpers."""
 
 import pytest
 
-from omnibase_spi.contracts.pipeline.versioning import SchemaVersion, is_compatible
+from omnibase_spi.contracts.pipeline.contract_schema_compat import SchemaVersion, is_compatible
 
 
 @pytest.mark.unit
