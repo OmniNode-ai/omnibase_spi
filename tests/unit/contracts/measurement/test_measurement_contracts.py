@@ -799,6 +799,16 @@ class TestContractPromotionGate:
                 sufficient_count=-1,
             )
 
+    def test_sufficient_exceeds_total_rejected(self) -> None:
+        """sufficient_count must not exceed total_count."""
+        with pytest.raises(ValidationError, match="must not exceed"):
+            ContractPromotionGate(
+                run_id="run-001",
+                gate_result="pass",
+                sufficient_count=5,
+                total_count=3,
+            )
+
     def test_invalid_gate_result(self) -> None:
         with pytest.raises(ValidationError):
             ContractPromotionGate(

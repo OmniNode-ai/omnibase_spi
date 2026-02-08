@@ -144,3 +144,13 @@ class ContractPromotionGate(BaseModel):
         default_factory=dict,
         description="Escape hatch for forward-compatible extension data.",
     )
+
+    @model_validator(mode="after")
+    def _validate_sufficient_count(self) -> ContractPromotionGate:
+        """Ensure sufficient_count does not exceed total_count."""
+        if self.sufficient_count > self.total_count:
+            raise ValueError(
+                f"sufficient_count ({self.sufficient_count}) must not exceed "
+                f"total_count ({self.total_count})"
+            )
+        return self
