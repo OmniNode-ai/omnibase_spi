@@ -9,7 +9,7 @@ This contract must NOT import from omnibase_core, omnibase_infra, or omniclaude.
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -57,7 +57,7 @@ class ContractAttributionRecord(BaseModel):
         default="",
         description="Validation run that assessed this pattern.",
     )
-    verdict_status: str = Field(
+    verdict_status: Literal["PASS", "FAIL", "QUARANTINE", ""] = Field(
         default="",
         description="Final verdict status (PASS/FAIL/QUARANTINE).",
     )

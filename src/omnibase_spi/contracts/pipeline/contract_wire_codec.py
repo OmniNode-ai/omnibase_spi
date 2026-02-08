@@ -107,5 +107,9 @@ def from_yaml(yaml_str: str, model_class: type[T]) -> T:
             "PyYAML is required for YAML deserialization. "
             "Install it with: pip install pyyaml"
         )
-    data: dict[str, Any] = yaml.safe_load(yaml_str)
+    data = yaml.safe_load(yaml_str)
+    if not isinstance(data, dict):
+        raise ValueError(
+            f"Expected a YAML mapping, got {type(data).__name__}"
+        )
     return model_class.model_validate(data)

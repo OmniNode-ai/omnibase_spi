@@ -14,6 +14,9 @@ These contracts must NOT import from omnibase_core, omnibase_infra, or omniclaud
 """
 
 # -- Shared primitives ----------------------------------------------------
+from omnibase_spi.contracts.shared.contract_check_result import ContractCheckResult
+from omnibase_spi.contracts.shared.contract_verdict import ContractVerdict
+
 # -- Pipeline contracts ---------------------------------------------------
 from omnibase_spi.contracts.pipeline.contract_artifact_pointer import (
     ContractArtifactPointer,
@@ -47,8 +50,18 @@ from omnibase_spi.contracts.pipeline.contract_work_authorization import (
 )
 from omnibase_spi.contracts.pipeline.enum_auth_reason_code import AuthReasonCode
 from omnibase_spi.contracts.pipeline.enum_rrh_rule import RRHRule
-from omnibase_spi.contracts.shared.contract_check_result import ContractCheckResult
-from omnibase_spi.contracts.shared.contract_verdict import ContractVerdict
+
+# -- Wire-format utilities ------------------------------------------------
+from omnibase_spi.contracts.pipeline.contract_schema_compat import (
+    SchemaVersion,
+    is_compatible,
+)
+from omnibase_spi.contracts.pipeline.contract_wire_codec import (
+    from_json,
+    from_yaml,
+    to_json,
+    to_yaml,
+)
 
 # -- Validation contracts -------------------------------------------------
 from omnibase_spi.contracts.validation.contract_attribution_record import (
@@ -92,6 +105,13 @@ __all__ = [
     "ContractWorkAuthorization",
     "AuthReasonCode",
     "RRHRule",
+    # Wire-format utilities
+    "SchemaVersion",
+    "is_compatible",
+    "to_json",
+    "from_json",
+    "to_yaml",
+    "from_yaml",
     # Validation contracts
     "ContractAttributionRecord",
     "ContractPatternCandidate",
