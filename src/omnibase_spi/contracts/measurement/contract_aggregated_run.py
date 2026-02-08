@@ -78,10 +78,12 @@ class ContractAggregatedRun(BaseModel):
     )
     mandatory_phases_total: int = Field(
         default=0,
+        ge=0,
         description="Number of mandatory phases in the pipeline.",
     )
     mandatory_phases_succeeded: int = Field(
         default=0,
+        ge=0,
         description="Number of mandatory phases that succeeded.",
     )
     extensions: dict[str, Any] = Field(

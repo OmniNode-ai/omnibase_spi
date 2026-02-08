@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from omnibase_spi.contracts.measurement.contract_measurement_context import (
     ContractMeasurementContext,
@@ -73,6 +73,16 @@ class ContractDimensionEvidence(BaseModel):
         description="Escape hatch for forward-compatible extension data.",
     )
 
+    @model_validator(mode="after")
+    def _validate_delta_pct_with_zero_baseline(self) -> ContractDimensionEvidence:
+        """Ensure delta_pct is None when baseline_value is 0."""
+        if self.baseline_value == 0.0 and self.delta_pct is not None:
+            raise ValueError(
+                "delta_pct must be None when baseline_value is 0 "
+                "(division by zero is not meaningful)"
+            )
+        return self
+
 
 class ContractPromotionGate(BaseModel):
     """Evidence-tier gate for promotion decisions.
@@ -122,10 +132,12 @@ class ContractPromotionGate(BaseModel):
     )
     sufficient_count: int = Field(
         default=0,
+        ge=0,
         description="Number of dimensions that are sufficient.",
     )
     total_count: int = Field(
         default=0,
+        ge=0,
         description="Total number of dimensions evaluated.",
     )
     extensions: dict[str, Any] = Field(

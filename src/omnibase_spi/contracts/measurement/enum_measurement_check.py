@@ -15,6 +15,14 @@ class MeasurementCheck(str, Enum):
     """Stable measurement check identifiers.
 
     Organized by prefix CHECK-MEAS-xxx for measurement-domain checks.
+
+    Members:
+        CHECK_MEAS_001: Phase duration within expected bounds.
+        CHECK_MEAS_002: Cost metrics within budget.
+        CHECK_MEAS_003: Test pass rate meets threshold.
+        CHECK_MEAS_004: Outcome classification is consistent with phase result.
+        CHECK_MEAS_005: Artifact pointers are resolvable.
+        CHECK_MEAS_006: Promotion gate evidence is sufficient.
     """
 
     CHECK_MEAS_001 = "CHECK-MEAS-001"

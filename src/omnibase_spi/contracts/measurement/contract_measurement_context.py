@@ -2,7 +2,12 @@
 
 Captures the full correlation identity for a measurement: which ticket,
 repo, toolchain, strictness level, scenario, and pattern are being
-measured.  Baseline key derivation is deterministic from this context.
+measured.
+
+The module-level ``derive_baseline_key`` function deterministically
+derives a SHA-256 baseline key from a ``ContractMeasurementContext``
+instance.  It is a standalone function (not a method) so that the
+contract model remains a pure data object with no business logic.
 
 This contract must NOT import from omnibase_core, omnibase_infra, or omniclaude.
 """
@@ -68,19 +73,27 @@ class ContractMeasurementContext(BaseModel):
         description="Escape hatch for forward-compatible extension data.",
     )
 
-    def derive_baseline_key(self) -> str:
-        """Derive a deterministic baseline key from the context fields.
 
-        Returns:
-            A hex-encoded SHA-256 hash of the concatenated identity fields.
-        """
-        parts = [
-            self.ticket_id,
-            self.repo_id,
-            self.toolchain,
-            self.strictness,
-            self.scenario_id,
-            self.pattern_id,
-        ]
-        raw = "|".join(parts)
-        return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+def derive_baseline_key(ctx: ContractMeasurementContext) -> str:
+    """Derive a deterministic baseline key from context fields.
+
+    This is a standalone function rather than a method on the contract
+    model so that ``ContractMeasurementContext`` remains a pure,
+    frozen data object with no business logic.
+
+    Args:
+        ctx: The measurement context whose identity fields are hashed.
+
+    Returns:
+        A hex-encoded SHA-256 hash of the concatenated identity fields.
+    """
+    parts = [
+        ctx.ticket_id,
+        ctx.repo_id,
+        ctx.toolchain,
+        ctx.strictness,
+        ctx.scenario_id,
+        ctx.pattern_id,
+    ]
+    raw = "|".join(parts)
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()

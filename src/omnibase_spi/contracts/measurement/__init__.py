@@ -18,6 +18,7 @@ from omnibase_spi.contracts.measurement.contract_measured_attribution import (
 )
 from omnibase_spi.contracts.measurement.contract_measurement_context import (
     ContractMeasurementContext,
+    derive_baseline_key,
 )
 from omnibase_spi.contracts.measurement.contract_measurement_event import (
     ContractMeasurementEvent,
@@ -44,26 +45,21 @@ from omnibase_spi.contracts.measurement.enum_result_classification import (
 )
 
 __all__ = [
-    # Enums
-    "ContractEnumPipelinePhase",
-    "ContractEnumResultClassification",
-    "MeasurementCheck",
-    # Core contracts
-    "ContractMeasurementContext",
-    "ContractProducer",
-    # Phase metrics and sub-contracts
+    "ContractAggregatedRun",
     "ContractArtifactPointerMeasurement",
     "ContractCostMetrics",
+    "ContractDimensionEvidence",
     "ContractDurationMetrics",
+    "ContractEnumPipelinePhase",
+    "ContractEnumResultClassification",
+    "ContractMeasuredAttribution",
+    "ContractMeasurementContext",
+    "ContractMeasurementEvent",
     "ContractOutcomeMetrics",
     "ContractPhaseMetrics",
-    "ContractTestMetrics",
-    # Domain envelope
-    "ContractMeasurementEvent",
-    # Aggregation and promotion
-    "ContractAggregatedRun",
-    "ContractDimensionEvidence",
+    "ContractProducer",
     "ContractPromotionGate",
-    # Attribution
-    "ContractMeasuredAttribution",
+    "ContractTestMetrics",
+    "MeasurementCheck",
+    "derive_baseline_key",
 ]

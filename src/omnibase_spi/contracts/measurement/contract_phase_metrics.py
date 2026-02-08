@@ -24,7 +24,6 @@ from omnibase_spi.contracts.measurement.enum_result_classification import (
     ContractEnumResultClassification,
 )
 
-
 # -- Sub-contracts -----------------------------------------------------------
 
 
@@ -123,14 +122,17 @@ class ContractCostMetrics(BaseModel):
     )
     llm_input_tokens: int = Field(
         default=0,
+        ge=0,
         description="Number of input tokens consumed by LLM calls.",
     )
     llm_output_tokens: int = Field(
         default=0,
+        ge=0,
         description="Number of output tokens produced by LLM calls.",
     )
     llm_total_tokens: int = Field(
         default=0,
+        ge=0,
         description="Total tokens (input + output).",
     )
     estimated_cost_usd: float | None = Field(
@@ -231,22 +233,27 @@ class ContractTestMetrics(BaseModel):
     )
     total_tests: int = Field(
         default=0,
+        ge=0,
         description="Total number of tests executed.",
     )
     passed_tests: int = Field(
         default=0,
+        ge=0,
         description="Number of tests that passed.",
     )
     failed_tests: int = Field(
         default=0,
+        ge=0,
         description="Number of tests that failed.",
     )
     skipped_tests: int = Field(
         default=0,
+        ge=0,
         description="Number of tests that were skipped.",
     )
     error_tests: int = Field(
         default=0,
+        ge=0,
         description="Number of tests that errored.",
     )
     pass_rate: float | None = Field(

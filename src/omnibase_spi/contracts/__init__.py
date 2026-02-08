@@ -24,6 +24,7 @@ from omnibase_spi.contracts.measurement.contract_measured_attribution import (
 )
 from omnibase_spi.contracts.measurement.contract_measurement_context import (
     ContractMeasurementContext,
+    derive_baseline_key,
 )
 from omnibase_spi.contracts.measurement.contract_measurement_event import (
     ContractMeasurementEvent,
@@ -155,6 +156,8 @@ __all__ = [
     # Measurement contracts - core
     "ContractMeasurementContext",
     "ContractProducer",
+    # Measurement contracts - standalone helpers
+    "derive_baseline_key",
     # Measurement contracts - phase metrics and sub-contracts
     "ContractArtifactPointerMeasurement",
     "ContractCostMetrics",

@@ -28,6 +28,7 @@ from omnibase_spi.contracts.measurement.contract_measured_attribution import (
 )
 from omnibase_spi.contracts.measurement.contract_measurement_context import (
     ContractMeasurementContext,
+    derive_baseline_key,
 )
 from omnibase_spi.contracts.measurement.contract_measurement_event import (
     ContractMeasurementEvent,
@@ -185,15 +186,15 @@ class TestContractMeasurementContext:
             repo_id="omnibase_spi",
             toolchain="poetry",
         )
-        key1 = ctx.derive_baseline_key()
-        key2 = ctx.derive_baseline_key()
+        key1 = derive_baseline_key(ctx)
+        key2 = derive_baseline_key(ctx)
         assert key1 == key2
         assert len(key1) == 64  # SHA-256 hex digest
 
     def test_baseline_key_differs_for_different_inputs(self) -> None:
         ctx_a = ContractMeasurementContext(ticket_id="OMN-2024")
         ctx_b = ContractMeasurementContext(ticket_id="OMN-2025")
-        assert ctx_a.derive_baseline_key() != ctx_b.derive_baseline_key()
+        assert derive_baseline_key(ctx_a) != derive_baseline_key(ctx_b)
 
 
 # ---------------------------------------------------------------------------
@@ -287,6 +288,10 @@ class TestContractCostMetrics:
         assert cm.llm_output_tokens == 0
         assert cm.llm_total_tokens == 0
 
+    def test_negative_tokens_rejected(self) -> None:
+        with pytest.raises(ValidationError):
+            ContractCostMetrics(llm_input_tokens=-1)
+
     def test_extra_fields_rejected(self) -> None:
         with pytest.raises(ValidationError, match="extra_forbidden"):
             ContractCostMetrics(nope="rejected")  # type: ignore[call-arg]
@@ -364,6 +369,10 @@ class TestContractTestMetrics:
             ContractTestMetrics(pass_rate=1.5)  # > 1.0
         with pytest.raises(ValidationError):
             ContractTestMetrics(pass_rate=-0.1)  # < 0.0
+
+    def test_negative_counts_rejected(self) -> None:
+        with pytest.raises(ValidationError):
+            ContractTestMetrics(total_tests=-1)
 
     def test_defaults(self) -> None:
         tm = ContractTestMetrics()
@@ -593,6 +602,14 @@ class TestContractAggregatedRun:
         )
         assert run.overall_result == "failure"
 
+    def test_negative_mandatory_phases_rejected(self) -> None:
+        with pytest.raises(ValidationError):
+            ContractAggregatedRun(
+                run_id="run-001",
+                overall_result="success",
+                mandatory_phases_total=-1,
+            )
+
     def test_invalid_overall_result(self) -> None:
         with pytest.raises(ValidationError):
             ContractAggregatedRun(
@@ -682,6 +699,26 @@ class TestContractDimensionEvidence:
         with pytest.raises(ValidationError):
             de.dimension = "y"  # type: ignore[misc]
 
+    def test_delta_pct_must_be_none_when_baseline_zero(self) -> None:
+        """delta_pct must be None when baseline_value is 0."""
+        with pytest.raises(ValidationError, match="delta_pct"):
+            ContractDimensionEvidence(
+                dimension="x",
+                baseline_value=0.0,
+                current_value=10.0,
+                delta_pct=100.0,  # Should fail: baseline is 0
+            )
+
+    def test_delta_pct_allowed_when_baseline_nonzero(self) -> None:
+        """delta_pct can be set when baseline_value is non-zero."""
+        de = ContractDimensionEvidence(
+            dimension="x",
+            baseline_value=50.0,
+            current_value=75.0,
+            delta_pct=50.0,
+        )
+        assert de.delta_pct == 50.0
+
     def test_extra_fields_rejected(self) -> None:
         with pytest.raises(ValidationError, match="extra_forbidden"):
             ContractDimensionEvidence(
@@ -711,10 +748,10 @@ class TestContractPromotionGate:
         gate = ContractPromotionGate(
             run_id="run-001",
             context=ctx,
-            baseline_key=ctx.derive_baseline_key(),
+            baseline_key=derive_baseline_key(ctx),
             gate_result="pass",
         )
-        assert gate.baseline_key == ctx.derive_baseline_key()
+        assert gate.baseline_key == derive_baseline_key(ctx)
         assert len(gate.baseline_key) == 64
 
     def test_create_fail(self) -> None:
@@ -743,6 +780,14 @@ class TestContractPromotionGate:
             gate_result="insufficient_evidence",
         )
         assert gate.gate_result == "insufficient_evidence"
+
+    def test_negative_counts_rejected(self) -> None:
+        with pytest.raises(ValidationError):
+            ContractPromotionGate(
+                run_id="run-001",
+                gate_result="pass",
+                sufficient_count=-1,
+            )
 
     def test_invalid_gate_result(self) -> None:
         with pytest.raises(ValidationError):
