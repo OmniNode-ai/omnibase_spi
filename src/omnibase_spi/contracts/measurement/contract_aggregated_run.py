@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from omnibase_spi.contracts.measurement.contract_measurement_context import (
     ContractMeasurementContext,
@@ -90,3 +90,14 @@ class ContractAggregatedRun(BaseModel):
         default_factory=dict,
         description="Escape hatch for forward-compatible extension data.",
     )
+
+    @model_validator(mode="after")
+    def _validate_mandatory_phases_count(self) -> ContractAggregatedRun:
+        """Ensure mandatory_phases_succeeded does not exceed mandatory_phases_total."""
+        if self.mandatory_phases_succeeded > self.mandatory_phases_total:
+            raise ValueError(
+                "mandatory_phases_succeeded "
+                f"({self.mandatory_phases_succeeded}) must not exceed "
+                f"mandatory_phases_total ({self.mandatory_phases_total})"
+            )
+        return self

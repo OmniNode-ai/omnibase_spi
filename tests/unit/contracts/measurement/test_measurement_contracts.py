@@ -610,6 +610,16 @@ class TestContractAggregatedRun:
                 mandatory_phases_total=-1,
             )
 
+    def test_succeeded_exceeds_total_rejected(self) -> None:
+        """mandatory_phases_succeeded must not exceed mandatory_phases_total."""
+        with pytest.raises(ValidationError, match="must not exceed"):
+            ContractAggregatedRun(
+                run_id="run-001",
+                overall_result="success",
+                mandatory_phases_total=3,
+                mandatory_phases_succeeded=5,
+            )
+
     def test_invalid_overall_result(self) -> None:
         with pytest.raises(ValidationError):
             ContractAggregatedRun(
