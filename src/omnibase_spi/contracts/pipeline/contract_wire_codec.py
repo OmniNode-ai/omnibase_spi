@@ -10,7 +10,7 @@ This module must NOT import from omnibase_core, omnibase_infra, or omniclaude.
 from __future__ import annotations
 
 import json
-from typing import Any, TypeVar
+from typing import TypeVar
 
 from pydantic import BaseModel
 
