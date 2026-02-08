@@ -95,5 +95,7 @@ def derive_baseline_key(ctx: ContractMeasurementContext) -> str:
         ctx.scenario_id,
         ctx.pattern_id,
     ]
-    raw = "|".join(parts)
+    # Use null-byte separator to avoid delimiter collision when field
+    # values contain the separator character (e.g. repo_id="a|b").
+    raw = "\0".join(parts)
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()
