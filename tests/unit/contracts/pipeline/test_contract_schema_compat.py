@@ -2,7 +2,10 @@
 
 import pytest
 
-from omnibase_spi.contracts.pipeline.contract_schema_compat import SchemaVersion, is_compatible
+from omnibase_spi.contracts.pipeline.contract_schema_compat import (
+    SchemaVersion,
+    is_compatible,
+)
 
 
 @pytest.mark.unit

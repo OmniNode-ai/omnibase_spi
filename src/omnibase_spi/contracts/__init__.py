@@ -13,11 +13,6 @@ for forward-compatible deserialization.  Every contract includes a
 These contracts must NOT import from omnibase_core, omnibase_infra, or omniclaude.
 """
 
-# -- Shared primitives ----------------------------------------------------
-from omnibase_spi.contracts.shared.contract_check_result import ContractCheckResult
-from omnibase_spi.contracts.shared.contract_verdict import ContractVerdict
-
-# -- Pipeline contracts ---------------------------------------------------
 from omnibase_spi.contracts.pipeline.contract_artifact_pointer import (
     ContractArtifactPointer,
 )
@@ -44,26 +39,24 @@ from omnibase_spi.contracts.pipeline.contract_node_operation_result import (
 from omnibase_spi.contracts.pipeline.contract_repo_scope import ContractRepoScope
 from omnibase_spi.contracts.pipeline.contract_rrh_result import ContractRRHResult
 from omnibase_spi.contracts.pipeline.contract_run_context import ContractRunContext
-from omnibase_spi.contracts.pipeline.contract_session_index import ContractSessionIndex
-from omnibase_spi.contracts.pipeline.contract_work_authorization import (
-    ContractWorkAuthorization,
-)
-from omnibase_spi.contracts.pipeline.enum_auth_reason_code import AuthReasonCode
-from omnibase_spi.contracts.pipeline.enum_rrh_rule import RRHRule
-
-# -- Wire-format utilities ------------------------------------------------
 from omnibase_spi.contracts.pipeline.contract_schema_compat import (
     SchemaVersion,
     is_compatible,
 )
+from omnibase_spi.contracts.pipeline.contract_session_index import ContractSessionIndex
 from omnibase_spi.contracts.pipeline.contract_wire_codec import (
     from_json,
     from_yaml,
     to_json,
     to_yaml,
 )
-
-# -- Validation contracts -------------------------------------------------
+from omnibase_spi.contracts.pipeline.contract_work_authorization import (
+    ContractWorkAuthorization,
+)
+from omnibase_spi.contracts.pipeline.enum_auth_reason_code import AuthReasonCode
+from omnibase_spi.contracts.pipeline.enum_rrh_rule import RRHRule
+from omnibase_spi.contracts.shared.contract_check_result import ContractCheckResult
+from omnibase_spi.contracts.shared.contract_verdict import ContractVerdict
 from omnibase_spi.contracts.validation.contract_attribution_record import (
     ContractAttributionRecord,
 )

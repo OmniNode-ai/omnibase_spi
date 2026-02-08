@@ -77,7 +77,7 @@ def to_yaml(model: BaseModel) -> str:
             "Install it with: pip install pyyaml"
         )
     raw = model.model_dump(mode="json")
-    return yaml.dump(  # type: ignore[no-any-return]
+    return yaml.dump(
         raw,
         default_flow_style=False,
         sort_keys=True,
