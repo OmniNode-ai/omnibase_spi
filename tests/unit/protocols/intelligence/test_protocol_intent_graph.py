@@ -285,7 +285,7 @@ class WrongSignatureGraph:
 
     async def store_intent(self) -> Any:
         """Missing session_id and intent_data parameters."""
-        return MockIntentStoredEvent()
+        return MockIntentStorageResult()
 
     async def get_session_intents(self) -> list[Any]:
         """Missing session_id parameter."""
