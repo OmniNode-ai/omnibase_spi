@@ -4,15 +4,50 @@ This module provides:
 - **shared/**: Foundational primitives (ContractCheckResult, ContractVerdict)
 - **pipeline/**: Pipeline wire-format contracts (hook invocation, node ops, auth, RRH)
 - **validation/**: Validation orchestration contracts (plans, runs, results, verdicts)
+- **measurement/**: Measurement pipeline contracts (phase metrics, promotion gates)
 - **defaults/**: YAML templates for handler contract generation
 
-All Contract* classes are frozen Pydantic models with ``extra = "allow"``
-for forward-compatible deserialization.  Every contract includes a
-``schema_version`` field.
+All Contract* classes are frozen Pydantic models.  Most use ``extra = "allow"``
+for forward-compatible deserialization; measurement contracts use
+``extra = "forbid"`` + explicit ``extensions`` field for high-integrity gating.
+Every contract includes a ``schema_version`` field.
 
 These contracts must NOT import from omnibase_core, omnibase_infra, or omniclaude.
 """
 
+# Measurement contracts
+from omnibase_spi.contracts.measurement.contract_aggregated_run import (
+    ContractAggregatedRun,
+)
+from omnibase_spi.contracts.measurement.contract_measured_attribution import (
+    ContractMeasuredAttribution,
+)
+from omnibase_spi.contracts.measurement.contract_measurement_context import (
+    ContractMeasurementContext,
+)
+from omnibase_spi.contracts.measurement.contract_measurement_event import (
+    ContractMeasurementEvent,
+)
+from omnibase_spi.contracts.measurement.contract_phase_metrics import (
+    ContractArtifactPointerMeasurement,
+    ContractCostMetrics,
+    ContractDurationMetrics,
+    ContractOutcomeMetrics,
+    ContractPhaseMetrics,
+    ContractTestMetrics,
+)
+from omnibase_spi.contracts.measurement.contract_producer import ContractProducer
+from omnibase_spi.contracts.measurement.contract_promotion_gate import (
+    ContractDimensionEvidence,
+    ContractPromotionGate,
+)
+from omnibase_spi.contracts.measurement.enum_measurement_check import MeasurementCheck
+from omnibase_spi.contracts.measurement.enum_pipeline_phase import (
+    ContractEnumPipelinePhase,
+)
+from omnibase_spi.contracts.measurement.enum_result_classification import (
+    ContractEnumResultClassification,
+)
 from omnibase_spi.contracts.pipeline.contract_artifact_pointer import (
     ContractArtifactPointer,
 )
@@ -113,4 +148,26 @@ __all__ = [
     "ContractValidationRun",
     "ContractValidationVerdict",
     "ValidationCheck",
+    # Measurement contracts - enums
+    "ContractEnumPipelinePhase",
+    "ContractEnumResultClassification",
+    "MeasurementCheck",
+    # Measurement contracts - core
+    "ContractMeasurementContext",
+    "ContractProducer",
+    # Measurement contracts - phase metrics and sub-contracts
+    "ContractArtifactPointerMeasurement",
+    "ContractCostMetrics",
+    "ContractDurationMetrics",
+    "ContractOutcomeMetrics",
+    "ContractPhaseMetrics",
+    "ContractTestMetrics",
+    # Measurement contracts - domain envelope
+    "ContractMeasurementEvent",
+    # Measurement contracts - aggregation and promotion
+    "ContractAggregatedRun",
+    "ContractDimensionEvidence",
+    "ContractPromotionGate",
+    # Measurement contracts - attribution
+    "ContractMeasuredAttribution",
 ]

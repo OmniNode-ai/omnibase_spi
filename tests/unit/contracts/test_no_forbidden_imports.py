@@ -17,10 +17,17 @@ CONTRACTS_ROOT = (
 FORBIDDEN_PREFIXES = ("omnibase_core", "omnibase_infra", "omniclaude")
 
 # Utility modules that start with "contract_" but are NOT Pydantic model files.
-_NON_MODEL_UTILITIES = frozenset({
-    "contract_wire_codec.py",
-    "contract_schema_compat.py",
-})
+_NON_MODEL_UTILITIES = frozenset(
+    {
+        "contract_wire_codec.py",
+        "contract_schema_compat.py",
+    }
+)
+
+# Directories containing contracts that deliberately use extra="forbid"
+# instead of extra="allow".  Measurement contracts use forbid + explicit
+# extensions field for high-integrity gating data.
+_EXTRA_FORBID_DIRS = frozenset({"measurement"})
 
 
 def _collect_python_files() -> list[pathlib.Path]:
@@ -70,7 +77,9 @@ class TestSchemaVersionPresent:
         [
             f
             for f in _collect_python_files()
-            if f.name.startswith("contract_") and not f.name.startswith("__") and f.name not in _NON_MODEL_UTILITIES
+            if f.name.startswith("contract_")
+            and not f.name.startswith("__")
+            and f.name not in _NON_MODEL_UTILITIES
         ],
         ids=lambda p: str(p.relative_to(CONTRACTS_ROOT)),
     )
@@ -91,34 +100,83 @@ class TestFrozenConfig:
         [
             f
             for f in _collect_python_files()
-            if f.name.startswith("contract_") and not f.name.startswith("__") and f.name not in _NON_MODEL_UTILITIES
+            if f.name.startswith("contract_")
+            and not f.name.startswith("__")
+            and f.name not in _NON_MODEL_UTILITIES
         ],
         ids=lambda p: str(p.relative_to(CONTRACTS_ROOT)),
     )
     def test_frozen_config(self, py_file: pathlib.Path) -> None:
         """Each contract file should have frozen=True in model_config."""
         source = py_file.read_text()
+        has_frozen = (
+            '"frozen": True' in source
+            or "'frozen': True" in source
+            or "frozen=True" in source
+        )
         assert (
-            '"frozen": True' in source or "'frozen': True" in source
+            has_frozen
         ), f"{py_file.relative_to(CONTRACTS_ROOT)} is missing frozen=True config"
 
 
 @pytest.mark.unit
 class TestExtraAllow:
-    """Verify every Contract* model uses extra='allow' for forward compat."""
+    """Verify every Contract* model uses the correct extra policy.
+
+    Most contracts use ``extra="allow"`` for forward compatibility.
+    Measurement contracts use ``extra="forbid"`` with an explicit
+    ``extensions`` field for high-integrity gating data.
+    """
 
     @pytest.mark.parametrize(
         "py_file",
         [
             f
             for f in _collect_python_files()
-            if f.name.startswith("contract_") and not f.name.startswith("__") and f.name not in _NON_MODEL_UTILITIES
+            if f.name.startswith("contract_")
+            and not f.name.startswith("__")
+            and f.name not in _NON_MODEL_UTILITIES
+            and not any(
+                part in _EXTRA_FORBID_DIRS
+                for part in f.relative_to(CONTRACTS_ROOT).parts
+            )
         ],
         ids=lambda p: str(p.relative_to(CONTRACTS_ROOT)),
     )
     def test_extra_allow(self, py_file: pathlib.Path) -> None:
-        """Each contract file should have extra='allow' in model_config."""
+        """Each non-measurement contract file should have extra='allow' in model_config."""
         source = py_file.read_text()
         assert (
             '"extra": "allow"' in source or "'extra': 'allow'" in source
         ), f"{py_file.relative_to(CONTRACTS_ROOT)} is missing extra='allow' config"
+
+    @pytest.mark.parametrize(
+        "py_file",
+        [
+            f
+            for f in _collect_python_files()
+            if f.name.startswith("contract_")
+            and not f.name.startswith("__")
+            and f.name not in _NON_MODEL_UTILITIES
+            and any(
+                part in _EXTRA_FORBID_DIRS
+                for part in f.relative_to(CONTRACTS_ROOT).parts
+            )
+        ],
+        ids=lambda p: str(p.relative_to(CONTRACTS_ROOT)),
+    )
+    def test_extra_forbid_with_extensions(self, py_file: pathlib.Path) -> None:
+        """Measurement contracts must use extra='forbid' and have an extensions field."""
+        source = py_file.read_text()
+        has_forbid = (
+            '"extra": "forbid"' in source
+            or "'extra': 'forbid'" in source
+            or 'extra="forbid"' in source
+        )
+        has_extensions = "extensions:" in source or "extensions :" in source
+        assert (
+            has_forbid
+        ), f"{py_file.relative_to(CONTRACTS_ROOT)} is missing extra='forbid' config"
+        assert (
+            has_extensions
+        ), f"{py_file.relative_to(CONTRACTS_ROOT)} is missing extensions field"

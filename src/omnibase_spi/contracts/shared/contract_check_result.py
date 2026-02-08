@@ -38,7 +38,7 @@ class ContractCheckResult(BaseModel):
         ...,
         description="Stable identifier for the check (e.g. RRH-1001).",
     )
-    domain: Literal["rrh", "validation", "governance"] = Field(
+    domain: Literal["rrh", "validation", "governance", "measurement"] = Field(
         ...,
         description="Subsystem that produced this result.",
     )
