@@ -307,6 +307,22 @@ def is_protocol_file(file_path: Path) -> bool:
     return "protocols" in path_str and file_path.name.startswith("protocol_")
 
 
+def is_contract_file(file_path: Path) -> bool:
+    """Check if file is inside the contracts/ directory.
+
+    Contract files (contracts/shared/, contracts/pipeline/, contracts/validation/)
+    are intentionally allowed to define Pydantic BaseModel subclasses as frozen,
+    data-only wire-format models.  They must NOT import from omnibase_core,
+    omnibase_infra, or omniclaude (enforced separately by NSI001 and unit tests).
+    """
+    parts = file_path.parts
+    # Match paths like .../contracts/shared/..., .../contracts/pipeline/...,
+    # .../contracts/validation/...
+    return "contracts" in parts and any(
+        d in parts for d in ("shared", "pipeline", "validation")
+    )
+
+
 def validate_file(file_path: Path) -> tuple[list[NamespaceViolation], str | None]:
     """
     Validate a single Python file for namespace isolation.
@@ -325,7 +341,14 @@ def validate_file(file_path: Path) -> tuple[list[NamespaceViolation], str | None
         )
         validator.visit(tree)
 
-        return validator.violations, None
+        violations = validator.violations
+
+        # Contract files are explicitly allowed to define Pydantic models
+        # (frozen, data-only wire-format contracts).  Filter out NSI002 for them.
+        if is_contract_file(file_path):
+            violations = [v for v in violations if v.rule_id != "NSI002"]
+
+        return violations, None
 
     except SyntaxError as e:
         return [], f"Syntax error in {file_path}: {e}"

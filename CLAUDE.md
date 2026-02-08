@@ -39,7 +39,8 @@ omnibase_infra (handlers, I/O implementations)
 
 - **Protocol definitions** using Python `typing.Protocol`
 - **Exception hierarchy** (`SPIError` and subclasses)
-- **No Pydantic models** (those live in `omnibase_core`)
+- **Wire-format contracts** in `contracts/` (frozen, data-only Pydantic models for cross-boundary wire formats; exempt from NSI002)
+- **No general Pydantic models** (domain models live in `omnibase_core`)
 - **No business logic or I/O**
 - **No state machines or workflow implementations**
 
@@ -121,6 +122,10 @@ poetry run pytest -m "unit and not slow"
 
 ```text
 src/omnibase_spi/
+├── contracts/
+│   ├── shared/          # ContractCheckResult, ContractVerdict
+│   ├── pipeline/        # Hook invocation, node ops, auth, RRH, wire codec
+│   └── validation/      # Validation plans, runs, results, verdicts
 ├── protocols/
 │   ├── nodes/           # ProtocolNode, ProtocolComputeNode, ProtocolEffectNode, etc.
 │   │   └── legacy/      # Deprecated protocols (removal in v0.5.0)
@@ -229,7 +234,7 @@ class ProtocolComputeNode(Protocol):
 |------|-------------|
 | SPI imports Core | Allowed at runtime |
 | Core MUST NOT import SPI | CI failure |
-| SPI MUST NOT define Pydantic models | All `BaseModel` in Core |
+| SPI MUST NOT define general Pydantic models | All domain `BaseModel` in Core (exception: `contracts/` frozen wire-format models) |
 | SPI MUST NOT import Infra | CI failure |
 | Circular imports | CI failure |
 
