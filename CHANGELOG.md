@@ -7,6 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-02-09
+
+### Added
+
+#### Shared Pipeline and Validation Wire-Format Contracts (OMN-2004)
+- **Shared primitives**: `ContractCheckResult` (single check outcome) and `ContractVerdict` (aggregated PASS/FAIL/QUARANTINE verdict)
+- **Pipeline contracts** (14 models): Hook invocation envelope/result, node operation request/result, `ContractNodeError`, `ContractRunContext`, `ContractSessionIndex`, `ContractWorkAuthorization`, `ContractExecutionContext`, `ContractRRHResult`, `ContractCheckpoint`, `ContractRepoScope`, `ContractArtifactPointer`, `ContractAuthGateInput`
+- **Pipeline enums**: `RRHRule` (17 rules), `AuthReasonCode` (12 codes)
+- **Pipeline utilities**: `contract_wire_codec` (JSON/YAML serialization helpers), `contract_schema_compat` (versioning policy)
+- **Validation contracts** (6 models): `ContractPatternCandidate`, `ContractValidationPlan`, `ContractValidationRun`, `ContractValidationResult`, `ContractValidationVerdict`, `ContractAttributionRecord`
+- **Validation enum**: `ValidationCheck` (17 checks across 5 domains)
+- All contracts are frozen, `extra=allow`, with `schema_version` field and zero `omnibase_core`/infra/omniclaude imports
+- 252 unit tests covering creation, immutability, forward-compat, serialization round-trips, and architectural guardrails
+
+#### Measurement Pipeline Wire-Format Contracts (OMN-2024)
+- **Measurement enums**: `ContractEnumPipelinePhase` (5 phases), `ContractEnumResultClassification` (5 categories), `MeasurementCheck` (CHECK-MEAS-001 through 006)
+- **Measurement contracts** (8 models): `ContractMeasurementContext` (correlation identity with baseline key derivation), `ContractProducer` (structured producer identity), `ContractPhaseMetrics` (primary measurement unit with sub-contracts for duration, cost, outcome, tests, and artifact pointers), `ContractMeasurementEvent` (domain envelope), `ContractAggregatedRun` (run-level rollup), `ContractPromotionGate` (per-dimension evidence), `ContractMeasuredAttribution` (attribution + measurement composition)
+- Measurement contracts use `frozen=True` + `extra="forbid"` + explicit extensions field (stricter than SPI convention because measurement data feeds promotion gates)
+- Cross-field validators: `mandatory_phases_succeeded <= mandatory_phases_total`, `sufficient_count <= total_count`, `delta_pct=None` when `baseline_value=0`
+- Null-byte separator in `derive_baseline_key` to prevent delimiter collision
+- 83 unit tests covering enum stability, frozen/forbid invariants, JSON round-trip, and validation behaviors
+
+#### Architecture Handshake (OMN-1983)
+- **Architecture handshake constraint map** (`.claude/architecture-handshake.md`): Installed naming conventions and dependency rules from `omnibase_core`
+- **CI workflow** (`.github/workflows/check-handshake.yml`): Verifies handshake stays in sync with `omnibase_core` source via SHA256 hash comparison
+
+### Fixed
+
+- Added `ge=0` constraints to float duration and cost fields in measurement contracts: `wall_clock_ms`, `cpu_ms`, `queue_ms`, `estimated_cost_usd`, `total_duration_ms`, `total_cost_usd` (#76)
+- Extended `ContractCheckResult.domain` Literal type to include `"measurement"` subsystem
+
+### Changed
+
+- Updated `omnibase-core` dependency to >=0.16.0
+- Updated namespace isolation validator to exempt `contracts/` directory from NSI002 (Pydantic model check)
+
 ## [0.6.4] - 2026-01-30
 
 ### Changed
@@ -531,6 +567,7 @@ result = await handler.traverse(
 
 | Version | Total Protocols | Test Coverage | Validation Status |
 |---------|-----------------|---------------|-------------------|
+| 0.7.0   | 183+            | 680+ tests    | All passing       |
 | 0.6.4   | 183+            | 345+ tests    | All passing       |
 | 0.6.3   | 183+            | 345+ tests    | All passing       |
 | 0.6.2   | 183+            | 345+ tests    | All passing       |
