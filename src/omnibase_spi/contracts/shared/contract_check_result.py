@@ -1,7 +1,7 @@
 """ContractCheckResult -- single check outcome.
 
-Composed by RRH, validation, and governance subsystems to represent the
-result of one discrete check (e.g., 'tests pass', 'lint clean',
+Composed by RRH, validation, governance, and measurement subsystems to
+represent the result of one discrete check (e.g., 'tests pass', 'lint clean',
 'schema version present').
 
 This contract must NOT import from omnibase_core, omnibase_infra, or omniclaude.
@@ -15,7 +15,7 @@ from pydantic import BaseModel, Field
 
 
 class ContractCheckResult(BaseModel):
-    """Single check outcome produced by RRH, validation, or governance.
+    """Single check outcome produced by RRH, validation, governance, or measurement.
 
     Attributes:
         schema_version: Wire-format version for forward compatibility.
@@ -38,7 +38,7 @@ class ContractCheckResult(BaseModel):
         ...,
         description="Stable identifier for the check (e.g. RRH-1001).",
     )
-    domain: Literal["rrh", "validation", "governance"] = Field(
+    domain: Literal["rrh", "validation", "governance", "measurement"] = Field(
         ...,
         description="Subsystem that produced this result.",
     )
