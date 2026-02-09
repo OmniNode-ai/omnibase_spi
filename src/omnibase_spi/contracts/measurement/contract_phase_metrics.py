@@ -86,14 +86,17 @@ class ContractDurationMetrics(BaseModel):
     )
     wall_clock_ms: float = Field(
         ...,
+        ge=0.0,
         description="Total wall-clock time in milliseconds.",
     )
     cpu_ms: float | None = Field(
         default=None,
+        ge=0.0,
         description="CPU time in milliseconds (if available).",
     )
     queue_ms: float | None = Field(
         default=None,
+        ge=0.0,
         description="Time spent waiting in queue before execution.",
     )
     extensions: dict[str, Any] = Field(
@@ -137,6 +140,7 @@ class ContractCostMetrics(BaseModel):
     )
     estimated_cost_usd: float | None = Field(
         default=None,
+        ge=0.0,
         description="Estimated cost in USD.",
     )
     extensions: dict[str, Any] = Field(

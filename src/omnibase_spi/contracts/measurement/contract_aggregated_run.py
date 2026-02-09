@@ -70,10 +70,12 @@ class ContractAggregatedRun(BaseModel):
     )
     total_duration_ms: float | None = Field(
         default=None,
+        ge=0.0,
         description="Sum of all phase durations.",
     )
     total_cost_usd: float | None = Field(
         default=None,
+        ge=0.0,
         description="Sum of all phase costs.",
     )
     mandatory_phases_total: int = Field(
