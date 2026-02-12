@@ -16,8 +16,25 @@ class TestRRHRule:
             assert rule.value.startswith("RRH-")
 
     def test_specific_rules_exist(self) -> None:
+        # Repo checks (10xx)
         assert RRHRule.RRH_1001.value == "RRH-1001"
+        assert RRHRule.RRH_1002.value == "RRH-1002"
+        # Environment checks (11xx)
+        assert RRHRule.RRH_1101.value == "RRH-1101"
+        assert RRHRule.RRH_1102.value == "RRH-1102"
+        # Kafka checks (12xx)
         assert RRHRule.RRH_1201.value == "RRH-1201"
+        # Kubernetes checks (13xx)
+        assert RRHRule.RRH_1301.value == "RRH-1301"
+        # Toolchain checks (14xx)
+        assert RRHRule.RRH_1401.value == "RRH-1401"
+        assert RRHRule.RRH_1402.value == "RRH-1402"
+        assert RRHRule.RRH_1403.value == "RRH-1403"
+        assert RRHRule.RRH_1404.value == "RRH-1404"
+        # Cross-checks (15xx, 16xx)
+        assert RRHRule.RRH_1501.value == "RRH-1501"
+        assert RRHRule.RRH_1601.value == "RRH-1601"
+        # Repo-boundary checks (17xx)
         assert RRHRule.RRH_1701.value == "RRH-1701"
 
     def test_is_str_enum(self) -> None:

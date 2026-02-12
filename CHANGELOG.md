@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+#### Canonical RRH Rule Enum (OMN-2139)
+- **`RRHRule` redefined**: Replaced 17-rule enum (dev-toolchain checks) with canonical 13-rule enum covering 8 validation domains: repo (10xx), environment (11xx), kafka (12xx), kubernetes (13xx), toolchain (14xx), cross-checks branch/ticket (15xx), cross-checks contract fields (16xx), repo-boundary (17xx)
+- **`RRHRule` relocated**: Moved from `contracts/pipeline/enum_rrh_rule.py` to `enums/enum_rrh_rule.py`; re-exported via `omnibase_spi.contracts.pipeline` and `omnibase_spi.contracts` for backward compatibility
+
 ## [0.7.0] - 2026-02-09
 
 ### Added
