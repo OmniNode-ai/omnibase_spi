@@ -1,5 +1,7 @@
 # CLAUDE.md
 
+> **Shared standards** (Python, Git, Testing) are in `~/.claude/CLAUDE.md`.
+
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Repository Overview
@@ -26,14 +28,6 @@ omnibase_infra (handlers, I/O implementations)
 - Core → SPI: **forbidden** (no imports)
 - SPI → Infra: **forbidden** (no imports, even transitively)
 - Infra → SPI + Core: **expected** (implements behavior)
-
-## Git Commit Rules
-
-**NEVER use `--no-verify`** when committing. Pre-commit hooks exist to enforce code quality and architectural constraints. If a pre-commit hook fails:
-
-1. Fix the issue in your code
-2. If the issue is pre-existing (not from your changes), fix it as part of your commit or create a separate PR to address it
-3. If you believe the hook is incorrect, discuss with the team before bypassing
 
 ## What SPI Contains
 
@@ -67,12 +61,9 @@ poetry run mypy src/
 # Strict type checking (target for CI)
 poetry run mypy src/ --strict
 
-# Format code
-poetry run black src/ tests/
-poetry run isort src/ tests/
-
-# Lint
+# Lint and format
 poetry run ruff check src/ tests/
+poetry run ruff format src/ tests/
 
 # Build package
 poetry build
@@ -91,32 +82,6 @@ pre-commit run --all-files
 pre-commit run validate-naming-patterns --all-files
 pre-commit run validate-namespace-isolation-new --all-files
 ```
-
-## Test Markers
-
-Tests can be filtered using pytest markers defined in `pyproject.toml`:
-
-| Marker | Purpose | Example |
-|--------|---------|---------|
-| `unit` | Unit tests (fast, isolated) | `@pytest.mark.unit` |
-| `integration` | Integration tests | `@pytest.mark.integration` |
-| `slow` | Slow-running tests | `@pytest.mark.slow` |
-
-```bash
-# Run only unit tests
-poetry run pytest -m unit
-
-# Run only integration tests
-poetry run pytest -m integration
-
-# Exclude slow tests
-poetry run pytest -m "not slow"
-
-# Combine markers
-poetry run pytest -m "unit and not slow"
-```
-
-**Convention**: All unit tests in `tests/unit/` should have the `@pytest.mark.unit` decorator.
 
 ## Directory Structure
 
