@@ -38,7 +38,7 @@ from omnibase_spi.contracts.pipeline.contract_work_authorization import (
     ContractWorkAuthorization,
 )
 from omnibase_spi.contracts.pipeline.enum_auth_reason_code import AuthReasonCode
-from omnibase_spi.contracts.pipeline.enum_rrh_rule import RRHRule
+from omnibase_spi.enums.enum_rrh_rule import RRHRule
 
 __all__ = [
     "ContractArtifactPointer",

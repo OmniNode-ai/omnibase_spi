@@ -3,7 +3,7 @@
 import pytest
 
 from omnibase_spi.contracts.pipeline.enum_auth_reason_code import AuthReasonCode
-from omnibase_spi.contracts.pipeline.enum_rrh_rule import RRHRule
+from omnibase_spi.enums.enum_rrh_rule import RRHRule
 
 
 @pytest.mark.unit
@@ -18,11 +18,14 @@ class TestRRHRule:
     def test_specific_rules_exist(self) -> None:
         assert RRHRule.RRH_1001.value == "RRH-1001"
         assert RRHRule.RRH_1201.value == "RRH-1201"
-        assert RRHRule.RRH_1401.value == "RRH-1401"
+        assert RRHRule.RRH_1701.value == "RRH-1701"
 
     def test_is_str_enum(self) -> None:
         assert isinstance(RRHRule.RRH_1001, str)
         assert RRHRule.RRH_1001 == "RRH-1001"
+
+    def test_has_13_rules(self) -> None:
+        assert len(RRHRule) == 13
 
 
 @pytest.mark.unit

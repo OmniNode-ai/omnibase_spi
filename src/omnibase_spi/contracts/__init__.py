@@ -90,7 +90,7 @@ from omnibase_spi.contracts.pipeline.contract_work_authorization import (
     ContractWorkAuthorization,
 )
 from omnibase_spi.contracts.pipeline.enum_auth_reason_code import AuthReasonCode
-from omnibase_spi.contracts.pipeline.enum_rrh_rule import RRHRule
+from omnibase_spi.enums.enum_rrh_rule import RRHRule
 from omnibase_spi.contracts.shared.contract_check_result import ContractCheckResult
 from omnibase_spi.contracts.shared.contract_verdict import ContractVerdict
 from omnibase_spi.contracts.validation.contract_attribution_record import (
