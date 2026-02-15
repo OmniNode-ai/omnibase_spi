@@ -13,6 +13,11 @@ These contracts must NOT import from omnibase_core, omnibase_infra, or omniclaud
 from omnibase_spi.contracts.measurement.contract_aggregated_run import (
     ContractAggregatedRun,
 )
+from omnibase_spi.contracts.measurement.contract_llm_call_metrics import (
+    ContractLlmCallMetrics,
+    ContractLlmUsageNormalized,
+    ContractLlmUsageRaw,
+)
 from omnibase_spi.contracts.measurement.contract_measured_attribution import (
     ContractMeasuredAttribution,
 )
@@ -43,6 +48,9 @@ from omnibase_spi.contracts.measurement.enum_pipeline_phase import (
 from omnibase_spi.contracts.measurement.enum_result_classification import (
     ContractEnumResultClassification,
 )
+from omnibase_spi.contracts.measurement.enum_usage_source import (
+    ContractEnumUsageSource,
+)
 
 __all__ = [
     "ContractAggregatedRun",
@@ -52,6 +60,10 @@ __all__ = [
     "ContractDurationMetrics",
     "ContractEnumPipelinePhase",
     "ContractEnumResultClassification",
+    "ContractEnumUsageSource",
+    "ContractLlmCallMetrics",
+    "ContractLlmUsageNormalized",
+    "ContractLlmUsageRaw",
     "ContractMeasuredAttribution",
     "ContractMeasurementContext",
     "ContractMeasurementEvent",

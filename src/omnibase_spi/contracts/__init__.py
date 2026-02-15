@@ -19,6 +19,11 @@ These contracts must NOT import from omnibase_core, omnibase_infra, or omniclaud
 from omnibase_spi.contracts.measurement.contract_aggregated_run import (
     ContractAggregatedRun,
 )
+from omnibase_spi.contracts.measurement.contract_llm_call_metrics import (
+    ContractLlmCallMetrics,
+    ContractLlmUsageNormalized,
+    ContractLlmUsageRaw,
+)
 from omnibase_spi.contracts.measurement.contract_measured_attribution import (
     ContractMeasuredAttribution,
 )
@@ -48,6 +53,9 @@ from omnibase_spi.contracts.measurement.enum_pipeline_phase import (
 )
 from omnibase_spi.contracts.measurement.enum_result_classification import (
     ContractEnumResultClassification,
+)
+from omnibase_spi.contracts.measurement.enum_usage_source import (
+    ContractEnumUsageSource,
 )
 from omnibase_spi.contracts.pipeline.contract_artifact_pointer import (
     ContractArtifactPointer,
@@ -152,6 +160,7 @@ __all__ = [
     # Measurement contracts - enums
     "ContractEnumPipelinePhase",
     "ContractEnumResultClassification",
+    "ContractEnumUsageSource",
     "MeasurementCheck",
     # Measurement contracts - core
     "ContractMeasurementContext",
@@ -165,6 +174,10 @@ __all__ = [
     "ContractOutcomeMetrics",
     "ContractPhaseMetrics",
     "ContractTestMetrics",
+    # Measurement contracts - LLM cost tracking
+    "ContractLlmCallMetrics",
+    "ContractLlmUsageNormalized",
+    "ContractLlmUsageRaw",
     # Measurement contracts - domain envelope
     "ContractMeasurementEvent",
     # Measurement contracts - aggregation and promotion
