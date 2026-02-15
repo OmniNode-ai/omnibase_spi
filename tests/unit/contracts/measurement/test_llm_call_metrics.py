@@ -33,14 +33,17 @@ class TestContractEnumUsageSource:
     """Tests for ContractEnumUsageSource enum stability."""
 
     def test_has_three_members(self) -> None:
+        """Enum must contain exactly three members."""
         assert len(ContractEnumUsageSource) == 3
 
     def test_member_values(self) -> None:
+        """Each member must have the expected string value."""
         assert ContractEnumUsageSource.API == "api"
         assert ContractEnumUsageSource.ESTIMATED == "estimated"
         assert ContractEnumUsageSource.MISSING == "missing"
 
     def test_is_str_enum(self) -> None:
+        """All members must be str instances."""
         for member in ContractEnumUsageSource:
             assert isinstance(member, str)
 
@@ -55,6 +58,7 @@ class TestContractLlmUsageRaw:
     """Tests for ContractLlmUsageRaw."""
 
     def test_create_minimal(self) -> None:
+        """Default construction must populate all fields with defaults."""
         raw = ContractLlmUsageRaw()
         assert raw.schema_version == "1.0"
         assert raw.provider == ""
@@ -62,6 +66,7 @@ class TestContractLlmUsageRaw:
         assert raw.extensions == {}
 
     def test_create_full(self) -> None:
+        """Full construction must retain all provided values."""
         raw = ContractLlmUsageRaw(
             provider="openai",
             raw_data={
@@ -76,11 +81,13 @@ class TestContractLlmUsageRaw:
         assert raw.extensions == {"region": "us-east-1"}
 
     def test_frozen(self) -> None:
+        """Frozen model must reject attribute mutation."""
         raw = ContractLlmUsageRaw(provider="anthropic")
         with pytest.raises(ValidationError):
             raw.provider = "openai"  # type: ignore[misc]
 
     def test_extra_fields_rejected(self) -> None:
+        """Extra fields must be rejected by extra='forbid'."""
         with pytest.raises(ValidationError, match="extra_forbidden"):
             ContractLlmUsageRaw(
                 provider="openai",
@@ -88,6 +95,7 @@ class TestContractLlmUsageRaw:
             )
 
     def test_json_round_trip(self) -> None:
+        """JSON serialization must produce an equivalent instance."""
         raw = ContractLlmUsageRaw(
             provider="vllm",
             raw_data={"usage": {"prompt_tokens": 42}},
@@ -97,6 +105,7 @@ class TestContractLlmUsageRaw:
         assert raw == raw2
 
     def test_dict_round_trip(self) -> None:
+        """Dict serialization must produce an equivalent instance."""
         raw = ContractLlmUsageRaw(provider="anthropic", raw_data={"input_tokens": 10})
         d = raw.model_dump()
         assert isinstance(d, dict)
@@ -114,6 +123,7 @@ class TestContractLlmUsageNormalized:
     """Tests for ContractLlmUsageNormalized."""
 
     def test_create_minimal(self) -> None:
+        """Default construction must populate all fields with defaults."""
         norm = ContractLlmUsageNormalized()
         assert norm.schema_version == "1.0"
         assert norm.prompt_tokens == 0
@@ -124,6 +134,7 @@ class TestContractLlmUsageNormalized:
         assert norm.extensions == {}
 
     def test_create_api_source(self) -> None:
+        """API source with usage_is_estimated=False must be accepted."""
         norm = ContractLlmUsageNormalized(
             prompt_tokens=100,
             completion_tokens=50,
@@ -136,6 +147,7 @@ class TestContractLlmUsageNormalized:
         assert norm.usage_is_estimated is False
 
     def test_create_estimated_source(self) -> None:
+        """ESTIMATED source with usage_is_estimated=True must be accepted."""
         norm = ContractLlmUsageNormalized(
             prompt_tokens=95,
             completion_tokens=48,
@@ -147,6 +159,7 @@ class TestContractLlmUsageNormalized:
         assert norm.usage_is_estimated is True
 
     def test_estimated_source_requires_usage_is_estimated_true(self) -> None:
+        """ESTIMATED source with usage_is_estimated=False must be rejected."""
         with pytest.raises(ValidationError, match="usage_is_estimated must be True"):
             ContractLlmUsageNormalized(
                 source=ContractEnumUsageSource.ESTIMATED,
@@ -154,6 +167,7 @@ class TestContractLlmUsageNormalized:
             )
 
     def test_api_source_requires_usage_is_estimated_false(self) -> None:
+        """API source with usage_is_estimated=True must be rejected."""
         with pytest.raises(ValidationError, match="usage_is_estimated must be False"):
             ContractLlmUsageNormalized(
                 source=ContractEnumUsageSource.API,
@@ -161,7 +175,7 @@ class TestContractLlmUsageNormalized:
             )
 
     def test_missing_source_allows_either_estimated_flag(self) -> None:
-        # MISSING source does not constrain usage_is_estimated
+        """MISSING source must not constrain usage_is_estimated."""
         norm_false = ContractLlmUsageNormalized(
             source=ContractEnumUsageSource.MISSING,
             usage_is_estimated=False,
@@ -175,21 +189,25 @@ class TestContractLlmUsageNormalized:
         assert norm_true.usage_is_estimated is True
 
     def test_negative_tokens_rejected(self) -> None:
+        """Negative token counts must be rejected by ge=0 constraint."""
         with pytest.raises(ValidationError):
             ContractLlmUsageNormalized(prompt_tokens=-1)
 
     def test_frozen(self) -> None:
+        """Frozen model must reject attribute mutation."""
         norm = ContractLlmUsageNormalized()
         with pytest.raises(ValidationError):
             norm.prompt_tokens = 10  # type: ignore[misc]
 
     def test_extra_fields_rejected(self) -> None:
+        """Extra fields must be rejected by extra='forbid'."""
         with pytest.raises(ValidationError, match="extra_forbidden"):
             ContractLlmUsageNormalized(
                 nope="rejected",  # type: ignore[call-arg]
             )
 
     def test_json_round_trip(self) -> None:
+        """JSON serialization must produce an equivalent instance."""
         norm = ContractLlmUsageNormalized(
             prompt_tokens=200,
             completion_tokens=100,
@@ -199,6 +217,20 @@ class TestContractLlmUsageNormalized:
         )
         j = norm.model_dump_json()
         norm2 = ContractLlmUsageNormalized.model_validate_json(j)
+        assert norm == norm2
+
+    def test_dict_round_trip(self) -> None:
+        """Dict serialization must produce an equivalent instance."""
+        norm = ContractLlmUsageNormalized(
+            prompt_tokens=200,
+            completion_tokens=100,
+            total_tokens=300,
+            source=ContractEnumUsageSource.API,
+            usage_is_estimated=False,
+        )
+        d = norm.model_dump()
+        assert isinstance(d, dict)
+        norm2 = ContractLlmUsageNormalized.model_validate(d)
         assert norm == norm2
 
 
@@ -212,6 +244,7 @@ class TestContractLlmCallMetrics:
     """Tests for ContractLlmCallMetrics."""
 
     def test_create_minimal(self) -> None:
+        """Minimal construction with only model_id must populate defaults."""
         m = ContractLlmCallMetrics(model_id="gpt-4o")
         assert m.model_id == "gpt-4o"
         assert m.schema_version == "1.0"
@@ -231,6 +264,7 @@ class TestContractLlmCallMetrics:
         assert m.extensions == {}
 
     def test_create_full(self) -> None:
+        """Full construction must retain all provided values including nested objects."""
         raw = ContractLlmUsageRaw(
             provider="openai",
             raw_data={"prompt_tokens": 500, "completion_tokens": 200},
@@ -275,27 +309,33 @@ class TestContractLlmCallMetrics:
         assert m.extensions == {"request_id": "req-xyz"}
 
     def test_model_id_required(self) -> None:
+        """Construction without model_id must raise ValidationError."""
         with pytest.raises(ValidationError):
             ContractLlmCallMetrics()  # type: ignore[call-arg]
 
     def test_negative_tokens_rejected(self) -> None:
+        """Negative token counts must be rejected by ge=0 constraint."""
         with pytest.raises(ValidationError):
             ContractLlmCallMetrics(model_id="x", prompt_tokens=-1)
 
     def test_negative_cost_rejected(self) -> None:
+        """Negative cost must be rejected by ge=0.0 constraint."""
         with pytest.raises(ValidationError):
             ContractLlmCallMetrics(model_id="x", estimated_cost_usd=-0.01)
 
     def test_negative_latency_rejected(self) -> None:
+        """Negative latency must be rejected by ge=0.0 constraint."""
         with pytest.raises(ValidationError):
             ContractLlmCallMetrics(model_id="x", latency_ms=-1.0)
 
     def test_frozen(self) -> None:
+        """Frozen model must reject attribute mutation."""
         m = ContractLlmCallMetrics(model_id="gpt-4o")
         with pytest.raises(ValidationError):
             m.model_id = "changed"  # type: ignore[misc]
 
     def test_extra_fields_rejected(self) -> None:
+        """Extra fields must be rejected by extra='forbid'."""
         with pytest.raises(ValidationError, match="extra_forbidden"):
             ContractLlmCallMetrics(
                 model_id="gpt-4o",
@@ -303,6 +343,7 @@ class TestContractLlmCallMetrics:
             )
 
     def test_json_round_trip(self) -> None:
+        """JSON serialization must produce an equivalent instance."""
         m = ContractLlmCallMetrics(
             model_id="claude-opus-4-20250514",
             prompt_tokens=1000,
@@ -320,7 +361,7 @@ class TestContractLlmCallMetrics:
         assert m == m2
 
     def test_dict_round_trip_via_json_str(self) -> None:
-        """Ensure the JSON string can be parsed back to dict then validated."""
+        """JSON string parsed back to dict then validated must round-trip."""
         m = ContractLlmCallMetrics(
             model_id="gpt-4o",
             prompt_tokens=100,
@@ -393,6 +434,7 @@ class TestLlmCostTrackingImports:
     """Tests that all new contracts are importable from package __init__ modules."""
 
     def test_import_from_measurement_init(self) -> None:
+        """All new types must be importable from the measurement package."""
         from omnibase_spi.contracts.measurement import (
             ContractEnumUsageSource,
             ContractLlmCallMetrics,
@@ -406,6 +448,7 @@ class TestLlmCostTrackingImports:
         assert ContractLlmUsageRaw is not None
 
     def test_import_from_contracts_init(self) -> None:
+        """All new types must be importable from the contracts package."""
         from omnibase_spi.contracts import (
             ContractEnumUsageSource,
             ContractLlmCallMetrics,

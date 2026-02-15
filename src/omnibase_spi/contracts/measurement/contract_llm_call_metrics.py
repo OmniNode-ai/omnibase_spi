@@ -143,6 +143,11 @@ class ContractLlmCallMetrics(BaseModel):
     of this contract aggregate into ``ContractCostMetrics`` at the
     phase level.
 
+    The top-level ``usage_is_estimated`` flag is intentionally independent
+    of ``usage_normalized.usage_is_estimated``.  When the normalized layer
+    is absent the top-level flag still conveys estimation provenance;
+    when both are present callers should prefer the normalized value.
+
     Attributes:
         schema_version: Wire-format version for forward compatibility.
         model_id: Identifier of the LLM model used (e.g. 'gpt-4o', 'claude-opus-4-20250514').
@@ -154,7 +159,8 @@ class ContractLlmCallMetrics(BaseModel):
         usage_raw: Raw provider usage data (verbatim API response).
         usage_normalized: Canonical normalized usage data.
         usage_is_estimated: True when tokens were counted locally rather
-            than reported by the provider API.
+            than reported by the provider API.  Independent of the
+            nested ``usage_normalized.usage_is_estimated`` flag.
         input_hash: Hash of the input data for reproducibility tracking.
         code_version: Version of the calling code.
         contract_version: Version of this contract schema.
@@ -212,7 +218,10 @@ class ContractLlmCallMetrics(BaseModel):
         default=False,
         description=(
             "True when tokens were counted locally rather than "
-            "reported by the provider API."
+            "reported by the provider API.  This is a top-level summary "
+            "flag independent of usage_normalized.usage_is_estimated; "
+            "callers may set them independently when the normalized "
+            "layer is absent."
         ),
     )
 
