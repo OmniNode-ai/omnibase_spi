@@ -545,6 +545,87 @@ class TestContractLlmCallMetrics:
         )
         assert m.estimated_cost_usd == 0.0
 
+    # -- Edge case tests ----------------------------------------------------
+
+    def test_whitespace_only_model_id_accepted(self) -> None:
+        """Whitespace-only model_id passes min_length=1 (no strip validation)."""
+        m = ContractLlmCallMetrics(model_id="   ")
+        assert m.model_id == "   "
+
+    def test_very_large_token_values_accepted(self) -> None:
+        """Very large token counts must be accepted without overflow."""
+        large = 10**15
+        m = ContractLlmCallMetrics(
+            model_id="gpt-4o",
+            prompt_tokens=large,
+            completion_tokens=large,
+            total_tokens=large * 2,
+        )
+        assert m.prompt_tokens == large
+        assert m.completion_tokens == large
+        assert m.total_tokens == large * 2
+
+    def test_usage_raw_empty_provider_with_populated_fields(self) -> None:
+        """Empty provider in usage_raw is valid even when other fields are set."""
+        raw = ContractLlmUsageRaw(
+            provider="",
+            raw_data={"prompt_tokens": 100, "completion_tokens": 50},
+            extensions={"region": "us-west-2"},
+        )
+        m = ContractLlmCallMetrics(
+            model_id="gpt-4o",
+            usage_raw=raw,
+        )
+        assert m.usage_raw is not None
+        assert m.usage_raw.provider == ""
+        assert m.usage_raw.raw_data["prompt_tokens"] == 100
+        assert m.usage_raw.extensions == {"region": "us-west-2"}
+
+    def test_timestamp_iso_valid_with_timezone(self) -> None:
+        """Valid ISO-8601 timestamp with timezone must be accepted."""
+        m = ContractLlmCallMetrics(
+            model_id="gpt-4o",
+            timestamp_iso="2026-02-15T10:00:00+00:00",
+        )
+        assert m.timestamp_iso == "2026-02-15T10:00:00+00:00"
+
+    def test_timestamp_iso_valid_utc_z_suffix(self) -> None:
+        """Valid ISO-8601 timestamp with Z suffix must be accepted."""
+        m = ContractLlmCallMetrics(
+            model_id="gpt-4o",
+            timestamp_iso="2026-02-15T10:00:00Z",
+        )
+        assert m.timestamp_iso == "2026-02-15T10:00:00Z"
+
+    def test_timestamp_iso_valid_without_timezone(self) -> None:
+        """Valid ISO-8601 timestamp without timezone must be accepted."""
+        m = ContractLlmCallMetrics(
+            model_id="gpt-4o",
+            timestamp_iso="2026-02-15T10:00:00",
+        )
+        assert m.timestamp_iso == "2026-02-15T10:00:00"
+
+    def test_timestamp_iso_empty_string_accepted(self) -> None:
+        """Empty string (default) for timestamp_iso must be accepted."""
+        m = ContractLlmCallMetrics(model_id="gpt-4o", timestamp_iso="")
+        assert m.timestamp_iso == ""
+
+    def test_timestamp_iso_invalid_rejected(self) -> None:
+        """Non-ISO-8601 string must be rejected by timestamp_iso validator."""
+        with pytest.raises(ValidationError, match="timestamp_iso.*valid ISO-8601"):
+            ContractLlmCallMetrics(
+                model_id="gpt-4o",
+                timestamp_iso="not-a-timestamp",
+            )
+
+    def test_timestamp_iso_partial_date_rejected(self) -> None:
+        """Partial or malformed date string must be rejected."""
+        with pytest.raises(ValidationError, match="timestamp_iso.*valid ISO-8601"):
+            ContractLlmCallMetrics(
+                model_id="gpt-4o",
+                timestamp_iso="2026-13-45",
+            )
+
 
 # ---------------------------------------------------------------------------
 # Module-level import tests

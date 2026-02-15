@@ -13,9 +13,10 @@ This contract must NOT import from omnibase_core, omnibase_infra, or omniclaude.
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from omnibase_spi.contracts.measurement.enum_usage_source import (
     ContractEnumUsageSource,
@@ -166,8 +167,10 @@ class ContractLlmCallMetrics(BaseModel):
         usage_raw: Raw provider usage data (verbatim API response).
         usage_normalized: Canonical normalized usage data.
         usage_is_estimated: True when tokens were counted locally rather
-            than reported by the provider API.  Independent of the
-            nested ``usage_normalized.usage_is_estimated`` flag.
+            than reported by the provider API.  When ``usage_normalized``
+            is present, this flag must agree with
+            ``usage_normalized.usage_is_estimated``; a ``ValueError`` is
+            raised if they disagree.
         input_hash: Hash of the input data for reproducibility tracking.
             Expected format is algorithm-prefixed hex (e.g. ``sha256-a1b2...``).
         code_version: Version of the calling code.
@@ -278,6 +281,26 @@ class ContractLlmCallMetrics(BaseModel):
         default_factory=dict,
         description="Escape hatch for forward-compatible extension data.",
     )
+
+    @field_validator("timestamp_iso")
+    @classmethod
+    def _validate_timestamp_iso(cls, v: str) -> str:
+        """Validate that non-empty timestamp_iso is a parseable ISO-8601 string.
+
+        Empty strings are allowed (it is the field default).  Non-empty
+        values are validated using ``datetime.fromisoformat()`` which
+        accepts standard ISO-8601 formats including timezone designators.
+        """
+        if v == "":
+            return v
+        try:
+            datetime.fromisoformat(v)
+        except (ValueError, TypeError) as exc:
+            raise ValueError(
+                f"timestamp_iso must be a valid ISO-8601 datetime string, "
+                f"got {v!r}: {exc}"
+            ) from exc
+        return v
 
     @model_validator(mode="after")
     def _validate_token_consistency(self) -> ContractLlmCallMetrics:
