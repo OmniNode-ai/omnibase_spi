@@ -433,6 +433,54 @@ class TestContractLlmCallMetrics:
         assert m2.usage_normalized is not None
         assert m2.usage_normalized.source == ContractEnumUsageSource.API
 
+    def test_normalized_tokens_must_match_top_level(self) -> None:
+        """When usage_normalized is present, its tokens must match top-level values."""
+        norm = ContractLlmUsageNormalized(
+            prompt_tokens=100,
+            completion_tokens=50,
+            total_tokens=150,
+            source=ContractEnumUsageSource.API,
+            usage_is_estimated=False,
+        )
+        # Mismatched prompt_tokens
+        with pytest.raises(ValidationError, match="prompt_tokens.*top-level.*normalized"):
+            ContractLlmCallMetrics(
+                model_id="x",
+                prompt_tokens=200,
+                completion_tokens=50,
+                total_tokens=250,
+                usage_normalized=norm,
+            )
+
+    def test_normalized_tokens_match_top_level_accepted(self) -> None:
+        """Matching top-level and normalized tokens must be accepted."""
+        norm = ContractLlmUsageNormalized(
+            prompt_tokens=100,
+            completion_tokens=50,
+            total_tokens=150,
+            source=ContractEnumUsageSource.API,
+            usage_is_estimated=False,
+        )
+        m = ContractLlmCallMetrics(
+            model_id="gpt-4o",
+            prompt_tokens=100,
+            completion_tokens=50,
+            total_tokens=150,
+            usage_normalized=norm,
+        )
+        assert m.prompt_tokens == m.usage_normalized.prompt_tokens  # type: ignore[union-attr]
+
+    def test_no_normalized_skips_cross_check(self) -> None:
+        """Without usage_normalized, only the total_tokens sum is checked."""
+        m = ContractLlmCallMetrics(
+            model_id="gpt-4o",
+            prompt_tokens=100,
+            completion_tokens=50,
+            total_tokens=150,
+        )
+        assert m.usage_normalized is None
+        assert m.total_tokens == 150
+
     def test_global_invariant_fields_present(self) -> None:
         """All global invariant fields must exist on the contract."""
         m = ContractLlmCallMetrics(model_id="test-model")

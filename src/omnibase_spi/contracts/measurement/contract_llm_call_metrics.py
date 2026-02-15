@@ -169,9 +169,12 @@ class ContractLlmCallMetrics(BaseModel):
             than reported by the provider API.  Independent of the
             nested ``usage_normalized.usage_is_estimated`` flag.
         input_hash: Hash of the input data for reproducibility tracking.
+            Expected format is algorithm-prefixed hex (e.g. ``sha256-a1b2...``).
         code_version: Version of the calling code.
         contract_version: Version of this contract schema.
-        timestamp_iso: ISO-8601 timestamp of the call.
+        timestamp_iso: ISO-8601 timestamp of the call (e.g.
+            ``2026-02-15T10:00:00Z``).  Plain string for wire-format
+            flexibility.
         source: Provenance label for this metrics record.
         extensions: Escape hatch for forward-compatible extension data.
     """
@@ -235,7 +238,12 @@ class ContractLlmCallMetrics(BaseModel):
     # Global invariant fields
     input_hash: str = Field(
         default="",
-        description="Hash of the input data for reproducibility tracking.",
+        description=(
+            "Hash of the input data for reproducibility tracking.  "
+            "Expected format is algorithm-prefixed hex, e.g. "
+            "'sha256-a1b2c3...'.  No validation is enforced; producers "
+            "should follow this convention for interoperability."
+        ),
     )
     code_version: str = Field(
         default="",
@@ -247,7 +255,11 @@ class ContractLlmCallMetrics(BaseModel):
     )
     timestamp_iso: str = Field(
         default="",
-        description="ISO-8601 timestamp of the call.",
+        description=(
+            "ISO-8601 timestamp of the call (e.g. '2026-02-15T10:00:00Z').  "
+            "Kept as a plain string for wire-format flexibility; producers "
+            "should emit full ISO-8601 with timezone designator."
+        ),
     )
     source: str = Field(
         default="",
@@ -260,12 +272,45 @@ class ContractLlmCallMetrics(BaseModel):
     )
 
     @model_validator(mode="after")
-    def _validate_total_tokens(self) -> ContractLlmCallMetrics:
-        """Ensure total_tokens equals prompt_tokens + completion_tokens."""
+    def _validate_token_consistency(self) -> ContractLlmCallMetrics:
+        """Ensure token fields are internally consistent.
+
+        Checks:
+        1. total_tokens == prompt_tokens + completion_tokens (always).
+        2. When usage_normalized is present, its token counts must match
+           the top-level prompt_tokens, completion_tokens, and
+           total_tokens.  This prevents silent divergence between the
+           summary fields and the canonical normalized representation.
+        """
         expected = self.prompt_tokens + self.completion_tokens
         if self.total_tokens != expected:
             raise ValueError(
                 f"total_tokens ({self.total_tokens}) must equal "
                 f"prompt_tokens + completion_tokens ({expected})"
             )
+
+        if self.usage_normalized is not None:
+            norm = self.usage_normalized
+            mismatches: list[str] = []
+            if self.prompt_tokens != norm.prompt_tokens:
+                mismatches.append(
+                    f"prompt_tokens: top-level={self.prompt_tokens} "
+                    f"vs normalized={norm.prompt_tokens}"
+                )
+            if self.completion_tokens != norm.completion_tokens:
+                mismatches.append(
+                    f"completion_tokens: top-level={self.completion_tokens} "
+                    f"vs normalized={norm.completion_tokens}"
+                )
+            if self.total_tokens != norm.total_tokens:
+                mismatches.append(
+                    f"total_tokens: top-level={self.total_tokens} "
+                    f"vs normalized={norm.total_tokens}"
+                )
+            if mismatches:
+                raise ValueError(
+                    "Top-level token counts disagree with "
+                    "usage_normalized: " + "; ".join(mismatches)
+                )
+
         return self
