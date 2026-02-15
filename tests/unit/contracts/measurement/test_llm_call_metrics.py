@@ -188,6 +188,15 @@ class TestContractLlmUsageNormalized:
         )
         assert norm_true.usage_is_estimated is True
 
+    def test_inconsistent_total_tokens_rejected(self) -> None:
+        """total_tokens must equal prompt_tokens + completion_tokens."""
+        with pytest.raises(ValidationError, match="total_tokens"):
+            ContractLlmUsageNormalized(
+                prompt_tokens=100,
+                completion_tokens=50,
+                total_tokens=999,
+            )
+
     def test_negative_tokens_rejected(self) -> None:
         """Negative token counts must be rejected by ge=0 constraint."""
         with pytest.raises(ValidationError):
@@ -318,6 +327,16 @@ class TestContractLlmCallMetrics:
         with pytest.raises(ValidationError):
             ContractLlmCallMetrics(model_id="x", prompt_tokens=-1)
 
+    def test_inconsistent_total_tokens_rejected(self) -> None:
+        """total_tokens must equal prompt_tokens + completion_tokens."""
+        with pytest.raises(ValidationError, match="total_tokens"):
+            ContractLlmCallMetrics(
+                model_id="x",
+                prompt_tokens=100,
+                completion_tokens=50,
+                total_tokens=999,
+            )
+
     def test_negative_cost_rejected(self) -> None:
         """Negative cost must be rejected by ge=0.0 constraint."""
         with pytest.raises(ValidationError):
@@ -365,8 +384,10 @@ class TestContractLlmCallMetrics:
         m = ContractLlmCallMetrics(
             model_id="gpt-4o",
             prompt_tokens=100,
+            total_tokens=100,
             usage_normalized=ContractLlmUsageNormalized(
                 prompt_tokens=100,
+                total_tokens=100,
                 source=ContractEnumUsageSource.API,
                 usage_is_estimated=False,
             ),

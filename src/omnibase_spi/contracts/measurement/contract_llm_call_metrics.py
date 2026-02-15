@@ -114,11 +114,12 @@ class ContractLlmUsageNormalized(BaseModel):
     )
 
     @model_validator(mode="after")
-    def _validate_source_consistency(self) -> ContractLlmUsageNormalized:
-        """Ensure usage_is_estimated is consistent with source.
+    def _validate_consistency(self) -> ContractLlmUsageNormalized:
+        """Ensure usage_is_estimated is consistent with source and token sum.
 
         When source is ESTIMATED, usage_is_estimated must be True.
         When source is API, usage_is_estimated must be False.
+        total_tokens must equal prompt_tokens + completion_tokens.
         """
         if (
             self.source == ContractEnumUsageSource.ESTIMATED
@@ -129,6 +130,12 @@ class ContractLlmUsageNormalized(BaseModel):
             )
         if self.source == ContractEnumUsageSource.API and self.usage_is_estimated:
             raise ValueError("usage_is_estimated must be False when source is 'api'")
+        expected = self.prompt_tokens + self.completion_tokens
+        if self.total_tokens != expected:
+            raise ValueError(
+                f"total_tokens ({self.total_tokens}) must equal "
+                f"prompt_tokens + completion_tokens ({expected})"
+            )
         return self
 
 
@@ -251,3 +258,14 @@ class ContractLlmCallMetrics(BaseModel):
         default_factory=dict,
         description="Escape hatch for forward-compatible extension data.",
     )
+
+    @model_validator(mode="after")
+    def _validate_total_tokens(self) -> ContractLlmCallMetrics:
+        """Ensure total_tokens equals prompt_tokens + completion_tokens."""
+        expected = self.prompt_tokens + self.completion_tokens
+        if self.total_tokens != expected:
+            raise ValueError(
+                f"total_tokens ({self.total_tokens}) must equal "
+                f"prompt_tokens + completion_tokens ({expected})"
+            )
+        return self
