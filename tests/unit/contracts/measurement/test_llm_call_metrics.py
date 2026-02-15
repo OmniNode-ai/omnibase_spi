@@ -269,7 +269,7 @@ class TestContractLlmCallMetrics:
         assert m.code_version == ""
         assert m.contract_version == "1.0"
         assert m.timestamp_iso == ""
-        assert m.source == ""
+        assert m.reporting_source == ""
         assert m.extensions == {}
 
     def test_create_full(self) -> None:
@@ -295,11 +295,11 @@ class TestContractLlmCallMetrics:
             usage_raw=raw,
             usage_normalized=norm,
             usage_is_estimated=False,
-            input_hash="abc123def456",
+            input_hash="sha256-abc123def456",
             code_version="0.8.0",
             contract_version="1.0",
             timestamp_iso="2026-02-15T10:00:00Z",
-            source="pipeline-agent",
+            reporting_source="pipeline-agent",
             extensions={"request_id": "req-xyz"},
         )
         assert m.prompt_tokens == 500
@@ -311,10 +311,10 @@ class TestContractLlmCallMetrics:
         assert m.usage_raw.provider == "openai"
         assert m.usage_normalized is not None
         assert m.usage_normalized.total_tokens == 700
-        assert m.input_hash == "abc123def456"
+        assert m.input_hash == "sha256-abc123def456"
         assert m.code_version == "0.8.0"
         assert m.timestamp_iso == "2026-02-15T10:00:00Z"
-        assert m.source == "pipeline-agent"
+        assert m.reporting_source == "pipeline-agent"
         assert m.extensions == {"request_id": "req-xyz"}
 
     def test_model_id_required(self) -> None:
@@ -373,7 +373,7 @@ class TestContractLlmCallMetrics:
             input_hash="sha256-abc",
             code_version="0.8.0",
             timestamp_iso="2026-02-15T12:00:00Z",
-            source="test",
+            reporting_source="test",
         )
         j = m.model_dump_json()
         m2 = ContractLlmCallMetrics.model_validate_json(j)
@@ -423,7 +423,7 @@ class TestContractLlmCallMetrics:
             code_version="1.0.0",
             contract_version="1.0",
             timestamp_iso="2026-02-15T14:00:00Z",
-            source="integration-test",
+            reporting_source="integration-test",
         )
         j = m.model_dump_json()
         m2 = ContractLlmCallMetrics.model_validate_json(j)
@@ -485,12 +485,65 @@ class TestContractLlmCallMetrics:
         """All global invariant fields must exist on the contract."""
         m = ContractLlmCallMetrics(model_id="test-model")
         # Global invariants: input_hash, code_version, contract_version,
-        # timestamp, source
+        # timestamp, reporting_source
         assert hasattr(m, "input_hash")
         assert hasattr(m, "code_version")
         assert hasattr(m, "contract_version")
         assert hasattr(m, "timestamp_iso")
-        assert hasattr(m, "source")
+        assert hasattr(m, "reporting_source")
+
+    def test_empty_model_id_rejected(self) -> None:
+        """Empty string model_id must be rejected by min_length=1."""
+        with pytest.raises(ValidationError, match="String should have at least 1 character"):
+            ContractLlmCallMetrics(model_id="")
+
+    def test_usage_is_estimated_disagreement_rejected(self) -> None:
+        """Top-level and normalized usage_is_estimated must agree when both present."""
+        norm = ContractLlmUsageNormalized(
+            prompt_tokens=100,
+            completion_tokens=50,
+            total_tokens=150,
+            source=ContractEnumUsageSource.API,
+            usage_is_estimated=False,
+        )
+        with pytest.raises(ValidationError, match="usage_is_estimated.*disagrees"):
+            ContractLlmCallMetrics(
+                model_id="gpt-4o",
+                prompt_tokens=100,
+                completion_tokens=50,
+                total_tokens=150,
+                usage_normalized=norm,
+                usage_is_estimated=True,
+            )
+
+    def test_usage_is_estimated_agreement_accepted(self) -> None:
+        """Matching top-level and normalized usage_is_estimated must be accepted."""
+        norm = ContractLlmUsageNormalized(
+            prompt_tokens=100,
+            completion_tokens=50,
+            total_tokens=150,
+            source=ContractEnumUsageSource.ESTIMATED,
+            usage_is_estimated=True,
+        )
+        m = ContractLlmCallMetrics(
+            model_id="gpt-4o",
+            prompt_tokens=100,
+            completion_tokens=50,
+            total_tokens=150,
+            usage_normalized=norm,
+            usage_is_estimated=True,
+        )
+        assert m.usage_is_estimated is True
+        assert m.usage_normalized is not None
+        assert m.usage_normalized.usage_is_estimated is True
+
+    def test_estimated_cost_usd_zero_accepted(self) -> None:
+        """Zero cost (boundary value) must be accepted by ge=0.0."""
+        m = ContractLlmCallMetrics(
+            model_id="gpt-4o",
+            estimated_cost_usd=0.0,
+        )
+        assert m.estimated_cost_usd == 0.0
 
 
 # ---------------------------------------------------------------------------

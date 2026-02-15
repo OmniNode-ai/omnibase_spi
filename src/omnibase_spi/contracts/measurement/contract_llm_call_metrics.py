@@ -150,10 +150,10 @@ class ContractLlmCallMetrics(BaseModel):
     of this contract aggregate into ``ContractCostMetrics`` at the
     phase level.
 
-    The top-level ``usage_is_estimated`` flag is intentionally independent
-    of ``usage_normalized.usage_is_estimated``.  When the normalized layer
-    is absent the top-level flag still conveys estimation provenance;
-    when both are present callers should prefer the normalized value.
+    The top-level ``usage_is_estimated`` flag conveys estimation provenance
+    even when ``usage_normalized`` is absent.  When both are present the
+    two flags must agree; a ``ValueError`` is raised if they disagree to
+    prevent inconsistent records.
 
     Attributes:
         schema_version: Wire-format version for forward compatibility.
@@ -175,7 +175,10 @@ class ContractLlmCallMetrics(BaseModel):
         timestamp_iso: ISO-8601 timestamp of the call (e.g.
             ``2026-02-15T10:00:00Z``).  Plain string for wire-format
             flexibility.
-        source: Provenance label for this metrics record.
+        reporting_source: Provenance/origin label for this metrics record
+            (e.g. 'pipeline-agent', 'batch-ingest').  Named ``reporting_source``
+            to avoid confusion with ``usage_normalized.source`` which carries
+            a different type (``ContractEnumUsageSource``).
         extensions: Escape hatch for forward-compatible extension data.
     """
 
@@ -187,6 +190,7 @@ class ContractLlmCallMetrics(BaseModel):
     )
     model_id: str = Field(
         ...,
+        min_length=1,
         description="Identifier of the LLM model used (e.g. 'gpt-4o', 'claude-opus-4-20250514').",
     )
     prompt_tokens: int = Field(
@@ -228,10 +232,9 @@ class ContractLlmCallMetrics(BaseModel):
         default=False,
         description=(
             "True when tokens were counted locally rather than "
-            "reported by the provider API.  This is a top-level summary "
-            "flag independent of usage_normalized.usage_is_estimated; "
-            "callers may set them independently when the normalized "
-            "layer is absent."
+            "reported by the provider API.  When usage_normalized is "
+            "present this flag must agree with "
+            "usage_normalized.usage_is_estimated."
         ),
     )
 
@@ -261,9 +264,14 @@ class ContractLlmCallMetrics(BaseModel):
             "should emit full ISO-8601 with timezone designator."
         ),
     )
-    source: str = Field(
+    reporting_source: str = Field(
         default="",
-        description="Provenance label for this metrics record.",
+        description=(
+            "Provenance/origin label for this metrics record "
+            "(e.g. 'pipeline-agent', 'batch-ingest').  Named "
+            "'reporting_source' to avoid confusion with "
+            "usage_normalized.source (ContractEnumUsageSource)."
+        ),
     )
 
     extensions: dict[str, Any] = Field(
@@ -273,7 +281,7 @@ class ContractLlmCallMetrics(BaseModel):
 
     @model_validator(mode="after")
     def _validate_token_consistency(self) -> ContractLlmCallMetrics:
-        """Ensure token fields are internally consistent.
+        """Ensure token fields and estimation flags are internally consistent.
 
         Checks:
         1. total_tokens == prompt_tokens + completion_tokens (always).
@@ -281,6 +289,9 @@ class ContractLlmCallMetrics(BaseModel):
            the top-level prompt_tokens, completion_tokens, and
            total_tokens.  This prevents silent divergence between the
            summary fields and the canonical normalized representation.
+        3. When usage_normalized is present, the top-level
+           usage_is_estimated must agree with
+           usage_normalized.usage_is_estimated.
         """
         expected = self.prompt_tokens + self.completion_tokens
         if self.total_tokens != expected:
@@ -311,6 +322,14 @@ class ContractLlmCallMetrics(BaseModel):
                 raise ValueError(
                     "Top-level token counts disagree with "
                     "usage_normalized: " + "; ".join(mismatches)
+                )
+
+            if self.usage_is_estimated != norm.usage_is_estimated:
+                raise ValueError(
+                    f"Top-level usage_is_estimated ({self.usage_is_estimated}) "
+                    f"disagrees with usage_normalized.usage_is_estimated "
+                    f"({norm.usage_is_estimated}); they must be consistent "
+                    f"when both are present"
                 )
 
         return self
