@@ -23,6 +23,7 @@ class ContractDelegationAttribution(BaseModel):
         model_name: Identifier of the LLM model that produced the response
             (e.g. 'qwen2.5-coder-14b', 'claude-opus-4-20250514').
         endpoint_url: URL of the LLM endpoint that was called.
+            URL format validation is deferred to consumers.
         latency_ms: End-to-end latency of the LLM call in milliseconds.
         prompt_version: Version identifier for the prompt template used.
         delegation_confidence: Router confidence in the delegation decision
@@ -47,7 +48,10 @@ class ContractDelegationAttribution(BaseModel):
     endpoint_url: str = Field(
         ...,
         min_length=1,
-        description="URL of the LLM endpoint that was called.",
+        description=(
+            "URL of the LLM endpoint that was called.  "
+            "URL format validation is deferred to consumers."
+        ),
     )
     latency_ms: float = Field(
         ...,
@@ -62,7 +66,7 @@ class ContractDelegationAttribution(BaseModel):
         ...,
         ge=0.0,
         le=1.0,
-        description=("Router confidence in the delegation decision (0.0-1.0)."),
+        description="Router confidence in the delegation decision (0.0-1.0).",
     )
     extensions: dict[str, Any] = Field(
         default_factory=dict,

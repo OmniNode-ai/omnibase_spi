@@ -24,7 +24,10 @@ class ContractAttachment(BaseModel):
             'application/json').
         content_base64: Base64-encoded content of the attachment.
             Empty string when content is provided out-of-band.
-        size_bytes: Size of the decoded content in bytes.
+            Base64 format validation is deferred to consumers.
+        size_bytes: Size of the decoded content in bytes.  Advisory only;
+            consumers should validate consistency with the actual decoded
+            length of content_base64.
         description: Human-readable description of the attachment.
         extensions: Escape hatch for forward-compatible extension data.
     """
@@ -42,21 +45,24 @@ class ContractAttachment(BaseModel):
     )
     content_type: str = Field(
         default="application/octet-stream",
-        description=(
-            "MIME type of the attachment " "(e.g. 'image/png', 'application/json')."
-        ),
+        description="MIME type of the attachment (e.g. 'image/png', 'application/json').",
     )
     content_base64: str = Field(
         default="",
         description=(
             "Base64-encoded content of the attachment.  "
-            "Empty string when content is provided out-of-band."
+            "Empty string when content is provided out-of-band.  "
+            "Base64 format validation is deferred to consumers."
         ),
     )
     size_bytes: int = Field(
         default=0,
         ge=0,
-        description="Size of the decoded content in bytes.",
+        description=(
+            "Size of the decoded content in bytes.  "
+            "Advisory only; consumers should validate consistency "
+            "with the actual decoded length of content_base64."
+        ),
     )
     description: str = Field(
         default="",

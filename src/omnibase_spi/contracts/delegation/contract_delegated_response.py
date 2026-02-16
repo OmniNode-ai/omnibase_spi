@@ -67,7 +67,7 @@ class ContractDelegatedResponse(BaseModel):
     )
     quality_gate_result: ContractComplianceResult | None = Field(
         default=None,
-        description=("Outcome of a quality-gate evaluation, if one was applied."),
+        description="Outcome of a quality-gate evaluation, if one was applied.",
     )
     extensions: dict[str, Any] = Field(
         default_factory=dict,

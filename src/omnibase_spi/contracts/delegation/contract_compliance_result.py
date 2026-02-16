@@ -26,6 +26,7 @@ class ContractComplianceResult(BaseModel):
         verdict: Categorical verdict of the evaluation.
         violations: List of violation descriptions if the gate failed.
         evaluated_at_iso: ISO-8601 timestamp of the evaluation.
+            Format validation is deferred to consumers.
         extensions: Escape hatch for forward-compatible extension data.
     """
 
@@ -65,7 +66,10 @@ class ContractComplianceResult(BaseModel):
     )
     evaluated_at_iso: str = Field(
         default="",
-        description="ISO-8601 timestamp of the evaluation.",
+        description=(
+            "ISO-8601 timestamp of the evaluation.  "
+            "Format validation is deferred to consumers."
+        ),
     )
     extensions: dict[str, Any] = Field(
         default_factory=dict,
