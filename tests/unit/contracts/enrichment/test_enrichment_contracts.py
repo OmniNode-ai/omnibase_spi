@@ -240,12 +240,21 @@ class TestProtocolContextEnrichment:
             ProtocolContextEnrichment,
         )
 
-        # Protocol should be importable and runtime_checkable
-        assert (
-            hasattr(ProtocolContextEnrichment, "__protocol_attrs__")
-            or hasattr(ProtocolContextEnrichment, "__abstractmethods__")
-            or True
-        )  # runtime_checkable protocols are valid Protocol subclasses
+        class _ConformingEnricher:
+            async def enrich(
+                self, prompt: str, context: str
+            ) -> ContractEnrichmentResult:
+                return ContractEnrichmentResult(
+                    summary_markdown="test",
+                    token_count=0,
+                    relevance_score=0.5,
+                    enrichment_type="code_analysis",
+                    latency_ms=1.0,
+                    model_used="test-model",
+                    prompt_version="1.0",
+                )
+
+        assert isinstance(_ConformingEnricher(), ProtocolContextEnrichment)
 
     def test_protocol_has_enrich_method(self) -> None:
         from omnibase_spi.protocols.intelligence.protocol_context_enrichment import (
