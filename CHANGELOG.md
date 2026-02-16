@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-02-15
+
+### Changed
+
+- Bumped version to 0.9.0
+- Updated `omnibase-core` dependency to >=0.18.0
+
 ## [0.8.0] - 2026-02-12
 
 ### Changed
@@ -576,6 +583,7 @@ result = await handler.traverse(
 
 | Version | Total Protocols | Test Coverage | Validation Status |
 |---------|-----------------|---------------|-------------------|
+| 0.9.0   | 183+            | 680+ tests    | All passing       |
 | 0.8.0   | 183+            | 680+ tests    | All passing       |
 | 0.7.0   | 183+            | 680+ tests    | All passing       |
 | 0.6.4   | 183+            | 345+ tests    | All passing       |
