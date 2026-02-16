@@ -311,7 +311,7 @@ def is_contract_file(file_path: Path) -> bool:
     """Check if file is inside the contracts/ directory.
 
     Contract files (contracts/shared/, contracts/pipeline/, contracts/validation/,
-    contracts/measurement/, contracts/delegation/) are intentionally allowed to
+    contracts/measurement/, contracts/delegation/, contracts/enrichment/) are intentionally allowed to
     define Pydantic BaseModel subclasses as frozen, data-only wire-format models.
     They must NOT import from omnibase_core, omnibase_infra, or omniclaude
     (enforced separately by NSI001 and unit tests).

@@ -10,7 +10,7 @@ This module provides:
 - **defaults/**: YAML templates for handler contract generation
 
 All Contract* classes are frozen Pydantic models.  Most use ``extra = "allow"``
-for forward-compatible deserialization; measurement and delegation contracts use
+for forward-compatible deserialization; measurement, delegation, and enrichment contracts use
 ``extra = "forbid"`` + explicit ``extensions`` field for high-integrity gating.
 Every contract includes a ``schema_version`` field.
 
