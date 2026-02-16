@@ -25,9 +25,9 @@ _NON_MODEL_UTILITIES = frozenset(
 )
 
 # Directories containing contracts that deliberately use extra="forbid"
-# instead of extra="allow".  Measurement contracts use forbid + explicit
-# extensions field for high-integrity gating data.
-_EXTRA_FORBID_DIRS = frozenset({"measurement"})
+# instead of extra="allow".  Measurement and delegation contracts use
+# forbid + explicit extensions field for high-integrity gating data.
+_EXTRA_FORBID_DIRS = frozenset({"measurement", "delegation"})
 
 
 def _collect_python_files() -> list[pathlib.Path]:
@@ -166,7 +166,7 @@ class TestExtraAllow:
         ids=lambda p: str(p.relative_to(CONTRACTS_ROOT)),
     )
     def test_extra_forbid_with_extensions(self, py_file: pathlib.Path) -> None:
-        """Measurement contracts must use extra='forbid' and have an extensions field."""
+        """Measurement/delegation contracts must use extra='forbid' and have an extensions field."""
         source = py_file.read_text()
         has_forbid = (
             '"extra": "forbid"' in source
