@@ -371,6 +371,13 @@ class TestContractDelegatedResponse:
                 attribution=_make_attribution(),
             )  # type: ignore[call-arg]
 
+    def test_rendered_text_nonempty(self) -> None:
+        with pytest.raises(ValidationError):
+            ContractDelegatedResponse(
+                rendered_text="",
+                attribution=_make_attribution(),
+            )
+
     def test_attribution_required(self) -> None:
         with pytest.raises(ValidationError):
             ContractDelegatedResponse(

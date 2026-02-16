@@ -17,6 +17,15 @@ from pydantic import BaseModel, ConfigDict, Field
 class ContractComplianceResult(BaseModel):
     """Outcome of a quality-gate evaluation on a delegation response.
 
+    Note:
+        ``passed`` is the boolean summary and ``verdict`` provides the full
+        qualitative result.  These fields are intentionally independent so that
+        producers can express nuanced outcomes (e.g. ``passed=True`` with
+        ``verdict='WARN'``).  Consumers should treat ``passed`` as
+        authoritative for boolean checks and ``verdict`` for detailed
+        assessment.  Cross-field consistency validation is deferred to
+        consumers.
+
     Attributes:
         schema_version: Wire-format version for forward compatibility.
         passed: Whether the quality gate passed.

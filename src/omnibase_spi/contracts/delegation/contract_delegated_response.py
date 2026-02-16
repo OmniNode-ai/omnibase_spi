@@ -51,6 +51,7 @@ class ContractDelegatedResponse(BaseModel):
     )
     rendered_text: str = Field(
         ...,
+        min_length=1,
         description="Markdown-formatted output from the delegated LLM call.",
     )
     attachments: list[ContractAttachment] = Field(
