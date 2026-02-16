@@ -319,10 +319,17 @@ def is_contract_file(file_path: Path) -> bool:
     parts = file_path.parts
     # Match paths like .../contracts/shared/..., .../contracts/pipeline/...,
     # .../contracts/validation/..., .../contracts/measurement/...,
-    # .../contracts/delegation/...
+    # .../contracts/delegation/..., .../contracts/enrichment/...
     return "contracts" in parts and any(
         d in parts
-        for d in ("shared", "pipeline", "validation", "measurement", "delegation")
+        for d in (
+            "shared",
+            "pipeline",
+            "validation",
+            "measurement",
+            "delegation",
+            "enrichment",
+        )
     )
 
 

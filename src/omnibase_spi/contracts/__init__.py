@@ -6,6 +6,7 @@ This module provides:
 - **validation/**: Validation orchestration contracts (plans, runs, results, verdicts)
 - **measurement/**: Measurement pipeline contracts (phase metrics, promotion gates)
 - **delegation/**: Delegation handler output contracts (response, attribution, attachments)
+- **enrichment/**: Context enrichment result contracts (enrichment result)
 - **defaults/**: YAML templates for handler contract generation
 
 All Contract* classes are frozen Pydantic models.  Most use ``extra = "allow"``
@@ -28,6 +29,11 @@ from omnibase_spi.contracts.delegation.contract_delegated_response import (
 )
 from omnibase_spi.contracts.delegation.contract_delegation_attribution import (
     ContractDelegationAttribution,
+)
+
+# Enrichment contracts
+from omnibase_spi.contracts.enrichment.contract_enrichment_result import (
+    ContractEnrichmentResult,
 )
 
 # Measurement contracts
@@ -140,6 +146,8 @@ __all__ = [
     # Shared primitives
     "ContractCheckResult",
     "ContractVerdict",
+    # Enrichment contracts
+    "ContractEnrichmentResult",
     # Delegation contracts
     "ContractAttachment",
     "ContractComplianceResult",
