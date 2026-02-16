@@ -5,15 +5,30 @@ This module provides:
 - **pipeline/**: Pipeline wire-format contracts (hook invocation, node ops, auth, RRH)
 - **validation/**: Validation orchestration contracts (plans, runs, results, verdicts)
 - **measurement/**: Measurement pipeline contracts (phase metrics, promotion gates)
+- **delegation/**: Delegation handler output contracts (response, attribution, attachments)
 - **defaults/**: YAML templates for handler contract generation
 
 All Contract* classes are frozen Pydantic models.  Most use ``extra = "allow"``
-for forward-compatible deserialization; measurement contracts use
+for forward-compatible deserialization; measurement and delegation contracts use
 ``extra = "forbid"`` + explicit ``extensions`` field for high-integrity gating.
 Every contract includes a ``schema_version`` field.
 
 These contracts must NOT import from omnibase_core, omnibase_infra, or omniclaude.
 """
+
+# Delegation contracts
+from omnibase_spi.contracts.delegation.contract_attachment import (
+    ContractAttachment,
+)
+from omnibase_spi.contracts.delegation.contract_compliance_result import (
+    ContractComplianceResult,
+)
+from omnibase_spi.contracts.delegation.contract_delegated_response import (
+    ContractDelegatedResponse,
+)
+from omnibase_spi.contracts.delegation.contract_delegation_attribution import (
+    ContractDelegationAttribution,
+)
 
 # Measurement contracts
 from omnibase_spi.contracts.measurement.contract_aggregated_run import (
@@ -125,6 +140,11 @@ __all__ = [
     # Shared primitives
     "ContractCheckResult",
     "ContractVerdict",
+    # Delegation contracts
+    "ContractAttachment",
+    "ContractComplianceResult",
+    "ContractDelegatedResponse",
+    "ContractDelegationAttribution",
     # Pipeline contracts
     "ContractArtifactPointer",
     "ContractAuthGateInput",
