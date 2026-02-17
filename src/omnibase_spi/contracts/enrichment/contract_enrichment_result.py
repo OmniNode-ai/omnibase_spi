@@ -21,6 +21,11 @@ class ContractEnrichmentResult(BaseModel):
     snippets, documentation, conversation history) into a condensed,
     token-efficient summary suitable for LLM prompt injection.
 
+    Adding a new ``enrichment_type`` variant requires a ``schema_version``
+    bump so that consumers can detect the change.  Experimental strategies
+    should be prototyped via the ``extensions`` dict before graduating to
+    a first-class Literal value.
+
     Attributes:
         schema_version: Wire-format version for forward compatibility.
         summary_markdown: Markdown-formatted enriched summary of the context.

@@ -146,13 +146,13 @@ __all__ = [
     # Shared primitives
     "ContractCheckResult",
     "ContractVerdict",
-    # Enrichment contracts
-    "ContractEnrichmentResult",
     # Delegation contracts
     "ContractAttachment",
     "ContractComplianceResult",
     "ContractDelegatedResponse",
     "ContractDelegationAttribution",
+    # Enrichment contracts
+    "ContractEnrichmentResult",
     # Pipeline contracts
     "ContractArtifactPointer",
     "ContractAuthGateInput",

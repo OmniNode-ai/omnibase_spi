@@ -62,6 +62,12 @@ class ProtocolContextEnrichment(Protocol):
         produces a condensed, token-efficient summary suitable for
         LLM prompt injection.
 
+        This method intentionally accepts raw strings rather than structured
+        input models (unlike sibling protocols such as ProtocolIntentClassifier)
+        because enrichment is designed as a simple, composable transformation.
+        Callers that need correlation IDs, metadata, or retry policies should
+        wrap this call at the orchestration layer.
+
         Args:
             prompt: The user prompt or query to enrich with context.
             context: Raw context material (code snippets, documentation,
@@ -78,7 +84,8 @@ class ProtocolContextEnrichment(Protocol):
                 - prompt_version: Version of the enrichment prompt template
 
         Raises:
-            May raise implementation-specific exceptions for invalid input,
-            model failures, or timeout conditions.
+            SPIError: Implementations should raise subclasses of
+                ``omnibase_spi.exceptions.SPIError`` for invalid input,
+                model failures, or timeout conditions.
         """
         ...

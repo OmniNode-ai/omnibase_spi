@@ -7,6 +7,8 @@ Covers:
 
 from __future__ import annotations
 
+from typing import Any
+
 import pytest
 from pydantic import ValidationError
 
@@ -19,7 +21,7 @@ from omnibase_spi.contracts.enrichment.contract_enrichment_result import (
 # ---------------------------------------------------------------------------
 
 
-def _make_result(**overrides: object) -> ContractEnrichmentResult:
+def _make_result(**overrides: Any) -> ContractEnrichmentResult:
     """Build a minimal valid ContractEnrichmentResult."""
     defaults: dict[str, object] = {
         "summary_markdown": "## Summary\n\nRelevant context extracted.",
@@ -261,8 +263,8 @@ class TestProtocolContextEnrichment:
             ProtocolContextEnrichment,
         )
 
-        # Verify the protocol defines the enrich method
-        assert hasattr(ProtocolContextEnrichment, "enrich")
+        # Verify the protocol defines the enrich method and it is callable
+        assert callable(getattr(ProtocolContextEnrichment, "enrich", None))
 
 
 # ---------------------------------------------------------------------------
