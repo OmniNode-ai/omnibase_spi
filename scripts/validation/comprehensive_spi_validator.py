@@ -759,6 +759,7 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
             "email",
             # SPI internal
             "omnibase_spi.protocols",
+            "omnibase_spi.contracts",
             "omnibase_spi.exceptions",
             # Core models (allowed per architecture)
             "omnibase_core.models",

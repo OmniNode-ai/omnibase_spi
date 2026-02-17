@@ -259,8 +259,9 @@ from omnibase_spi.protocols.file_handling import (
 # v0.3.0 Handler protocols (2 protocols) - DI-based protocol handlers and sources
 from omnibase_spi.protocols.handlers import ProtocolHandler, ProtocolHandlerSource
 
-# Intelligence protocols (3 protocols) - Intent classification, pattern extraction, and analysis
+# Intelligence protocols (4 protocols) - Intent classification, pattern extraction, context enrichment, and analysis
 from omnibase_spi.protocols.intelligence import (
+    ProtocolContextEnrichment,
     ProtocolIntentClassifier,
     ProtocolIntentGraph,
     ProtocolPatternExtractor,
@@ -499,6 +500,7 @@ __all__ = [
     "ProtocolContainer",
     "ProtocolConstraintValidator",
     "ProtocolContainerService",
+    "ProtocolContextEnrichment",
     "ProtocolContractData",
     "ProtocolDIServiceInstance",
     "ProtocolDIServiceMetadata",

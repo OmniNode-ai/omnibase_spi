@@ -27,7 +27,7 @@ _NON_MODEL_UTILITIES = frozenset(
 # Directories containing contracts that deliberately use extra="forbid"
 # instead of extra="allow".  Measurement and delegation contracts use
 # forbid + explicit extensions field for high-integrity gating data.
-_EXTRA_FORBID_DIRS = frozenset({"measurement", "delegation"})
+_EXTRA_FORBID_DIRS = frozenset({"measurement", "delegation", "enrichment"})
 
 
 def _collect_python_files() -> list[pathlib.Path]:
