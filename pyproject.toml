@@ -1,6 +1,6 @@
 [project]
 name = "omnibase_spi"
-version = "0.9.0"
+version = "0.10.0"
 description = "ONEX Service Provider Interface - Protocol definitions"
 authors = [{name = "OmniNode Team", email = "team@omninode.ai"}]
 license = {text = "MIT"}
