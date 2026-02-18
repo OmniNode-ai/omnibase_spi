@@ -9,10 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.10.0] - 2026-02-18
 
+### Added
+
+#### Context Enrichment Protocol and Contract (OMN-2252)
+- **`ProtocolContextEnrichment`**: New `@runtime_checkable` protocol in `protocols/intelligence/` defining `enrich(prompt, context)` for pluggable context enrichment implementations
+- **`ContractEnrichmentResult`**: Frozen wire-format contract in `contracts/enrichment/` capturing enrichment output — summary, token count, relevance score, and provenance metadata
+- Fixed SPI012 namespace isolation validator to allow `omnibase_spi.contracts` imports inside protocol files
+- 297 unit tests covering creation, immutability, field validation, and architectural guardrails
+
+#### Delegation Output Contracts (OMN-2254)
+- **`ContractDelegatedResponse`**: Unified output shape for all delegation handlers
+- **`ContractDelegationAttribution`**: Model name, endpoint, latency, and confidence metadata
+- **`ContractAttachment`**: File attachment envelope with content type and base64-encoded payload
+- **`ContractComplianceResult`**: Quality gate pass/fail verdict with score and violation list
+- All delegation contracts use `frozen=True, extra="forbid"` with validation deferred to consumers per SPI wire-format convention
+- 42 unit tests covering immutability, field validation, and JSON round-trip
+
 ### Changed
 
 - Bumped version to 0.10.0
-- Targeting `omnibase-core` >=0.18.0
+- `omnibase-core` dependency targets `>=0.18.0`
 
 ## [0.9.0] - 2026-02-15
 
