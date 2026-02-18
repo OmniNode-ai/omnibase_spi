@@ -21,7 +21,7 @@ Thank you for your interest in contributing to omnibase_spi! This document provi
 ### Prerequisites
 
 - Python 3.12+
-- Poetry (for package management)
+- [uv](https://docs.astral.sh/uv/) (for package management)
 - Git
 - Basic understanding of ONEX architecture and Python protocols
 
@@ -57,25 +57,22 @@ cd omnibase_spi
 ### 2. Install Dependencies
 
 ```bash
-# Install with Poetry
-poetry install
-
-# Activate virtual environment
-poetry shell
+# Install with uv
+uv sync --group dev
 ```
 
 ### 3. Set Up Git Hooks
 
 ```bash
 # Install pre-commit hooks (formatting, linting, type checking, validation)
-poetry run pre-commit install
+uv run pre-commit install
 ```
 
 **What do these hooks do?**
 
 - **Pre-commit**: Runs before every commit
-  - Code formatting (black, isort)
-  - Linting (ruff)
+  - Code formatting (ruff format)
+  - Linting (ruff check)
   - Type checking (mypy)
   - Protocol naming validation
   - Namespace isolation checks
@@ -85,19 +82,19 @@ poetry run pre-commit install
 
 ```bash
 # Run tests
-poetry run pytest tests/
+uv run pytest tests/
 
 # Run type checking
-poetry run mypy src/
+uv run mypy src/
 
 # Run linting
-poetry run ruff check src/
+uv run ruff check src/
 
 # Run all validations
 python scripts/validation/run_all_validations.py
 
 # Run pre-commit hooks
-poetry run pre-commit run --all-files
+uv run pre-commit run --all-files
 ```
 
 ## Contributing Guidelines
@@ -285,13 +282,13 @@ async def test_protocol_compliance():
 
 ```bash
 # Run all tests
-poetry run pytest tests/
+uv run pytest tests/
 
 # Run with coverage
-poetry run pytest tests/ --cov=src --cov-report=html
+uv run pytest tests/ --cov=src --cov-report=html
 
 # Run specific test
-poetry run pytest tests/unit/test_protocols.py -v
+uv run pytest tests/unit/test_protocols.py -v
 ```
 
 ### Validation Suite
@@ -354,15 +351,14 @@ git checkout -b fix/protocol-issue
 
 ```bash
 # Run all quality checks
-poetry run pytest tests/
-poetry run mypy src/
-poetry run ruff check src/
-poetry run black src/ --check
-poetry run isort src/ --check
+uv run pytest tests/
+uv run mypy src/
+uv run ruff check src/
+uv run ruff format src/ --check
 
 # Run validation suite
 python scripts/validation/run_all_validations.py
-poetry run pre-commit run --all-files
+uv run pre-commit run --all-files
 ```
 
 ### 4. Commit Changes

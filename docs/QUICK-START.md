@@ -10,8 +10,8 @@ Get up and running with ONEX SPI protocols in minutes. This guide provides immed
 # Install the package
 pip install omnibase-spi
 
-# Or with poetry
-poetry add omnibase-spi
+# Or with uv
+uv add omnibase-spi
 ```
 
 ## Important: SPI vs Implementation

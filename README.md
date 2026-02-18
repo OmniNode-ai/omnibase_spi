@@ -32,8 +32,8 @@
 ## Quick Start
 
 ```bash
-# Install with poetry
-poetry add omnibase-spi
+# Install with uv
+uv add omnibase-spi
 
 # Or with pip
 pip install omnibase-spi
@@ -227,32 +227,29 @@ Every protocol must:
 
 ```bash
 # Install dependencies
-poetry install
+uv sync --group dev
 
 # Run tests
-poetry run pytest
+uv run pytest
 
 # Run single test file
-poetry run pytest tests/path/to/test_file.py
+uv run pytest tests/path/to/test_file.py
 
 # Run single test
-poetry run pytest tests/path/to/test_file.py::test_name -v
+uv run pytest tests/path/to/test_file.py::test_name -v
 
 # Type checking
-poetry run mypy src/
+uv run mypy src/
 
 # Strict type checking (target for CI)
-poetry run mypy src/ --strict
+uv run mypy src/ --strict
 
-# Format code
-poetry run black src/ tests/
-poetry run isort src/ tests/
-
-# Lint
-poetry run ruff check src/ tests/
+# Lint and format
+uv run ruff check src/ tests/
+uv run ruff format src/ tests/
 
 # Build package
-poetry build
+uv build
 
 # Run standalone validators (stdlib only, no dependencies)
 python scripts/validation/run_all_validations.py
@@ -290,10 +287,10 @@ git clone https://github.com/OmniNode-ai/omnibase_spi.git
 cd omnibase_spi
 
 # Install dependencies
-poetry install
+uv sync --group dev
 
 # Run validation
-poetry run pre-commit run --all-files
+uv run pre-commit run --all-files
 ```
 
 ## Documentation

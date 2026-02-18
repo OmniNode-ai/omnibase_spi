@@ -10,14 +10,14 @@ repos:
         verbose: true
       - id: run-full-test-suite
         name: Run Full Test Suite
-        entry: poetry run pytest
+        entry: uv run pytest
         language: system
         pass_filenames: false
         stages: [pre-push]
         verbose: true
       - id: validate-package-installability
         name: Validate Package Can Be Built
-        entry: poetry build
+        entry: uv build
         language: system
         pass_filenames: false
         stages: [pre-push]

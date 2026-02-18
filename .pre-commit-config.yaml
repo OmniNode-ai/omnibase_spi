@@ -35,7 +35,7 @@ repos:
     hooks:
       - id: ruff-format
         name: ruff format (auto-format)
-        entry: poetry run ruff format
+        entry: uv run ruff format
         language: system
         types: [python]
         exclude: ^(tests/fixtures/validation/|\.github/workflows/).*$
@@ -43,7 +43,7 @@ repos:
 
       - id: ruff-fix
         name: ruff check (lint + import sort)
-        entry: poetry run ruff check --fix
+        entry: uv run ruff check --fix
         language: system
         types: [python]
         exclude: ^(tests/fixtures/validation/|\.github/workflows/).*$
@@ -51,7 +51,7 @@ repos:
 
       - id: mypy-type-check
         name: mypy (type checking - strict)
-        entry: poetry run mypy
+        entry: uv run mypy
         language: system
         types: [python]
         args: [--strict, --ignore-missing-imports, --show-error-codes, --no-error-summary]
@@ -75,7 +75,7 @@ repos:
       # Core SPI architecture validation
       - id: validate-spi-protocols
         name: SPI Protocol Architecture Validation
-        entry: poetry run python scripts/validation/validate_spi_protocols.py
+        entry: uv run python scripts/validation/validate_spi_protocols.py
         language: system
         types: [python]
         files: ^src/.*\.py$
@@ -87,7 +87,7 @@ repos:
       # Enhanced protocol duplicate detection
       - id: validate-protocol-duplicates
         name: SPI Protocol Duplicate Detection
-        entry: poetry run python scripts/validation/validate_protocol_duplicates.py
+        entry: uv run python scripts/validation/validate_protocol_duplicates.py
         language: system
         types: [python]
         files: ^src/.*protocol.*\.py$
@@ -99,7 +99,7 @@ repos:
       # Comprehensive duplicate analysis (backup validation)
       - id: comprehensive-duplicate-analysis
         name: SPI Comprehensive Duplicate Analysis
-        entry: poetry run python scripts/validation/validate_protocol_duplicates.py
+        entry: uv run python scripts/validation/validate_protocol_duplicates.py
         language: system
         types: [python]
         files: ^src/.*\.py$
@@ -129,7 +129,7 @@ repos:
       # Enhanced SPI typing pattern validation (adapted from omnibase_core)
       - id: validate-spi-typing-patterns
         name: SPI Typing Pattern Validation
-        entry: poetry run python scripts/validation/validate_spi_typing_patterns.py
+        entry: uv run python scripts/validation/validate_spi_typing_patterns.py
         language: system
         types: [python]
         files: ^src/.*\.py$
@@ -141,7 +141,7 @@ repos:
       # Enhanced SPI naming convention validation (adapted from omnibase_core)
       - id: validate-spi-naming-conventions
         name: SPI Naming Convention Validation
-        entry: poetry run python scripts/validation/validate_spi_naming.py
+        entry: uv run python scripts/validation/validate_spi_naming.py
         language: system
         types: [python]
         files: ^src/.*\.py$
@@ -209,7 +209,7 @@ repos:
       # Bypass: Add inline comment "# secret-ok: <reason>" for test fixtures.
       - id: validate-secrets
         name: SPI Secret Detection
-        entry: poetry run python scripts/validation/validate_secrets.py
+        entry: uv run python scripts/validation/validate_secrets.py
         language: system
         pass_filenames: true
         files: ^src/.*\.py$
@@ -222,7 +222,7 @@ repos:
       # Bypass: Add inline comment "# env-var-ok: <reason>" for constants.
       - id: validate-hardcoded-env-vars
         name: SPI Hardcoded Environment Variable Prevention
-        entry: poetry run python scripts/validation/validate_hardcoded_env_vars.py
+        entry: uv run python scripts/validation/validate_hardcoded_env_vars.py
         language: system
         pass_filenames: true
         files: ^src/.*\.py$
@@ -258,7 +258,7 @@ repos:
       # Skips symlinks to prevent directory traversal attacks.
       - id: validate-no-empty-directories
         name: SPI Empty Directory Prevention
-        entry: poetry run python scripts/validation/validate_no_empty_directories.py
+        entry: uv run python scripts/validation/validate_no_empty_directories.py
         language: system
         pass_filenames: false
         always_run: true

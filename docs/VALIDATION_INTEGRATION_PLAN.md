@@ -88,8 +88,8 @@ dependencies = [
 
 **Acceptance Criteria**:
 - [ ] omnibase_core 0.3.5+ added to dependencies
-- [ ] `poetry install` succeeds
-- [ ] `poetry lock` regenerates lockfile
+- [ ] `uv sync` succeeds
+- [ ] `uv lock` regenerates lockfile
 - [ ] Import `from omnibase_core.validation import ...` works
 
 ---
@@ -241,25 +241,29 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+          cache-dependency-glob: '**/uv.lock'
+
       - name: Install dependencies
-        run: |
-          pip install poetry
-          poetry install
+        run: uv sync --group dev
 
       - name: Run Architecture Validation
-        run: poetry run python -m omnibase_core.validation.cli architecture src/omnibase_spi/ --strict
+        run: uv run python -m omnibase_core.validation.cli architecture src/omnibase_spi/ --strict
 
       - name: Run Union Usage Validation
-        run: poetry run python -m omnibase_core.validation.cli union-usage src/omnibase_spi/ --strict
+        run: uv run python -m omnibase_core.validation.cli union-usage src/omnibase_spi/ --strict
 
       - name: Run Pattern Validation
-        run: poetry run python -m omnibase_core.validation.cli patterns src/omnibase_spi/ --strict
+        run: uv run python -m omnibase_core.validation.cli patterns src/omnibase_spi/ --strict
 
       - name: Run Circular Import Detection
-        run: poetry run python -m omnibase_core.validation.cli circular-imports src/omnibase_spi/ --strict
+        run: uv run python -m omnibase_core.validation.cli circular-imports src/omnibase_spi/ --strict
 
       - name: Run All Validations
-        run: poetry run python -m omnibase_core.validation.cli all src/omnibase_spi/ --strict
+        run: uv run python -m omnibase_core.validation.cli all src/omnibase_spi/ --strict
 ```
 
 **Acceptance Criteria**:

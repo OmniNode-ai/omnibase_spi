@@ -254,13 +254,13 @@ The omnibase-spi maintains strict architectural purity through automated validat
 
 ```bash
 # Run all validation checks
-poetry run pytest && poetry build
+uv run pytest && uv build
 
 # Type safety validation
-poetry run mypy src/ --strict --no-any-expr
+uv run mypy src/ --strict --no-any-expr
 
 # Protocol compliance checking
-poetry run python scripts/ast_spi_validator.py --check-protocols
+uv run python scripts/ast_spi_validator.py --check-protocols
 
 # Namespace isolation testing
 ./scripts/validate-namespace-isolation.sh

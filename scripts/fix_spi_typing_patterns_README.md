@@ -152,10 +152,10 @@ After applying fixes, run validation:
 python scripts/validation/comprehensive_spi_validator.py src/omnibase_spi/protocols
 
 # Run type checking
-poetry run mypy src/omnibase_spi/protocols --strict
+uv run mypy src/omnibase_spi/protocols --strict
 
 # Run tests
-poetry run pytest tests/
+uv run pytest tests/
 ```
 
 ## Known Limitations
@@ -185,10 +185,10 @@ python scripts/fix_spi_typing_patterns.py src/omnibase_spi/protocols --fix-sync-
 
 # 5. Validate fixes
 python scripts/validation/comprehensive_spi_validator.py src/omnibase_spi/protocols
-poetry run mypy src/omnibase_spi/protocols --strict
+uv run mypy src/omnibase_spi/protocols --strict
 
 # 6. Run tests
-poetry run pytest tests/
+uv run pytest tests/
 
 # 7. Commit fixes
 git add -A

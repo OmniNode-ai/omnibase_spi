@@ -1,3 +1,7 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
 name = "omnibase_spi"
 version = "0.10.0"
@@ -16,38 +20,42 @@ classifiers = [
     "Typing :: Typed",
 ]
 # Note: omnibase-core is a workspace sibling package (not on PyPI).
-# For local development, install via: pip install -e ../omnibase_core
-# or use poetry workspace configuration.
+# For local development, install via: uv sync --group dev
+# or add a [tool.uv.sources] entry pointing to the sibling checkout.
 dependencies = [
     "typing-extensions>=4.5.0",
     "pydantic>=2.11.7",
     "omnibase-core>=0.18.0",  # Workspace dependency - see note above
 ]
 
-[tool.poetry]
-packages = [{include = "omnibase_spi", from = "src"}]
+[project.urls]
+Homepage = "https://github.com/OmniNode-ai/omnibase_spi"
+Repository = "https://github.com/OmniNode-ai/omnibase_spi"
+Documentation = "https://github.com/OmniNode-ai/omnibase_spi/tree/main/docs"
 
-[tool.poetry.dependencies]
-python = "^3.12"
-# Workspace sibling package - install locally with: poetry add --editable ../omnibase_core
-omnibase-core = ">=0.18.0"
+[dependency-groups]
+dev = [
+    "mypy>=1.13.0",
+    "pre-commit>=4.0.0",
+    "pytest>=8.4.1",
+    "pytest-asyncio>=0.24.0",
+    "hypothesis>=6.88.0",
+    "ruff>=0.8.0",
+    "requests>=2.32.5",
+    "types-requests>=2.32.4.20250913",
+    "pyyaml>=6.0.3",
+    "pytest-cov>=7.0.0",
+    "types-pyyaml>=6.0.12.20250915",
+]
 
-[tool.poetry.group.dev.dependencies]
-mypy = "^1.13.0"
-pre-commit = "^4.0.0"
-pytest = "^8.4.1"
-pytest-asyncio = "^0.24.0"
-hypothesis = "^6.88.0"
-ruff = "^0.8.0"
-requests = "^2.32.5"
-types-requests = "^2.32.4.20250913"
-pyyaml = "^6.0.3"
-pytest-cov = "^7.0.0"
-types-pyyaml = "^6.0.12.20250915"
+[tool.hatch.build.targets.wheel]
+packages = ["src/omnibase_spi"]
 
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+# Optional: local editable install of sibling omnibase_core checkout.
+# Uncomment and adjust the path if you want to use a local checkout instead
+# of the published PyPI version.
+# [tool.uv.sources]
+# omnibase-core = { path = "../omnibase_core", editable = true }
 
 [tool.ruff]
 line-length = 88
@@ -171,8 +179,8 @@ markers = [
 filterwarnings = [
     "ignore::DeprecationWarning",
 ]
-# Coverage: poetry run pytest --cov --cov-report=term-missing
-# Coverage with HTML: poetry run pytest --cov --cov-report=html
+# Coverage: uv run pytest --cov --cov-report=term-missing
+# Coverage with HTML: uv run pytest --cov --cov-report=html
 
 [tool.coverage.run]
 source = ["src/omnibase_spi"]
@@ -205,7 +213,7 @@ exclude_lines = [
 # When running `pytest --cov`, if overall coverage drops below 80%, the test
 # run will exit with a non-zero status code and fail.
 #
-#   Command: poetry run pytest --cov --cov-report=term-missing
+#   Command: uv run pytest --cov --cov-report=term-missing
 #   Behavior: Test suite FAILS if overall coverage < 80%
 #
 # TARGET THRESHOLDS (for reference, not auto-enforced):
@@ -218,18 +226,18 @@ exclude_lines = [
 #
 #   Module                    | Target | Status
 #   --------------------------|--------|------------------
-#   protocols/nodes/          | ≥85%   | Target (manual)
-#   protocols/handlers/       | ≥85%   | Target (manual)
-#   exceptions.py             | ≥90%   | Target (manual)
+#   protocols/nodes/          | >=85%  | Target (manual)
+#   protocols/handlers/       | >=85%  | Target (manual)
+#   exceptions.py             | >=90%  | Target (manual)
 #
 # HOW TO CHECK PER-MODULE COVERAGE:
 # ---------------------------------
-# 1. Run: poetry run pytest --cov --cov-report=term-missing
+# 1. Run: uv run pytest --cov --cov-report=term-missing
 # 2. Review the per-file coverage percentages in the output
 # 3. Manually verify critical modules meet their target thresholds
 #
 # Or generate an HTML report for detailed inspection:
-#   poetry run pytest --cov --cov-report=html
+#   uv run pytest --cov --cov-report=html
 #   open htmlcov/index.html
 #
 # =============================================================================

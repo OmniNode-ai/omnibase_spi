@@ -63,19 +63,19 @@ Comprehensive example demonstrating:
 
 ### Type Checking
 ```bash
-poetry run mypy src/omnibase_spi/protocols/container/protocol_container.py --strict
+uv run mypy src/omnibase_spi/protocols/container/protocol_container.py --strict
 # Result: ✅ Success: no issues found in 1 source file
 ```
 
 ### Tests
 ```bash
-poetry run pytest tests/test_protocol_container.py -v
+uv run pytest tests/test_protocol_container.py -v
 # Result: ✅ 14 passed in 0.14s
 ```
 
 ### Build
 ```bash
-poetry build
+uv build
 # Result: ✅ Built omnibase_spi-0.1.0.tar.gz and .whl
 ```
 
