@@ -8,8 +8,8 @@ Complete development workflow and best practices for working with ONEX SPI proto
 
 ### Prerequisites
 
-- Python 3.11, 3.12, or 3.13
-- Poetry for dependency management
+- Python 3.12+
+- [uv](https://docs.astral.sh/uv/) for dependency management
 - Git for version control
 
 ### Environment Setup
@@ -20,13 +20,10 @@ git clone <repository-url>
 cd omnibase-spi
 
 # Install dependencies
-poetry install
-
-# Activate virtual environment
-poetry shell
+uv sync --group dev
 
 # Run validation
-poetry run pytest && poetry build
+uv run pytest && uv build
 ```
 
 ## Development Workflow
@@ -42,10 +39,10 @@ poetry run pytest && poetry build
 
 ```bash
 # Type safety validation
-poetry run mypy src/ --strict --no-any-expr
+uv run mypy src/ --strict --no-any-expr
 
 # Protocol compliance checking
-poetry run python scripts/ast_spi_validator.py --check-protocols
+uv run python scripts/ast_spi_validator.py --check-protocols
 
 # Namespace isolation testing
 ./scripts/validate-namespace-isolation.sh

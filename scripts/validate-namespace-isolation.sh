@@ -29,7 +29,7 @@ echo "✅ Found $PROTOCOL_COUNT properly named Protocol classes"
 
 # Run our namespace isolation tests
 echo "Running namespace isolation tests..."
-poetry run pytest tests/test_protocol_imports.py -v
+uv run pytest tests/test_protocol_imports.py -v
 
 echo "✅ Namespace isolation validation passed!"
 echo "✅ All protocol imports are self-contained"

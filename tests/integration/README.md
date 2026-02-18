@@ -35,32 +35,32 @@ tests/integration/
 ### Run All Integration Tests
 
 ```bash
-poetry run pytest tests/integration/ -v
+uv run pytest tests/integration/ -v
 ```
 
 ### Run Integration Tests by Marker
 
 ```bash
 # Run only integration tests
-poetry run pytest -m "integration" -v
+uv run pytest -m "integration" -v
 
 # Run integration tests excluding slow tests
-poetry run pytest -m "integration and not slow" -v
+uv run pytest -m "integration and not slow" -v
 
 # Skip integration tests (run only unit tests)
-poetry run pytest -m "not integration"
+uv run pytest -m "not integration"
 ```
 
 ### Run Specific Integration Test File
 
 ```bash
-poetry run pytest tests/integration/test_protocol_integration.py -v
+uv run pytest tests/integration/test_protocol_integration.py -v
 ```
 
 ### Run with Coverage
 
 ```bash
-poetry run pytest tests/integration/ --cov=src/omnibase_spi --cov-report=term-missing
+uv run pytest tests/integration/ --cov=src/omnibase_spi --cov-report=term-missing
 ```
 
 ## Writing Integration Tests
@@ -158,11 +158,11 @@ In CI pipelines, you may want to run unit and integration tests separately:
 ```yaml
 # Run unit tests first (faster)
 - name: Unit Tests
-  run: poetry run pytest -m "not integration" --cov
+  run: uv run pytest -m "not integration" --cov
 
 # Run integration tests
 - name: Integration Tests
-  run: poetry run pytest -m "integration" -v
+  run: uv run pytest -m "integration" -v
 ```
 
 ## Adding New Integration Tests

@@ -603,7 +603,7 @@ All protocol files listed here are implemented and exported.
 
 #### 3.5: Build + package verification
 
-- [ ] `poetry build` (or equivalent) runs in CI.
+- [ ] `uv build` runs in CI.
 - [ ] Installation test in a clean environment.
 - [ ] Version matches tag.
 

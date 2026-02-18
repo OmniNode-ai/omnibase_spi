@@ -44,29 +44,29 @@ All public protocols must be `@runtime_checkable`.
 
 ```bash
 # Install dependencies
-poetry install
+uv sync --group dev
 
 # Run tests
-poetry run pytest
+uv run pytest
 
 # Run single test file
-poetry run pytest tests/path/to/test_file.py
+uv run pytest tests/path/to/test_file.py
 
 # Run single test
-poetry run pytest tests/path/to/test_file.py::test_name -v
+uv run pytest tests/path/to/test_file.py::test_name -v
 
 # Type checking
-poetry run mypy src/
+uv run mypy src/
 
 # Strict type checking (target for CI)
-poetry run mypy src/ --strict
+uv run mypy src/ --strict
 
 # Lint and format
-poetry run ruff check src/ tests/
-poetry run ruff format src/ tests/
+uv run ruff check src/ tests/
+uv run ruff format src/ tests/
 
 # Build package
-poetry build
+uv build
 
 # Run standalone validators (stdlib only, no dependencies)
 python scripts/validation/run_all_validations.py
