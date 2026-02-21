@@ -12,11 +12,10 @@ This module must NOT import from omnibase_core, omnibase_infra, or omniclaude.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from pydantic import BaseModel
 
 
-@dataclass(frozen=True)
-class SchemaVersion:
+class SchemaVersion(BaseModel):
     """Parsed schema version with comparison support.
 
     Attributes:
@@ -24,6 +23,8 @@ class SchemaVersion:
         minor: Minor version number.
         raw: Original version string.
     """
+
+    model_config = {"frozen": True, "extra": "ignore", "from_attributes": True}
 
     major: int
     minor: int

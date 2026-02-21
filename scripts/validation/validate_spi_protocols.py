@@ -307,8 +307,43 @@ class SPIProtocolValidator(ast.NodeVisitor):
                 )
             )
 
+    def _is_non_protocol_exempt_file(self) -> bool:
+        """Check if the current file is in a directory that may contain non-Protocol classes.
+
+        The following directories are explicitly allowed to contain non-Protocol classes:
+
+        - contracts/: Pydantic BaseModel subclasses (frozen wire-format models).
+          Mirrors the NSI002 exemption in validate_namespace_isolation.py.
+        - enums/: Enum subclasses for stable, version-safe type identifiers.
+          Enums are used where Literal types would be too verbose.
+        """
+        from pathlib import Path
+
+        parts = Path(self.file_path).parts
+        # contracts/ subdirectories (wire-format Pydantic models)
+        if "contracts" in parts and any(
+            d in parts
+            for d in (
+                "shared",
+                "pipeline",
+                "validation",
+                "measurement",
+                "delegation",
+                "enrichment",
+                "projections",
+            )
+        ):
+            return True
+        # enums/ directory (Enum-based stable identifiers)
+        return "enums" in parts
+
     def _validate_non_protocol_class(self, node: ast.ClassDef) -> None:
         """Validate that non-protocol classes are not implementations in SPI."""
+        # contracts/ and enums/ files are explicitly allowed to contain non-Protocol
+        # classes.  Skip SPI007 for them.
+        if self._is_non_protocol_exempt_file():
+            return
+
         # In SPI, we should only have Protocol classes, not concrete implementations
         if not self._is_type_alias_class(node):
             self.violations.append(

@@ -1,6 +1,7 @@
 """Tests for pipeline schema compatibility helpers."""
 
 import pytest
+from pydantic import ValidationError
 
 from omnibase_spi.contracts.pipeline.contract_schema_compat import (
     SchemaVersion,
@@ -32,8 +33,10 @@ class TestSchemaVersion:
             SchemaVersion.parse("a.b")
 
     def test_frozen(self) -> None:
+        # SchemaVersion uses Pydantic BaseModel(frozen=True) which raises
+        # ValidationError on mutation attempts (not AttributeError).
         v = SchemaVersion.parse("1.0")
-        with pytest.raises(AttributeError):
+        with pytest.raises(ValidationError):
             v.major = 2  # type: ignore[misc]
 
 
