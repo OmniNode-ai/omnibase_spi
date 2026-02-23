@@ -370,7 +370,7 @@ class TestSPIStaticValidator:
                 "scripts/validation/validate_spi_typing_patterns.py",
                 str(fixture),
             ],
-            cwd="/Volumes/PRO-G40/Code/omni_home/omnibase_spi",
+            cwd=str(Path(__file__).parent.parent.parent),
             capture_output=True,
             text=True,
         )
