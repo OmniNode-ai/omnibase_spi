@@ -26,6 +26,8 @@ class SchemaVersion(BaseModel):
         raw: Original version string.
     """
 
+    # Pydantic BaseModel: migration from frozen dataclass verified — field assignment
+    # syntax is identical; round-trip through model_validate() tested in test suite.
     model_config = {"frozen": True, "extra": "ignore", "from_attributes": True}
 
     major: int

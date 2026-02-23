@@ -95,7 +95,9 @@ class ProtocolEffect(Protocol):
         Returns:
             An implementation-defined result object.  Implementations MAY
             return a typed result (e.g. ``ContractProjectionResult``) or a
-            plain ``bool``.  Returns truthily on success; raises on failure.
+            plain ``bool``.  Callers should not assume truthiness; they SHOULD
+            rely on the raise-on-failure contract and treat any non-raised
+            return as success.
 
         Raises:
             RuntimeError: When the side-effecting operation fails.

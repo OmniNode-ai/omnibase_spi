@@ -78,6 +78,9 @@ class ContractProjectionResult(BaseModel):
     # extra="allow": Forward-compat policy — unknown fields from newer upstream
     # versions are accepted and accessible via __pydantic_extra__ without breaking
     # existing consumers. Callers MUST NOT rely on extra fields for control flow.
+    # WARNING: Misspelled field names (e.g., artfact_ref=...) are silently accepted
+    # as extra fields rather than raising a ValidationError. Use model_validate()
+    # with strict=True during testing to catch field-name typos early.
     model_config = {"frozen": True, "extra": "allow", "from_attributes": True}
 
     schema_version: str = Field(
