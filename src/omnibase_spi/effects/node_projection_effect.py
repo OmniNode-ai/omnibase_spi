@@ -42,14 +42,12 @@ Related:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
+from omnibase_spi.contracts.projections.contract_projection_result import (
+    ContractProjectionResult,
+)
 from omnibase_spi.protocols.effects.protocol_effect import ProtocolEffect
-
-if TYPE_CHECKING:
-    from omnibase_spi.contracts.projections.contract_projection_result import (
-        ContractProjectionResult,
-    )
 
 
 @runtime_checkable

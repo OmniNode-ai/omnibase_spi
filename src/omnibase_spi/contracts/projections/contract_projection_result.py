@@ -26,6 +26,8 @@ Related:
 
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import BaseModel, Field
 
 
@@ -83,7 +85,7 @@ class ContractProjectionResult(BaseModel):
     # with strict=True during testing to catch field-name typos early.
     model_config = {"frozen": True, "extra": "allow", "from_attributes": True}
 
-    schema_version: str = Field(
+    schema_version: Literal["1.0"] = Field(
         default="1.0",
         description="Wire-format version for forward compatibility.",
     )

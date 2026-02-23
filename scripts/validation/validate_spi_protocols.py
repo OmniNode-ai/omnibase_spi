@@ -317,8 +317,6 @@ class SPIProtocolValidator(ast.NodeVisitor):
         - enums/: Enum subclasses for stable, version-safe type identifiers.
           Enums are used where Literal types would be too verbose.
         """
-        from pathlib import Path
-
         parts = Path(self.file_path).parts
         # contracts/ subdirectories (wire-format Pydantic models)
         if "contracts" in parts and any(
@@ -576,8 +574,6 @@ class SPIProtocolValidator(ast.NodeVisitor):
         self, file_path: str, protocol_name: str, docstring: str
     ) -> str:
         """Determine protocol domain from file path, name, and docstring."""
-        from pathlib import Path
-
         path_parts = Path(file_path).parts
 
         # Extract domain from file path

@@ -182,6 +182,21 @@ class TestContractProjectionResult:
         r2 = ContractProjectionResult(success=True, artifact_ref="y")
         assert r1 != r2
 
+    def test_contract_projection_result_strict_validate_catches_type_error(self) -> None:
+        """model_validate with strict=True raises on wrong field types.
+
+        Pydantic strict=True enforces type coercion strictness: passing a string
+        where a bool is required raises ValidationError.  Note: strict=True does
+        NOT reject misspelled field names when extra='allow' is set — misspelled
+        fields (e.g. artfact_ref) are silently stored as extra fields.  The
+        strict=True flag is useful for catching coercion errors, not typos.
+        """
+        with pytest.raises(ValidationError):
+            ContractProjectionResult.model_validate(
+                {"success": "not-a-bool"},
+                strict=True,
+            )
+
 
 # ---------------------------------------------------------------------------
 # ProtocolEffect tests
