@@ -1,6 +1,3 @@
-# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
-# SPDX-License-Identifier: MIT
-
 """ProtocolEffect -- synchronous effect execution boundary.
 
 Defines the synchronous effect interface for operations that must complete

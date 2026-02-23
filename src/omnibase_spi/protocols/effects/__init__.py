@@ -1,6 +1,3 @@
-# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
-# SPDX-License-Identifier: MIT
-
 """Effect execution protocols for omnibase_spi.
 
 This module defines effect execution interfaces for the ONEX kernel:
