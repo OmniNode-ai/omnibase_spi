@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Synchronous Effect Protocol and Node Projection Effect (OMN-2508)
 - **`ProtocolEffect`**: New `@runtime_checkable` synchronous effect boundary protocol in `protocols/effects/` — defines `execute(intent: object) -> object` with `synchronous_execution: ClassVar[bool]` ordering guarantee flag
 - **`ProtocolNodeProjectionEffect`**: Concrete synchronous `ProtocolEffect` implementation in `effects/` — executes node projection persistence operations with blocking semantics (bridges async storage via `asyncio.run()`)
-- **`ContractProjectionResult`**: New frozen wire-format contract in `contracts/projections/` capturing projection outcome — `success`, `node_id`, `schema_version`, and optional `error_message`; `extra="allow"` for forward compatibility
+- **`ContractProjectionResult`**: New frozen wire-format contract in `contracts/projections/` capturing projection outcome — `success`, `artifact_ref`, `schema_version`, and optional `error`; `extra="allow"` for forward compatibility
 - All new protocols and contracts are re-exported at the `omnibase_spi` root level via lazy-loading map
 - 586 unit tests covering protocol compliance, validator SPI005/SPI-T003 suppression, runtime `isinstance` checks, and `get_type_hints()` correctness
 
