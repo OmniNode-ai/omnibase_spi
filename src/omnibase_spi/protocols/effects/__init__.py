@@ -1,9 +1,11 @@
 """Effect execution protocols for omnibase_spi.
 
-This module defines the primitive effect execution interface that enables
-the ONEX kernel to execute effects without depending on handler implementations.
+This module defines:
+- ``ProtocolEffect``: synchronous effect execution boundary (ordering guarantee)
+- ``ProtocolPrimitiveEffectExecutor``: async primitive effect kernel
 """
 
+from omnibase_spi.protocols.effects.protocol_effect import ProtocolEffect
 from omnibase_spi.protocols.effects.protocol_primitive_effect_executor import (
     LiteralEffectCategory,
     LiteralEffectId,
@@ -13,5 +15,6 @@ from omnibase_spi.protocols.effects.protocol_primitive_effect_executor import (
 __all__ = [
     "LiteralEffectCategory",
     "LiteralEffectId",
+    "ProtocolEffect",
     "ProtocolPrimitiveEffectExecutor",
 ]
