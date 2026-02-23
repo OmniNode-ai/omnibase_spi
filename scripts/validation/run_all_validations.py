@@ -272,7 +272,7 @@ def run_all_validators(
 
     for config in VALIDATORS:
         if verbose:
-            print(f"\n{'='*60}")
+            print(f"\n{'=' * 60}")
             print(f"Running: {config.name}")
             print(f"Description: {config.description}")
             print("=" * 60)

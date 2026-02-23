@@ -414,9 +414,9 @@ class TestProtocolEventProjectorProtocol:
         mock = MockProjector()
 
         for member in self.EXPECTED_PROTOCOL_MEMBERS:
-            assert hasattr(
-                mock, member
-            ), f"MockProjector missing protocol member: {member}"
+            assert hasattr(mock, member), (
+                f"MockProjector missing protocol member: {member}"
+            )
 
     def test_protocol_is_runtime_checkable(self) -> None:
         """ProtocolEventProjector should be runtime_checkable."""
@@ -1150,20 +1150,20 @@ class TestProtocolEventProjectorExports:
         from omnibase_spi.protocols import projectors
 
         assert hasattr(projectors, "__all__"), "projectors package should have __all__"
-        assert (
-            "ProtocolEventProjector" in projectors.__all__
-        ), "ProtocolEventProjector should be in projectors.__all__"
+        assert "ProtocolEventProjector" in projectors.__all__, (
+            "ProtocolEventProjector should be in projectors.__all__"
+        )
 
     def test_protocol_in_module_all(self) -> None:
         """ProtocolEventProjector should be listed in module __all__."""
         from omnibase_spi.protocols.projectors import protocol_event_projector
 
-        assert hasattr(
-            protocol_event_projector, "__all__"
-        ), "protocol_event_projector module should have __all__"
-        assert (
-            "ProtocolEventProjector" in protocol_event_projector.__all__
-        ), "ProtocolEventProjector should be in protocol_event_projector.__all__"
+        assert hasattr(protocol_event_projector, "__all__"), (
+            "protocol_event_projector module should have __all__"
+        )
+        assert "ProtocolEventProjector" in protocol_event_projector.__all__, (
+            "ProtocolEventProjector should be in protocol_event_projector.__all__"
+        )
 
     def test_protocol_exported_from_package(self) -> None:
         """ProtocolEventProjector should be accessible from projectors package."""
@@ -1176,9 +1176,9 @@ class TestProtocolEventProjectorExports:
         from omnibase_spi.protocols import projectors
 
         for symbol_name in projectors.__all__:
-            assert hasattr(
-                projectors, symbol_name
-            ), f"Symbol '{symbol_name}' listed in __all__ but not in package"
+            assert hasattr(projectors, symbol_name), (
+                f"Symbol '{symbol_name}' listed in __all__ but not in package"
+            )
 
 
 @pytest.mark.unit

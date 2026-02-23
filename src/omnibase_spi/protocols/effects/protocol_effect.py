@@ -1,41 +1,39 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ProtocolEffect -- synchronous effect execution boundary.
 
-Defines the synchronous effect interface used by ``NodeProjectionEffect``
-and any other effect that must complete before returning to the caller.
+Defines the synchronous effect interface for operations that must complete
+before returning to the caller.
 
 Architecture Context:
-    This protocol establishes the synchronous execution boundary for
-    projection writes.  The runtime invokes ``execute()`` and blocks until
-    the projection is persisted, guaranteeing that the persistence layer
-    has accepted the write before Kafka publish proceeds.
+    This protocol establishes the synchronous execution boundary for effect
+    nodes that require a guaranteed-completion semantic before the caller
+    proceeds.  Unlike ``ProtocolPrimitiveEffectExecutor`` (which is async and
+    used for general-purpose kernel effect dispatch), this protocol exists
+    specifically to enforce a synchronous ordering guarantee.
 
-    Contrast with ``ProtocolPrimitiveEffectExecutor``, which is async and
-    used for general-purpose kernel effect dispatch.  This protocol exists
-    specifically to enforce the synchronous ordering guarantee required by
-    the projection layer (OMN-2363 / OMN-2508).
+    The ``synchronous_execution = True`` class-level flag is read by the SPI
+    validator to exempt methods in this protocol from the async-by-default
+    rule (SPI005).  Do not remove it.
 
 Design Constraints:
     - ``execute()`` MUST be synchronous (no ``async def``).
-    - If the underlying persistence layer is async, implementations MUST
-      bridge via ``asyncio.run()`` or an equivalent event-loop call inside
+    - If the underlying implementation is async, implementations MUST bridge
+      via ``asyncio.run()`` or an equivalent event-loop call inside
       ``execute()``.  The async context MUST NOT leak to the caller.
     - On failure, ``execute()`` MUST raise rather than return a failure
-      result.  Swallowing errors would break the ordering guarantee.
+      result.  Swallowing errors would break any ordering guarantee.
 
 Related:
+    - ``ProtocolPrimitiveEffectExecutor``: async primitive effect kernel
     - OMN-2508: NodeProjectionEffect as synchronous ProtocolEffect
     - OMN-2460: ModelProjectionIntent (canonical input model)
-    - ``ProtocolPrimitiveEffectExecutor``: async primitive effect kernel
 """
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
-
-if TYPE_CHECKING:
-    from omnibase_spi.contracts.projections.contract_projection_result import (
-        ContractProjectionResult,
-    )
+from typing import ClassVar, Protocol, runtime_checkable
 
 
 @runtime_checkable
@@ -43,18 +41,17 @@ class ProtocolEffect(Protocol):
     """Synchronous effect execution contract.
 
     Implementations of this protocol encapsulate a side-effecting operation
-    that must complete **synchronously** before the caller proceeds.  The
-    canonical implementation is ``ProtocolNodeProjectionEffect``, which writes a
-    projection to the persistence layer before the runtime publishes the
-    corresponding event to Kafka.
+    that must complete **synchronously** before the caller proceeds.
+
+    The ``synchronous_execution`` class variable is a contract flag used by the
+    SPI validator to indicate that methods on this protocol are intentionally
+    synchronous and must not be flagged as SPI005 (sync I/O) violations.
 
     Method Contract:
         ``execute(intent)`` MUST:
         - Be synchronous (no ``async def``, no unawaited coroutines).
-        - Complete the full persistence write before returning.
-        - Return ``ContractProjectionResult`` with ``success=True`` on success.
-        - Raise ``ProjectorError`` (or a subclass) on infrastructure failure.
-        - NOT swallow errors that would break ordering guarantees.
+        - Complete the full side-effecting operation before returning.
+        - Raise on infrastructure failure rather than swallowing errors.
 
     Variance:
         The ``intent`` parameter is typed as ``object`` at the protocol level
@@ -64,47 +61,48 @@ class ProtocolEffect(Protocol):
 
     Example::
 
-        class MyProjectionEffect:
-            def execute(
-                self, intent: ModelProjectionIntent
-            ) -> ContractProjectionResult:
-                # Write to DB synchronously
-                ref = db.insert(intent.payload)
-                return ContractProjectionResult(success=True, artifact_ref=ref)
+        class MyEffect:
+            synchronous_execution: ClassVar[bool] = True
 
-        assert isinstance(MyProjectionEffect(), ProtocolEffect)
+            def execute(self, intent: object) -> bool:
+                # Perform side effect synchronously
+                return db.insert(intent)
+
+        assert isinstance(MyEffect(), ProtocolEffect)
     """
 
-    def execute(self, intent: object) -> ContractProjectionResult:
+    # Contract flag: signals to the SPI validator that all methods in this
+    # protocol are intentionally synchronous.  The validator reads this flag
+    # to exempt the class from the async-by-default rule (SPI005) instead of
+    # maintaining a static sync_exceptions list.
+    synchronous_execution: ClassVar[bool]
+
+    def execute(self, intent: object) -> bool:
         """Execute the effect synchronously.
 
-        Performs the side-effecting operation (e.g. projection persistence)
-        and returns a result indicating success.  The caller blocks until
-        this method returns.
+        Performs the side-effecting operation and returns a success indicator.
+        The caller blocks until this method returns.
 
         Args:
             intent: The intent describing the operation to perform.  At the
                 protocol level the type is ``object`` to remain domain-agnostic.
                 Concrete implementations are expected to narrow this type
-                (e.g. ``ModelProjectionIntent``) and validate accordingly.
+                and validate accordingly.
 
         Returns:
-            ``ContractProjectionResult`` with ``success=True`` when the effect
-            completed successfully, or ``success=False`` for a valid no-op
-            (e.g. an idempotent skip).
+            ``True`` when the effect completed successfully, ``False`` for a
+            valid no-op (e.g. an idempotent skip).
 
         Raises:
-            ProjectorError: When the persistence layer rejects or fails to
-                accept the write.  Implementations MUST raise on infrastructure
-                failure so the caller can take appropriate action (e.g. abort
-                the Kafka publish).
-            ValueError: When ``intent`` is structurally invalid and cannot be
-                processed.
+            RuntimeError: When the side-effecting operation fails.
+                Implementations MUST raise on failure so the caller can take
+                appropriate action.
+            ValueError: When ``intent`` is structurally invalid.
 
         Note:
             This method MUST be synchronous.  If the underlying storage is
             async, bridge via ``asyncio.run()`` inside the implementation.
-            Never expose ``async def execute()`` — that would violate the
+            Never expose ``async def execute()`` -- that would violate the
             ordering contract.
         """
         ...

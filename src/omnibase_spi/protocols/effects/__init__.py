@@ -1,9 +1,12 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Effect execution protocols for omnibase_spi.
 
 This module defines effect execution interfaces for the ONEX kernel:
 
+- ``ProtocolEffect``: synchronous effect boundary (ordering guarantee)
 - ``ProtocolPrimitiveEffectExecutor``: async primitive effects (kernel dispatch)
-- ``ProtocolEffect``: synchronous effect boundary (projection ordering guarantee)
 """
 
 from omnibase_spi.protocols.effects.protocol_effect import ProtocolEffect

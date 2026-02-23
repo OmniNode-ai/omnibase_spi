@@ -358,9 +358,9 @@ class TestExceptionHierarchy:
         ]
         for exc_class in exception_classes:
             error = exc_class("Test")
-            assert isinstance(
-                error, SPIError
-            ), f"{exc_class.__name__} should inherit from SPIError"
+            assert isinstance(error, SPIError), (
+                f"{exc_class.__name__} should inherit from SPIError"
+            )
 
     def test_handler_initialization_error_inheritance(self) -> None:
         """Verify HandlerInitializationError has two-level inheritance."""

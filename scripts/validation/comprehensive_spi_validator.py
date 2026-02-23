@@ -445,6 +445,10 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
         # Analysis state
         self.current_protocol: ProtocolInfo | None = None
         self.in_protocol_class: bool = False
+        # Set to True when visiting a class that declares synchronous_execution = True.
+        # This exempts all methods in the class from the async-by-default rule (SPI005)
+        # without requiring a static sync_exceptions list.
+        self.current_class_synchronous: bool = False
         self.imports: dict[str, str] = {}
         self.type_checking_imports: set[str] = set()
         self.forward_references: set[str] = set()
@@ -789,6 +793,15 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
         )
 
         self.in_protocol_class = True
+
+        # Detect synchronous_execution contract flag.
+        # When a protocol class declares ``synchronous_execution: ClassVar[bool]``
+        # (with or without a value), the validator treats all methods in that
+        # class as intentionally synchronous, bypassing the async-by-default
+        # check (SPI005).  This replaces the old static sync_exceptions list.
+        self.current_class_synchronous = self._class_declares_synchronous_execution(
+            node
+        )
 
         # Check @runtime_checkable decorator
         has_runtime_checkable = any(
@@ -1275,6 +1288,28 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
         # Check parameter annotations (excluding 'self')
         return all(arg.annotation for arg in node.args.args[1:])
 
+    def _class_declares_synchronous_execution(self, node: ast.ClassDef) -> bool:
+        """Return True if the class body declares ``synchronous_execution``.
+
+        Matches both annotation-only declarations (``synchronous_execution:
+        ClassVar[bool]``) and annotated assignments (``synchronous_execution:
+        ClassVar[bool] = True``).  The presence of the name is sufficient —
+        the validator does not evaluate the value, trusting the protocol author
+        to set it correctly.
+        """
+        for item in node.body:
+            if isinstance(item, ast.AnnAssign) and isinstance(item.target, ast.Name):
+                if item.target.id == "synchronous_execution":
+                    return True
+            elif isinstance(item, ast.Assign):
+                for target in item.targets:
+                    if (
+                        isinstance(target, ast.Name)
+                        and target.id == "synchronous_execution"
+                    ):
+                        return True
+        return False
+
     def _should_be_async_method(self, node: ast.FunctionDef) -> bool:
         """Determine if method should be async based on naming and types."""
         method_name = node.name.lower()
@@ -1288,6 +1323,11 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
                 decorator_name = decorator.attr
             if decorator_name == "property":
                 return False
+
+        # If the enclosing class declares synchronous_execution, all its methods
+        # are intentionally synchronous — skip the async-by-default check.
+        if self.current_class_synchronous:
+            return False
 
         # Synchronous getter exceptions - these are NOT I/O operations
         sync_exceptions = [
@@ -2099,7 +2139,7 @@ class ReportGenerator:
         with_async = sum(1 for p in report.protocols if p.async_methods)
 
         print(
-            f"   @runtime_checkable: {runtime_checkable}/{len(report.protocols)} ({runtime_checkable/len(report.protocols)*100:.1f}%)"
+            f"   @runtime_checkable: {runtime_checkable}/{len(report.protocols)} ({runtime_checkable / len(report.protocols) * 100:.1f}%)"
         )
         print(f"   With __init__ methods: {with_init} (should be 0)")
         print(f"   With async methods: {with_async}")

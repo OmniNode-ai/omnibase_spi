@@ -443,7 +443,9 @@ class TestContractLlmCallMetrics:
             usage_is_estimated=False,
         )
         # Mismatched prompt_tokens
-        with pytest.raises(ValidationError, match="prompt_tokens.*top-level.*normalized"):
+        with pytest.raises(
+            ValidationError, match="prompt_tokens.*top-level.*normalized"
+        ):
             ContractLlmCallMetrics(
                 model_id="x",
                 prompt_tokens=200,
@@ -494,7 +496,9 @@ class TestContractLlmCallMetrics:
 
     def test_empty_model_id_rejected(self) -> None:
         """Empty string model_id must be rejected by min_length=1."""
-        with pytest.raises(ValidationError, match="String should have at least 1 character"):
+        with pytest.raises(
+            ValidationError, match="String should have at least 1 character"
+        ):
             ContractLlmCallMetrics(model_id="")
 
     def test_usage_is_estimated_disagreement_rejected(self) -> None:

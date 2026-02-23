@@ -207,8 +207,8 @@ from omnibase_spi.protocols.discovery import (
 )
 
 # Effects protocols (2 protocols) - Effect execution for kernel
+# ProtocolEffect: synchronous effect boundary (ordering guarantee)
 # ProtocolPrimitiveEffectExecutor: async primitive effects (kernel dispatch)
-# ProtocolEffect: synchronous effect boundary (projection ordering guarantee)
 from omnibase_spi.protocols.effects import (
     LiteralEffectCategory,
     LiteralEffectId,
@@ -611,6 +611,7 @@ __all__ = [
     "ProtocolPackageVerifier",
     "ProtocolPatternExtractor",
     "ProtocolPerformanceMetricsCollector",
+    "ProtocolEffect",
     "ProtocolPersistResult",
     "ProtocolPrimitiveEffectExecutor",
     "ProtocolProjectionReader",

@@ -828,7 +828,9 @@ class TestProtocolConstraintValidatorDocumentation:
 
     def test_validate_phase_constraints_method_has_docstring(self) -> None:
         """The validate_phase_constraints method should have a docstring."""
-        method = getattr(ProtocolConstraintValidator, "validate_phase_constraints", None)
+        method = getattr(
+            ProtocolConstraintValidator, "validate_phase_constraints", None
+        )
         assert method is not None
         assert method.__doc__ is not None
         assert len(method.__doc__.strip()) > 0

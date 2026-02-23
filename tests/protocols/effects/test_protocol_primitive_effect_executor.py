@@ -218,9 +218,9 @@ class TestEffectIdLiteralTypes:
         ]
         for effect_id in effect_ids:
             parts = effect_id.split(".")
-            assert (
-                len(parts) == 2
-            ), f"Effect ID should have format 'category.operation': {effect_id}"
+            assert len(parts) == 2, (
+                f"Effect ID should have format 'category.operation': {effect_id}"
+            )
 
     def test_http_effects_exist(self) -> None:
         """Verify HTTP effect IDs are defined."""
@@ -288,9 +288,9 @@ class TestProtocolPrimitiveEffectExecutorCompliance:
         """
         # Verify the effect is NOT in supported effects (test precondition)
         supported = async_compliant_executor.get_supported_effects()
-        assert (
-            "unknown.effect" not in supported
-        ), "Test precondition: effect must be unsupported"
+        assert "unknown.effect" not in supported, (
+            "Test precondition: effect must be unsupported"
+        )
 
         # Mock accepts it anyway (permissive behavior - NOT protocol requirement)
         result = await async_compliant_executor.execute("unknown.effect", b"{}")

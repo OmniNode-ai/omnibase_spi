@@ -91,12 +91,12 @@ def _verify_runtime_checkable_protocol(protocol: type) -> None:
         >>> from omnibase_spi.protocols.nodes import ProtocolNode
         >>> _verify_runtime_checkable_protocol(ProtocolNode)  # No error if valid
     """
-    assert (
-        getattr(protocol, "_is_runtime_protocol", False) is True
-    ), f"{protocol.__name__} must be decorated with @runtime_checkable"
-    assert hasattr(
-        protocol, "__protocol_attrs__"
-    ), f"{protocol.__name__} must be a typing.Protocol with __protocol_attrs__"
+    assert getattr(protocol, "_is_runtime_protocol", False) is True, (
+        f"{protocol.__name__} must be decorated with @runtime_checkable"
+    )
+    assert hasattr(protocol, "__protocol_attrs__"), (
+        f"{protocol.__name__} must be a typing.Protocol with __protocol_attrs__"
+    )
 
 
 class TestNodeProtocolImports:
@@ -567,12 +567,12 @@ class TestExecutionConstrainableProtocolImports:
             ProtocolExecutionConstrainable,
         )
 
-        assert hasattr(
-            ProtocolExecutionConstrainable, "execution_constraints"
-        ), "Missing execution_constraints property"
-        assert hasattr(
-            ProtocolExecutionConstrainable, "has_constraints"
-        ), "Missing has_constraints method"
+        assert hasattr(ProtocolExecutionConstrainable, "execution_constraints"), (
+            "Missing execution_constraints property"
+        )
+        assert hasattr(ProtocolExecutionConstrainable, "has_constraints"), (
+            "Missing has_constraints method"
+        )
 
 
 class TestRuntimeCheckableProtocols:
@@ -610,33 +610,33 @@ class TestRuntimeCheckableProtocols:
         from omnibase_spi.protocols.nodes import ProtocolNode
 
         # Verify the protocol has the runtime checkable marker
-        assert (
-            getattr(ProtocolNode, "_is_runtime_protocol", False) is True
-        ), "ProtocolNode must be decorated with @runtime_checkable"
+        assert getattr(ProtocolNode, "_is_runtime_protocol", False) is True, (
+            "ProtocolNode must be decorated with @runtime_checkable"
+        )
 
     def test_protocol_compute_node_is_runtime_checkable(self) -> None:
         """Validate ProtocolComputeNode has @runtime_checkable decorator."""
         from omnibase_spi.protocols.nodes import ProtocolComputeNode
 
-        assert (
-            getattr(ProtocolComputeNode, "_is_runtime_protocol", False) is True
-        ), "ProtocolComputeNode must be decorated with @runtime_checkable"
+        assert getattr(ProtocolComputeNode, "_is_runtime_protocol", False) is True, (
+            "ProtocolComputeNode must be decorated with @runtime_checkable"
+        )
 
     def test_protocol_effect_node_is_runtime_checkable(self) -> None:
         """Validate ProtocolEffectNode has @runtime_checkable decorator."""
         from omnibase_spi.protocols.nodes import ProtocolEffectNode
 
-        assert (
-            getattr(ProtocolEffectNode, "_is_runtime_protocol", False) is True
-        ), "ProtocolEffectNode must be decorated with @runtime_checkable"
+        assert getattr(ProtocolEffectNode, "_is_runtime_protocol", False) is True, (
+            "ProtocolEffectNode must be decorated with @runtime_checkable"
+        )
 
     def test_protocol_reducer_node_is_runtime_checkable(self) -> None:
         """Validate ProtocolReducerNode has @runtime_checkable decorator."""
         from omnibase_spi.protocols.nodes import ProtocolReducerNode
 
-        assert (
-            getattr(ProtocolReducerNode, "_is_runtime_protocol", False) is True
-        ), "ProtocolReducerNode must be decorated with @runtime_checkable"
+        assert getattr(ProtocolReducerNode, "_is_runtime_protocol", False) is True, (
+            "ProtocolReducerNode must be decorated with @runtime_checkable"
+        )
 
     def test_protocol_orchestrator_node_is_runtime_checkable(self) -> None:
         """Validate ProtocolOrchestratorNode has @runtime_checkable decorator."""
@@ -650,9 +650,9 @@ class TestRuntimeCheckableProtocols:
         """Validate ProtocolHandler has @runtime_checkable decorator."""
         from omnibase_spi.protocols.handlers import ProtocolHandler
 
-        assert (
-            getattr(ProtocolHandler, "_is_runtime_protocol", False) is True
-        ), "ProtocolHandler must be decorated with @runtime_checkable"
+        assert getattr(ProtocolHandler, "_is_runtime_protocol", False) is True, (
+            "ProtocolHandler must be decorated with @runtime_checkable"
+        )
 
     def test_protocol_handler_registry_is_runtime_checkable(self) -> None:
         """Validate ProtocolHandlerRegistry has @runtime_checkable decorator."""
@@ -675,9 +675,9 @@ class TestRuntimeCheckableProtocols:
             ProtocolWorkflowContractCompiler,
             ProtocolFSMContractCompiler,
         ]:
-            assert (
-                getattr(protocol, "_is_runtime_protocol", False) is True
-            ), f"{protocol.__name__} is not runtime_checkable"
+            assert getattr(protocol, "_is_runtime_protocol", False) is True, (
+                f"{protocol.__name__} is not runtime_checkable"
+            )
 
     def test_contract_types_are_runtime_checkable(self) -> None:
         """Validate all contract type protocols have @runtime_checkable."""
@@ -694,9 +694,9 @@ class TestRuntimeCheckableProtocols:
             ProtocolExecutionConstraints,
             ProtocolHandlerBehaviorDescriptor,
         ]:
-            assert (
-                getattr(protocol, "_is_runtime_protocol", False) is True
-            ), f"{protocol.__name__} is not runtime_checkable"
+            assert getattr(protocol, "_is_runtime_protocol", False) is True, (
+                f"{protocol.__name__} is not runtime_checkable"
+            )
 
     def test_protocol_execution_constrainable_is_runtime_checkable(self) -> None:
         """Validate ProtocolExecutionConstrainable has @runtime_checkable decorator."""
@@ -726,9 +726,9 @@ class TestRuntimeCheckableProtocols:
             ProtocolRegistryBase,
             ProtocolVersionedRegistry,
         ]:
-            assert (
-                getattr(protocol, "_is_runtime_protocol", False) is True
-            ), f"{protocol.__name__} is not runtime_checkable"
+            assert getattr(protocol, "_is_runtime_protocol", False) is True, (
+                f"{protocol.__name__} is not runtime_checkable"
+            )
 
 
 class TestIsinstanceChecks:
@@ -1077,9 +1077,9 @@ class TestForwardReferenceResolution:
 
             # The error should reference one of the Core model types
             error_message = str(exc_info.value)
-            assert (
-                "ModelComputeInput" in error_message or "Model" in error_message
-            ), f"Expected NameError for Core model type, got: {error_message}"
+            assert "ModelComputeInput" in error_message or "Model" in error_message, (
+                f"Expected NameError for Core model type, got: {error_message}"
+            )
 
 
 class TestProtocolMethodSignatures:
@@ -1166,9 +1166,9 @@ class TestProtocolMethodSignatures:
             ProtocolFSMContractCompiler,
         ]:
             assert hasattr(compiler, "compile"), f"{compiler.__name__} missing compile"
-            assert hasattr(
-                compiler, "validate"
-            ), f"{compiler.__name__} missing validate"
+            assert hasattr(compiler, "validate"), (
+                f"{compiler.__name__} missing validate"
+            )
 
     def test_protocol_node_has_required_attributes(self) -> None:
         """Validate ProtocolNode defines required identity attributes.
@@ -1212,9 +1212,9 @@ class TestModuleReimport:
         ), "ProtocolNode lost _is_runtime_protocol marker after reload"
 
         # Verify __protocol_attrs__ still exists (standard Protocol attribute)
-        assert hasattr(
-            nodes_module.ProtocolNode, "__protocol_attrs__"
-        ), "ProtocolNode lost __protocol_attrs__ after reload"
+        assert hasattr(nodes_module.ProtocolNode, "__protocol_attrs__"), (
+            "ProtocolNode lost __protocol_attrs__ after reload"
+        )
 
         # Verify isinstance still works with new mock after reload
         class MockNodeAfterReload:
@@ -1225,9 +1225,9 @@ class TestModuleReimport:
             version = "1.0.0"
 
         mock = MockNodeAfterReload()
-        assert isinstance(
-            mock, nodes_module.ProtocolNode
-        ), "isinstance() check failed after module reload"
+        assert isinstance(mock, nodes_module.ProtocolNode), (
+            "isinstance() check failed after module reload"
+        )
 
     def test_reimport_handlers_module(self) -> None:
         """Validate handlers module survives reload without errors.
@@ -1247,9 +1247,9 @@ class TestModuleReimport:
         ), "ProtocolHandler lost _is_runtime_protocol marker after reload"
 
         # Verify __protocol_attrs__ still exists (standard Protocol attribute)
-        assert hasattr(
-            handlers_module.ProtocolHandler, "__protocol_attrs__"
-        ), "ProtocolHandler lost __protocol_attrs__ after reload"
+        assert hasattr(handlers_module.ProtocolHandler, "__protocol_attrs__"), (
+            "ProtocolHandler lost __protocol_attrs__ after reload"
+        )
 
         # Verify isinstance still works with new mock after reload
         class MockHandlerAfterReload:
@@ -1280,9 +1280,9 @@ class TestModuleReimport:
                 return {"healthy": True, "latency_ms": 0.0}
 
         mock = MockHandlerAfterReload()
-        assert isinstance(
-            mock, handlers_module.ProtocolHandler
-        ), "isinstance() check failed after module reload"
+        assert isinstance(mock, handlers_module.ProtocolHandler), (
+            "isinstance() check failed after module reload"
+        )
 
     def test_reimport_contracts_module(self) -> None:
         """Validate contracts module survives reload without errors.
@@ -1303,7 +1303,9 @@ class TestModuleReimport:
                 False,
             )
             is True
-        ), "ProtocolEffectContractCompiler lost _is_runtime_protocol marker after reload"
+        ), (
+            "ProtocolEffectContractCompiler lost _is_runtime_protocol marker after reload"
+        )
 
         # Verify __protocol_attrs__ still exists (standard Protocol attribute)
         assert hasattr(
@@ -1323,9 +1325,9 @@ class TestModuleReimport:
                 return True
 
         mock = MockCompilerAfterReload()
-        assert isinstance(
-            mock, contracts_module.ProtocolEffectContractCompiler
-        ), "isinstance() check failed after module reload"
+        assert isinstance(mock, contracts_module.ProtocolEffectContractCompiler), (
+            "isinstance() check failed after module reload"
+        )
 
     def test_reimport_registry_module(self) -> None:
         """Validate registry module survives reload without errors.
@@ -1347,9 +1349,9 @@ class TestModuleReimport:
         ), "ProtocolHandlerRegistry lost _is_runtime_protocol marker after reload"
 
         # Verify __protocol_attrs__ still exists (standard Protocol attribute)
-        assert hasattr(
-            registry_module.ProtocolHandlerRegistry, "__protocol_attrs__"
-        ), "ProtocolHandlerRegistry lost __protocol_attrs__ after reload"
+        assert hasattr(registry_module.ProtocolHandlerRegistry, "__protocol_attrs__"), (
+            "ProtocolHandlerRegistry lost __protocol_attrs__ after reload"
+        )
 
         # Verify isinstance still works with new mock after reload
         class MockRegistryAfterReload:
@@ -1376,9 +1378,9 @@ class TestModuleReimport:
                 return False
 
         mock = MockRegistryAfterReload()
-        assert isinstance(
-            mock, registry_module.ProtocolHandlerRegistry
-        ), "isinstance() check failed after module reload"
+        assert isinstance(mock, registry_module.ProtocolHandlerRegistry), (
+            "isinstance() check failed after module reload"
+        )
 
     def test_reimport_preserves_runtime_checkable_behavior(self) -> None:
         """Validate protocols remain runtime checkable after module reload.
@@ -1413,9 +1415,9 @@ class TestModuleReimport:
         ), "ProtocolNode lost _is_runtime_protocol marker after reload"
 
         # Verify __protocol_attrs__ still exists (standard Protocol attribute)
-        assert hasattr(
-            nodes_module.ProtocolNode, "__protocol_attrs__"
-        ), "ProtocolNode lost __protocol_attrs__ after reload"
+        assert hasattr(nodes_module.ProtocolNode, "__protocol_attrs__"), (
+            "ProtocolNode lost __protocol_attrs__ after reload"
+        )
 
         # Note: isinstance with pre-reload mock may not work due to class identity
         # changes after reload, but the protocol should still function with new
@@ -1428,9 +1430,9 @@ class TestModuleReimport:
             version = "1.0.0"  # Valid semver
 
         mock_after = MockNodeAfterReload()
-        assert isinstance(
-            mock_after, nodes_module.ProtocolNode
-        ), "isinstance() check failed with new mock after reload"
+        assert isinstance(mock_after, nodes_module.ProtocolNode), (
+            "isinstance() check failed with new mock after reload"
+        )
 
     def test_reimport_preserves_isinstance_for_compute_node(self) -> None:
         """Validate ProtocolComputeNode isinstance checks work after reload.
@@ -1463,9 +1465,9 @@ class TestModuleReimport:
                 return input_data
 
         mock = MockComputeNodeAfterReload()
-        assert isinstance(
-            mock, nodes_module.ProtocolComputeNode
-        ), "isinstance() check failed for ProtocolComputeNode after reload"
+        assert isinstance(mock, nodes_module.ProtocolComputeNode), (
+            "isinstance() check failed for ProtocolComputeNode after reload"
+        )
 
     def test_reimport_preserves_isinstance_for_handler(self) -> None:
         """Validate ProtocolHandler isinstance checks work after reload.
@@ -1518,9 +1520,9 @@ class TestModuleReimport:
                 return {"healthy": True, "latency_ms": 0.0}
 
         mock = MockHandlerAfterReload()
-        assert isinstance(
-            mock, handlers_module.ProtocolHandler
-        ), "isinstance() check failed for ProtocolHandler after reload"
+        assert isinstance(mock, handlers_module.ProtocolHandler), (
+            "isinstance() check failed for ProtocolHandler after reload"
+        )
 
     def test_reimport_preserves_isinstance_for_registry(self) -> None:
         """Validate ProtocolHandlerRegistry isinstance checks work after reload.
@@ -1566,9 +1568,9 @@ class TestModuleReimport:
                 return False
 
         mock = MockRegistryAfterReload()
-        assert isinstance(
-            mock, registry_module.ProtocolHandlerRegistry
-        ), "isinstance() check failed for ProtocolHandlerRegistry after reload"
+        assert isinstance(mock, registry_module.ProtocolHandlerRegistry), (
+            "isinstance() check failed for ProtocolHandlerRegistry after reload"
+        )
 
     def test_reimport_preserves_isinstance_for_contract_compilers(self) -> None:
         """Validate contract compiler isinstance checks work after reload.
@@ -1598,9 +1600,9 @@ class TestModuleReimport:
         ]
 
         for name, compiler in compilers:
-            assert (
-                getattr(compiler, "_is_runtime_protocol", False) is True
-            ), f"{name} lost _is_runtime_protocol after reload"
+            assert getattr(compiler, "_is_runtime_protocol", False) is True, (
+                f"{name} lost _is_runtime_protocol after reload"
+            )
 
         # Create compliant mock for ProtocolEffectContractCompiler after reload
         class MockEffectCompilerAfterReload:
@@ -1615,9 +1617,9 @@ class TestModuleReimport:
                 return True
 
         mock = MockEffectCompilerAfterReload()
-        assert isinstance(
-            mock, contracts_module.ProtocolEffectContractCompiler
-        ), "isinstance() check failed for ProtocolEffectContractCompiler after reload"
+        assert isinstance(mock, contracts_module.ProtocolEffectContractCompiler), (
+            "isinstance() check failed for ProtocolEffectContractCompiler after reload"
+        )
 
     def test_protocol_class_identity_changes_after_reload(self) -> None:
         """Validate that Protocol class gets new identity after module reload.
@@ -1654,14 +1656,14 @@ class TestModuleReimport:
         )
 
         # The class names are the same, but the objects are different
-        assert (
-            protocol_before_reload.__name__ == protocol_after_reload.__name__
-        ), "Both Protocol classes should have the same __name__"
+        assert protocol_before_reload.__name__ == protocol_after_reload.__name__, (
+            "Both Protocol classes should have the same __name__"
+        )
 
         # Their id() values are different, proving they are distinct objects
-        assert id(protocol_before_reload) != id(
-            protocol_after_reload
-        ), "Protocol classes should have different id() after reload"
+        assert id(protocol_before_reload) != id(protocol_after_reload), (
+            "Protocol classes should have different id() after reload"
+        )
 
     def test_dict_key_limitation_after_reload(self) -> None:
         """Demonstrate dictionary key limitation when protocol identity changes.
@@ -1690,9 +1692,9 @@ class TestModuleReimport:
         # Demonstrate dictionary key issue - the key limitation
         registry: dict[type, str] = {protocol_before_reload: "old_handler"}
         assert protocol_before_reload in registry, "Old protocol should be in registry"
-        assert (
-            protocol_after_reload not in registry
-        ), "New protocol should NOT be in registry - this demonstrates the limitation"
+        assert protocol_after_reload not in registry, (
+            "New protocol should NOT be in registry - this demonstrates the limitation"
+        )
 
         # Note: issubclass() is NOT demonstrated here because Python's
         # runtime_checkable protocols with non-method members (like node_id,
@@ -1727,9 +1729,9 @@ class TestModuleReimport:
         # Demonstrate set membership issue
         protocol_set: set[type] = {protocol_before_reload}
         assert protocol_before_reload in protocol_set, "Old protocol in set"
-        assert (
-            protocol_after_reload not in protocol_set
-        ), "New protocol NOT in set - class identity matters for hashing"
+        assert protocol_after_reload not in protocol_set, (
+            "New protocol NOT in set - class identity matters for hashing"
+        )
 
         # Mitigation: Always use fresh module attribute access
         # BAD:  cached_protocol = some_module.Protocol  # Stale after reload
@@ -1762,14 +1764,14 @@ class TestModuleReimport:
         mock_before = MockNodeBeforeReload()
 
         # Verify isinstance works with the protocol BEFORE reload
-        assert isinstance(
-            mock_before, protocol_before_reload
-        ), "Mock should be isinstance of protocol before reload"
+        assert isinstance(mock_before, protocol_before_reload), (
+            "Mock should be isinstance of protocol before reload"
+        )
 
         # Also verify it works with the module attribute before reload
-        assert isinstance(
-            mock_before, base_module.ProtocolNode
-        ), "Mock should be isinstance of base_module.ProtocolNode before reload"
+        assert isinstance(mock_before, base_module.ProtocolNode), (
+            "Mock should be isinstance of base_module.ProtocolNode before reload"
+        )
 
         # Now reload the actual module where ProtocolNode is defined
         importlib.reload(base_module)
@@ -1780,9 +1782,9 @@ class TestModuleReimport:
         # Demonstrate the limitation: isinstance with the OLD reference still works
         # because we're checking against the OLD class that MockNodeBeforeReload
         # was originally designed to match
-        assert isinstance(
-            mock_before, protocol_before_reload
-        ), "Mock should still be isinstance of the OLD protocol reference"
+        assert isinstance(mock_before, protocol_before_reload), (
+            "Mock should still be isinstance of the OLD protocol reference"
+        )
 
         # For structural subtyping (Protocol with @runtime_checkable), Python checks
         # if the object has the required attributes/methods, not class identity.
@@ -1799,9 +1801,9 @@ class TestModuleReimport:
 
         # Also verify using fresh module attribute access
         isinstance_with_module_attr = isinstance(mock_before, base_module.ProtocolNode)
-        assert (
-            isinstance_with_module_attr
-        ), "Mock should pass isinstance with fresh module.ProtocolNode access"
+        assert isinstance_with_module_attr, (
+            "Mock should pass isinstance with fresh module.ProtocolNode access"
+        )
 
 
 class TestProtocolCoverage:
@@ -2061,9 +2063,9 @@ class TestProtocolCoverage:
 
         # Assert basic sanity checks always pass
         assert len(all_discovered) > 0, "No protocols discovered - check scan logic"
-        assert len(covered) >= len(
-            self.TESTED_PROTOCOLS
-        ), "Some tested protocols not found in codebase"
+        assert len(covered) >= len(self.TESTED_PROTOCOLS), (
+            "Some tested protocols not found in codebase"
+        )
 
     def test_tested_protocols_exist_in_codebase(self) -> None:
         """Validate that all protocols in TESTED_PROTOCOLS actually exist.
@@ -2217,14 +2219,14 @@ class TestProtocolSignatureValidation:
 
         # Verify input_data has no default (is required)
         input_data_param = sig.parameters["input_data"]
-        assert (
-            input_data_param.default is inspect.Parameter.empty
-        ), "input_data should not have a default value (must be required)"
+        assert input_data_param.default is inspect.Parameter.empty, (
+            "input_data should not have a default value (must be required)"
+        )
 
         # Verify return annotation exists
-        assert (
-            sig.return_annotation is not inspect.Parameter.empty
-        ), "execute() should have a return type annotation"
+        assert sig.return_annotation is not inspect.Parameter.empty, (
+            "execute() should have a return type annotation"
+        )
 
     def test_handler_execute_signature(self) -> None:
         """Validate ProtocolHandler.execute has correct parameters.
@@ -2242,26 +2244,26 @@ class TestProtocolSignatureValidation:
         # Verify required parameters exist
         assert "self" in params, "execute() missing 'self' parameter"
         assert "request" in params, "execute() missing 'request' parameter"
-        assert (
-            "operation_config" in params
-        ), "execute() missing 'operation_config' parameter"
+        assert "operation_config" in params, (
+            "execute() missing 'operation_config' parameter"
+        )
 
         # Verify request has no default (is required)
         request_param = sig.parameters["request"]
-        assert (
-            request_param.default is inspect.Parameter.empty
-        ), "request should not have a default value (must be required)"
+        assert request_param.default is inspect.Parameter.empty, (
+            "request should not have a default value (must be required)"
+        )
 
         # Verify operation_config has no default (is required)
         operation_config_param = sig.parameters["operation_config"]
-        assert (
-            operation_config_param.default is inspect.Parameter.empty
-        ), "operation_config should not have a default value (must be required)"
+        assert operation_config_param.default is inspect.Parameter.empty, (
+            "operation_config should not have a default value (must be required)"
+        )
 
         # Verify return annotation exists
-        assert (
-            sig.return_annotation is not inspect.Parameter.empty
-        ), "execute() should have a return type annotation"
+        assert sig.return_annotation is not inspect.Parameter.empty, (
+            "execute() should have a return type annotation"
+        )
 
     def test_handler_shutdown_signature(self) -> None:
         """Validate ProtocolHandler.shutdown has correct parameters with default.
@@ -2277,23 +2279,23 @@ class TestProtocolSignatureValidation:
 
         # Verify required parameters exist
         assert "self" in params, "shutdown() missing 'self' parameter"
-        assert (
-            "timeout_seconds" in params
-        ), "shutdown() missing 'timeout_seconds' parameter"
+        assert "timeout_seconds" in params, (
+            "shutdown() missing 'timeout_seconds' parameter"
+        )
 
         # Verify timeout_seconds has a default value
         timeout_param = sig.parameters["timeout_seconds"]
-        assert (
-            timeout_param.default is not inspect.Parameter.empty
-        ), "timeout_seconds should have a default value"
-        assert (
-            timeout_param.default == 30.0
-        ), f"timeout_seconds default should be 30.0, got {timeout_param.default}"
+        assert timeout_param.default is not inspect.Parameter.empty, (
+            "timeout_seconds should have a default value"
+        )
+        assert timeout_param.default == 30.0, (
+            f"timeout_seconds default should be 30.0, got {timeout_param.default}"
+        )
 
         # Verify return annotation exists (should be None for shutdown)
-        assert (
-            sig.return_annotation is not inspect.Parameter.empty
-        ), "shutdown() should have a return type annotation"
+        assert sig.return_annotation is not inspect.Parameter.empty, (
+            "shutdown() should have a return type annotation"
+        )
 
     def test_handler_initialize_signature(self) -> None:
         """Validate ProtocolHandler.initialize has correct parameters.
@@ -2313,14 +2315,14 @@ class TestProtocolSignatureValidation:
 
         # Verify config has no default (is required)
         config_param = sig.parameters["config"]
-        assert (
-            config_param.default is inspect.Parameter.empty
-        ), "config should not have a default value (must be required)"
+        assert config_param.default is inspect.Parameter.empty, (
+            "config should not have a default value (must be required)"
+        )
 
         # Verify return annotation exists
-        assert (
-            sig.return_annotation is not inspect.Parameter.empty
-        ), "initialize() should have a return type annotation"
+        assert sig.return_annotation is not inspect.Parameter.empty, (
+            "initialize() should have a return type annotation"
+        )
 
     def test_registry_register_signature(self) -> None:
         """Validate ProtocolHandlerRegistry.register has correct parameters.
@@ -2342,20 +2344,20 @@ class TestProtocolSignatureValidation:
 
         # Verify key has no default (is required)
         key_param = sig.parameters["key"]
-        assert (
-            key_param.default is inspect.Parameter.empty
-        ), "key should not have a default value (must be required)"
+        assert key_param.default is inspect.Parameter.empty, (
+            "key should not have a default value (must be required)"
+        )
 
         # Verify value has no default (is required)
         value_param = sig.parameters["value"]
-        assert (
-            value_param.default is inspect.Parameter.empty
-        ), "value should not have a default value (must be required)"
+        assert value_param.default is inspect.Parameter.empty, (
+            "value should not have a default value (must be required)"
+        )
 
         # Verify return annotation exists
-        assert (
-            sig.return_annotation is not inspect.Parameter.empty
-        ), "register() should have a return type annotation"
+        assert sig.return_annotation is not inspect.Parameter.empty, (
+            "register() should have a return type annotation"
+        )
 
     def test_registry_get_signature(self) -> None:
         """Validate ProtocolHandlerRegistry.get has correct parameters.
@@ -2375,14 +2377,14 @@ class TestProtocolSignatureValidation:
 
         # Verify key has no default (is required)
         key_param = sig.parameters["key"]
-        assert (
-            key_param.default is inspect.Parameter.empty
-        ), "key should not have a default value (must be required)"
+        assert key_param.default is inspect.Parameter.empty, (
+            "key should not have a default value (must be required)"
+        )
 
         # Verify return annotation exists
-        assert (
-            sig.return_annotation is not inspect.Parameter.empty
-        ), "get() should have a return type annotation"
+        assert sig.return_annotation is not inspect.Parameter.empty, (
+            "get() should have a return type annotation"
+        )
 
     def test_registry_is_registered_signature(self) -> None:
         """Validate ProtocolHandlerRegistry.is_registered has correct parameters.
@@ -2402,14 +2404,14 @@ class TestProtocolSignatureValidation:
 
         # Verify key has no default (is required)
         key_param = sig.parameters["key"]
-        assert (
-            key_param.default is inspect.Parameter.empty
-        ), "key should not have a default value (must be required)"
+        assert key_param.default is inspect.Parameter.empty, (
+            "key should not have a default value (must be required)"
+        )
 
         # Verify return annotation exists (should be bool)
-        assert (
-            sig.return_annotation is not inspect.Parameter.empty
-        ), "is_registered() should have a return type annotation"
+        assert sig.return_annotation is not inspect.Parameter.empty, (
+            "is_registered() should have a return type annotation"
+        )
 
     def test_registry_list_keys_signature(self) -> None:
         """Validate ProtocolHandlerRegistry.list_keys has correct signature.
@@ -2428,9 +2430,9 @@ class TestProtocolSignatureValidation:
         assert len(params) == 1, f"list_keys() should only have 'self', got {params}"
 
         # Verify return annotation exists (should be list[str])
-        assert (
-            sig.return_annotation is not inspect.Parameter.empty
-        ), "list_keys() should have a return type annotation"
+        assert sig.return_annotation is not inspect.Parameter.empty, (
+            "list_keys() should have a return type annotation"
+        )
 
     def test_effect_node_execute_signature(self) -> None:
         """Validate ProtocolEffectNode.execute has correct parameters.
@@ -2450,14 +2452,14 @@ class TestProtocolSignatureValidation:
 
         # Verify input_data has no default (is required)
         input_data_param = sig.parameters["input_data"]
-        assert (
-            input_data_param.default is inspect.Parameter.empty
-        ), "input_data should not have a default value (must be required)"
+        assert input_data_param.default is inspect.Parameter.empty, (
+            "input_data should not have a default value (must be required)"
+        )
 
         # Verify return annotation exists
-        assert (
-            sig.return_annotation is not inspect.Parameter.empty
-        ), "execute() should have a return type annotation"
+        assert sig.return_annotation is not inspect.Parameter.empty, (
+            "execute() should have a return type annotation"
+        )
 
     def test_contract_compiler_compile_signature(self) -> None:
         """Validate ProtocolEffectContractCompiler.compile has correct parameters.
@@ -2477,14 +2479,14 @@ class TestProtocolSignatureValidation:
 
         # Verify contract_path has no default (is required)
         contract_path_param = sig.parameters["contract_path"]
-        assert (
-            contract_path_param.default is inspect.Parameter.empty
-        ), "contract_path should not have a default value (must be required)"
+        assert contract_path_param.default is inspect.Parameter.empty, (
+            "contract_path should not have a default value (must be required)"
+        )
 
         # Verify return annotation exists
-        assert (
-            sig.return_annotation is not inspect.Parameter.empty
-        ), "compile() should have a return type annotation"
+        assert sig.return_annotation is not inspect.Parameter.empty, (
+            "compile() should have a return type annotation"
+        )
 
     def test_contract_compiler_validate_signature(self) -> None:
         """Validate ProtocolEffectContractCompiler.validate has correct parameters.
@@ -2504,14 +2506,14 @@ class TestProtocolSignatureValidation:
 
         # Verify contract_path has no default (is required)
         contract_path_param = sig.parameters["contract_path"]
-        assert (
-            contract_path_param.default is inspect.Parameter.empty
-        ), "contract_path should not have a default value (must be required)"
+        assert contract_path_param.default is inspect.Parameter.empty, (
+            "contract_path should not have a default value (must be required)"
+        )
 
         # Verify return annotation exists
-        assert (
-            sig.return_annotation is not inspect.Parameter.empty
-        ), "validate() should have a return type annotation"
+        assert sig.return_annotation is not inspect.Parameter.empty, (
+            "validate() should have a return type annotation"
+        )
 
 
 class TestProtocolInheritanceChains:
@@ -2543,28 +2545,28 @@ class TestProtocolInheritanceChains:
         from omnibase_spi.protocols.nodes import ProtocolComputeNode, ProtocolNode
 
         # Verify ProtocolComputeNode has base node attributes
-        assert hasattr(
-            ProtocolComputeNode, "node_id"
-        ), "ProtocolComputeNode missing inherited node_id"
-        assert hasattr(
-            ProtocolComputeNode, "node_type"
-        ), "ProtocolComputeNode missing inherited node_type"
-        assert hasattr(
-            ProtocolComputeNode, "version"
-        ), "ProtocolComputeNode missing inherited version"
+        assert hasattr(ProtocolComputeNode, "node_id"), (
+            "ProtocolComputeNode missing inherited node_id"
+        )
+        assert hasattr(ProtocolComputeNode, "node_type"), (
+            "ProtocolComputeNode missing inherited node_type"
+        )
+        assert hasattr(ProtocolComputeNode, "version"), (
+            "ProtocolComputeNode missing inherited version"
+        )
 
         # Verify ProtocolNode is in the MRO (method resolution order)
-        assert (
-            ProtocolNode in ProtocolComputeNode.__mro__
-        ), "ProtocolNode should be in ProtocolComputeNode's MRO"
+        assert ProtocolNode in ProtocolComputeNode.__mro__, (
+            "ProtocolNode should be in ProtocolComputeNode's MRO"
+        )
 
         # Verify compute-specific attributes also exist
-        assert hasattr(
-            ProtocolComputeNode, "is_deterministic"
-        ), "ProtocolComputeNode missing is_deterministic"
-        assert hasattr(
-            ProtocolComputeNode, "execute"
-        ), "ProtocolComputeNode missing execute"
+        assert hasattr(ProtocolComputeNode, "is_deterministic"), (
+            "ProtocolComputeNode missing is_deterministic"
+        )
+        assert hasattr(ProtocolComputeNode, "execute"), (
+            "ProtocolComputeNode missing execute"
+        )
 
     def test_effect_node_inherits_from_protocol_node(self) -> None:
         """Validate ProtocolEffectNode has all ProtocolNode attributes.
@@ -2575,31 +2577,31 @@ class TestProtocolInheritanceChains:
         from omnibase_spi.protocols.nodes import ProtocolEffectNode, ProtocolNode
 
         # Verify ProtocolEffectNode has base node attributes
-        assert hasattr(
-            ProtocolEffectNode, "node_id"
-        ), "ProtocolEffectNode missing inherited node_id"
-        assert hasattr(
-            ProtocolEffectNode, "node_type"
-        ), "ProtocolEffectNode missing inherited node_type"
-        assert hasattr(
-            ProtocolEffectNode, "version"
-        ), "ProtocolEffectNode missing inherited version"
+        assert hasattr(ProtocolEffectNode, "node_id"), (
+            "ProtocolEffectNode missing inherited node_id"
+        )
+        assert hasattr(ProtocolEffectNode, "node_type"), (
+            "ProtocolEffectNode missing inherited node_type"
+        )
+        assert hasattr(ProtocolEffectNode, "version"), (
+            "ProtocolEffectNode missing inherited version"
+        )
 
         # Verify ProtocolNode is in the MRO
-        assert (
-            ProtocolNode in ProtocolEffectNode.__mro__
-        ), "ProtocolNode should be in ProtocolEffectNode's MRO"
+        assert ProtocolNode in ProtocolEffectNode.__mro__, (
+            "ProtocolNode should be in ProtocolEffectNode's MRO"
+        )
 
         # Verify effect-specific lifecycle methods exist
-        assert hasattr(
-            ProtocolEffectNode, "initialize"
-        ), "ProtocolEffectNode missing initialize"
-        assert hasattr(
-            ProtocolEffectNode, "shutdown"
-        ), "ProtocolEffectNode missing shutdown"
-        assert hasattr(
-            ProtocolEffectNode, "execute"
-        ), "ProtocolEffectNode missing execute"
+        assert hasattr(ProtocolEffectNode, "initialize"), (
+            "ProtocolEffectNode missing initialize"
+        )
+        assert hasattr(ProtocolEffectNode, "shutdown"), (
+            "ProtocolEffectNode missing shutdown"
+        )
+        assert hasattr(ProtocolEffectNode, "execute"), (
+            "ProtocolEffectNode missing execute"
+        )
 
     def test_reducer_node_inherits_from_protocol_node(self) -> None:
         """Validate ProtocolReducerNode has all ProtocolNode attributes.
@@ -2610,25 +2612,25 @@ class TestProtocolInheritanceChains:
         from omnibase_spi.protocols.nodes import ProtocolNode, ProtocolReducerNode
 
         # Verify ProtocolReducerNode has base node attributes
-        assert hasattr(
-            ProtocolReducerNode, "node_id"
-        ), "ProtocolReducerNode missing inherited node_id"
-        assert hasattr(
-            ProtocolReducerNode, "node_type"
-        ), "ProtocolReducerNode missing inherited node_type"
-        assert hasattr(
-            ProtocolReducerNode, "version"
-        ), "ProtocolReducerNode missing inherited version"
+        assert hasattr(ProtocolReducerNode, "node_id"), (
+            "ProtocolReducerNode missing inherited node_id"
+        )
+        assert hasattr(ProtocolReducerNode, "node_type"), (
+            "ProtocolReducerNode missing inherited node_type"
+        )
+        assert hasattr(ProtocolReducerNode, "version"), (
+            "ProtocolReducerNode missing inherited version"
+        )
 
         # Verify ProtocolNode is in the MRO
-        assert (
-            ProtocolNode in ProtocolReducerNode.__mro__
-        ), "ProtocolNode should be in ProtocolReducerNode's MRO"
+        assert ProtocolNode in ProtocolReducerNode.__mro__, (
+            "ProtocolNode should be in ProtocolReducerNode's MRO"
+        )
 
         # Verify reducer-specific execute method exists
-        assert hasattr(
-            ProtocolReducerNode, "execute"
-        ), "ProtocolReducerNode missing execute"
+        assert hasattr(ProtocolReducerNode, "execute"), (
+            "ProtocolReducerNode missing execute"
+        )
 
     def test_orchestrator_node_inherits_from_protocol_node(self) -> None:
         """Validate ProtocolOrchestratorNode has all ProtocolNode attributes.
@@ -2639,25 +2641,25 @@ class TestProtocolInheritanceChains:
         from omnibase_spi.protocols.nodes import ProtocolNode, ProtocolOrchestratorNode
 
         # Verify ProtocolOrchestratorNode has base node attributes
-        assert hasattr(
-            ProtocolOrchestratorNode, "node_id"
-        ), "ProtocolOrchestratorNode missing inherited node_id"
-        assert hasattr(
-            ProtocolOrchestratorNode, "node_type"
-        ), "ProtocolOrchestratorNode missing inherited node_type"
-        assert hasattr(
-            ProtocolOrchestratorNode, "version"
-        ), "ProtocolOrchestratorNode missing inherited version"
+        assert hasattr(ProtocolOrchestratorNode, "node_id"), (
+            "ProtocolOrchestratorNode missing inherited node_id"
+        )
+        assert hasattr(ProtocolOrchestratorNode, "node_type"), (
+            "ProtocolOrchestratorNode missing inherited node_type"
+        )
+        assert hasattr(ProtocolOrchestratorNode, "version"), (
+            "ProtocolOrchestratorNode missing inherited version"
+        )
 
         # Verify ProtocolNode is in the MRO
-        assert (
-            ProtocolNode in ProtocolOrchestratorNode.__mro__
-        ), "ProtocolNode should be in ProtocolOrchestratorNode's MRO"
+        assert ProtocolNode in ProtocolOrchestratorNode.__mro__, (
+            "ProtocolNode should be in ProtocolOrchestratorNode's MRO"
+        )
 
         # Verify orchestrator-specific execute method exists
-        assert hasattr(
-            ProtocolOrchestratorNode, "execute"
-        ), "ProtocolOrchestratorNode missing execute"
+        assert hasattr(ProtocolOrchestratorNode, "execute"), (
+            "ProtocolOrchestratorNode missing execute"
+        )
 
     def test_isinstance_inheritance_chain_compute_node(self) -> None:
         """Validate isinstance() works correctly for ProtocolComputeNode hierarchy.
@@ -2685,14 +2687,14 @@ class TestProtocolInheritanceChains:
         mock = MockComputeNode()
 
         # Should satisfy ProtocolComputeNode
-        assert isinstance(
-            mock, ProtocolComputeNode
-        ), "Mock should be isinstance of ProtocolComputeNode"
+        assert isinstance(mock, ProtocolComputeNode), (
+            "Mock should be isinstance of ProtocolComputeNode"
+        )
 
         # Should also satisfy ProtocolNode due to inheritance
-        assert isinstance(
-            mock, ProtocolNode
-        ), "Mock satisfying ProtocolComputeNode should also satisfy ProtocolNode"
+        assert isinstance(mock, ProtocolNode), (
+            "Mock satisfying ProtocolComputeNode should also satisfy ProtocolNode"
+        )
 
     def test_isinstance_inheritance_chain_effect_node(self) -> None:
         """Validate isinstance() works correctly for ProtocolEffectNode hierarchy.
@@ -2725,14 +2727,14 @@ class TestProtocolInheritanceChains:
         mock = MockEffectNode()
 
         # Should satisfy ProtocolEffectNode
-        assert isinstance(
-            mock, ProtocolEffectNode
-        ), "Mock should be isinstance of ProtocolEffectNode"
+        assert isinstance(mock, ProtocolEffectNode), (
+            "Mock should be isinstance of ProtocolEffectNode"
+        )
 
         # Should also satisfy ProtocolNode due to inheritance
-        assert isinstance(
-            mock, ProtocolNode
-        ), "Mock satisfying ProtocolEffectNode should also satisfy ProtocolNode"
+        assert isinstance(mock, ProtocolNode), (
+            "Mock satisfying ProtocolEffectNode should also satisfy ProtocolNode"
+        )
 
     def test_all_node_protocols_share_base_attributes(self) -> None:
         """Validate all node protocol variants share ProtocolNode base attributes.
@@ -2761,9 +2763,9 @@ class TestProtocolInheritanceChains:
 
         for name, protocol in node_protocols:
             for attr in base_attributes:
-                assert hasattr(
-                    protocol, attr
-                ), f"{name} missing base attribute '{attr}' from ProtocolNode"
+                assert hasattr(protocol, attr), (
+                    f"{name} missing base attribute '{attr}' from ProtocolNode"
+                )
 
     def test_protocol_hierarchy_mro_consistency(self) -> None:
         """Validate MRO (Method Resolution Order) is consistent across node protocols.
@@ -2787,6 +2789,6 @@ class TestProtocolInheritanceChains:
         ]
 
         for name, protocol in child_protocols:
-            assert (
-                ProtocolNode in protocol.__mro__
-            ), f"{name} should have ProtocolNode in its MRO for proper inheritance"
+            assert ProtocolNode in protocol.__mro__, (
+                f"{name} should have ProtocolNode in its MRO for proper inheritance"
+            )
