@@ -8,10 +8,10 @@ This module must NOT import from omnibase_core, omnibase_infra, or omniclaude.
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 
-class MeasurementCheck(str, Enum):
+class MeasurementCheck(StrEnum):
     """Stable measurement check identifiers.
 
     Organized by prefix CHECK-MEAS-xxx for measurement-domain checks.

@@ -12,7 +12,7 @@ from omnibase_spi.protocols.container import ProtocolContainer
 T = TypeVar("T", covariant=True)
 
 
-class ServiceResolutionContainer(Generic[T]):
+class ServiceResolutionContainer(Generic[T]):  # noqa: UP046
     """
     Container for service resolution results with metadata.
 
@@ -59,7 +59,7 @@ class ServiceResolutionContainer(Generic[T]):
         return self._metadata.get(key, default)
 
 
-class EventPayloadContainer(Generic[T]):
+class EventPayloadContainer(Generic[T]):  # noqa: UP046
     """
     Container for event payloads with routing metadata.
 

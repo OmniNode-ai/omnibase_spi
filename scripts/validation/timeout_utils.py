@@ -247,7 +247,7 @@ def create_cleanup_function(files_to_cleanup: list[Path]) -> Callable[[], None]:
     return cleanup
 
 
-def safe_file_operation(
+def safe_file_operation(  # noqa: UP047
     file_path: Path,
     operation: Callable[[Path], T],
     timeout_seconds: int = 30,

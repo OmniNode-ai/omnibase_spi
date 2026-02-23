@@ -5,7 +5,7 @@ Provides cache service protocols that can be implemented by different
 cache backends (in-memory, Redis, etc.) and injected via ONEXContainer.
 """
 
-from typing import TYPE_CHECKING, Generic, Protocol, TypeVar, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, TypeVar, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_spi.protocols.types.protocol_core_types import (
@@ -17,7 +17,7 @@ T = TypeVar("T")
 
 
 @runtime_checkable
-class ProtocolCacheService(Protocol, Generic[T]):
+class ProtocolCacheService[T](Protocol):
     """
     Protocol for cache service operations.
 
@@ -57,7 +57,7 @@ class ProtocolCacheService(Protocol, Generic[T]):
 
 
 @runtime_checkable
-class ProtocolCacheServiceProvider(Protocol, Generic[T]):
+class ProtocolCacheServiceProvider[T](Protocol):
     """
     Protocol for cache service provider.
 

@@ -42,7 +42,7 @@ Related:
 
 from __future__ import annotations
 
-from typing import Protocol, runtime_checkable
+from typing import ClassVar, Protocol, runtime_checkable
 
 from omnibase_spi.contracts.projections.contract_projection_result import (
     ContractProjectionResult,
@@ -142,6 +142,8 @@ class ProtocolNodeProjectionEffect(ProtocolEffect, Protocol):
         omnibase_core.models.projection.model_projection_intent.ModelProjectionIntent:
             The canonical intent model for projection effects (OMN-2460).
     """
+
+    synchronous_execution: ClassVar[bool]
 
     def execute(self, intent: object) -> ContractProjectionResult:
         """Write a projection to the persistence layer synchronously.

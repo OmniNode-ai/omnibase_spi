@@ -64,7 +64,7 @@ See Also:
 
 from __future__ import annotations
 
-from typing import Generic, Protocol, TypeVar, runtime_checkable
+from typing import Protocol, TypeVar, runtime_checkable
 
 __all__ = ["ProtocolRegistryBase"]
 
@@ -74,7 +74,7 @@ V = TypeVar("V")  # Value type
 
 
 @runtime_checkable
-class ProtocolRegistryBase(Protocol, Generic[K, V]):
+class ProtocolRegistryBase[K, V](Protocol):
     """
     Generic protocol for key-value registry implementations.
 

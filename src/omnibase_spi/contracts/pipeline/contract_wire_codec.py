@@ -41,7 +41,7 @@ def to_json(model: BaseModel, *, indent: int = 2) -> str:
     return json.dumps(raw, sort_keys=True, indent=indent, ensure_ascii=False)
 
 
-def from_json(json_str: str, model_class: type[T]) -> T:
+def from_json[T: BaseModel](json_str: str, model_class: type[T]) -> T:
     """Deserialize a contract model from JSON.
 
     Unknown fields are tolerated (extra='allow' on models).
@@ -85,7 +85,7 @@ def to_yaml(model: BaseModel) -> str:
     )
 
 
-def from_yaml(yaml_str: str, model_class: type[T]) -> T:
+def from_yaml[T: BaseModel](yaml_str: str, model_class: type[T]) -> T:
     """Deserialize a contract model from YAML.
 
     Unknown fields are tolerated (extra='allow' on models).

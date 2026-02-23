@@ -8,10 +8,10 @@ This module must NOT import from omnibase_core, omnibase_infra, or omniclaude.
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 
-class ContractEnumResultClassification(str, Enum):
+class ContractEnumResultClassification(StrEnum):
     """Canonical result categories for phase outcomes.
 
     Members:
