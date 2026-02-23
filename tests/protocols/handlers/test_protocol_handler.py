@@ -464,9 +464,9 @@ class TestProtocolHandlerHealthCheckReturnContract:
         result = await handler.health_check()
 
         if "latency_ms" in result:
-            assert isinstance(
-                result["latency_ms"], (int, float)
-            ), f"latency_ms should be numeric, got {type(result['latency_ms'])}"
+            assert isinstance(result["latency_ms"], (int, float)), (
+                f"latency_ms should be numeric, got {type(result['latency_ms'])}"
+            )
 
     @pytest.mark.asyncio
     async def test_health_check_last_error_is_string_when_present(self) -> None:
@@ -475,9 +475,9 @@ class TestProtocolHandlerHealthCheckReturnContract:
         result = await handler.health_check()
 
         if "last_error" in result:
-            assert isinstance(
-                result["last_error"], str
-            ), f"last_error should be string, got {type(result['last_error'])}"
+            assert isinstance(result["last_error"], str), (
+                f"last_error should be string, got {type(result['last_error'])}"
+            )
 
     @pytest.mark.asyncio
     async def test_health_check_details_is_dict_when_present(self) -> None:
@@ -486,9 +486,9 @@ class TestProtocolHandlerHealthCheckReturnContract:
         result = await handler.health_check()
 
         if "details" in result:
-            assert isinstance(
-                result["details"], dict
-            ), f"details should be dict, got {type(result['details'])}"
+            assert isinstance(result["details"], dict), (
+                f"details should be dict, got {type(result['details'])}"
+            )
 
 
 class UnhealthyHandler(CompliantHandler):
@@ -582,9 +582,9 @@ class TestProtocolHandlerHealthCheckUnhealthyContract:
         # Check that error message doesn't contain typical credential patterns
         forbidden_patterns = ["password=", "api_key=", "secret=", "token=", "://user:"]
         for pattern in forbidden_patterns:
-            assert (
-                pattern.lower() not in error_msg.lower()
-            ), f"Credential pattern '{pattern}' found in error message"
+            assert pattern.lower() not in error_msg.lower(), (
+                f"Credential pattern '{pattern}' found in error message"
+            )
 
 
 class TestProtocolHandlerSanitizationDetection:
@@ -691,9 +691,9 @@ class TestProtocolHandlerSanitizationDetection:
             pattern in details_str for pattern in connection_patterns
         )
 
-        assert (
-            detected or details_detected
-        ), "UnsanitizedHandler should contain connection string credentials"
+        assert detected or details_detected, (
+            "UnsanitizedHandler should contain connection string credentials"
+        )
 
     @pytest.mark.asyncio
     async def test_api_key_in_url_detected(self) -> None:
@@ -704,9 +704,9 @@ class TestProtocolHandlerSanitizationDetection:
         details = result.get("details", {})
         details_str = str(details).lower()
 
-        assert (
-            "api_key=" in details_str
-        ), "UnsanitizedHandler details should contain api_key pattern"
+        assert "api_key=" in details_str, (
+            "UnsanitizedHandler details should contain api_key pattern"
+        )
 
     @pytest.mark.asyncio
     async def test_sensitive_file_paths_detected(self) -> None:
@@ -737,9 +737,9 @@ class TestProtocolHandlerSanitizationDetection:
             indicator in stack_trace for indicator in internal_path_indicators
         )
 
-        assert (
-            detected
-        ), "UnsanitizedStackTraceHandler should contain internal paths in stack trace"
+        assert detected, (
+            "UnsanitizedStackTraceHandler should contain internal paths in stack trace"
+        )
 
     @pytest.mark.asyncio
     async def test_config_path_exposure_detected(self) -> None:
@@ -781,9 +781,9 @@ class TestProtocolHandlerSanitizationDetection:
         patterns_found = self._check_for_credential_patterns(all_text)
 
         # UnsanitizedHandler should have multiple credential patterns
-        assert (
-            len(patterns_found) >= 2
-        ), f"Expected multiple credential patterns, found: {patterns_found}"
+        assert len(patterns_found) >= 2, (
+            f"Expected multiple credential patterns, found: {patterns_found}"
+        )
 
     @pytest.mark.asyncio
     async def test_nested_details_are_checked(self) -> None:

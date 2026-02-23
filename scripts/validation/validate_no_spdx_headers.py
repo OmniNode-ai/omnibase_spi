@@ -82,7 +82,9 @@ def check_file(filepath: Path) -> list[tuple[int, str, str]]:
                 lines.append(line)
     except (OSError, UnicodeDecodeError) as e:
         # Skip files that can't be read (will be caught by other tools)
-        print(f"Warning: Could not read {filepath}: {e}", file=sys.stderr)  # print-ok: CLI output
+        print(
+            f"Warning: Could not read {filepath}: {e}", file=sys.stderr
+        )  # print-ok: CLI output
         return violations
 
     # Check for bypass comment in the header
@@ -169,7 +171,9 @@ def main() -> int:
         elif not path.exists():
             # Only warn for explicit paths, not defaults
             if args.paths:
-                print(f"Warning: Path does not exist: {path}", file=sys.stderr)  # print-ok: CLI output
+                print(
+                    f"Warning: Path does not exist: {path}", file=sys.stderr
+                )  # print-ok: CLI output
 
     if not files_to_check:
         if args.verbose:
@@ -188,7 +192,9 @@ def main() -> int:
         print("ONEX SPDX Header Prevention Failed")  # print-ok: CLI output
         print(f"{'=' * 70}\n")  # print-ok: CLI output
 
-        print(f"Found {len(all_violations)} SPDX header(s) that must be removed:\n")  # print-ok: CLI output
+        print(
+            f"Found {len(all_violations)} SPDX header(s) that must be removed:\n"
+        )  # print-ok: CLI output
 
         for filepath, line_num, pattern_type, line_content in all_violations:
             print(f"  {filepath}:{line_num}")  # print-ok: CLI output
@@ -199,18 +205,30 @@ def main() -> int:
 
         print("-" * 70)  # print-ok: CLI output
         print("\nWhy SPDX headers are not allowed:")  # print-ok: CLI output
-        print("  - ONEX uses a centralized LICENSE file as the single source of truth")  # print-ok: CLI output
-        print("  - Per-file headers add boilerplate without additional legal value")  # print-ok: CLI output
+        print(
+            "  - ONEX uses a centralized LICENSE file as the single source of truth"
+        )  # print-ok: CLI output
+        print(
+            "  - Per-file headers add boilerplate without additional legal value"
+        )  # print-ok: CLI output
         print("\nTo fix:")  # print-ok: CLI output
-        print("  1. Remove the SPDX header lines from the affected file(s)")  # print-ok: CLI output
-        print("  2. Ensure the file starts with a module docstring (PEP 257)")  # print-ok: CLI output
-        print("\nFor rare legitimate exceptions, add this comment in the first 10 lines:")  # print-ok: CLI output
+        print(
+            "  1. Remove the SPDX header lines from the affected file(s)"
+        )  # print-ok: CLI output
+        print(
+            "  2. Ensure the file starts with a module docstring (PEP 257)"
+        )  # print-ok: CLI output
+        print(
+            "\nFor rare legitimate exceptions, add this comment in the first 10 lines:"
+        )  # print-ok: CLI output
         print("  # spdx-ok: <reason for exception>")  # print-ok: CLI output
 
         return 1
 
     if args.verbose:
-        print(f"Checked {len(files_to_check)} files - no SPDX headers found")  # print-ok: CLI output
+        print(
+            f"Checked {len(files_to_check)} files - no SPDX headers found"
+        )  # print-ok: CLI output
 
     return 0
 

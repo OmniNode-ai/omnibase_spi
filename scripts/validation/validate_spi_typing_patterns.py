@@ -58,6 +58,9 @@ class SPITypingValidator(ast.NodeVisitor):
         self.has_type_checking_import: bool = (
             False  # Track TYPE_CHECKING import at module level
         )
+        # Set to True when visiting a class that declares synchronous_execution.
+        # Exempts all methods in that class from the async-by-default check (SPI-T003).
+        self.current_class_synchronous: bool = False
 
     def visit_Import(self, node: ast.Import) -> None:
         """Track imports for validation context."""
@@ -87,6 +90,9 @@ class SPITypingValidator(ast.NodeVisitor):
             self.protocol_classes_in_file.add(node.name)  # Track protocol in this file
             self.current_protocol = node.name
             self.in_protocol_class = True
+            self.current_class_synchronous = self._class_declares_synchronous_execution(
+                node
+            )
             self._validate_protocol_class_typing(node)
 
         self.generic_visit(node)
@@ -94,6 +100,7 @@ class SPITypingValidator(ast.NodeVisitor):
         if is_protocol:
             self.in_protocol_class = False
             self.current_protocol = ""
+            self.current_class_synchronous = False
 
     def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
         """Validate function typing patterns."""
@@ -318,10 +325,35 @@ class SPITypingValidator(ast.NodeVisitor):
                     )
                 )
 
+    def _class_declares_synchronous_execution(self, node: ast.ClassDef) -> bool:
+        """Return True if the class body declares ``synchronous_execution``.
+
+        Matches both annotation-only declarations (``synchronous_execution:
+        ClassVar[bool]``) and annotated assignments.  The presence of the name
+        is sufficient — the validator does not evaluate the value.
+        """
+        for item in node.body:
+            if isinstance(item, ast.AnnAssign) and isinstance(item.target, ast.Name):
+                if item.target.id == "synchronous_execution":
+                    return True
+            elif isinstance(item, ast.Assign):
+                for target in item.targets:
+                    if (
+                        isinstance(target, ast.Name)
+                        and target.id == "synchronous_execution"
+                    ):
+                        return True
+        return False
+
     def _should_be_async_method(self, node: ast.FunctionDef, return_type: str) -> bool:
         """Check if method should be async based on patterns."""
         # Skip @property methods - they should never be async
         if self._has_property_decorator(node):
+            return False
+
+        # If the enclosing class declares synchronous_execution, all its methods
+        # are intentionally synchronous — skip the async-by-default check.
+        if self.current_class_synchronous:
             return False
 
         # Synchronous method exceptions - these are sync by design in protocol definitions

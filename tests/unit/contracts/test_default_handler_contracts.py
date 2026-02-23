@@ -499,9 +499,9 @@ class TestTemplateYamlStructure:
     def test_yaml_no_tabs(self, template_path: Path) -> None:
         """Test that templates use spaces, not tabs."""
         content = template_path.read_text(encoding="utf-8")
-        assert (
-            "\t" not in content
-        ), f"Template {template_path.name} should not have tabs"
+        assert "\t" not in content, (
+            f"Template {template_path.name} should not have tabs"
+        )
 
     def test_yaml_no_trailing_whitespace_on_content_lines(
         self, template_path: Path

@@ -86,9 +86,9 @@ class TestSchemaVersionPresent:
     def test_schema_version_field(self, py_file: pathlib.Path) -> None:
         """Each contract file should contain 'schema_version' as a field."""
         source = py_file.read_text()
-        assert (
-            "schema_version" in source
-        ), f"{py_file.relative_to(CONTRACTS_ROOT)} is missing schema_version field"
+        assert "schema_version" in source, (
+            f"{py_file.relative_to(CONTRACTS_ROOT)} is missing schema_version field"
+        )
 
 
 @pytest.mark.unit
@@ -114,9 +114,9 @@ class TestFrozenConfig:
             or "'frozen': True" in source
             or "frozen=True" in source
         )
-        assert (
-            has_frozen
-        ), f"{py_file.relative_to(CONTRACTS_ROOT)} is missing frozen=True config"
+        assert has_frozen, (
+            f"{py_file.relative_to(CONTRACTS_ROOT)} is missing frozen=True config"
+        )
 
 
 @pytest.mark.unit
@@ -146,9 +146,9 @@ class TestExtraAllow:
     def test_extra_allow(self, py_file: pathlib.Path) -> None:
         """Each non-measurement contract file should have extra='allow' in model_config."""
         source = py_file.read_text()
-        assert (
-            '"extra": "allow"' in source or "'extra': 'allow'" in source
-        ), f"{py_file.relative_to(CONTRACTS_ROOT)} is missing extra='allow' config"
+        assert '"extra": "allow"' in source or "'extra': 'allow'" in source, (
+            f"{py_file.relative_to(CONTRACTS_ROOT)} is missing extra='allow' config"
+        )
 
     @pytest.mark.parametrize(
         "py_file",
@@ -174,9 +174,9 @@ class TestExtraAllow:
             or 'extra="forbid"' in source
         )
         has_extensions = "extensions:" in source or "extensions :" in source
-        assert (
-            has_forbid
-        ), f"{py_file.relative_to(CONTRACTS_ROOT)} is missing extra='forbid' config"
-        assert (
-            has_extensions
-        ), f"{py_file.relative_to(CONTRACTS_ROOT)} is missing extensions field"
+        assert has_forbid, (
+            f"{py_file.relative_to(CONTRACTS_ROOT)} is missing extra='forbid' config"
+        )
+        assert has_extensions, (
+            f"{py_file.relative_to(CONTRACTS_ROOT)} is missing extensions field"
+        )

@@ -206,10 +206,11 @@ from omnibase_spi.protocols.discovery import (
     ProtocolHandlerInfo,
 )
 
-# Effects protocols (1 protocol) - Primitive effect execution for kernel
+# Effects protocols (2 protocols) - Synchronous and async effect execution
 from omnibase_spi.protocols.effects import (
     LiteralEffectCategory,
     LiteralEffectId,
+    ProtocolEffect,
     ProtocolPrimitiveEffectExecutor,
 )
 
@@ -607,6 +608,7 @@ __all__ = [
     "ProtocolPackageVerifier",
     "ProtocolPatternExtractor",
     "ProtocolPerformanceMetricsCollector",
+    "ProtocolEffect",
     "ProtocolPersistResult",
     "ProtocolPrimitiveEffectExecutor",
     "ProtocolProjectionReader",

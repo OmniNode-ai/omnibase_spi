@@ -632,9 +632,9 @@ class TestProtocolRegistryBaseThreadSafetyDocumentation:
     def test_register_method_thread_safety_documented(self) -> None:
         """Verify register method documents thread safety."""
         register_doc = ProtocolRegistryBase.register.__doc__ or ""
-        assert (
-            "thread" in register_doc.lower()
-        ), "register should document thread safety"
+        assert "thread" in register_doc.lower(), (
+            "register should document thread safety"
+        )
 
     def test_get_method_thread_safety_documented(self) -> None:
         """Verify get method documents thread safety."""
@@ -644,9 +644,9 @@ class TestProtocolRegistryBaseThreadSafetyDocumentation:
     def test_unregister_method_thread_safety_documented(self) -> None:
         """Verify unregister method documents thread safety."""
         unregister_doc = ProtocolRegistryBase.unregister.__doc__ or ""
-        assert (
-            "thread" in unregister_doc.lower()
-        ), "unregister should document thread safety"
+        assert "thread" in unregister_doc.lower(), (
+            "unregister should document thread safety"
+        )
 
     def test_list_keys_thread_safety_documented(self) -> None:
         """Verify list_keys method documents thread safety."""

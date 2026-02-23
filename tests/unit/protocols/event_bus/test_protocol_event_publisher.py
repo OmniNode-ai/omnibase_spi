@@ -30,6 +30,7 @@ class TestProtocolEventPublisherSignature:
 
     def test_protocol_is_runtime_checkable(self) -> None:
         """ProtocolEventPublisher should be decorated with @runtime_checkable."""
+
         # Create a mock class that implements ALL the protocol's methods
         # isinstance() only works with @runtime_checkable protocols
         class _MockPublisher:
@@ -118,7 +119,9 @@ class TestProtocolEventPublisherSignature:
 
         partition_key_param = sig.parameters["partition_key"]
         # Verify it has a default value (meaning it's optional)
-        assert partition_key_param.default is None, "partition_key should default to None"
+        assert partition_key_param.default is None, (
+            "partition_key should default to None"
+        )
 
     def test_publish_partition_key_allows_str_or_none(self) -> None:
         """publish partition_key parameter should accept str | None."""
