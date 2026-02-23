@@ -1306,6 +1306,7 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
             "list_handler_descriptors",  # In-memory handler listing, not I/O
             "is_registered",  # In-memory check
             "register",  # In-memory registration
+            "execute",  # Sync in ProtocolEffect / ProtocolNodeProjectionEffect (OMN-2508) — synchronous ordering guarantee
         ]
 
         # Skip if this is a known synchronous method
