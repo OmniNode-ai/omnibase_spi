@@ -75,8 +75,12 @@ class ContractProjectionResult(BaseModel):
         ``success=False`` is reserved for semantically valid non-writes.
     """
 
-    model_config = {"frozen": True, "extra": "ignore", "from_attributes": True}
+    model_config = {"frozen": True, "extra": "allow", "from_attributes": True}
 
+    schema_version: str = Field(
+        default="1.0",
+        description="Wire-format version for forward compatibility.",
+    )
     success: bool = Field(
         ...,
         description=(

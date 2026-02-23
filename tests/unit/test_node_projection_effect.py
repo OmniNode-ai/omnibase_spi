@@ -123,15 +123,14 @@ class TestContractProjectionResult:
         with pytest.raises((ValidationError, TypeError)):
             result.success = False  # type: ignore[misc]
 
-    def test_extra_fields_ignored(self) -> None:
-        """Extra fields are silently ignored (extra='ignore')."""
+    def test_extra_fields_allowed(self) -> None:
+        """Extra fields are accepted for forward compatibility (extra='allow')."""
         result = ContractProjectionResult(
             success=True,
             artifact_ref="ref-999",
-            unexpected_field="should be ignored",  # type: ignore[call-arg]
+            unexpected_field="should be allowed",  # type: ignore[call-arg]
         )
         assert result.success is True
-        assert not hasattr(result, "unexpected_field")
 
     def test_success_field_is_required(self) -> None:
         """Omitting success raises a ValidationError."""
@@ -153,10 +152,10 @@ class TestContractProjectionResult:
         config = ContractProjectionResult.model_config
         assert config.get("frozen") is True
 
-    def test_model_config_extra_ignore(self) -> None:
-        """model_config has extra='ignore'."""
+    def test_model_config_extra_allow(self) -> None:
+        """model_config has extra='allow' for forward compatibility."""
         config = ContractProjectionResult.model_config
-        assert config.get("extra") == "ignore"
+        assert config.get("extra") == "allow"
 
     def test_from_attributes(self) -> None:
         """model_config has from_attributes=True."""
