@@ -118,6 +118,12 @@ _LAZY_PROTOCOL_MAP = {
     # Validation protocols
     "ProtocolValidator": "omnibase_spi.protocols.validation.protocol_validation",
     "ProtocolValidationResult": "omnibase_spi.protocols.validation.protocol_validation",
+    # Effect protocols
+    "ProtocolEffect": "omnibase_spi.protocols.effects.protocol_effect",
+    # Projection effect node
+    "ProtocolNodeProjectionEffect": "omnibase_spi.effects.node_projection_effect",
+    # Projection result contract
+    "ContractProjectionResult": "omnibase_spi.contracts.projections.contract_projection_result",
 }
 
 # Cache for loaded protocols to avoid repeated imports
@@ -314,12 +320,21 @@ if TYPE_CHECKING:
     # During type checking or testing, provide the actual imports
     # This ensures type checkers and tests work correctly while maintaining lazy loading at runtime
 
+    from omnibase_spi.contracts.projections.contract_projection_result import (
+        ContractProjectionResult as ContractProjectionResult,
+    )
+    from omnibase_spi.effects.node_projection_effect import (
+        ProtocolNodeProjectionEffect as ProtocolNodeProjectionEffect,
+    )
     from omnibase_spi.protocols.container import (
         ProtocolArtifactContainer as ProtocolArtifactContainer,
         ProtocolCacheService as ProtocolCacheService,
         ProtocolServiceRegistry as ProtocolServiceRegistry,
     )
     from omnibase_spi.protocols.core import ProtocolLogger as ProtocolLogger
+    from omnibase_spi.protocols.effects.protocol_effect import (
+        ProtocolEffect as ProtocolEffect,
+    )
     from omnibase_spi.protocols.event_bus import (
         ProtocolEventBusProvider as ProtocolEventBusProvider,
     )

@@ -3,7 +3,9 @@
 Defines helpers for schema version comparison and compatibility
 checking.  The policy is:
 
-- Unknown fields are always tolerated (``extra = "allow"``).
+- Unknown fields on ``SchemaVersion`` itself are silently ignored
+  (``extra = "ignore"``); the model is a simple parsed value type and
+  accepting arbitrary extra fields would be misleading.
 - Minor version increments are backward-compatible.
 - Major version increments may break compatibility.
 
@@ -12,11 +14,10 @@ This module must NOT import from omnibase_core, omnibase_infra, or omniclaude.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from pydantic import BaseModel
 
 
-@dataclass(frozen=True)
-class SchemaVersion:
+class SchemaVersion(BaseModel):
     """Parsed schema version with comparison support.
 
     Attributes:
@@ -24,6 +25,10 @@ class SchemaVersion:
         minor: Minor version number.
         raw: Original version string.
     """
+
+    # Pydantic BaseModel: migration from frozen dataclass verified — field assignment
+    # syntax is identical; round-trip through model_validate() tested in test suite.
+    model_config = {"frozen": True, "extra": "ignore", "from_attributes": True}
 
     major: int
     minor: int

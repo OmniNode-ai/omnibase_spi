@@ -24,6 +24,8 @@ Design Constraints:
 
 Related:
     - ``ProtocolPrimitiveEffectExecutor``: async primitive effect kernel
+    - OMN-2508: NodeProjectionEffect as synchronous ProtocolEffect
+    - OMN-2460: ModelProjectionIntent (canonical input model)
 """
 
 from __future__ import annotations
@@ -51,14 +53,21 @@ class ProtocolEffect(Protocol):
     Variance:
         The ``intent`` parameter is typed as ``object`` at the protocol level
         to keep the SPI domain-agnostic.  Concrete implementations narrow the
-        type to the specific intent model they require.
+        type to the specific intent model they require (e.g.
+        ``ModelProjectionIntent``).
+
+    Attributes:
+        synchronous_execution: Contract flag declaring that all methods on
+            this protocol are intentionally synchronous.  Set to ``True`` on
+            concrete implementations so the SPI validator can exempt the class
+            from the async-by-default rule (SPI005).
 
     Example::
 
         class MyEffect:
             synchronous_execution: ClassVar[bool] = True
 
-            def execute(self, intent: object) -> bool:
+            def execute(self, intent: object) -> object:
                 # Perform side effect synchronously
                 return db.insert(intent)
 
@@ -71,10 +80,10 @@ class ProtocolEffect(Protocol):
     # maintaining a static sync_exceptions list.
     synchronous_execution: ClassVar[bool]
 
-    def execute(self, intent: object) -> bool:
+    def execute(self, intent: object) -> object:
         """Execute the effect synchronously.
 
-        Performs the side-effecting operation and returns a success indicator.
+        Performs the side-effecting operation and returns a result.
         The caller blocks until this method returns.
 
         Args:
@@ -84,8 +93,11 @@ class ProtocolEffect(Protocol):
                 and validate accordingly.
 
         Returns:
-            ``True`` when the effect completed successfully, ``False`` for a
-            valid no-op (e.g. an idempotent skip).
+            An implementation-defined result object.  Implementations MAY
+            return a typed result (e.g. ``ContractProjectionResult``) or a
+            plain ``bool``.  Callers should not assume truthiness; they SHOULD
+            rely on the raise-on-failure contract and treat any non-raised
+            return as success.
 
         Raises:
             RuntimeError: When the side-effecting operation fails.
@@ -95,7 +107,13 @@ class ProtocolEffect(Protocol):
 
         Note:
             This method MUST be synchronous.  If the underlying storage is
-            async, bridge via ``asyncio.run()`` inside the implementation.
+            async, bridge via ``asyncio.run()`` inside the implementation —
+            BUT only when the caller is itself synchronous.  If called from
+            within an already-running event loop (e.g. FastAPI, pytest-asyncio,
+            Jupyter), ``asyncio.run()`` will raise
+            ``RuntimeError: This event loop is already running``.  In those
+            contexts, use ``anyio.from_thread.run_sync`` or restructure the
+            storage layer to expose a synchronous path.
             Never expose ``async def execute()`` -- that would violate the
             ordering contract.
         """

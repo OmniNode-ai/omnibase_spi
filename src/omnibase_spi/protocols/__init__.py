@@ -206,7 +206,9 @@ from omnibase_spi.protocols.discovery import (
     ProtocolHandlerInfo,
 )
 
-# Effects protocols (2 protocols) - Synchronous and async effect execution
+# Effects protocols (2 protocols) - Effect execution for kernel
+# ProtocolEffect: synchronous effect boundary (ordering guarantee)
+# ProtocolPrimitiveEffectExecutor: async primitive effects (kernel dispatch)
 from omnibase_spi.protocols.effects import (
     LiteralEffectCategory,
     LiteralEffectId,
@@ -512,6 +514,7 @@ __all__ = [
     "ProtocolDependencyGraph",
     "ProtocolDetectionMatch",
     "ProtocolDistributedTracing",
+    "ProtocolEffect",
     "ProtocolEffectContractCompiler",
     "ProtocolEffectNode",
     "ProtocolEnvelope",
