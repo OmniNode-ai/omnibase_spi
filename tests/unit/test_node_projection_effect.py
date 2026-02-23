@@ -14,7 +14,7 @@ Validates:
 from __future__ import annotations
 
 import inspect
-from typing import Any
+from typing import Any, ClassVar
 
 import pytest
 from pydantic import ValidationError
@@ -34,6 +34,8 @@ from omnibase_spi.protocols.effects.protocol_effect import ProtocolEffect
 class _SuccessEffect:
     """Minimal compliant ProtocolNodeProjectionEffect — always succeeds."""
 
+    synchronous_execution: ClassVar[bool] = True
+
     def execute(self, intent: object) -> ContractProjectionResult:
         """Write projection and return success result."""
         return ContractProjectionResult(success=True, artifact_ref="ref-001")
@@ -41,6 +43,8 @@ class _SuccessEffect:
 
 class _NoOpEffect:
     """Compliant effect that returns success=False for an idempotent skip."""
+
+    synchronous_execution: ClassVar[bool] = True
 
     def execute(self, intent: object) -> ContractProjectionResult:
         """Return no-op result without raising."""
@@ -54,6 +58,8 @@ class _NoOpEffect:
 class _FailingEffect:
     """Compliant effect that raises ProjectorError on failure."""
 
+    synchronous_execution: ClassVar[bool] = True
+
     def execute(self, intent: object) -> ContractProjectionResult:
         """Raise ProjectorError on infrastructure failure."""
         raise ProjectorError(
@@ -64,6 +70,8 @@ class _FailingEffect:
 
 class _AsyncEffect:
     """NON-compliant — uses async execute(), violates synchronous contract."""
+
+    synchronous_execution: ClassVar[bool] = True
 
     async def execute(  # type: ignore[override]
         self, intent: object
@@ -239,8 +247,13 @@ class TestProtocolNodeProjectionEffectProtocol:
             ProtocolNodeProjectionEffect()  # type: ignore[misc]
 
     def test_is_subprotocol_of_protocol_effect(self) -> None:
-        """ProtocolNodeProjectionEffect must extend ProtocolEffect."""
-        assert issubclass(ProtocolNodeProjectionEffect, ProtocolEffect)
+        """ProtocolNodeProjectionEffect must extend ProtocolEffect.
+
+        Note: Python 3.12+ raises TypeError for issubclass() against
+        @runtime_checkable Protocols that declare non-method members (ClassVar).
+        We verify the inheritance relationship via __mro__ instead.
+        """
+        assert ProtocolEffect in ProtocolNodeProjectionEffect.__mro__
 
     def test_compliant_class_passes_isinstance(self) -> None:
         """A class with a synchronous execute() satisfies ProtocolNodeProjectionEffect."""

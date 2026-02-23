@@ -128,6 +128,13 @@ class ProtocolNodeProjectionEffect(ProtocolEffect, Protocol):
         # Registration-time check
         assert isinstance(PostgresProjectionEffect(pool), ProtocolNodeProjectionEffect)
 
+    Attributes:
+        synchronous_execution: Inherited contract flag from ``ProtocolEffect``
+            that declares all methods on this protocol are intentionally
+            synchronous.  Concrete implementations MUST set this to ``True``
+            to satisfy the ``isinstance`` check against ``ProtocolEffect`` and
+            to exempt the class from the SPI005 async-by-default rule.
+
     See Also:
         - ``ProtocolEffect``: the parent synchronous effect protocol.
         - ``ContractProjectionResult``: the return contract.

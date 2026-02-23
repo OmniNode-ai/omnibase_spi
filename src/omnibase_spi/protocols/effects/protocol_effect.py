@@ -59,6 +59,12 @@ class ProtocolEffect(Protocol):
         type to the specific intent model they require (e.g.
         ``ModelProjectionIntent``).
 
+    Attributes:
+        synchronous_execution: Contract flag declaring that all methods on
+            this protocol are intentionally synchronous.  Set to ``True`` on
+            concrete implementations so the SPI validator can exempt the class
+            from the async-by-default rule (SPI005).
+
     Example::
 
         class MyEffect:
