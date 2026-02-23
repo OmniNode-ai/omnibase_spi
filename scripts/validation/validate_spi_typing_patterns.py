@@ -365,7 +365,6 @@ class SPITypingValidator(ast.NodeVisitor):
             "list_handler_descriptors",  # Sync in ProtocolHandlerSource (protocol_handler_source.py)
             "get_available_capability_ids",  # Sync in ProtocolProviderRegistry (protocol_provider_registry.py)
             "get_supported_effects",  # Sync in ProtocolPrimitiveEffectExecutor (protocol_primitive_effect_executor.py)
-            "execute",  # Sync in ProtocolEffect / ProtocolNodeProjectionEffect (OMN-2508) — synchronous ordering guarantee
         ]
 
         if node.name in sync_exceptions:

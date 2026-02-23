@@ -3,7 +3,9 @@
 Defines helpers for schema version comparison and compatibility
 checking.  The policy is:
 
-- Unknown fields are always tolerated (``extra = "allow"``).
+- Unknown fields on ``SchemaVersion`` itself are silently ignored
+  (``extra = "ignore"``); the model is a simple parsed value type and
+  accepting arbitrary extra fields would be misleading.
 - Minor version increments are backward-compatible.
 - Major version increments may break compatibility.
 

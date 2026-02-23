@@ -75,6 +75,9 @@ class ContractProjectionResult(BaseModel):
         ``success=False`` is reserved for semantically valid non-writes.
     """
 
+    # extra="allow": Forward-compat policy — unknown fields from newer upstream
+    # versions are accepted and accessible via __pydantic_extra__ without breaking
+    # existing consumers. Callers MUST NOT rely on extra fields for control flow.
     model_config = {"frozen": True, "extra": "allow", "from_attributes": True}
 
     schema_version: str = Field(

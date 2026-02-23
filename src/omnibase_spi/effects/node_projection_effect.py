@@ -172,8 +172,15 @@ class ProtocolNodeProjectionEffect(ProtocolEffect, Protocol):
             ValueError: When ``intent`` is structurally invalid.
 
         Note:
-            The method signature MUST remain ``def execute(...)`` — never
-            ``async def execute(...)``.  Async storage layers must be
-            bridged internally.
+            This method MUST be synchronous.  If the underlying storage is
+            async, bridge via ``asyncio.run()`` inside the implementation —
+            BUT only when the caller is itself synchronous.  If called from
+            within an already-running event loop (e.g. FastAPI, pytest-asyncio,
+            Jupyter), ``asyncio.run()`` will raise
+            ``RuntimeError: This event loop is already running``.  In those
+            contexts, use ``anyio.from_thread.run_sync`` or restructure the
+            storage layer to expose a synchronous path.
+            Never expose ``async def execute()`` — that would violate the
+            ordering contract.
         """
         ...
