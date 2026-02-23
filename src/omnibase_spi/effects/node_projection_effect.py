@@ -72,7 +72,9 @@ class ProtocolNodeProjectionEffect(ProtocolEffect, Protocol):
 
         .. code-block:: python
 
-            # Correct — synchronous bridge
+            # Using asyncio.run() — only safe when the caller is NOT inside a running event loop.
+            # In async contexts (FastAPI, pytest-asyncio, Jupyter), use anyio.from_thread.run_sync
+            # instead. See the Note section in protocol_effect.py for full guidance.
             def execute(self, intent: ModelProjectionIntent) -> ContractProjectionResult:
                 return asyncio.run(self._async_write(intent))
 
@@ -137,6 +139,8 @@ class ProtocolNodeProjectionEffect(ProtocolEffect, Protocol):
         - ``ProtocolEffect``: the parent synchronous effect protocol.
         - ``ContractProjectionResult``: the return contract.
         - ``ProjectorError``: the exception to raise on failure.
+        omnibase_core.models.projection.model_projection_intent.ModelProjectionIntent:
+            The canonical intent model for projection effects (OMN-2460).
     """
 
     def execute(self, intent: object) -> ContractProjectionResult:
