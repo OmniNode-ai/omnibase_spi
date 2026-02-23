@@ -68,8 +68,7 @@ class ContractGitHubPRStatusEvent(BaseModel):
     repo: str = Field(
         ...,
         description=(
-            "Repository in '{owner}/{name}' format "
-            "(e.g. 'OmniNode-ai/omniclaude')."
+            "Repository in '{owner}/{name}' format (e.g. 'OmniNode-ai/omniclaude')."
         ),
     )
     pr_number: int = Field(

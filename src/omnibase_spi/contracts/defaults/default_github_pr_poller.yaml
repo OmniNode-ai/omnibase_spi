@@ -13,9 +13,7 @@ contract_version:
   minor: 0
   patch: 0
 description: >
-  Polls GitHub for pull-request triage state and publishes
-  ContractGitHubPRStatusEvent instances to onex.evt.github.pr-status.v1.
-
+  Polls GitHub for pull-request triage state and publishes ContractGitHubPRStatusEvent instances to onex.evt.github.pr-status.v1. #magic___^_^___line
 descriptor:
   node_archetype: effect
   purity: side_effecting

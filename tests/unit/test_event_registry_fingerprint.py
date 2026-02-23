@@ -65,9 +65,7 @@ class TestEventRegistryCompleteness:
         """EVENT_REGISTRY must contain all three required event types."""
         registered = set(EVENT_REGISTRY.keys())
         missing = REQUIRED_EVENT_TYPES - registered
-        assert not missing, (
-            f"EVENT_REGISTRY is missing required event types: {missing}"
-        )
+        assert not missing, f"EVENT_REGISTRY is missing required event types: {missing}"
 
     def test_registry_values_are_event_registry_entries(self) -> None:
         """Every value in EVENT_REGISTRY must be an EventRegistryEntry."""
