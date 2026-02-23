@@ -390,9 +390,9 @@ class TestProtocolProjectorLoaderProtocol:
         mock = MockProjectorLoader()
 
         for member in self.EXPECTED_PROTOCOL_MEMBERS:
-            assert hasattr(
-                mock, member
-            ), f"MockProjectorLoader missing protocol member: {member}"
+            assert hasattr(mock, member), (
+                f"MockProjectorLoader missing protocol member: {member}"
+            )
 
     def test_protocol_is_runtime_checkable(self) -> None:
         """ProtocolProjectorLoader should be runtime_checkable."""
@@ -1229,20 +1229,20 @@ class TestProtocolProjectorLoaderExports:
         from omnibase_spi.protocols import projectors
 
         assert hasattr(projectors, "__all__"), "projectors package should have __all__"
-        assert (
-            "ProtocolProjectorLoader" in projectors.__all__
-        ), "ProtocolProjectorLoader should be in projectors.__all__"
+        assert "ProtocolProjectorLoader" in projectors.__all__, (
+            "ProtocolProjectorLoader should be in projectors.__all__"
+        )
 
     def test_protocol_in_module_all(self) -> None:
         """ProtocolProjectorLoader should be listed in module __all__."""
         from omnibase_spi.protocols.projectors import protocol_projector_loader
 
-        assert hasattr(
-            protocol_projector_loader, "__all__"
-        ), "protocol_projector_loader module should have __all__"
-        assert (
-            "ProtocolProjectorLoader" in protocol_projector_loader.__all__
-        ), "ProtocolProjectorLoader should be in protocol_projector_loader.__all__"
+        assert hasattr(protocol_projector_loader, "__all__"), (
+            "protocol_projector_loader module should have __all__"
+        )
+        assert "ProtocolProjectorLoader" in protocol_projector_loader.__all__, (
+            "ProtocolProjectorLoader should be in protocol_projector_loader.__all__"
+        )
 
     def test_protocol_exported_from_package(self) -> None:
         """ProtocolProjectorLoader should be accessible from projectors package."""
@@ -1261,6 +1261,6 @@ class TestProtocolProjectorLoaderExports:
         from omnibase_spi.protocols import projectors
 
         for symbol_name in projectors.__all__:
-            assert hasattr(
-                projectors, symbol_name
-            ), f"Symbol '{symbol_name}' listed in __all__ but not in package"
+            assert hasattr(projectors, symbol_name), (
+                f"Symbol '{symbol_name}' listed in __all__ but not in package"
+            )

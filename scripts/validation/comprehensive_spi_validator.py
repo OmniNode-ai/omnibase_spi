@@ -799,7 +799,9 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
         # (with or without a value), the validator treats all methods in that
         # class as intentionally synchronous, bypassing the async-by-default
         # check (SPI005).  This replaces the old static sync_exceptions list.
-        self.current_class_synchronous = self._class_declares_synchronous_execution(node)
+        self.current_class_synchronous = self._class_declares_synchronous_execution(
+            node
+        )
 
         # Check @runtime_checkable decorator
         has_runtime_checkable = any(
@@ -1301,7 +1303,10 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
                     return True
             elif isinstance(item, ast.Assign):
                 for target in item.targets:
-                    if isinstance(target, ast.Name) and target.id == "synchronous_execution":
+                    if (
+                        isinstance(target, ast.Name)
+                        and target.id == "synchronous_execution"
+                    ):
                         return True
         return False
 
@@ -2133,7 +2138,7 @@ class ReportGenerator:
         with_async = sum(1 for p in report.protocols if p.async_methods)
 
         print(
-            f"   @runtime_checkable: {runtime_checkable}/{len(report.protocols)} ({runtime_checkable/len(report.protocols)*100:.1f}%)"
+            f"   @runtime_checkable: {runtime_checkable}/{len(report.protocols)} ({runtime_checkable / len(report.protocols) * 100:.1f}%)"
         )
         print(f"   With __init__ methods: {with_init} (should be 0)")
         print(f"   With async methods: {with_async}")

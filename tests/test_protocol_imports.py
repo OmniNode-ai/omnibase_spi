@@ -118,6 +118,6 @@ except Exception as e:
     # Check that the subprocess succeeded
     assert result.returncode == 0, f"Clean import failed: {result.stderr}"
     assert "SUCCESS" in result.stdout, f"Success message not found: {result.stdout}"
-    assert (
-        "LiteralLogLevel type available: True" in result.stdout
-    ), "LiteralLogLevel not properly imported"
+    assert "LiteralLogLevel type available: True" in result.stdout, (
+        "LiteralLogLevel not properly imported"
+    )

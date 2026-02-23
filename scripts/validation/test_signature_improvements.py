@@ -87,9 +87,9 @@ def test_workflow_value_protocols():
             if len(names) > 1:
                 print(f"   Signature {sig}: {', '.join(names)}")
 
-    assert len(signatures) == len(
-        unique_signatures
-    ), "Duplicate signatures detected for workflow value protocols"
+    assert len(signatures) == len(unique_signatures), (
+        "Duplicate signatures detected for workflow value protocols"
+    )
 
 
 def test_stamp_validation_options():
@@ -127,9 +127,9 @@ def test_stamp_validation_options():
                 f"   {diff['component']}: {diff['protocol1_value']} vs {diff['protocol2_value']}"
             )
 
-    assert not comparison[
-        "are_duplicates"
-    ], "StampOptions and ValidationOptions should not be duplicates"
+    assert not comparison["are_duplicates"], (
+        "StampOptions and ValidationOptions should not be duplicates"
+    )
 
 
 def test_memory_request_protocols():
@@ -164,9 +164,9 @@ def test_memory_request_protocols():
     print("\n📊 COMPARISON RESULT:")
     print(f"   Are duplicates: {'❌ YES' if comparison['are_duplicates'] else '✅ NO'}")
 
-    assert not comparison[
-        "are_duplicates"
-    ], "Memory request protocols should not be duplicates"
+    assert not comparison["are_duplicates"], (
+        "Memory request protocols should not be duplicates"
+    )
 
 
 def test_performance_impact():
@@ -253,7 +253,7 @@ def main():
 
     print("\n📈 OVERALL RESULTS:")
     print(f"   Tests passed: {passed}/{total}")
-    print(f"   Success rate: {(passed/total)*100:.1f}%")
+    print(f"   Success rate: {(passed / total) * 100:.1f}%")
 
     if passed == total:
         print("   🎉 ALL TESTS PASSED - Signature improvements working correctly!")

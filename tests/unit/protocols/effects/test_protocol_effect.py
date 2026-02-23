@@ -22,7 +22,9 @@ import pytest
 from omnibase_spi.protocols.effects.protocol_effect import ProtocolEffect
 
 # Path to the validation scripts directory
-_SCRIPTS_DIR = Path(__file__).parent.parent.parent.parent.parent / "scripts" / "validation"
+_SCRIPTS_DIR = (
+    Path(__file__).parent.parent.parent.parent.parent / "scripts" / "validation"
+)
 
 
 # ---------------------------------------------------------------------------
@@ -293,7 +295,9 @@ class TestComprehensiveValidatorSPI005Suppression:
             tree = ast.parse(source)
             validator.visit(tree)
 
-            spi005_violations = [v for v in validator.violations if v.rule_id == "SPI005"]
+            spi005_violations = [
+                v for v in validator.violations if v.rule_id == "SPI005"
+            ]
             assert spi005_violations == [], (
                 f"Expected no SPI005 violations for synchronous_execution-flagged class, "
                 f"but got: {[v.message for v in spi005_violations]}"
@@ -330,7 +334,9 @@ class TestComprehensiveValidatorSPI005Suppression:
             tree = ast.parse(source)
             validator.visit(tree)
 
-            spi005_violations = [v for v in validator.violations if v.rule_id == "SPI005"]
+            spi005_violations = [
+                v for v in validator.violations if v.rule_id == "SPI005"
+            ]
             assert len(spi005_violations) >= 1, (
                 "Expected at least one SPI005 violation for unflagged synchronous execute()"
             )

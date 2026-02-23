@@ -673,9 +673,9 @@ class TestProtocolEventBusBaseHealthCheckReturnContract:
         """health_check() 'healthy' value must be boolean."""
         result = await mock_event_bus.health_check()
 
-        assert isinstance(
-            result["healthy"], bool
-        ), f"'healthy' should be bool, got {type(result['healthy'])}"
+        assert isinstance(result["healthy"], bool), (
+            f"'healthy' should be bool, got {type(result['healthy'])}"
+        )
 
     @pytest.mark.asyncio
     async def test_health_check_latency_ms_is_numeric_when_present(
@@ -685,9 +685,9 @@ class TestProtocolEventBusBaseHealthCheckReturnContract:
         result = await mock_event_bus.health_check()
 
         if "latency_ms" in result:
-            assert isinstance(
-                result["latency_ms"], (int, float)
-            ), f"latency_ms should be numeric, got {type(result['latency_ms'])}"
+            assert isinstance(result["latency_ms"], (int, float)), (
+                f"latency_ms should be numeric, got {type(result['latency_ms'])}"
+            )
 
     @pytest.mark.asyncio
     async def test_health_check_last_error_is_string_when_present(
@@ -697,9 +697,9 @@ class TestProtocolEventBusBaseHealthCheckReturnContract:
         result = await mock_event_bus.health_check()
 
         if "last_error" in result:
-            assert isinstance(
-                result["last_error"], str
-            ), f"last_error should be string, got {type(result['last_error'])}"
+            assert isinstance(result["last_error"], str), (
+                f"last_error should be string, got {type(result['last_error'])}"
+            )
 
     @pytest.mark.asyncio
     async def test_health_check_details_is_dict_when_present(
@@ -709,9 +709,9 @@ class TestProtocolEventBusBaseHealthCheckReturnContract:
         result = await mock_event_bus.health_check()
 
         if "details" in result:
-            assert isinstance(
-                result["details"], dict
-            ), f"details should be dict, got {type(result['details'])}"
+            assert isinstance(result["details"], dict), (
+                f"details should be dict, got {type(result['details'])}"
+            )
 
 
 class UnhealthyMockEventBus(MockEventBus):
@@ -778,9 +778,9 @@ class TestProtocolEventBusBaseHealthCheckUnhealthyContract:
         # Check that error message doesn't contain typical credential patterns
         forbidden_patterns = ["password=", "api_key=", "secret=", "token=", "://user:"]
         for pattern in forbidden_patterns:
-            assert (
-                pattern.lower() not in error_msg.lower()
-            ), f"Credential pattern '{pattern}' found in error message"
+            assert pattern.lower() not in error_msg.lower(), (
+                f"Credential pattern '{pattern}' found in error message"
+            )
 
     @pytest.mark.asyncio
     async def test_unhealthy_bus_includes_latency_ms(self) -> None:

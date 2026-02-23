@@ -90,7 +90,9 @@ class SPITypingValidator(ast.NodeVisitor):
             self.protocol_classes_in_file.add(node.name)  # Track protocol in this file
             self.current_protocol = node.name
             self.in_protocol_class = True
-            self.current_class_synchronous = self._class_declares_synchronous_execution(node)
+            self.current_class_synchronous = self._class_declares_synchronous_execution(
+                node
+            )
             self._validate_protocol_class_typing(node)
 
         self.generic_visit(node)
@@ -336,7 +338,10 @@ class SPITypingValidator(ast.NodeVisitor):
                     return True
             elif isinstance(item, ast.Assign):
                 for target in item.targets:
-                    if isinstance(target, ast.Name) and target.id == "synchronous_execution":
+                    if (
+                        isinstance(target, ast.Name)
+                        and target.id == "synchronous_execution"
+                    ):
                         return True
         return False
 

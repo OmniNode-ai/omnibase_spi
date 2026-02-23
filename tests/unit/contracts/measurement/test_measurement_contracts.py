@@ -54,7 +54,6 @@ from omnibase_spi.contracts.measurement.enum_result_classification import (
     ContractEnumResultClassification,
 )
 
-
 # ---------------------------------------------------------------------------
 # Enum stability tests
 # ---------------------------------------------------------------------------
@@ -752,9 +751,7 @@ class TestContractPromotionGate:
         assert gate.baseline_key == ""
 
     def test_create_with_context_derived_key(self) -> None:
-        ctx = ContractMeasurementContext(
-            ticket_id="OMN-2024", repo_id="omnibase_spi"
-        )
+        ctx = ContractMeasurementContext(ticket_id="OMN-2024", repo_id="omnibase_spi")
         gate = ContractPromotionGate(
             run_id="run-001",
             context=ctx,
@@ -967,21 +964,7 @@ class TestMeasurementModuleImports:
 
     def test_import_from_measurement_init(self) -> None:
         from omnibase_spi.contracts.measurement import (
-            ContractAggregatedRun,
-            ContractArtifactPointerMeasurement,
-            ContractCostMetrics,
-            ContractDimensionEvidence,
-            ContractDurationMetrics,
             ContractEnumPipelinePhase,
-            ContractEnumResultClassification,
-            ContractMeasuredAttribution,
-            ContractMeasurementContext,
-            ContractMeasurementEvent,
-            ContractOutcomeMetrics,
-            ContractPhaseMetrics,
-            ContractProducer,
-            ContractPromotionGate,
-            ContractTestMetrics,
             MeasurementCheck,
         )
 
@@ -991,12 +974,7 @@ class TestMeasurementModuleImports:
 
     def test_import_from_contracts_init(self) -> None:
         from omnibase_spi.contracts import (
-            ContractAggregatedRun,
             ContractEnumPipelinePhase,
-            ContractMeasurementContext,
-            ContractPhaseMetrics,
-            ContractProducer,
-            ContractPromotionGate,
             MeasurementCheck,
         )
 
@@ -1014,9 +992,7 @@ class TestDictRoundTrip:
     """Test model_dump / model_validate round-trips via plain dicts."""
 
     def test_context_dict_round_trip(self) -> None:
-        ctx = ContractMeasurementContext(
-            ticket_id="OMN-2024", repo_id="omnibase_spi"
-        )
+        ctx = ContractMeasurementContext(ticket_id="OMN-2024", repo_id="omnibase_spi")
         d = ctx.model_dump()
         assert isinstance(d, dict)
         ctx2 = ContractMeasurementContext.model_validate(d)
