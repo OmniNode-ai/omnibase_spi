@@ -186,7 +186,9 @@ class TestContractProjectionResult:
         r2 = ContractProjectionResult(success=True, artifact_ref="y")
         assert r1 != r2
 
-    def test_contract_projection_result_strict_validate_catches_type_error(self) -> None:
+    def test_contract_projection_result_strict_validate_catches_type_error(
+        self,
+    ) -> None:
         """model_validate with strict=True raises on wrong field types.
 
         Pydantic strict=True enforces type coercion strictness: passing a string
