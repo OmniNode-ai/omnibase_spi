@@ -120,10 +120,12 @@ _LAZY_PROTOCOL_MAP = {
     "ProtocolValidationResult": "omnibase_spi.protocols.validation.protocol_validation",
     # Effect protocols
     "ProtocolEffect": "omnibase_spi.protocols.effects.protocol_effect",
-    # Projection effect node
+    # Projection effect node (protocol)
     "ProtocolNodeProjectionEffect": "omnibase_spi.effects.node_projection_effect",
     # Projection result contract
     "ContractProjectionResult": "omnibase_spi.contracts.projections.contract_projection_result",
+    # Projection view protocol (OMN-2382)
+    "ProtocolProjectionView": "omnibase_spi.protocols.projections.protocol_projection_view",
 }
 
 # Cache for loaded protocols to avoid repeated imports
@@ -347,6 +349,9 @@ if TYPE_CHECKING:
         ProtocolMCPToolProxy as ProtocolMCPToolProxy,
     )
     from omnibase_spi.protocols.node import ProtocolNodeRegistry as ProtocolNodeRegistry
+    from omnibase_spi.protocols.projections.protocol_projection_view import (
+        ProtocolProjectionView as ProtocolProjectionView,
+    )
     from omnibase_spi.protocols.validation import (
         ProtocolValidationResult as ProtocolValidationResult,
         ProtocolValidator as ProtocolValidator,
