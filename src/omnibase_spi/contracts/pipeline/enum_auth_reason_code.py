@@ -8,10 +8,10 @@ This module must NOT import from omnibase_core, omnibase_infra, or omniclaude.
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 
-class AuthReasonCode(str, Enum):
+class AuthReasonCode(StrEnum):
     """Authorization decision reason codes.
 
     Used to explain why an authorization decision was made in

@@ -12,7 +12,7 @@ Key Features:
     - Framework-agnostic container abstraction
 """
 
-from typing import TYPE_CHECKING, Generic, Protocol, TypeVar, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, TypeVar, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_core.types import JsonType
@@ -21,7 +21,7 @@ T = TypeVar("T", covariant=True)
 
 
 @runtime_checkable
-class ProtocolContainer(Protocol, Generic[T]):
+class ProtocolContainer[T](Protocol):
     """
     Protocol for generic value containers with metadata.
 

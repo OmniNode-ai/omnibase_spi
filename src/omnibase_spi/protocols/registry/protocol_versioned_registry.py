@@ -111,7 +111,7 @@ See Also:
 
 from __future__ import annotations
 
-from typing import Generic, Protocol, TypeVar, runtime_checkable
+from typing import Protocol, TypeVar, runtime_checkable
 
 # Type variables for generic versioned registry
 K = TypeVar("K")  # Key type (must be hashable in implementations)
@@ -121,7 +121,7 @@ __all__ = ["ProtocolVersionedRegistry"]
 
 
 @runtime_checkable
-class ProtocolVersionedRegistry(Protocol, Generic[K, V]):
+class ProtocolVersionedRegistry[K, V](Protocol):
     """
     Protocol for versioned key-value registry implementations.
 

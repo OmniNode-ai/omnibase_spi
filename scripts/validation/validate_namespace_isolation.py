@@ -312,8 +312,8 @@ def is_contract_file(file_path: Path) -> bool:
 
     Contract files (contracts/shared/, contracts/pipeline/, contracts/validation/,
     contracts/measurement/, contracts/delegation/, contracts/enrichment/,
-    contracts/projections/) are intentionally allowed to define Pydantic BaseModel
-    subclasses as frozen, data-only wire-format models.
+    contracts/projections/, contracts/events/) are intentionally allowed to define
+    Pydantic BaseModel subclasses as frozen, data-only wire-format models.
     They must NOT import from omnibase_core, omnibase_infra, or omniclaude
     (enforced separately by NSI001 and unit tests).
     """
@@ -321,7 +321,7 @@ def is_contract_file(file_path: Path) -> bool:
     # Match paths like .../contracts/shared/..., .../contracts/pipeline/...,
     # .../contracts/validation/..., .../contracts/measurement/...,
     # .../contracts/delegation/..., .../contracts/enrichment/...,
-    # .../contracts/projections/...
+    # .../contracts/projections/..., .../contracts/events/...
     return "contracts" in parts and any(
         d in parts
         for d in (
@@ -332,6 +332,7 @@ def is_contract_file(file_path: Path) -> bool:
             "delegation",
             "enrichment",
             "projections",
+            "events",  # OMN-2655: event wire-format contracts
         )
     )
 

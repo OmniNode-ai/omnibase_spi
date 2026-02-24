@@ -5,13 +5,13 @@ Defines the minimal interface that mixins need from ModelEventEnvelope
 to break circular import dependencies.
 """
 
-from typing import Generic, Protocol, TypeVar, runtime_checkable
+from typing import Protocol, TypeVar, runtime_checkable
 
 T = TypeVar("T", covariant=True)
 
 
 @runtime_checkable
-class ProtocolEventEnvelope(Protocol, Generic[T]):
+class ProtocolEventEnvelope[T](Protocol):
     """
     Protocol defining the minimal interface for event envelopes.
 

@@ -1,0 +1,60 @@
+# Default Handler Contract — GitHub PR Poller Effect
+#
+# Handler contract for ProtocolGitHubPRPollerEffect implementations.
+# Polls GitHub pull-request triage state and publishes to:
+#   onex.evt.github.pr-status.v1
+#
+# OMN-2655
+
+handler_id: "onex.effect.github.pr-poller.default"
+name: "GitHub PR Poller Effect"
+contract_version:
+  major: 1
+  minor: 0
+  patch: 0
+description: >
+  Polls GitHub for pull-request triage state and publishes ContractGitHubPRStatusEvent instances to onex.evt.github.pr-status.v1. #magic___^_^___line
+descriptor:
+  node_archetype: effect
+  purity: side_effecting
+  idempotent: true # Re-polling the same PR returns the same triage state
+  timeout_ms: 15000 # 15 second timeout per poll batch
+  retry_policy:
+    enabled: true
+    max_retries: 3
+    backoff_strategy: exponential
+    base_delay_ms: 500
+    max_delay_ms: 10000
+  concurrency_policy: concurrent # Independent PRs can be polled in parallel
+  circuit_breaker:
+    enabled: true
+    failure_threshold: 5
+    timeout_ms: 60000 # 1-minute circuit open window (GitHub rate limits)
+    half_open_requests: 2
+
+# Capability inputs
+capability_inputs:
+  - "github.api.read" # GitHub REST/GraphQL read access
+
+# Output capabilities
+capability_outputs:
+  - "event.github.pr-status"
+
+# Model references
+input_model: "omnibase_spi.contracts.events.contract_github_pr_status_event.ContractGitHubPRStatusEvent"
+output_model: "omnibase_spi.contracts.events.contract_github_pr_status_event.ContractGitHubPRStatusEvent"
+
+# Target topic
+topic: "onex.evt.github.pr-status.v1"
+schema_version: "1.0"
+partition_key_fields:
+  - repo
+  - pr_number
+
+# Execution constraints
+execution_constraints:
+  requires_before: []
+  requires_after: []
+  must_run: false
+  can_run_parallel: true
+  nondeterministic_effect: false # Same inputs → same triage state at a point in time

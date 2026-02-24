@@ -305,7 +305,7 @@ T_WorkflowValue = TypeVar("T_WorkflowValue", str, int, float, bool)
 
 
 @runtime_checkable
-class ProtocolTypedWorkflowData(Generic[T_WorkflowValue], Protocol):
+class ProtocolTypedWorkflowData(Generic[T_WorkflowValue], Protocol):  # noqa: UP046
     """
     Generic protocol for strongly typed workflow data values with type safety.
 

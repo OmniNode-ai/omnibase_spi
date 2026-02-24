@@ -8,14 +8,14 @@ Validates that ProtocolContainer:
 - Follows SPI purity rules
 """
 
-from typing import Any, Generic, TypeVar
+from typing import Any, TypeVar
 
 from omnibase_spi.protocols.container import ProtocolContainer
 
 T = TypeVar("T")
 
 
-class ConcreteContainer(Generic[T]):
+class ConcreteContainer[T]:
     """Concrete implementation of ProtocolContainer for testing."""
 
     def __init__(self, value: T, metadata: dict[str, Any] | None = None):

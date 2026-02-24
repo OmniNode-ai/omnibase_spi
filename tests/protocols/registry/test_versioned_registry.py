@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import asyncio
 import re
-from typing import Generic, TypeVar
+from typing import TypeVar
 
 import pytest
 
@@ -26,7 +26,7 @@ V = TypeVar("V")
 # suitable for testing and serving as an example for implementers.
 
 
-class ReferenceVersionedRegistry(Generic[K, V]):
+class ReferenceVersionedRegistry[K, V]:
     """
     Reference implementation of ProtocolVersionedRegistry for testing.
 
