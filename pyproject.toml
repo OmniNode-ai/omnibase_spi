@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "omnibase_spi"
-version = "0.12.0"
+version = "0.13.0"
 description = "ONEX Service Provider Interface - Protocol definitions"
 authors = [{name = "OmniNode Team", email = "team@omninode.ai"}]
 license = {text = "MIT"}

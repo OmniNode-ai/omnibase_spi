@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-02-25
+
+### Added
+
+#### ProtocolProjectionView SPI Contract for NodeProjectionEffect Pattern (OMN-2382) #91
+- **`ProtocolProjectionView`**: New `@runtime_checkable` SPI contract in `protocols/projections/` defining the view-layer interface for the `NodeProjectionEffect` pattern — supports `render(artifact_ref: str) -> object` with forward-compatible `extra="allow"` semantics
+
+#### Event Registry, SPI Contracts, and Producer Protocols (OMN-2655) #90
+- **Event registry**: New `registry/` module in `omnibase_spi` providing a typed event registry for cross-boundary event-type discovery
+- **Event SPI contracts**: Frozen wire-format contracts in `contracts/events/` for event envelope, routing metadata, and emission results
+- **Producer protocols**: `ProtocolEventProducer` and `ProtocolEventEmitter` in `protocols/event_bus/` defining the SPI boundary for event emission with structured error returns
+
+### Changed
+
+- Bumped version to 0.13.0
+
 ## [0.12.0] - 2026-02-23
 
 ### Added

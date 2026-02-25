@@ -1,6 +1,3 @@
-# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
-# SPDX-License-Identifier: MIT
-
 """
 Unit tests for the NodeProjectionEffect pattern (OMN-2382).
 
@@ -30,14 +27,14 @@ from __future__ import annotations
 import asyncio
 import concurrent.futures
 from typing import ClassVar
-from unittest.mock import AsyncMock
 from uuid import uuid4
 
 import pytest
 from pydantic import BaseModel
 
-from omnibase_core.models.projectors.model_projection_intent import ModelProjectionIntent
-from omnibase_core.models.projectors.model_projection_result import ModelProjectionResult
+from omnibase_core.models.projectors.model_projection_intent import (
+    ModelProjectionIntent,
+)
 from omnibase_spi.contracts.projections.contract_projection_result import (
     ContractProjectionResult,
 )
@@ -46,7 +43,6 @@ from omnibase_spi.exceptions import ProjectorError
 from omnibase_spi.protocols.projections.protocol_projection_view import (
     ProtocolProjectionView,
 )
-
 
 # ---------------------------------------------------------------------------
 # Reference Implementation: NodeProjectionEffect
@@ -171,7 +167,9 @@ class _SuccessView:
     def project_intent(self, intent: ModelProjectionIntent) -> ContractProjectionResult:
         self.call_count += 1
         self.last_intent = intent
-        return ContractProjectionResult(success=True, artifact_ref=f"ref-{intent.projector_key}")
+        return ContractProjectionResult(
+            success=True, artifact_ref=f"ref-{intent.projector_key}"
+        )
 
 
 class _SkippedView:
@@ -486,7 +484,6 @@ class TestProtocolProjectionViewExportSurface:
     def test_importable_from_spi_root(self) -> None:
         """ProtocolProjectionView lazily importable from omnibase_spi root."""
         import omnibase_spi
-
         from omnibase_spi.protocols.projections import ProtocolProjectionView as PPV
 
         assert omnibase_spi.ProtocolProjectionView is PPV
