@@ -126,7 +126,7 @@ jobs:
           uv venv /tmp/test-install --python 3.12
           WHEEL=$(ls dist/*.whl)
           echo "Installing: $WHEEL"
-          /tmp/test-install/bin/pip install "$WHEEL"
+          uv pip install "$WHEEL" --python /tmp/test-install/bin/python
 
           # Verify the package imports correctly
           /tmp/test-install/bin/python -c "
