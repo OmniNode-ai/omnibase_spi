@@ -1,6 +1,3 @@
-# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
-# SPDX-License-Identifier: MIT
-
 """
 ProtocolProjectionView — SPI protocol that ProjectionView implementations conform to.
 
@@ -55,7 +52,6 @@ if TYPE_CHECKING:
     from omnibase_core.models.projectors.model_projection_intent import (
         ModelProjectionIntent,
     )
-
     from omnibase_spi.contracts.projections.contract_projection_result import (
         ContractProjectionResult,
     )
