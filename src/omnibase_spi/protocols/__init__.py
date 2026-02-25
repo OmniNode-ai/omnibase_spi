@@ -250,11 +250,12 @@ from omnibase_spi.protocols.event_bus import (
 # v0.3.0 Factory protocols (1 protocol) - Handler contract factories
 from omnibase_spi.protocols.factories import ProtocolHandlerContractFactory
 
-# File handling protocols (4 protocols) - File processing and ONEX metadata
-# Handles file type detection, processing, and metadata stamping
+# File handling protocols (5 protocols) - File processing, ONEX metadata, rate limiting
+# Handles file type detection, processing, metadata stamping, and rate limiting
 from omnibase_spi.protocols.file_handling import (
     ProtocolFileProcessingTypeHandler,
     ProtocolFileReader,
+    ProtocolRateLimiter,
     ProtocolStampOptions,
     ProtocolValidationOptions,
 )
@@ -618,6 +619,7 @@ __all__ = [
     "ProtocolProjector",
     "ProtocolProjectorLoader",
     "ProtocolProviderRegistry",
+    "ProtocolRateLimiter",
     "ProtocolReducerNode",
     "ProtocolRedpandaAdapter",
     "ProtocolRegistryQueryService",
