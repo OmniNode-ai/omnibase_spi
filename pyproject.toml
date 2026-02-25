@@ -76,6 +76,19 @@ select = [
     "UP",     # pyupgrade
     "ARG",    # flake8-unused-arguments
     "SIM",    # flake8-simplify
+    # Docstring linting [OMN-795] - require docstrings on public APIs
+    "D100",   # missing docstring in public module
+    "D101",   # missing docstring in public class
+    "D201",   # no blank line before docstring
+    "D202",   # no blank line after docstring
+    "D207",   # under-indentation in docstring
+    "D208",   # over-indentation in docstring
+    "D209",   # multi-line docstring closing quotes on separate line
+    "D210",   # no whitespace around docstring text
+    "D211",   # no blank line before class docstring
+    "D300",   # use triple double quotes
+    "D403",   # first word of first line should be capitalized
+    "D419",   # docstring is empty
 ]
 ignore = [
     "E501",   # line too long (handled by formatter)
@@ -96,15 +109,33 @@ ignore = [
     "SIM118",  # key in dict.keys() (explicit in tests)
     "B007",    # unused loop variable (intentional in test iteration)
     "E402",    # import not at top (path manipulation in tests)
+    "D100",    # missing docstring in public module (test modules)
+    "D101",    # missing docstring in public class (test classes)
+    "D103",    # missing docstring in public function (test functions)
+    "D104",    # missing docstring in public package (test packages)
+    "D403",    # first word capitalized (test docstrings use lowercase)
 ]
 "tests/**/*.py" = [
     "ARG002",  # unused method argument (mock implementations)
     "UP038",   # isinstance tuple (readability in tests)
     "SIM118",  # key in dict.keys() (explicit in tests)
     "B007",    # unused loop variable (intentional in test iteration)
+    "D100",    # missing docstring in public module (test modules)
+    "D101",    # missing docstring in public class (test classes)
+    "D103",    # missing docstring in public function (test functions)
+    "D104",    # missing docstring in public package (test packages)
+    "D403",    # first word capitalized (test docstrings use lowercase)
 ]
 "examples/*.py" = [
     "ARG002",  # unused method argument (example stubs)
+    "D100",    # missing docstring in public module (examples)
+    "D103",    # missing docstring in public function (examples)
+]
+"scripts/*.py" = [
+    "D103",    # missing docstring in public function (script helpers)
+]
+"scripts/**/*.py" = [
+    "D103",    # missing docstring in public function (script helpers)
 ]
 "src/omnibase_spi/protocols/__init__.py" = [
     "E402",    # import not at top (organized sections)
