@@ -1,0 +1,161 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint & Format
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+          cache-dependency-glob: '**/uv.lock'
+
+      - name: Install dependencies
+        run: uv sync --group dev
+
+      - name: Ruff check
+        run: uv run ruff check src/ tests/
+
+      - name: Ruff format check
+        run: uv run ruff format --check src/ tests/
+
+  typecheck:
+    name: Type Check (mypy --strict)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+          cache-dependency-glob: '**/uv.lock'
+
+      - name: Install dependencies
+        run: uv sync --group dev
+
+      - name: mypy strict
+        run: uv run mypy src/omnibase_spi --strict
+
+  test:
+    name: Test (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        python-version: ['3.12']
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+          cache-dependency-glob: '**/uv.lock'
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: uv sync --group dev
+
+      - name: Run tests
+        run: uv run pytest tests/ -x -q --tb=short
+
+  build-and-verify:
+    name: Build & Package Verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [lint, typecheck, test]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+          cache-dependency-glob: '**/uv.lock'
+
+      - name: Build wheel and sdist
+        run: uv build
+
+      - name: Verify dist artifacts
+        run: |
+          echo "=== Build artifacts ==="
+          ls -la dist/
+          ls dist/*.whl dist/*.tar.gz || {
+            echo "ERROR: expected wheel + sdist in dist/"
+            exit 1
+          }
+          echo "Build artifacts verified."
+
+      - name: Verify version consistency
+        run: |
+          PKG_VERSION=$(python3 -c "
+          import tomllib
+          with open('pyproject.toml', 'rb') as f:
+              d = tomllib.load(f)
+          print(d['project']['version'])
+          ")
+          echo "pyproject.toml version: $PKG_VERSION"
+
+          # Verify the wheel filename contains the correct version
+          WHEEL=$(ls dist/*.whl)
+          if [[ "$WHEEL" != *"$PKG_VERSION"* ]]; then
+            echo "ERROR: wheel filename does not contain version $PKG_VERSION"
+            echo "Wheel: $WHEEL"
+            exit 1
+          fi
+          echo "Version consistency verified: $PKG_VERSION"
+
+      - name: Install in clean environment and verify import
+        run: |
+          # Create a fresh venv without dev dependencies
+          uv venv /tmp/test-install --python 3.12
+          WHEEL=$(ls dist/*.whl)
+          echo "Installing: $WHEEL"
+          /tmp/test-install/bin/pip install "$WHEEL"
+
+          # Verify the package imports correctly
+          /tmp/test-install/bin/python -c "
+          import omnibase_spi
+          from omnibase_spi.protocols import ProtocolLogger, ProtocolHealthMonitor
+          from omnibase_spi.protocols.types import LiteralLogLevel
+          from omnibase_spi.exceptions import SPIError
+
+          # Verify Protocol classes are real protocols
+          from typing import Protocol
+          assert issubclass(ProtocolLogger, Protocol), 'ProtocolLogger is not a Protocol'
+          assert issubclass(ProtocolHealthMonitor, Protocol), 'ProtocolHealthMonitor is not a Protocol'
+
+          print(f'omnibase_spi imported successfully')
+          print(f'Package location: {omnibase_spi.__file__}')
+          print(f'Protocols verified: ProtocolLogger, ProtocolHealthMonitor')
+          print(f'Types verified: LiteralLogLevel')
+          print(f'Exceptions verified: SPIError')
+          print('Clean environment install: PASSED')
+          "
+
+      - name: Generate checksums
+        run: |
+          cd dist
+          sha256sum *.whl *.tar.gz | tee SHA256SUMS.txt
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ github.sha }}
+          path: dist/
+          retention-days: 7
