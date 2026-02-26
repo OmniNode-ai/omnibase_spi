@@ -14547,6 +14547,85 @@
       "return_type": "None"
     }
   },
+  "ProtocolRateLimiter": {
+    "__eq__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__ge__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__gt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__hash__": {
+      "kind": "method",
+      "parameters": {},
+      "return_type": "<empty>"
+    },
+    "__le__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__lt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "acquire": {
+      "kind": "async_method",
+      "parameters": {
+        "resource": {
+          "type": "str"
+        }
+      },
+      "return_type": "None"
+    },
+    "get_limit": {
+      "kind": "async_method",
+      "parameters": {
+        "resource": {
+          "type": "str"
+        }
+      },
+      "return_type": "int"
+    },
+    "release": {
+      "kind": "async_method",
+      "parameters": {
+        "resource": {
+          "type": "str"
+        }
+      },
+      "return_type": "None"
+    }
+  },
   "ProtocolRedpandaAdapter": {
     "__eq__": {
       "kind": "method",
