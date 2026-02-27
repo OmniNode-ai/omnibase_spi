@@ -10,3 +10,7 @@
 
 # DI service metadata protocol - consumed by omnibase_infra DI container
 ProtocolDIServiceMetadata
+
+# Type alias for ProtocolRegistryServiceInstance (defined in container/__init__.py).
+# Only appears in docstring "See Also" references; no code-level consumers in this repo.
+ProtocolDIServiceInstance

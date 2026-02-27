@@ -26,6 +26,7 @@ Ticket: OMN-794
 from __future__ import annotations
 
 import argparse
+import ast
 import json
 import re
 import sys
@@ -64,7 +65,7 @@ def _extract_all_exports(init_path: Path) -> list[str]:
 
     all_block = match.group(1)
     # Extract quoted strings
-    symbols = re.findall(r'"([^"]+)"', all_block)
+    symbols = re.findall(r'["\']([^"\']+)["\']', all_block)
     return symbols
 
 
@@ -83,9 +84,7 @@ def _load_allowlist(allowlist_path: Path | None) -> set[str]:
     allowed = set(DEFAULT_ALLOWLIST)
     if allowlist_path is not None:
         if not allowlist_path.exists():
-            raise FileNotFoundError(
-                f"Allowlist file not found: {allowlist_path}"
-            )
+            raise FileNotFoundError(f"Allowlist file not found: {allowlist_path}")
         for line in allowlist_path.read_text(encoding="utf-8").splitlines():
             line = line.strip()
             if line and not line.startswith("#"):
@@ -96,9 +95,10 @@ def _load_allowlist(allowlist_path: Path | None) -> set[str]:
 def _find_symbol_consumers(symbol: str, search_dirs: list[Path]) -> list[str]:
     """Find files that reference the given symbol (excluding re-exports).
 
-    Searches for the symbol name in Python files, looking for actual usage
-    patterns (imports, type annotations, isinstance checks) rather than
-    just the defining module.
+    Uses AST-based detection to find actual code usage (imports, type
+    annotations, function calls) rather than text matches that would
+    incorrectly match symbol names in comments, docstrings, or strings.
+    Falls back to regex on files with syntax errors.
 
     Args:
         symbol: The symbol name to search for.
@@ -108,7 +108,7 @@ def _find_symbol_consumers(symbol: str, search_dirs: list[Path]) -> list[str]:
         List of file paths that reference the symbol.
     """
     consumers: list[str] = []
-    # Pattern: word boundary match for the symbol
+    # Fallback pattern for files that fail AST parsing
     pattern = re.compile(rf"\b{re.escape(symbol)}\b")
 
     for search_dir in search_dirs:
@@ -125,7 +125,42 @@ def _find_symbol_consumers(symbol: str, search_dirs: list[Path]) -> list[str]:
             except (OSError, UnicodeDecodeError):
                 continue
 
-            if pattern.search(content):
+            found = False
+            try:
+                tree = ast.parse(content)
+                for node in ast.walk(tree):
+                    if isinstance(node, ast.Name) and node.id == symbol:
+                        found = True
+                        break
+                    if isinstance(node, ast.Attribute) and node.attr == symbol:
+                        found = True
+                        break
+                    if isinstance(node, ast.alias) and (
+                        node.name == symbol or node.asname == symbol
+                    ):
+                        found = True
+                        break
+                    # String annotations: forward references like "ProtocolFoo"
+                    # used in type hints and TYPE_CHECKING blocks.
+                    if (
+                        isinstance(node, ast.Constant)
+                        and isinstance(node.value, str)
+                        and node.value == symbol
+                    ):
+                        found = True
+                        break
+                    # Class definition: the file that defines the protocol
+                    # class is treated as a consumer (consistent with the
+                    # original regex-based behaviour which matched the
+                    # ``class ProtocolFoo(Protocol):`` line).
+                    if isinstance(node, ast.ClassDef) and node.name == symbol:
+                        found = True
+                        break
+            except SyntaxError:
+                # Fall back to regex for files that cannot be parsed
+                found = bool(pattern.search(content))
+
+            if found:
                 rel_path = str(py_file.relative_to(REPO_ROOT))
                 consumers.append(rel_path)
 
