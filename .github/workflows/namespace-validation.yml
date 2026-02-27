@@ -11,7 +11,10 @@ on:
     branches: [main, develop, development]
     paths:
       - 'src/**/*.py'
-      - 'scripts/validation/**'
+      - 'scripts/**'
+      - 'tests/**'
+      - 'pyproject.toml'
+      - '.github/workflows/**'
   merge_group:
   workflow_dispatch:
 

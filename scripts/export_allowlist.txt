@@ -1,0 +1,16 @@
+# Protocol export allowlist
+# Symbols listed here are excluded from the unused export check.
+# These are typically:
+#   - Newly added APIs not yet consumed by downstream repos
+#   - Protocols consumed only by external packages (omnibase_core, omnibase_infra)
+#   - Types referenced in documentation or contract definitions
+#
+# Review periodically and remove entries once consumers exist.
+# Format: one symbol per line, # for comments, blank lines ignored.
+
+# DI service metadata protocol - consumed by omnibase_infra DI container
+ProtocolDIServiceMetadata
+
+# Type alias for ProtocolRegistryServiceInstance (defined in container/__init__.py).
+# Only appears in docstring "See Also" references; no code-level consumers in this repo.
+ProtocolDIServiceInstance
