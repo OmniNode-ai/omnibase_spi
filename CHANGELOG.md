@@ -1,3 +1,17 @@
+## v0.14.0 (2026-02-27)
+
+### Features
+- feat(protocols): export ProtocolRateLimiter and add resilience protocol tests [OMN-796] (#98)
+- feat(ci): add build and package verification workflow [OMN-793]
+
+### Bug Fixes
+- fix(ci): correct merge_queue to merge_group event name
+- fix(ci): add merge_queue trigger to prevent queue deadlock
+- fix(ci): use uv pip install instead of bare pip in build verification
+
+### Other Changes
+_(none)_
+
 # Changelog
 
 All notable changes to the ONEX Service Provider Interface (omnibase_spi) will be documented in this file.
