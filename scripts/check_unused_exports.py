@@ -76,9 +76,16 @@ def _load_allowlist(allowlist_path: Path | None) -> set[str]:
 
     Returns:
         Set of allowed symbol names.
+
+    Raises:
+        FileNotFoundError: If allowlist_path is provided but does not exist.
     """
     allowed = set(DEFAULT_ALLOWLIST)
-    if allowlist_path and allowlist_path.exists():
+    if allowlist_path is not None:
+        if not allowlist_path.exists():
+            raise FileNotFoundError(
+                f"Allowlist file not found: {allowlist_path}"
+            )
         for line in allowlist_path.read_text(encoding="utf-8").splitlines():
             line = line.strip()
             if line and not line.startswith("#"):
