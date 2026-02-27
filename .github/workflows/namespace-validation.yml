@@ -12,6 +12,7 @@ on:
     paths:
       - 'src/**/*.py'
       - 'scripts/validation/**'
+  merge_group:
   workflow_dispatch:
 
 jobs:
