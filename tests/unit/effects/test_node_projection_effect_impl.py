@@ -266,7 +266,8 @@ class TestProtocolProjectionView:
         self,
     ) -> None:
         """Reference NodeProjectionEffect (using ProtocolProjectionView registry) satisfies
-        ProtocolNodeProjectionEffect — the two protocols compose correctly."""
+        ProtocolNodeProjectionEffect — the two protocols compose correctly.
+        """
         registry: dict[str, ProtocolProjectionView] = {
             "node_state_projector": _SuccessView("node_state_projector"),
         }
