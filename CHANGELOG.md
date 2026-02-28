@@ -1,3 +1,19 @@
+## [0.15.0] - 2026-02-28
+
+### Added
+- feat(ci): add auto-tag-on-merge caller workflow (#93)
+- feat(testing): protocol signature snapshot tests for SPI drift detection (#94)
+- feat(lint): enable pydocstyle rules for public API docstrings (#97)
+- feat(tooling): unused protocol export checker (#96)
+
+### Fixed
+_(none)_
+
+### Changed
+- chore(omnibase_spi): add AI-slop checker (Phase 2 rollout) (#104)
+- ci: add tests-gate aggregator job for branch protection (#103)
+- ci: add merge_group trigger to namespace-validation workflow (#102)
+
 ## v0.14.0 (2026-02-27)
 
 ### Features

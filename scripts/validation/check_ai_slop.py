@@ -1,7 +1,4 @@
 #!/usr/bin/env python3
-# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
-# SPDX-License-Identifier: MIT
-
 """
 ONEX AI-Slop Pattern Checker
 
@@ -42,7 +39,6 @@ import ast
 import re
 import sys
 from pathlib import Path
-
 
 # ---------------------------------------------------------------------------
 # Data models

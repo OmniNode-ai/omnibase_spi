@@ -31,7 +31,6 @@ from protocol_signature_hasher import compare_protocol_signatures
 
 def print_comparison_report(comparison: dict) -> None:
     """Print a detailed comparison report."""
-
     if "error" in comparison:
         print(f"❌ Error: {comparison['error']}")
         return
