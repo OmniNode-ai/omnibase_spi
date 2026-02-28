@@ -394,7 +394,6 @@ def find_all_protocols(base_path: Path) -> list[ProtocolInfo]:
 
 def analyze_duplicates(protocols: list[ProtocolInfo]) -> dict[str, Any]:
     """Analyze protocols for duplicates and conflicts with enhanced detection."""
-
     # Group by exact signature hash
     by_signature = defaultdict(list)
     for protocol in protocols:
@@ -633,7 +632,6 @@ def print_duplication_report(
     analysis: dict[str, Any], protocols: list[ProtocolInfo]
 ) -> None:
     """Print comprehensive duplication analysis report."""
-
     print("\n" + "=" * 80)
     print("🔍 SPI PROTOCOL DUPLICATION ANALYSIS")
     print("=" * 80)

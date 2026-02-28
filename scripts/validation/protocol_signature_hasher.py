@@ -74,7 +74,6 @@ class EnhancedProtocolSignatureHasher:
         self, node: ast.ClassDef, file_path: str
     ) -> ProtocolSignatureComponents:
         """Extract all components that make up the protocol signature."""
-
         # Extract protocol name and namespace
         protocol_name = node.name
         namespace = self._get_module_path(file_path)
@@ -286,7 +285,6 @@ class EnhancedProtocolSignatureHasher:
 
     def _compute_signature_hash(self, components: ProtocolSignatureComponents) -> str:
         """Compute the final signature hash from all components."""
-
         # Build comprehensive signature string
         signature_parts = [
             f"name:{components.protocol_name}",
