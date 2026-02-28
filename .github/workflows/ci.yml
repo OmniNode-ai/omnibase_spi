@@ -160,3 +160,20 @@ jobs:
           name: dist-${{ github.sha }}
           path: dist/
           retention-days: 7
+
+  tests-gate:
+    name: Tests Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [test]
+    if: always()
+    steps:
+      - name: Evaluate tests gate
+        run: |
+          RESULT="${{ needs.test.result }}"
+          if [ "${RESULT}" = "success" ]; then
+            echo "Tests Gate PASSED (result=${RESULT})"
+          else
+            echo "Tests Gate FAILED: test result=${RESULT}"
+            exit 1
+          fi
