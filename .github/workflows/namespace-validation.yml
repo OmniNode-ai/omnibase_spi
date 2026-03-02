@@ -163,3 +163,4 @@ jobs:
             echo "ERROR: Version mismatch between pyproject.toml and __init__.py"
             exit 1
           fi
+
