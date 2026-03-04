@@ -1,6 +1,6 @@
 """Protocols for event-to-state projection and projector loading.
 
-This module provides protocols for projectors that consume event streams
+Protocols for projectors that consume event streams
 and materialize state to persistence stores.
 
 Key Protocols:

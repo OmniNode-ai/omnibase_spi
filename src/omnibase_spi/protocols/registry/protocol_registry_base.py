@@ -1,6 +1,6 @@
 """Generic registry protocol for key-value registration management.
 
-This module provides a generic, type-safe protocol for implementing registries
+A generic, type-safe protocol for implementing registries
 that map keys to values. It serves as the foundational interface that specialized
 registries (like ProtocolHandlerRegistry) can extend or implement.
 

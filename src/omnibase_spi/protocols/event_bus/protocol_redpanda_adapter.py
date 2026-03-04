@@ -1,6 +1,6 @@
 """Redpanda Event Bus Adapter Protocol - ONEX SPI Interface.
 
-This module provides protocol definitions for Redpanda backend implementations in the
+Protocol definitions for Redpanda backend implementations in the
 ONEX event bus system. Redpanda is a Kafka API compatible streaming platform built
 in C++ with significantly lower latency and higher throughput than Apache Kafka.
 

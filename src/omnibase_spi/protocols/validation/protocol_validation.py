@@ -1,7 +1,7 @@
 """
 Pure SPI Protocol definitions for validation utilities.
 
-This module contains only Protocol definitions for validation interfaces,
+Only Protocol definitions for validation interfaces,
 following SPI purity principles. Concrete implementations have been moved
 to the utils/omnibase_spi_validation package.
 """

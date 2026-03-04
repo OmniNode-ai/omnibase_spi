@@ -1,7 +1,7 @@
 """
     Enhanced Workflow Reducer Protocol for LlamaIndex integration.
 
-    This module provides the enhanced reducer protocol that supports both
+    The enhanced reducer protocol that supports both
     traditional synchronous state transitions and LlamaIndex workflow-based
     asynchronous orchestration with observable state changes.
 

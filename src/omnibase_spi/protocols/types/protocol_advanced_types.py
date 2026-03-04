@@ -1,7 +1,7 @@
 """
 Advanced processing types for ONEX SPI.
 
-This module provides protocol interfaces for advanced processing operations
+Protocol interfaces for advanced processing operations
 including output formatting, vector indexing, fixture loading, document handling,
 and adaptive chunking operations.
 

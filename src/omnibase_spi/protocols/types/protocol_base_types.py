@@ -3,7 +3,7 @@ Base protocol types for ONEX SPI interfaces.
 
 Domain: Base types, context values, and literal type definitions.
 
-This module contains foundational protocol definitions that other protocol
+Foundational protocol definitions that other protocol
 modules depend on. It includes:
 - ProtocolSemVer for semantic versioning
 - ProtocolDateTime type alias

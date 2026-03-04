@@ -1,6 +1,6 @@
 """Enrichment contracts for context enrichment operations.
 
-This module provides frozen, high-integrity wire-format contracts for
+Frozen, high-integrity wire-format contracts for
 context enrichment results.  All enrichment operations return
 :class:`ContractEnrichmentResult`, providing a uniform output shape
 for downstream measurement and audit pipelines.

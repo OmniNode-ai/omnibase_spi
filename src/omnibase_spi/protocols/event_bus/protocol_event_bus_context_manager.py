@@ -1,6 +1,6 @@
 """Protocol for Event Bus Context Managers.
 
-This module provides async context management protocols for event bus lifecycle
+Async context management protocols for event bus lifecycle
 management in the ONEX SPI layer. It abstracts lifecycle management for event
 bus resources (e.g., Kafka, RedPanda), enabling clean resource acquisition and
 release patterns.

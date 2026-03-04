@@ -1,6 +1,6 @@
 """Measurement contracts for the ONEX measurement pipeline.
 
-This module provides frozen, high-integrity wire-format contracts for
+Frozen, high-integrity wire-format contracts for
 measurement tracking across pipeline phases.  All measurement contracts
 use ``ConfigDict(frozen=True, extra="forbid")`` with an explicit
 ``extensions: dict[str, Any]`` escape hatch, diverging from the SPI

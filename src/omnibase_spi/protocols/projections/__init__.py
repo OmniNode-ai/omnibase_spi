@@ -1,6 +1,6 @@
 """Protocols for projection persistence, state reading, and view dispatch.
 
-This module provides protocols for the projection layer:
+Protocols for the projection layer:
 - Persistence: Projector writes projections with ordering guarantees
 - Reading: Reader queries materialized projection state
 - View Dispatch: ProtocolProjectionView for NodeProjectionEffect registry pattern

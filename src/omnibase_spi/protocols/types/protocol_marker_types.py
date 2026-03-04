@@ -3,7 +3,7 @@ Marker and base protocol types for ONEX SPI interfaces.
 
 Domain: Marker protocols, serialization interfaces, and base capability protocols.
 
-This module contains marker protocols that define minimal interfaces for
+Marker protocols that define minimal interfaces for
 capability detection and type-safe composition. These protocols are used
 throughout ONEX to enable consistent patterns for:
 - Serialization and data export

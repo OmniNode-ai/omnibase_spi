@@ -1,7 +1,7 @@
 """
 Agent and AI types for ONEX SPI.
 
-This module provides protocol interfaces for agent actions, AI execution metrics,
+Protocol interfaces for agent actions, AI execution metrics,
 debug intelligence, and related analytics types.
 """
 

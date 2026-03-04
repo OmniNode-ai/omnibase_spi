@@ -3,7 +3,7 @@ Analytics and performance protocol types for ONEX SPI interfaces.
 
 Domain: Analytics metrics, providers, summaries, and performance monitoring.
 
-This module contains protocol definitions for analytics and performance
+Protocol definitions for analytics and performance
 monitoring in the ONEX platform. It includes:
 - ProtocolAnalyticsMetric for individual metric data points
 - ProtocolAnalyticsProvider for analytics data sources

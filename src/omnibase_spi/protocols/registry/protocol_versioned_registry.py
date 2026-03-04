@@ -1,6 +1,6 @@
 """Versioned registry protocol for managing multiple versions of registered items.
 
-This module provides a protocol for registries that need to track multiple versions
+A protocol for registries that need to track multiple versions
 of the same key. It provides version-aware async operations, enabling semantic
 versioning, version querying, and automatic latest-version resolution.
 

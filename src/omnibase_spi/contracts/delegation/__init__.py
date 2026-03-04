@@ -1,6 +1,6 @@
 """Delegation contracts for the ONEX delegation pipeline.
 
-This module provides frozen, high-integrity wire-format contracts for
+Frozen, high-integrity wire-format contracts for
 delegation handler output.  All delegation handlers MUST return
 :class:`ContractDelegatedResponse`, preventing format fragmentation
 across handlers.

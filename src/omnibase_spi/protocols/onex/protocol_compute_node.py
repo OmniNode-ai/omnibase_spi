@@ -1,7 +1,7 @@
 """Protocol for legacy ONEX compute nodes.
 
 .. deprecated::
-    This module contains the legacy ONEX-specific compute node protocol.
+    The legacy ONEX-specific compute node protocol.
     For new implementations, use the canonical v0.3.0 protocol from
     ``omnibase_spi.protocols.nodes.ProtocolComputeNode`` instead.
 """

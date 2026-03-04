@@ -1,7 +1,7 @@
 """
 Pure SPI Protocol Definitions for Validation.
 
-This module provides Protocol interface definitions for validation utilities,
+Protocol interface definitions for validation utilities,
 following SPI purity principles with proper duck typing for ONEX node validation.
 
 Key Features:
