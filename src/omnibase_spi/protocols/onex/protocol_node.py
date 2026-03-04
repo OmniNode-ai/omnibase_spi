@@ -1,7 +1,7 @@
 """Legacy protocol for ONEX node implementations with dynamic loading support.
 
 .. deprecated:: 0.3.0
-    This module contains the legacy ProtocolOnexNodeLegacy protocol.
+    The legacy ProtocolOnexNodeLegacy protocol.
     For new implementations, use the specialized v0.3.0 node protocols:
     - :class:`omnibase_spi.protocols.nodes.ProtocolComputeNode` for pure transformations
     - :class:`omnibase_spi.protocols.nodes.ProtocolEffectNode` for side-effecting operations

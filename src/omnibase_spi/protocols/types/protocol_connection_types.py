@@ -3,7 +3,7 @@ Connection protocol types for ONEX SPI interfaces.
 
 Domain: Connection configuration and status tracking.
 
-This module contains protocol definitions for managing connections in ONEX:
+Protocol definitions for managing connections in ONEX:
 - ProtocolConnectionConfig for connection configuration parameters
 - ProtocolConnectionStatus for connection state and metrics tracking
 """

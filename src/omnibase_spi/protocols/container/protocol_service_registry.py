@@ -719,7 +719,7 @@ class ProtocolServiceRegistry(Protocol):
         """
         Register a service with default lifecycle (singleton) and scope (global).
 
-        This method provides simplified registration compatible with ProtocolRegistryBase[K, V].
+        Simplified registration compatible with ProtocolRegistryBase[K, V].
         For advanced registration with lifecycle/scope control, use register_service().
 
         Args:
@@ -740,7 +740,7 @@ class ProtocolServiceRegistry(Protocol):
         """
         Resolve and return a service instance.
 
-        This method provides simplified resolution compatible with ProtocolRegistryBase[K, V].
+        Simplified resolution compatible with ProtocolRegistryBase[K, V].
         For advanced resolution with scope/context control, use resolve_service().
 
         Args:

@@ -1,6 +1,6 @@
 """Protocols for observability, metrics, and monitoring.
 
-This module provides protocols for observability infrastructure including
+Protocols for observability infrastructure including
 metrics collection and logging sinks optimized for hot path execution.
 
 Key Protocols:

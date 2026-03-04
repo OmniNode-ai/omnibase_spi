@@ -1,7 +1,7 @@
 """
 MCP (Model Context Protocol) protocols for ONEX SPI.
 
-This module provides protocol definitions for Model Context Protocol tool registration,
+Protocol definitions for Model Context Protocol tool registration,
 coordination, and execution within the ONEX distributed system architecture.
 
 Key Protocols:

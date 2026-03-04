@@ -1,7 +1,7 @@
 """Protocol for ONEX reducer nodes (legacy).
 
 .. deprecated::
-    This module contains the legacy ONEX reducer node protocol.
+    The legacy ONEX reducer node protocol.
     For new implementations, use the canonical v0.3.0 protocol at
     ``omnibase_spi.protocols.nodes.ProtocolReducerNode``.
 

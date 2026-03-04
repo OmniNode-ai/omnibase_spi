@@ -1,7 +1,7 @@
 """
 ONEX SPI workflow orchestration contracts.
 
-This module provides comprehensive SPI contracts for event-driven workflow
+Comprehensive SPI contracts for event-driven workflow
 orchestration including state management, event bus protocols,
 node discovery, and persistence layer contracts.
 

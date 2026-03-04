@@ -1,6 +1,6 @@
 """Contract definitions for omnibase_spi.
 
-This module provides:
+Subpackages:
 - **shared/**: Foundational primitives (ContractCheckResult, ContractVerdict)
 - **pipeline/**: Pipeline wire-format contracts (hook invocation, node ops, auth, RRH)
 - **validation/**: Validation orchestration contracts (plans, runs, results, verdicts)

@@ -3,7 +3,7 @@ State and action protocol types for ONEX SPI interfaces.
 
 Domain: State management, actions, metadata, and system events.
 
-This module contains protocol definitions for state management patterns,
+Protocol definitions for state management patterns,
 action dispatching, metadata handling, and system event processing. These
 protocols support reducer-style state management and event-driven architectures.
 

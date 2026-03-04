@@ -1,7 +1,7 @@
 """Protocol for legacy ONEX orchestrator nodes.
 
 .. deprecated::
-    This module contains the legacy ONEX-specific orchestrator protocol.
+    The legacy ONEX-specific orchestrator protocol.
     For v0.3.0 compliant code, use :class:`omnibase_spi.protocols.nodes.ProtocolOrchestratorNode`
     which provides the canonical node interface with typed execute() methods.
 """

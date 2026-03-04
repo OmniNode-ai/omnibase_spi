@@ -1,7 +1,7 @@
 """Protocol for ONEX effect nodes (legacy).
 
 .. deprecated:: 0.3.0
-    This module contains the legacy ONEX effect node protocol.
+    The legacy ONEX effect node protocol.
     For new implementations, use the canonical v0.3.0 protocol at
     :class:`omnibase_spi.protocols.nodes.ProtocolEffectNode`.
 

@@ -3,7 +3,7 @@ Node protocol types for ONEX SPI interfaces.
 
 Domain: Node configuration, metadata, results, and related data structures.
 
-This module contains protocol definitions for node-related data objects including:
+Protocol definitions for node-related data objects including:
 - ProtocolNodeConfigurationData for node execution parameters and settings
 - ProtocolNodeMetadata for node identification and type classification
 - ProtocolNodeMetadataBlock for comprehensive node metadata blocks

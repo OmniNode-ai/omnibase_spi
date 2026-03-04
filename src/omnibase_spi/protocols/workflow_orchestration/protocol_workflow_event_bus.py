@@ -1,6 +1,6 @@
 """ONEX SPI workflow event bus protocols for distributed orchestration.
 
-This module provides protocols that extend the base event bus with workflow-specific
+Protocols that extend the base event bus with workflow-specific
 messaging patterns, event sourcing, and orchestration coordination capabilities.
 
 Key Protocols:

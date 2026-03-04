@@ -3,7 +3,7 @@ Retry and timeout protocol types for ONEX SPI interfaces.
 
 Domain: Retry configuration, policies, attempts, results, and time-based operations.
 
-This module contains protocol definitions for:
+Protocol definitions for:
 - ProtocolRetryConfig: Retry configuration with backoff strategies
 - ProtocolRetryPolicy: Policy-based retry configuration
 - ProtocolRetryAttempt: Individual retry attempt records

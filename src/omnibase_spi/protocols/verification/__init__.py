@@ -1,6 +1,6 @@
 """Verification protocol interfaces for omnibase_spi.
 
-This module provides protocols for package verification including
+Protocols for package verification including
 integrity checking and signature verification.
 """
 

@@ -3,7 +3,7 @@ Validation and compatibility protocol types for ONEX SPI interfaces.
 
 Domain: Validation, compatibility checking, and model serialization.
 
-This module contains protocols for:
+Protocols for:
 - Object validation (ProtocolValidatable, ProtocolModelValidatable)
 - Version compatibility (ProtocolVersionInfo, ProtocolCompatibilityCheck)
 - Model serialization (ProtocolHasModelDump, ProtocolModelJsonSerializable)

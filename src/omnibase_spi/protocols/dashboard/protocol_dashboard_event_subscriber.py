@@ -1,6 +1,6 @@
 """Dashboard Event Subscriber Protocol - ONEX SPI Interface.
 
-This module provides the protocol definition for dashboard event subscription
+The protocol definition for dashboard event subscription
 in the ONEX platform. It defines the contract for subscribing to real-time
 event streams to enable live dashboard updates and notifications.
 

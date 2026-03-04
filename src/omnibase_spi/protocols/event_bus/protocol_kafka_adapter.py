@@ -1,6 +1,6 @@
 """Kafka Event Bus Adapter Protocol - ONEX SPI Interface.
 
-This module provides protocol definitions for Kafka backend implementations in the
+Protocol definitions for Kafka backend implementations in the
 ONEX event bus system. It defines the contract for Kafka-specific event bus adapters
 including configuration, connection management, and core messaging operations.
 

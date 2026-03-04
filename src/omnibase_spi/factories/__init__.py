@@ -1,6 +1,6 @@
 """Factory protocol interfaces for omnibase_spi.
 
-This module provides factory protocol interfaces for creating
+Factory protocol interfaces for creating
 handler contracts and other SPI objects. The protocols define
 the interface; concrete implementations belong in omnibase_infra.
 
