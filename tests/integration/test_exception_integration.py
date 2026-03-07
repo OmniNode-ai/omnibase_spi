@@ -1,7 +1,6 @@
 """
 Integration tests demonstrating SPI exception usage across multiple components.
 
-This module provides integration tests that show how exceptions flow
 between multiple protocol implementations. These tests validate that
 exception handling works correctly when components interact.
 

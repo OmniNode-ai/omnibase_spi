@@ -1,6 +1,5 @@
 """Tests for ProtocolVersionedRegistry protocol.
 
-This module provides:
 1. Reference implementation (ReferenceVersionedRegistry) for testing
 2. Comprehensive edge case tests for semver validation, version ordering, concurrency
 3. Integration tests for base method delegation

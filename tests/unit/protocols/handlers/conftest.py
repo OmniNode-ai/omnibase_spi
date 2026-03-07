@@ -1,7 +1,6 @@
 """
 Shared test fixtures and helpers for handler protocol tests.
 
-This module provides common mock implementations and factory functions
 used across multiple test files in the handlers test suite.
 """
 

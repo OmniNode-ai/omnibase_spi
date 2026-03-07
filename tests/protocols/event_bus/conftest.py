@@ -1,7 +1,6 @@
 """
 Shared fixtures and mock implementations for EventBus protocol tests.
 
-This module provides common test doubles and pytest fixtures used across
 multiple EventBus test files. Centralizing these reduces code duplication
 and ensures consistent behavior across all EventBus protocol tests.
 

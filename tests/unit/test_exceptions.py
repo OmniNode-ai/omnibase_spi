@@ -1,7 +1,6 @@
 """
 Tests for omnibase_spi.exceptions module.
 
-This module provides comprehensive test coverage for the SPI exception hierarchy,
 ensuring proper initialization, inheritance, and context handling.
 """
 

@@ -1,7 +1,6 @@
 """
 Shared test fixtures and mock implementations for omnibase_spi tests.
 
-This module provides shared mock implementations that are used across both
 unit and integration tests. Pytest automatically discovers fixtures from
 conftest.py files.
 

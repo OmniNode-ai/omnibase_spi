@@ -1,3 +1,17 @@
+## v0.15.1 (2026-03-07)
+
+### Other Changes
+- chore(deps): bump actions/setup-python from 5 to 6 (#113)
+- chore(deps): bump actions/checkout from 4 to 6 (#114)
+- chore(deps): bump astral-sh/setup-uv from 4 to 7 (#115)
+- chore(deps): bump actions/upload-artifact from 4 to 7 (#116)
+- chore: add no-planning-docs pre-commit hook (OMN-3618) (#109)
+- ci: CI resilience fixes [OMN-3662] (#110)
+- chore: add no-env-file pre-commit hook to omnibase_spi [OMN-3700] (#112)
+- chore: fix pre-existing AI-slop violations for --strict mode [OMN-3669] (#111)
+- docs: remove plan files migrated to omni_home (#108)
+- [OMN-3191] fix(validation): add code fence tracking to AI-slop checker (follow-up) (#107)
+
 ## [0.15.0] - 2026-02-28
 
 ### Added
