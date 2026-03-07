@@ -1,6 +1,5 @@
 """Unit tests for default handler contract YAML templates.
 
-This module provides comprehensive test coverage for the default handler contract
 YAML templates located in src/omnibase_spi/contracts/defaults/. Tests verify:
 - Valid YAML structure
 - Required fields presence

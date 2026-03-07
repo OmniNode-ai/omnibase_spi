@@ -1,7 +1,6 @@
 """
 Unit tests for SPI exception handling patterns.
 
-This module contains unit tests that validate single-component exception behavior.
 Each test class focuses on one mock implementation demonstrating proper
 exception usage patterns.
 

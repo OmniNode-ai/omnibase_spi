@@ -1,7 +1,6 @@
 """
 Integration test fixtures and configuration.
 
-This module provides:
 - pytest marker configuration for integration tests
 - Shared fixtures for integration testing
 - Mock implementations that simulate real providers

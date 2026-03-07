@@ -2,7 +2,6 @@
 """
 Shared Utilities for Security Validation Scripts.
 
-This module provides common functionality used across multiple security
 validation scripts, including bypass comment detection and shared constants.
 
 Usage:
