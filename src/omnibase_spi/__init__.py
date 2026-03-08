@@ -66,7 +66,13 @@ Architecture:
 import importlib
 from typing import TYPE_CHECKING, Any, cast
 
-__version__ = "0.15.0"
+# Do not hardcode versions here; version is sourced from distribution metadata.
+from importlib.metadata import PackageNotFoundError, version
+
+try:
+    __version__ = version("omnibase-spi")
+except PackageNotFoundError:
+    __version__ = "0.0.0-dev"
 __author__ = "OmniNode Team"
 __email__ = "team@omninode.ai"
 
