@@ -12736,10 +12736,6 @@
       "kind": "property",
       "return_type": "omnibase_spi.protocols.node.protocol_node_registry.ProtocolNodeRegistryConfig | None"
     },
-    "consul_endpoint": {
-      "kind": "property",
-      "return_type": "str | None"
-    },
     "discover_nodes": {
       "kind": "async_method",
       "parameters": {
