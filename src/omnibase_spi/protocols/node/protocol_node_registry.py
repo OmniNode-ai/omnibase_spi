@@ -3,8 +3,6 @@ Node Registry Protocol - ONEX SPI Interface.
 
 Protocol definition for node discovery and registration in distributed environments.
 Supports the ONEX Messaging Design v0.3 with environment isolation and node groups.
-
-Integrates with Consul-based discovery while maintaining clean protocol boundaries.
 """
 
 from __future__ import annotations
@@ -101,13 +99,9 @@ class ProtocolNodeRegistryConfig(Protocol):
     Protocol for node registry configuration parameters.
 
     Defines connection settings and operational parameters for
-    the node registry, typically backed by Consul or similar
-    service discovery systems.
+    the node registry service discovery systems.
 
     Attributes:
-        consul_host: Consul server hostname
-        consul_port: Consul server port number
-        consul_token: Optional Consul ACL token for authentication
         health_check_interval: Interval in seconds between health checks
         retry_attempts: Number of retry attempts for failed operations
 
@@ -117,7 +111,6 @@ class ProtocolNodeRegistryConfig(Protocol):
         config = registry.config
 
         if config:
-            print(f"Consul: {config.consul_host}:{config.consul_port}")
             print(f"Health check interval: {config.health_check_interval}s")
             print(f"Retry attempts: {config.retry_attempts}")
         ```
@@ -127,9 +120,6 @@ class ProtocolNodeRegistryConfig(Protocol):
         - ProtocolNodeInfo: Registered node information
     """
 
-    consul_host: str
-    consul_port: int
-    consul_token: str | None
     health_check_interval: int
     retry_attempts: int
 
@@ -199,19 +189,18 @@ class ProtocolNodeRegistry(Protocol):
     Supports the ONEX Messaging Design v0.3 patterns:
     - Environment isolation (dev, staging, prod)
     - Node group mini-meshes
-    - Consul-based discovery integration
     - Health monitoring and heartbeat tracking
 
-    Implementations may use Consul, etcd, or other discovery backends.
+    Implementations may use various service discovery backends.
 
     Usage Example:
         ```python
         # Implementation example (not part of SPI)
-        # RegistryConsulNode would implement the protocol interface
+        # RegistryNode would implement the protocol interface
         # All methods defined in the protocol contract
 
         # Usage in application
-        registry: "ProtocolNodeRegistry" = RegistryConsulNode("prod", "consul.company.com:8500")
+        registry: "ProtocolNodeRegistry" = RegistryNode("prod")
 
         # Register current node
         node_info = NodeInfo(
@@ -270,9 +259,6 @@ class ProtocolNodeRegistry(Protocol):
 
     @property
     def environment(self) -> str: ...
-
-    @property
-    def consul_endpoint(self) -> str | None: ...
 
     @property
     def config(self) -> ProtocolNodeRegistryConfig | None: ...
