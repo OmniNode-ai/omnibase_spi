@@ -1,3 +1,21 @@
+## v0.15.2 (2026-03-09)
+
+### Added
+- feat(chunking): ChunkableEnvelope and EnvelopeChunker SPI protocols [OMN-4144] (#124)
+- feat(spi): add PrimitiveEffectExecutor typed SPI protocol (OMN-4220) (#126)
+- feat(spi): add ProtocolFSMSurfaceAdapter to workflow_orchestration (#125)
+- feat(measurement): add model attribution and VTS computation (#121)
+
+### Fixed
+- fix(ci): skip contract validation on merge-queue branch names (OMN-4308) (#127)
+- fix(ci): pin actions/checkout@v4 and actions/setup-python@v5 (OMN-3809) (#118)
+
+### Changed
+- OMN-3994: remove consul protocol references and regenerate snapshot (#123)
+- OMN-4052: wire contract validation gate into omnibase_spi CI (#122)
+- OMN-3831: replace hardcoded __version__ with importlib.metadata (#119)
+- OMN-3832: add validate-string-versions pre-commit hook (#120)
+
 ## v0.15.1 (2026-03-07)
 
 ### Other Changes
