@@ -51,6 +51,7 @@ ProtocolReducer = ProtocolWorkflowReducer
 
 # Workflow orchestration and coordination protocols
 # Work queue protocols
+from .protocol_fsm_surface_adapter import ProtocolFSMSurfaceAdapter
 from .protocol_work_queue import (
     LiteralAssignmentStrategy,
     LiteralWorkQueuePriority,
@@ -62,6 +63,7 @@ from .protocol_workflow_orchestrator import ProtocolWorkflowOrchestrator
 
 __all__ = [
     "LiteralAssignmentStrategy",
+    "ProtocolFSMSurfaceAdapter",
     "LiteralWorkQueuePriority",
     "ProtocolEventQueryOptions",
     "ProtocolEventStore",

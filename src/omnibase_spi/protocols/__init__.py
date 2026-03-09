@@ -20,7 +20,7 @@ Key Protocol Domains:
       * Circuit breakers and error handling
       * Storage backends and configuration
 
-    - workflow_orchestration: Event-driven FSM orchestration (11 protocols)
+    - workflow_orchestration: Event-driven FSM orchestration (12 protocols)
       * Event sourcing with sequence numbers and causation tracking
       * Workflow state management and projections
       * Task scheduling and node coordination
@@ -359,6 +359,14 @@ from omnibase_spi.protocols.onex import (
     ProtocolVersionLoader,
 )
 
+# PrimitiveEffectExecutor SPI - typed kernel-level HTTP and Kafka dispatch (OMN-4220)
+# Zero upstream deps; contracts expressed via typing.Protocol structural subtyping.
+from omnibase_spi.protocols.primitive_effect_executor import (
+    ProtocolHttpRequestContract,
+    ProtocolHttpResponseContract,
+    ProtocolPrimitiveEffectExecutorV2,
+)
+
 # Projections protocols (5 protocols) - Projection persistence and state reading
 # Projector writes projections with ordering; Reader queries materialized state
 from omnibase_spi.protocols.projections import (
@@ -435,8 +443,8 @@ from omnibase_spi.protocols.verification import (
     ProtocolPackageVerifier,
 )
 
-# Workflow orchestration protocols (14 protocols) - Event-driven FSM coordination
-# Event sourcing, workflow state management, and distributed task scheduling
+# Workflow orchestration protocols (15 protocols) - Event-driven FSM coordination
+# Event sourcing, workflow state management, distributed task scheduling, and surface adapters
 from omnibase_spi.protocols.workflow_orchestration import (
     LiteralAssignmentStrategy,
     LiteralWorkQueuePriority,
@@ -444,6 +452,7 @@ from omnibase_spi.protocols.workflow_orchestration import (
     ProtocolEventStore,
     ProtocolEventStoreResult,
     ProtocolEventStoreTransaction,
+    ProtocolFSMSurfaceAdapter,
     ProtocolLiteralWorkflowStateProjection,
     ProtocolLiteralWorkflowStateStore,
     ProtocolNodeSchedulingResult,
@@ -468,6 +477,8 @@ __all__ = [
     "InjectionScope",
     "LiteralAssignmentStrategy",
     "LiteralContainerArtifactType",
+    "ProtocolHttpRequestContract",
+    "ProtocolHttpResponseContract",
     "LiteralEffectCategory",
     "LiteralEffectId",
     "LiteralHashAlgorithm",
@@ -547,6 +558,7 @@ __all__ = [
     "ProtocolExecutionConstrainable",
     "ProtocolExecutionConstraints",
     "ProtocolFSMContractCompiler",
+    "ProtocolFSMSurfaceAdapter",
     "ProtocolFileHandlerRegistry",
     "ProtocolFileProcessingTypeHandler",
     "ProtocolFileReader",
@@ -615,6 +627,7 @@ __all__ = [
     "ProtocolEffect",
     "ProtocolPersistResult",
     "ProtocolPrimitiveEffectExecutor",
+    "ProtocolPrimitiveEffectExecutorV2",
     "ProtocolProjectionReader",
     "ProtocolProjector",
     "ProtocolProjectorLoader",

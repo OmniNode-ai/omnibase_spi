@@ -6759,6 +6759,78 @@
       "return_type": "ModelContractValidationResult"
     }
   },
+  "ProtocolFSMSurfaceAdapter": {
+    "__eq__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__ge__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__gt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__hash__": {
+      "kind": "method",
+      "parameters": {},
+      "return_type": "<empty>"
+    },
+    "__le__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__lt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "render": {
+      "kind": "async_method",
+      "parameters": {
+        "snapshot": {
+          "type": "ModelFSMStateSnapshot"
+        },
+        "state": {
+          "type": "ModelFSMStateDefinition"
+        },
+        "surface": {
+          "type": "str"
+        }
+      },
+      "return_type": "dict[str, object]"
+    },
+    "supported_surfaces": {
+      "kind": "async_method",
+      "parameters": {},
+      "return_type": "list[str]"
+    }
+  },
   "ProtocolFileHandlerRegistry": {
     "__eq__": {
       "kind": "method",
@@ -8631,6 +8703,142 @@
         }
       },
       "return_type": "ProtocolHttpStreamingResponse"
+    }
+  },
+  "ProtocolHttpRequestContract": {
+    "__eq__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__ge__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__gt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__hash__": {
+      "kind": "method",
+      "parameters": {},
+      "return_type": "<empty>"
+    },
+    "__le__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__lt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "body": {
+      "kind": "property",
+      "return_type": "bytes | None"
+    },
+    "headers": {
+      "kind": "property",
+      "return_type": "dict[str, str] | None"
+    },
+    "method": {
+      "kind": "property",
+      "return_type": "str"
+    },
+    "timeout_seconds": {
+      "kind": "property",
+      "return_type": "float | None"
+    },
+    "url": {
+      "kind": "property",
+      "return_type": "str"
+    }
+  },
+  "ProtocolHttpResponseContract": {
+    "__eq__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__ge__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__gt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__hash__": {
+      "kind": "method",
+      "parameters": {},
+      "return_type": "<empty>"
+    },
+    "__le__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__lt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "body": {
+      "kind": "property",
+      "return_type": "bytes"
+    },
+    "headers": {
+      "kind": "property",
+      "return_type": "dict[str, str]"
+    },
+    "status_code": {
+      "kind": "property",
+      "return_type": "int"
     }
   },
   "ProtocolHybridRetriever": {
@@ -14073,6 +14281,83 @@
       "kind": "method",
       "parameters": {},
       "return_type": "list[str]"
+    }
+  },
+  "ProtocolPrimitiveEffectExecutorV2": {
+    "__eq__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__ge__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__gt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__hash__": {
+      "kind": "method",
+      "parameters": {},
+      "return_type": "<empty>"
+    },
+    "__le__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__lt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "execute_http": {
+      "kind": "async_method",
+      "parameters": {
+        "request": {
+          "type": "ProtocolHttpRequestContract"
+        }
+      },
+      "return_type": "ProtocolHttpResponseContract"
+    },
+    "execute_kafka_produce": {
+      "kind": "async_method",
+      "parameters": {
+        "headers": {
+          "default": "None",
+          "type": "dict[str, str] | None"
+        },
+        "payload": {
+          "type": "bytes"
+        },
+        "topic": {
+          "type": "str"
+        }
+      },
+      "return_type": "None"
     }
   },
   "ProtocolProjectionReader": {
