@@ -359,6 +359,14 @@ from omnibase_spi.protocols.onex import (
     ProtocolVersionLoader,
 )
 
+# PrimitiveEffectExecutor SPI - typed kernel-level HTTP and Kafka dispatch (OMN-4220)
+# Zero upstream deps; contracts expressed via typing.Protocol structural subtyping.
+from omnibase_spi.protocols.primitive_effect_executor import (
+    ProtocolHttpRequestContract,
+    ProtocolHttpResponseContract,
+    ProtocolPrimitiveEffectExecutorV2,
+)
+
 # Projections protocols (5 protocols) - Projection persistence and state reading
 # Projector writes projections with ordering; Reader queries materialized state
 from omnibase_spi.protocols.projections import (
@@ -469,6 +477,8 @@ __all__ = [
     "InjectionScope",
     "LiteralAssignmentStrategy",
     "LiteralContainerArtifactType",
+    "ProtocolHttpRequestContract",
+    "ProtocolHttpResponseContract",
     "LiteralEffectCategory",
     "LiteralEffectId",
     "LiteralHashAlgorithm",
@@ -617,6 +627,7 @@ __all__ = [
     "ProtocolEffect",
     "ProtocolPersistResult",
     "ProtocolPrimitiveEffectExecutor",
+    "ProtocolPrimitiveEffectExecutorV2",
     "ProtocolProjectionReader",
     "ProtocolProjector",
     "ProtocolProjectorLoader",
