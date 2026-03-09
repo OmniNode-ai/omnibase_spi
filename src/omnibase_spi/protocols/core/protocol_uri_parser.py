@@ -39,13 +39,6 @@ class ProtocolUriParser(Protocol):
         assert http_uri["query"] == "active=true"
         assert http_uri["fragment"] == "results"
 
-        # Parse service discovery URI
-        service_uri = parser.parse("consul://prod/workflow-orchestrator:5000")
-        assert service_uri["scheme"] == "consul"
-        assert service_uri["host"] == "prod"
-        assert service_uri["path"] == "/workflow-orchestrator"
-        assert service_uri["port"] == 5000
-
         # Parse file path URI
         file_uri = parser.parse("file:///etc/onex/config.yaml")
         assert file_uri["scheme"] == "file"
@@ -72,7 +65,7 @@ class ProtocolUriParser(Protocol):
         - ContextValue-compatible return types
 
     URI Components Returned:
-        - scheme: URI scheme (http, https, consul, file, etc.)
+        - scheme: URI scheme (http, https, file, etc.)
         - host: Hostname or IP address
         - port: Port number (int) or None if not specified
         - path: URI path component
@@ -83,7 +76,6 @@ class ProtocolUriParser(Protocol):
 
     Supported URI Schemes:
         - HTTP/HTTPS: Web service endpoints
-        - Consul/Etcd: Service discovery URIs
         - File: Local file system paths
         - PostgreSQL/MySQL: Database connection strings
         - AMQP/Kafka: Message broker connections
