@@ -110,17 +110,19 @@ class TestProtocolFSMSurfaceAdapterImportBoundary:
         from omnibase_spi.protocols import ProtocolFSMSurfaceAdapter  # noqa: F401
 
     def test_protocol_module_does_not_import_core_at_runtime(self) -> None:
-        # Remove cached module if already imported so we get a fresh load
+        # Remove cached module AND the core model from sys.modules so we can
+        # verify that importing the adapter does not re-introduce the core dep.
         mod_key = (
             "omnibase_spi.protocols.workflow_orchestration.protocol_fsm_surface_adapter"
         )
-        sys.modules.pop(mod_key, None)
-
-        import omnibase_spi.protocols.workflow_orchestration.protocol_fsm_surface_adapter  # noqa: F401
-
         core_model_path = (
             "omnibase_core.models.contracts.subcontracts.model_fsm_state_definition"
         )
+        sys.modules.pop(mod_key, None)
+        sys.modules.pop(core_model_path, None)
+
+        import omnibase_spi.protocols.workflow_orchestration.protocol_fsm_surface_adapter  # noqa: F401
+
         assert core_model_path not in sys.modules, (
             f"Importing ProtocolFSMSurfaceAdapter pulled '{core_model_path}' "
             "into sys.modules at runtime. Move the import under TYPE_CHECKING."
