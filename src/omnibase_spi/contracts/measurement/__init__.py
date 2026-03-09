@@ -36,6 +36,11 @@ from omnibase_spi.contracts.measurement.contract_phase_metrics import (
     ContractPhaseMetrics,
     ContractTestMetrics,
 )
+from omnibase_spi.contracts.measurement.contract_pr_validation_rollup import (
+    ContractPrScope,
+    ContractPrValidationRollup,
+    ContractValidationTax,
+)
 from omnibase_spi.contracts.measurement.contract_producer import ContractProducer
 from omnibase_spi.contracts.measurement.contract_promotion_gate import (
     ContractDimensionEvidence,
@@ -51,6 +56,7 @@ from omnibase_spi.contracts.measurement.enum_result_classification import (
 from omnibase_spi.contracts.measurement.enum_usage_source import (
     ContractEnumUsageSource,
 )
+from omnibase_spi.contracts.measurement.vts import compute_vts, compute_vts_per_kloc
 
 __all__ = [
     "ContractAggregatedRun",
@@ -66,12 +72,17 @@ __all__ = [
     "ContractLlmUsageRaw",
     "ContractMeasuredAttribution",
     "ContractMeasurementContext",
+    "ContractPrScope",
+    "ContractPrValidationRollup",
     "ContractMeasurementEvent",
     "ContractOutcomeMetrics",
     "ContractPhaseMetrics",
     "ContractProducer",
     "ContractPromotionGate",
     "ContractTestMetrics",
+    "ContractValidationTax",
     "MeasurementCheck",
+    "compute_vts",
+    "compute_vts_per_kloc",
     "derive_baseline_key",
 ]

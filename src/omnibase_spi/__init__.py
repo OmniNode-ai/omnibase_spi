@@ -64,10 +64,10 @@ Architecture:
 """
 
 import importlib
-from typing import TYPE_CHECKING, Any, cast
 
 # Do not hardcode versions here; version is sourced from distribution metadata.
 from importlib.metadata import PackageNotFoundError, version
+from typing import TYPE_CHECKING, Any, cast
 
 try:
     __version__ = version("omnibase-spi")

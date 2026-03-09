@@ -15,7 +15,7 @@ This contract must NOT import from omnibase_core, omnibase_infra, or omniclaude.
 from __future__ import annotations
 
 import hashlib
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -67,6 +67,14 @@ class ContractMeasurementContext(BaseModel):
     pattern_id: str = Field(
         default="",
         description="Pattern identifier when measuring a specific pattern.",
+    )
+    model_id: str = Field(
+        default="",
+        description="LLM model identifier that produced the measured work.",
+    )
+    producer_kind: Literal["agent", "human", "unknown"] = Field(
+        default="unknown",
+        description="Producer type. Constrained to prevent free-string drift.",
     )
     extensions: dict[str, Any] = Field(
         default_factory=dict,
