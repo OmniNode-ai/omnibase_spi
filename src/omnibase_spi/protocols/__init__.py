@@ -216,14 +216,6 @@ from omnibase_spi.protocols.effects import (
     ProtocolPrimitiveEffectExecutor,
 )
 
-# PrimitiveEffectExecutor SPI - typed kernel-level HTTP and Kafka dispatch (OMN-4220)
-# Zero upstream deps; contracts expressed via typing.Protocol structural subtyping.
-from omnibase_spi.protocols.primitive_effect_executor import (
-    HttpRequestContract,
-    HttpResponseContract,
-    PrimitiveEffectExecutor,
-)
-
 # Event bus protocols - Distributed messaging infrastructure
 # Supports multiple backends (Kafka, Redis, in-memory) with async/sync patterns
 # Note: Interface protocols (ProtocolEventBus, ProtocolEventBusHeaders,
@@ -367,6 +359,14 @@ from omnibase_spi.protocols.onex import (
     ProtocolVersionLoader,
 )
 
+# PrimitiveEffectExecutor SPI - typed kernel-level HTTP and Kafka dispatch (OMN-4220)
+# Zero upstream deps; contracts expressed via typing.Protocol structural subtyping.
+from omnibase_spi.protocols.primitive_effect_executor import (
+    ProtocolHttpRequestContract,
+    ProtocolHttpResponseContract,
+    ProtocolPrimitiveEffectExecutorV2,
+)
+
 # Projections protocols (5 protocols) - Projection persistence and state reading
 # Projector writes projections with ordering; Reader queries materialized state
 from omnibase_spi.protocols.projections import (
@@ -477,8 +477,8 @@ __all__ = [
     "InjectionScope",
     "LiteralAssignmentStrategy",
     "LiteralContainerArtifactType",
-    "HttpRequestContract",
-    "HttpResponseContract",
+    "ProtocolHttpRequestContract",
+    "ProtocolHttpResponseContract",
     "LiteralEffectCategory",
     "LiteralEffectId",
     "LiteralHashAlgorithm",
@@ -626,8 +626,8 @@ __all__ = [
     "ProtocolPerformanceMetricsCollector",
     "ProtocolEffect",
     "ProtocolPersistResult",
-    "PrimitiveEffectExecutor",
     "ProtocolPrimitiveEffectExecutor",
+    "ProtocolPrimitiveEffectExecutorV2",
     "ProtocolProjectionReader",
     "ProtocolProjector",
     "ProtocolProjectorLoader",

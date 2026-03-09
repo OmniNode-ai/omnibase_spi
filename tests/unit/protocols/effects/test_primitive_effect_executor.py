@@ -1,9 +1,9 @@
-"""Unit tests for PrimitiveEffectExecutor SPI protocol (OMN-4220).
+"""Unit tests for ProtocolPrimitiveEffectExecutorV2 SPI protocol (OMN-4220).
 
 Validates:
-- PrimitiveEffectExecutor is @runtime_checkable
-- HttpRequestContract is @runtime_checkable
-- HttpResponseContract is @runtime_checkable
+- ProtocolPrimitiveEffectExecutorV2 is @runtime_checkable
+- ProtocolHttpRequestContract is @runtime_checkable
+- ProtocolHttpResponseContract is @runtime_checkable
 - execute_http() and execute_kafka_produce() are async (SPI005 compliant)
 - isinstance() checks work correctly for compliant/non-compliant classes
 - Zero upstream deps: only stdlib imports used in the module under test
@@ -19,9 +19,9 @@ from pathlib import Path
 import pytest
 
 from omnibase_spi.protocols.primitive_effect_executor import (
-    HttpRequestContract,
-    HttpResponseContract,
-    PrimitiveEffectExecutor,
+    ProtocolHttpRequestContract,
+    ProtocolHttpResponseContract,
+    ProtocolPrimitiveEffectExecutorV2,
 )
 
 # Path to the module under test (used for zero-dep AST check)
@@ -40,7 +40,7 @@ _MODULE_PATH = (
 
 
 class ConcreteHttpRequest:
-    """Minimal implementation of HttpRequestContract."""
+    """Minimal implementation of ProtocolHttpRequestContract."""
 
     @property
     def method(self) -> str:
@@ -64,7 +64,7 @@ class ConcreteHttpRequest:
 
 
 class ConcreteHttpResponse:
-    """Minimal implementation of HttpResponseContract."""
+    """Minimal implementation of ProtocolHttpResponseContract."""
 
     @property
     def status_code(self) -> int:
@@ -80,12 +80,12 @@ class ConcreteHttpResponse:
 
 
 class ConcreteEffectExecutor:
-    """Minimal implementation of PrimitiveEffectExecutor."""
+    """Minimal implementation of ProtocolPrimitiveEffectExecutorV2."""
 
     async def execute_http(
         self,
-        request: HttpRequestContract,
-    ) -> HttpResponseContract:
+        request: ProtocolHttpRequestContract,
+    ) -> ProtocolHttpResponseContract:
         return ConcreteHttpResponse()
 
     async def execute_kafka_produce(
@@ -114,8 +114,8 @@ class MissingKafkaExecutor:
 
     async def execute_http(
         self,
-        request: HttpRequestContract,
-    ) -> HttpResponseContract:
+        request: ProtocolHttpRequestContract,
+    ) -> ProtocolHttpResponseContract:
         return ConcreteHttpResponse()
 
 
@@ -126,29 +126,29 @@ class EmptyClass:
 
 
 # ---------------------------------------------------------------------------
-# Tests: HttpRequestContract
+# Tests: ProtocolHttpRequestContract
 # ---------------------------------------------------------------------------
 
 
-class TestHttpRequestContract:
-    """Tests for HttpRequestContract protocol."""
+class TestProtocolHttpRequestContract:
+    """Tests for ProtocolHttpRequestContract protocol."""
 
     @pytest.mark.unit
     def test_is_runtime_checkable(self) -> None:
-        """HttpRequestContract must be @runtime_checkable."""
+        """ProtocolHttpRequestContract must be @runtime_checkable."""
         req = ConcreteHttpRequest()
-        assert isinstance(req, HttpRequestContract)
+        assert isinstance(req, ProtocolHttpRequestContract)
 
     @pytest.mark.unit
     def test_non_compliant_fails_isinstance(self) -> None:
         """Object missing required properties fails isinstance check."""
-        assert not isinstance(EmptyClass(), HttpRequestContract)
+        assert not isinstance(EmptyClass(), ProtocolHttpRequestContract)
 
     @pytest.mark.unit
     def test_protocol_cannot_be_instantiated_directly(self) -> None:
         """Protocol cannot be instantiated directly."""
         with pytest.raises(TypeError):
-            HttpRequestContract()  # type: ignore[misc]
+            ProtocolHttpRequestContract()  # type: ignore[misc]
 
     @pytest.mark.unit
     def test_compliant_impl_has_all_required_properties(self) -> None:
@@ -186,36 +186,36 @@ class TestHttpRequestContract:
                 return None
 
         req = MinimalRequest()
-        assert isinstance(req, HttpRequestContract)
+        assert isinstance(req, ProtocolHttpRequestContract)
         assert req.headers is None
         assert req.body is None
         assert req.timeout_seconds is None
 
 
 # ---------------------------------------------------------------------------
-# Tests: HttpResponseContract
+# Tests: ProtocolHttpResponseContract
 # ---------------------------------------------------------------------------
 
 
-class TestHttpResponseContract:
-    """Tests for HttpResponseContract protocol."""
+class TestProtocolHttpResponseContract:
+    """Tests for ProtocolHttpResponseContract protocol."""
 
     @pytest.mark.unit
     def test_is_runtime_checkable(self) -> None:
-        """HttpResponseContract must be @runtime_checkable."""
+        """ProtocolHttpResponseContract must be @runtime_checkable."""
         resp = ConcreteHttpResponse()
-        assert isinstance(resp, HttpResponseContract)
+        assert isinstance(resp, ProtocolHttpResponseContract)
 
     @pytest.mark.unit
     def test_non_compliant_fails_isinstance(self) -> None:
         """Object missing required properties fails isinstance check."""
-        assert not isinstance(EmptyClass(), HttpResponseContract)
+        assert not isinstance(EmptyClass(), ProtocolHttpResponseContract)
 
     @pytest.mark.unit
     def test_protocol_cannot_be_instantiated_directly(self) -> None:
         """Protocol cannot be instantiated directly."""
         with pytest.raises(TypeError):
-            HttpResponseContract()  # type: ignore[misc]
+            ProtocolHttpResponseContract()  # type: ignore[misc]
 
     @pytest.mark.unit
     def test_compliant_impl_has_all_required_properties(self) -> None:
@@ -227,39 +227,39 @@ class TestHttpResponseContract:
 
 
 # ---------------------------------------------------------------------------
-# Tests: PrimitiveEffectExecutor
+# Tests: ProtocolPrimitiveEffectExecutorV2
 # ---------------------------------------------------------------------------
 
 
-class TestPrimitiveEffectExecutor:
-    """Tests for PrimitiveEffectExecutor protocol."""
+class TestProtocolPrimitiveEffectExecutorV2:
+    """Tests for ProtocolPrimitiveEffectExecutorV2 protocol."""
 
     @pytest.mark.unit
     def test_is_runtime_checkable(self) -> None:
-        """PrimitiveEffectExecutor must be @runtime_checkable."""
+        """ProtocolPrimitiveEffectExecutorV2 must be @runtime_checkable."""
         executor = ConcreteEffectExecutor()
-        assert isinstance(executor, PrimitiveEffectExecutor)
+        assert isinstance(executor, ProtocolPrimitiveEffectExecutorV2)
 
     @pytest.mark.unit
     def test_missing_execute_http_fails_isinstance(self) -> None:
         """Object missing execute_http() fails isinstance check."""
-        assert not isinstance(MissingExecuteHttpExecutor(), PrimitiveEffectExecutor)
+        assert not isinstance(MissingExecuteHttpExecutor(), ProtocolPrimitiveEffectExecutorV2)
 
     @pytest.mark.unit
     def test_missing_kafka_produce_fails_isinstance(self) -> None:
         """Object missing execute_kafka_produce() fails isinstance check."""
-        assert not isinstance(MissingKafkaExecutor(), PrimitiveEffectExecutor)
+        assert not isinstance(MissingKafkaExecutor(), ProtocolPrimitiveEffectExecutorV2)
 
     @pytest.mark.unit
     def test_empty_class_fails_isinstance(self) -> None:
         """Empty class with no methods fails isinstance check."""
-        assert not isinstance(EmptyClass(), PrimitiveEffectExecutor)
+        assert not isinstance(EmptyClass(), ProtocolPrimitiveEffectExecutorV2)
 
     @pytest.mark.unit
     def test_protocol_cannot_be_instantiated_directly(self) -> None:
         """Protocol cannot be instantiated directly."""
         with pytest.raises(TypeError):
-            PrimitiveEffectExecutor()  # type: ignore[misc]
+            ProtocolPrimitiveEffectExecutorV2()  # type: ignore[misc]
 
     @pytest.mark.unit
     def test_execute_http_is_async(self) -> None:
@@ -276,7 +276,7 @@ class TestPrimitiveEffectExecutor:
     @pytest.mark.unit
     def test_protocol_attrs_contain_required_methods(self) -> None:
         """Protocol.__protocol_attrs__ must contain both required methods."""
-        attrs = PrimitiveEffectExecutor.__protocol_attrs__
+        attrs = ProtocolPrimitiveEffectExecutorV2.__protocol_attrs__
         assert "execute_http" in attrs
         assert "execute_kafka_produce" in attrs
 
@@ -355,41 +355,41 @@ class TestPublicAPIExports:
 
     @pytest.mark.unit
     def test_import_from_protocols_module(self) -> None:
-        """PrimitiveEffectExecutor can be imported from omnibase_spi.protocols."""
-        from omnibase_spi.protocols import PrimitiveEffectExecutor as PEE
+        """ProtocolPrimitiveEffectExecutorV2 can be imported from omnibase_spi.protocols."""
+        from omnibase_spi.protocols import ProtocolPrimitiveEffectExecutorV2 as PEE
 
         assert PEE is not None
-        assert PEE is PrimitiveEffectExecutor
+        assert PEE is ProtocolPrimitiveEffectExecutorV2
 
     @pytest.mark.unit
     def test_import_http_request_contract_from_protocols(self) -> None:
-        """HttpRequestContract can be imported from omnibase_spi.protocols."""
-        from omnibase_spi.protocols import HttpRequestContract as HRC
+        """ProtocolHttpRequestContract can be imported from omnibase_spi.protocols."""
+        from omnibase_spi.protocols import ProtocolHttpRequestContract as HRC
 
         assert HRC is not None
-        assert HRC is HttpRequestContract
+        assert HRC is ProtocolHttpRequestContract
 
     @pytest.mark.unit
     def test_import_http_response_contract_from_protocols(self) -> None:
-        """HttpResponseContract can be imported from omnibase_spi.protocols."""
-        from omnibase_spi.protocols import HttpResponseContract as HReC
+        """ProtocolHttpResponseContract can be imported from omnibase_spi.protocols."""
+        from omnibase_spi.protocols import ProtocolHttpResponseContract as HReC
 
         assert HReC is not None
-        assert HReC is HttpResponseContract
+        assert HReC is ProtocolHttpResponseContract
 
     @pytest.mark.unit
     def test_import_from_top_level_package(self) -> None:
-        """PrimitiveEffectExecutor can be imported from omnibase_spi top-level."""
+        """ProtocolPrimitiveEffectExecutorV2 can be imported from omnibase_spi top-level."""
         import omnibase_spi
 
-        pee = omnibase_spi.PrimitiveEffectExecutor  # type: ignore[attr-defined]
-        assert pee is PrimitiveEffectExecutor
+        pee = omnibase_spi.ProtocolPrimitiveEffectExecutorV2  # type: ignore[attr-defined]
+        assert pee is ProtocolPrimitiveEffectExecutorV2
 
     @pytest.mark.unit
     def test_in_protocols_all(self) -> None:
-        """PrimitiveEffectExecutor appears in omnibase_spi.protocols.__all__."""
+        """ProtocolPrimitiveEffectExecutorV2 appears in omnibase_spi.protocols.__all__."""
         import omnibase_spi.protocols as proto_mod
 
-        assert "PrimitiveEffectExecutor" in proto_mod.__all__
-        assert "HttpRequestContract" in proto_mod.__all__
-        assert "HttpResponseContract" in proto_mod.__all__
+        assert "ProtocolPrimitiveEffectExecutorV2" in proto_mod.__all__
+        assert "ProtocolHttpRequestContract" in proto_mod.__all__
+        assert "ProtocolHttpResponseContract" in proto_mod.__all__

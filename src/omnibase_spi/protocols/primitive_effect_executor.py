@@ -13,8 +13,8 @@ Architecture Context:
     L2 libraries — doing so creates a circular dependency risk and couples
     kernel evolution to handler implementation details.
 
-    PrimitiveEffectExecutor is the architectural anchor that breaks this
-    coupling:
+    ProtocolPrimitiveEffectExecutorV2 is the architectural anchor that breaks
+    this coupling:
 
     * The kernel depends only on omnibase_spi (zero upstream runtime deps).
     * Concrete handlers in omnibase_infra implement the protocol via structural
@@ -24,6 +24,12 @@ Architecture Context:
 
     Monolithic handlers (HandlerHttp, HandlerKafka) are PRESERVED for MVP.
     This protocol does NOT refactor them.
+
+Naming:
+    ``ProtocolPrimitiveEffectExecutorV2`` is the typed successor to
+    ``ProtocolPrimitiveEffectExecutor`` (the legacy bytes-in/bytes-out
+    variant in omnibase_spi.protocols.effects). The V2 suffix is used to
+    avoid a name collision within the SPI namespace.
 
 See Also:
     - ProtocolPrimitiveEffectExecutor: legacy bytes-in/bytes-out variant
@@ -42,7 +48,7 @@ from typing import Protocol, runtime_checkable
 
 
 @runtime_checkable
-class HttpRequestContract(Protocol):
+class ProtocolHttpRequestContract(Protocol):
     """Minimal HTTP request contract for kernel-level dispatch.
 
     Implementations must provide these attributes. No omnibase_core or
@@ -87,7 +93,7 @@ class HttpRequestContract(Protocol):
 
 
 @runtime_checkable
-class HttpResponseContract(Protocol):
+class ProtocolHttpResponseContract(Protocol):
     """Minimal HTTP response contract returned by the kernel-level executor.
 
     Attributes:
@@ -113,13 +119,18 @@ class HttpResponseContract(Protocol):
 
 
 # ---------------------------------------------------------------------------
-# PrimitiveEffectExecutor protocol
+# ProtocolPrimitiveEffectExecutorV2
 # ---------------------------------------------------------------------------
 
 
 @runtime_checkable
-class PrimitiveEffectExecutor(Protocol):
+class ProtocolPrimitiveEffectExecutorV2(Protocol):
     """Typed kernel-level interface for primitive HTTP and Kafka side effects.
+
+    This is the V2 typed successor to ``ProtocolPrimitiveEffectExecutor``
+    (the legacy bytes-in/bytes-out variant). The V2 suffix distinguishes
+    the typed interface from the existing legacy protocol in the SPI
+    namespace.
 
     The ONEX kernel depends only on this SPI for executing the two primary
     transport-level effects: outbound HTTP requests and Kafka message
@@ -141,8 +152,8 @@ class PrimitiveEffectExecutor(Protocol):
         class HttpKafkaEffectExecutor:
             async def execute_http(
                 self,
-                request: HttpRequestContract,
-            ) -> HttpResponseContract:
+                request: ProtocolHttpRequestContract,
+            ) -> ProtocolHttpResponseContract:
                 response = await self._http_client.request(
                     method=request.method,
                     url=request.url,
@@ -161,15 +172,15 @@ class PrimitiveEffectExecutor(Protocol):
                 await self._producer.send(topic, value=payload, headers=headers)
 
     See Also:
-        - HttpRequestContract: typed HTTP request contract (this module)
-        - HttpResponseContract: typed HTTP response contract (this module)
+        - ProtocolHttpRequestContract: typed HTTP request contract (this module)
+        - ProtocolHttpResponseContract: typed HTTP response contract (this module)
         - ProtocolPrimitiveEffectExecutor: legacy bytes-in/bytes-out variant
     """
 
     async def execute_http(
         self,
-        request: HttpRequestContract,
-    ) -> HttpResponseContract:
+        request: ProtocolHttpRequestContract,
+    ) -> ProtocolHttpResponseContract:
         """Execute an outbound HTTP request.
 
         The kernel calls this method when a node needs to perform an HTTP
@@ -227,7 +238,7 @@ class PrimitiveEffectExecutor(Protocol):
 # ---------------------------------------------------------------------------
 
 __all__ = [
-    "HttpRequestContract",
-    "HttpResponseContract",
-    "PrimitiveEffectExecutor",
+    "ProtocolHttpRequestContract",
+    "ProtocolHttpResponseContract",
+    "ProtocolPrimitiveEffectExecutorV2",
 ]
