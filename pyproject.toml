@@ -280,5 +280,5 @@ skip_covered = false
 [tool.coverage.html]
 directory = "htmlcov"
 
-[tool.uv.sources]
-omnibase-core = { path = "../omnibase_core", editable = true }
+# [tool.uv.sources]
+# omnibase-core = { path = "../omnibase_core", editable = true }
