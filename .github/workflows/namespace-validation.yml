@@ -158,8 +158,13 @@ jobs:
           fi
 
           # Check that version is consistent across files
+          # Accepts either hardcoded __version__ = "x.y.z" or importlib.metadata pattern
           VERSION=$(grep '^version = ' pyproject.toml | cut -d'"' -f2)
-          if ! grep -q "__version__ = \"$VERSION\"" src/omnibase_spi/__init__.py; then
+          if grep -qF "__version__ = \"${VERSION}\"" src/omnibase_spi/__init__.py; then
+            echo "Version consistent (hardcoded): ${VERSION}"
+          elif grep -q "importlib.metadata" src/omnibase_spi/__init__.py && grep -q "version(" src/omnibase_spi/__init__.py; then
+            echo "Version sourced from distribution metadata (importlib.metadata pattern): ${VERSION}"
+          else
             echo "ERROR: Version mismatch between pyproject.toml and __init__.py"
             exit 1
           fi

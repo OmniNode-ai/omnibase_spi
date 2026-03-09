@@ -29,9 +29,7 @@ class TestMeasurementContextModelAttribution:
         assert ctx.producer_kind == "agent"
 
     def test_measurement_context_defaults(self) -> None:
-        ctx = ContractMeasurementContext(
-            ticket_id="OMN-1234", repo_id="omnibase_core"
-        )
+        ctx = ContractMeasurementContext(ticket_id="OMN-1234", repo_id="omnibase_core")
         assert ctx.model_id == ""
         assert ctx.producer_kind == "unknown"
 
@@ -44,10 +42,6 @@ class TestMeasurementContextModelAttribution:
             )
 
     def test_baseline_key_unchanged_by_model(self) -> None:
-        ctx1 = ContractMeasurementContext(
-            ticket_id="OMN-1", repo_id="r", model_id="a"
-        )
-        ctx2 = ContractMeasurementContext(
-            ticket_id="OMN-1", repo_id="r", model_id="b"
-        )
+        ctx1 = ContractMeasurementContext(ticket_id="OMN-1", repo_id="r", model_id="a")
+        ctx2 = ContractMeasurementContext(ticket_id="OMN-1", repo_id="r", model_id="b")
         assert derive_baseline_key(ctx1) == derive_baseline_key(ctx2)
