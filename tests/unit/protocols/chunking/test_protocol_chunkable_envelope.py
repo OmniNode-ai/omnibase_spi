@@ -1,6 +1,3 @@
-# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
-# SPDX-License-Identifier: MIT
-
 """Protocol conformance tests for ProtocolChunkableEnvelope."""
 
 import pytest
@@ -17,7 +14,7 @@ class ConcreteChunkable:
         return b"payload"
 
     @classmethod
-    def from_bytes(cls, data: bytes) -> "ConcreteChunkable":
+    def from_bytes(cls, data: bytes) -> "ConcreteChunkable":  # noqa: ARG003
         return cls()
 
 
@@ -29,7 +26,7 @@ class TestProtocolChunkableEnvelope:
     def test_missing_to_bytes_fails(self) -> None:
         class Missing:
             @classmethod
-            def from_bytes(cls, data: bytes) -> "Missing":
+            def from_bytes(cls, data: bytes) -> "Missing":  # noqa: ARG003
                 return cls()
 
         assert not isinstance(Missing(), ProtocolChunkableEnvelope)

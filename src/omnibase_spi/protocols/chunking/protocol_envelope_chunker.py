@@ -1,12 +1,8 @@
-# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
-# SPDX-License-Identifier: MIT
-
 """ProtocolEnvelopeChunker — splits and reassembles chunkable envelopes."""
 
 from typing import Protocol, runtime_checkable
 
 from omnibase_core.models.chunking.model_chunked_envelope import ModelChunkedEnvelope
-
 from omnibase_spi.protocols.chunking.protocol_chunkable_envelope import (
     ProtocolChunkableEnvelope,
 )
