@@ -243,7 +243,9 @@ class TestProtocolPrimitiveEffectExecutorV2:
     @pytest.mark.unit
     def test_missing_execute_http_fails_isinstance(self) -> None:
         """Object missing execute_http() fails isinstance check."""
-        assert not isinstance(MissingExecuteHttpExecutor(), ProtocolPrimitiveEffectExecutorV2)
+        assert not isinstance(
+            MissingExecuteHttpExecutor(), ProtocolPrimitiveEffectExecutorV2
+        )
 
     @pytest.mark.unit
     def test_missing_kafka_produce_fails_isinstance(self) -> None:
