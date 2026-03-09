@@ -216,6 +216,14 @@ from omnibase_spi.protocols.effects import (
     ProtocolPrimitiveEffectExecutor,
 )
 
+# PrimitiveEffectExecutor SPI - typed kernel-level HTTP and Kafka dispatch (OMN-4220)
+# Zero upstream deps; contracts expressed via typing.Protocol structural subtyping.
+from omnibase_spi.protocols.primitive_effect_executor import (
+    HttpRequestContract,
+    HttpResponseContract,
+    PrimitiveEffectExecutor,
+)
+
 # Event bus protocols - Distributed messaging infrastructure
 # Supports multiple backends (Kafka, Redis, in-memory) with async/sync patterns
 # Note: Interface protocols (ProtocolEventBus, ProtocolEventBusHeaders,
@@ -469,6 +477,8 @@ __all__ = [
     "InjectionScope",
     "LiteralAssignmentStrategy",
     "LiteralContainerArtifactType",
+    "HttpRequestContract",
+    "HttpResponseContract",
     "LiteralEffectCategory",
     "LiteralEffectId",
     "LiteralHashAlgorithm",
@@ -616,6 +626,7 @@ __all__ = [
     "ProtocolPerformanceMetricsCollector",
     "ProtocolEffect",
     "ProtocolPersistResult",
+    "PrimitiveEffectExecutor",
     "ProtocolPrimitiveEffectExecutor",
     "ProtocolProjectionReader",
     "ProtocolProjector",
