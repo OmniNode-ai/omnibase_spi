@@ -1,11 +1,17 @@
 """ProtocolEnvelopeChunker — splits and reassembles chunkable envelopes."""
 
-from typing import Protocol, runtime_checkable
+from __future__ import annotations
 
-from omnibase_core.models.chunking.model_chunked_envelope import ModelChunkedEnvelope
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
+
 from omnibase_spi.protocols.chunking.protocol_chunkable_envelope import (
     ProtocolChunkableEnvelope,
 )
+
+if TYPE_CHECKING:
+    from omnibase_core.models.chunking.model_chunked_envelope import (
+        ModelChunkedEnvelope,
+    )
 
 
 @runtime_checkable

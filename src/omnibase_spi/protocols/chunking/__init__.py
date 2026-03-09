@@ -1,6 +1,3 @@
-# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
-# SPDX-License-Identifier: MIT
-
 """Chunking protocols for transport-level envelope splitting and reassembly."""
 
 from omnibase_spi.protocols.chunking.protocol_chunkable_envelope import (

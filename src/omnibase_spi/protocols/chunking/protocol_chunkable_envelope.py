@@ -1,6 +1,3 @@
-# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
-# SPDX-License-Identifier: MIT
-
 """ProtocolChunkableEnvelope — minimal serialization contract for chunkable envelopes."""
 
 from typing import Protocol, runtime_checkable
