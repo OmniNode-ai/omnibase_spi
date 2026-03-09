@@ -82,8 +82,6 @@ jobs:
             exit 0
           fi
 
-          echo "skip_validation=false" >> "$GITHUB_OUTPUT"
-
           # Prefer workflow_dispatch input, then PR head ref, then ref name
           if [[ -n "$WORKFLOW_INPUT_BRANCH" ]]; then
             BRANCH="$WORKFLOW_INPUT_BRANCH"
@@ -94,6 +92,18 @@ jobs:
           fi
           echo "resolved_branch=$BRANCH" >> "$GITHUB_OUTPUT"
           echo "::notice::Resolved branch name: $BRANCH"
+
+          # Pre-check: skip early if no OMN-XXXX ticket ID in branch name.
+          # The composite action has a known edge case where it may exit non-zero
+          # when no ticket ID is found, even though the intent is to skip gracefully.
+          # Performing the check here avoids invoking the composite action at all.
+          TICKET_ID=$(echo "$BRANCH" | grep -oiE 'OMN-[0-9]+' | head -1)
+          if [[ -z "$TICKET_ID" ]]; then
+            echo "skip_validation=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::No OMN-XXXX ticket ID found in branch — skipping contract validation."
+          else
+            echo "skip_validation=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Run contract validation
         id: validate-contract
