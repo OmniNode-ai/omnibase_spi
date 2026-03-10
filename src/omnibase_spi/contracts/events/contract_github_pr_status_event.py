@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractGitHubPRStatusEvent — SPI wire contract for GitHub PR status events.
 
 Topic: ``onex.evt.github.pr-status.v1``

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Stable measurement check IDs (CHECK-MEAS-xxx).
 
 Defines the canonical set of measurement check identifiers used in

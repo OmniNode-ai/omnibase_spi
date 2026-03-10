@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Advanced protocols for sophisticated ONEX processing capabilities."""
 
 from .protocol_adaptive_chunker import ProtocolAdaptiveChunker

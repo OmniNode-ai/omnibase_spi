@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ProtocolNodeProjectionEffect -- synchronous ProtocolEffect for projection writes.
 
 Defines the ``ProtocolNodeProjectionEffect`` protocol: the SPI contract

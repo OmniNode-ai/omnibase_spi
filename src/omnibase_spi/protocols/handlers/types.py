@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Handler source types and descriptor protocols for ONEX SPI interfaces.
 
 Domain: Handler source classification and handler descriptor protocols.

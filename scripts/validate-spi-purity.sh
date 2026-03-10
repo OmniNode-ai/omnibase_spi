@@ -1,4 +1,7 @@
 #!/bin/bash
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 # Validate SPI Purity - Prevent implementation violations in Service Provider Interface
 #
 # This script ensures the SPI package contains only pure protocol definitions

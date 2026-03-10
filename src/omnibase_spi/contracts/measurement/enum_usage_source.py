@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractEnumUsageSource -- token usage provenance.
 
 Indicates whether LLM token usage data was reported by the provider API,

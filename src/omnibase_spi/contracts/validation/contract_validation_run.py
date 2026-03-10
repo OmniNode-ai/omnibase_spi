@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractValidationRun -- single validation execution.
 
 Captures the metadata of a single execution of a validation plan,

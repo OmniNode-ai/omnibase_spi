@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Health and metrics protocol types for ONEX SPI interfaces."""
 
 from datetime import datetime

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Registry interfaces for omnibase_spi v0.4.0."""
 
 from omnibase_spi.protocols.registry.handler_registry import ProtocolHandlerRegistry

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Protocol for ONEX naming convention enforcement.
 
 This module defines the interface for validating names against ONEX naming conventions.

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Protocols for model registry validation and health reporting."""
 
 from typing import TYPE_CHECKING, Protocol, runtime_checkable

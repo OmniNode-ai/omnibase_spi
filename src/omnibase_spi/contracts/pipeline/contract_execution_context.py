@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractExecutionContext -- active skill/command state.
 
 Captures the active execution context when a skill or command is running,

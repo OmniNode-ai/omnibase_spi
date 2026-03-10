@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Kafka Event Bus Adapter Protocol - ONEX SPI Interface.
 
 Protocol definitions for Kafka backend implementations in the

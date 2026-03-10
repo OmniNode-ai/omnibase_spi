@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Protocol for file discovery sources (filesystem, .tree, hybrid, etc.).
 
 Defines a standardized interface for discovering and validating files for stamping/validation.

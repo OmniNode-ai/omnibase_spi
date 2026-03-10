@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """
     Enhanced Workflow Reducer Protocol for LlamaIndex integration.
 

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Tests for SPI resilience protocol interfaces.
 
 Verifies that ProtocolRetryPolicy, ProtocolCircuitBreaker, and ProtocolRateLimiter

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Legacy protocol for ONEX node implementations with dynamic loading support.
 
 .. deprecated:: 0.3.0

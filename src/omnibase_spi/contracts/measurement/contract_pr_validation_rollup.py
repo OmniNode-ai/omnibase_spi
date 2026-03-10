@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractPrValidationRollup -- PR-level validation tax rollup.
 
 Captures the validation overhead (reruns, failures, escalations) for a

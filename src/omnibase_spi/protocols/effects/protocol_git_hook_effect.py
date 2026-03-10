@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ProtocolGitHookEffect — SPI Protocol for Git hook event production.
 
 Defines the abstract interface that the ONEX runtime calls when a Git

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Enum definitions for omnibase_spi.
 
 Re-exports canonical enum types used across the SPI layer.

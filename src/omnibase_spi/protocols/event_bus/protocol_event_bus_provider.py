@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Event Bus Provider Protocol for ONEX SPI.
 
 This module defines the provider/factory interface for obtaining event bus instances.

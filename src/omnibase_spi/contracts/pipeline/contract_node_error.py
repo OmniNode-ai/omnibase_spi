@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractNodeError -- structured error with error_code, message, retryable.
 
 A lightweight, structured error envelope returned by ONEX nodes and

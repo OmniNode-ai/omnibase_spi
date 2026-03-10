@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractPhaseMetrics -- primary measurement unit.
 
 The core measurement record for a single pipeline phase execution.

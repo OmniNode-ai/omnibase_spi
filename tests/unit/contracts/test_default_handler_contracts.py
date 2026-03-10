@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Unit tests for default handler contract YAML templates.
 
 YAML templates located in src/omnibase_spi/contracts/defaults/. Tests verify:

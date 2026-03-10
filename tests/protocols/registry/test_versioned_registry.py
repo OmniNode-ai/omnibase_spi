@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Tests for ProtocolVersionedRegistry protocol.
 
 1. Reference implementation (ReferenceVersionedRegistry) for testing

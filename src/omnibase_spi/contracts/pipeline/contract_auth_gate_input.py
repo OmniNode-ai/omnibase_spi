@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractAuthGateInput -- auth decision input.
 
 Captures the information needed by the authorization gate to decide

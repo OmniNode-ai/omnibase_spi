@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractValidationResult -- composes list[ContractCheckResult].
 
 Collects all individual check results from a validation run without

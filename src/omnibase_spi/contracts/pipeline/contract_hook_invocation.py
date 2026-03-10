@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractHookInvocation -- outer envelope (shell shim -> adapter).
 
 Represents the request sent from the shell shim to the hook adapter when a

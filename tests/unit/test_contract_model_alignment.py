@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """SPI contract → Core model field alignment tests.
 
 Asserts that SPI contract fields ⊆ Core model fields for all three event

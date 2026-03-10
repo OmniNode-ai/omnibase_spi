@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Verification types for ONEX SPI package verification interfaces.
 
 Domain: Hash algorithm types and verification-related type definitions.

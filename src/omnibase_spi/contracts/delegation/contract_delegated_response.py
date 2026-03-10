@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractDelegatedResponse -- canonical output for all delegation handlers.
 
 Every delegation handler MUST return this model.  Enforcing a single output

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Forward-compatibility policy for pipeline contracts.
 
 Defines helpers for schema version comparison and compatibility

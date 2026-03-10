@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """CLI Protocol for ONEX Systems.
 
 Defines the protocol interface for CLI operations with strict SPI purity compliance.

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Protocol for provider descriptor registry.
 
 This module defines the protocol for managing provider descriptors at runtime.

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Validation Tax Score (VTS) computation functions.
 
 Pure functions that compute the VTS from ``ContractValidationTax`` counters.

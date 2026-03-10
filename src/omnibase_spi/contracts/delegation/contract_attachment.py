@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractAttachment -- file or data attachment for delegation responses.
 
 Represents a single attachment (file, image, data blob) included in a

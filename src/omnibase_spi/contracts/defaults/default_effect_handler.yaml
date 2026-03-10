@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 # Default Handler Contract Template - EFFECT
 #
 # For side-effecting handlers (database, HTTP, file I/O, etc.).

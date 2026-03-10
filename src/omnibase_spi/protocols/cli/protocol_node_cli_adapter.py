@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Protocol for ONEX node CLI adapters.
 
 This module defines the interface for adapters that convert command-line arguments

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Protocols for event bus credentials, topic configuration, and pub/sub operations."""
 
 from __future__ import annotations

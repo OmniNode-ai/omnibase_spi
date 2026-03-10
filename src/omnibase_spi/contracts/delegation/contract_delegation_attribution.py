@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractDelegationAttribution -- provenance for a delegated LLM call.
 
 Records which model produced a delegation response, the endpoint used,

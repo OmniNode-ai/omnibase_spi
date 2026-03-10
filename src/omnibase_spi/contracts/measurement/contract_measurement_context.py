@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractMeasurementContext -- correlation identity for measurements.
 
 Captures the full correlation identity for a measurement: which ticket,

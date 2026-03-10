@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Protocols for network communication, HTTP requests, and data exchange."""
 
 from __future__ import annotations

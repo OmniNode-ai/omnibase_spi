@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Protocol for capability metadata registry.
 
 This module defines the protocol for managing capability metadata at runtime.

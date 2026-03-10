@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Protocol for package verification in the ONEX SPI framework.
 
 Package verifiers provide a uniform interface for verifying the integrity

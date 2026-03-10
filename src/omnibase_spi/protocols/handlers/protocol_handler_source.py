@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Protocol for handler sources - canonical SPI boundary.
 
 Handler sources provide a uniform interface for discovering handler descriptors

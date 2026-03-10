@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Tests for omnibase-spi protocol modules.
 
 This package contains tests for all protocol definitions in omnibase_spi.

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractWorkAuthorization -- auth grant wire format.
 
 Represents the result of an authorization decision: whether the agent is

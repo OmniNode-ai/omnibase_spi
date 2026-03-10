@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractRunContext -- per-run state wire format.
 
 Captures the mutable state that flows through a single pipeline run and

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Versioned registry protocol for managing multiple versions of registered items.
 
 A protocol for registries that need to track multiple versions

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Protocols for projection persistence, state reading, and view dispatch.
 
 Protocols for the projection layer:

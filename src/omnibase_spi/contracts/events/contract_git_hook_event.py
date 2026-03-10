@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractGitHookEvent — SPI wire contract for Git hook events.
 
 Topic: ``onex.evt.git.hook.v1``

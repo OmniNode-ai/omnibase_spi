@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 # Default Handler Contract Template - NONDETERMINISTIC_COMPUTE
 #
 # For LLM/AI inference handlers - computationally pure but stochastic.

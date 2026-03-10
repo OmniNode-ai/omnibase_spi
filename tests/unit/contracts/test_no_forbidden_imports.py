@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Tests that contracts do NOT import from omnibase_core, omnibase_infra, or omniclaude.
 
 This is a critical architectural guardrail: all Contract* classes must be

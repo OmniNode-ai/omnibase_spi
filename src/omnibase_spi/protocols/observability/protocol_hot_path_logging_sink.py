@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Protocol definition for hot-path logging sink.
 
 This module defines the ProtocolHotPathLoggingSink protocol for synchronous,

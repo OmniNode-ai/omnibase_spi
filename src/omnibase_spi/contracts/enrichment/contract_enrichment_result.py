@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractEnrichmentResult -- canonical output for context enrichment.
 
 Captures the result of a context enrichment operation, including the

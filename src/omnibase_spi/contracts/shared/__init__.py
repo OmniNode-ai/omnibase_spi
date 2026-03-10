@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Shared contract primitives for the ONEX pipeline and validation systems.
 
 These are foundational data contracts reused across multiple domains:

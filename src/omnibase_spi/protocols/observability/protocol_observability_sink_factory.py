@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Protocol definition for observability sink factory.
 
 This module defines the ProtocolObservabilitySinkFactory protocol, which

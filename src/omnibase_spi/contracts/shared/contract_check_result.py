@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractCheckResult -- single check outcome.
 
 Composed by RRH, validation, governance, and measurement subsystems to

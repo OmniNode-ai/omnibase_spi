@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractAttributionRecord -- closed-loop attribution chain.
 
 Records the provenance chain for a validated pattern: who proposed it,

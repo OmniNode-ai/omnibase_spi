@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Dashboard domain protocols for ONEX.
 
 This domain contains protocols for dashboard services that provide real-time

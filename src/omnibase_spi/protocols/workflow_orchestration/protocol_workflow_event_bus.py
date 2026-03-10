@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ONEX SPI workflow event bus protocols for distributed orchestration.
 
 Protocols that extend the base event bus with workflow-specific

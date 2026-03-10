@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Protocol for fixture loading and discovery.
 
 This module defines the minimal interface for fixture loaders that can

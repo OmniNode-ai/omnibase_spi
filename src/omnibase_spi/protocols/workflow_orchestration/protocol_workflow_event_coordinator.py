@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Protocol interface for Workflow event coordinator tools in ONEX systems.
 
 This module defines the interface for tools that coordinate event-driven workflow

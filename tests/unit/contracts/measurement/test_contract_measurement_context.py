@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Tests for model_id and producer_kind fields on ContractMeasurementContext.
 
 OMN-3924: Add model attribution fields to ContractMeasurementContext.

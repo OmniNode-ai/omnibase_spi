@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractMeasurementEvent -- domain wrapper for measurement data.
 
 Wraps a ``ContractPhaseMetrics`` payload with event-level metadata

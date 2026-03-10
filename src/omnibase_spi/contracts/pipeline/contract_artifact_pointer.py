@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractArtifactPointer -- reference to a produced artifact.
 
 A stable pointer to an artifact (file, PR, commit, etc.) produced by

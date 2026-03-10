@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractValidationPlan -- what checks to run.
 
 Defines the set of validation checks to execute for a given pattern

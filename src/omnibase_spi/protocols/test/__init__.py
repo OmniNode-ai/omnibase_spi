@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Testing domain protocols for ONEX.
 
 This domain contains protocols for testing frameworks,

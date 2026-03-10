@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Protocol for dashboard widget rendering.
 
 This module defines the contract for widget renderers that transform widget

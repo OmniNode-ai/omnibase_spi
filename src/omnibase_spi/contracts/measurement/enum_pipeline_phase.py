@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractEnumPipelinePhase -- canonical pipeline phases.
 
 Defines the five discrete phases a measurement pipeline execution passes

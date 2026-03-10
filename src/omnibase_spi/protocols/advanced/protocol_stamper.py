@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Protocol for ONEX metadata stamping operations.
 
 This module defines the interface for stamping files with ONEX metadata blocks,

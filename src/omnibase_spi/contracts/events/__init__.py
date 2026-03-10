@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """SPI event contracts — wire-format models for the three new event topics.
 
 These contracts define the SPI-layer view of each event type.  They are

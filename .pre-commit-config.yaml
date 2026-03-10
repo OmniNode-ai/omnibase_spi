@@ -249,17 +249,14 @@ repos:
       # These hooks ensure consistent file header format
       # ======================================================================
 
-      # SPDX Header Prevention (OMN-1360)
-      # Prevents SPDX license headers from being (re)introduced.
-      # ONEX uses a centralized LICENSE file instead of per-file headers.
-      # To allow SPDX headers in rare cases, add: # spdx-ok: <reason>
-      - id: validate-no-spdx-headers
-        name: SPI SPDX Header Prevention
-        entry: python scripts/validation/validate_no_spdx_headers.py
+      # SPDX Header Enforcement (reverses OMN-1360 — uniform MIT headers required)
+      - id: validate-spdx-headers
+        name: ONEX SPDX Header Requirement
+        entry: uv run onex spdx validate
         language: system
         pass_filenames: true
-        files: \.py$
-        exclude: ^(archived/|archive/).*\.py$
+        files: ^(src|tests|scripts|examples)/.*\.(py|sh|bash|yml|yaml|toml)$
+        exclude: ^(archived/|archive/)
         stages: [pre-commit]
 
       # ======================================================================
