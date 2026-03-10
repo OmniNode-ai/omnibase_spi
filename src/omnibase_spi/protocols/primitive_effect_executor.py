@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """PrimitiveEffectExecutor SPI protocol for the ONEX kernel.
 
 This module defines the stable, typed interface that the L1 kernel uses to

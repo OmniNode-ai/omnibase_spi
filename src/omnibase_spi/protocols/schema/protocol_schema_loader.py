@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ProtocolSchemaLoader: Protocol for all ONEX schema loader implementations.
 
 Defines the canonical loader interface for node metadata and JSON schema files.

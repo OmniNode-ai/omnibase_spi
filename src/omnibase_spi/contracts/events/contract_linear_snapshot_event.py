@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractLinearSnapshotEvent — SPI wire contract for Linear snapshot events.
 
 Topic: ``onex.evt.linear.snapshot.v1``

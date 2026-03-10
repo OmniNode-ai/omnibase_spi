@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractProjectionResult -- result wire format for projection writes.
 
 Represents the outcome of a synchronous projection write operation

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Protocol for validating execution constraints don't conflict.
 
 This module defines the protocol for validating that a set of execution

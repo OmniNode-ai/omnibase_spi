@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractRRHResult -- composes list[ContractCheckResult] + ContractVerdict.
 
 The top-level result of a Release Readiness Handshake (RRH) run, containing

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractHookInvocationResult -- outer response (adapter -> shell shim).
 
 Represents the response the hook adapter sends back to the shell shim after

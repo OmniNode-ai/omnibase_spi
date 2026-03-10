@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Protocol reducer module for workflow orchestration.
 
 CONSOLIDATED: ProtocolReducer functionality moved to ProtocolWorkflowReducer.

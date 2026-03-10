@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Protocol interface for contract compliance validation tools in ONEX ecosystem.
 
 This module defines the interface that contract compliance validation tools must implement.

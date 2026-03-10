@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Check for unused protocol exports in omnibase_spi.
 
 Scans the ``__all__`` list from ``omnibase_spi.protocols`` and checks whether

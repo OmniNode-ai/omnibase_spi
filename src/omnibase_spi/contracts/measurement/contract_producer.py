@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractProducer -- structured producer identity.
 
 Identifies the producer of a measurement: which tool or agent, at what

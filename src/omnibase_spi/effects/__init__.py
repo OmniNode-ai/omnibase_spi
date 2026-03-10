@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Effect node protocol definitions for omnibase_spi.
 
 This package contains SPI-level effect node protocols used as

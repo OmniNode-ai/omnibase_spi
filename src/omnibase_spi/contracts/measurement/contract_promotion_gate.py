@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractPromotionGate -- evidence-tier gate for promotion decisions.
 
 Defines the evidence required and observed for a promotion decision.

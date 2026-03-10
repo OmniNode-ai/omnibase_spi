@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractCheckpoint -- phase checkpoint wire format.
 
 Represents a snapshot of pipeline state at the boundary between phases,

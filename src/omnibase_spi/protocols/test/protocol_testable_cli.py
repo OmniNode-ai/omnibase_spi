@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ProtocolTestableCLI: Protocol for all testable CLI entrypoints.
 
 Requires main(argv) -> ModelResultCLI.

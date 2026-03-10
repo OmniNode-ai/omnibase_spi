@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractMeasuredAttribution -- attribution with measurement composition.
 
 Links a measurement run to its attribution chain: who produced it, what

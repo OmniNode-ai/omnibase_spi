@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Verification protocol interfaces for omnibase_spi.
 
 Protocols for package verification including

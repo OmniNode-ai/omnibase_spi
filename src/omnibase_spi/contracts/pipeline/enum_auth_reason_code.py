@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Stable auth decision reason codes.
 
 Defines the canonical set of authorization reason codes used in

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Protocol for output formatting in ONEX workflows.
 
 This module defines the interface for output formatters that transform data

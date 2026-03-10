@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractNodeOperationResult -- inner response (node -> adapter).
 
 Represents the response an ONEX node sends back to the adapter after

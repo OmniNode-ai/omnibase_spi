@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Protocol for ONEX node metadata validation.
 
 This module defines the interface for validators that check ONEX node metadata

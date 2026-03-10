@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ProtocolGitHubPRPollerEffect — SPI Protocol for GitHub PR status polling.
 
 Defines the abstract interface that the ONEX runtime calls to poll GitHub

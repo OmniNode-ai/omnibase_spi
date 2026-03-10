@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ProtocolLinearSnapshotEffect — SPI Protocol for Linear snapshot polling.
 
 Defines the abstract interface that the ONEX runtime calls to poll the

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractLlmCallMetrics -- per-call LLM cost and usage tracking.
 
 Provides detailed metrics for a single LLM API call, including token

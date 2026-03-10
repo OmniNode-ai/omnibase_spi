@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Canonical JSON/YAML serialization helpers for pipeline contracts.
 
 Provides deterministic serialization and deserialization for all

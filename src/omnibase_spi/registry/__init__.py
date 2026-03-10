@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """SPI Event Registry — canonical event-type-to-topic mapping.
 
 Provides the runtime-accessible registry that maps every known

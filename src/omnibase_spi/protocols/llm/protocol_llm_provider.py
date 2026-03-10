@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Protocol for universal LLM provider operations with model-agnostic interface."""
 
 from __future__ import annotations

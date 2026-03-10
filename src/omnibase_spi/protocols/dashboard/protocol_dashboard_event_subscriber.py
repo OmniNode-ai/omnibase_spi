@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Dashboard Event Subscriber Protocol - ONEX SPI Interface.
 
 The protocol definition for dashboard event subscription

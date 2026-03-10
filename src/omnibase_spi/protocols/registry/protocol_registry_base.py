@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Generic registry protocol for key-value registration management.
 
 A generic, type-safe protocol for implementing registries

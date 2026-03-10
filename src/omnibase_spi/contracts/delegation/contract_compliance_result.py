@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractComplianceResult -- quality gate outcome for delegation responses.
 
 Captures the outcome of a quality-gate evaluation applied to a delegated

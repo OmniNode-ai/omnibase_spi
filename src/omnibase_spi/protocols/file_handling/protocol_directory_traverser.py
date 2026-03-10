@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Protocol for directory traversal operations.
 
 Defines a standardized interface for discovering and filtering files in directories.

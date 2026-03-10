@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Drift gate tests for the SPI Event Registry.
 
 These tests enforce three invariants:

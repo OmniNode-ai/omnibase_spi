@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Protocol for MCP tool operations with dry-run and apply modes.
 
 This module defines the interface for CLI scripts that can modify files,

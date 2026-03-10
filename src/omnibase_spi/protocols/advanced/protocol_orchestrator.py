@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Protocol definitions for workflow orchestration in ONEX systems.
 
 This module defines protocols for workflow graph representation, execution planning,

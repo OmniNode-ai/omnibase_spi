@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractSessionIndex -- stable pointer wire format.
 
 A lightweight pointer that uniquely identifies a session and allows

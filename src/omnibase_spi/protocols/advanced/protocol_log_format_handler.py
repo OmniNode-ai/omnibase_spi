@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Protocol for pluggable log format handlers in ONEX nodes.
 
 This protocol defines the interface that all log format handlers must implement

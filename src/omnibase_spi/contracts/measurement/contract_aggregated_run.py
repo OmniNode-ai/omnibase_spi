@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractAggregatedRun -- run-level rollup with overall_result semantics.
 
 Aggregates multiple ``ContractPhaseMetrics`` into a single run summary.

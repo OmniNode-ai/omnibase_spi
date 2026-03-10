@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Tests for ProtocolIntentClassifier protocol compliance.
 
 Validates that ProtocolIntentClassifier:

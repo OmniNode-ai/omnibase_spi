@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Stable RRH rule IDs (RRH-xxxx).
 
 Defines the canonical set of RRH (Release Readiness Handshake) rule

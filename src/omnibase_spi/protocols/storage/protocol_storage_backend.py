@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """
 Storage Backend Protocol for ONEX Checkpoint Storage.
 Defines the interface for pluggable storage backends at the root level.

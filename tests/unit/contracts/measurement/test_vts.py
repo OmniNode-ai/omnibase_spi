@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Tests for ContractPrValidationRollup model and VTS computation.
 
 OMN-3926: Create ContractPrValidationRollup and VTS computation functions.

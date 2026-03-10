@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """SPI Event Registry — canonical mapping of event_type → wire metadata.
 
 Policy: ``event_type == wire topic suffix`` (Option A from OMN-2655).

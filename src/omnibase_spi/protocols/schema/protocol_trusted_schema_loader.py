@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Protocols for secure schema loading with path safety validation."""
 
 from typing import TYPE_CHECKING, Protocol, runtime_checkable

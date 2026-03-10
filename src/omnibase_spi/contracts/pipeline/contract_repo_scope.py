@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractRepoScope -- repo + path glob scope.
 
 Defines the scope of a pipeline operation in terms of which repository

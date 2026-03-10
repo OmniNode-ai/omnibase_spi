@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Tests for unused protocol export detection.
 
 Verifies that all symbols in ``omnibase_spi.protocols.__all__`` are referenced

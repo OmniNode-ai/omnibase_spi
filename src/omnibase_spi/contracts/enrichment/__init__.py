@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Enrichment contracts for context enrichment operations.
 
 Frozen, high-integrity wire-format contracts for

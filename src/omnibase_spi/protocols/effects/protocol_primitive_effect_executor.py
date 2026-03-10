@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Protocol for primitive effect execution in ONEX kernel.
 
 This module defines the stable interface for effect execution that enables

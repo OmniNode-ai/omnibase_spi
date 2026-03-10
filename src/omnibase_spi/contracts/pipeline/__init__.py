@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Pipeline contracts for the ONEX hook adapter and node operation system.
 
 These contracts define the wire formats exchanged between the shell shim,

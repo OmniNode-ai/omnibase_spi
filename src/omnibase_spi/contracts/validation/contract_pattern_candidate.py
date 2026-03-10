@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractPatternCandidate -- pattern submitted for validation.
 
 Represents a code or configuration pattern that has been proposed for

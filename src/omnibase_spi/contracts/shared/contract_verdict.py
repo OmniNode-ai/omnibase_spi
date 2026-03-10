@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractVerdict -- aggregated outcome.
 
 Represents the aggregated verdict (PASS / FAIL / QUARANTINE) computed

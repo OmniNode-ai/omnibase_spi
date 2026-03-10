@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Redpanda Event Bus Adapter Protocol - ONEX SPI Interface.
 
 Protocol definitions for Redpanda backend implementations in the

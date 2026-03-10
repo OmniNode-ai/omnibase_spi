@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractNodeOperationRequest -- inner envelope (adapter -> node).
 
 Represents the request the adapter dispatches to an ONEX node after

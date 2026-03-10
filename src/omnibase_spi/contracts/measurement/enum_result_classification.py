@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractEnumResultClassification -- outcome categories.
 
 Classifies the result of a pipeline phase execution into one of five

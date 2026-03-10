@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ContractValidationVerdict -- composes ContractVerdict + promotion.
 
 The final verdict of a validation run, combining the aggregated verdict

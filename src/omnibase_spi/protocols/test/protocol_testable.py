@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """ProtocolTestable: Base protocol for all testable ONEX components.
 
 This is a marker protocol for testable objects (registries, CLIs, tools, etc.).

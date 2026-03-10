@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Validation contracts for the ONEX validation orchestration system.
 
 These contracts define wire formats for the validation subsystem:

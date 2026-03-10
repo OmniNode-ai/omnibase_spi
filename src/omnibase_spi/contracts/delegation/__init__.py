@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Delegation contracts for the ONEX delegation pipeline.
 
 Frozen, high-integrity wire-format contracts for

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
 """Protocol for loading ONEX version information.
 
 This module defines the interface for loading version information from .onexversion files.
