@@ -1,3 +1,8 @@
+## v0.16.1 (2026-03-12)
+
+### Other Changes
+- chore(deps): bump actions/checkout from 4 to 6 (#132)
+- chore(deps): bump actions/setup-python from 5 to 6 (#133)
 ## v0.15.2 (2026-03-09)
 
 ### Added
