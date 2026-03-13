@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 class ProtocolLLMProvider(Protocol):
     """Universal protocol for model-agnostic LLM provider operations.
 
-    Defines the standard interface that all LLM providers (Ollama, OpenAI,
+    Defines the standard interface that all LLM providers (OpenAI,
     Anthropic, Gemini) must implement for seamless provider switching,
     intelligent routing, and unified workflow integration across local
     and external model services.
@@ -82,7 +82,7 @@ class ProtocolLLMProvider(Protocol):
         """Get the provider name identifier.
 
         Returns:
-            Provider name (e.g., 'ollama', 'openai', 'anthropic', 'gemini')
+            Provider name (e.g., 'openai', 'anthropic', 'gemini')
 
         Example:
             ```python
