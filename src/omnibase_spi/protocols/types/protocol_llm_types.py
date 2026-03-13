@@ -256,36 +256,6 @@ class ProtocolConversationContext(Protocol):
 
 
 @runtime_checkable
-class ProtocolOllamaCapabilities(Protocol):
-    """
-    Protocol for Ollama-specific capabilities.
-
-    This protocol defines the contract for Ollama-specific capabilities
-    and configuration options.
-    """
-
-    @property
-    def supports_gpu(self) -> bool:
-        """Whether GPU acceleration is supported."""
-        ...
-
-    @property
-    def available_models(self) -> list[str]:
-        """List of available Ollama models."""
-        ...
-
-    @property
-    def ollama_version(self) -> str:
-        """Ollama server version."""
-        ...
-
-    @property
-    def system_info(self) -> "JsonType":
-        """System information as JSON-compatible dictionary."""
-        ...
-
-
-@runtime_checkable
 class ProtocolQueryEnhancementResult(Protocol):
     """
     Protocol for query enhancement results.
@@ -356,7 +326,6 @@ ModelCapabilities = ProtocolModelCapabilities
 ProviderConfig = ProtocolProviderConfig
 AnswerGenerationResult = ProtocolAnswerGenerationResult
 ConversationContext = ProtocolConversationContext
-OllamaCapabilities = ProtocolOllamaCapabilities
 QueryEnhancementResult = ProtocolQueryEnhancementResult
 RetrievedDocument = ProtocolRetrievedDocument
 
@@ -369,14 +338,12 @@ __all__ = [
     "LiteralLLMProvider",
     "LiteralQueryType",
     "ModelCapabilities",
-    "OllamaCapabilities",
     "ProtocolAnswerGenerationResult",
     "ProtocolConversationContext",
     "ProtocolLLMHealthResponse",
     "ProtocolLLMRequest",
     "ProtocolLLMResponse",
     "ProtocolModelCapabilities",
-    "ProtocolOllamaCapabilities",
     "ProtocolProviderConfig",
     "ProtocolQueryEnhancementResult",
     "ProtocolRetrievedDocument",

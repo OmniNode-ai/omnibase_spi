@@ -9,12 +9,11 @@ enabling consistent interfaces across different LLM implementations.
 
 Key Protocols:
     - ProtocolLLMProvider: Base interface for LLM service providers
-    - ProtocolOllamaClient: Specific protocol for Ollama model service
     - ProtocolModelRouter: Interface for model routing and selection
     - ProtocolLLMToolProvider: Interface for LLM-based tool providers
 
 Usage Example:
-    from omnibase_spi.protocols.llm import ProtocolLLMProvider, ProtocolOllamaClient
+    from omnibase_spi.protocols.llm import ProtocolLLMProvider
 
     # Create implementations
     class MyLLMProvider(ProtocolLLMProvider):
@@ -28,11 +27,9 @@ from omnibase_spi.protocols.llm.protocol_llm_tool_provider import (
     ProtocolLLMToolProvider,
     ProtocolModelRouter,
 )
-from omnibase_spi.protocols.llm.protocol_ollama_client import ProtocolOllamaClient
 
 __all__ = [
     "ProtocolLLMProvider",
     "ProtocolLLMToolProvider",
     "ProtocolModelRouter",
-    "ProtocolOllamaClient",
 ]

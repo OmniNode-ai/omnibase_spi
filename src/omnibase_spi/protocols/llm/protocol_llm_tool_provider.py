@@ -18,7 +18,7 @@ if TYPE_CHECKING:
         Protocol for LLM provider implementation interface.
 
         Defines the interface for concrete LLM provider implementations
-        (Ollama, OpenAI, Anthropic, Gemini) used within the tool provider
+        (OpenAI, Anthropic, Gemini) used within the tool provider
         system. This is a forward-declared protocol for type checking only.
 
         Example:
@@ -71,7 +71,7 @@ class ProtocolModelRouter(Protocol):
 
     Key Features:
         - **Intelligent Routing**: Selects optimal provider per request
-        - **Multi-Provider**: Coordinates Ollama, OpenAI, Anthropic, Gemini
+        - **Multi-Provider**: Coordinates OpenAI, Anthropic, Gemini
         - **Load Balancing**: Distributes requests across providers
         - **Failover Support**: Automatic fallback on provider failure
         - **Cost Optimization**: Routes based on cost/performance tradeoffs
@@ -95,7 +95,7 @@ class ProtocolModelRouter(Protocol):
 class ProtocolLLMToolProvider(Protocol):
     """Protocol for unified LLM tool provisioning and routing coordination.
 
-    Provides centralized access to LLM providers (Ollama, OpenAI, Anthropic,
+    Provides centralized access to LLM providers (OpenAI, Anthropic,
     Gemini) and intelligent routing capabilities for multi-provider workflow
     orchestration without direct implementation dependencies.
 
@@ -109,10 +109,6 @@ class ProtocolLLMToolProvider(Protocol):
             router = await tool_provider.get_model_router()
             request = create_llm_request(prompt=prompt)
             response = await router.generate(request)
-
-            # Or access specific provider directly
-            ollama = await tool_provider.get_ollama_provider()
-            local_response = await ollama.generate_async(request)
 
             return response.content
         ```
@@ -191,26 +187,6 @@ class ProtocolLLMToolProvider(Protocol):
             if caps.context_length >= 128000:
                 # Use for long-context tasks
                 response = await openai.generate_async(request)
-            ```
-        """
-        ...
-
-    async def get_ollama_provider(self) -> "ProtocolLLMProviderImpl":
-        """Get Ollama LLM provider instance for local models.
-
-        Returns:
-            Configured Ollama provider with local model access
-
-        Raises:
-            ProviderNotAvailableError: If Ollama service is not running
-            ConnectionError: If cannot connect to Ollama service
-
-        Example:
-            ```python
-            ollama = await tool_provider.get_ollama_provider()
-            # Local models have zero API cost
-            cost = ollama.estimate_cost(request)  # Returns 0.0
-            response = await ollama.generate_async(request)
             ```
         """
         ...

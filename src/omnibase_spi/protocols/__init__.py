@@ -55,9 +55,9 @@ Key Protocol Domains:
       * ONEX metadata stamping and validation
       * File type detection and processing
 
-    - llm: Large Language Model integration (4 protocols)
+    - llm: Large Language Model integration (3 protocols)
       * LLM provider interfaces and model routing
-      * Ollama client and tool provider protocols
+      * Tool provider protocols
 
     - semantic: Semantic processing and retrieval (2 protocols)
       * Advanced text preprocessing
@@ -274,13 +274,12 @@ from omnibase_spi.protocols.intelligence import (
     ProtocolPatternExtractor,
 )
 
-# LLM protocols (4 protocols) - Large Language Model integration
+# LLM protocols (3 protocols) - Large Language Model integration
 # LLM provider interfaces, model routing, and semantic processing
 from omnibase_spi.protocols.llm import (
     ProtocolLLMProvider,
     ProtocolLLMToolProvider,
     ProtocolModelRouter,
-    ProtocolOllamaClient,
 )
 
 # MCP protocols (15 protocols) - Model Context Protocol integration
@@ -619,7 +618,6 @@ __all__ = [
     "ProtocolNodeRunner",
     "ProtocolNodeSchedulingResult",
     "ProtocolObservabilitySinkFactory",
-    "ProtocolOllamaClient",
     "ProtocolOnexMetadata",
     "ProtocolOnexSecurityContext",
     "ProtocolOnexValidationReport",
