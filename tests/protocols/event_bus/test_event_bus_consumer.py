@@ -95,7 +95,6 @@ class CompliantEventBusConsumer:
 
     async def commit_offsets(self) -> None:
         """Commit current consumer offsets."""
-        pass
 
     async def seek_to_beginning(self, topic: str, partition: int) -> None:
         """Seek to the beginning of a topic partition."""

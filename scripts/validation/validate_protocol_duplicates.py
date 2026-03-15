@@ -253,14 +253,13 @@ class ProtocolExtractor(ast.NodeVisitor):
         """Determine the type of protocol based on its contents."""
         if not methods and not properties:
             return "marker"  # Empty marker protocol
-        elif not methods and properties:
+        if not methods and properties:
             return "property_only"  # Data structure protocol
-        elif methods and not properties and base_protocols:
+        if methods and not properties and base_protocols:
             return "mixin"  # Mixin protocol that extends other protocols
-        elif methods:
+        if methods:
             return "functional"  # Behavioral protocol
-        else:
-            return "unknown"
+        return "unknown"
 
     def _determine_protocol_domain(
         self, file_path: str, protocol_name: str = "", docstring: str = ""
@@ -271,21 +270,21 @@ class ProtocolExtractor(ast.NodeVisitor):
         # Extract domain from file path first (most reliable)
         if "workflow_orchestration" in path_parts:
             return "workflow"
-        elif "mcp" in path_parts:
+        if "mcp" in path_parts:
             return "mcp"
-        elif "event_bus" in path_parts:
+        if "event_bus" in path_parts:
             return "events"
-        elif "container" in path_parts:
+        if "container" in path_parts:
             return "container"
-        elif "core" in path_parts:
+        if "core" in path_parts:
             return "core"
-        elif "types" in path_parts:
+        if "types" in path_parts:
             return "types"
-        elif "file_handling" in path_parts:
+        if "file_handling" in path_parts:
             return "file_handling"
-        elif "validation" in path_parts:
+        if "validation" in path_parts:
             return "validation"
-        elif "memory" in path_parts:
+        if "memory" in path_parts:
             return "memory"
 
         # Extract domain from protocol name as fallback
@@ -293,15 +292,15 @@ class ProtocolExtractor(ast.NodeVisitor):
             protocol_lower = protocol_name.lower()
             if "workflow" in protocol_lower:
                 return "workflow"
-            elif "mcp" in protocol_lower:
+            if "mcp" in protocol_lower:
                 return "mcp"
-            elif "event" in protocol_lower:
+            if "event" in protocol_lower:
                 return "events"
-            elif "file" in protocol_lower:
+            if "file" in protocol_lower:
                 return "file_handling"
-            elif "node" in protocol_lower:
+            if "node" in protocol_lower:
                 return "core"
-            elif "memory" in protocol_lower:
+            if "memory" in protocol_lower:
                 return "memory"
 
         # Extract domain from docstring as final fallback
@@ -309,13 +308,13 @@ class ProtocolExtractor(ast.NodeVisitor):
             doc_lower = docstring.lower()
             if "workflow" in doc_lower:
                 return "workflow"
-            elif "mcp" in doc_lower:
+            if "mcp" in doc_lower:
                 return "mcp"
-            elif "event" in doc_lower:
+            if "event" in doc_lower:
                 return "events"
-            elif "file" in doc_lower:
+            if "file" in doc_lower:
                 return "file_handling"
-            elif "memory" in doc_lower:
+            if "memory" in doc_lower:
                 return "memory"
 
         return "unknown"
@@ -865,9 +864,8 @@ def main():
                 f"\n🚨 VALIDATION FAILED: {exact_dupes} duplicates, {name_conflicts} conflicts"
             )
             return 1
-        else:
-            print("\n✅ VALIDATION PASSED: No duplicates detected")
-            return 0
+        print("\n✅ VALIDATION PASSED: No duplicates detected")
+        return 0
 
     except timeout_utils.TimeoutError:
         print("❌ Validation timeout")

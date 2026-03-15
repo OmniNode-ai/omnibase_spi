@@ -44,6 +44,7 @@ from omnibase_spi.contracts.pipeline.enum_auth_reason_code import AuthReasonCode
 from omnibase_spi.enums.enum_rrh_rule import RRHRule
 
 __all__ = [
+    "AuthReasonCode",
     "ContractArtifactPointer",
     "ContractAuthGateInput",
     "ContractCheckpoint",
@@ -53,11 +54,10 @@ __all__ = [
     "ContractNodeError",
     "ContractNodeOperationRequest",
     "ContractNodeOperationResult",
-    "ContractRepoScope",
     "ContractRRHResult",
+    "ContractRepoScope",
     "ContractRunContext",
     "ContractSessionIndex",
     "ContractWorkAuthorization",
-    "AuthReasonCode",
     "RRHRule",
 ]

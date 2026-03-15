@@ -98,7 +98,6 @@ class MockEventBus:
             envelope: The envelope to publish.
             topic: The topic to publish to.
         """
-        pass
 
     async def subscribe(
         self,
@@ -192,7 +191,6 @@ class CompliantProvider:
 
     async def close_all(self) -> None:
         """Close all managed event bus instances."""
-        pass
 
     @property
     def default_environment(self) -> str:
@@ -235,8 +233,6 @@ class NonCompliantProvider:
     Used by: test_non_compliant_class_fails_isinstance
     """
 
-    pass
-
 
 class MissingPropertiesProvider:
     """Test double with all methods but MISSING required properties.
@@ -271,7 +267,6 @@ class MissingPropertiesProvider:
 
     async def close_all(self) -> None:
         """Close all managed event bus instances."""
-        pass
 
 
 # =============================================================================

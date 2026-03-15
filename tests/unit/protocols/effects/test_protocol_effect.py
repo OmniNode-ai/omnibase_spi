@@ -47,8 +47,6 @@ class CompliantEffect:
 class NonCompliantEffect:
     """Class missing both synchronous_execution and execute."""
 
-    pass
-
 
 class MissingExecuteEffect:
     """Has synchronous_execution but missing execute method."""

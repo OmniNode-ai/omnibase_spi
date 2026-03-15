@@ -195,9 +195,9 @@ def _load_exception(exception_name: str) -> type:
         exception_class = getattr(module, exception_name)
 
         # Cache for future access
-        _exception_cache[exception_name] = cast(type, exception_class)
+        _exception_cache[exception_name] = cast("type", exception_class)
 
-        return cast(type, exception_class)
+        return cast("type", exception_class)
 
     except (ImportError, AttributeError) as e:
         raise ImportError(f"Failed to load exception {exception_name}: {e}") from e
@@ -233,9 +233,9 @@ def _load_protocol(protocol_name: str) -> type:
         protocol_class = getattr(module, protocol_name)
 
         # Cache for future access
-        _protocol_cache[protocol_name] = cast(type, protocol_class)
+        _protocol_cache[protocol_name] = cast("type", protocol_class)
 
-        return cast(type, protocol_class)
+        return cast("type", protocol_class)
 
     except (ImportError, AttributeError) as e:
         raise ImportError(f"Failed to load protocol {protocol_name}: {e}") from e

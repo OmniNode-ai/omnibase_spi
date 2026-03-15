@@ -108,11 +108,8 @@ class NamingPatternValidator(ast.NodeVisitor):
     def visit_If(self, node: ast.If) -> None:
         """Track TYPE_CHECKING blocks to skip forward references."""
         is_type_checking = False
-        if (
-            isinstance(node.test, ast.Name)
-            and node.test.id == "TYPE_CHECKING"
-            or isinstance(node.test, ast.Attribute)
-            and node.test.attr == "TYPE_CHECKING"
+        if (isinstance(node.test, ast.Name) and node.test.id == "TYPE_CHECKING") or (
+            isinstance(node.test, ast.Attribute) and node.test.attr == "TYPE_CHECKING"
         ):
             is_type_checking = True
 

@@ -114,9 +114,8 @@ def main():
     if broken_links:
         print(f"\n❌ Found {len(broken_links)} broken links!")
         return 1
-    else:
-        print(f"\n✅ All {total_links} links are working!")
-        return 0
+    print(f"\n✅ All {total_links} links are working!")
+    return 0
 
 
 if __name__ == "__main__":

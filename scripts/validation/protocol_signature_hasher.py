@@ -237,14 +237,13 @@ class EnhancedProtocolSignatureHasher:
 
         if not has_methods and not has_properties:
             return "marker"  # Empty marker protocol
-        elif has_properties and not has_methods:
+        if has_properties and not has_methods:
             return "property_only"  # Data structure protocol
-        elif has_methods and not has_properties:
+        if has_methods and not has_properties:
             return "functional"  # Behavioral protocol
-        elif has_inheritance and (has_methods or has_properties):
+        if has_inheritance and (has_methods or has_properties):
             return "mixin"  # Mixin protocol
-        else:
-            return "composite"  # Mix of properties and methods
+        return "composite"  # Mix of properties and methods
 
     def _determine_domain(self, file_path: str) -> str:
         """Determine protocol domain from file path."""

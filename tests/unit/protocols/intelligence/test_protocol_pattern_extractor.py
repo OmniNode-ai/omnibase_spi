@@ -116,8 +116,6 @@ class MockPatternExtractor:
 class NonCompliantExtractor:
     """A class that does not implement the ProtocolPatternExtractor protocol."""
 
-    pass
-
 
 class PartialExtractor:
     """A class that has a method with the wrong name."""

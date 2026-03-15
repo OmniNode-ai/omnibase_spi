@@ -135,8 +135,6 @@ class PartialIdempotencyStore:
 class NonCompliantStore:
     """A class that implements none of the ProtocolIdempotencyStore methods."""
 
-    pass
-
 
 @pytest.mark.unit
 class TestProtocolIdempotencyStoreProtocol:

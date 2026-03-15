@@ -180,7 +180,6 @@ class CompliantEventBusConsumer:
 
     async def commit_offsets(self) -> None:
         """Commit current consumer offsets."""
-        pass
 
     async def seek_to_beginning(self, topic: str, partition: int) -> None:
         """Seek to the beginning of a topic partition."""
@@ -297,7 +296,6 @@ class CompliantEventBusTransactionalProducer:
 
     async def begin_transaction(self) -> None:
         """Begin a new transaction."""
-        pass
 
     async def send_transactional(
         self,
@@ -311,11 +309,9 @@ class CompliantEventBusTransactionalProducer:
 
     async def commit_transaction(self) -> None:
         """Commit the current transaction."""
-        pass
 
     async def abort_transaction(self) -> None:
         """Abort the current transaction."""
-        pass
 
 
 # =============================================================================
@@ -340,11 +336,9 @@ class MockEventBusBase:
 
     async def publish(self, event: ProtocolEventMessage) -> None:
         """Publish an event message."""
-        pass
 
     async def publish_envelope(self, envelope: object, topic: str) -> None:
         """Publish an envelope to a topic."""
-        pass
 
     async def subscribe(
         self,
@@ -352,15 +346,12 @@ class MockEventBusBase:
         handler: Callable[[object], Awaitable[None]],
     ) -> None:
         """Subscribe to a topic with a handler."""
-        pass
 
     async def start_consuming(self, timeout_seconds: float | None = None) -> None:
         """Start consuming messages."""
-        pass
 
     async def stop_consuming(self, timeout_seconds: float = 30.0) -> None:
         """Stop consuming messages."""
-        pass
 
     async def health_check(self) -> dict[str, Any]:
         """Check health status."""
@@ -379,7 +370,6 @@ class MockSyncEventBus(MockEventBusBase):
 
     async def publish_sync(self, event: ProtocolEventMessage) -> None:
         """Publish an event synchronously with blocking semantics."""
-        pass
 
 
 class MockAsyncEventBus(MockEventBusBase):
@@ -394,7 +384,6 @@ class MockAsyncEventBus(MockEventBusBase):
 
     async def publish_async(self, event: ProtocolEventMessage) -> None:
         """Publish an event asynchronously with non-blocking semantics."""
-        pass
 
 
 class MockBothEventBus(MockEventBusBase):
@@ -406,11 +395,9 @@ class MockBothEventBus(MockEventBusBase):
 
     async def publish_sync(self, event: ProtocolEventMessage) -> None:
         """Publish an event synchronously."""
-        pass
 
     async def publish_async(self, event: ProtocolEventMessage) -> None:
         """Publish an event asynchronously."""
-        pass
 
 
 # =============================================================================
@@ -519,7 +506,7 @@ def create_compliant_message_as_protocol() -> ProtocolEventBusMessage:
         >>> msg = create_compliant_message_as_protocol()
         >>> await producer.send_batch([msg])
     """
-    return cast(ProtocolEventBusMessage, CompliantEventBusMessage())
+    return cast("ProtocolEventBusMessage", CompliantEventBusMessage())
 
 
 def create_compliant_consumer_as_protocol() -> ProtocolEventBusConsumer:
@@ -528,7 +515,7 @@ def create_compliant_consumer_as_protocol() -> ProtocolEventBusConsumer:
     Returns:
         A CompliantEventBusConsumer instance cast to ProtocolEventBusConsumer.
     """
-    return cast(ProtocolEventBusConsumer, CompliantEventBusConsumer())
+    return cast("ProtocolEventBusConsumer", CompliantEventBusConsumer())
 
 
 def create_compliant_batch_producer_as_protocol() -> ProtocolEventBusBatchProducer:
@@ -537,7 +524,7 @@ def create_compliant_batch_producer_as_protocol() -> ProtocolEventBusBatchProduc
     Returns:
         A CompliantEventBusBatchProducer instance cast to ProtocolEventBusBatchProducer.
     """
-    return cast(ProtocolEventBusBatchProducer, CompliantEventBusBatchProducer())
+    return cast("ProtocolEventBusBatchProducer", CompliantEventBusBatchProducer())
 
 
 def create_compliant_transactional_producer_as_protocol() -> (
@@ -550,5 +537,6 @@ def create_compliant_transactional_producer_as_protocol() -> (
         ProtocolEventBusTransactionalProducer.
     """
     return cast(
-        ProtocolEventBusTransactionalProducer, CompliantEventBusTransactionalProducer()
+        "ProtocolEventBusTransactionalProducer",
+        CompliantEventBusTransactionalProducer(),
     )

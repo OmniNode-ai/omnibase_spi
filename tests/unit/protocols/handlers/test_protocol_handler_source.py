@@ -71,8 +71,6 @@ class PartialHandlerSource:
 class NonCompliantHandlerSource:
     """A class that implements none of the ProtocolHandlerSource protocol."""
 
-    pass
-
 
 class MethodOnlyHandlerSource:
     """A class that only implements list_handler_descriptors, missing source_type property."""

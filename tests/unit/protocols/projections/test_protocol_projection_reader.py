@@ -216,8 +216,6 @@ class PartialProjectionReader:
 class NonCompliantReader:
     """A class that implements none of the ProtocolProjectionReader methods."""
 
-    pass
-
 
 @pytest.mark.unit
 class TestProtocolProjectionReaderProtocol:

@@ -127,8 +127,6 @@ class TestProtocolHandlerContractFactoryProtocol:
         class IncompleteFactory:
             """Factory missing required methods."""
 
-            pass
-
         # isinstance should fail for incomplete implementation
         incomplete = IncompleteFactory()
         assert not isinstance(incomplete, ProtocolHandlerContractFactory)

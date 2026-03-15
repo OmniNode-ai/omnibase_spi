@@ -62,8 +62,6 @@ class PartialPackageVerifier:
 class NonCompliantVerifier:
     """A class that implements none of the ProtocolPackageVerifier protocol."""
 
-    pass
-
 
 class WrongSignatureVerifier:
     """A class with methods that have wrong signatures."""

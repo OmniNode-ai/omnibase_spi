@@ -47,8 +47,6 @@ T = TypeVar("T")
 class TimeoutError(Exception):
     """Cross-platform timeout exception."""
 
-    pass
-
 
 class CrossPlatformTimeout:
     """
@@ -303,7 +301,6 @@ def setup_timeout_handler() -> None:
     This function does nothing but exists for backward compatibility.
     Use timeout_context() or CrossPlatformTimeout instead.
     """
-    pass
 
 
 def cancel_timeout() -> None:
@@ -313,7 +310,6 @@ def cancel_timeout() -> None:
     This function does nothing but exists for backward compatibility.
     Use context managers for proper timeout cancellation.
     """
-    pass
 
 
 if __name__ == "__main__":

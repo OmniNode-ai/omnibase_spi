@@ -147,7 +147,7 @@ class MockEventBusProvider:
         self,
         environment: str,
         group: str,
-        config: dict[str, object] | None = None,  # noqa: ARG002
+        config: dict[str, object] | None = None,
     ) -> "MockEventBus":
         """Create a new event bus instance."""
         bus = MockEventBus(environment, group)

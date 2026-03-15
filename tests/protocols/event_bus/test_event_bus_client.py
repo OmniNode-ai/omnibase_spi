@@ -140,7 +140,6 @@ class CompliantEventBusClient:
 
     async def start(self) -> None:
         """Start the EventBus client."""
-        pass
 
     async def stop(self, timeout_seconds: float = 30.0) -> None:
         """Stop the EventBus client."""
@@ -184,7 +183,7 @@ class CompliantEventBusClientProvider:
         # Cast is safe: CompliantEventBusClient implements all ProtocolEventBusClient methods.
         # The cast is needed because CompliantEventBusClient doesn't explicitly inherit
         # from the Protocol, but it structurally satisfies it (duck typing).
-        return cast(ProtocolEventBusClient, CompliantEventBusClient())
+        return cast("ProtocolEventBusClient", CompliantEventBusClient())
 
     async def get_event_bus_configuration(self) -> dict[str, str | int | float | bool]:
         """Retrieve EventBus client configuration parameters."""
@@ -297,7 +296,6 @@ class CompliantEventBusConsumer:
 
     async def commit_offsets(self) -> None:
         """Commit current consumer offsets."""
-        pass
 
     async def seek_to_beginning(self, topic: str, partition: int) -> None:
         """Seek to the beginning of a topic partition."""
@@ -404,7 +402,6 @@ class CompliantEventBusTransactionalProducer:
 
     async def begin_transaction(self) -> None:
         """Begin a new transaction."""
-        pass
 
     async def send_transactional(
         self,
@@ -418,11 +415,9 @@ class CompliantEventBusTransactionalProducer:
 
     async def commit_transaction(self) -> None:
         """Commit the current transaction."""
-        pass
 
     async def abort_transaction(self) -> None:
         """Abort the current transaction."""
-        pass
 
 
 class CompliantEventBusExtendedClient:
@@ -453,12 +448,12 @@ class CompliantEventBusExtendedClient:
     async def create_consumer(self) -> ProtocolEventBusConsumer:
         """Create a new consumer instance."""
         # Cast is safe: CompliantEventBusConsumer implements all ProtocolEventBusConsumer methods
-        return cast(ProtocolEventBusConsumer, CompliantEventBusConsumer())
+        return cast("ProtocolEventBusConsumer", CompliantEventBusConsumer())
 
     async def create_batch_producer(self) -> ProtocolEventBusBatchProducer:
         """Create a new batch producer instance."""
         # Cast is safe: CompliantEventBusBatchProducer implements all protocol methods
-        return cast(ProtocolEventBusBatchProducer, CompliantEventBusBatchProducer())
+        return cast("ProtocolEventBusBatchProducer", CompliantEventBusBatchProducer())
 
     async def create_transactional_producer(
         self,
@@ -466,7 +461,7 @@ class CompliantEventBusExtendedClient:
         """Create a new transactional producer instance."""
         # Cast is safe: CompliantEventBusTransactionalProducer implements all protocol methods
         return cast(
-            ProtocolEventBusTransactionalProducer,
+            "ProtocolEventBusTransactionalProducer",
             CompliantEventBusTransactionalProducer(),
         )
 
@@ -947,7 +942,7 @@ class TestProtocolEventBusIntegration:
 
         # Validate message
         is_valid = await producer.validate_message(
-            cast(ProtocolEventBusMessage, message)
+            cast("ProtocolEventBusMessage", message)
         )
         assert is_valid
 
@@ -1328,18 +1323,18 @@ class ErrorRaisingExtendedClient:
         """Create a new consumer instance - may raise configured error."""
         if self._create_consumer_error:
             raise self._create_consumer_error
-        return cast(ProtocolEventBusConsumer, CompliantEventBusConsumer())
+        return cast("ProtocolEventBusConsumer", CompliantEventBusConsumer())
 
     async def create_batch_producer(self) -> ProtocolEventBusBatchProducer:
         """Create a new batch producer instance."""
-        return cast(ProtocolEventBusBatchProducer, CompliantEventBusBatchProducer())
+        return cast("ProtocolEventBusBatchProducer", CompliantEventBusBatchProducer())
 
     async def create_transactional_producer(
         self,
     ) -> ProtocolEventBusTransactionalProducer:
         """Create a new transactional producer instance."""
         return cast(
-            ProtocolEventBusTransactionalProducer,
+            "ProtocolEventBusTransactionalProducer",
             CompliantEventBusTransactionalProducer(),
         )
 
@@ -1759,11 +1754,11 @@ class TestEnhancedProtocolIntegration:
 
         # Create and validate message
         msg = CompliantEventBusMessage(value=b"test-data", topic="test-topic")
-        is_valid = await producer.validate_message(cast(ProtocolEventBusMessage, msg))
+        is_valid = await producer.validate_message(cast("ProtocolEventBusMessage", msg))
         assert is_valid
 
         # Send operations
-        await producer.send_batch([cast(ProtocolEventBusMessage, msg)])
+        await producer.send_batch([cast("ProtocolEventBusMessage", msg)])
         await producer.send_to_partition("test", 0, b"key", b"value")
         await producer.send_with_custom_partitioner(
             "test", b"key", b"value", "round_robin"
@@ -1845,7 +1840,7 @@ class TestEnhancedProtocolIntegration:
 
         # Send batch message
         msg = CompliantEventBusMessage(value=b"batch-data", topic="topic-1")
-        await batch_producer.send_batch([cast(ProtocolEventBusMessage, msg)])
+        await batch_producer.send_batch([cast("ProtocolEventBusMessage", msg)])
 
         # Send transactional message
         await tx_producer.init_transactions("parallel-tx")

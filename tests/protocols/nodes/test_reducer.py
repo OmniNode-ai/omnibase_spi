@@ -64,8 +64,6 @@ class PartialReducerNode:
 class NonCompliantReducerNode:
     """A class that implements none of the ProtocolReducerNode methods."""
 
-    pass
-
 
 class WrongSignatureReducerNode:
     """A class with wrong execute signature."""
@@ -87,7 +85,6 @@ class WrongSignatureReducerNode:
 
     async def execute(self) -> None:  # Wrong signature
         """Execute with wrong signature."""
-        pass
 
 
 class TestProtocolReducerNodeProtocol:

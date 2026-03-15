@@ -109,11 +109,8 @@ class SPIProtocolValidator(ast.NodeVisitor):
         """Track TYPE_CHECKING blocks to skip forward references."""
         # Check if this is a TYPE_CHECKING conditional
         is_type_checking = False
-        if (
-            isinstance(node.test, ast.Name)
-            and node.test.id == "TYPE_CHECKING"
-            or isinstance(node.test, ast.Attribute)
-            and node.test.attr == "TYPE_CHECKING"
+        if (isinstance(node.test, ast.Name) and node.test.id == "TYPE_CHECKING") or (
+            isinstance(node.test, ast.Attribute) and node.test.attr == "TYPE_CHECKING"
         ):
             is_type_checking = True
 
@@ -572,14 +569,13 @@ class SPIProtocolValidator(ast.NodeVisitor):
         """Determine the type of protocol based on its contents."""
         if not methods and not properties:
             return "marker"
-        elif not methods and properties:
+        if not methods and properties:
             return "property_only"
-        elif methods and not properties and base_protocols:
+        if methods and not properties and base_protocols:
             return "mixin"
-        elif methods:
+        if methods:
             return "functional"
-        else:
-            return "unknown"
+        return "unknown"
 
     def _determine_protocol_domain(
         self, file_path: str, protocol_name: str, docstring: str
@@ -590,30 +586,30 @@ class SPIProtocolValidator(ast.NodeVisitor):
         # Extract domain from file path
         if "workflow_orchestration" in path_parts:
             return "workflow"
-        elif "mcp" in path_parts:
+        if "mcp" in path_parts:
             return "mcp"
-        elif "event_bus" in path_parts:
+        if "event_bus" in path_parts:
             return "events"
-        elif "container" in path_parts:
+        if "container" in path_parts:
             return "container"
-        elif "core" in path_parts:
+        if "core" in path_parts:
             return "core"
-        elif "types" in path_parts:
+        if "types" in path_parts:
             return "types"
-        elif "file_handling" in path_parts:
+        if "file_handling" in path_parts:
             return "file_handling"
 
         # Extract domain from protocol name
         protocol_lower = protocol_name.lower()
         if "workflow" in protocol_lower:
             return "workflow"
-        elif "mcp" in protocol_lower:
+        if "mcp" in protocol_lower:
             return "mcp"
-        elif "event" in protocol_lower:
+        if "event" in protocol_lower:
             return "events"
-        elif "file" in protocol_lower:
+        if "file" in protocol_lower:
             return "file_handling"
-        elif "node" in protocol_lower:
+        if "node" in protocol_lower:
             return "core"
 
         # Extract domain from docstring
@@ -621,11 +617,11 @@ class SPIProtocolValidator(ast.NodeVisitor):
             doc_lower = docstring.lower()
             if "workflow" in doc_lower:
                 return "workflow"
-            elif "mcp" in doc_lower:
+            if "mcp" in doc_lower:
                 return "mcp"
-            elif "event" in doc_lower:
+            if "event" in doc_lower:
                 return "events"
-            elif "file" in doc_lower:
+            if "file" in doc_lower:
                 return "file_handling"
 
         return "unknown"
@@ -856,9 +852,8 @@ def _filter_real_conflicts(
         if strict_mode:
             # In strict mode, report known conflicts for user verification
             return protocols, True
-        else:
-            # In non-strict mode, skip known conflicts
-            return [], False
+        # In non-strict mode, skip known conflicts
+        return [], False
 
     # If protocols are in different domains, they might be legitimate variations
     domains = {p.domain for p in protocols}

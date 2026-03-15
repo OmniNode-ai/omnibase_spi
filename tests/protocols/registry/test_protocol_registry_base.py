@@ -134,7 +134,6 @@ class PartialRegistry:
 
     def register(self, key: str, value: type) -> None:
         """Register a key-value pair."""
-        pass
 
     def get(self, key: str) -> type:
         """Get value for key."""
@@ -144,15 +143,12 @@ class PartialRegistry:
 class NonCompliantRegistry:
     """A class that implements none of the ProtocolRegistryBase methods."""
 
-    pass
-
 
 class WrongSignatureRegistry:
     """A class that implements methods with wrong signatures."""
 
     def register(self, key: str) -> None:  # Missing value parameter
         """Register a key-value pair."""
-        pass
 
     def get(self, key: str) -> type:
         """Get value for key."""

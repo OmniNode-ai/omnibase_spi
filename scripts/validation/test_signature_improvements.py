@@ -261,9 +261,8 @@ def main():
     if passed == total:
         print("   🎉 ALL TESTS PASSED - Signature improvements working correctly!")
         return 0
-    else:
-        print("   ⚠️ Some tests failed - Review implementation")
-        return 1
+    print("   ⚠️ Some tests failed - Review implementation")
+    return 1
 
 
 if __name__ == "__main__":

@@ -63,8 +63,6 @@ class PartialEffectExecutor:
 class NonCompliantEffectExecutor:
     """A class that implements none of the protocol methods."""
 
-    pass
-
 
 class WrongSignatureExecutor:
     """A class that implements methods with wrong signatures."""

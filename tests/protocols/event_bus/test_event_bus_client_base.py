@@ -117,7 +117,6 @@ class CompliantEventBusClient:
 
     async def start(self) -> None:
         """Start the EventBus client."""
-        pass
 
     async def stop(self, timeout_seconds: float = 30.0) -> None:
         """Stop the EventBus client."""
@@ -162,7 +161,6 @@ class PartialEventBusClient:
 
     async def start(self) -> None:
         """Start the EventBus client."""
-        pass
 
     async def stop(self, timeout_seconds: float = 30.0) -> None:
         """Stop the EventBus client."""
@@ -177,8 +175,6 @@ class NonCompliantEventBusClient:
 
     Used by: test_non_compliant_class_fails_isinstance
     """
-
-    pass
 
 
 class CompliantEventBusClientProvider:
@@ -197,7 +193,7 @@ class CompliantEventBusClientProvider:
         # Cast is safe: CompliantEventBusClient implements all ProtocolEventBusClient methods.
         # The cast is needed because CompliantEventBusClient doesn't explicitly inherit
         # from the Protocol, but it structurally satisfies it (duck typing).
-        return cast(ProtocolEventBusClient, CompliantEventBusClient())
+        return cast("ProtocolEventBusClient", CompliantEventBusClient())
 
     async def get_event_bus_configuration(self) -> dict[str, str | int | float | bool]:
         """Retrieve EventBus client configuration parameters."""
@@ -216,7 +212,7 @@ class PartialEventBusClientProvider:
     async def create_event_bus_client(self) -> ProtocolEventBusClient:
         """Create a new EventBus client instance."""
         # Cast is safe: CompliantEventBusClient implements all ProtocolEventBusClient methods
-        return cast(ProtocolEventBusClient, CompliantEventBusClient())
+        return cast("ProtocolEventBusClient", CompliantEventBusClient())
 
 
 class CompliantEventBusMessage:

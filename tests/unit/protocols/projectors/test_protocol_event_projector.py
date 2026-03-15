@@ -251,8 +251,6 @@ class PartialProjector:
 class NonCompliantProjector:
     """A class that implements none of the ProtocolEventProjector members."""
 
-    pass
-
 
 class MethodOnlyProjector:
     """A class that implements only methods, not properties."""
@@ -263,7 +261,7 @@ class MethodOnlyProjector:
 
     async def get_state(self, aggregate_id: UUID) -> None:
         """Get state."""
-        return None
+        return
 
 
 class PropertyOnlyProjector:

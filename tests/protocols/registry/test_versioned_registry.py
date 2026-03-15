@@ -159,7 +159,7 @@ class ReferenceVersionedRegistry[K, V]:
         - Existing key: Increment latest version's PATCH component
         """
         async with self._lock:
-            if key in self._store and self._store[key]:
+            if self._store.get(key):
                 # Key exists: increment PATCH of latest version
                 latest_version = max(self._store[key].keys(), key=self._parse_semver)
                 major, minor, patch = self._parse_semver(latest_version)
@@ -189,7 +189,7 @@ class ReferenceVersionedRegistry[K, V]:
     async def unregister(self, key: K) -> bool:
         """Remove ALL versions of a key from the registry."""
         async with self._lock:
-            if key in self._store and self._store[key]:
+            if self._store.get(key):
                 del self._store[key]
                 return True
             return False

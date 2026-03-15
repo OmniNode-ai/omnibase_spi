@@ -13,15 +13,11 @@ Validates that ProtocolIntentClassifier:
 from __future__ import annotations
 
 import inspect
-from typing import TYPE_CHECKING, Any, Protocol
+from typing import Any, Protocol
 
 import pytest
 
 from omnibase_spi.protocols.intelligence import ProtocolIntentClassifier
-
-if TYPE_CHECKING:
-    pass
-
 
 # =============================================================================
 # Mock Models (since we can't import from omnibase_core in tests)
@@ -101,8 +97,6 @@ class MockIntentClassifier:
 
 class NonCompliantClassifier:
     """A class that does not implement the ProtocolIntentClassifier protocol."""
-
-    pass
 
 
 class PartialClassifier:

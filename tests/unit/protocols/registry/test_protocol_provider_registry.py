@@ -187,10 +187,8 @@ class MockProviderRegistry:
             return [
                 p for p in self._providers.values() if tags_set.intersection(p.tags)
             ]
-        else:  # match == "all"
-            return [
-                p for p in self._providers.values() if tags_set.issubset(set(p.tags))
-            ]
+        # match == "all"
+        return [p for p in self._providers.values() if tags_set.issubset(set(p.tags))]
 
 
 class PartialProviderRegistry:
@@ -198,7 +196,6 @@ class PartialProviderRegistry:
 
     def register(self, descriptor: Any, *, replace: bool = False) -> None:
         """Only implement register, missing other methods."""
-        pass
 
     def get(self, provider_id: str) -> Any | None:
         """Only implement get."""
@@ -207,8 +204,6 @@ class PartialProviderRegistry:
 
 class NonCompliantProviderRegistry:
     """A class that implements none of the ProtocolProviderRegistry methods."""
-
-    pass
 
 
 # =============================================================================

@@ -251,7 +251,6 @@ class CompliantEventBusTransactionalProducer:
 
     async def begin_transaction(self) -> None:
         """Begin a new transaction."""
-        pass
 
     async def send_transactional(
         self,
@@ -265,11 +264,9 @@ class CompliantEventBusTransactionalProducer:
 
     async def commit_transaction(self) -> None:
         """Commit the current transaction."""
-        pass
 
     async def abort_transaction(self) -> None:
         """Abort the current transaction."""
-        pass
 
 
 class PartialEventBusTransactionalProducer:
@@ -285,11 +282,11 @@ class PartialEventBusTransactionalProducer:
 
     async def begin_transaction(self) -> None:
         """Begin a new transaction."""
-        pass  # Mock implementation
+        # Mock implementation
 
     async def commit_transaction(self) -> None:
         """Commit the current transaction."""
-        pass  # Mock implementation
+        # Mock implementation
 
 
 # =============================================================================
@@ -769,7 +766,7 @@ class TestProtocolEventBusBatchProducerEdgeCases:
         """Sending batch with single message should work."""
         producer = CompliantEventBusBatchProducer()
         msg = CompliantEventBusMessage(value=b"data", topic="test")
-        await producer.send_batch([cast(ProtocolEventBusMessage, msg)])
+        await producer.send_batch([cast("ProtocolEventBusMessage", msg)])
 
     @pytest.mark.asyncio
     async def test_send_to_partition_zero(self) -> None:
@@ -816,7 +813,7 @@ class TestProtocolEventBusBatchProducerEdgeCases:
         """Validate a compliant message should return True."""
         producer = CompliantEventBusBatchProducer()
         msg = CompliantEventBusMessage(value=b"data", topic="test")
-        result = await producer.validate_message(cast(ProtocolEventBusMessage, msg))
+        result = await producer.validate_message(cast("ProtocolEventBusMessage", msg))
         assert result is True
 
     @pytest.mark.asyncio
@@ -825,7 +822,7 @@ class TestProtocolEventBusBatchProducerEdgeCases:
         producer = CompliantEventBusBatchProducer()
         messages = [
             cast(
-                ProtocolEventBusMessage,
+                "ProtocolEventBusMessage",
                 CompliantEventBusMessage(value=f"data-{i}".encode(), topic="test"),
             )
             for i in range(10)

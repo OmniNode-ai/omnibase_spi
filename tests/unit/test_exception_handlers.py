@@ -59,8 +59,6 @@ from tests.conftest import (
 class MockHandler:
     """Simple mock handler class for registry testing."""
 
-    pass
-
 
 class RealisticContractCompiler:
     """
@@ -787,7 +785,7 @@ class TestExceptionRecoveryPatterns:
         except ProtocolHandlerError as e:
             # Construct log message from context
             log_msg = (
-                f"Handler {e.context.get('handler_id', 'unknown')} failed: {str(e)} "
+                f"Handler {e.context.get('handler_id', 'unknown')} failed: {e!s} "
                 f"[operation={e.context.get('operation', 'unknown')}, "
                 f"error_type={e.context.get('error_type', 'unknown')}]"
             )

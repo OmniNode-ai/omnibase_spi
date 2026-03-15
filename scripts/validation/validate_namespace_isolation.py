@@ -143,11 +143,8 @@ class NamespaceIsolationValidator(ast.NodeVisitor):
     def visit_If(self, node: ast.If) -> None:
         """Track TYPE_CHECKING blocks."""
         is_type_checking = False
-        if (
-            isinstance(node.test, ast.Name)
-            and node.test.id == "TYPE_CHECKING"
-            or isinstance(node.test, ast.Attribute)
-            and node.test.attr == "TYPE_CHECKING"
+        if (isinstance(node.test, ast.Name) and node.test.id == "TYPE_CHECKING") or (
+            isinstance(node.test, ast.Attribute) and node.test.attr == "TYPE_CHECKING"
         ):
             is_type_checking = True
 
@@ -219,13 +216,13 @@ class NamespaceIsolationValidator(ast.NodeVisitor):
         """Extract base class name from AST node."""
         if isinstance(base, ast.Name):
             return base.id
-        elif isinstance(base, ast.Attribute):
+        if isinstance(base, ast.Attribute):
             return base.attr
-        elif isinstance(base, ast.Subscript):
+        if isinstance(base, ast.Subscript):
             # Handle Generic[T] style bases
             if isinstance(base.value, ast.Name):
                 return base.value.id
-            elif isinstance(base.value, ast.Attribute):
+            if isinstance(base.value, ast.Attribute):
                 return base.value.attr
         return None
 
@@ -272,7 +269,7 @@ class NamespaceIsolationValidator(ast.NodeVisitor):
         """Extract function name from Call node."""
         if isinstance(node.func, ast.Name):
             return node.func.id
-        elif isinstance(node.func, ast.Attribute):
+        if isinstance(node.func, ast.Attribute):
             return node.func.attr
         return ""
 

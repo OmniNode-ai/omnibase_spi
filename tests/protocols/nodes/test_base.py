@@ -48,8 +48,6 @@ class PartialNode:
 class NonCompliantNode:
     """A class that implements none of the ProtocolNode properties."""
 
-    pass
-
 
 class WrongTypeNode:
     """A class that implements properties with wrong types."""

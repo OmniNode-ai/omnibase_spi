@@ -65,8 +65,6 @@ class PartialComputeNode:
 class NonCompliantComputeNode:
     """A class that implements none of the ProtocolComputeNode properties/methods."""
 
-    pass
-
 
 class WrongTypeComputeNode:
     """A class that implements methods with wrong types."""

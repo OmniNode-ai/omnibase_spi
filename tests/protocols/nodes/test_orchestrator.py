@@ -88,8 +88,6 @@ class PartialOrchestratorNode:
 class NonCompliantOrchestratorNode:
     """A class that implements none of the ProtocolOrchestratorNode requirements."""
 
-    pass
-
 
 class WrongSignatureOrchestratorNode:
     """A class with execute method but wrong signature."""

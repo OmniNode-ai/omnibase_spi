@@ -125,8 +125,6 @@ class MissingKafkaExecutor:
 class EmptyClass:
     """Neither method implemented."""
 
-    pass
-
 
 # ---------------------------------------------------------------------------
 # Tests: ProtocolHttpRequestContract

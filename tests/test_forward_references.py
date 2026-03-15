@@ -817,11 +817,9 @@ class TestIsinstanceChecks:
 
             async def initialize(self, config: object) -> None:
                 """No-op initialization for testing."""
-                pass
 
             async def shutdown(self, timeout_seconds: float = 30.0) -> None:
                 """No-op shutdown. Default 30.0s matches protocol contract."""
-                pass
 
             async def execute(
                 self, request: object, operation_config: object
@@ -853,7 +851,6 @@ class TestIsinstanceChecks:
 
             def register(self, protocol_type: str, handler_cls: type) -> None:
                 """No-op registration for testing."""
-                pass
 
             def get(self, protocol_type: str) -> type:
                 """Returns base 'type' class as placeholder."""
@@ -887,7 +884,6 @@ class TestIsinstanceChecks:
 
             def some_method(self) -> None:
                 """Arbitrary method unrelated to ProtocolHandler contract."""
-                pass
 
         obj = NotAHandler()
         assert not isinstance(obj, ProtocolHandler)
@@ -1362,7 +1358,6 @@ class TestModuleReimport:
 
             def register(self, protocol_type: str, handler_cls: type) -> None:
                 """No-op registration for testing."""
-                pass
 
             def get(self, protocol_type: str) -> type:
                 """Returns base 'type' class as placeholder."""
@@ -1500,11 +1495,9 @@ class TestModuleReimport:
 
             async def initialize(self, config: object) -> None:
                 """No-op initialization for testing."""
-                pass
 
             async def shutdown(self, timeout_seconds: float = 30.0) -> None:
                 """No-op shutdown. Default 30.0s matches protocol contract."""
-                pass
 
             async def execute(
                 self, request: object, operation_config: object
@@ -1552,7 +1545,6 @@ class TestModuleReimport:
 
             def register(self, protocol_type: str, handler_cls: type) -> None:
                 """No-op registration for testing."""
-                pass
 
             def get(self, protocol_type: str) -> type:
                 """Returns base 'type' class as placeholder."""
@@ -2717,11 +2709,9 @@ class TestProtocolInheritanceChains:
 
             async def initialize(self) -> None:
                 """Initialize effect node resources."""
-                pass
 
             async def shutdown(self, timeout_seconds: float = 30.0) -> None:
                 """Shutdown effect node resources."""
-                pass
 
             async def execute(self, input_data: object) -> object:
                 """Execute effect operation."""
