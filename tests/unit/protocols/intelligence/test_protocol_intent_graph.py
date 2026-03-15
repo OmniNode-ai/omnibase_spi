@@ -13,15 +13,11 @@ Validates that ProtocolIntentGraph:
 from __future__ import annotations
 
 import inspect
-from typing import TYPE_CHECKING, Any, Protocol
+from typing import Any, Protocol
 
 import pytest
 
 from omnibase_spi.protocols.intelligence import ProtocolIntentGraph
-
-if TYPE_CHECKING:
-    pass
-
 
 # =============================================================================
 # Mock Models (since we can't import from omnibase_core in tests)
@@ -214,8 +210,6 @@ class MockIntentGraph:
 
 class NonCompliantGraph:
     """A class that does not implement the ProtocolIntentGraph protocol."""
-
-    pass
 
 
 class PartialGraph:

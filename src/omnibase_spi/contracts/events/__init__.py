@@ -26,7 +26,7 @@ from omnibase_spi.contracts.events.contract_linear_snapshot_event import (
 )
 
 __all__ = [
-    "ContractGitHubPRStatusEvent",
     "ContractGitHookEvent",
+    "ContractGitHubPRStatusEvent",
     "ContractLinearSnapshotEvent",
 ]

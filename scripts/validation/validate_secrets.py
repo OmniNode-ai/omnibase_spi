@@ -343,10 +343,10 @@ class PythonSecretValidator(ast.NodeVisitor):
         """Extract the function name from a call node."""
         if isinstance(func_node, ast.Name):
             return func_node.id
-        elif isinstance(func_node, ast.Attribute):
+        if isinstance(func_node, ast.Attribute):
             if isinstance(func_node.value, ast.Name):
                 return f"{func_node.value.id}.{func_node.attr}"
-            elif isinstance(func_node.value, ast.Attribute):
+            if isinstance(func_node.value, ast.Attribute):
                 if isinstance(func_node.value.value, ast.Name):
                     return f"{func_node.value.attr}.{func_node.attr}"
             return func_node.attr

@@ -582,8 +582,6 @@ class PartialBehaviorDescriptor:
 class NonCompliantCapabilityDependency:
     """Class that implements none of the ProtocolCapabilityDependency protocol."""
 
-    pass
-
 
 class PartialExecutionConstraints:
     """Partial implementation missing some properties."""
@@ -603,8 +601,6 @@ class PartialExecutionConstraints:
 
 class NonCompliantHandlerContract:
     """Class that implements none of the ProtocolHandlerContract protocol."""
-
-    pass
 
 
 # ==============================================================================

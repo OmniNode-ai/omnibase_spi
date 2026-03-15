@@ -144,13 +144,10 @@ class PartialCapabilityRegistry:
 
     def register_capability(self, metadata: Any, *, replace: bool = False) -> None:
         """Only implement register_capability, missing other methods."""
-        pass
 
 
 class NonCompliantCapabilityRegistry:
     """A class that implements none of the ProtocolCapabilityRegistry methods."""
-
-    pass
 
 
 class MethodOnlyCapabilityRegistry:

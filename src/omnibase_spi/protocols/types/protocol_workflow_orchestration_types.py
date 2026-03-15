@@ -18,7 +18,7 @@ from omnibase_spi.protocols.types.protocol_core_types import (
 )
 
 # Re-export execution types for backward compatibility
-from omnibase_spi.protocols.types.protocol_workflow_execution_types import (  # noqa: F401
+from omnibase_spi.protocols.types.protocol_workflow_execution_types import (
     ProtocolCompensationAction,
     ProtocolEventProjection,
     ProtocolEventStream,
@@ -32,7 +32,7 @@ from omnibase_spi.protocols.types.protocol_workflow_execution_types import (  # 
 )
 
 # Re-export value types for backward compatibility
-from omnibase_spi.protocols.types.protocol_workflow_value_types import (  # noqa: F401
+from omnibase_spi.protocols.types.protocol_workflow_value_types import (
     LiteralRetryPolicy,
     ProtocolRetryConfiguration,
     ProtocolTypedWorkflowData,

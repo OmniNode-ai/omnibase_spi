@@ -300,7 +300,6 @@ class SPITypingValidator(ast.NodeVisitor):
     def _validate_object_vs_callable(self, node: ast.Subscript) -> None:
         """Validate object type usage where Callable might be more appropriate."""
         # This is already handled in the main SPI validator, but we can enhance it
-        pass
 
     def _validate_parameter_annotation(self, arg: ast.arg, method_name: str) -> None:
         """Validate parameter type annotations."""

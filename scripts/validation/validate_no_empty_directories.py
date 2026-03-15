@@ -35,8 +35,7 @@ class EmptyDirectoryViolation:
     def __str__(self) -> str:
         if self.has_init:
             return f"Directory only contains __init__.py: {self.path}"
-        else:
-            return f"Empty directory: {self.path}"
+        return f"Empty directory: {self.path}"
 
 
 class EmptyDirectoryValidator:
@@ -258,11 +257,10 @@ def main() -> int:
         if args.verbose:
             print("No empty directories found!")
         return 0
-    else:
-        report = validator.generate_report()
-        print(report)
-        print(f"\nFAILURE: {len(validator.violations)} empty director(ies) found!")
-        return 1
+    report = validator.generate_report()
+    print(report)
+    print(f"\nFAILURE: {len(validator.violations)} empty director(ies) found!")
+    return 1
 
 
 if __name__ == "__main__":

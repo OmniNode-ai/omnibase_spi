@@ -9,10 +9,7 @@ including cryptographic hashes, version information, and lifecycle tracking.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Literal, Protocol, runtime_checkable
-
-if TYPE_CHECKING:
-    pass
+from typing import Any, Literal, Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types import ProtocolResult
 

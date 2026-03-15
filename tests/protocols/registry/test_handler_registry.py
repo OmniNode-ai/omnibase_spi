@@ -72,7 +72,6 @@ class PartialRegistry:
         _value: type[object],
     ) -> None:
         """Register a protocol handler."""
-        pass
 
     def get(
         self,
@@ -85,15 +84,12 @@ class PartialRegistry:
 class NonCompliantRegistry:
     """A class that implements none of the ProtocolHandlerRegistry methods."""
 
-    pass
-
 
 class WrongSignatureRegistry:
     """A class that implements methods with wrong signatures."""
 
     def register(self, _key: str) -> None:  # Missing value parameter
         """Register a protocol handler."""
-        pass
 
     def get(self, _key: str) -> type[object]:
         """Get handler class for protocol type."""

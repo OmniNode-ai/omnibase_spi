@@ -93,8 +93,6 @@ class ProtocolHandlerError(SPIError):
         )
     """
 
-    pass
-
 
 class HandlerInitializationError(ProtocolHandlerError):
     """
@@ -123,8 +121,6 @@ class HandlerInitializationError(ProtocolHandlerError):
             }
         )
     """
-
-    pass
 
 
 class HandlerDiscoveryError(ProtocolHandlerError):
@@ -160,8 +156,6 @@ class HandlerDiscoveryError(ProtocolHandlerError):
         - HandlerInitializationError: For errors during handler initialization (after discovery)
     """
 
-    pass
-
 
 class IdempotencyStoreError(SPIError):
     """
@@ -190,8 +184,6 @@ class IdempotencyStoreError(SPIError):
             }
         )
     """
-
-    pass
 
 
 class ContractCompilerError(SPIError):
@@ -222,8 +214,6 @@ class ContractCompilerError(SPIError):
         )
     """
 
-    pass
-
 
 class RegistryError(SPIError):
     """
@@ -252,8 +242,6 @@ class RegistryError(SPIError):
             }
         )
     """
-
-    pass
 
 
 class ProtocolNotImplementedError(SPIError):
@@ -289,8 +277,6 @@ class ProtocolNotImplementedError(SPIError):
         - Required handler type is not registered
         - Node type has no registered implementation
     """
-
-    pass
 
 
 class InvalidProtocolStateError(SPIError):
@@ -329,8 +315,6 @@ class InvalidProtocolStateError(SPIError):
         - Using a handler after connection timeout
     """
 
-    pass
-
 
 class ProjectorError(SPIError):
     """
@@ -367,8 +351,6 @@ class ProjectorError(SPIError):
         - IdempotencyStoreError: For runtime-level deduplication errors
     """
 
-    pass
-
 
 class ProjectionReadError(SPIError):
     """
@@ -400,8 +382,6 @@ class ProjectionReadError(SPIError):
         - OMN-930: Define ProtocolProjectionReader in omnibase_spi
         - ProjectorError: For projection write/persistence errors
     """
-
-    pass
 
 
 class SchemaError(SPIError):
@@ -445,8 +425,6 @@ class SchemaError(SPIError):
         - ProjectorError: For runtime projection persistence errors
     """
 
-    pass
-
 
 class TemplateError(SPIError):
     """
@@ -474,8 +452,6 @@ class TemplateError(SPIError):
         - TemplateParseError: For YAML syntax errors
         - HandlerContractFactory: Factory that uses templates
     """
-
-    pass
 
 
 class TemplateNotFoundError(TemplateError):
@@ -511,8 +487,6 @@ class TemplateNotFoundError(TemplateError):
         - HandlerContractFactory: Factory that loads templates
     """
 
-    pass
-
 
 class TemplateParseError(TemplateError):
     """
@@ -547,5 +521,3 @@ class TemplateParseError(TemplateError):
         - TemplateNotFoundError: For missing template files
         - HandlerContractFactory: Factory that parses templates
     """
-
-    pass

@@ -285,8 +285,6 @@ class MockConstraintValidator:
 class NonCompliantValidator:
     """A class that does not implement the ProtocolConstraintValidator protocol."""
 
-    pass
-
 
 class PartialValidatorMissingDetectCycles:
     """A class that has validate but missing detect_cycles."""

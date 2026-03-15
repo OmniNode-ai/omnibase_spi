@@ -61,11 +61,9 @@ class CompliantHandler:
 
     async def initialize(self, _config: "ModelConnectionConfig") -> None:
         """Initialize the handler."""
-        pass
 
     async def shutdown(self, timeout_seconds: float = 30.0) -> None:
         """Shutdown the handler."""
-        pass
 
     async def execute(
         self,
@@ -89,13 +87,10 @@ class PartialHandler:
 
     async def initialize(self, _config: "ModelConnectionConfig") -> None:
         """Initialize the handler."""
-        pass
 
 
 class NonCompliantHandler:
     """A class that implements none of the ProtocolHandler methods."""
-
-    pass
 
 
 class WrongSignatureHandler:
@@ -108,11 +103,9 @@ class WrongSignatureHandler:
 
     async def initialize(self) -> None:  # type: ignore[override]
         """Initialize with wrong signature (missing config parameter)."""
-        pass
 
     async def shutdown(self) -> None:
         """Shutdown the handler."""
-        pass
 
     async def execute(
         self,

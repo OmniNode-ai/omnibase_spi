@@ -98,7 +98,6 @@ class CompliantEventBusConsumer:
 
     async def commit_offsets(self) -> None:
         """Commit current consumer offsets."""
-        pass
 
     async def seek_to_beginning(self, topic: str, partition: int) -> None:
         """Seek to the beginning of a topic partition."""
@@ -189,7 +188,6 @@ class CompliantEventBusTransactionalProducer:
 
     async def begin_transaction(self) -> None:
         """Begin a new transaction."""
-        pass
 
     async def send_transactional(
         self,
@@ -203,11 +201,9 @@ class CompliantEventBusTransactionalProducer:
 
     async def commit_transaction(self) -> None:
         """Commit the current transaction."""
-        pass
 
     async def abort_transaction(self) -> None:
         """Abort the current transaction."""
-        pass
 
 
 class CompliantEventBusMessage:
@@ -261,12 +257,12 @@ class CompliantEventBusExtendedClient:
     async def create_consumer(self) -> ProtocolEventBusConsumer:
         """Create a new consumer instance."""
         # Cast is safe: CompliantEventBusConsumer implements all ProtocolEventBusConsumer methods
-        return cast(ProtocolEventBusConsumer, CompliantEventBusConsumer())
+        return cast("ProtocolEventBusConsumer", CompliantEventBusConsumer())
 
     async def create_batch_producer(self) -> ProtocolEventBusBatchProducer:
         """Create a new batch producer instance."""
         # Cast is safe: CompliantEventBusBatchProducer implements all protocol methods
-        return cast(ProtocolEventBusBatchProducer, CompliantEventBusBatchProducer())
+        return cast("ProtocolEventBusBatchProducer", CompliantEventBusBatchProducer())
 
     async def create_transactional_producer(
         self,
@@ -274,7 +270,7 @@ class CompliantEventBusExtendedClient:
         """Create a new transactional producer instance."""
         # Cast is safe: CompliantEventBusTransactionalProducer implements all protocol methods
         return cast(
-            ProtocolEventBusTransactionalProducer,
+            "ProtocolEventBusTransactionalProducer",
             CompliantEventBusTransactionalProducer(),
         )
 
@@ -339,7 +335,7 @@ class PartialEventBusExtendedClient:
     async def create_consumer(self) -> ProtocolEventBusConsumer:
         """Create a new consumer instance."""
         # Cast is safe: CompliantEventBusConsumer implements all ProtocolEventBusConsumer methods
-        return cast(ProtocolEventBusConsumer, CompliantEventBusConsumer())
+        return cast("ProtocolEventBusConsumer", CompliantEventBusConsumer())
 
     async def list_topics(self) -> list[str]:
         """List all topics."""
@@ -684,7 +680,7 @@ class TestProtocolEventBusExtendedClientEdgeCases:
         """Validate a compliant message should return True."""
         client = CompliantEventBusExtendedClient()
         msg = CompliantEventBusMessage(value=b"data", topic="test")
-        result = await client.validate_message(cast(ProtocolEventBusMessage, msg))
+        result = await client.validate_message(cast("ProtocolEventBusMessage", msg))
         assert result is True
 
     @pytest.mark.asyncio
@@ -860,11 +856,11 @@ class TestProtocolEventBusExtendedClientIntegration:
 
         # Create and validate message
         msg = CompliantEventBusMessage(value=b"test-data", topic="test-topic")
-        is_valid = await producer.validate_message(cast(ProtocolEventBusMessage, msg))
+        is_valid = await producer.validate_message(cast("ProtocolEventBusMessage", msg))
         assert is_valid
 
         # Send operations
-        await producer.send_batch([cast(ProtocolEventBusMessage, msg)])
+        await producer.send_batch([cast("ProtocolEventBusMessage", msg)])
         await producer.send_to_partition("test", 0, b"key", b"value")
         await producer.send_with_custom_partitioner(
             "test", b"key", b"value", "round_robin"
@@ -925,14 +921,14 @@ class TestProtocolEventBusExtendedClientErrorHandling:
 
             async def create_batch_producer(self) -> ProtocolEventBusBatchProducer:
                 return cast(
-                    ProtocolEventBusBatchProducer, CompliantEventBusBatchProducer()
+                    "ProtocolEventBusBatchProducer", CompliantEventBusBatchProducer()
                 )
 
             async def create_transactional_producer(
                 self,
             ) -> ProtocolEventBusTransactionalProducer:
                 return cast(
-                    ProtocolEventBusTransactionalProducer,
+                    "ProtocolEventBusTransactionalProducer",
                     CompliantEventBusTransactionalProducer(),
                 )
 

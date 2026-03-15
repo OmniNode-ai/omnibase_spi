@@ -76,11 +76,9 @@ class MockEventBusBase:
 
     async def publish(self, event: ProtocolEventMessage) -> None:
         """Publish an event message."""
-        pass
 
     async def publish_envelope(self, envelope: object, topic: str) -> None:
         """Publish an envelope to a topic."""
-        pass
 
     async def subscribe(
         self,
@@ -88,15 +86,12 @@ class MockEventBusBase:
         handler: Callable[[object], Awaitable[None]],
     ) -> None:
         """Subscribe to a topic with a handler."""
-        pass
 
     async def start_consuming(self, timeout_seconds: float | None = None) -> None:
         """Start consuming messages."""
-        pass
 
     async def stop_consuming(self, timeout_seconds: float = 30.0) -> None:
         """Stop consuming messages."""
-        pass
 
     async def health_check(self) -> dict[str, Any]:
         """Check health status."""
@@ -115,7 +110,6 @@ class MockSyncEventBus(MockEventBusBase):
 
     async def publish_sync(self, event: ProtocolEventMessage) -> None:
         """Publish an event synchronously with blocking semantics."""
-        pass
 
 
 class MockAsyncEventBus(MockEventBusBase):
@@ -130,7 +124,6 @@ class MockAsyncEventBus(MockEventBusBase):
 
     async def publish_async(self, event: ProtocolEventMessage) -> None:
         """Publish an event asynchronously with non-blocking semantics."""
-        pass
 
 
 class MockBothEventBus(MockEventBusBase):
@@ -142,11 +135,9 @@ class MockBothEventBus(MockEventBusBase):
 
     async def publish_sync(self, event: ProtocolEventMessage) -> None:
         """Publish an event synchronously."""
-        pass
 
     async def publish_async(self, event: ProtocolEventMessage) -> None:
         """Publish an event asynchronously."""
-        pass
 
 
 # =============================================================================

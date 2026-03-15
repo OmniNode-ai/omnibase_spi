@@ -265,8 +265,6 @@ class PartialProjectorLoader:
 class NonCompliantProjectorLoader:
     """A class that implements none of the ProtocolProjectorLoader methods."""
 
-    pass
-
 
 def _get_protocol_public_members(protocol_class: type) -> frozenset[str]:
     """Get all public members of a protocol class (excluding dunder methods).

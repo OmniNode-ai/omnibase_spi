@@ -48,8 +48,6 @@ class PartialHandlerDescriptor:
 class NonCompliantDescriptor:
     """A class that implements none of the required properties."""
 
-    pass
-
 
 class MinimalHandlerDescriptor:
     """A class with all required properties but minimal implementation."""

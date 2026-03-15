@@ -1113,7 +1113,7 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
         if isinstance(value_node, ast.Subscript):
             if isinstance(value_node.value, ast.Name):
                 return value_node.value.id in type_alias_patterns
-            elif isinstance(value_node.value, ast.Attribute):
+            if isinstance(value_node.value, ast.Attribute):
                 return value_node.value.attr in type_alias_patterns
 
         # Check if it's a direct reference to a type
@@ -1277,10 +1277,9 @@ class ComprehensiveSPIValidator(ast.NodeVisitor):
         """Extract function call name for reporting."""
         if isinstance(node.func, ast.Name):
             return node.func.id
-        elif isinstance(node.func, ast.Attribute):
+        if isinstance(node.func, ast.Attribute):
             return node.func.attr
-        else:
-            return "unknown_call"
+        return "unknown_call"
 
     def _has_complete_type_annotations(self, node: ast.FunctionDef) -> bool:
         """Check if method has complete type annotations."""
@@ -2507,7 +2506,7 @@ class ComprehensiveSPIValidationEngine:
                     column_offset=0,
                     rule_id="SPI000",
                     violation_type="Validation Error",
-                    message=f"Failed to validate file: {str(e)}",
+                    message=f"Failed to validate file: {e!s}",
                     severity="error",
                     suggestion="Check file for parsing issues",
                 )

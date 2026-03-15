@@ -316,8 +316,6 @@ class PartialProjector:
 class NonCompliantProjector:
     """A class that implements none of the ProtocolProjector methods."""
 
-    pass
-
 
 @pytest.mark.unit
 class TestProtocolSequenceInfoProtocol:

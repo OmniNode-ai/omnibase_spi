@@ -317,7 +317,7 @@ class TestNodeProjectionEffectPatternUnknownProjector:
 
         try:
             result = effect.execute(_make_intent(projector_key="totally_unknown"))
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             pytest.fail(
                 f"execute() raised {type(exc).__name__} for unknown projector: {exc}"
             )

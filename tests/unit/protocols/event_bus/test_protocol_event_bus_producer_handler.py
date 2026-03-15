@@ -163,15 +163,12 @@ class CompliantEventBusProducerHandler:
 
     async def begin_transaction(self) -> None:
         """Begin a transaction."""
-        pass
 
     async def commit_transaction(self) -> None:
         """Commit the current transaction."""
-        pass
 
     async def abort_transaction(self) -> None:
         """Abort the current transaction."""
-        pass
 
 
 class PartialEventBusProducerHandler:

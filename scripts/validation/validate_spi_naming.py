@@ -350,18 +350,17 @@ class SPINamingValidator(ast.NodeVisitor):
         # Map file paths to domains
         if "workflow_orchestration" in path_parts:
             return "workflow_orchestration"
-        elif "mcp" in path_parts:
+        if "mcp" in path_parts:
             return "mcp"
-        elif "event_bus" in path_parts:
+        if "event_bus" in path_parts:
             return "event_bus"
-        elif "container" in path_parts:
+        if "container" in path_parts:
             return "container"
-        elif "core" in path_parts:
+        if "core" in path_parts:
             return "core"
-        elif "types" in path_parts:
+        if "types" in path_parts:
             return "types"
-        else:
-            return "unknown"
+        return "unknown"
 
     def _get_module_name(self, file_path: str) -> str:
         """Get module name from file path."""

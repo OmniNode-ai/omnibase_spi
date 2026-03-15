@@ -113,12 +113,11 @@ def check_validators(
                 failures.append(f"{name}: {error}")
             elif name in INFORMATIONAL_VALIDATORS:
                 warnings.append(f"{name}: has existing violations (technical debt)")
+            # Unknown validator - treat as warning in non-strict mode
+            elif strict:
+                failures.append(f"{name}: {error}")
             else:
-                # Unknown validator - treat as warning in non-strict mode
-                if strict:
-                    failures.append(f"{name}: {error}")
-                else:
-                    warnings.append(f"{name}: {error}")
+                warnings.append(f"{name}: {error}")
 
     return len(failures) == 0, failures, warnings
 
@@ -211,9 +210,8 @@ Informational validators (known technical debt):
     if passed:
         print("All critical validators passed!")
         return 0
-    else:
-        print(f"Validation failed: {len(failures)} critical validator(s) failed")
-        return 1
+    print(f"Validation failed: {len(failures)} critical validator(s) failed")
+    return 1
 
 
 if __name__ == "__main__":

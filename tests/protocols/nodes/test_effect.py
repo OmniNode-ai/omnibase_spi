@@ -37,11 +37,9 @@ class CompliantEffectNode:
 
     async def initialize(self) -> None:
         """Initialize node-specific resources."""
-        pass
 
     async def shutdown(self) -> None:
         """Release node-specific resources."""
-        pass
 
     async def execute(self, _input_data: object) -> object:  # type: ignore[override]
         """Execute effect operation."""
@@ -52,7 +50,7 @@ class CompliantEffectNode:
 
             node_id: str = "test-effect-node-v1"
             status: str = "success"
-            result: dict[str, bool] = {"processed": True}  # noqa: RUF012
+            result: dict[str, bool] = {"processed": True}
 
         return MockEffectOutput()
 
@@ -77,15 +75,12 @@ class PartialEffectNode:
 
     async def initialize(self) -> None:
         """Initialize node-specific resources."""
-        pass
 
     # Missing shutdown() and execute()
 
 
 class NonCompliantEffectNode:
     """A class that implements none of the ProtocolEffectNode methods."""
-
-    pass
 
 
 class WrongSignatureEffectNode:
@@ -108,11 +103,9 @@ class WrongSignatureEffectNode:
 
     async def initialize(self) -> None:
         """Initialize node-specific resources."""
-        pass
 
     async def shutdown(self) -> None:
         """Release node-specific resources."""
-        pass
 
     async def execute(self, _wrong_param: str) -> str:  # type: ignore[override]
         """Execute with wrong signature."""
@@ -222,7 +215,7 @@ class TestProtocolEffectNodeMethodSignatures:
 
             node_id: str = "test-effect-node-v1"
             operation: str = "test_operation"
-            parameters: dict[str, str] = {"key": "value"}  # noqa: RUF012
+            parameters: dict[str, str] = {"key": "value"}
 
         input_data = MockEffectInput()
         result = await node.execute(input_data)
@@ -239,7 +232,7 @@ class TestProtocolEffectNodeMethodSignatures:
 
             node_id: str = "test-effect-node-v1"
             operation: str = "test_operation"
-            parameters: dict[str, str] = {"key": "value"}  # noqa: RUF012
+            parameters: dict[str, str] = {"key": "value"}
 
         input_data = MockEffectInput()
         # Should not raise
@@ -256,7 +249,7 @@ class TestProtocolEffectNodeMethodSignatures:
 
             node_id: str = "test-effect-node-v1"
             operation: str = "test_operation"
-            parameters: dict[str, str] = {"key": "value"}  # noqa: RUF012
+            parameters: dict[str, str] = {"key": "value"}
 
         input_data = MockEffectInput()
         result = await node.execute(input_data)

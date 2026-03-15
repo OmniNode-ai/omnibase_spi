@@ -89,7 +89,6 @@ class _NoExecuteEffect:
 
     def other_method(self) -> None:
         """Some unrelated method."""
-        ...
 
 
 # ---------------------------------------------------------------------------

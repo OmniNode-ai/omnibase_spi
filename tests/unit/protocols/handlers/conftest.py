@@ -45,11 +45,9 @@ class MockProtocolHandler:
 
     async def initialize(self, config: Any) -> None:
         """Initialize handler."""
-        pass
 
     async def shutdown(self, timeout_seconds: float = 30.0) -> None:
         """Shutdown handler."""
-        pass
 
     async def execute(self, request: Any, operation_config: Any) -> Any:
         """Execute operation."""

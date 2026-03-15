@@ -171,9 +171,9 @@ class ProtocolVisitor(ast.NodeVisitor):
         """Extract the name from a base class expression."""
         if isinstance(node, ast.Name):
             return node.id
-        elif isinstance(node, ast.Attribute):
+        if isinstance(node, ast.Attribute):
             return f"{self._get_base_name(node.value)}.{node.attr}"
-        elif isinstance(node, ast.Subscript):
+        if isinstance(node, ast.Subscript):
             # Handle Generic[T] style bases
             return self._get_base_name(node.value)
         return ""
@@ -182,9 +182,9 @@ class ProtocolVisitor(ast.NodeVisitor):
         """Extract the name from a decorator expression."""
         if isinstance(node, ast.Name):
             return node.id
-        elif isinstance(node, ast.Attribute):
+        if isinstance(node, ast.Attribute):
             return node.attr
-        elif isinstance(node, ast.Call):
+        if isinstance(node, ast.Call):
             return self._get_decorator_name(node.func)
         return ""
 

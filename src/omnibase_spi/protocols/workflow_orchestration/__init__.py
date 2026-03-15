@@ -66,12 +66,12 @@ from .protocol_workflow_orchestrator import ProtocolWorkflowOrchestrator
 
 __all__ = [
     "LiteralAssignmentStrategy",
-    "ProtocolFSMSurfaceAdapter",
     "LiteralWorkQueuePriority",
     "ProtocolEventQueryOptions",
     "ProtocolEventStore",
     "ProtocolEventStoreResult",
     "ProtocolEventStoreTransaction",
+    "ProtocolFSMSurfaceAdapter",
     "ProtocolLiteralWorkflowStateProjection",
     "ProtocolLiteralWorkflowStateStore",
     "ProtocolNodeSchedulingResult",
