@@ -11,9 +11,9 @@ Key Protocols:
     - ProtocolKafkaConfig: Configuration parameters for Kafka clients.
     - ProtocolKafkaAdapter: Kafka-based event bus adapter interface.
 
-The Kafka adapter provides environment-aware topic naming, consumer group coordination,
-and full support for Kafka's publish/subscribe messaging patterns with proper
-partitioning and offset management.
+The Kafka adapter provides canonical ONEX topic naming (realm-agnostic, no environment
+prefix), consumer group coordination, and full support for Kafka's publish/subscribe
+messaging patterns with proper partitioning and offset management.
 
 Example:
     ```python
@@ -22,9 +22,9 @@ Example:
     # Get Kafka adapter from dependency injection
     adapter: ProtocolKafkaAdapter = get_kafka_adapter()
 
-    # Build environment-aware topic name
+    # Build canonical ONEX topic name (realm-agnostic, no env prefix)
     topic = await adapter.build_topic_name("user-events")
-    # Returns: "prod-user-events" if environment is "prod"
+    # Returns: "onex.evt.user-events.v1" (canonical ONEX format)
 
     # Publish event
     await adapter.publish(
@@ -132,7 +132,7 @@ class ProtocolKafkaAdapter(Protocol):
         print(f"Environment: {adapter.environment}")
         print(f"Group: {adapter.group}")
 
-        # Build environment-aware topic name
+        # Build canonical ONEX topic name (no env prefix)
         topic = await adapter.build_topic_name("user-events")
 
         # Publish event
@@ -174,7 +174,10 @@ class ProtocolKafkaAdapter(Protocol):
 
     @property
     def environment(self) -> str:
-        """Environment name for topic isolation.
+        """Environment name for metadata and consumer-group coordination.
+
+        Used for consumer-group naming and event metadata/headers, NOT for
+        topic name prefixing. Topics are realm-agnostic in ONEX convention.
 
         Returns:
             Environment identifier (e.g., "dev", "staging", "prod").
@@ -210,13 +213,16 @@ class ProtocolKafkaAdapter(Protocol):
 
     async def build_topic_name(self, topic: str) -> str:
         """
-        Build environment-aware topic name with prefixes.
+        Build canonical ONEX topic name (realm-agnostic, no environment prefix).
+
+        Topics follow the ONEX naming convention and are never prefixed with
+        environment identifiers like ``dev-``, ``staging-``, or ``prod-``.
 
         Args:
             topic: Base topic name.
 
         Returns:
-            Fully qualified topic name with environment/group prefixes.
+            Canonical ONEX topic name without environment prefix.
         """
         ...
 

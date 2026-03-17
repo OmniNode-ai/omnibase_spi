@@ -208,7 +208,7 @@ class ProtocolRedpandaAdapter(Protocol):
         redpanda_optimized_defaults: Deprecated alias for redpanda_config. Use
             redpanda_config for type-safe access to Redpanda optimizations.
         bootstrap_servers: Comma-separated list of Redpanda broker addresses.
-        environment: Environment name (dev, staging, prod) for topic isolation.
+        environment: Environment name (dev, staging, prod) for metadata/consumer-groups.
         group: Consumer group identifier for coordination.
         config: Optional Kafka configuration overrides, or None for defaults.
         kafka_config: Complete Kafka configuration with Redpanda optimizations.
@@ -294,11 +294,10 @@ class ProtocolRedpandaAdapter(Protocol):
         - Memory: 60% less than Kafka for same workload
         - CPU: Lower utilization through vectorization
 
-    Environment Isolation:
-        Topics are automatically namespaced by environment:
-        - dev-workflow-events
-        - staging-workflow-events
-        - prod-workflow-events
+    Topic Naming:
+        Topics follow canonical ONEX naming convention and are realm-agnostic
+        (no environment prefix). Environment isolation is handled at the
+        consumer-group and metadata level, not by topic name prefixing.
 
     See Also:
         - ProtocolKafkaAdapter: Standard Kafka adapter
@@ -367,7 +366,10 @@ class ProtocolRedpandaAdapter(Protocol):
 
     @property
     def environment(self) -> str:
-        """Environment name for topic isolation.
+        """Environment name for metadata and consumer-group coordination.
+
+        Used for consumer-group naming and event metadata/headers, NOT for
+        topic name prefixing. Topics are realm-agnostic in ONEX convention.
 
         Returns:
             Environment identifier (e.g., "dev", "staging", "prod")
@@ -402,20 +404,21 @@ class ProtocolRedpandaAdapter(Protocol):
         ...
 
     async def build_topic_name(self, topic: str) -> str:
-        """Build environment-namespaced topic name.
+        """Build canonical ONEX topic name (realm-agnostic, no environment prefix).
 
-        Constructs topic name with environment prefix for isolation.
+        Topics follow the ONEX naming convention and are never prefixed with
+        environment identifiers like ``dev-``, ``staging-``, or ``prod-``.
 
         Args:
             topic: Base topic name (e.g., "workflow-events")
 
         Returns:
-            Environment-prefixed topic (e.g., "prod-workflow-events")
+            Canonical ONEX topic name without environment prefix.
 
         Example:
             ```python
             topic_name = await adapter.build_topic_name("user-events")
-            # Returns: "prod-user-events" if environment is "prod"
+            # Returns: "onex.evt.user-events.v1" (canonical ONEX format)
             ```
         """
         ...
