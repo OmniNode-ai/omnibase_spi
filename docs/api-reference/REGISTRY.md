@@ -43,7 +43,7 @@
   - [Migrating from ProtocolServiceRegistry](#migrating-from-protocolserviceregistry)
 - [Best Practices](#best-practices)
 - [Handler Validation Notes](#handler-validation-notes)
-- [Exception Handling](#exception-handling-2)
+- [Exception Handling](#exception-handling)
 - [Thread Safety](#thread-safety-2)
 - [Version Information](#version-information)
 

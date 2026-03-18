@@ -3,7 +3,10 @@
         {"pattern": "^https://linear\\.app"},
         {"pattern": "^https://github\\.com/OmniNode-ai"},
         {"pattern": "^http://localhost"},
-        {"pattern": "^https://localhost"}
+        {"pattern": "^https://localhost"},
+        {"pattern": "^/workspace/"},
+        {"pattern": "MVP_PLAN\\.md"},
+        {"pattern": "VALIDATION_INTEGRATION_PLAN\\.md"}
     ],
     "excludeFiles": [
         ".pytest_cache/**",

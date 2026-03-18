@@ -242,6 +242,8 @@ ignore = [
     "ARG002",  # unused method argument (example stubs)
     "D100",    # missing docstring in public module (examples)
     "D103",    # missing docstring in public function (examples)
+    "INP001",  # examples are standalone scripts, not packages
+    "T201",    # print() expected in example output
 ]
 "scripts/*.py" = [
     "D103",    # missing docstring in public function (script helpers)
