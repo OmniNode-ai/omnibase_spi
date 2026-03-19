@@ -1,3 +1,12 @@
+## v0.18.0 (2026-03-19)
+
+### Added
+- feat(ci): deploy CodeQL security scanning to omnibase_spi [OMN-5422] (#143)
+
+### Changed
+- ci(omnibase_spi): add ruff UP007 standards compliance workflow [OMN-5132] (#142)
+- docs: remove env-prefix mandate from SPI protocol contracts [OMN-5221] (#141)
+
 ## v0.16.1 (2026-03-12)
 
 ### Other Changes
