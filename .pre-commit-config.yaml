@@ -9,7 +9,7 @@
 repos:
   # YAML formatting (standard across ecosystem)
   - repo: https://github.com/google/yamlfmt
-    rev: v0.17.2
+    rev: v0.21.0
     hooks:
       - id: yamlfmt
         args: [--formatter, retain_line_breaks=true]
@@ -27,6 +27,21 @@ repos:
       - id: check-merge-conflict
       - id: check-added-large-files
         args: [--maxkb=1000]
+
+  # Cross-repo enforcement hooks from onex_change_control
+  - repo: https://github.com/OmniNode-ai/onex_change_control
+    rev: 39a09ffb2432b8b7d3f47b334b869b55c9cb4fc6
+    hooks:
+      - id: no-hardcoded-topics
+        # Pre-existing violations — pending migration to canonical topic constants.
+        # Justifications for each exclude:
+        #   contract_git_hook_event.py        — default_topic in event contract (1 violation)
+        #   contract_linear_snapshot_event.py  — default_topic in event contract (1 violation)
+        #   contract_github_pr_status_event.py — default_topic in event contract (1 violation)
+        #   event_registry.py                 — topic strings in registry mapping (6 violations)
+        #   default_github_pr_poller.yaml     — topic in YAML contract default (1 violation)
+        exclude: ^(src/omnibase_spi/contracts/events/contract_git_hook_event\.py|src/omnibase_spi/contracts/events/contract_linear_snapshot_event\.py|src/omnibase_spi/contracts/events/contract_github_pr_status_event\.py|src/omnibase_spi/registry/event_registry\.py|src/omnibase_spi/contracts/defaults/default_github_pr_poller\.yaml)$
+      - id: cosmetic-lint
 
   # ONEX String Version Anti-Pattern Detection
   # TODO(OMN-3832-followup): Re-enable once validate-string-versions is packaged as a
