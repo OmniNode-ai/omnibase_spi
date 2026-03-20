@@ -49,6 +49,15 @@ from omnibase_spi.contracts.measurement.contract_promotion_gate import (
     ContractDimensionEvidence,
     ContractPromotionGate,
 )
+from omnibase_spi.contracts.measurement.contract_savings_estimate import (
+    ContractSavingsCategoryBreakdown,
+    ContractSavingsEstimate,
+    DelegationEvidence,
+    LocalRoutingEvidence,
+    PatternInjectionEvidence,
+    RagEvidence,
+    ValidatorCatchEvidence,
+)
 from omnibase_spi.contracts.measurement.enum_measurement_check import MeasurementCheck
 from omnibase_spi.contracts.measurement.enum_pipeline_phase import (
     ContractEnumPipelinePhase,
@@ -64,6 +73,8 @@ from omnibase_spi.contracts.measurement.vts import compute_vts, compute_vts_per_
 __all__ = [
     "ContractAggregatedRun",
     "ContractArtifactPointerMeasurement",
+    "ContractSavingsCategoryBreakdown",
+    "ContractSavingsEstimate",
     "ContractCostMetrics",
     "ContractDimensionEvidence",
     "ContractDurationMetrics",
@@ -85,6 +96,11 @@ __all__ = [
     "ContractTestMetrics",
     "ContractValidationTax",
     "MeasurementCheck",
+    "DelegationEvidence",
+    "LocalRoutingEvidence",
+    "PatternInjectionEvidence",
+    "RagEvidence",
+    "ValidatorCatchEvidence",
     "compute_vts",
     "compute_vts_per_kloc",
     "derive_baseline_key",
