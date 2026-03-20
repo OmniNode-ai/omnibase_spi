@@ -1,3 +1,11 @@
+## v0.19.0 (2026-03-20)
+
+### Added
+- feat(spi): add ContractSavingsEstimate wire-format model with tiered attribution [OMN-5544] (#146)
+
+### Changed
+- chore(hooks): add no-hardcoded-topics + cosmetic-lint from onex_change_control (#145)
+
 ## v0.18.0 (2026-03-19)
 
 ### Added
