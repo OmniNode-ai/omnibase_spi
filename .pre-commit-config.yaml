@@ -7,6 +7,12 @@
 # - Use `pre-commit run --all-files` to test all hooks before pushing
 
 repos:
+  # Stub implementation detection — sourced from omnibase_core (OMN-5599)
+  - repo: https://github.com/OmniNode-ai/omnibase_core
+    rev: 458f44ef24564956c6430ae7671570aed035c853 # pragma: allowlist secret
+    hooks:
+      - id: check-stub-implementations
+
   # YAML formatting (standard across ecosystem)
   - repo: https://github.com/google/yamlfmt
     rev: v0.21.0
