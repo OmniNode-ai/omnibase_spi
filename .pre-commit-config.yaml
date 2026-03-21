@@ -36,7 +36,7 @@ repos:
 
   # Cross-repo enforcement hooks from onex_change_control
   - repo: https://github.com/OmniNode-ai/onex_change_control
-    rev: 39a09ffb2432b8b7d3f47b334b869b55c9cb4fc6
+    rev: 8d7e85bc00e7f1b1306d1cb40949be1ab6e7e91a
     hooks:
       - id: no-hardcoded-topics
         # Pre-existing violations — pending migration to canonical topic constants.
@@ -48,6 +48,8 @@ repos:
         #   default_github_pr_poller.yaml     — topic in YAML contract default (1 violation)
         exclude: ^(src/omnibase_spi/contracts/events/contract_git_hook_event\.py|src/omnibase_spi/contracts/events/contract_linear_snapshot_event\.py|src/omnibase_spi/contracts/events/contract_github_pr_status_event\.py|src/omnibase_spi/registry/event_registry\.py|src/omnibase_spi/contracts/defaults/default_github_pr_poller\.yaml)$
       - id: cosmetic-lint
+      - id: no-untracked-todos
+        stages: [pre-commit]
 
   # ONEX String Version Anti-Pattern Detection
   # TODO(OMN-3832-followup): Re-enable once validate-string-versions is packaged as a
