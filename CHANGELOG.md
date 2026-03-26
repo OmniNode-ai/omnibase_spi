@@ -1,3 +1,13 @@
+## v0.20.1 (2026-03-26)
+
+### Changed
+- chore(deps): bump actions/checkout from 4 to 6 (#153)
+
+## v0.20.0 (2026-03-24)
+
+### Changed
+- Previous release (changelog entry was missing)
+
 ## v0.19.0 (2026-03-20)
 
 ### Added
