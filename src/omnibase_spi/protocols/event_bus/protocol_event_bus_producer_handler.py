@@ -96,7 +96,6 @@ from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_core.models.event_bus import (
-        ModelDeliveryResult,  # noqa: F401 (documented for future use)
         ModelProducerHealthStatus,
         ModelProducerMessage,
     )
