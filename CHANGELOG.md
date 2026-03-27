@@ -1,3 +1,8 @@
+## v0.20.2 (2026-03-27)
+
+### Fixed
+- fix(lint): remove unused ModelDeliveryResult import suppression [OMN-6670] (#155)
+
 ## v0.20.1 (2026-03-26)
 
 ### Changed
