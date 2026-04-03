@@ -1,3 +1,11 @@
+## v0.20.4 (2026-04-03)
+
+### Bug Fixes
+- fix(ci): auto-tag workflow matches chore: release PR titles [OMN-6909] (#160)
+
+### Other Changes
+None
+
 ## v0.20.2 (2026-03-27)
 
 ### Fixed
