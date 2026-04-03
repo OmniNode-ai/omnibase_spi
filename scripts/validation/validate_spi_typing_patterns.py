@@ -297,7 +297,7 @@ class SPITypingValidator(ast.NodeVisitor):
             )
         )
 
-    def _validate_object_vs_callable(self, node: ast.Subscript) -> None:
+    def _validate_object_vs_callable(self, node: ast.Subscript) -> None:  # stub-ok
         """Validate object type usage where Callable might be more appropriate."""
         # This is already handled in the main SPI validator, but we can enhance it
 

@@ -294,7 +294,7 @@ def get_platform_info() -> dict[str, Any]:
 
 
 # Compatibility aliases for existing code
-def setup_timeout_handler() -> None:
+def setup_timeout_handler() -> None:  # stub-ok
     """
     Legacy compatibility function.
 
@@ -303,7 +303,7 @@ def setup_timeout_handler() -> None:
     """
 
 
-def cancel_timeout() -> None:
+def cancel_timeout() -> None:  # stub-ok
     """
     Legacy compatibility function.
 
