@@ -419,6 +419,14 @@ from omnibase_spi.protocols.semantic import (
     ProtocolHybridRetriever,
 )
 
+# Service lifecycle protocols (3 protocols) - External service integrations
+# Ticket tracking, secret management, and code hosting platform abstractions
+from omnibase_spi.protocols.services import (
+    ProtocolCodeHost,
+    ProtocolSecretStore,
+    ProtocolTicketService,
+)
+
 # Storage protocols (6 protocols) - Data storage and persistence
 from omnibase_spi.protocols.storage import (
     ProtocolDatabaseConnection,
@@ -512,6 +520,7 @@ __all__ = [
     "ProtocolCircuitBreaker",
     "ProtocolCliWorkflow",
     "ProtocolClusterCoordinator",
+    "ProtocolCodeHost",
     "ProtocolCommunicationBridge",
     "ProtocolComputeNode",
     "ProtocolContainer",
@@ -642,6 +651,7 @@ __all__ = [
     "ProtocolSchema",
     "ProtocolSchemaLoader",
     "ProtocolSchemaRegistry",
+    "ProtocolSecretStore",
     "ProtocolSecurityEvent",
     "ProtocolSequenceInfo",
     "ProtocolServiceDependency",
@@ -658,6 +668,7 @@ __all__ = [
     "ProtocolStorageBackendFactory",
     "ProtocolSyncEventBus",
     "ProtocolTaskSchedulingCriteria",
+    "ProtocolTicketService",
     "ProtocolTimeBasedOperations",
     "ProtocolToolDiscoveryService",
     "ProtocolTrustedSchemaLoader",
