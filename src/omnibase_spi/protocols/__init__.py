@@ -405,6 +405,14 @@ from omnibase_spi.protocols.schema import (
     ProtocolTrustedSchemaLoader,
 )
 
+# Service lifecycle protocols (3 protocols) - External service integrations
+# Ticket tracking, secret management, and code hosting platform abstractions
+from omnibase_spi.protocols.services import (
+    ProtocolCodeHost,
+    ProtocolSecretStore,
+    ProtocolTicketService,
+)
+
 # Security protocols (2 protocols) - Security event and detection interfaces
 # Breaking circular import dependencies for security models
 from omnibase_spi.protocols.security import (
@@ -512,6 +520,7 @@ __all__ = [
     "ProtocolCircuitBreaker",
     "ProtocolCliWorkflow",
     "ProtocolClusterCoordinator",
+    "ProtocolCodeHost",
     "ProtocolCommunicationBridge",
     "ProtocolComputeNode",
     "ProtocolContainer",
@@ -642,6 +651,7 @@ __all__ = [
     "ProtocolSchema",
     "ProtocolSchemaLoader",
     "ProtocolSchemaRegistry",
+    "ProtocolSecretStore",
     "ProtocolSecurityEvent",
     "ProtocolSequenceInfo",
     "ProtocolServiceDependency",
@@ -658,6 +668,7 @@ __all__ = [
     "ProtocolStorageBackendFactory",
     "ProtocolSyncEventBus",
     "ProtocolTaskSchedulingCriteria",
+    "ProtocolTicketService",
     "ProtocolTimeBasedOperations",
     "ProtocolToolDiscoveryService",
     "ProtocolTrustedSchemaLoader",
