@@ -20,7 +20,6 @@ from omnibase_spi.protocols.services import (
     ProtocolTicketService,
 )
 
-
 # ---------------------------------------------------------------------------
 # Stub implementations for isinstance checks
 # ---------------------------------------------------------------------------

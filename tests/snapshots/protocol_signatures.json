@@ -2191,6 +2191,178 @@
       "return_type": "ProtocolMemoryResponse"
     }
   },
+  "ProtocolCodeHost": {
+    "__eq__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__ge__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__gt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__hash__": {
+      "kind": "method",
+      "parameters": {},
+      "return_type": "<empty>"
+    },
+    "__le__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__lt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "add_pr_comment": {
+      "kind": "async_method",
+      "parameters": {
+        "body": {
+          "type": "str"
+        },
+        "pr_number": {
+          "type": "int"
+        },
+        "repo": {
+          "type": "str"
+        }
+      },
+      "return_type": "str"
+    },
+    "close": {
+      "kind": "async_method",
+      "parameters": {
+        "timeout_seconds": {
+          "default": "30.0",
+          "type": "float"
+        }
+      },
+      "return_type": "None"
+    },
+    "create_pull_request": {
+      "kind": "async_method",
+      "parameters": {
+        "base": {
+          "type": "str"
+        },
+        "body": {
+          "type": "str"
+        },
+        "head": {
+          "type": "str"
+        },
+        "labels": {
+          "default": "None",
+          "type": "list[str] | None"
+        },
+        "metadata": {
+          "default": "None",
+          "type": "dict[str, ContextValue] | None"
+        },
+        "repo": {
+          "type": "str"
+        },
+        "reviewers": {
+          "default": "None",
+          "type": "list[str] | None"
+        },
+        "title": {
+          "type": "str"
+        }
+      },
+      "return_type": "str"
+    },
+    "get_ci_status": {
+      "kind": "async_method",
+      "parameters": {
+        "ref": {
+          "type": "str"
+        },
+        "repo": {
+          "type": "str"
+        }
+      },
+      "return_type": "dict[str, ContextValue]"
+    },
+    "get_pull_request": {
+      "kind": "async_method",
+      "parameters": {
+        "pr_number": {
+          "type": "int"
+        },
+        "repo": {
+          "type": "str"
+        }
+      },
+      "return_type": "dict[str, ContextValue]"
+    },
+    "health_check": {
+      "kind": "async_method",
+      "parameters": {},
+      "return_type": "bool"
+    },
+    "list_pull_requests": {
+      "kind": "async_method",
+      "parameters": {
+        "limit": {
+          "default": "50",
+          "type": "int"
+        },
+        "repo": {
+          "type": "str"
+        },
+        "state": {
+          "default": "'open'",
+          "type": "str"
+        }
+      },
+      "return_type": "list[dict[str, ContextValue]]"
+    },
+    "merge_pull_request": {
+      "kind": "async_method",
+      "parameters": {
+        "method": {
+          "default": "'squash'",
+          "type": "str"
+        },
+        "pr_number": {
+          "type": "int"
+        },
+        "repo": {
+          "type": "str"
+        }
+      },
+      "return_type": "bool"
+    }
+  },
   "ProtocolCommunicationBridge": {
     "__eq__": {
       "kind": "method",
@@ -15701,6 +15873,113 @@
       "return_type": "tuple[bool, str | None]"
     }
   },
+  "ProtocolSecretStore": {
+    "__eq__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__ge__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__gt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__hash__": {
+      "kind": "method",
+      "parameters": {},
+      "return_type": "<empty>"
+    },
+    "__le__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__lt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "close": {
+      "kind": "async_method",
+      "parameters": {
+        "timeout_seconds": {
+          "default": "30.0",
+          "type": "float"
+        }
+      },
+      "return_type": "None"
+    },
+    "delete_secret": {
+      "kind": "async_method",
+      "parameters": {
+        "key": {
+          "type": "str"
+        }
+      },
+      "return_type": "bool"
+    },
+    "get_secret": {
+      "kind": "async_method",
+      "parameters": {
+        "key": {
+          "type": "str"
+        }
+      },
+      "return_type": "str | None"
+    },
+    "health_check": {
+      "kind": "async_method",
+      "parameters": {},
+      "return_type": "bool"
+    },
+    "list_keys": {
+      "kind": "async_method",
+      "parameters": {
+        "prefix": {
+          "default": "None",
+          "type": "str | None"
+        }
+      },
+      "return_type": "list[str]"
+    },
+    "set_secret": {
+      "kind": "async_method",
+      "parameters": {
+        "key": {
+          "type": "str"
+        },
+        "value": {
+          "type": "str"
+        }
+      },
+      "return_type": "bool"
+    }
+  },
   "ProtocolSecurityEvent": {
     "__eq__": {
       "kind": "method",
@@ -17551,6 +17830,153 @@
     "timeout_tolerance": {
       "kind": "attribute",
       "type": "int"
+    }
+  },
+  "ProtocolTicketService": {
+    "__eq__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__ge__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__gt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__hash__": {
+      "kind": "method",
+      "parameters": {},
+      "return_type": "<empty>"
+    },
+    "__le__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__lt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "add_comment": {
+      "kind": "async_method",
+      "parameters": {
+        "body": {
+          "type": "str"
+        },
+        "ticket_id": {
+          "type": "str"
+        }
+      },
+      "return_type": "str"
+    },
+    "close": {
+      "kind": "async_method",
+      "parameters": {
+        "timeout_seconds": {
+          "default": "30.0",
+          "type": "float"
+        }
+      },
+      "return_type": "None"
+    },
+    "create_ticket": {
+      "kind": "async_method",
+      "parameters": {
+        "assignee": {
+          "default": "None",
+          "type": "str | None"
+        },
+        "description": {
+          "type": "str"
+        },
+        "labels": {
+          "default": "None",
+          "type": "list[str] | None"
+        },
+        "metadata": {
+          "default": "None",
+          "type": "dict[str, ContextValue] | None"
+        },
+        "title": {
+          "type": "str"
+        }
+      },
+      "return_type": "str"
+    },
+    "get_ticket": {
+      "kind": "async_method",
+      "parameters": {
+        "ticket_id": {
+          "type": "str"
+        }
+      },
+      "return_type": "dict[str, ContextValue]"
+    },
+    "get_ticket_status": {
+      "kind": "async_method",
+      "parameters": {
+        "ticket_id": {
+          "type": "str"
+        }
+      },
+      "return_type": "str"
+    },
+    "health_check": {
+      "kind": "async_method",
+      "parameters": {},
+      "return_type": "bool"
+    },
+    "list_tickets": {
+      "kind": "async_method",
+      "parameters": {
+        "filters": {
+          "default": "None",
+          "type": "dict[str, ContextValue] | None"
+        },
+        "limit": {
+          "default": "50",
+          "type": "int"
+        }
+      },
+      "return_type": "list[dict[str, ContextValue]]"
+    },
+    "update_ticket_status": {
+      "kind": "async_method",
+      "parameters": {
+        "status": {
+          "type": "str"
+        },
+        "ticket_id": {
+          "type": "str"
+        }
+      },
+      "return_type": "bool"
     }
   },
   "ProtocolTimeBasedOperations": {
