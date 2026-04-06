@@ -234,11 +234,6 @@ Standalone validators (Python stdlib only, no omnibase_core imports):
 
 These validators will be replaced by `omnibase_core.validation` once the circular dependency is resolved.
 
-## Key Documentation
-
-- `docs/MVP_PLAN.md` - v0.3.0 work breakdown and architecture
-- `docs/VALIDATION_INTEGRATION_PLAN.md` - Validation integration with omnibase_core
-
 ## See Also
 
 - **[docs/README.md](docs/README.md)** - Complete documentation hub
