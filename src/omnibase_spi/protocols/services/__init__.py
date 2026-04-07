@@ -4,22 +4,35 @@
 """
 Service lifecycle protocols for external service integrations.
 
-Defines protocol contracts for ticket tracking, secret management,
-and code hosting services used across the ONEX platform.
+Defines protocol contracts for source control, project tracking, database,
+ticket tracking, secret management, and code hosting services used across
+the ONEX platform.
 """
 
 from omnibase_spi.protocols.services.protocol_code_host import ProtocolCodeHost
+from omnibase_spi.protocols.services.protocol_database_service import (
+    ProtocolDatabaseService,
+)
 from omnibase_spi.protocols.services.protocol_external_service import (
     ProtocolExternalService,
 )
+from omnibase_spi.protocols.services.protocol_project_tracker import (
+    ProtocolProjectTracker,
+)
 from omnibase_spi.protocols.services.protocol_secret_store import ProtocolSecretStore
+from omnibase_spi.protocols.services.protocol_source_control import (
+    ProtocolSourceControl,
+)
 from omnibase_spi.protocols.services.protocol_ticket_service import (
     ProtocolTicketService,
 )
 
 __all__ = [
     "ProtocolCodeHost",
+    "ProtocolDatabaseService",
     "ProtocolExternalService",
+    "ProtocolProjectTracker",
     "ProtocolSecretStore",
+    "ProtocolSourceControl",
     "ProtocolTicketService",
 ]
