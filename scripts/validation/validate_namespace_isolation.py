@@ -336,6 +336,7 @@ def is_contract_file(file_path: Path) -> bool:
             "events",  # OMN-2655: event wire-format contracts
             "database",  # OMN-7702: database wire-format contracts
             "source_control",  # OMN-7713: source control wire-format contracts
+            "services",  # OMN-3835: service wire-format contracts
         )
     )
 
