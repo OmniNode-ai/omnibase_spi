@@ -21,6 +21,11 @@ These contracts must NOT import from omnibase_core, omnibase_infra, or omniclaud
 """
 
 # Delegation contracts
+# Database contracts
+from omnibase_spi.contracts.database.model_query_result import ModelQueryResult
+from omnibase_spi.contracts.database.model_transaction_result import (
+    ModelTransactionResult,
+)
 from omnibase_spi.contracts.delegation.contract_attachment import (
     ContractAttachment,
 )
@@ -124,6 +129,13 @@ from omnibase_spi.contracts.pipeline.contract_work_authorization import (
 from omnibase_spi.contracts.pipeline.enum_auth_reason_code import AuthReasonCode
 from omnibase_spi.contracts.shared.contract_check_result import ContractCheckResult
 from omnibase_spi.contracts.shared.contract_verdict import ContractVerdict
+
+# Source control contracts
+from omnibase_spi.contracts.source_control.model_branch import ModelBranch
+from omnibase_spi.contracts.source_control.model_check_run import ModelCheckRun
+from omnibase_spi.contracts.source_control.model_diff import ModelDiff
+from omnibase_spi.contracts.source_control.model_merge_result import ModelMergeResult
+from omnibase_spi.contracts.source_control.model_pull_request import ModelPullRequest
 from omnibase_spi.contracts.validation.contract_attribution_record import (
     ContractAttributionRecord,
 )
@@ -217,4 +229,13 @@ __all__ = [
     "ContractPromotionGate",
     # Measurement contracts - attribution
     "ContractMeasuredAttribution",
+    # Source control contracts
+    "ModelBranch",
+    "ModelCheckRun",
+    "ModelDiff",
+    "ModelMergeResult",
+    "ModelPullRequest",
+    # Database contracts
+    "ModelQueryResult",
+    "ModelTransactionResult",
 ]
