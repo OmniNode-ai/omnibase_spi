@@ -3,6 +3,12 @@
 
 """Protocol for ticket/issue tracking service integration.
 
+.. deprecated::
+    Use :class:`~omnibase_spi.protocols.services.protocol_project_tracker.ProtocolProjectTracker`
+    instead, which provides typed return models, ``search_issues``, and
+    project-level operations. This protocol remains available during the
+    transition period.
+
 Defines the standard interface for ticket tracking systems (Linear, Jira, GitHub Issues)
 used by ONEX pipeline automation for ticket creation, status updates, and querying.
 

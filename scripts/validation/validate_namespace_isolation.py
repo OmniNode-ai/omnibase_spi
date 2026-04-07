@@ -333,6 +333,7 @@ def is_contract_file(file_path: Path) -> bool:
             "enrichment",
             "projections",
             "events",  # OMN-2655: event wire-format contracts
+            "services",  # OMN-3835: service wire-format contracts
         )
     )
 
