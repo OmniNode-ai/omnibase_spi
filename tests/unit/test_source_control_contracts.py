@@ -147,7 +147,9 @@ class TestModelCheckRun:
 
 class TestModelMergeResult:
     def test_success(self) -> None:
-        result = ModelMergeResult(merged=True, sha="abc123", message="Merged via squash")
+        result = ModelMergeResult(
+            merged=True, sha="abc123", message="Merged via squash"
+        )
         assert result.merged is True
         assert result.sha == "abc123"
 
