@@ -142,9 +142,7 @@ class ProtocolProjectTracker(Protocol):
         """
         ...
 
-    async def update_issue(
-        self, issue_id: str, updates: dict[str, str]
-    ) -> ModelIssue:
+    async def update_issue(self, issue_id: str, updates: dict[str, str]) -> ModelIssue:
         """Update fields on an existing issue.
 
         Args:
@@ -159,9 +157,7 @@ class ProtocolProjectTracker(Protocol):
         """
         ...
 
-    async def search_issues(
-        self, query: str, limit: int = 50
-    ) -> list[ModelIssue]:
+    async def search_issues(self, query: str, limit: int = 50) -> list[ModelIssue]:
         """Search issues by text query.
 
         Args:
