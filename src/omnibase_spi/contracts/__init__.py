@@ -143,6 +143,18 @@ from omnibase_spi.contracts.validation.contract_validation_verdict import (
     ContractValidationVerdict,
 )
 from omnibase_spi.contracts.validation.enum_validation_check import ValidationCheck
+# Database contracts
+from omnibase_spi.contracts.database.model_query_result import ModelQueryResult
+from omnibase_spi.contracts.database.model_transaction_result import (
+    ModelTransactionResult,
+)
+
+# Source control contracts
+from omnibase_spi.contracts.source_control.model_branch import ModelBranch
+from omnibase_spi.contracts.source_control.model_check_run import ModelCheckRun
+from omnibase_spi.contracts.source_control.model_diff import ModelDiff
+from omnibase_spi.contracts.source_control.model_merge_result import ModelMergeResult
+from omnibase_spi.contracts.source_control.model_pull_request import ModelPullRequest
 from omnibase_spi.enums.enum_rrh_rule import RRHRule
 
 __all__ = [
@@ -217,4 +229,13 @@ __all__ = [
     "ContractPromotionGate",
     # Measurement contracts - attribution
     "ContractMeasuredAttribution",
+    # Source control contracts
+    "ModelBranch",
+    "ModelCheckRun",
+    "ModelDiff",
+    "ModelMergeResult",
+    "ModelPullRequest",
+    # Database contracts
+    "ModelQueryResult",
+    "ModelTransactionResult",
 ]
