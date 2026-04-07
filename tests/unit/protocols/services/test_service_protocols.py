@@ -16,6 +16,7 @@ import pytest
 
 from omnibase_spi.protocols.services import (
     ProtocolCodeHost,
+    ProtocolExternalService,
     ProtocolSecretStore,
     ProtocolTicketService,
 )
@@ -80,6 +81,20 @@ class _StubSecretStore:
         pass
 
 
+class _StubExternalService:
+    async def connect(self) -> bool:
+        return True
+
+    async def health_check(self) -> object:
+        return object()
+
+    async def get_capabilities(self) -> list[str]:
+        return ["read", "write"]
+
+    async def close(self, timeout_seconds: float = 30.0) -> None:
+        pass
+
+
 class _StubCodeHost:
     async def create_pull_request(
         self,
@@ -123,6 +138,39 @@ class _StubCodeHost:
 # ---------------------------------------------------------------------------
 # Tests
 # ---------------------------------------------------------------------------
+
+
+@pytest.mark.unit
+class TestProtocolExternalService:
+    """ProtocolExternalService runtime checkability and structure."""
+
+    def test_isinstance_check(self) -> None:
+        assert isinstance(_StubExternalService(), ProtocolExternalService)
+
+    def test_is_protocol(self) -> None:
+        assert any(
+            getattr(base, "__name__", "") == "Protocol"
+            for base in ProtocolExternalService.__mro__
+        )
+
+    def test_has_connect(self) -> None:
+        assert hasattr(ProtocolExternalService, "connect")
+
+    def test_has_health_check(self) -> None:
+        assert hasattr(ProtocolExternalService, "health_check")
+
+    def test_has_get_capabilities(self) -> None:
+        assert hasattr(ProtocolExternalService, "get_capabilities")
+
+    def test_has_close(self) -> None:
+        assert hasattr(ProtocolExternalService, "close")
+
+    def test_import_from_module(self) -> None:
+        from omnibase_spi.protocols.services.protocol_external_service import (
+            ProtocolExternalService as Direct,
+        )
+
+        assert Direct is ProtocolExternalService
 
 
 @pytest.mark.unit
