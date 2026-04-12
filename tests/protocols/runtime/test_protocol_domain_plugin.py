@@ -44,19 +44,29 @@ class CompliantPlugin:
     def should_activate(self, config: ModelDomainPluginConfig) -> bool:
         return True
 
-    async def initialize(self, config: ModelDomainPluginConfig) -> ModelDomainPluginResult:
+    async def initialize(
+        self, config: ModelDomainPluginConfig
+    ) -> ModelDomainPluginResult:
         return ModelDomainPluginResult.succeeded(self.plugin_id)
 
-    async def wire_handlers(self, config: ModelDomainPluginConfig) -> ModelDomainPluginResult:
+    async def wire_handlers(
+        self, config: ModelDomainPluginConfig
+    ) -> ModelDomainPluginResult:
         return ModelDomainPluginResult.succeeded(self.plugin_id)
 
-    async def wire_dispatchers(self, config: ModelDomainPluginConfig) -> ModelDomainPluginResult:
+    async def wire_dispatchers(
+        self, config: ModelDomainPluginConfig
+    ) -> ModelDomainPluginResult:
         return ModelDomainPluginResult.succeeded(self.plugin_id)
 
-    async def start_consumers(self, config: ModelDomainPluginConfig) -> ModelDomainPluginResult:
+    async def start_consumers(
+        self, config: ModelDomainPluginConfig
+    ) -> ModelDomainPluginResult:
         return ModelDomainPluginResult.succeeded(self.plugin_id)
 
-    async def shutdown(self, config: ModelDomainPluginConfig) -> ModelDomainPluginResult:
+    async def shutdown(
+        self, config: ModelDomainPluginConfig
+    ) -> ModelDomainPluginResult:
         return ModelDomainPluginResult.succeeded(self.plugin_id)
 
 
@@ -67,7 +77,9 @@ class PartialPlugin:
     def plugin_id(self) -> str:
         return "partial"
 
-    async def initialize(self, config: ModelDomainPluginConfig) -> ModelDomainPluginResult:
+    async def initialize(
+        self, config: ModelDomainPluginConfig
+    ) -> ModelDomainPluginResult:
         return ModelDomainPluginResult.succeeded(self.plugin_id)
 
 
@@ -279,14 +291,17 @@ class TestCompliantPluginLifecycle:
 
     def test_should_activate_is_sync(self) -> None:
         import inspect
+
         assert not inspect.iscoroutinefunction(CompliantPlugin.should_activate)
 
     def test_initialize_is_async(self) -> None:
         import inspect
+
         assert inspect.iscoroutinefunction(CompliantPlugin.initialize)
 
     def test_shutdown_is_async(self) -> None:
         import inspect
+
         assert inspect.iscoroutinefunction(CompliantPlugin.shutdown)
 
 
@@ -302,26 +317,31 @@ class TestImportPaths:
         from omnibase_spi.protocols.runtime.protocol_domain_plugin import (
             ProtocolDomainPlugin as Direct,
         )
+
         assert Direct is ProtocolDomainPlugin
 
     def test_import_from_package(self) -> None:
         from omnibase_spi.protocols.runtime import (
             ProtocolDomainPlugin as Pkg,
         )
+
         assert Pkg is ProtocolDomainPlugin
 
     def test_import_from_protocols_init(self) -> None:
         from omnibase_spi.protocols import ProtocolDomainPlugin as Root
+
         assert Root is ProtocolDomainPlugin
 
     def test_model_config_importable_from_module(self) -> None:
         from omnibase_spi.protocols.runtime.protocol_domain_plugin import (
             ModelDomainPluginConfig as Cfg,
         )
+
         assert Cfg is ModelDomainPluginConfig
 
     def test_model_result_importable_from_module(self) -> None:
         from omnibase_spi.protocols.runtime.protocol_domain_plugin import (
             ModelDomainPluginResult as Res,
         )
+
         assert Res is ModelDomainPluginResult
