@@ -19,11 +19,11 @@ from uuid import uuid4
 
 import pytest
 
-from omnibase_spi.protocols.runtime.protocol_domain_plugin import (
+from omnibase_spi.models.domain_plugin import (
     ModelDomainPluginConfig,
     ModelDomainPluginResult,
-    ProtocolDomainPlugin,
 )
+from omnibase_spi.protocols.runtime.protocol_domain_plugin import ProtocolDomainPlugin
 
 # ---------------------------------------------------------------------------
 # Helpers: compliant and non-compliant implementations
@@ -332,15 +332,29 @@ class TestImportPaths:
 
         assert Root is ProtocolDomainPlugin
 
-    def test_model_config_importable_from_module(self) -> None:
-        from omnibase_spi.protocols.runtime.protocol_domain_plugin import (
+    def test_model_config_importable_from_models(self) -> None:
+        from omnibase_spi.models.domain_plugin import (
             ModelDomainPluginConfig as Cfg,
         )
 
         assert Cfg is ModelDomainPluginConfig
 
-    def test_model_result_importable_from_module(self) -> None:
-        from omnibase_spi.protocols.runtime.protocol_domain_plugin import (
+    def test_model_result_importable_from_models(self) -> None:
+        from omnibase_spi.models.domain_plugin import (
+            ModelDomainPluginResult as Res,
+        )
+
+        assert Res is ModelDomainPluginResult
+
+    def test_model_config_importable_from_runtime(self) -> None:
+        from omnibase_spi.protocols.runtime import (
+            ModelDomainPluginConfig as Cfg,
+        )
+
+        assert Cfg is ModelDomainPluginConfig
+
+    def test_model_result_importable_from_runtime(self) -> None:
+        from omnibase_spi.protocols.runtime import (
             ModelDomainPluginResult as Res,
         )
 

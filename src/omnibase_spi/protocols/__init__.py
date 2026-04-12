@@ -399,12 +399,12 @@ from omnibase_spi.protocols.registry import (
     ProtocolProviderRegistry,
 )
 
-# Runtime protocols (3 names) - Domain plugin lifecycle management
-from omnibase_spi.protocols.runtime import (
-    ModelDomainPluginConfig,
-    ModelDomainPluginResult,
-    ProtocolDomainPlugin,
-)
+# Runtime protocols - Domain plugin lifecycle management
+# Import ProtocolDomainPlugin directly from its module (not via runtime/__init__.py)
+# to avoid transitively loading omnibase_spi.models during protocol package init.
+# ModelDomainPluginConfig and ModelDomainPluginResult live in omnibase_spi.models;
+# import them from there or from omnibase_spi.protocols.runtime.
+from omnibase_spi.protocols.runtime.protocol_domain_plugin import ProtocolDomainPlugin
 
 # Schema protocols (2 protocols) - Schema loading and validation
 from omnibase_spi.protocols.schema import (
@@ -490,9 +490,7 @@ from omnibase_spi.protocols.workflow_orchestration import (
 
 
 __all__ = [
-    # Runtime plugin models and protocol
-    "ModelDomainPluginConfig",
-    "ModelDomainPluginResult",
+    # Runtime plugin protocol (models live in omnibase_spi.models)
     "ProtocolDomainPlugin",
     # Container types and enums
     "InjectionScope",

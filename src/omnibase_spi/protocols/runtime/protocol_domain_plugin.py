@@ -11,8 +11,9 @@ omnibase_infra re-exports all three names from its original location for
 backwards compatibility.
 
 The config and result model types live in omnibase_spi.models.domain_plugin
-(not here) to satisfy SPI purity rules — only Protocol definitions belong in
-omnibase_spi.protocols.
+(not here) to satisfy SPI purity rules. They are imported under TYPE_CHECKING
+only so that importing this protocol module does not transitively pull in
+omnibase_spi.models (which would break the namespace-isolation CI check).
 
 Lifecycle Hooks:
     1. should_activate() - Check if plugin should activate
@@ -26,12 +27,13 @@ Lifecycle Hooks:
 
 from __future__ import annotations
 
-from typing import Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
-from omnibase_spi.models.domain_plugin import (
-    ModelDomainPluginConfig,
-    ModelDomainPluginResult,
-)
+if TYPE_CHECKING:
+    from omnibase_spi.models.domain_plugin import (
+        ModelDomainPluginConfig,
+        ModelDomainPluginResult,
+    )
 
 
 @runtime_checkable
@@ -119,7 +121,5 @@ class ProtocolDomainPlugin(Protocol):
 
 
 __all__: list[str] = [
-    "ModelDomainPluginConfig",
-    "ModelDomainPluginResult",
     "ProtocolDomainPlugin",
 ]
