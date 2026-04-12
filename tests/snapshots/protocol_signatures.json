@@ -3905,6 +3905,120 @@
       "return_type": "ProtocolTraceSpan"
     }
   },
+  "ProtocolDomainPlugin": {
+    "__eq__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__ge__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__gt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__hash__": {
+      "kind": "method",
+      "parameters": {},
+      "return_type": "<empty>"
+    },
+    "__le__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__lt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "display_name": {
+      "kind": "property",
+      "return_type": "str"
+    },
+    "initialize": {
+      "kind": "async_method",
+      "parameters": {
+        "config": {
+          "type": "ModelDomainPluginConfig"
+        }
+      },
+      "return_type": "ModelDomainPluginResult"
+    },
+    "plugin_id": {
+      "kind": "property",
+      "return_type": "str"
+    },
+    "should_activate": {
+      "kind": "method",
+      "parameters": {
+        "config": {
+          "type": "ModelDomainPluginConfig"
+        }
+      },
+      "return_type": "bool"
+    },
+    "shutdown": {
+      "kind": "async_method",
+      "parameters": {
+        "config": {
+          "type": "ModelDomainPluginConfig"
+        }
+      },
+      "return_type": "ModelDomainPluginResult"
+    },
+    "start_consumers": {
+      "kind": "async_method",
+      "parameters": {
+        "config": {
+          "type": "ModelDomainPluginConfig"
+        }
+      },
+      "return_type": "ModelDomainPluginResult"
+    },
+    "wire_dispatchers": {
+      "kind": "async_method",
+      "parameters": {
+        "config": {
+          "type": "ModelDomainPluginConfig"
+        }
+      },
+      "return_type": "ModelDomainPluginResult"
+    },
+    "wire_handlers": {
+      "kind": "async_method",
+      "parameters": {
+        "config": {
+          "type": "ModelDomainPluginConfig"
+        }
+      },
+      "return_type": "ModelDomainPluginResult"
+    }
+  },
   "ProtocolEffect": {
     "__eq__": {
       "kind": "method",

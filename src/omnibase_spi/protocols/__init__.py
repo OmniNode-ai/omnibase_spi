@@ -477,12 +477,23 @@ from omnibase_spi.protocols.workflow_orchestration import (
     ProtocolWorkQueue,
 )
 
+# Runtime protocols (3 names) - Domain plugin lifecycle management
+from omnibase_spi.protocols.runtime import (
+    ModelDomainPluginConfig,
+    ModelDomainPluginResult,
+    ProtocolDomainPlugin,
+)
+
 # Test protocols (2 protocols) - Testing frameworks and testable components
 # NOTE: Commented out for production builds as test module is excluded from package
 # from omnibase_spi.protocols.test import ProtocolTestable, ProtocolTestableCLI
 
 
 __all__ = [
+    # Runtime plugin models and protocol
+    "ModelDomainPluginConfig",
+    "ModelDomainPluginResult",
+    "ProtocolDomainPlugin",
     # Container types and enums
     "InjectionScope",
     "LiteralAssignmentStrategy",
