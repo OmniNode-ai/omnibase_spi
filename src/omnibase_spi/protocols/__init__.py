@@ -399,6 +399,13 @@ from omnibase_spi.protocols.registry import (
     ProtocolProviderRegistry,
 )
 
+# Runtime protocols (3 names) - Domain plugin lifecycle management
+from omnibase_spi.protocols.runtime import (
+    ModelDomainPluginConfig,
+    ModelDomainPluginResult,
+    ProtocolDomainPlugin,
+)
+
 # Schema protocols (2 protocols) - Schema loading and validation
 from omnibase_spi.protocols.schema import (
     ProtocolSchemaLoader,
@@ -475,13 +482,6 @@ from omnibase_spi.protocols.workflow_orchestration import (
     ProtocolWorkflowNodeInfo,
     ProtocolWorkflowNodeRegistry,
     ProtocolWorkQueue,
-)
-
-# Runtime protocols (3 names) - Domain plugin lifecycle management
-from omnibase_spi.protocols.runtime import (
-    ModelDomainPluginConfig,
-    ModelDomainPluginResult,
-    ProtocolDomainPlugin,
 )
 
 # Test protocols (2 protocols) - Testing frameworks and testable components
