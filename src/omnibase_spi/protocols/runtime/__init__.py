@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: MIT
 """Runtime protocols for domain plugin lifecycle management.
 
-ProtocolDomainPlugin is the only protocol exported from this subpackage.
+ProtocolDomainPlugin is the protocol exported from this subpackage.
 ModelDomainPluginConfig and ModelDomainPluginResult are concrete dataclasses
-that live in omnibase_spi.models.domain_plugin; they are re-exported here via
-__getattr__ (lazy) so that ``from omnibase_spi.protocols.runtime import Model*``
-continues to work without loading omnibase_spi.models at package-init time.
+that live in omnibase_core.models.runtime.model_domain_plugin; they are
+re-exported here via __getattr__ (lazy) so that callers can import them
+from this subpackage without a circular import at package-init time.
 """
 
 from __future__ import annotations
@@ -22,8 +22,8 @@ __all__: list[str] = [
 ]
 
 _lazy: dict[str, str] = {
-    "ModelDomainPluginConfig": "omnibase_spi.models.domain_plugin",
-    "ModelDomainPluginResult": "omnibase_spi.models.domain_plugin",
+    "ModelDomainPluginConfig": "omnibase_core.models.runtime.model_domain_plugin",
+    "ModelDomainPluginResult": "omnibase_core.models.runtime.model_domain_plugin",
 }
 
 

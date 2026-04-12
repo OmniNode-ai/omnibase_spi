@@ -19,7 +19,7 @@ from uuid import uuid4
 
 import pytest
 
-from omnibase_spi.models.domain_plugin import (
+from omnibase_core.models.runtime.model_domain_plugin import (
     ModelDomainPluginConfig,
     ModelDomainPluginResult,
 )
@@ -332,15 +332,15 @@ class TestImportPaths:
 
         assert Root is ProtocolDomainPlugin
 
-    def test_model_config_importable_from_models(self) -> None:
-        from omnibase_spi.models.domain_plugin import (
+    def test_model_config_importable_from_core(self) -> None:
+        from omnibase_core.models.runtime.model_domain_plugin import (
             ModelDomainPluginConfig as Cfg,
         )
 
         assert Cfg is ModelDomainPluginConfig
 
-    def test_model_result_importable_from_models(self) -> None:
-        from omnibase_spi.models.domain_plugin import (
+    def test_model_result_importable_from_core(self) -> None:
+        from omnibase_core.models.runtime.model_domain_plugin import (
             ModelDomainPluginResult as Res,
         )
 

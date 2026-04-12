@@ -10,10 +10,8 @@ can implement the protocol without taking a runtime dependency on omnibase_infra
 omnibase_infra re-exports all three names from its original location for
 backwards compatibility.
 
-The config and result model types live in omnibase_spi.models.domain_plugin
-(not here) to satisfy SPI purity rules. They are imported under TYPE_CHECKING
-only so that importing this protocol module does not transitively pull in
-omnibase_spi.models (which would break the namespace-isolation CI check).
+The config and result model types live in omnibase_core.models.runtime.model_domain_plugin
+(models belong in core; spi depends on core).
 
 Lifecycle Hooks:
     1. should_activate() - Check if plugin should activate
@@ -30,7 +28,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    from omnibase_spi.models.domain_plugin import (
+    from omnibase_core.models.runtime.model_domain_plugin import (
         ModelDomainPluginConfig,
         ModelDomainPluginResult,
     )
