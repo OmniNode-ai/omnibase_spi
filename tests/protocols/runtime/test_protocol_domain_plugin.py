@@ -1,32 +1,30 @@
 # SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
 # SPDX-License-Identifier: MIT
 
-"""Tests for ProtocolDomainPlugin, ModelDomainPluginConfig, ModelDomainPluginResult.
+"""Tests for ProtocolDomainPlugin.
 
 Validates:
 - ProtocolDomainPlugin is properly runtime_checkable
 - Protocol defines required lifecycle methods
 - Compliant/non-compliant isinstance checks work
-- ModelDomainPluginConfig constructs correctly
-- ModelDomainPluginResult factory methods work
 - Imports are available from both direct module and package paths
+
+Note: ModelDomainPluginConfig and ModelDomainPluginResult live in omnibase_infra
+(moving to omnibase_core in a follow-up). Tests for those models belong in
+omnibase_infra, not here.
 """
 
 from __future__ import annotations
 
+from typing import Any
 from unittest.mock import MagicMock
-from uuid import uuid4
 
 import pytest
 
-from omnibase_core.models.runtime.model_domain_plugin import (
-    ModelDomainPluginConfig,
-    ModelDomainPluginResult,
-)
 from omnibase_spi.protocols.runtime.protocol_domain_plugin import ProtocolDomainPlugin
 
 # ---------------------------------------------------------------------------
-# Helpers: compliant and non-compliant implementations
+# Helpers: compliant and non-compliant implementations using MagicMock config
 # ---------------------------------------------------------------------------
 
 
@@ -41,33 +39,23 @@ class CompliantPlugin:
     def display_name(self) -> str:
         return "Test Plugin"
 
-    def should_activate(self, config: ModelDomainPluginConfig) -> bool:
+    def should_activate(self, config: Any) -> bool:
         return True
 
-    async def initialize(
-        self, config: ModelDomainPluginConfig
-    ) -> ModelDomainPluginResult:
-        return ModelDomainPluginResult.succeeded(self.plugin_id)
+    async def initialize(self, config: Any) -> MagicMock:
+        return MagicMock(success=True)
 
-    async def wire_handlers(
-        self, config: ModelDomainPluginConfig
-    ) -> ModelDomainPluginResult:
-        return ModelDomainPluginResult.succeeded(self.plugin_id)
+    async def wire_handlers(self, config: Any) -> MagicMock:
+        return MagicMock(success=True)
 
-    async def wire_dispatchers(
-        self, config: ModelDomainPluginConfig
-    ) -> ModelDomainPluginResult:
-        return ModelDomainPluginResult.succeeded(self.plugin_id)
+    async def wire_dispatchers(self, config: Any) -> MagicMock:
+        return MagicMock(success=True)
 
-    async def start_consumers(
-        self, config: ModelDomainPluginConfig
-    ) -> ModelDomainPluginResult:
-        return ModelDomainPluginResult.succeeded(self.plugin_id)
+    async def start_consumers(self, config: Any) -> MagicMock:
+        return MagicMock(success=True)
 
-    async def shutdown(
-        self, config: ModelDomainPluginConfig
-    ) -> ModelDomainPluginResult:
-        return ModelDomainPluginResult.succeeded(self.plugin_id)
+    async def shutdown(self, config: Any) -> MagicMock:
+        return MagicMock(success=True)
 
 
 class PartialPlugin:
@@ -77,10 +65,8 @@ class PartialPlugin:
     def plugin_id(self) -> str:
         return "partial"
 
-    async def initialize(
-        self, config: ModelDomainPluginConfig
-    ) -> ModelDomainPluginResult:
-        return ModelDomainPluginResult.succeeded(self.plugin_id)
+    async def initialize(self, config: Any) -> MagicMock:
+        return MagicMock(success=True)
 
 
 class EmptyClass:
@@ -96,13 +82,11 @@ class TestProtocolDomainPluginShape:
     """Verify protocol is properly defined and runtime_checkable."""
 
     def test_is_runtime_checkable(self) -> None:
-        """ProtocolDomainPlugin should be decorated with @runtime_checkable."""
         assert hasattr(ProtocolDomainPlugin, "_is_runtime_protocol") or hasattr(
             ProtocolDomainPlugin, "__runtime_protocol__"
         )
 
     def test_is_protocol(self) -> None:
-        """ProtocolDomainPlugin should be a Protocol class."""
         from typing import Protocol
 
         assert any(
@@ -135,7 +119,6 @@ class TestProtocolDomainPluginShape:
         assert "shutdown" in dir(ProtocolDomainPlugin)
 
     def test_cannot_be_instantiated(self) -> None:
-        """Protocol cannot be directly instantiated."""
         with pytest.raises(TypeError):
             ProtocolDomainPlugin()  # type: ignore[misc]
 
@@ -162,132 +145,12 @@ class TestProtocolDomainPluginCompliance:
 
 
 # ---------------------------------------------------------------------------
-# Tests: ModelDomainPluginConfig
-# ---------------------------------------------------------------------------
-
-
-class TestModelDomainPluginConfig:
-    """Verify ModelDomainPluginConfig construction and fields."""
-
-    def _make_config(self) -> ModelDomainPluginConfig:
-        return ModelDomainPluginConfig(
-            container=MagicMock(),
-            event_bus=MagicMock(),
-            correlation_id=uuid4(),
-            input_topic="requests",
-            output_topic="responses",
-            consumer_group="test-group",
-        )
-
-    def test_basic_construction(self) -> None:
-        cfg = self._make_config()
-        assert cfg.input_topic == "requests"
-        assert cfg.output_topic == "responses"
-        assert cfg.consumer_group == "test-group"
-
-    def test_optional_fields_default_none(self) -> None:
-        cfg = self._make_config()
-        assert cfg.dispatch_engine is None
-        assert cfg.node_identity is None
-        assert cfg.kafka_bootstrap_servers is None
-        assert cfg.output_topic_map is None
-
-    def test_optional_fields_can_be_set(self) -> None:
-        cfg = self._make_config()
-        cfg.dispatch_engine = MagicMock()
-        cfg.node_identity = MagicMock()
-        cfg.kafka_bootstrap_servers = "localhost:9092"
-        cfg.output_topic_map = {"MyEvent": "topic.v1"}
-        assert cfg.dispatch_engine is not None
-        assert cfg.node_identity is not None
-        assert cfg.kafka_bootstrap_servers == "localhost:9092"
-        assert cfg.output_topic_map == {"MyEvent": "topic.v1"}
-
-
-# ---------------------------------------------------------------------------
-# Tests: ModelDomainPluginResult
-# ---------------------------------------------------------------------------
-
-
-class TestModelDomainPluginResult:
-    """Verify ModelDomainPluginResult factory methods and __bool__."""
-
-    def test_succeeded_factory(self) -> None:
-        r = ModelDomainPluginResult.succeeded("my-plugin")
-        assert r.success is True
-        assert r.plugin_id == "my-plugin"
-        assert bool(r) is True
-
-    def test_failed_factory(self) -> None:
-        r = ModelDomainPluginResult.failed("my-plugin", error_message="boom")
-        assert r.success is False
-        assert r.error_message == "boom"
-        assert bool(r) is False
-
-    def test_skipped_factory(self) -> None:
-        r = ModelDomainPluginResult.skipped("my-plugin", reason="env not set")
-        assert r.success is True
-        assert "skipped" in r.message
-        assert bool(r) is True
-
-    def test_get_error_message_or_default_with_error(self) -> None:
-        r = ModelDomainPluginResult.failed("p", error_message="oops")
-        assert r.get_error_message_or_default() == "oops"
-
-    def test_get_error_message_or_default_without_error(self) -> None:
-        r = ModelDomainPluginResult.succeeded("p")
-        assert r.get_error_message_or_default("fallback") == "fallback"
-
-    def test_resources_created_defaults_empty(self) -> None:
-        r = ModelDomainPluginResult(plugin_id="p", success=True)
-        assert r.resources_created == []
-
-    def test_services_registered_defaults_empty(self) -> None:
-        r = ModelDomainPluginResult(plugin_id="p", success=True)
-        assert r.services_registered == []
-
-    def test_unsubscribe_callbacks_defaults_empty(self) -> None:
-        r = ModelDomainPluginResult(plugin_id="p", success=True)
-        assert r.unsubscribe_callbacks == []
-
-
-# ---------------------------------------------------------------------------
 # Tests: lifecycle method async nature
 # ---------------------------------------------------------------------------
 
 
 class TestCompliantPluginLifecycle:
-    """Verify lifecycle methods are async and return correct types."""
-
-    def _make_config(self) -> ModelDomainPluginConfig:
-        return ModelDomainPluginConfig(
-            container=MagicMock(),
-            event_bus=MagicMock(),
-            correlation_id=uuid4(),
-            input_topic="in",
-            output_topic="out",
-            consumer_group="grp",
-        )
-
-    @pytest.mark.asyncio
-    async def test_initialize_returns_result(self) -> None:
-        plugin = CompliantPlugin()
-        result = await plugin.initialize(self._make_config())
-        assert isinstance(result, ModelDomainPluginResult)
-        assert result.success is True
-
-    @pytest.mark.asyncio
-    async def test_wire_handlers_returns_result(self) -> None:
-        plugin = CompliantPlugin()
-        result = await plugin.wire_handlers(self._make_config())
-        assert isinstance(result, ModelDomainPluginResult)
-
-    @pytest.mark.asyncio
-    async def test_shutdown_returns_result(self) -> None:
-        plugin = CompliantPlugin()
-        result = await plugin.shutdown(self._make_config())
-        assert isinstance(result, ModelDomainPluginResult)
-        assert result.success is True
+    """Verify lifecycle methods are async and sync as declared."""
 
     def test_should_activate_is_sync(self) -> None:
         import inspect
@@ -331,31 +194,3 @@ class TestImportPaths:
         from omnibase_spi.protocols import ProtocolDomainPlugin as Root
 
         assert Root is ProtocolDomainPlugin
-
-    def test_model_config_importable_from_core(self) -> None:
-        from omnibase_core.models.runtime.model_domain_plugin import (
-            ModelDomainPluginConfig as Cfg,
-        )
-
-        assert Cfg is ModelDomainPluginConfig
-
-    def test_model_result_importable_from_core(self) -> None:
-        from omnibase_core.models.runtime.model_domain_plugin import (
-            ModelDomainPluginResult as Res,
-        )
-
-        assert Res is ModelDomainPluginResult
-
-    def test_model_config_importable_from_runtime(self) -> None:
-        from omnibase_spi.protocols.runtime import (
-            ModelDomainPluginConfig as Cfg,
-        )
-
-        assert Cfg is ModelDomainPluginConfig
-
-    def test_model_result_importable_from_runtime(self) -> None:
-        from omnibase_spi.protocols.runtime import (
-            ModelDomainPluginResult as Res,
-        )
-
-        assert Res is ModelDomainPluginResult
