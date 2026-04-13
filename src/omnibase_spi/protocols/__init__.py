@@ -399,6 +399,10 @@ from omnibase_spi.protocols.registry import (
     ProtocolProviderRegistry,
 )
 
+# Runtime protocols - Domain plugin lifecycle management
+# ModelDomainPluginConfig and ModelDomainPluginResult live in omnibase_core.models.runtime.
+from omnibase_spi.protocols.runtime.protocol_domain_plugin import ProtocolDomainPlugin
+
 # Schema protocols (2 protocols) - Schema loading and validation
 from omnibase_spi.protocols.schema import (
     ProtocolSchemaLoader,
@@ -483,6 +487,8 @@ from omnibase_spi.protocols.workflow_orchestration import (
 
 
 __all__ = [
+    # Runtime plugin protocol (models live in omnibase_core.models.runtime.model_domain_plugin)
+    "ProtocolDomainPlugin",
     # Container types and enums
     "InjectionScope",
     "LiteralAssignmentStrategy",
