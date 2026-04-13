@@ -218,7 +218,7 @@ jobs:
         && fromJSON('["self-hosted","omnibase-ci"]')
         || fromJSON('["ubuntu-latest"]')
       }}
-    if: github.event_name == 'pull_request' || github.event_name == 'merge_group'
+    if: github.event_name == 'pull_request' || github.event_name == 'merge_group' || github.event_name == 'push'
     steps:
       - uses: actions/checkout@v6
 
