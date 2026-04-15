@@ -327,6 +327,7 @@ __all__ = [
     "ProtocolHandlerError",
     "ProtocolNotImplementedError",
     "RegistryError",
+    "SkillRoutingError",
     "SPIError",
     # All lazy-loaded protocols (dynamically generated)
     *sorted(_LAZY_PROTOCOL_MAP.keys()),

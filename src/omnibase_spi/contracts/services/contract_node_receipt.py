@@ -17,7 +17,7 @@ _SCHEMA_VERSION = "1.0"
 class ProtocolNodeReceipt(BaseModel):
     """Immutable wire record produced after each node invocation.
 
-    A receipt with ``success=False`` MUST carry a non-None ``error_type``.
+    A receipt with ``status='failure'`` MUST carry a non-None ``error_type``.
     An empty ``{}`` receipt does not satisfy DoD validation.
 
     Fields align with Amendment A1 of OMN-8748/OMN-8737.

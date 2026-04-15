@@ -39,22 +39,24 @@ class SkillRoutingError(SPIError):
         last_error: str | None = None,
         context: dict[str, Any] | None = None,
     ) -> None:
-        merged: dict[str, Any] = {
-            "skill_name": skill_name,
-            "node_target": node_target,
-            "failure_reason": failure_reason,
-            "error_type": error_type,
-            "attempted_routes": attempted_routes or [],
-            "last_error": last_error,
-        }
-        if context:
-            merged.update(context)
+        routes = list(attempted_routes or [])
+        merged: dict[str, Any] = dict(context or {})
+        merged.update(
+            {
+                "skill_name": skill_name,
+                "node_target": node_target,
+                "failure_reason": failure_reason,
+                "error_type": error_type,
+                "attempted_routes": routes,
+                "last_error": last_error,
+            }
+        )
         super().__init__(message, context=merged)
         self.skill_name = skill_name
         self.node_target = node_target
         self.failure_reason = failure_reason
         self.error_type = error_type
-        self.attempted_routes: list[str] = attempted_routes or []
+        self.attempted_routes: list[str] = routes
         self.last_error = last_error
 
     @property
