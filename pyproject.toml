@@ -434,5 +434,5 @@ skip_covered = false
 [tool.coverage.html]
 directory = "htmlcov"
 
-# [tool.uv.sources]
-# omnibase-core = { path = "../omnibase_core", editable = true }
+[tool.uv.sources]
+omnibase-core = { git = "https://github.com/OmniNode-ai/omnibase_core.git", rev = "ff891a1a95d0904c9ea388d5067e4ff063b3d9bb" }

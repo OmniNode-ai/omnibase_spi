@@ -82,8 +82,8 @@ while IFS=: read -r file line content; do
     if [[ $file == *"/test_"* || $file == *"validation"* ]]; then
         continue
     fi
-    # Skip exceptions.py - Exception classes legitimately need __init__ methods
-    if [[ $file == *"exceptions.py" ]]; then
+    # Skip exception modules - Exception classes legitimately need __init__ methods
+    if [[ $file == *"exceptions.py" || $file == *"exceptions_skill_routing.py" ]]; then
         continue
     fi
     # Skip docstring examples (deeply indented code blocks)
