@@ -344,6 +344,9 @@ if TYPE_CHECKING:
     from omnibase_spi.effects.node_projection_effect import (
         ProtocolNodeProjectionEffect as ProtocolNodeProjectionEffect,
     )
+    from omnibase_spi.exceptions_skill_routing import (
+        SkillRoutingError as SkillRoutingError,
+    )
     from omnibase_spi.protocols.container import (
         ProtocolArtifactContainer as ProtocolArtifactContainer,
         ProtocolCacheService as ProtocolCacheService,
