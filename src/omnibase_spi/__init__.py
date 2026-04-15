@@ -98,6 +98,7 @@ _LAZY_EXCEPTION_MAP = {
     "ProtocolNotImplementedError": "omnibase_spi.exceptions",
     "RegistryError": "omnibase_spi.exceptions",
     "SPIError": "omnibase_spi.exceptions",
+    "SkillRoutingError": "omnibase_spi.exceptions_skill_routing",
 }
 
 # Lazy loading configuration - defines what protocols are available at root level
@@ -294,6 +295,7 @@ def __dir__() -> list[str]:
         "ProtocolHandlerError",
         "ProtocolNotImplementedError",
         "RegistryError",
+        "SkillRoutingError",
         "SPIError",
     ]
 
