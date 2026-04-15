@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID
 
@@ -29,7 +29,7 @@ class ProtocolNodeReceipt(BaseModel):
     node_id: str
     correlation_id: UUID
     action_taken: str
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
     status: str
     side_effect_summary: str = ""
     target_entity_ids: list[str] = Field(default_factory=list)
@@ -39,7 +39,9 @@ class ProtocolNodeReceipt(BaseModel):
     output: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_failure_has_error_type(self) -> "ProtocolNodeReceipt":
+    def _validate_failure_has_error_type(self) -> ProtocolNodeReceipt:
         if self.status == "failure" and self.error_type is None:
-            raise ValueError("ProtocolNodeReceipt with status='failure' requires error_type")
+            raise ValueError(
+                "ProtocolNodeReceipt with status='failure' requires error_type"
+            )
         return self
