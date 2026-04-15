@@ -4,6 +4,8 @@ on:
     types: [opened, synchronize, reopened]
   pull_request_review:
     types: [submitted, dismissed]
+  pull_request_review_comment:
+    types: [created, edited, deleted]
   issue_comment:
     types: [created, edited, deleted]
 jobs:
@@ -12,5 +14,6 @@ jobs:
     uses: OmniNode-ai/omniclaude/.github/workflows/cr-thread-gate.yml@main
     with:
       pr-number: ${{ github.event.pull_request.number || github.event.issue.number }}
+    secrets:
       github-token: ${{ secrets.CROSS_REPO_PAT }}
 
