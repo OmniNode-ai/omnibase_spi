@@ -323,17 +323,23 @@ class SPIProtocolValidator(ast.NodeVisitor):
         """
         parts = Path(self.file_path).parts
         # contracts/ subdirectories (wire-format Pydantic models)
-        if "contracts" in parts and any(
-            d in parts
-            for d in (
-                "shared",
-                "pipeline",
-                "validation",
-                "measurement",
-                "delegation",
-                "enrichment",
-                "projections",
-                "events",  # OMN-2655: event wire-format contracts
+        if (
+            "contracts" in parts
+            and any(
+                d in parts
+                for d in (
+                    "shared",
+                    "pipeline",
+                    "validation",
+                    "measurement",
+                    "delegation",
+                    "enrichment",
+                    "projections",
+                    "events",  # OMN-2655: event wire-format contracts
+                    "services",  # frozen wire-format Pydantic models (receipts, types)
+                    "database",  # frozen wire-format Pydantic models (query/transaction results)
+                    "source_control",  # frozen wire-format Pydantic models (PRs, branches, check runs)
+                )
             )
         ):
             return True

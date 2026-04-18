@@ -46,7 +46,7 @@ class ContractLinearSnapshotEvent(BaseModel):
 
     model_config = {"frozen": True, "extra": "forbid"}
 
-    schema_version: str = Field(
+    schema_version: str = Field(  # string-version-ok: wire format
         default="1.0",
         description="Wire-format version for forward compatibility.",
     )

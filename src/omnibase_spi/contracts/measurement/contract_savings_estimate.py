@@ -140,7 +140,7 @@ class ContractSavingsEstimate(BaseModel):
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 
-    schema_version: str = "1.0"
+    schema_version: str = "1.0"  # string-version-ok: wire format
     session_id: str
     correlation_id: str
     timestamp_iso: str

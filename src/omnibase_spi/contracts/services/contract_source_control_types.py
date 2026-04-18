@@ -21,7 +21,9 @@ class ModelCheckRun(BaseModel):
 
     model_config = {"frozen": True, "extra": "allow"}
 
-    schema_version: str = Field(default=_SCHEMA_VERSION)
+    schema_version: str = Field(
+        default=_SCHEMA_VERSION
+    )  # string-version-ok: wire format
     name: str
     status: str
     conclusion: str | None = None

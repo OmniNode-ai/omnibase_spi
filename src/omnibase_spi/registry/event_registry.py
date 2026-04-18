@@ -50,7 +50,7 @@ class EventRegistryEntry(NamedTuple):
     """
 
     topic: str
-    schema_version: str
+    schema_version: str  # string-version-ok: wire format
     partition_key_fields: tuple[str, ...]
     producer_protocol: str
 
