@@ -44,7 +44,7 @@ class ContractLlmUsageRaw(BaseModel):
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 
-    schema_version: str = Field(
+    schema_version: str = Field(  # string-version-ok: wire format
         default="1.0",
         description="Wire-format version for forward compatibility.",
     )
@@ -82,7 +82,7 @@ class ContractLlmUsageNormalized(BaseModel):
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 
-    schema_version: str = Field(
+    schema_version: str = Field(  # string-version-ok: wire format
         default="1.0",
         description="Wire-format version for forward compatibility.",
     )
@@ -190,7 +190,7 @@ class ContractLlmCallMetrics(BaseModel):
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 
-    schema_version: str = Field(
+    schema_version: str = Field(  # string-version-ok: wire format
         default="1.0",
         description="Wire-format version for forward compatibility.",
     )

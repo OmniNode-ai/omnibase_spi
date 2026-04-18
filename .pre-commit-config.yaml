@@ -46,7 +46,8 @@ repos:
         #   contract_github_pr_status_event.py — default_topic in event contract (1 violation)
         #   event_registry.py                 — topic strings in registry mapping (6 violations)
         #   default_github_pr_poller.yaml     — topic in YAML contract default (1 violation)
-        exclude: ^(src/omnibase_spi/contracts/events/contract_git_hook_event\.py|src/omnibase_spi/contracts/events/contract_linear_snapshot_event\.py|src/omnibase_spi/contracts/events/contract_github_pr_status_event\.py|src/omnibase_spi/registry/event_registry\.py|src/omnibase_spi/contracts/defaults/default_github_pr_poller\.yaml)$
+        #   exceptions_skill_routing.py       — kafka_payload() event_type literal (1 violation)
+        exclude: ^(src/omnibase_spi/contracts/events/contract_git_hook_event\.py|src/omnibase_spi/contracts/events/contract_linear_snapshot_event\.py|src/omnibase_spi/contracts/events/contract_github_pr_status_event\.py|src/omnibase_spi/registry/event_registry\.py|src/omnibase_spi/contracts/defaults/default_github_pr_poller\.yaml|src/omnibase_spi/exceptions_skill_routing\.py)$
       - id: cosmetic-lint
       - id: no-untracked-todos
         stages: [pre-commit]

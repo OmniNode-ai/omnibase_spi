@@ -44,7 +44,7 @@ class ContractArtifactPointerMeasurement(BaseModel):
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 
-    schema_version: str = Field(
+    schema_version: str = Field(  # string-version-ok: wire format
         default="1.0",
         description="Wire-format version for forward compatibility.",
     )
@@ -83,7 +83,7 @@ class ContractDurationMetrics(BaseModel):
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 
-    schema_version: str = Field(
+    schema_version: str = Field(  # string-version-ok: wire format
         default="1.0",
         description="Wire-format version for forward compatibility.",
     )
@@ -122,7 +122,7 @@ class ContractCostMetrics(BaseModel):
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 
-    schema_version: str = Field(
+    schema_version: str = Field(  # string-version-ok: wire format
         default="1.0",
         description="Wire-format version for forward compatibility.",
     )
@@ -171,7 +171,7 @@ class ContractOutcomeMetrics(BaseModel):
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 
-    schema_version: str = Field(
+    schema_version: str = Field(  # string-version-ok: wire format
         default="1.0",
         description="Wire-format version for forward compatibility.",
     )
@@ -234,7 +234,7 @@ class ContractTestMetrics(BaseModel):
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 
-    schema_version: str = Field(
+    schema_version: str = Field(  # string-version-ok: wire format
         default="1.0",
         description="Wire-format version for forward compatibility.",
     )
@@ -302,7 +302,7 @@ class ContractPhaseMetrics(BaseModel):
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 
-    schema_version: str = Field(
+    schema_version: str = Field(  # string-version-ok: wire format
         default="1.0",
         description="Wire-format version for forward compatibility.",
     )
