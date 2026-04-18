@@ -21,4 +21,21 @@ class ProtocolHandlerResolver(Protocol):
     inputs produce identical outputs across processes.
     """
 
-    def resolve(self, context: object) -> object: ...
+    def resolve(self, context: object) -> object:
+        """Resolve a handler from resolver context.
+
+        Args:
+            context: Opaque SPI-level resolver input context. Concrete
+                implementations in omnibase_core narrow this to
+                ``ModelHandlerResolverContext``.
+
+        Returns:
+            A resolved handler instance or a documented skip/result object
+            (e.g. ``SKIPPED_NOT_OWNED``).
+
+        Raises:
+            Exception: Implementations may raise resolution failures
+                (unresolvable class, precedence conflict, missing
+                dependency, etc.).
+        """
+        ...
