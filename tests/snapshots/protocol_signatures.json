@@ -7666,6 +7666,67 @@
       "return_type": "ModelGraphTraversalResult"
     }
   },
+  "ProtocolHandleable": {
+    "__eq__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__ge__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__gt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__hash__": {
+      "kind": "method",
+      "parameters": {},
+      "return_type": "<empty>"
+    },
+    "__le__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__lt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "handle": {
+      "kind": "async_method",
+      "parameters": {
+        "envelope": {
+          "type": "object"
+        }
+      },
+      "return_type": "object | None"
+    }
+  },
   "ProtocolHandler": {
     "__eq__": {
       "kind": "method",
@@ -8155,6 +8216,67 @@
       "type": "list[str]"
     }
   },
+  "ProtocolHandlerOwnershipQuery": {
+    "__eq__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__ge__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__gt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__hash__": {
+      "kind": "method",
+      "parameters": {},
+      "return_type": "<empty>"
+    },
+    "__le__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__lt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "is_owned_here": {
+      "kind": "method",
+      "parameters": {
+        "node_name": {
+          "type": "str"
+        }
+      },
+      "return_type": "bool"
+    }
+  },
   "ProtocolHandlerRegistry": {
     "__eq__": {
       "kind": "method",
@@ -8249,6 +8371,67 @@
         }
       },
       "return_type": "bool"
+    }
+  },
+  "ProtocolHandlerResolver": {
+    "__eq__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__ge__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__gt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__hash__": {
+      "kind": "method",
+      "parameters": {},
+      "return_type": "<empty>"
+    },
+    "__le__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__lt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "resolve": {
+      "kind": "method",
+      "parameters": {
+        "context": {
+          "type": "object"
+        }
+      },
+      "return_type": "object"
     }
   },
   "ProtocolHandlerSource": {
