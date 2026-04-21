@@ -320,6 +320,14 @@ repos:
         always_run: true
         stages: [pre-commit]
 
+      - id: normalization-symmetry
+        name: normalization-symmetry
+        entry: uv run python -m omnibase_core.validation.checker_normalization_symmetry src
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
+
     # TODO [OMN-7408]: re-enable after omnibase_core publishes onex-validate-links entry point to PyPI
     # Markdown link validation (OMN-5086) — uses onex-validate-links from omnibase_core
     # - id: onex-validate-links
@@ -343,11 +351,4 @@ ci:
   autofix_prs: true
   autoupdate_schedule: weekly
   submodules: false
-
-  - repo: local
-    hooks:
-      - id: normalization-symmetry
-        name: normalization-symmetry
-        entry: uv run python -m omnibase_core.validators.normalization-symmetry
-        language: system
-        pass_filenames: false
+  skip: [normalization-symmetry]
