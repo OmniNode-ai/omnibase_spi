@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
 # SPDX-License-Identifier: MIT
 
-"""Tests for ProtocolNodeReceipt — OMN-8748."""
+"""Tests for ProtocolNodeReceipt — internal issue."""
 
 from __future__ import annotations
 

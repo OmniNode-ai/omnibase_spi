@@ -1,6 +1,12 @@
 # omnibase_spi
 
-Service provider interface protocols for the ONEX platform.
+`omnibase_spi` is the Service Provider Interface package for ONEX. It defines
+protocol contracts, small wire-format contracts, and SPI exceptions that other
+repos implement or consume.
+
+This package is intentionally not the implementation layer. Concrete runtime,
+transport, service, registry, and I/O behavior belongs in implementation repos
+such as `omnibase_infra`.
 
 [![CI](https://github.com/OmniNode-ai/omnibase_spi/actions/workflows/ci.yml/badge.svg)](https://github.com/OmniNode-ai/omnibase_spi/actions/workflows/ci.yml)
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
@@ -9,39 +15,115 @@ Service provider interface protocols for the ONEX platform.
 [![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
 
+## Current Role
+
+- Defines 248 `protocol_*.py` files across 37 protocol domains.
+- Provides runtime-checkable Python `Protocol` contracts for service boundaries.
+- Provides frozen, data-only contracts in `src/omnibase_spi/contracts/` for
+  selected cross-boundary wire formats.
+- Imports `omnibase_core` models and types where protocol signatures need shared
+  platform data shapes.
+- Must not import implementation packages such as `omnibase_infra`.
+- Must not contain service implementations, business workflows, state machines,
+  transport clients, or general domain Pydantic models.
+
+## Dependency Direction
+
+The import direction is deliberate and non-obvious:
+
+```text
+Application and product repos
+        |
+        v
+omnibase_spi  ---- imports models/types ---->  omnibase_core
+        ^                                      ^
+        | implements protocols                 | uses models/types
+        |
+omnibase_infra and other implementation repos --+
+```
+
+Allowed:
+
+- `omnibase_spi -> omnibase_core`
+- `omnibase_infra -> omnibase_spi`
+- `omnibase_infra -> omnibase_core`
+- Product repos importing SPI protocols for type boundaries
+
+Forbidden:
+
+- `omnibase_core -> omnibase_spi`
+- `omnibase_spi -> omnibase_infra`
+- Protocol files that perform I/O or instantiate concrete services
+- General domain `BaseModel` classes in SPI protocol modules
+
+See [Dependency Direction](docs/architecture/DEPENDENCY-DIRECTION.md) for the
+full rule, examples, and rationale.
+
 ## Install
 
 ```bash
-uv add omnibase-spi
+uv add omnibase_spi
 ```
 
-## Minimal Example
+For local workspace development, use the repository lockfile and the configured
+`omnibase-core` source:
+
+```bash
+uv sync --group dev
+```
+
+## Minimal Protocol Example
 
 ```python
-from omnibase_spi.protocols.event_bus import ProtocolEventBusProducer
+from typing import Protocol, runtime_checkable
 
-class MyProducer(ProtocolEventBusProducer):
-    """Implement the event bus producer protocol."""
 
-    async def publish(self, topic: str, payload: bytes) -> None:
-        # Your implementation here
+@runtime_checkable
+class ProtocolExampleService(Protocol):
+    """Service boundary implemented outside omnibase_spi."""
+
+    async def run(self, payload: bytes) -> bytes:
+        """Run the service operation."""
         ...
 ```
 
-## Key Features
+## Add A Protocol
 
-- **176+ protocol interfaces**: Runtime-checkable protocols for all ONEX service boundaries
-- **22 domains**: Event bus, handlers, nodes, registry, storage, and more
-- **Zero implementations**: Protocols only -- concrete implementations live in omnibase_infra
-- **Structural typing**: All protocols use `@runtime_checkable` for duck typing
-- **Contract-first**: Protocols define the contract, implementations fulfill it
+1. Choose the domain under `src/omnibase_spi/protocols/`.
+2. Create a `protocol_<domain>_<name>.py` file.
+3. Name the public protocol `Protocol<Name>`.
+4. Add `@runtime_checkable`.
+5. Use `...` method bodies only.
+6. Import shared models from `omnibase_core` only when the signature requires
+   canonical platform models or types.
+7. Add or update tests under `tests/`.
+8. Export the protocol from the domain `__init__.py` if it is public.
+
+## Common Commands
+
+```bash
+uv sync --group dev
+uv run pytest
+uv run mypy src/ --strict
+uv run ruff check src/ tests/
+uv run ruff format src/ tests/
+python scripts/validation/run_all_validations.py
+pre-commit run --all-files
+uv build
+```
 
 ## Documentation
 
-- [Protocol registry](docs/api-reference/REGISTRY.md)
-- [Architecture](docs/architecture/)
-- [CLAUDE.md](CLAUDE.md) -- developer context and conventions
-- [AGENT.md](AGENT.md) -- LLM navigation guide
+- [Docs index](docs/README.md)
+- [Dependency direction](docs/architecture/DEPENDENCY-DIRECTION.md)
+- [Architecture overview](docs/architecture/README.md)
+- [API reference](docs/api-reference/README.md)
+- [Developer guide](docs/developer-guide/README.md)
+- [Testing guide](docs/TESTING.md)
+- [Contributing](CONTRIBUTING.md)
+- [Security](SECURITY.md)
+- [Agent context](AGENT.md)
+- [Claude context](CLAUDE.md)
 
 ## License
 

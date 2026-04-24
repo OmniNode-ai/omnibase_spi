@@ -15,7 +15,7 @@ Key Protocols:
     - ProtocolPersistResult: Result of persist operations
     - ProtocolBatchPersistResult: Result of batch persist operations
     - ProtocolProjectionView: Simplified synchronous SPI for view implementations
-        registered in NodeProjectionEffect (OMN-2382)
+        registered in NodeProjectionEffect (internal issue)
 
 Protocol Distinction:
     - ProtocolProjector: Async, handles persistence with sequence ordering.
@@ -31,7 +31,7 @@ Architecture:
 
     Reducer -> Runtime -> Projector -> Database <- ProjectionReader <- Orchestrator
 
-    NodeProjectionEffect registry pattern (OMN-2382):
+    NodeProjectionEffect registry pattern (internal issue):
 
     Reducer -> ModelProjectionIntent -> NodeProjectionEffect
             -> ProtocolProjectionView.project_intent() -> ContractProjectionResult

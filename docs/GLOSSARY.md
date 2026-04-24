@@ -361,13 +361,13 @@ See: [EVENT-BUS.md - Schema Registry Protocol](./api-reference/EVENT-BUS.md#sche
 - **[Main README](../README.md)** - Repository overview and quick start
 - **[Documentation Hub](./README.md)** - Complete documentation overview
 - **[Architecture Overview](./architecture/README.md)** - Design principles and patterns
-- **[API Reference](./api-reference/README.md)** - Complete protocol documentation (176+ protocols)
+- **[API Reference](./api-reference/README.md)** - Complete protocol documentation
 - **[Quick Start Guide](./QUICK-START.md)** - Get up and running quickly
 - **[Developer Guide](./developer-guide/README.md)** - Complete development workflow
 - **[Contributing Guide](./CONTRIBUTING.md)** - How to contribute to the project
-- **[MVP Plan](./MVP_PLAN.md)** - v0.3.0 work breakdown and roadmap
+- **[Dependency Direction](./architecture/DEPENDENCY-DIRECTION.md)** - Import graph and boundary rules
 
-### v0.3.0 Core Protocols
+### Common Protocol References
 
 - **[Node Protocols](./api-reference/NODES.md)** - ProtocolNode, ProtocolComputeNode, etc.
 - **[Handler Protocols](./api-reference/HANDLERS.md)** - ProtocolHandler interface

@@ -50,7 +50,7 @@ Sequence Diagram:
     ```
 
 Related tickets:
-    - OMN-1285: Create dashboard protocols for omnibase_spi
+    - internal issue: Create dashboard protocols for omnibase_spi
 """
 
 from __future__ import annotations

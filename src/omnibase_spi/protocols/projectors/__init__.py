@@ -7,7 +7,7 @@ Protocols for projectors that consume event streams
 and materialize state to persistence stores.
 
 Key Protocols:
-    - ProtocolEventProjector: Event-to-state projection interface (OMN-1167)
+    - ProtocolEventProjector: Event-to-state projection interface (internal issue)
     - ProtocolProjectorLoader: Loads projectors from YAML contracts
 
 Architecture:

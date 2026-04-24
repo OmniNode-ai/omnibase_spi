@@ -37,7 +37,7 @@ Naming:
 See Also:
     - ProtocolPrimitiveEffectExecutor: legacy bytes-in/bytes-out variant
       (omnibase_spi.protocols.effects.protocol_primitive_effect_executor)
-    - Phase 2: HandlerResourceManager stub in omnibase_infra (OMN-4225)
+    - Phase 2: HandlerResourceManager stub in omnibase_infra (internal issue)
     - Phase 3: handler-as-nodes decomposition (omnibase_infra)
 """
 

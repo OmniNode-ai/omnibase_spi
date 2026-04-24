@@ -11,7 +11,7 @@ This module validates that ProtocolEventBusProducerHandler:
 - All async methods are properly defined as coroutines
 - Properties are correctly defined (handler_type, supports_transactions, supports_exactly_once)
 
-These tests verify the typed-dynamic pattern introduced in PR #47 (OMN-710).
+These tests verify the typed-dynamic pattern introduced in PR #47 (internal issue).
 """
 
 import inspect

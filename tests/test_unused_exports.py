@@ -7,7 +7,7 @@ Verifies that all symbols in ``omnibase_spi.protocols.__all__`` are referenced
 somewhere in the codebase (excluding re-export modules). Symbols on the
 allowlist at ``scripts/export_allowlist.txt`` are excluded.
 
-Ticket: OMN-794
+Ticket: internal issue
 """
 
 from __future__ import annotations

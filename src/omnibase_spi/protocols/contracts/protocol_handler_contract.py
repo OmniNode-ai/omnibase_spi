@@ -103,7 +103,7 @@ class ProtocolHandlerContract(Protocol):
 
     Note:
         This protocol is intended to be implemented by ModelHandlerContract
-        in omnibase_core (OMN-1117). The protocol enables loose coupling
+        in omnibase_core (internal issue). The protocol enables loose coupling
         between SPI and Core while maintaining type safety. Serialization
         is handled by Pydantic's model_dump() and model_validate() methods
         on the implementing model class.

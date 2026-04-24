@@ -24,7 +24,7 @@ Example:
     >>> assert isinstance(MyConstraintValidator(), ProtocolConstraintValidator)
 
 See Also:
-    - OMN-1128: Contract Validation Pipeline integration
+    - internal issue: Contract Validation Pipeline integration
     - ProtocolExecutionConstraints: Protocol form of constraints
     - ModelExecutionConstraints: Pydantic model for constraints
 """
@@ -86,7 +86,7 @@ class ProtocolConstraintValidator(Protocol):
         - ModelExecutionProfile: Defines available phases and ordering.
         - ModelExecutionConflict: Describes detected conflicts.
         - ModelExecutionConstraints: Constraint specification model.
-        - OMN-1128: Contract Validation Pipeline integration.
+        - internal issue: Contract Validation Pipeline integration.
     """
 
     async def validate(

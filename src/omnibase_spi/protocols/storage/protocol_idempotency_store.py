@@ -18,8 +18,8 @@ Example implementations:
     - InMemoryIdempotencyStore: In-memory storage for testing
 
 Related tickets:
-    - OMN-991: Define ProtocolIdempotencyStore in omnibase_spi
-    - OMN-945: Implement runtime idempotency guard (B3)
+    - internal issue: Define ProtocolIdempotencyStore in omnibase_spi
+    - internal issue: Implement runtime idempotency guard (B3)
 """
 
 from __future__ import annotations

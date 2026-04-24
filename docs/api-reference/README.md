@@ -2,7 +2,7 @@
 
 ## Overview
 
-Complete API reference documentation for all **180+ protocols** across **23 specialized domains** in the omnibase-spi package. This reference provides detailed documentation for every public interface in the Service Provider Interface layer.
+Complete API reference documentation for all **248 protocol files** across **37 protocol domains** in the omnibase-spi package. This reference provides detailed documentation for every public interface in the Service Provider Interface layer.
 
 ## Protocol Architecture
 
@@ -88,11 +88,11 @@ The API reference is organized by domain, matching the package structure:
 ### Core System Protocols
 - **[Core Protocols](./CORE.md)** - System-level contracts and fundamentals (13 protocols)
 - **[Container Protocols](./CONTAINER.md)** - Dependency injection and service management (14 protocols)
-- **[Node Protocols](./NODES.md)** - ONEX 4-node architecture (5 protocols) **NEW in v0.3.0**
-- **[Handler Protocols](./HANDLERS.md)** - Protocol-specific I/O handlers (1 protocol) **NEW in v0.3.0**
-- **[Contract Compilers](./CONTRACTS.md)** - Contract compilation protocols (3 protocols) **NEW in v0.3.0**
-- **[Registry Protocols](./REGISTRY.md)** - Handler registry management (1 protocol) **NEW in v0.3.0**
-- **[Exceptions](./EXCEPTIONS.md)** - SPI exception hierarchy (6 exceptions) **NEW in v0.3.0**
+- **[Node Protocols](./NODES.md)** - ONEX 4-node architecture
+- **[Handler Protocols](./HANDLERS.md)** - Protocol-specific I/O handlers
+- **[Contract Compilers](./CONTRACTS.md)** - Contract compilation protocols
+- **[Registry Protocols](./REGISTRY.md)** - Handler registry management
+- **[Exceptions](./EXCEPTIONS.md)** - SPI exception hierarchy
 
 ### Workflow and Event Processing
 - **[Workflow Orchestration](./WORKFLOW-ORCHESTRATION.md)** - Event-driven FSM orchestration (12 protocols)
@@ -110,7 +110,7 @@ The API reference is organized by domain, matching the package structure:
 ### Type System
 - **Type definitions are integrated within each protocol domain**
 - **All types follow consistent naming conventions**
-- **Comprehensive type coverage across all 176 protocols**
+- **Comprehensive type coverage across all 248 protocol files**
 - **Type Protocols (14)**: ProtocolContract, ProtocolErrorInfo, and domain-specific type definitions
 - **ONEX Node Types (4)**: ProtocolEffectNode, ProtocolComputeNode, ProtocolReducerNode, ProtocolOrchestratorNode
 
@@ -275,12 +275,12 @@ Common patterns documented throughout:
 
 ## Protocol Statistics
 
-- **Total Protocols**: 180+ protocol files
-- **Domain Coverage**: 23 specialized domains
+- **Total Protocols**: 248 protocol files
+- **Domain Coverage**: 37 protocol domains
 - **Type Definitions**: 14 comprehensive type modules
 - **Enterprise Features**: Health monitoring, metrics, circuit breakers
 - **Architecture Patterns**: Event sourcing, dependency injection, distributed coordination
-- **Latest Additions (v0.3.0)**:
+- **Foundational Protocol Areas**:
   - **Node Protocols**: ProtocolNode, ProtocolComputeNode, ProtocolEffectNode, ProtocolReducerNode, ProtocolOrchestratorNode
   - **Handler Protocols**: ProtocolHandler with full lifecycle management
   - **Contract Compilers**: ProtocolEffectContractCompiler, ProtocolWorkflowContractCompiler, ProtocolFSMContractCompiler
@@ -960,7 +960,7 @@ def validate_node_types(
 
 ## Version Information
 
-- **API Version**: 0.3.0
+- **API Reference Version**: current package 0.20.5
 - **Python Compatibility**: 3.12+
 - **Type Checking**: mypy strict mode compatible
 - **Runtime Checking**: All protocols are `@runtime_checkable`

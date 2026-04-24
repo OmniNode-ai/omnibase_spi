@@ -170,7 +170,7 @@ class TestContractRunContext:
     def test_create(self) -> None:
         ctx = ContractRunContext(
             run_id="run-abc",
-            ticket_id="OMN-1234",
+            ticket_id="internal issue",
             repo="omnibase_spi",
             branch="main",
             phase="implement",
@@ -190,7 +190,7 @@ class TestContractSessionIndex:
     def test_create(self) -> None:
         idx = ContractSessionIndex(
             session_id="sess-1",
-            ticket_id="OMN-2004",
+            ticket_id="internal issue",
             repo="omnibase_spi",
         )
         assert idx.session_id == "sess-1"

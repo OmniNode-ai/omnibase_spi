@@ -18,7 +18,7 @@ Usage:
     # Generate snapshot without running comparison
     uv run python tests/test_protocol_snapshot.py
 
-Ticket: OMN-359
+Ticket: internal issue
 """
 
 from __future__ import annotations

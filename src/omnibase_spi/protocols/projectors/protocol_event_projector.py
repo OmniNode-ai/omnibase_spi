@@ -27,9 +27,9 @@ Idempotency:
     enables safe event replay and catch-up scenarios.
 
 Related tickets:
-    - OMN-1167: Define ProtocolEventProjector in omnibase_spi
-    - OMN-940: ProtocolProjector (projection persistence with ordering)
-    - OMN-930: ProtocolProjectionReader for orchestrators
+    - internal issue: Define ProtocolEventProjector in omnibase_spi
+    - internal issue: ProtocolProjector (projection persistence with ordering)
+    - internal issue: ProtocolProjectionReader for orchestrators
 
 Note:
     This protocol (ProtocolEventProjector in projectors/) is distinct from

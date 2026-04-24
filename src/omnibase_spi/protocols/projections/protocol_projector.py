@@ -65,9 +65,9 @@ Example implementations:
     - InMemoryProjector: Uses threading.Lock for testing
 
 Related tickets:
-    - OMN-940: Define ProtocolProjector in omnibase_spi
-    - OMN-930: Define ProtocolProjectionReader for orchestrators
-    - OMN-991: Define ProtocolIdempotencyStore (B3 runtime deduplication)
+    - internal issue: Define ProtocolProjector in omnibase_spi
+    - internal issue: Define ProtocolProjectionReader for orchestrators
+    - internal issue: Define ProtocolIdempotencyStore (B3 runtime deduplication)
 """
 
 from __future__ import annotations

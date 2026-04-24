@@ -4,10 +4,10 @@
 """SPI contract → Core model field alignment tests.
 
 Asserts that SPI contract fields ⊆ Core model fields for all three event
-types defined in OMN-2655.
+types defined in internal issue.
 
 These tests are gated on the availability of omnibase_core models.  When
-Part 2 (OMN-2655 omnibase_core scope) has not yet been merged, the Core
+Part 2 (internal issue omnibase_core scope) has not yet been merged, the Core
 models do not exist and the tests are auto-skipped with an informative
 message.
 

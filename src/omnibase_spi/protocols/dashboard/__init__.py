@@ -77,7 +77,7 @@ Usage Pattern:
     ```
 
 Related tickets:
-    - OMN-1285: Dashboard Protocols (omnibase_spi)
+    - internal issue: Dashboard Protocols (omnibase_spi)
 """
 
 from .protocol_dashboard_event_subscriber import ProtocolDashboardEventSubscriber

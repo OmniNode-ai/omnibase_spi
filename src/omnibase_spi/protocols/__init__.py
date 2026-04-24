@@ -361,7 +361,7 @@ from omnibase_spi.protocols.onex import (
     ProtocolVersionLoader,
 )
 
-# PrimitiveEffectExecutor SPI - typed kernel-level HTTP and Kafka dispatch (OMN-4220)
+# PrimitiveEffectExecutor SPI - typed kernel-level HTTP and Kafka dispatch (internal issue)
 # Zero upstream deps; contracts expressed via typing.Protocol structural subtyping.
 from omnibase_spi.protocols.primitive_effect_executor import (
     ProtocolHttpRequestContract,

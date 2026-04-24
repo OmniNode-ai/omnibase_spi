@@ -92,7 +92,7 @@ print(f"Tool result: {result}")
 - **[Contributing Guide](CONTRIBUTING.md)** - How to contribute to the project
 - **[Main README](../README.md)** - Repository overview
 
-### v0.3.0 Core Protocols
+### Common Protocol References
 
 - **[Node Protocols](api-reference/NODES.md)** - ONEX 4-node architecture (Compute, Effect, Reducer, Orchestrator)
 - **[Handler Protocols](api-reference/HANDLERS.md)** - I/O handler interfaces

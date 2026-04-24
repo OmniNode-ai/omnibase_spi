@@ -25,7 +25,7 @@ Implementations MUST:
     - Raise on unrecoverable serialisation or queuing errors.
 
 Related:
-    - OMN-2655: This ticket.
+    - internal issue: This ticket.
     - ContractGitHookEvent: Return type.
 """
 

@@ -58,8 +58,8 @@ Example Contract:
     ```
 
 Related tickets:
-    - OMN-1167: Define ProtocolProjectorLoader in omnibase_spi
-    - OMN-940: Define ProtocolProjector
+    - internal issue: Define ProtocolProjectorLoader in omnibase_spi
+    - internal issue: Define ProtocolProjector
 """
 
 from __future__ import annotations

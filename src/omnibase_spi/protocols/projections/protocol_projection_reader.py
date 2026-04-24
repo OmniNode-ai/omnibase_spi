@@ -32,8 +32,8 @@ Example implementations:
     - InMemoryProjectionReader: In-memory projection for testing
 
 Related tickets:
-    - OMN-930: Define ProtocolProjectionReader for orchestrators
-    - OMN-940: Projection infrastructure for event-driven orchestration
+    - internal issue: Define ProtocolProjectionReader for orchestrators
+    - internal issue: Projection infrastructure for event-driven orchestration
 """
 
 from __future__ import annotations

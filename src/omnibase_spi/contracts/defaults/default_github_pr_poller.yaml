@@ -7,7 +7,7 @@
 # Polls GitHub pull-request triage state and publishes to:
 #   onex.evt.github.pr-status.v1
 #
-# OMN-2655
+# internal issue
 
 handler_id: "onex.effect.github.pr-poller.default"
 name: "GitHub PR Poller Effect"

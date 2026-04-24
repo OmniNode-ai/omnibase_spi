@@ -38,7 +38,7 @@ Usage Pattern:
     ```
 
 Related tickets:
-    - OMN-1285: Implement dashboard protocols for omnibase_spi
+    - internal issue: Implement dashboard protocols for omnibase_spi
 """
 
 from __future__ import annotations

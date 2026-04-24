@@ -23,7 +23,7 @@ class ContractRunContext(BaseModel):
         schema_version: Wire-format version for forward compatibility.
         run_id: Unique identifier for this pipeline run.
         session_id: Stable session identifier across runs.
-        ticket_id: Associated ticket (e.g. OMN-1234).
+        ticket_id: Associated ticket (e.g. internal issue).
         repo: Repository name or path.
         branch: Git branch name.
         phase: Current pipeline phase name.
@@ -48,7 +48,7 @@ class ContractRunContext(BaseModel):
     )
     ticket_id: str = Field(
         default="",
-        description="Associated ticket (e.g. OMN-1234).",
+        description="Associated ticket (e.g. internal issue).",
     )
     repo: str = Field(
         default="",

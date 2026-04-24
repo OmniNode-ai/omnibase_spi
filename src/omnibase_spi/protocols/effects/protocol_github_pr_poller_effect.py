@@ -28,7 +28,7 @@ Implementations MUST:
     - NOT import from omnibase_core, omnibase_infra, or omniclaude.
 
 Related:
-    - OMN-2655: This ticket.
+    - internal issue: This ticket.
     - ContractGitHubPRStatusEvent: Return type per PR.
     - default_github_pr_poller.yaml: YAML handler contract for this protocol.
 """
