@@ -672,7 +672,7 @@ dependencies = [
 
 [[package]]
 name = "omnibase-spi"
-version = "0.20.4"
+version = "0.20.5"
 source = { editable = "." }
 dependencies = [
     { name = "omnibase-core" },

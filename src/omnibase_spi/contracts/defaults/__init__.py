@@ -10,10 +10,14 @@ Default YAML templates for handler contracts:
 - default_nondeterministic_compute_handler.yaml: LLM/AI inference handlers
 """
 
+from omnibase_spi.factories.default_handler_contract_loader import (
+    load_default_handler_contract,
+)
+
 DEFAULT_TEMPLATES = [
     "default_compute_handler.yaml",
     "default_effect_handler.yaml",
     "default_nondeterministic_compute_handler.yaml",
 ]
 
-__all__ = ["DEFAULT_TEMPLATES"]
+__all__ = ["DEFAULT_TEMPLATES", "load_default_handler_contract"]
