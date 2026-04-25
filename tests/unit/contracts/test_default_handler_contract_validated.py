@@ -38,6 +38,14 @@ class TestDefaultHandlerContractLoader:
         with pytest.raises(TemplateNotFoundError):
             load_default_handler_contract("nonexistent_template.yaml")
 
+    def test_path_traversal_rejected(self) -> None:
+        with pytest.raises(TemplateNotFoundError):
+            load_default_handler_contract("../../etc/passwd")
+
+    def test_absolute_path_rejected(self) -> None:
+        with pytest.raises(TemplateNotFoundError):
+            load_default_handler_contract("/etc/passwd")
+
     def test_effect_contract_has_expected_handler_id(self) -> None:
         contract = load_default_handler_contract("default_effect_handler.yaml")
         assert contract.handler_id == "template.effect.default"
