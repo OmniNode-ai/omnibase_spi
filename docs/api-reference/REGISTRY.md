@@ -1,6 +1,6 @@
 # Registry Protocols API Reference
 
-![Version](https://img.shields.io/badge/SPI-v0.3.0-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.1.0-lightgrey)
+![Version](https://img.shields.io/badge/SPI-v0.20.5-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.1.0-lightgrey)
 
 ---
 
@@ -2191,7 +2191,7 @@ class ThreadSafeRegistry:
 
 ## Version Information
 
-- **API Version**: 0.3.0
+- **API Reference Version**: current package 0.20.5
 - **Python Compatibility**: 3.12+
 - **Type Checking**: mypy strict mode compatible
 - **Runtime Checking**: All protocols are `@runtime_checkable`

@@ -33,7 +33,7 @@ See Also:
     ModelIntentClassificationOutput: Classification result to store.
     ModelIntentStorageResult: Result of storage operations.
     ModelIntentQueryResult: Result of query operations.
-    OMN-1457: AdapterIntentGraph implementation in omnimemory.
+    internal issue: AdapterIntentGraph implementation in omnimemory.
 """
 
 from __future__ import annotations
@@ -88,7 +88,7 @@ class ProtocolIntentGraph(Protocol):
         ModelIntentClassificationOutput: Classification result to store.
         ModelIntentStorageResult: Result of storage operations.
         ModelIntentQueryResult: Result of query operations.
-        OMN-1457: AdapterIntentGraph implementation in omnimemory.
+        internal issue: AdapterIntentGraph implementation in omnimemory.
     """
 
     async def store_intent(

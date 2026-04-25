@@ -33,7 +33,7 @@ class ModelComment(BaseModel):
 class ModelIssue(BaseModel):
     """Issue/ticket data from a project tracker.
 
-    ``identifier`` is the human-readable ticket ID (e.g. "OMN-1234"),
+    ``identifier`` is the human-readable ticket ID (e.g. "internal issue"),
     ``id`` is the internal UUID used by the provider.
     """
 

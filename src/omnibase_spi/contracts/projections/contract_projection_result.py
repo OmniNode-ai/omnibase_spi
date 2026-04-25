@@ -22,8 +22,8 @@ Architecture Context:
       ``success=False`` for infrastructure failures.
 
 Related:
-    - OMN-2508: ProtocolNodeProjectionEffect as synchronous ProtocolEffect
-    - OMN-2460: ModelProjectionIntent (input side of the same boundary)
+    - internal issue: ProtocolNodeProjectionEffect as synchronous ProtocolEffect
+    - internal issue: ModelProjectionIntent (input side of the same boundary)
     - omnibase_spi.exceptions.ProjectorError: raised on persistence failure
 """
 

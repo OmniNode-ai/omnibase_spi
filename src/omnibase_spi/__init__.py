@@ -130,7 +130,7 @@ _LAZY_PROTOCOL_MAP = {
     "ProtocolValidationResult": "omnibase_spi.protocols.validation.protocol_validation",
     # Effect protocols
     "ProtocolEffect": "omnibase_spi.protocols.effects.protocol_effect",
-    # PrimitiveEffectExecutor SPI - typed kernel-level HTTP and Kafka dispatch (OMN-4220)
+    # PrimitiveEffectExecutor SPI - typed kernel-level HTTP and Kafka dispatch (internal issue)
     "ProtocolPrimitiveEffectExecutorV2": "omnibase_spi.protocols.primitive_effect_executor",
     "ProtocolHttpRequestContract": "omnibase_spi.protocols.primitive_effect_executor",
     "ProtocolHttpResponseContract": "omnibase_spi.protocols.primitive_effect_executor",
@@ -138,7 +138,7 @@ _LAZY_PROTOCOL_MAP = {
     "ProtocolNodeProjectionEffect": "omnibase_spi.effects.node_projection_effect",
     # Projection result contract
     "ContractProjectionResult": "omnibase_spi.contracts.projections.contract_projection_result",
-    # Projection view protocol (OMN-2382)
+    # Projection view protocol (internal issue)
     "ProtocolProjectionView": "omnibase_spi.protocols.projections.protocol_projection_view",
 }
 

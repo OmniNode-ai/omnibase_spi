@@ -8,7 +8,7 @@ counts, cost estimation, latency, and usage normalization.  Separates
 raw provider data from a canonical normalized representation so that
 downstream consumers never depend on provider-specific wire formats.
 
-Extends the aggregate ``ContractCostMetrics`` (OMN-2024) with per-call
+Extends the aggregate ``ContractCostMetrics`` (internal issue) with per-call
 granularity and provider-level provenance tracking.
 
 This contract must NOT import from omnibase_core, omnibase_infra, or omniclaude.

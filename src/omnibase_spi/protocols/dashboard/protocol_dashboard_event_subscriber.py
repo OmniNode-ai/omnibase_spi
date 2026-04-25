@@ -16,7 +16,7 @@ The event subscriber enables dashboards to receive real-time updates about:
 Key Protocol:
     - ProtocolDashboardEventSubscriber: Subscribe to event topics for real-time updates.
 
-Ticket Reference: OMN-1285
+Ticket Reference: internal issue
 
 Example:
     ```python

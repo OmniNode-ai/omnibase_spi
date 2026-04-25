@@ -40,7 +40,7 @@ Distinction from Related Protocols:
       generic NodeProjectionEffect registry pattern.
 
 Related:
-    - OMN-2382: This ticket. Introduces the three-abstraction projection pattern.
+    - internal issue: This ticket. Introduces the three-abstraction projection pattern.
     - NodeProjectionEffect: The concrete generic effect node that dispatches via
       this protocol.
     - ModelProjectionIntent (omnibase_core): The intent model this protocol accepts.

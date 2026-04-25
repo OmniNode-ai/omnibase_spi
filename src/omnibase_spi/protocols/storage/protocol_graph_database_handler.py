@@ -109,7 +109,7 @@ from collections.abc import Mapping
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    # Graph database models from omnibase_core.models.graph (PR #250, OMN-1053)
+    # Graph database models from omnibase_core.models.graph (PR #250, internal issue)
     # These models replace dict[str, Any] for type-safe graph database operations.
     # Available in omnibase_core >= 0.5.6
     from omnibase_core.models.graph import (

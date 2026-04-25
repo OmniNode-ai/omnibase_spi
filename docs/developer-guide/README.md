@@ -39,13 +39,16 @@ uv run pytest && uv build
 
 ```bash
 # Type safety validation
-uv run mypy src/ --strict --no-any-expr
+uv run mypy src/ --strict
 
 # Protocol compliance checking
-uv run python scripts/ast_spi_validator.py --check-protocols
+python scripts/validation/validate_spi_protocols.py
 
 # Namespace isolation testing
-./scripts/validate-namespace-isolation.sh
+python scripts/validation/validate_namespace_isolation.py
+
+# Full repo-local validation suite
+python scripts/validation/run_all_validations.py
 ```
 
 ### Testing Standards
@@ -190,15 +193,17 @@ async with context_manager as event_bus:
 When implementing a custom event bus provider:
 
 ```python
-from omnibase_spi.protocols.event_bus import ProtocolEventBusProvider
-from omnibase_core.protocols.event_bus import ProtocolEventBus
+from omnibase_spi.protocols.event_bus import (
+    ProtocolEventBusProvider,
+    ProtocolEventBusService,
+)
 
 class KafkaEventBusProvider:
     """Kafka implementation of the event bus provider."""
 
     def __init__(self, bootstrap_servers: list[str]):
         self._servers = bootstrap_servers
-        self._instances: dict[str, ProtocolEventBus] = {}
+        self._instances: dict[str, ProtocolEventBusService] = {}
         self._default_env = "local"
         self._default_group = "default"
 
@@ -206,7 +211,7 @@ class KafkaEventBusProvider:
         self,
         environment: str | None = None,
         group: str | None = None,
-    ) -> ProtocolEventBus:
+    ) -> ProtocolEventBusService:
         env = environment or self._default_env
         grp = group or self._default_group
         key = f"{env}:{grp}"
@@ -220,7 +225,7 @@ class KafkaEventBusProvider:
         environment: str,
         group: str,
         config: dict[str, object] | None = None,
-    ) -> ProtocolEventBus:
+    ) -> ProtocolEventBusService:
         # Create new Kafka client with configuration
         return KafkaEventBus(
             bootstrap_servers=self._servers,
@@ -250,17 +255,19 @@ assert isinstance(provider, ProtocolEventBusProvider)
 #### Context Manager Implementation
 
 ```python
-from omnibase_spi.protocols.event_bus import ProtocolEventBusContextManager
-from omnibase_core.protocols.event_bus import ProtocolEventBus
+from omnibase_spi.protocols.event_bus import (
+    ProtocolEventBusContextManager,
+    ProtocolEventBusService,
+)
 
 class KafkaEventBusContextManager:
     """Context manager for Kafka event bus lifecycle."""
 
     def __init__(self, config: dict[str, str]):
         self._config = config
-        self._event_bus: ProtocolEventBus | None = None
+        self._event_bus: ProtocolEventBusService | None = None
 
-    async def __aenter__(self) -> ProtocolEventBus:
+    async def __aenter__(self) -> ProtocolEventBusService:
         # Initialize and connect
         self._event_bus = KafkaEventBus(
             bootstrap_servers=self._config["bootstrap_servers"].split(","),
@@ -505,11 +512,11 @@ if not success:
 - **[Glossary](../GLOSSARY.md)** - Definitions of SPI-specific terms (Protocol, Handler, Node, Contract, etc.)
 - **[Quick Start Guide](../QUICK-START.md)** - Get up and running quickly
 - **[Architecture Overview](../architecture/README.md)** - Design principles and patterns
+- **[Dependency Direction](../architecture/DEPENDENCY-DIRECTION.md)** - Import graph and boundary rules
 - **[Contributing Guide](../CONTRIBUTING.md)** - How to contribute to the project
-- **[MVP Plan](../MVP_PLAN.md)** - v0.3.0 work breakdown and roadmap
 - **[Main README](../../README.md)** - Repository overview
 
-### v0.3.0 Core Protocols
+### Common Protocol References
 
 - **[Node Protocols](../api-reference/NODES.md)** - ONEX 4-node architecture
 - **[Handler Protocols](../api-reference/HANDLERS.md)** - I/O handler interfaces

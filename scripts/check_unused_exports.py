@@ -23,7 +23,7 @@ Usage:
     # With custom allowlist
     uv run python scripts/check_unused_exports.py --allowlist scripts/export_allowlist.txt
 
-Ticket: OMN-794
+Ticket: internal issue
 """
 
 from __future__ import annotations

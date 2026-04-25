@@ -29,8 +29,8 @@ Thank you for your interest in contributing to omnibase_spi! This document provi
 
 1. **Read the documentation**:
    - [API Reference](api-reference/README.md) - Protocol documentation
-   - [MVP Plan](MVP_PLAN.md) - Architecture and work breakdown
-   - [Validation Integration Plan](VALIDATION_INTEGRATION_PLAN.md) - Validation approach
+   - [Dependency Direction](architecture/DEPENDENCY-DIRECTION.md) - Import graph and boundary rules
+   - [Testing Guide](TESTING.md) - Validation approach
 
 2. **Explore the codebase**:
    - Review protocol definitions in `src/omnibase_spi/protocols/`
@@ -449,7 +449,7 @@ Brief description of changes
 ### Resources
 
 - [API Reference](api-reference/README.md)
-- [MVP Plan](MVP_PLAN.md)
+- [Dependency Direction](architecture/DEPENDENCY-DIRECTION.md)
 - [GitHub Issues](https://github.com/OmniNode-ai/omnibase_spi/issues)
 
 ### Questions

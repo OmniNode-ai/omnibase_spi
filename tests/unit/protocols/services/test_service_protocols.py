@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 """
-Tests for service lifecycle protocols [OMN-7576].
+Tests for service lifecycle protocols [internal issue].
 
 Validates that ProtocolTicketService, ProtocolSecretStore, and ProtocolCodeHost:
 - Are runtime checkable
@@ -35,7 +35,7 @@ class _StubTicketService:
         assignee: str | None = None,
         metadata: dict | None = None,
     ) -> str:
-        return "OMN-0001"
+        return "internal issue"
 
     async def get_ticket(self, ticket_id: str) -> dict:
         return {}

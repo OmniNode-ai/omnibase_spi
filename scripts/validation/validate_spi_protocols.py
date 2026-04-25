@@ -316,7 +316,7 @@ class SPIProtocolValidator(ast.NodeVisitor):
           Mirrors the NSI002 exemption in validate_namespace_isolation.py.
         - enums/: Enum subclasses for stable, version-safe type identifiers.
           Enums are used where Literal types would be too verbose.
-        - registry/: NamedTuple-based registry entries (OMN-2655).
+        - registry/: NamedTuple-based registry entries (internal issue).
           The event registry uses NamedTuple to define the canonical
           event_type → topic mapping; NamedTuples are not Protocol classes
           but are a legitimate SPI data structure for compile-time constants.
@@ -335,7 +335,7 @@ class SPIProtocolValidator(ast.NodeVisitor):
                     "delegation",
                     "enrichment",
                     "projections",
-                    "events",  # OMN-2655: event wire-format contracts
+                    "events",  # internal issue: event wire-format contracts
                     "services",  # frozen wire-format Pydantic models (receipts, types)
                     "database",  # frozen wire-format Pydantic models (query/transaction results)
                     "source_control",  # frozen wire-format Pydantic models (PRs, branches, check runs)
@@ -346,7 +346,7 @@ class SPIProtocolValidator(ast.NodeVisitor):
         # enums/ directory (Enum-based stable identifiers)
         if "enums" in parts:
             return True
-        # registry/ directory (NamedTuple-based registry entries, OMN-2655)
+        # registry/ directory (NamedTuple-based registry entries, internal issue)
         return "registry" in parts
 
     def _validate_non_protocol_class(self, node: ast.ClassDef) -> None:

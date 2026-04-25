@@ -1,255 +1,131 @@
 # CLAUDE.md
 
-> **Shared standards** (Python, Git, Testing) are in `~/.claude/CLAUDE.md`.
+> Shared Python, Git, and testing standards are in `~/.claude/CLAUDE.md`.
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides repo-local context for Claude Code when working in
+`omnibase_spi`.
 
 ## Repository Overview
 
-**omnibase_spi** is the Service Provider Interface (SPI) for the ONEX platform. It defines protocol contracts and exceptions that concrete implementations (in `omnibase_infra`) must satisfy.
+`omnibase_spi` is the Service Provider Interface package for ONEX. It defines
+protocol contracts, selected data-only wire contracts, and SPI exceptions that
+implementation repos satisfy.
 
-## Architecture: Dependency Direction
+## Dependency Direction
 
 ```text
-Applications (omniagent, omniintelligence)
-       │  use
-       ▼
-omnibase_spi (protocol contracts, adapter interfaces)
-       │  imports at runtime
-       ▼
-omnibase_core (Pydantic models, core runtime contracts)
-       ▲
-       │  used by
-omnibase_infra (handlers, I/O implementations)
+Application and product repos
+        |
+        v
+omnibase_spi  ---- imports models/types ---->  omnibase_core
+        ^                                      ^
+        | implements protocols                 | uses models/types
+        |
+omnibase_infra and other implementation repos --+
 ```
 
-**Key Rules**:
-- SPI → Core: **allowed and required** (runtime imports of models and contract types)
-- Core → SPI: **forbidden** (no imports)
-- SPI → Infra: **forbidden** (no imports, even transitively)
-- Infra → SPI + Core: **expected** (implements behavior)
+Rules:
+
+- SPI -> Core: allowed and required for canonical models and shared types.
+- Core -> SPI: forbidden.
+- SPI -> implementation repos: forbidden.
+- Implementation repos -> SPI + Core: expected.
+
+Canonical explanation: `docs/architecture/DEPENDENCY-DIRECTION.md`.
 
 ## What SPI Contains
 
-- **Protocol definitions** using Python `typing.Protocol`
-- **Exception hierarchy** (`SPIError` and subclasses)
-- **Wire-format contracts** in `contracts/` (frozen, data-only Pydantic models for cross-boundary wire formats; exempt from NSI002)
-- **No general Pydantic models** (domain models live in `omnibase_core`)
-- **No business logic or I/O**
-- **No state machines or workflow implementations**
+- Protocol definitions using Python `typing.Protocol`.
+- SPI exception hierarchy in `exceptions.py`.
+- Wire-format contracts in `contracts/` for selected cross-boundary payloads.
+- No general domain Pydantic models in protocol modules.
+- No business logic, I/O, concrete clients, state machines, or workflow
+  implementations.
 
-All public protocols must be `@runtime_checkable`.
+All public protocols should be `@runtime_checkable`.
 
-## Development Commands
+## Commands
 
 ```bash
-# Install dependencies
 uv sync --group dev
-
-# Run tests
 uv run pytest
-
-# Run single test file
 uv run pytest tests/path/to/test_file.py
-
-# Run single test
 uv run pytest tests/path/to/test_file.py::test_name -v
-
-# Type checking
-uv run mypy src/
-
-# Strict type checking (target for CI)
 uv run mypy src/ --strict
-
-# Lint and format
 uv run ruff check src/ tests/
 uv run ruff format src/ tests/
-
-# Build package
-uv build
-
-# Run standalone validators (stdlib only, no dependencies)
 python scripts/validation/run_all_validations.py
-python scripts/validation/run_all_validations.py --strict --verbose
-
-# Individual validators
-python scripts/validation/validate_naming_patterns.py src/
 python scripts/validation/validate_namespace_isolation.py
-python scripts/validation/validate_architecture.py --verbose
-
-# Pre-commit hooks
+python scripts/validation/validate_no_empty_directories.py .
 pre-commit run --all-files
-pre-commit run validate-naming-patterns --all-files
-pre-commit run validate-namespace-isolation-new --all-files
+uv build
 ```
-
-## SPDX Headers
-
-All source files in `src/`, `tests/`, `scripts/`, `examples/` require MIT SPDX headers.
-Canonical spec: `omnibase_core/docs/conventions/FILE_HEADERS.md`
-
-- Stamp missing headers: `onex spdx fix src tests scripts examples`
-- Check without writing: `onex spdx fix --check src tests scripts examples`
-- Bypass a file: add `# spdx-skip: <reason>` in the first 10 lines
-
-> Note: OMN-1360 ("Remove SPDX headers") has been reversed. SPDX headers are
-> now required uniformly across all OmniNode Python repos.
 
 ## Directory Structure
 
 ```text
 src/omnibase_spi/
-├── contracts/
-│   ├── shared/          # ContractCheckResult, ContractVerdict
-│   ├── pipeline/        # Hook invocation, node ops, auth, RRH, wire codec
-│   └── validation/      # Validation plans, runs, results, verdicts
-├── protocols/
-│   ├── nodes/           # ProtocolNode, ProtocolComputeNode, ProtocolEffectNode, etc.
-│   │   └── legacy/      # Deprecated protocols (removal in v0.5.0)
-│   ├── contracts/       # Contract compiler protocols
-│   ├── handlers/        # ProtocolHandler and domain-specific handlers
-│   ├── registry/        # ProtocolHandlerRegistry
-│   ├── container/       # Service registry, DI protocols
-│   ├── workflow_orchestration/  # Workflow protocols
-│   ├── event_bus/       # Event bus protocols
-│   ├── mcp/             # MCP integration protocols
-│   ├── dashboard/       # Dashboard UI and widget protocols
-│   └── [14 more domains]
-├── exceptions.py        # SPIError hierarchy
+├── contracts/          # Narrow data-only wire contracts
+├── effects/            # Effect-related public SPI helpers
+├── enums/              # SPI-local enums
+├── factories/          # Factory helpers
+├── protocols/          # Runtime-checkable protocol domains
+├── registry/           # Lightweight registry utilities
+├── exceptions.py       # SPIError hierarchy
 └── py.typed
 ```
 
-## Naming Conventions
-
-| Type | Convention | Example |
-|------|------------|---------|
-| Node protocols | `Protocol{Type}Node` | `ProtocolComputeNode` |
-| Compiler protocols | `Protocol{Type}ContractCompiler` | `ProtocolEffectContractCompiler` |
-| Handler protocols | `Protocol{Type}Handler` | `ProtocolHandler` |
-| MCP protocols | `ProtocolMCP{Function}` | `ProtocolMCPRegistry`, `ProtocolMCPHandler` |
-| Service protocols | `Protocol{Domain}Service` | `ProtocolDashboardService` |
-| Renderer protocols | `Protocol{Type}Renderer` | `ProtocolWidgetRenderer` |
-| Subscriber protocols | `Protocol{Domain}EventSubscriber` | `ProtocolDashboardEventSubscriber` |
-| Query protocols | `Protocol{Domain}QueryService` | `ProtocolRegistryQueryService` |
-| Exceptions | `{Type}Error` | `SPIError`, `RegistryError` |
-
-## MCP (Model Context Protocol) Integration
-
-The `protocols/mcp/` directory contains protocols for integrating ONEX nodes with the Model Context Protocol (MCP) tooling ecosystem.
-
-### Core MCP Protocols
-
-| Protocol | Purpose |
-|----------|---------|
-| `ProtocolMCPRegistry` | Central registry for subsystem and tool management, including ONEX node registration |
-| `ProtocolMCPHandler` | Handles MCP tool listing (`handle_list_tools`) and calling (`handle_call_tool`) |
-| `ProtocolMCPNodeAdapter` | Adapts ONEX nodes to MCP tools - converts contracts to tool definitions |
-| `ProtocolMCPSchemaGenerator` | Generates JSON schemas for MCP tool inputs/outputs |
-| `ProtocolMCPToolProxy` | Tool execution proxy and routing |
-| `ProtocolMCPValidator` | Validation framework for MCP operations |
-| `ProtocolMCPDiscovery` | Service discovery for MCP coordination |
-| `ProtocolMCPMonitor` | Health monitoring and metrics collection |
-
-### ONEX Integration Methods
-
-The `ProtocolMCPRegistry` includes methods for ONEX node integration:
-
-```python
-# Register an ONEX node as an MCP tool
-async def register_onex_node(
-    self,
-    contract: ProtocolContract,
-    tags: list[str] | None,
-    configuration: dict[str, ContextValue] | None,
-) -> str: ...
-
-# Unregister an ONEX node
-async def unregister_onex_node(self, node_id: str) -> bool: ...
-
-# Get registration details
-async def get_onex_node_registration(
-    self, node_id: str
-) -> ProtocolMCPSubsystemRegistration | None: ...
-```
-
-### MCP Type Protocols
-
-MCP-related type protocols are in `protocols/types/`:
-- `protocol_mcp_types.py` - Registry, subsystem, health, validation types
-- `protocol_mcp_tool_types.py` - Tool definitions, parameters, execution tracking
-
 ## Protocol Requirements
 
-Every protocol must:
-1. Inherit from `typing.Protocol`
-2. Have `@runtime_checkable` decorator
-3. Use `...` (ellipsis) for method bodies
-4. Import Core models for type hints (allowed at runtime)
-5. Have docstrings with Args/Returns/Raises
+Every public protocol should:
+
+1. Inherit from `typing.Protocol`.
+2. Include `@runtime_checkable`.
+3. Use `...` for method and property bodies.
+4. Use Core models/types when signatures need canonical shared data shapes.
+5. Avoid importing implementation repos.
+6. Include docstrings for public methods and properties.
 
 ```python
 from typing import Protocol, runtime_checkable
-from omnibase_core.models.compute import ModelComputeInput, ModelComputeOutput
+
+from omnibase_core.types import JsonType
+
 
 @runtime_checkable
-class ProtocolComputeNode(Protocol):
-    """Compute node for pure transformations."""
+class ProtocolRenderer(Protocol):
+    """Boundary for a renderer implementation."""
 
-    @property
-    def is_deterministic(self) -> bool:
-        """Whether this node produces deterministic output."""
-        ...
-
-    async def execute(self, input_data: ModelComputeInput) -> ModelComputeOutput:
-        """Execute the compute operation."""
+    async def render(self, payload: JsonType) -> str:
+        """Render the payload."""
         ...
 ```
 
-## Cross-Repository Contract Rules
+## Cross-Repository Rules
 
-| Rule | Enforcement |
-|------|-------------|
-| SPI imports Core | Allowed at runtime |
-| Core MUST NOT import SPI | CI failure |
-| SPI MUST NOT define general Pydantic models | All domain `BaseModel` in Core (exception: `contracts/` frozen wire-format models) |
-| SPI MUST NOT import Infra | CI failure |
-| Circular imports | CI failure |
+| Rule | Status |
+|------|--------|
+| SPI imports Core | Allowed |
+| Core imports SPI | Forbidden |
+| SPI imports implementation repos | Forbidden |
+| Implementation repos import SPI | Allowed |
+| General domain models in protocol modules | Forbidden |
+| Data-only wire contracts under `contracts/` | Allowed when narrow |
 
-## Version Information
+## Current Source Facts
 
-- **Current Version**: 0.3.0
-- **Python Support**: 3.12+
-- **Protocol Count**: 180+ protocols across 23 domains
-
-## Validation Scripts
-
-Standalone validators (Python stdlib only, no omnibase_core imports):
-
-| Script | Purpose | Pre-commit Stage |
-|--------|---------|------------------|
-| `validate_naming_patterns.py` | Protocol/Error naming, `@runtime_checkable` | `pre-commit` |
-| `validate_namespace_isolation.py` | No Infra imports, no Pydantic models | `pre-commit` |
-| `validate_architecture.py` | One-protocol-per-file rule | `manual` (92 existing violations) |
-| `run_all_validations.py` | Unified runner with JSON output | `manual` |
-
-These validators will be replaced by `omnibase_core.validation` once the circular dependency is resolved.
+- Package version: `0.20.5`
+- Python: 3.12+
+- Protocol files: 248 `protocol_*.py` files across 37 protocol domains
+- Package metadata: `pyproject.toml`
 
 ## See Also
 
-- **[docs/README.md](docs/README.md)** - Complete documentation hub
-- **[docs/api-reference/README.md](docs/api-reference/README.md)** - All 180+ protocols across 23 domains
-- **[docs/GLOSSARY.md](docs/GLOSSARY.md)** - Terminology definitions (Protocol, Handler, Node, Contract)
-- **[docs/QUICK-START.md](docs/QUICK-START.md)** - Get up and running quickly
-- **[docs/developer-guide/README.md](docs/developer-guide/README.md)** - Development workflow
-- **[docs/architecture/README.md](docs/architecture/README.md)** - Design principles and patterns
-- **[docs/CONTRIBUTING.md](docs/CONTRIBUTING.md)** - How to contribute
-
-### v0.3.0 Core Protocols
-
-- **[docs/api-reference/NODES.md](docs/api-reference/NODES.md)** - ProtocolNode, ProtocolComputeNode, etc.
-- **[docs/api-reference/HANDLERS.md](docs/api-reference/HANDLERS.md)** - ProtocolHandler interface
-- **[docs/api-reference/CONTRACTS.md](docs/api-reference/CONTRACTS.md)** - Effect, Workflow, FSM compilers
-- **[docs/api-reference/REGISTRY.md](docs/api-reference/REGISTRY.md)** - ProtocolHandlerRegistry
-- **[docs/api-reference/EXCEPTIONS.md](docs/api-reference/EXCEPTIONS.md)** - SPIError hierarchy
-
-For term definitions, see the [Glossary](docs/GLOSSARY.md).
+- [Docs index](docs/README.md)
+- [Dependency direction](docs/architecture/DEPENDENCY-DIRECTION.md)
+- [Architecture](docs/architecture/README.md)
+- [API reference](docs/api-reference/README.md)
+- [Developer guide](docs/developer-guide/README.md)
+- [Testing guide](docs/TESTING.md)
+- [Contributing](CONTRIBUTING.md)
+- [Security](SECURITY.md)

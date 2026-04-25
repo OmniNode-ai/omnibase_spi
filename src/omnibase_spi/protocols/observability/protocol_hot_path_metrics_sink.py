@@ -20,7 +20,7 @@ Related protocols:
     - ProtocolPerformanceMetricsCollector: Full-featured async performance monitoring
 
 Related tickets:
-    - OMN-1368: Observability sink protocols
+    - internal issue: Observability sink protocols
 """
 
 from __future__ import annotations

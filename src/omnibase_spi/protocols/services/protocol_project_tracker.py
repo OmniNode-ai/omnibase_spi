@@ -108,7 +108,7 @@ class ProtocolProjectTracker(Protocol):
         """Retrieve a single issue by identifier.
 
         Args:
-            issue_id: Issue identifier (e.g., "OMN-1234" or internal UUID).
+            issue_id: Issue identifier (e.g., "internal issue" or internal UUID).
 
         Returns:
             Issue model.

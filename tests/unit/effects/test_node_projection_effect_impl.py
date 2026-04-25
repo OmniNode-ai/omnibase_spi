@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 """
-Unit tests for the NodeProjectionEffect pattern (OMN-2382).
+Unit tests for the NodeProjectionEffect pattern (internal issue).
 
 This module validates the three-abstraction projection pattern:
   1. ModelProjectionIntent (omnibase_core) — carries routing metadata + envelope
@@ -22,7 +22,7 @@ Tests cover:
 - ProjectorError propagation from registered projectors
 - Multi-projector registry isolation
 
-Related: OMN-2382
+Related: internal issue
 """
 
 from __future__ import annotations
@@ -81,7 +81,7 @@ class _ReferenceNodeProjectionEffect:
 
     This class satisfies both:
     - ProtocolNodeProjectionEffect (synchronous execute() returning ContractProjectionResult)
-    - The registry dispatch pattern from OMN-2382
+    - The registry dispatch pattern from internal issue
     """
 
     synchronous_execution: ClassVar[bool] = True

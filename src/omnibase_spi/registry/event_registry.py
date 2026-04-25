@@ -3,7 +3,7 @@
 
 """SPI Event Registry — canonical mapping of event_type → wire metadata.
 
-Policy: ``event_type == wire topic suffix`` (Option A from OMN-2655).
+Policy: ``event_type == wire topic suffix`` (Option A from internal issue).
 
 Each entry maps a fully-qualified ``event_type`` string to the tuple:
     (topic, schema_version, partition_key_fields, producer_protocol_name)

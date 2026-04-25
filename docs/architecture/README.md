@@ -1,98 +1,68 @@
-# Architecture Overview
+# Architecture
 
-## Design Principles
+`omnibase_spi` is the ONEX service provider interface layer. It describes
+behavioral contracts that implementation repos satisfy, while relying on
+`omnibase_core` for shared data shapes.
 
-The ONEX SPI follows a **protocol-first design** with enterprise-grade features:
+## Principles
 
-### Core Principles
+1. Protocols describe boundaries; they do not implement behavior.
+2. Protocol signatures may use Core models and types.
+3. Core must remain independent of SPI.
+4. SPI must remain independent of implementation packages.
+5. Public protocol files should be runtime-checkable and type-checkable.
+6. Wire-format contracts in `src/omnibase_spi/contracts/` are narrow exceptions
+   for cross-boundary payloads; they are not a license to move general domain
+   models into SPI.
 
-1. **Protocol-First Design** - All services defined through Python `Protocol` interfaces
-2. **Namespace Isolation** - Complete separation from implementation packages
-3. **Zero Implementation Dependencies** - Pure protocol contracts only
-4. **Runtime Type Safety** - Full `@runtime_checkable` protocol support
-5. **Event Sourcing** - Sequence numbers, causation tracking, replay capabilities
+## Import Graph
 
-### Protocol Architecture
+```text
+Application and product repos
+        |
+        v
+omnibase_spi  ---- imports models/types ---->  omnibase_core
+        ^                                      ^
+        | implements protocols                 | uses models/types
+        |
+omnibase_infra and other implementation repos --+
+```
 
-**180+ protocols** across **23 specialized domains**:
+The graph is intentionally different from the common expectation that an SPI
+package must sit below every model package. In this workspace, Core is the
+model/type authority and SPI is the protocol boundary authority.
 
-- **Core System** (16 protocols) - Logging, health monitoring, error handling
-- **Container Management** (21 protocols) - Dependency injection, lifecycle management
-- **Workflow Orchestration** (14 protocols) - Event-driven FSM coordination
-- **MCP Integration** (15 protocols) - Multi-subsystem tool coordination
-- **Event Bus** (13 protocols) - Distributed messaging infrastructure
-- **Memory Management** (15 protocols) - Workflow state persistence
-- **Networking** (6 protocols) - HTTP, Kafka, circuit breakers
-- **File Handling** (8 protocols) - File processing and type detection
-- **Validation** (11 protocols) - Input validation and compliance
-- **Plus 23 more specialized domains**
+See [Dependency Direction](DEPENDENCY-DIRECTION.md) for allowed and forbidden
+imports.
 
-### Key Features
+## Repo Contents
 
-#### Event-Driven Workflow Orchestration
-- **FSM States**: `pending` → `running` → `completed` with compensation actions
-- **Event Sourcing**: Sequence numbers, causation tracking, replay capabilities
-- **Isolation**: `{workflowType, instanceId}` pattern for workflow separation
-- **Projections**: Real-time state derivation from events
+- `src/omnibase_spi/protocols/`: protocol domains such as event bus, handlers,
+  runtime, registry, storage, MCP, workflow orchestration, validation, and
+  dashboard surfaces.
+- `src/omnibase_spi/contracts/`: selected frozen wire contracts used across repo
+  boundaries.
+- `src/omnibase_spi/exceptions.py`: SPI exception hierarchy.
+- `src/omnibase_spi/registry/`: lightweight registry utilities that remain free
+  of implementation package dependencies.
+- `scripts/validation/`: repo-local validation scripts for naming, namespace
+  isolation, protocol shape, empty directories, and SPI typing patterns.
 
-#### MCP Integration
-- **Tool Registry**: Dynamic discovery and load balancing across subsystems
-- **Health Monitoring**: TTL-based cleanup and subsystem status tracking
-- **Execution Tracking**: Correlation IDs and performance metrics
-- **Multi-Subsystem Coordination**: Seamless tool routing and execution
+## Protocol Shape
 
-#### Enterprise Dependency Injection
-- **Lifecycle Management**: Singleton, transient, scoped, pooled patterns
-- **Circular Dependency Detection**: Automatic detection and prevention
-- **Health Monitoring**: Service health tracking and validation
-- **Performance Metrics**: Resolution time tracking and optimization
-- **Scoped Injection**: Request, session, thread-based scoping
+Public protocols should:
 
-## Protocol Compliance
+- inherit from `typing.Protocol`;
+- include `@runtime_checkable`;
+- use `...` for method and property bodies;
+- keep one primary public protocol per `protocol_*.py` file when practical;
+- use Core models/types only for canonical shared data shapes;
+- avoid concrete service construction, I/O, persistence, or runtime state.
 
-All protocols are designed to be:
+## Related Docs
 
-- **Runtime Checkable**: Use `isinstance(obj, Protocol)` for validation
-- **Type Safe**: Full mypy compatibility with strict checking
-- **Framework Agnostic**: No dependencies on specific implementations
-- **Forward Compatible**: Extensible design for future enhancements
-
-## SPI Purity
-
-The API documents pure protocol definitions that:
-
-- Contain no concrete implementations
-- Use only abstract method signatures with `...`
-- Employ type hints for all parameters and return values
-- Follow namespace isolation rules
-- Maintain zero runtime dependencies
-
-## API Reference
-
-- **[Core Protocols](../api-reference/CORE.md)** - System fundamentals
-- **[Container Protocols](../api-reference/CONTAINER.md)** - Dependency injection
-- **[Workflow Orchestration](../api-reference/WORKFLOW-ORCHESTRATION.md)** - Event-driven FSM
-- **[MCP Integration](../api-reference/MCP.md)** - Multi-subsystem coordination
-
-## See Also
-
-- **[Glossary](../GLOSSARY.md)** - Definitions of architecture terms (4-Node Architecture, Protocol, Handler, etc.)
-- **[Quick Start Guide](../QUICK-START.md)** - Get up and running quickly
-- **[Developer Guide](../developer-guide/README.md)** - Complete development workflow
-- **[Contributing Guide](../CONTRIBUTING.md)** - How to contribute to the project
-- **[MVP Plan](../MVP_PLAN.md)** - v0.3.0 work breakdown and roadmap
-- **[Main README](../../README.md)** - Repository overview
-
-### v0.3.0 Core Protocols
-
-- **[Node Protocols](../api-reference/NODES.md)** - ONEX 4-node architecture (Compute, Effect, Reducer, Orchestrator)
-- **[Handler Protocols](../api-reference/HANDLERS.md)** - I/O handler interfaces
-- **[Contract Compilers](../api-reference/CONTRACTS.md)** - Contract compilation
-- **[Registry Protocols](../api-reference/REGISTRY.md)** - Handler registry
-- **[Exception Hierarchy](../api-reference/EXCEPTIONS.md)** - Error handling
-
-For term definitions, see the [Glossary](../GLOSSARY.md).
-
----
-
-*For detailed protocol documentation, see the [API Reference](../api-reference/README.md).*
+- [Docs index](../README.md)
+- [API Reference](../api-reference/README.md)
+- [Developer Guide](../developer-guide/README.md)
+- [Testing Guide](../TESTING.md)
+- [Glossary](../GLOSSARY.md)

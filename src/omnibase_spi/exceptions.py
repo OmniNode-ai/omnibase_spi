@@ -347,7 +347,7 @@ class ProjectorError(SPIError):
         )
 
     Related:
-        - OMN-940: Define ProtocolProjector in omnibase_spi
+        - internal issue: Define ProtocolProjector in omnibase_spi
         - IdempotencyStoreError: For runtime-level deduplication errors
     """
 
@@ -379,7 +379,7 @@ class ProjectionReadError(SPIError):
         )
 
     Related:
-        - OMN-930: Define ProtocolProjectionReader in omnibase_spi
+        - internal issue: Define ProtocolProjectionReader in omnibase_spi
         - ProjectorError: For projection write/persistence errors
     """
 
@@ -420,7 +420,7 @@ class SchemaError(SPIError):
         - Invalid column type specifications in contract
 
     Related:
-        - OMN-1167: Define ProtocolProjectorLoader in omnibase_spi
+        - internal issue: Define ProtocolProjectorLoader in omnibase_spi
         - ContractCompilerError: For contract parsing/validation errors
         - ProjectorError: For runtime projection persistence errors
     """

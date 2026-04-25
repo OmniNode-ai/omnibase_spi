@@ -27,7 +27,7 @@ Implementations MUST:
     - Raise on unrecoverable API errors.
 
 Related:
-    - OMN-2655: This ticket.
+    - internal issue: This ticket.
     - ContractLinearSnapshotEvent: Return type.
 """
 

@@ -27,8 +27,8 @@ Design Constraints:
 
 Related:
     - ``ProtocolPrimitiveEffectExecutor``: async primitive effect kernel
-    - OMN-2508: NodeProjectionEffect as synchronous ProtocolEffect
-    - OMN-2460: ModelProjectionIntent (canonical input model)
+    - internal issue: NodeProjectionEffect as synchronous ProtocolEffect
+    - internal issue: ModelProjectionIntent (canonical input model)
 """
 
 from __future__ import annotations

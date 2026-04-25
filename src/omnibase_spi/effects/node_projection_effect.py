@@ -7,7 +7,7 @@ Defines the ``ProtocolNodeProjectionEffect`` protocol: the SPI contract
 that the runtime calls to write a projection to the persistence layer
 **before** publishing the corresponding event to Kafka.
 
-Phase 2 of OMN-2363.  The ordering guarantee that eliminates the race
+Phase 2 of internal issue.  The ordering guarantee that eliminates the race
 condition between projection persistence and Kafka publish is enforced
 by making ``execute()`` synchronous: the caller blocks until the write
 is committed.
@@ -35,9 +35,9 @@ Critical Constraint:
     leak to the caller.
 
 Related:
-    - OMN-2508: This ticket.
-    - OMN-2460: ModelProjectionIntent (input model consumed by execute()).
-    - OMN-2461: Generic ProtocolProjector SPI (abstract machinery this sits on).
+    - internal issue: This ticket.
+    - internal issue: ModelProjectionIntent (input model consumed by execute()).
+    - internal issue: Generic ProtocolProjector SPI (abstract machinery this sits on).
     - omnibase_spi.contracts.projections.ContractProjectionResult: return value.
     - omnibase_spi.protocols.effects.ProtocolEffect: base protocol.
     - omnibase_spi.exceptions.ProjectorError: raised on failure.
@@ -143,7 +143,7 @@ class ProtocolNodeProjectionEffect(ProtocolEffect, Protocol):
         - ``ContractProjectionResult``: the return contract.
         - ``ProjectorError``: the exception to raise on failure.
         omnibase_core.models.projection.model_projection_intent.ModelProjectionIntent:
-            The canonical intent model for projection effects (OMN-2460).
+            The canonical intent model for projection effects (internal issue).
     """
 
     synchronous_execution: ClassVar[bool]

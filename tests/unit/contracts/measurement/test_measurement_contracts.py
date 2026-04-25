@@ -134,8 +134,8 @@ class TestContractMeasurementContext:
     """Tests for ContractMeasurementContext."""
 
     def test_create_minimal(self) -> None:
-        ctx = ContractMeasurementContext(ticket_id="OMN-2024")
-        assert ctx.ticket_id == "OMN-2024"
+        ctx = ContractMeasurementContext(ticket_id="internal issue")
+        assert ctx.ticket_id == "internal issue"
         assert ctx.schema_version == "1.0"
         assert ctx.repo_id == ""
         assert ctx.toolchain == ""
@@ -146,7 +146,7 @@ class TestContractMeasurementContext:
 
     def test_create_full(self) -> None:
         ctx = ContractMeasurementContext(
-            ticket_id="OMN-2024",
+            ticket_id="internal issue",
             repo_id="omnibase_spi",
             toolchain="poetry",
             strictness="strict",
@@ -160,20 +160,20 @@ class TestContractMeasurementContext:
         assert ctx.extensions == {"env": "ci"}
 
     def test_frozen(self) -> None:
-        ctx = ContractMeasurementContext(ticket_id="OMN-2024")
+        ctx = ContractMeasurementContext(ticket_id="internal issue")
         with pytest.raises(ValidationError):
             ctx.ticket_id = "changed"  # type: ignore[misc]
 
     def test_extra_fields_rejected(self) -> None:
         with pytest.raises(ValidationError, match="extra_forbidden"):
             ContractMeasurementContext(
-                ticket_id="OMN-2024",
+                ticket_id="internal issue",
                 unknown_field="rejected",  # type: ignore[call-arg]
             )
 
     def test_json_round_trip(self) -> None:
         ctx = ContractMeasurementContext(
-            ticket_id="OMN-2024",
+            ticket_id="internal issue",
             repo_id="omnibase_spi",
             toolchain="poetry",
             strictness="strict",
@@ -184,7 +184,7 @@ class TestContractMeasurementContext:
 
     def test_baseline_key_deterministic(self) -> None:
         ctx = ContractMeasurementContext(
-            ticket_id="OMN-2024",
+            ticket_id="internal issue",
             repo_id="omnibase_spi",
             toolchain="poetry",
         )
@@ -194,8 +194,8 @@ class TestContractMeasurementContext:
         assert len(key1) == 64  # SHA-256 hex digest
 
     def test_baseline_key_differs_for_different_inputs(self) -> None:
-        ctx_a = ContractMeasurementContext(ticket_id="OMN-2024")
-        ctx_b = ContractMeasurementContext(ticket_id="OMN-2025")
+        ctx_a = ContractMeasurementContext(ticket_id="work-item-a")
+        ctx_b = ContractMeasurementContext(ticket_id="work-item-b")
         assert derive_baseline_key(ctx_a) != derive_baseline_key(ctx_b)
 
 
@@ -436,7 +436,7 @@ class TestContractPhaseMetrics:
         assert pm.extensions == {}
 
     def test_create_full(self) -> None:
-        ctx = ContractMeasurementContext(ticket_id="OMN-2024")
+        ctx = ContractMeasurementContext(ticket_id="internal issue")
         producer = ContractProducer(name="ticket-pipeline")
         duration = ContractDurationMetrics(wall_clock_ms=5000.0)
         cost = ContractCostMetrics(llm_total_tokens=1000)
@@ -464,7 +464,7 @@ class TestContractPhaseMetrics:
         )
         assert pm.attempt == 2
         assert pm.context is not None
-        assert pm.context.ticket_id == "OMN-2024"
+        assert pm.context.ticket_id == "internal issue"
         assert len(pm.artifact_pointers) == 1
         assert pm.extensions == {"ci": True}
 
@@ -496,7 +496,7 @@ class TestContractPhaseMetrics:
         pm = ContractPhaseMetrics(
             run_id="run-001",
             phase=ContractEnumPipelinePhase.IMPLEMENT,
-            context=ContractMeasurementContext(ticket_id="OMN-2024"),
+            context=ContractMeasurementContext(ticket_id="internal issue"),
             producer=ContractProducer(name="pipeline"),
             duration=ContractDurationMetrics(wall_clock_ms=1000.0),
             cost=ContractCostMetrics(llm_total_tokens=500),
@@ -667,7 +667,7 @@ class TestContractAggregatedRun:
         run = ContractAggregatedRun(
             run_id="run-001",
             overall_result="success",
-            context=ContractMeasurementContext(ticket_id="OMN-2024"),
+            context=ContractMeasurementContext(ticket_id="internal issue"),
             total_duration_ms=5000.0,
         )
         j = run.model_dump_json()
@@ -754,7 +754,9 @@ class TestContractPromotionGate:
         assert gate.baseline_key == ""
 
     def test_create_with_context_derived_key(self) -> None:
-        ctx = ContractMeasurementContext(ticket_id="OMN-2024", repo_id="omnibase_spi")
+        ctx = ContractMeasurementContext(
+            ticket_id="internal issue", repo_id="omnibase_spi"
+        )
         gate = ContractPromotionGate(
             run_id="run-001",
             context=ctx,
@@ -870,7 +872,7 @@ class TestContractMeasuredAttribution:
         assert attr.promoted is False
 
     def test_create_full(self) -> None:
-        ctx = ContractMeasurementContext(ticket_id="OMN-2024")
+        ctx = ContractMeasurementContext(ticket_id="internal issue")
         run = ContractAggregatedRun(run_id="run-001", overall_result="success")
         gate = ContractPromotionGate(run_id="run-001", gate_result="pass")
 
@@ -912,7 +914,7 @@ class TestContractMeasuredAttribution:
     def test_json_round_trip(self) -> None:
         attr = ContractMeasuredAttribution(
             attribution_id="attr-001",
-            context=ContractMeasurementContext(ticket_id="OMN-2024"),
+            context=ContractMeasurementContext(ticket_id="internal issue"),
             verdict="PASS",
             promoted=True,
         )
@@ -995,7 +997,9 @@ class TestDictRoundTrip:
     """Test model_dump / model_validate round-trips via plain dicts."""
 
     def test_context_dict_round_trip(self) -> None:
-        ctx = ContractMeasurementContext(ticket_id="OMN-2024", repo_id="omnibase_spi")
+        ctx = ContractMeasurementContext(
+            ticket_id="internal issue", repo_id="omnibase_spi"
+        )
         d = ctx.model_dump()
         assert isinstance(d, dict)
         ctx2 = ContractMeasurementContext.model_validate(d)
@@ -1012,7 +1016,7 @@ class TestDictRoundTrip:
         pm = ContractPhaseMetrics(
             run_id="run-001",
             phase=ContractEnumPipelinePhase.IMPLEMENT,
-            context=ContractMeasurementContext(ticket_id="OMN-2024"),
+            context=ContractMeasurementContext(ticket_id="internal issue"),
         )
         j_str = pm.model_dump_json()
         d = json.loads(j_str)

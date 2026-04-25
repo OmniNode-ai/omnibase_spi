@@ -20,7 +20,7 @@ class ContractSessionIndex(BaseModel):
     Attributes:
         schema_version: Wire-format version for forward compatibility.
         session_id: Unique session identifier.
-        ticket_id: Associated ticket (e.g. OMN-1234).
+        ticket_id: Associated ticket (e.g. internal issue).
         repo: Repository name or path.
         branch: Git branch at session start.
         created_at_iso: ISO-8601 timestamp when the session was created.
@@ -40,7 +40,7 @@ class ContractSessionIndex(BaseModel):
     )
     ticket_id: str = Field(
         default="",
-        description="Associated ticket (e.g. OMN-1234).",
+        description="Associated ticket (e.g. internal issue).",
     )
     repo: str = Field(
         default="",

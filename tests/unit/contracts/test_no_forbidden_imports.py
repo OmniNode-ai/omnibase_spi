@@ -30,7 +30,7 @@ _NON_MODEL_UTILITIES = frozenset(
 # Directories containing contracts that deliberately use extra="forbid"
 # instead of extra="allow".  Measurement, delegation, enrichment, and event
 # contracts use forbid + explicit extensions field for high-integrity /
-# strict-schema data.  Event contracts (OMN-2655) use forbid because they
+# strict-schema data.  Event contracts (internal issue) use forbid because they
 # are wire-format contracts with a single extensions channel, not
 # forward-compatible pipeline contracts.
 _EXTRA_FORBID_DIRS = frozenset({"measurement", "delegation", "enrichment", "events"})

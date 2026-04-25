@@ -11,7 +11,7 @@ This module validates that ProtocolEventPublisher:
 - publish accepts partition_key: str | None parameter
 - publish returns bool
 
-These tests verify the interface contract for OMN-1615.
+These tests verify the interface contract for internal issue.
 """
 
 import inspect

@@ -9,7 +9,7 @@ This pre-commit hook and CI gate detects AI-generated boilerplate ("slop") patte
 in Python and Markdown files. Uses AST analysis for docstring patterns and line-based
 regex for non-docstring patterns.
 
-Rule set v1.0 (locked 2026-03-02, OMN-3191):
+Rule set v1.0 (locked 2026-03-02, internal issue):
 - ERROR: sycophancy (sycophantic docstring openers: "Excellent", "Great", "Sure")
 - ERROR: rest_docstring (reST-style :param:, :type:, :returns:, :rtype:)
 - WARNING: boilerplate_docstring ("This module/class/function provides/implements/contains")
@@ -23,13 +23,13 @@ Rule set v1.0 (locked 2026-03-02, OMN-3191):
 
 Rule change log:
   v1.0 (2026-03-02): step_narration scoped to Markdown files only; code fences skipped.
-    Rationale: 48h post-rollout audit (OMN-3191) found "# Step N:" in Python code
+    Rationale: 48h post-rollout audit (internal issue) found "# Step N:" in Python code
     triggers 110+ false positives in omniintelligence and omniclaude alone.
     Python numbered steps ("# Step 1: Fetch session snapshot") are legitimate
     multi-step function documentation. Only Markdown step headings are LLM slop.
     Code fence tracking added: lines inside ```...``` blocks in .md files are skipped
     so that quoted Python examples in documentation are not flagged.
-  v0.1 (2026-02-28, OMN-2971): initial rollout across 7 repos.
+  v0.1 (2026-02-28, internal issue): initial rollout across 7 repos.
 
 Suppression:
     Add `# ai-slop-ok: reason` on:
@@ -47,7 +47,7 @@ Usage:
     python scripts/validation/check_ai_slop.py --strict [files...]
     python scripts/validation/check_ai_slop.py --report src/
 
-Linear tickets: OMN-2971 (original), OMN-3191 (v1.0 tuning)
+Issue tracking: internal issue (original), internal issue (v1.0 tuning)
 """
 
 from __future__ import annotations

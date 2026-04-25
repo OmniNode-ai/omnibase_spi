@@ -7,9 +7,9 @@ This module defines effect execution interfaces for the ONEX kernel:
 
 - ``ProtocolEffect``: synchronous effect boundary (ordering guarantee)
 - ``ProtocolPrimitiveEffectExecutor``: async primitive effects (kernel dispatch)
-- ``ProtocolGitHubPRPollerEffect``: GitHub PR triage state poller (OMN-2655)
-- ``ProtocolGitHookEffect``: Git hook event emitter (OMN-2655)
-- ``ProtocolLinearSnapshotEffect``: Linear workspace snapshot poller (OMN-2655)
+- ``ProtocolGitHubPRPollerEffect``: GitHub PR triage state poller (internal issue)
+- ``ProtocolGitHookEffect``: Git hook event emitter (internal issue)
+- ``ProtocolLinearSnapshotEffect``: Linear workspace snapshot poller (internal issue)
 """
 
 from omnibase_spi.protocols.effects.protocol_effect import ProtocolEffect

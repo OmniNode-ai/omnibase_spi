@@ -7,7 +7,7 @@ Verifies that ProtocolRetryPolicy, ProtocolCircuitBreaker, and ProtocolRateLimit
 are well-defined, runtime-checkable Protocol classes with the expected method
 signatures, and that mock implementations satisfy the protocols.
 
-Ticket: OMN-796
+Ticket: internal issue
 """
 
 from __future__ import annotations

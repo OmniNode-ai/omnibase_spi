@@ -73,7 +73,7 @@ class ProtocolTicketService(Protocol):
             metadata: Optional provider-specific metadata (priority, team, etc.)
 
         Returns:
-            Ticket identifier (e.g., "OMN-1234", "PROJ-567")
+            Ticket identifier (e.g., "internal issue", "PROJ-567")
 
         Raises:
             PermissionError: If caller lacks write RBAC role

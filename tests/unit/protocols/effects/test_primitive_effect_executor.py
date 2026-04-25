@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
 # SPDX-License-Identifier: MIT
 
-"""Unit tests for ProtocolPrimitiveEffectExecutorV2 SPI protocol (OMN-4220).
+"""Unit tests for ProtocolPrimitiveEffectExecutorV2 SPI protocol (internal issue).
 
 Validates:
 - ProtocolPrimitiveEffectExecutorV2 is @runtime_checkable

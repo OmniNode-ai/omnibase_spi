@@ -65,9 +65,9 @@ exclude = [
 ]
 
 [tool.ruff.lint]
-# Standard 40-rule set (shared across ONEX repos) + D-series (SPI-specific: docstring requirement [OMN-795])
+# Standard 40-rule set (shared across ONEX repos) + D-series (SPI-specific: docstring requirement [internal issue])
 select = ["E", "F", "W", "C90", "I", "N", "UP", "YTT", "S", "BLE", "FBT", "B", "A", "COM", "C4", "DTZ", "T10", "EM", "EXE", "ISC", "ICN", "G", "INP", "PIE", "T20", "PT", "Q", "RSE", "RET", "SLF", "SIM", "TID", "TCH", "ARG", "PTH", "ERA", "PD", "PGH", "PL", "TRY", "NPY", "RUF",
-    # SPI-specific: docstring linting [OMN-795] - require docstrings on public APIs
+    # SPI-specific: docstring linting [internal issue] - require docstrings on public APIs
     "D100", "D101", "D201", "D202", "D207", "D208", "D209", "D210", "D211", "D300", "D403", "D419",
 ]
 ignore = [
@@ -386,7 +386,7 @@ exclude_lines = [
 ]
 
 # =============================================================================
-# Coverage Threshold Enforcement (OMN-789)
+# Coverage Threshold Enforcement (internal issue)
 # =============================================================================
 #
 # AUTOMATICALLY ENFORCED (by pytest-cov):

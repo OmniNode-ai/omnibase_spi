@@ -13,7 +13,7 @@ where the UI needs to display registry information without modifying
 the underlying registry state. All operations are read-only queries
 that return view models suitable for UI rendering.
 
-Ticket Reference: OMN-1285 - Dashboard Protocols for omnibase_spi
+Ticket Reference: internal issue - Dashboard Protocols for omnibase_spi
 
 Key Features:
     - Read-only access to node registry information

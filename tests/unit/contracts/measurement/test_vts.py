@@ -3,7 +3,7 @@
 
 """Tests for ContractPrValidationRollup model and VTS computation.
 
-OMN-3926: Create ContractPrValidationRollup and VTS computation functions.
+internal issue: Create ContractPrValidationRollup and VTS computation functions.
 """
 
 from __future__ import annotations

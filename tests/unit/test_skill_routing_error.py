@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
 # SPDX-License-Identifier: MIT
 
-"""Tests for SkillRoutingError — OMN-8748."""
+"""Tests for SkillRoutingError — internal issue."""
 
 from __future__ import annotations
 

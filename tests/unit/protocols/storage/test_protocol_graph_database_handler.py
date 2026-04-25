@@ -11,7 +11,7 @@ This module validates that ProtocolGraphDatabaseHandler:
 - All methods have correct signatures
 - Cannot be instantiated directly
 
-These tests verify the typed-dynamic pattern introduced in PR #47 (OMN-710),
+These tests verify the typed-dynamic pattern introduced in PR #47 (internal issue),
 specifically that describe() is now async to support I/O operations.
 """
 

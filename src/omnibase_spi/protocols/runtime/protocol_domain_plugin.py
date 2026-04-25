@@ -5,7 +5,7 @@
 This module defines ProtocolDomainPlugin — the core contract for domain-specific
 initialization plugins in the ONEX kernel bootstrap sequence.
 
-Moved from omnibase_infra to omnibase_spi in OMN-8550 so that multiple repos
+Moved from omnibase_infra to omnibase_spi in internal issue so that multiple repos
 can implement the protocol without taking a runtime dependency on omnibase_infra.
 omnibase_infra re-exports all three names from its original location for
 backwards compatibility.
