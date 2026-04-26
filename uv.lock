@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 2
 requires-python = ">=3.12"
 
 [[package]]
@@ -655,8 +655,8 @@ wheels = [
 
 [[package]]
 name = "omnibase-core"
-version = "0.39.0"
-source = { git = "https://github.com/OmniNode-ai/omnibase_core.git?branch=main#f6d039c917b2c976e6e8d41d64f5cffda24b8a52" }
+version = "0.40.0"
+source = { git = "https://github.com/OmniNode-ai/omnibase_core.git?branch=main#6a65f885303e29b4ddc36a66a0cb860537f47316" }
 dependencies = [
     { name = "blake3" },
     { name = "click" },
