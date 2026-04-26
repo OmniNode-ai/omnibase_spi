@@ -38,6 +38,8 @@ def test_submit_is_async_with_typed_payload() -> None:
 
 
 def test_watch_is_async_generator_protocol() -> None:
+    assert inspect.iscoroutinefunction(ProtocolRemoteAgentTransport.watch)
+
     sig = inspect.signature(ProtocolRemoteAgentTransport.watch)
     assert "remote_task_handle" in sig.parameters
 
