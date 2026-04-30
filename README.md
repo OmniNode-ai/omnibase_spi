@@ -1,6 +1,6 @@
 # omnibase_spi
 
-`omnibase_spi` is the Service Provider Interface package for ONEX. It defines
+`omnibase_spi` is the Service Provider Interface package for ONEX (OmniNode eXecution). It defines
 protocol contracts, small wire-format contracts, and SPI exceptions that other
 repos implement or consume.
 

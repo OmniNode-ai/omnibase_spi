@@ -19,7 +19,7 @@ This glossary provides definitions for key terms used throughout the ONEX Servic
 
 ## Architecture Terms
 
-### ONEX (OmniNode Execution System)
+### ONEX (OmniNode eXecution)
 
 The distributed orchestration platform that provides event-driven workflow execution, protocol-first design, and enterprise-grade service coordination. ONEX follows a layered architecture with clear separation between contracts (SPI), models (Core), and implementations (Infra).
 

@@ -1,6 +1,6 @@
 # Contributing to omnibase_spi
 
-Thank you for your interest in contributing to omnibase_spi! This document provides guidelines for contributing to the ONEX (OmniNode Execution System) Service Provider Interface.
+Thank you for your interest in contributing to omnibase_spi! This document provides guidelines for contributing to the ONEX (OmniNode eXecution) Service Provider Interface.
 
 ## Table of Contents
 
