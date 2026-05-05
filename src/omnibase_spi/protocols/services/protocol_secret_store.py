@@ -11,6 +11,25 @@ Note: omnibase_core defines ProtocolSecretService with a single get_secret metho
 for template resolution. This protocol extends the concept to a full service
 lifecycle with health checks, listing, and connection management.
 
+Protocol invariants (locked by OMN-10556):
+    - ``get_secret`` is a *nullable lookup*: callers receive ``None`` for a
+      missing key, never an exception. Required-service validation is the
+      caller's responsibility (e.g., omnimarket ``Settings`` raises if a
+      mandatory secret is unset). The protocol itself never fails fast on a
+      missing key.
+    - ``set_secret`` and ``delete_secret`` may raise ``RuntimeError`` for
+      read-only implementations (env-var-backed stores, Infisical wrappers
+      that surface only the SDK's read path). Callers must treat write paths
+      as failable; do not assume mutability.
+    - The protocol is ``runtime_checkable`` but ``isinstance`` only verifies
+      attribute presence. Async signature compatibility (``await
+      impl.get_secret(...)``, ``await impl.list_keys(prefix=None)``,
+      ``await impl.health_check()``) is verified by behavioral tests, not by
+      ``isinstance``.
+    - No ``get_secrets_batch`` method is part of the protocol surface. Batch
+      retrieval is a performance concern owned by adapters/handlers, not the
+      protocol contract.
+
 RBAC:
     - read: Retrieve secrets by key
     - list: Enumerate available secret keys (no values)
