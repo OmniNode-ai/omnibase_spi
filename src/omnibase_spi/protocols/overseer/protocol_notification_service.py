@@ -9,7 +9,7 @@ summaries to external channels such as Slack, email, or webhook endpoints.
 
 from __future__ import annotations
 
-from typing import Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 
 @runtime_checkable
@@ -84,17 +84,19 @@ class ProtocolNotificationService(Protocol):
     async def send_batch(
         self,
         channel: str,
-        notifications: list[dict[str, str]],
+        notifications: list[dict[str, Any]],
     ) -> int:
         """Send multiple notifications to the specified channel in one call.
 
         Each item in ``notifications`` must include at minimum ``title`` and
-        ``body`` keys. Optional ``level`` and ``metadata`` keys follow the
-        same semantics as ``send``.
+        ``body`` keys (``str``). Optional ``level`` (``str``) and ``metadata``
+        (``dict[str, str] | None``) keys follow the same semantics as ``send``.
 
         Args:
             channel: Destination channel identifier.
-            notifications: List of notification payloads.
+            notifications: List of notification payloads. Each dict must contain
+                ``title`` and ``body`` string keys; ``level`` and ``metadata``
+                are optional and follow the ``send`` contract.
 
         Returns:
             Number of notifications delivered successfully.

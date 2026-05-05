@@ -161,7 +161,7 @@ class _StubNotificationService:
     async def send_batch(
         self,
         channel: str,
-        notifications: list[dict[str, str]],
+        notifications: list[dict[str, Any]],
     ) -> int:
         return len(notifications)
 
