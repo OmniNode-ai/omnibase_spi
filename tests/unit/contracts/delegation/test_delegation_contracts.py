@@ -28,6 +28,8 @@ from omnibase_spi.contracts.delegation.contract_delegation_attribution import (
     ContractDelegationAttribution,
 )
 
+_TEST_ENDPOINT_URL = "https://llm-gateway.example.test/v1"
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -37,7 +39,7 @@ def _make_attribution(**overrides: object) -> ContractDelegationAttribution:
     """Build a minimal valid ContractDelegationAttribution."""
     defaults: dict[str, object] = {
         "model_name": "qwen2.5-coder-14b",
-        "endpoint_url": "http://192.168.86.201:8000",
+        "endpoint_url": _TEST_ENDPOINT_URL,
         "latency_ms": 42.5,
         "delegation_confidence": 0.95,
     }
@@ -226,7 +228,7 @@ class TestContractDelegationAttribution:
     def test_create_minimal(self) -> None:
         attr = _make_attribution()
         assert attr.model_name == "qwen2.5-coder-14b"
-        assert attr.endpoint_url == "http://192.168.86.201:8000"
+        assert attr.endpoint_url == _TEST_ENDPOINT_URL
         assert attr.latency_ms == 42.5
         assert attr.delegation_confidence == 0.95
         assert attr.prompt_version == ""
