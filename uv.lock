@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 2
 requires-python = ">=3.12"
 
 [[package]]
@@ -656,7 +656,7 @@ wheels = [
 [[package]]
 name = "omnibase-core"
 version = "0.40.1"
-source = { git = "https://github.com/OmniNode-ai/omnibase_core.git?branch=main#f9986ec2f4a60150fff52ca4d23b69dd2adbe17b" }
+source = { git = "https://github.com/OmniNode-ai/omnibase_core.git?tag=v0.41.0#8a60e06967d3c35f593433bbffb3540c226329b1" }
 dependencies = [
     { name = "blake3" },
     { name = "click" },
@@ -674,7 +674,7 @@ dependencies = [
 
 [[package]]
 name = "omnibase-spi"
-version = "0.20.6"
+version = "0.21.0"
 source = { editable = "." }
 dependencies = [
     { name = "omnibase-core" },
@@ -700,7 +700,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "omnibase-core", git = "https://github.com/OmniNode-ai/omnibase_core.git?branch=main" },
+    { name = "omnibase-core", git = "https://github.com/OmniNode-ai/omnibase_core.git?tag=v0.41.0" },
     { name = "pydantic", specifier = ">=2.11.7" },
     { name = "typing-extensions", specifier = ">=4.5.0" },
 ]

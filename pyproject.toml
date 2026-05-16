@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "omnibase_spi"
-version = "0.20.6"
+version = "0.21.0"
 description = "ONEX Service Provider Interface - Protocol definitions"
 authors = [
     {name = "OmniNode.ai", email = "jonah@omninode.ai"},
@@ -27,7 +27,7 @@ classifiers = [
 dependencies = [
     "typing-extensions>=4.5.0",
     "pydantic>=2.11.7",
-    "omnibase-core>=0.40.1", # Workspace dependency - see note above
+    "omnibase-core>=0.41.0", # Workspace dependency - see note above
 ]
 
 [project.urls]
@@ -55,7 +55,7 @@ dev = [
 packages = ["src/omnibase_spi"]
 
 [tool.uv.sources]
-omnibase-core = { git = "https://github.com/OmniNode-ai/omnibase_core.git", branch = "main" }
+omnibase-core = { git = "https://github.com/OmniNode-ai/omnibase_core.git", tag = "v0.41.0" }
 
 [tool.ruff]
 line-length = 88
