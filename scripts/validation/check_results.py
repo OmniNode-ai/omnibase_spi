@@ -8,8 +8,7 @@ Check validation results from the unified validation suite.
 This script analyzes the JSON output from run_all_validations.py and determines
 whether the validation passed based on configured strictness levels:
 
-- Critical validators (naming_patterns, namespace_isolation): Must pass
-- Non-critical validators (architecture): Informational only (technical debt)
+- Critical validators (naming_patterns, namespace_isolation, architecture): Must pass
 
 Usage:
     python scripts/validation/check_results.py [options]
@@ -37,15 +36,11 @@ CRITICAL_VALIDATORS: frozenset[str] = frozenset(
     {
         "naming_patterns",
         "namespace_isolation",
-    }
-)
-
-# Validators that are informational only (known technical debt)
-INFORMATIONAL_VALIDATORS: frozenset[str] = frozenset(
-    {
         "architecture",
     }
 )
+
+INFORMATIONAL_VALIDATORS: frozenset[str] = frozenset()
 
 
 def load_results(file_path: Path) -> dict[str, Any]:
@@ -141,9 +136,7 @@ Examples:
 Critical validators (must pass):
     - naming_patterns: Protocol and exception naming conventions
     - namespace_isolation: No forbidden imports (Infra, Pydantic)
-
-Informational validators (known technical debt):
-    - architecture: One-protocol-per-file rule (92 existing violations)
+    - architecture: Domain cohesion rule (max 15 protocols per file)
         """,
     )
     parser.add_argument(
