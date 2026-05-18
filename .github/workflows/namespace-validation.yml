@@ -42,10 +42,7 @@ jobs:
       - name: Run Namespace Isolation Validation
         run: python scripts/validation/validate_namespace_isolation.py
 
-      - name: Run Architecture Validation (informational)
-        # Architecture validation fails due to existing technical debt (92 files)
-        # Run for visibility but don't fail the build
-        continue-on-error: true
+      - name: Run Architecture Validation
         run: python scripts/validation/validate_architecture.py --verbose
 
       - name: Run Unified Validation Suite
@@ -59,10 +56,9 @@ jobs:
       - name: Run SPI Validations
         run: |
           # Validate critical SPI requirements
-          # This step uses check_results.py which distinguishes:
-          # - CRITICAL validators (naming_patterns, namespace_isolation) - must pass
-          # - INFORMATIONAL validators (architecture) - known technical debt, reported only
-          # Build fails if any critical validator fails
+          # This step uses check_results.py which treats all validators as critical:
+          # naming_patterns, namespace_isolation, architecture
+          # Build fails if any validator fails
           python scripts/validation/check_results.py
 
       - name: Upload validation results
