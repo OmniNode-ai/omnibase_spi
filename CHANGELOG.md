@@ -1,3 +1,13 @@
+## v0.21.0 (2026-05-21)
+
+### Changed
+- feat(OMN-10603): migrate runner selector to vars.OMNI_TRUSTED_CI_RUNS_ON_JSON (#207)
+- fix(OMN-10970): wire skip-token rejection CI gate (#208)
+- chore: bump omnibase-core pin to >=0.41.0
+
+### Notes
+- Supersedes the orphaned v0.21.0 tag from PR #209 (merged 2026-05-16, then main rolled back, no GH Release ever published). Orphan tag was deleted before this release cut a fresh tag from current main HEAD.
+
 ## v0.20.4 (2026-04-03)
 
 ### Bug Fixes
