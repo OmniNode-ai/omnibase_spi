@@ -70,7 +70,6 @@ class ProtocolWorkQueue(Protocol):
         ```
 
     See Also:
-        - ProtocolWorkCoordinator: High-level coordination
         - ProtocolWorkTicket: Ticket structure
         - ProtocolWorkflowEventBus: Event-based coordination
     """
