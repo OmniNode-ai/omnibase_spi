@@ -134,17 +134,20 @@ class SPIProtocolValidator(ast.NodeVisitor):
         is_protocol = self._is_protocol_class(node)
 
         if is_protocol:
+            # Protocols inside TYPE_CHECKING blocks are forward-reference helpers
+            # for annotations only. Do not validate the class or its methods.
+            if self.in_type_checking_block:
+                return
+
             self.current_protocol = node.name
             self.in_protocol_class = True
 
-            # Skip protocols inside TYPE_CHECKING blocks - they're forward references for type hints only
-            if not self.in_type_checking_block:
-                # Validate protocol structure
-                self._validate_protocol_class(node)
+            # Validate protocol structure
+            self._validate_protocol_class(node)
 
-                # Extract protocol information
-                protocol_info = self._extract_protocol_info(node)
-                self.protocols.append(protocol_info)
+            # Extract protocol information
+            protocol_info = self._extract_protocol_info(node)
+            self.protocols.append(protocol_info)
 
             # Visit children
             self.generic_visit(node)
