@@ -1,6 +1,10 @@
 # SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
 # SPDX-License-Identifier: MIT
 
+# DEPRECATED: This barrel re-export file is frozen. No new symbols should be added.
+# Import directly from submodules instead: e.g., from omnibase_spi.protocols.node.protocol_node import ...
+# See OMN-11831 for migration context.
+
 """
 ONEX Protocol Interfaces
 
