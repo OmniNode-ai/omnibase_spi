@@ -95,6 +95,16 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
+"scripts/validation/spi_validator/*.py" = [
+    "D100",    # module docstring (subpackage modules use file-level comments)
+    "D101",    # class docstring (classes are named descriptively)
+    "T20",     # print() statements
+    "PTH123",  # builtin open
+    "BLE001",  # blind except
+    "SLF001",  # private member access
+    "PLR2004", # magic values
+    "S324",    # hashlib insecure hash
+]
 "scripts/validation/*.py" = [
     "SIM102",  # nested if statements (readability preference in validators)
     "SIM103",  # return condition directly (clarity in boolean functions)

@@ -13,15 +13,12 @@ import pytest
 SCRIPTS_VALIDATION_ROOT = Path(__file__).resolve().parents[3] / "scripts" / "validation"
 sys.path.insert(0, str(SCRIPTS_VALIDATION_ROOT))
 
-from scripts.validation.comprehensive_spi_validator import (
-    AutoFixEngine,
-    ComprehensiveSPIValidationEngine,
-    ComprehensiveSPIValidator,
-    DuplicateProtocolAnalyzer,
-    ProtocolInfo,
-    ValidationConfig,
-    ValidationReport,
-)
+from spi_validator.autofix import AutoFixEngine
+from spi_validator.config import ValidationConfig
+from spi_validator.duplicate_analyzer import DuplicateProtocolAnalyzer
+from spi_validator.engine import ComprehensiveSPIValidationEngine
+from spi_validator.file_validator import ComprehensiveSPIValidator
+from spi_validator.models import ProtocolInfo, ValidationReport
 
 
 def _write_protocol_file(path: Path, source: str) -> Path:
