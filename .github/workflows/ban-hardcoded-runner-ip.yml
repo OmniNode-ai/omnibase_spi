@@ -9,7 +9,7 @@ name: Ban Hardcoded Runner IP
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, dev]
     paths:
       - .github/workflows/**
 
@@ -18,4 +18,3 @@ jobs:
     uses: OmniNode-ai/omniclaude/.github/workflows/ban-hardcoded-runner-ip.yml@main
     permissions:
       contents: read
-

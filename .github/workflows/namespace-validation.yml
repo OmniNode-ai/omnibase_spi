@@ -8,7 +8,7 @@ on:
       - 'scripts/validation/**'
       - '.github/workflows/namespace-validation.yml'
   pull_request:
-    branches: [main, develop, development]
+    branches: [main, dev, develop, development]
     paths:
       - 'src/**/*.py'
       - 'scripts/**'
@@ -164,4 +164,3 @@ jobs:
             echo "ERROR: Version mismatch between pyproject.toml and __init__.py"
             exit 1
           fi
-

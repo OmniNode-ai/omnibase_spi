@@ -9,7 +9,7 @@ on:
       - 'validation_config.yaml'
       - '.github/workflows/spi-validation.yml'
   pull_request:
-    branches: [main, develop]
+    branches: [main, dev, develop]
     paths:
       - 'src/**/*.py'
       - 'scripts/validation/**'
