@@ -53,7 +53,10 @@ See Also:
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    from omnibase_spi.protocols.types import ContextValue, ProtocolValidationResult
+    from omnibase_spi.protocols.types import ContextValue
+    from omnibase_spi.protocols.validation.protocol_validation import (
+        ProtocolValidationResult,
+    )
 
 
 @runtime_checkable

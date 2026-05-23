@@ -238,13 +238,10 @@ from omnibase_spi.protocols.types.protocol_validation_types import (
     ProtocolVersionInfo,
 )
 
-# Validation types (from validation domain)
-from omnibase_spi.protocols.validation.protocol_validation import (
-    ProtocolValidationResult,
-)
-
 # Disambiguation aliases for service types to avoid naming conflicts
 # Core types are for service discovery, container types are for dependency injection
+# NOTE: These aliases are intentionally NOT included in __all__ — they are static analysis traps.
+# Import ProtocolServiceMetadata and ProtocolServiceInstance directly instead.
 ProtocolDiscoveryServiceMetadata = ProtocolServiceMetadata
 ProtocolDiscoveryServiceInstance = ProtocolServiceInstance
 
@@ -463,8 +460,6 @@ __all__ = [
     "ProtocolDiscoveryNodeInfo",
     "ProtocolDiscoveryQuery",
     "ProtocolDiscoveryResult",
-    "ProtocolDiscoveryServiceInstance",
-    "ProtocolDiscoveryServiceMetadata",
     "ProtocolDuration",
     "ProtocolError",
     "ProtocolErrorContext",
@@ -577,7 +572,6 @@ __all__ = [
     "ProtocolTraceSpan",
     "ProtocolTypedWorkflowData",
     "ProtocolValidatable",
-    "ProtocolValidationResult",
     "ProtocolVersionInfo",
     "ProtocolWorkResult",
     "ProtocolWorkflowContext",
