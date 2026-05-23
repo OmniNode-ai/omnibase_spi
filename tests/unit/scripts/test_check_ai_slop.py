@@ -126,3 +126,52 @@ def boilerplate_helper() -> None:
 
     assert checker.main(["--strict", str(source_file)]) == 2
     assert checker.main([str(source_file)]) == 0
+
+
+def test_update_triple_quote_state_opens_on_odd_count() -> None:
+    checker = _load_checker()
+    in_tq, tq_char = checker._update_triple_quote_state(
+        '    """', in_triple_quote=False, triple_char=""
+    )
+    assert in_tq is True
+    assert tq_char == '"""'
+
+
+def test_update_triple_quote_state_closes_on_odd_count() -> None:
+    checker = _load_checker()
+    in_tq, tq_char = checker._update_triple_quote_state(
+        '    """', in_triple_quote=True, triple_char='"""'
+    )
+    assert in_tq is False
+    assert tq_char == ""
+
+
+def test_update_triple_quote_state_paired_quotes_unchanged() -> None:
+    # Two """ on one line — open and close on same line, state unchanged
+    checker = _load_checker()
+    in_tq, _ = checker._update_triple_quote_state(
+        'x = """short"""', in_triple_quote=False, triple_char=""
+    )
+    assert in_tq is False
+
+
+def test_check_step_narration_line_matches() -> None:
+    checker = _load_checker()
+    violation = checker._check_step_narration_line("doc.md", 3, "## Step 1: Install")
+    assert violation is not None
+    assert violation.line == 3
+    assert violation.check == checker.CHECK_STEP_NARRATION
+
+
+def test_check_step_narration_line_suppressed() -> None:
+    checker = _load_checker()
+    violation = checker._check_step_narration_line(
+        "doc.md", 3, "## Step 1: Install  # ai-slop-ok: fixture"
+    )
+    assert violation is None
+
+
+def test_check_step_narration_line_no_match() -> None:
+    checker = _load_checker()
+    violation = checker._check_step_narration_line("doc.md", 3, "## Installation")
+    assert violation is None
