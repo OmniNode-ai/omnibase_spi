@@ -140,9 +140,7 @@ def _determine_protocol_type(
         return "property_only"
     if methods and not properties and base_protocols:
         return "mixin"
-    if methods:
-        return "functional"
-    return "unknown"
+    return "functional"
 
 
 def _get_module_path(file_path: str) -> str:
