@@ -24,13 +24,6 @@ if TYPE_CHECKING:
 
 
 @runtime_checkable
-class ProtocolWorkflow(Protocol):
-    """Protocol for workflow objects - replaces LlamaIndex dependency."""
-
-    async def run(self, **kwargs: "ContextValue") -> "ContextValue": ...
-
-
-@runtime_checkable
 class ProtocolWorkflowReducer(Protocol):
     """
             Enhanced reducer protocol with workflow support.
@@ -183,32 +176,11 @@ class ProtocolWorkflowReducer(Protocol):
         """
         ...
 
-    async def create_workflow(self) -> ProtocolWorkflow | None:
+    async def create_workflow(self) -> object | None:
         """Create workflow instance for complex orchestration patterns.
 
         Returns:
             Workflow instance for async orchestration, or None if not supported
-
-        Example:
-            ```python
-            # Complex workflow orchestration beyond simple FSM
-            reducer: ProtocolWorkflowReducer = get_reducer()
-            workflow = await reducer.create_workflow()
-
-            if workflow:
-                # Run workflow with multi-step FSM coordination
-                result = await workflow.run(
-                    input_data=context_data,
-                    correlation_id=correlation_id
-                )
-
-                # Workflow internally manages FSM transitions
-                # and event sourcing across multiple steps
-            ```
-
-        See Also:
-            - ProtocolWorkflow: Workflow execution protocol
-            - dispatch_async: Direct FSM state transitions
         """
         ...
 

@@ -137,15 +137,3 @@ class ProtocolConfigurationManager(Protocol):
     def mask_sensitive_values(
         self, config_data: dict[str, object], config_name: str
     ) -> dict[str, object]: ...
-
-
-@runtime_checkable
-class ProtocolConfigurationManagerFactory(Protocol):
-    """
-    Protocol for configuration manager factory implementations.
-
-    Factories create and configure configuration managers with different
-    validation levels, source types, and runtime capabilities.
-    """
-
-    async def create_default(self) -> ProtocolConfigurationManager: ...
