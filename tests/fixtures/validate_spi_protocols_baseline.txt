@@ -1,0 +1,62 @@
+🔍 Validating SPI protocols in: src
+📁 Found 321 Python files to validate
+
+================================================================================
+🔍 SPI PROTOCOL VALIDATION REPORT
+================================================================================
+
+📊 VALIDATION SUMMARY:
+   Total protocols found: 699
+   Total violations: 27
+   Errors: 16
+   Warnings: 11
+   Info (known conflicts for review): 0
+
+🚨 VIOLATIONS FOUND:
+
+   📋 Concrete Class In Spi (16)
+      ❌ src/omnibase_spi/exceptions_skill_routing.py:13
+         SPI should not contain concrete class 'SkillRoutingError' - use Protocol instead
+         💡 Convert to Protocol or move to implementation package
+      ❌ src/omnibase_spi/exceptions.py:17
+         SPI should not contain concrete class 'SPIError' - use Protocol instead
+         💡 Convert to Protocol or move to implementation package
+      ❌ src/omnibase_spi/exceptions.py:68
+         SPI should not contain concrete class 'ProtocolHandlerError' - use Protocol instead
+         💡 Convert to Protocol or move to implementation package
+      ... and 13 more
+
+   📋 Standalone Function In Spi (11)
+      ⚠️ src/omnibase_spi/exceptions_skill_routing.py:63
+         SPI should not contain standalone function 'is_transient' - use Protocol methods instead
+         💡 Move function to appropriate Protocol class or implementation package
+      ⚠️ src/omnibase_spi/exceptions_skill_routing.py:66
+         SPI should not contain standalone function 'kafka_payload' - use Protocol methods instead
+         💡 Move function to appropriate Protocol class or implementation package
+      ⚠️ src/omnibase_spi/contracts/pipeline/contract_schema_compat.py:41
+         SPI should not contain standalone function 'parse' - use Protocol methods instead
+         💡 Move function to appropriate Protocol class or implementation package
+      ... and 8 more
+
+📈 PROTOCOL STATISTICS:
+   @runtime_checkable: 699/699
+   With __init__ methods: 0
+   With async methods: 450
+
+📊 PROTOCOL DISTRIBUTION:
+   By Domain:
+      types: 219
+      unknown: 183
+      workflow: 70
+      events: 68
+      core: 46
+      file_handling: 46
+      container: 36
+      mcp: 31
+   By Type:
+      functional: 574
+      property_only: 114
+      mixin: 10
+      marker: 1
+
+❌ VALIDATION FAILED: 16 errors must be fixed
