@@ -14684,6 +14684,183 @@
       "return_type": "None"
     }
   },
+  "ProtocolProjectionDatabase": {
+    "__eq__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__ge__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__gt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__hash__": {
+      "kind": "method",
+      "parameters": {},
+      "return_type": "<empty>"
+    },
+    "__le__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__lt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "close": {
+      "kind": "async_method",
+      "parameters": {},
+      "return_type": "None"
+    },
+    "execute": {
+      "kind": "async_method",
+      "parameters": {
+        "params": {
+          "type": "Any"
+        },
+        "query": {
+          "type": "str"
+        }
+      },
+      "return_type": "list[dict[str, Any]]"
+    },
+    "execute_many": {
+      "kind": "async_method",
+      "parameters": {
+        "params_list": {
+          "type": "list[tuple[Any, Ellipsis]]"
+        },
+        "query": {
+          "type": "str"
+        }
+      },
+      "return_type": "None"
+    },
+    "fetchval": {
+      "kind": "async_method",
+      "parameters": {
+        "params": {
+          "type": "Any"
+        },
+        "query": {
+          "type": "str"
+        }
+      },
+      "return_type": "Any"
+    }
+  },
+  "ProtocolProjectionDatabaseSync": {
+    "__eq__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__ge__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__gt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__hash__": {
+      "kind": "method",
+      "parameters": {},
+      "return_type": "<empty>"
+    },
+    "__le__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__lt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "query": {
+      "kind": "method",
+      "parameters": {
+        "filters": {
+          "default": "None",
+          "type": "dict[str, object] | None"
+        },
+        "table": {
+          "type": "str"
+        }
+      },
+      "return_type": "list[dict[str, object]]"
+    },
+    "synchronous_execution": {
+      "kind": "attribute",
+      "type": "ClassVar[bool]"
+    },
+    "upsert": {
+      "kind": "method",
+      "parameters": {
+        "conflict_key": {
+          "type": "str"
+        },
+        "row": {
+          "type": "dict[str, object]"
+        },
+        "table": {
+          "type": "str"
+        }
+      },
+      "return_type": "bool"
+    }
+  },
   "ProtocolProjectionReader": {
     "__eq__": {
       "kind": "method",
