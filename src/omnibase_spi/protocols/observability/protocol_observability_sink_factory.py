@@ -21,21 +21,18 @@ See Also:
     - ModelLoggingSubcontract: Configuration for logging behavior
 """
 
-from __future__ import annotations
+from typing import Protocol, runtime_checkable
 
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
-
-if TYPE_CHECKING:
-    from omnibase_core.models.contracts.subcontracts import (
-        ModelLoggingSubcontract,
-        ModelMetricsSubcontract,
-    )
-    from omnibase_spi.protocols.observability.protocol_hot_path_logging_sink import (
-        ProtocolHotPathLoggingSink,
-    )
-    from omnibase_spi.protocols.observability.protocol_hot_path_metrics_sink import (
-        ProtocolHotPathMetricsSink,
-    )
+from omnibase_core.models.contracts.subcontracts import (
+    ModelLoggingSubcontract,
+    ModelMetricsSubcontract,
+)
+from omnibase_spi.protocols.observability.protocol_hot_path_logging_sink import (
+    ProtocolHotPathLoggingSink,
+)
+from omnibase_spi.protocols.observability.protocol_hot_path_metrics_sink import (
+    ProtocolHotPathMetricsSink,
+)
 
 
 @runtime_checkable

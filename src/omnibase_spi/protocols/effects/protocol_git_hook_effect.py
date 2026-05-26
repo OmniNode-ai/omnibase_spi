@@ -29,14 +29,11 @@ Related:
     - ContractGitHookEvent: Return type.
 """
 
-from __future__ import annotations
+from typing import Protocol, runtime_checkable
 
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
-
-if TYPE_CHECKING:
-    from omnibase_spi.contracts.events.contract_git_hook_event import (
-        ContractGitHookEvent,
-    )
+from omnibase_spi.contracts.events.contract_git_hook_event import (
+    ContractGitHookEvent,
+)
 
 
 @runtime_checkable

@@ -3,15 +3,14 @@
 
 """Protocol for structured logging with distributed tracing support."""
 
-from __future__ import annotations
-
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 from uuid import UUID
 
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.types import ProtocolLogEntry
-
-from omnibase_spi.protocols.types import LiteralLogLevel, ProtocolLogContext
+from omnibase_spi.protocols.types import (
+    LiteralLogLevel,
+    ProtocolLogContext,
+    ProtocolLogEntry,
+)
 
 
 @runtime_checkable

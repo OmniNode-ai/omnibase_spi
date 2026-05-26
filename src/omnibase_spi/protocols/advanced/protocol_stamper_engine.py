@@ -7,8 +7,6 @@ This module defines the interface for stamping engines that process files and
 directories with ONEX metadata blocks at scale.
 """
 
-from __future__ import annotations
-
 from typing import Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types import ProtocolResult

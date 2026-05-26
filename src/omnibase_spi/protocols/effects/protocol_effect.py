@@ -31,8 +31,6 @@ Related:
     - internal issue: ModelProjectionIntent (canonical input model)
 """
 
-from __future__ import annotations
-
 from typing import ClassVar, Protocol, runtime_checkable
 
 

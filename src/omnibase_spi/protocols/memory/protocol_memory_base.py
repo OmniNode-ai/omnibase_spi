@@ -20,9 +20,8 @@ been moved to protocol_memory_data_types.py but are re-exported here for
 backward compatibility.
 """
 
-from __future__ import annotations
-
-from typing import TYPE_CHECKING, Literal, Protocol, runtime_checkable
+from datetime import datetime
+from typing import Literal, Protocol, runtime_checkable
 from uuid import UUID
 
 # Re-export from protocol_memory_data_types for backward compatibility
@@ -37,9 +36,6 @@ from omnibase_spi.protocols.memory.protocol_memory_data_types import (
     ProtocolMemoryErrorContext,
     ProtocolPageInfo,
 )
-
-if TYPE_CHECKING:
-    from datetime import datetime
 
 # Type literals for constrained values
 LiteralMemoryAccessLevel = Literal[

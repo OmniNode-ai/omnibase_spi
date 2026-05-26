@@ -7,8 +7,6 @@ Defines the protocol interface for CLI operations with strict SPI purity complia
 Provides standardized contract for argument parsing, logging, and CLI result handling.
 """
 
-from __future__ import annotations
-
 from typing import Any, Protocol, runtime_checkable
 
 # Import core logger protocol to avoid duplication

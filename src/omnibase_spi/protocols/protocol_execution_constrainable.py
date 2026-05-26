@@ -17,14 +17,11 @@ See Also:
     - docs/architecture/HANDLER_PROTOCOL_DRIVEN_ARCHITECTURE.md
 """
 
-from __future__ import annotations
+from typing import Protocol, runtime_checkable
 
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
-
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.contracts.protocol_handler_contract_types import (
-        ProtocolExecutionConstraints,
-    )
+from omnibase_spi.protocols.contracts.protocol_handler_contract_types import (
+    ProtocolExecutionConstraints,
+)
 
 
 @runtime_checkable

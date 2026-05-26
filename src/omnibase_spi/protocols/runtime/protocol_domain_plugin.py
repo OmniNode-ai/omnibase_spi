@@ -23,15 +23,12 @@ Lifecycle Hooks:
     7. shutdown() - Clean up resources during kernel shutdown
 """
 
-from __future__ import annotations
+from typing import Protocol, runtime_checkable
 
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
-
-if TYPE_CHECKING:
-    from omnibase_core.models.runtime.model_domain_plugin import (
-        ModelDomainPluginConfig,
-        ModelDomainPluginResult,
-    )
+from omnibase_core.models.runtime.model_domain_plugin import (
+    ModelDomainPluginConfig,
+    ModelDomainPluginResult,
+)
 
 
 @runtime_checkable

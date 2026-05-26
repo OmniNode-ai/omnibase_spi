@@ -130,26 +130,23 @@ See Also:
     - ModelEmbedding: Core model for embedding data
 """
 
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
-if TYPE_CHECKING:
-    from omnibase_core.models.vector import (
-        ModelEmbedding,
-        ModelVectorBatchStoreResult,
-        ModelVectorConnectionConfig,
-        ModelVectorDeleteResult,
-        ModelVectorHandlerMetadata,
-        ModelVectorHealthStatus,
-        ModelVectorIndexConfig,
-        ModelVectorIndexResult,
-        ModelVectorMetadataFilter,
-        ModelVectorSearchResults,
-        ModelVectorStoreResult,
-    )
-    from omnibase_core.types import JsonType
+from omnibase_core.models.vector import (
+    ModelEmbedding,
+    ModelVectorBatchStoreResult,
+    ModelVectorConnectionConfig,
+    ModelVectorDeleteResult,
+    ModelVectorHandlerMetadata,
+    ModelVectorHealthStatus,
+    ModelVectorIndexConfig,
+    ModelVectorIndexResult,
+    ModelVectorMetadataFilter,
+    ModelVectorSearchResults,
+    ModelVectorStoreResult,
+)
+from omnibase_core.types import JsonType
 
 
 @runtime_checkable

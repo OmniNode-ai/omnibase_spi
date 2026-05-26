@@ -21,9 +21,9 @@ backward compatibility.
 All types are pure protocols with no implementation dependencies.
 """
 
-from __future__ import annotations
-
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+# Re-export ProtocolMemoryMetadata for backward compatibility
+from datetime import datetime
+from typing import Protocol, runtime_checkable
 from uuid import UUID
 
 # Re-export from protocol_memory_advanced_responses for backward compatibility
@@ -42,17 +42,11 @@ from omnibase_spi.protocols.memory.protocol_memory_advanced_responses import (
     ProtocolStreamingRetrieveResponse,
     ProtocolWorkflowExecutionResponse,
 )
-
-if TYPE_CHECKING:
-    from datetime import datetime
-
-    from omnibase_spi.protocols.memory.protocol_memory_base import (
-        ProtocolMemoryRecord,
-        ProtocolSearchResult,
-    )
-
-# Re-export ProtocolMemoryMetadata for backward compatibility
-from omnibase_spi.protocols.memory.protocol_memory_base import ProtocolMemoryMetadata
+from omnibase_spi.protocols.memory.protocol_memory_base import (
+    ProtocolMemoryMetadata,
+    ProtocolMemoryRecord,
+    ProtocolSearchResult,
+)
 
 
 @runtime_checkable

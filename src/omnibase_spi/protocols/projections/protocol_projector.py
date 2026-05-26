@@ -70,8 +70,6 @@ Related tickets:
     - internal issue: Define ProtocolIdempotencyStore (B3 runtime deduplication)
 """
 
-from __future__ import annotations
-
 from collections.abc import Sequence
 from typing import Literal, Protocol, runtime_checkable
 

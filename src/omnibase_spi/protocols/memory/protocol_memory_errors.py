@@ -18,20 +18,15 @@ Contains:
     All types are pure protocols with no implementation dependencies.
 """
 
-from __future__ import annotations
-
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from datetime import datetime
+from typing import Protocol, runtime_checkable
 from uuid import UUID
 
-from omnibase_spi.protocols.memory.protocol_memory_base import LiteralErrorCategory
-
-if TYPE_CHECKING:
-    from datetime import datetime
-
-    from omnibase_spi.protocols.memory.protocol_memory_base import (
-        ProtocolErrorCategoryMap,
-        ProtocolMemoryErrorContext,
-    )
+from omnibase_spi.protocols.memory.protocol_memory_base import (
+    LiteralErrorCategory,
+    ProtocolErrorCategoryMap,
+    ProtocolMemoryErrorContext,
+)
 
 
 @runtime_checkable

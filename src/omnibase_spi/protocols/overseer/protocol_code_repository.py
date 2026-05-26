@@ -9,21 +9,18 @@ delete_branch, and rebase. Intended for overseer agents that need elevated
 Git/GitHub operations beyond standard pipeline automation.
 """
 
-from __future__ import annotations
+from typing import Protocol, runtime_checkable
 
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
-
-if TYPE_CHECKING:
-    from omnibase_spi.contracts.services.contract_source_control_types import (
-        ModelBranch,
-        ModelCIStatus,
-        ModelDiff,
-        ModelMergeResult,
-        ModelPullRequest,
-    )
-    from omnibase_spi.protocols.types.protocol_service_types import (
-        ProtocolServiceHealthStatus,
-    )
+from omnibase_spi.contracts.services.contract_source_control_types import (
+    ModelBranch,
+    ModelCIStatus,
+    ModelDiff,
+    ModelMergeResult,
+    ModelPullRequest,
+)
+from omnibase_spi.protocols.types.protocol_service_types import (
+    ProtocolServiceHealthStatus,
+)
 
 
 @runtime_checkable

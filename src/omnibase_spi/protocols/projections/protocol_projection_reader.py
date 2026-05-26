@@ -36,12 +36,9 @@ Related tickets:
     - internal issue: Projection infrastructure for event-driven orchestration
 """
 
-from __future__ import annotations
+from typing import Protocol, runtime_checkable
 
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
-
-if TYPE_CHECKING:
-    from omnibase_core.types import JsonType
+from omnibase_core.types import JsonType
 
 
 @runtime_checkable

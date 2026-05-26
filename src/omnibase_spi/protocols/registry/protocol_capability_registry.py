@@ -38,13 +38,10 @@ See Also:
     - ModelCapabilityMetadata: Core model for capability metadata
 """
 
-from __future__ import annotations
-
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
-if TYPE_CHECKING:
-    from omnibase_core.models.capabilities import ModelCapabilityMetadata
+from omnibase_core.models.capabilities import ModelCapabilityMetadata
 
 __all__ = ["ProtocolCapabilityRegistry"]
 

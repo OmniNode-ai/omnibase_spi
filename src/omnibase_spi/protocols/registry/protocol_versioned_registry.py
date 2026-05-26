@@ -112,8 +112,6 @@ See Also:
     - ProtocolHandlerRegistry: Specialized registry for protocol handlers
 """
 
-from __future__ import annotations
-
 from typing import Protocol, TypeVar, runtime_checkable
 
 # Type variables for generic versioned registry

@@ -3,8 +3,6 @@
 
 """Protocol definitions for workflow orchestration in ONEX systems."""
 
-from __future__ import annotations
-
 from typing import Protocol, runtime_checkable
 
 

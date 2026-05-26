@@ -17,32 +17,29 @@ Contains:
 All types are pure protocols with no implementation dependencies.
 """
 
-from __future__ import annotations
-
 from collections.abc import AsyncIterator
+from datetime import datetime
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 from uuid import UUID
 
-if TYPE_CHECKING:
-    from datetime import datetime
+from omnibase_spi.protocols.memory.protocol_memory_base import (
+    ProtocolMemoryRecord,
+)
+from omnibase_spi.protocols.memory.protocol_memory_data_types import (
+    ProtocolAgentResponseMap,
+    ProtocolAgentStatusMap,
+    ProtocolAggregatedData,
+    ProtocolAggregationSummary,
+    ProtocolAnalysisResults,
+    ProtocolCustomMetrics,
+    ProtocolPageInfo,
+)
+from omnibase_spi.protocols.memory.protocol_memory_errors import ProtocolMemoryError
 
-    from omnibase_spi.protocols.memory.protocol_memory_base import (
-        ProtocolMemoryRecord,
-    )
-    from omnibase_spi.protocols.memory.protocol_memory_data_types import (
-        ProtocolAgentResponseMap,
-        ProtocolAgentStatusMap,
-        ProtocolAggregatedData,
-        ProtocolAggregationSummary,
-        ProtocolAnalysisResults,
-        ProtocolCustomMetrics,
-        ProtocolPageInfo,
-    )
+if TYPE_CHECKING:
     from omnibase_spi.protocols.memory.protocol_memory_responses import (
         ProtocolMemoryMetadata,
     )
-
-from omnibase_spi.protocols.memory.protocol_memory_errors import ProtocolMemoryError
 
 
 @runtime_checkable
@@ -444,7 +441,7 @@ class ProtocolAggregationResponse(Protocol):
                 self,
                 correlation_id: UUID | None,
                 aggregated_data: ProtocolAggregatedData,
-                aggregation_metadata: ProtocolMemoryMetadata,
+                aggregation_metadata: "ProtocolMemoryMetadata",
             ) -> None:
                 self.correlation_id = correlation_id
                 self.response_timestamp = datetime.now(UTC)
@@ -474,7 +471,7 @@ class ProtocolAggregationResponse(Protocol):
     response_timestamp: datetime
     success: bool
     aggregated_data: ProtocolAggregatedData
-    aggregation_metadata: ProtocolMemoryMetadata
+    aggregation_metadata: "ProtocolMemoryMetadata"
     records_processed: int
     time_window_applied: str
 

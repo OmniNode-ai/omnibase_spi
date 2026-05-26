@@ -3,8 +3,6 @@
 
 """Protocols specific to the ONEX platform or services."""
 
-from __future__ import annotations
-
 from .protocol_compute_node import ProtocolOnexComputeNodeLegacy
 from .protocol_effect_node import ProtocolOnexEffectNodeLegacy
 from .protocol_envelope import ProtocolEnvelope

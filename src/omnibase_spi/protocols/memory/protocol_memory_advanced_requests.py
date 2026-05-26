@@ -17,24 +17,20 @@ Contains:
 All types are pure protocols with no implementation dependencies.
 """
 
-from __future__ import annotations
-
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from datetime import datetime
+from typing import Protocol, runtime_checkable
 from uuid import UUID
 
-if TYPE_CHECKING:
-    from datetime import datetime
-
-    from omnibase_spi.protocols.memory.protocol_memory_base import (
-        LiteralAnalysisType,
-        ProtocolAggregationCriteria,
-        ProtocolAnalysisParameters,
-        ProtocolCoordinationMetadata,
-        ProtocolWorkflowConfiguration,
-    )
-    from omnibase_spi.protocols.memory.protocol_memory_data_types import (
-        ProtocolAggregatedData,
-    )
+from omnibase_spi.protocols.memory.protocol_memory_base import (
+    LiteralAnalysisType,
+    ProtocolAggregationCriteria,
+    ProtocolAnalysisParameters,
+    ProtocolCoordinationMetadata,
+    ProtocolWorkflowConfiguration,
+)
+from omnibase_spi.protocols.memory.protocol_memory_data_types import (
+    ProtocolAggregatedData,
+)
 
 
 @runtime_checkable

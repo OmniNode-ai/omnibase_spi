@@ -1,6 +1,5 @@
 # SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
 # SPDX-License-Identifier: MIT
-
 """Protocol interface for FSM surface adapters in ONEX systems."""
 
 from __future__ import annotations

@@ -14,21 +14,18 @@ these higher-level operations.
 This protocol is a structural subtype of ProtocolExternalService.
 """
 
-from __future__ import annotations
+from typing import Protocol, runtime_checkable
 
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
-
-if TYPE_CHECKING:
-    from omnibase_spi.contracts.services.contract_database_service_types import (
-        ModelDatabaseHealth,
-        ModelExecuteResult,
-        ModelMigrationStatus,
-        ModelQueryResult,
-        ModelTableInfo,
-    )
-    from omnibase_spi.protocols.types.protocol_service_types import (
-        ProtocolServiceHealthStatus,
-    )
+from omnibase_spi.contracts.services.contract_database_service_types import (
+    ModelDatabaseHealth,
+    ModelExecuteResult,
+    ModelMigrationStatus,
+    ModelQueryResult,
+    ModelTableInfo,
+)
+from omnibase_spi.protocols.types.protocol_service_types import (
+    ProtocolServiceHealthStatus,
+)
 
 
 @runtime_checkable

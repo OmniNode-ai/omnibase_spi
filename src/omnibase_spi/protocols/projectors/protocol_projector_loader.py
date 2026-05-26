@@ -62,15 +62,12 @@ Related tickets:
     - internal issue: Define ProtocolProjector
 """
 
-from __future__ import annotations
-
 from pathlib import Path
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.projectors.protocol_event_projector import (
-        ProtocolEventProjector,
-    )
+from omnibase_spi.protocols.projectors.protocol_event_projector import (
+    ProtocolEventProjector,
+)
 
 __all__ = ["ProtocolProjectorLoader"]
 

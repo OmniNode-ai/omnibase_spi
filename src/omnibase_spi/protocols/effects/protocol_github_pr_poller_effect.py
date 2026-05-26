@@ -33,14 +33,11 @@ Related:
     - default_github_pr_poller.yaml: YAML handler contract for this protocol.
 """
 
-from __future__ import annotations
+from typing import Protocol, runtime_checkable
 
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
-
-if TYPE_CHECKING:
-    from omnibase_spi.contracts.events.contract_github_pr_status_event import (
-        ContractGitHubPRStatusEvent,
-    )
+from omnibase_spi.contracts.events.contract_github_pr_status_event import (
+    ContractGitHubPRStatusEvent,
+)
 
 
 @runtime_checkable

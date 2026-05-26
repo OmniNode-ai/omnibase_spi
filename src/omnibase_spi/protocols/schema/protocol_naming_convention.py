@@ -6,8 +6,6 @@
 This module defines the interface for validating names against ONEX naming conventions.
 """
 
-from __future__ import annotations
-
 from typing import Protocol, runtime_checkable
 
 

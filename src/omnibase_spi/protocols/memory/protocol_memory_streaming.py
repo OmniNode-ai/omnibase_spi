@@ -8,19 +8,16 @@ Defines streaming protocols for large data operations, chunked processing,
 and cursor-based pagination following ONEX performance optimization patterns.
 """
 
-from __future__ import annotations
-
 from collections.abc import AsyncGenerator
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 from uuid import UUID
 
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.memory.protocol_memory_base import (
-        ProtocolMemoryMetadata,
-    )
-    from omnibase_spi.protocols.memory.protocol_memory_security import (
-        ProtocolMemorySecurityContext,
-    )
+from omnibase_spi.protocols.memory.protocol_memory_base import (
+    ProtocolMemoryMetadata,
+)
+from omnibase_spi.protocols.memory.protocol_memory_security import (
+    ProtocolMemorySecurityContext,
+)
 
 
 @runtime_checkable

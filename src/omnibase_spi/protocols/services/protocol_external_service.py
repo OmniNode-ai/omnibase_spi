@@ -12,14 +12,11 @@ Every domain-specific service protocol (ProtocolCodeHost, ProtocolTicketService,
 etc.) should structurally conform to this base protocol.
 """
 
-from __future__ import annotations
+from typing import Protocol, runtime_checkable
 
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
-
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.protocol_service_types import (
-        ProtocolServiceHealthStatus,
-    )
+from omnibase_spi.protocols.types.protocol_service_types import (
+    ProtocolServiceHealthStatus,
+)
 
 
 @runtime_checkable

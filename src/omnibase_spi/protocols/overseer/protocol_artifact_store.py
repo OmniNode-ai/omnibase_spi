@@ -8,8 +8,6 @@ uploading, retrieving, listing, and expiring versioned workflow artifacts such
 as plans, evidence bundles, and replay logs.
 """
 
-from __future__ import annotations
-
 from typing import Protocol, runtime_checkable
 
 

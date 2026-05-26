@@ -3,8 +3,6 @@
 
 """Protocols for loading, validating, and managing data schemas."""
 
-from __future__ import annotations
-
 from .protocol_contract_service import ProtocolContractService
 from .protocol_input_validator import ProtocolInputValidator
 from .protocol_model_registry_validator import ProtocolModelRegistryValidator

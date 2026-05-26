@@ -13,49 +13,46 @@ This module defines protocol interfaces following ONEX 4-node architecture:
 All protocols use typing.Protocol for structural typing with zero dependencies.
 """
 
-from __future__ import annotations
-
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 from uuid import UUID
 
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.memory.protocol_memory_base import (
-        LiteralAnalysisType,
-        LiteralCompressionAlgorithm,
-        ProtocolAggregationCriteria,
-        ProtocolMemoryMetadata,
-    )
-    from omnibase_spi.protocols.memory.protocol_memory_requests import (
-        ProtocolAgentCoordinationRequest,
-        ProtocolBatchMemoryRetrieveRequest,
-        ProtocolBatchMemoryStoreRequest,
-        ProtocolConsolidationRequest,
-        ProtocolMemoryListRequest,
-        ProtocolMemoryMetricsRequest,
-        ProtocolMemoryRetrieveRequest,
-        ProtocolMemoryStoreRequest,
-        ProtocolPatternAnalysisRequest,
-        ProtocolSemanticSearchRequest,
-        ProtocolWorkflowExecutionRequest,
-    )
-    from omnibase_spi.protocols.memory.protocol_memory_responses import (
-        ProtocolAgentCoordinationResponse,
-        ProtocolBatchMemoryRetrieveResponse,
-        ProtocolBatchMemoryStoreResponse,
-        ProtocolConsolidationResponse,
-        ProtocolMemoryListResponse,
-        ProtocolMemoryMetricsResponse,
-        ProtocolMemoryResponse,
-        ProtocolMemoryRetrieveResponse,
-        ProtocolMemoryStoreResponse,
-        ProtocolPatternAnalysisResponse,
-        ProtocolSemanticSearchResponse,
-        ProtocolWorkflowExecutionResponse,
-    )
-    from omnibase_spi.protocols.memory.protocol_memory_security import (
-        ProtocolMemorySecurityContext,
-        ProtocolRateLimitConfig,
-    )
+from omnibase_spi.protocols.memory.protocol_memory_base import (
+    LiteralAnalysisType,
+    LiteralCompressionAlgorithm,
+    ProtocolAggregationCriteria,
+    ProtocolMemoryMetadata,
+)
+from omnibase_spi.protocols.memory.protocol_memory_requests import (
+    ProtocolAgentCoordinationRequest,
+    ProtocolBatchMemoryRetrieveRequest,
+    ProtocolBatchMemoryStoreRequest,
+    ProtocolConsolidationRequest,
+    ProtocolMemoryListRequest,
+    ProtocolMemoryMetricsRequest,
+    ProtocolMemoryRetrieveRequest,
+    ProtocolMemoryStoreRequest,
+    ProtocolPatternAnalysisRequest,
+    ProtocolSemanticSearchRequest,
+    ProtocolWorkflowExecutionRequest,
+)
+from omnibase_spi.protocols.memory.protocol_memory_responses import (
+    ProtocolAgentCoordinationResponse,
+    ProtocolBatchMemoryRetrieveResponse,
+    ProtocolBatchMemoryStoreResponse,
+    ProtocolConsolidationResponse,
+    ProtocolMemoryListResponse,
+    ProtocolMemoryMetricsResponse,
+    ProtocolMemoryResponse,
+    ProtocolMemoryRetrieveResponse,
+    ProtocolMemoryStoreResponse,
+    ProtocolPatternAnalysisResponse,
+    ProtocolSemanticSearchResponse,
+    ProtocolWorkflowExecutionResponse,
+)
+from omnibase_spi.protocols.memory.protocol_memory_security import (
+    ProtocolMemorySecurityContext,
+    ProtocolRateLimitConfig,
+)
 
 
 @runtime_checkable

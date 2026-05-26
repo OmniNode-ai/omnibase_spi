@@ -103,27 +103,21 @@ See Also:
     - ModelGraphDatabaseNode: Core model for graph nodes
 """
 
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
-if TYPE_CHECKING:
-    # Graph database models from omnibase_core.models.graph (PR #250, internal issue)
-    # These models replace dict[str, Any] for type-safe graph database operations.
-    # Available in omnibase_core >= 0.5.6
-    from omnibase_core.models.graph import (
-        ModelGraphBatchResult,
-        ModelGraphDatabaseNode,
-        ModelGraphDeleteResult,
-        ModelGraphHandlerMetadata,
-        ModelGraphHealthStatus,
-        ModelGraphQueryResult,
-        ModelGraphRelationship,
-        ModelGraphTraversalFilters,
-        ModelGraphTraversalResult,
-    )
-    from omnibase_core.types import JsonType
+from omnibase_core.models.graph import (
+    ModelGraphBatchResult,
+    ModelGraphDatabaseNode,
+    ModelGraphDeleteResult,
+    ModelGraphHandlerMetadata,
+    ModelGraphHealthStatus,
+    ModelGraphQueryResult,
+    ModelGraphRelationship,
+    ModelGraphTraversalFilters,
+    ModelGraphTraversalResult,
+)
+from omnibase_core.types import JsonType
 
 
 @runtime_checkable

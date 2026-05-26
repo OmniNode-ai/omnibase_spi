@@ -10,8 +10,6 @@ formatting, and stable output for the same input.
 This module must NOT import from omnibase_core, omnibase_infra, or omniclaude.
 """
 
-from __future__ import annotations
-
 import json
 from typing import TypeVar
 

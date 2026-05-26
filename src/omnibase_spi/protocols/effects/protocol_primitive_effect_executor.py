@@ -18,8 +18,6 @@ Architecture Context:
     - Phase 4: Evaluate and expand
 """
 
-from __future__ import annotations
-
 from typing import Literal, Protocol, runtime_checkable
 
 # Effect categories for grouping related effects

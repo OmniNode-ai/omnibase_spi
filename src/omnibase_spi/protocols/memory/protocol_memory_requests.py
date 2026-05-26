@@ -21,9 +21,8 @@ compatibility.
 All types are pure protocols with no implementation dependencies.
 """
 
-from __future__ import annotations
-
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from datetime import datetime
+from typing import Protocol, runtime_checkable
 from uuid import UUID
 
 # Re-export from protocol_memory_advanced_requests for backward compatibility
@@ -39,14 +38,10 @@ from omnibase_spi.protocols.memory.protocol_memory_advanced_requests import (
     ProtocolStreamingRetrieveRequest,
     ProtocolWorkflowExecutionRequest,
 )
-
-if TYPE_CHECKING:
-    from datetime import datetime
-
-    from omnibase_spi.protocols.memory.protocol_memory_base import (
-        ProtocolMemoryMetadata,
-        ProtocolSearchFilters,
-    )
+from omnibase_spi.protocols.memory.protocol_memory_base import (
+    ProtocolMemoryMetadata,
+    ProtocolSearchFilters,
+)
 
 
 @runtime_checkable
@@ -312,7 +307,7 @@ class ProtocolMemoryListRequest(ProtocolMemoryRequest, Protocol):
         - ProtocolPaginationRequest: For pagination parameters.
     """
 
-    pagination: ProtocolPaginationRequest
+    pagination: "ProtocolPaginationRequest"
     filters: ProtocolSearchFilters | None
     timeout_seconds: float | None
 

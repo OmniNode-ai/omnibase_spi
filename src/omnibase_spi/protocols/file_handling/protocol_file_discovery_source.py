@@ -6,8 +6,6 @@
 Defines a standardized interface for discovering and validating files for stamping/validation.
 """
 
-from __future__ import annotations
-
 from typing import Protocol, runtime_checkable
 
 

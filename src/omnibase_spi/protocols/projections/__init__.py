@@ -51,8 +51,6 @@ Related:
     - NodeProjectionEffect: Concrete generic effect node (omnibase_spi.effects)
 """
 
-from __future__ import annotations
-
 from .protocol_projection_database import ProtocolProjectionDatabase
 from .protocol_projection_database_sync import ProtocolProjectionDatabaseSync
 from .protocol_projection_reader import ProtocolProjectionReader

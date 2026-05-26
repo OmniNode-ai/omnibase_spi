@@ -11,12 +11,9 @@ hot-path scenarios where I/O latency cannot be tolerated on each log call.
 Domain: Observability - Hot-path logging with buffered I/O
 """
 
-from __future__ import annotations
+from typing import Protocol, runtime_checkable
 
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
-
-if TYPE_CHECKING:
-    from omnibase_core.enums import EnumLogLevel
+from omnibase_core.enums import EnumLogLevel
 
 
 @runtime_checkable

@@ -41,8 +41,6 @@ See Also:
     - Phase 3: handler-as-nodes decomposition (omnibase_infra)
 """
 
-from __future__ import annotations
-
 from typing import Protocol, runtime_checkable
 
 # ---------------------------------------------------------------------------

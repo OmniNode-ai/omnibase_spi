@@ -89,17 +89,13 @@ See Also:
     - ModelProducerHealthStatus: Core model for health check results
 """
 
-from __future__ import annotations
-
 from collections.abc import Callable, Sequence
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
-if TYPE_CHECKING:
-    from omnibase_core.models.event_bus import (
-        ModelProducerHealthStatus,
-        ModelProducerMessage,
-    )
-
+from omnibase_core.models.event_bus import (
+    ModelProducerHealthStatus,
+    ModelProducerMessage,
+)
 
 # NOTE: Dynamic payload policy
 # - Message payloads are opaque to the protocol layer

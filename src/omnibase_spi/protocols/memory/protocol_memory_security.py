@@ -8,17 +8,13 @@ Defines security contexts, authentication, authorization, and audit trail
 protocols for memory operations following ONEX security-by-design principles.
 """
 
-from __future__ import annotations
-
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from datetime import datetime
+from typing import Protocol, runtime_checkable
 from uuid import UUID
 
-if TYPE_CHECKING:
-    from datetime import datetime
-
-    from omnibase_spi.protocols.memory.protocol_memory_base import (
-        ProtocolMemoryMetadata,
-    )
+from omnibase_spi.protocols.memory.protocol_memory_base import (
+    ProtocolMemoryMetadata,
+)
 
 
 @runtime_checkable

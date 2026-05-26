@@ -8,18 +8,14 @@ Defines error categorization, retry policies, compensation/rollback patterns,
 and comprehensive error recovery for memory operations.
 """
 
-from __future__ import annotations
-
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from datetime import datetime
+from typing import Protocol, runtime_checkable
 from uuid import UUID
 
-if TYPE_CHECKING:
-    from datetime import datetime
-
-    from omnibase_spi.protocols.memory.protocol_memory_base import (
-        ProtocolMemoryMetadata,
-    )
+from omnibase_spi.protocols.memory.protocol_memory_base import (
+    ProtocolMemoryMetadata,
+)
 
 
 @runtime_checkable

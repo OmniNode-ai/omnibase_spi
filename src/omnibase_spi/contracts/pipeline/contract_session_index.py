@@ -9,8 +9,6 @@ resuming or querying its state from persistent storage.
 This contract must NOT import from omnibase_core, omnibase_infra, or omniclaude.
 """
 
-from __future__ import annotations
-
 from pydantic import BaseModel, Field
 
 

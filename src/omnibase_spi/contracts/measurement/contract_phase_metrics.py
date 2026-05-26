@@ -10,9 +10,7 @@ plus structured artifact pointers.
 This contract must NOT import from omnibase_core, omnibase_infra, or omniclaude.
 """
 
-from __future__ import annotations
-
-from typing import Any
+from typing import Any, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -205,7 +203,7 @@ class ContractOutcomeMetrics(BaseModel):
     )
 
     @model_validator(mode="after")
-    def _validate_skip_reason_code(self) -> ContractOutcomeMetrics:
+    def _validate_skip_reason_code(self) -> Self:
         """Ensure skip_reason_code is non-empty when classification is skipped."""
         if (
             self.result_classification == ContractEnumResultClassification.SKIPPED

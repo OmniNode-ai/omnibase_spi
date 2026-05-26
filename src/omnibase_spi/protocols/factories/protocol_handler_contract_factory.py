@@ -11,14 +11,13 @@ contract templates that can be extended via the patch system.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
-if TYPE_CHECKING:
-    from omnibase_core.enums import EnumHandlerTypeCategory
-    from omnibase_core.models.contracts.model_handler_contract import (
-        ModelHandlerContract,
-    )
-    from omnibase_core.models.primitives.model_semver import ModelSemVer
+from omnibase_core.enums import EnumHandlerTypeCategory
+from omnibase_core.models.contracts.model_handler_contract import (
+    ModelHandlerContract,
+)
+from omnibase_core.models.primitives.model_semver import ModelSemVer
 
 
 @runtime_checkable

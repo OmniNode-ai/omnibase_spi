@@ -36,16 +36,13 @@ See Also:
     internal issue: AdapterIntentGraph implementation in omnimemory.
 """
 
-from __future__ import annotations
+from typing import Protocol, runtime_checkable
 
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
-
-if TYPE_CHECKING:
-    from omnibase_core.models.intelligence import (
-        ModelIntentClassificationOutput,
-        ModelIntentQueryResult,
-        ModelIntentStorageResult,
-    )
+from omnibase_core.models.intelligence import (
+    ModelIntentClassificationOutput,
+    ModelIntentQueryResult,
+    ModelIntentStorageResult,
+)
 
 __all__ = ["ProtocolIntentGraph"]
 

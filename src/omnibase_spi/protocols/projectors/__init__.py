@@ -42,8 +42,6 @@ Related:
     - event_bus.ProtocolEventEnvelope: Event envelope format
 """
 
-from __future__ import annotations
-
 from .protocol_event_projector import ProtocolEventProjector
 from .protocol_projector_loader import ProtocolProjectorLoader
 

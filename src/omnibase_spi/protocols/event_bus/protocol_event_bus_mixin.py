@@ -22,19 +22,13 @@ This module supports two messaging patterns:
    - Used for cross-service communication and event sourcing
 """
 
-from __future__ import annotations
-
 from collections.abc import Awaitable, Callable
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
+from omnibase_core.models.common import ModelEnvelope
+from omnibase_core.types import JsonType
 from omnibase_spi.protocols.types.protocol_core_types import LiteralLogLevel
 from omnibase_spi.protocols.types.protocol_event_bus_types import ProtocolEventMessage
-
-if TYPE_CHECKING:
-    # Forward reference to avoid circular import: ModelEnvelope is defined
-    # in omnibase_core.models.common but used in type hints here.
-    from omnibase_core.models.common import ModelEnvelope
-    from omnibase_core.types import JsonType
 
 
 @runtime_checkable
