@@ -12,7 +12,7 @@ Validates that both protocols:
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, ClassVar
 
 import pytest
 
@@ -58,6 +58,8 @@ class IncompliantAsyncDatabase:
 class CompliantSyncDatabase:
     """Fully compliant implementation of ProtocolProjectionDatabaseSync."""
 
+    synchronous_execution: ClassVar[bool] = True
+
     def upsert(self, table: str, conflict_key: str, row: dict[str, object]) -> bool:
         return True
 
@@ -92,7 +94,7 @@ class TestProtocolProjectionDatabase:
 
     def test_cannot_be_instantiated(self) -> None:
         with pytest.raises(TypeError):
-            ProtocolProjectionDatabase()  # type: ignore[abstract]
+            ProtocolProjectionDatabase()  # type: ignore[misc]
 
     def test_exported_from_projections_package(self) -> None:
         from omnibase_spi.protocols.projections import (
@@ -123,9 +125,12 @@ class TestProtocolProjectionDatabaseSync:
         for method in ("upsert", "query"):
             assert hasattr(ProtocolProjectionDatabaseSync, method)
 
+    def test_declares_synchronous_execution_contract(self) -> None:
+        assert "synchronous_execution" in ProtocolProjectionDatabaseSync.__annotations__
+
     def test_cannot_be_instantiated(self) -> None:
         with pytest.raises(TypeError):
-            ProtocolProjectionDatabaseSync()  # type: ignore[abstract]
+            ProtocolProjectionDatabaseSync()  # type: ignore[misc]
 
     def test_exported_from_projections_package(self) -> None:
         from omnibase_spi.protocols.projections import (

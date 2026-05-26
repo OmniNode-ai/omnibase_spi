@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from typing import Protocol, runtime_checkable
+from typing import ClassVar, Protocol, runtime_checkable
 
 
 @runtime_checkable
@@ -18,7 +18,13 @@ class ProtocolProjectionDatabaseSync(Protocol):
 
     Migrated from omnibase_compat.protocols.protocol_projection_database_sync
     (OMN-12190, removal date 2026-07-01).
+
+    Attributes:
+        synchronous_execution: ClassVar flag declaring that this protocol is
+            intentionally synchronous.
     """
+
+    synchronous_execution: ClassVar[bool]
 
     def upsert(
         self,

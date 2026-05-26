@@ -14841,6 +14841,10 @@
       },
       "return_type": "list[dict[str, object]]"
     },
+    "synchronous_execution": {
+      "kind": "attribute",
+      "type": "ClassVar[bool]"
+    },
     "upsert": {
       "kind": "method",
       "parameters": {
