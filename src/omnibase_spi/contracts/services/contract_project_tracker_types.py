@@ -7,8 +7,6 @@ Frozen, data-only Pydantic models returned by ProtocolProjectTracker
 methods. No business logic, no SPI protocol references.
 """
 
-from __future__ import annotations
-
 from datetime import datetime
 
 from pydantic import BaseModel, Field

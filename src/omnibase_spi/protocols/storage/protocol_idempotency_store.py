@@ -22,8 +22,6 @@ Related tickets:
     - internal issue: Implement runtime idempotency guard (B3)
 """
 
-from __future__ import annotations
-
 from datetime import datetime
 from typing import Protocol, runtime_checkable
 from uuid import UUID

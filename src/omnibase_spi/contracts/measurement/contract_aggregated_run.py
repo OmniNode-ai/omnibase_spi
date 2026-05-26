@@ -13,9 +13,7 @@ The ``overall_result`` field follows these semantics:
 This contract must NOT import from omnibase_core, omnibase_infra, or omniclaude.
 """
 
-from __future__ import annotations
-
-from typing import Any, Literal
+from typing import Any, Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -97,7 +95,7 @@ class ContractAggregatedRun(BaseModel):
     )
 
     @model_validator(mode="after")
-    def _validate_mandatory_phases_count(self) -> ContractAggregatedRun:
+    def _validate_mandatory_phases_count(self) -> Self:
         """Ensure mandatory_phases_succeeded does not exceed mandatory_phases_total."""
         if self.mandatory_phases_succeeded > self.mandatory_phases_total:
             raise ValueError(

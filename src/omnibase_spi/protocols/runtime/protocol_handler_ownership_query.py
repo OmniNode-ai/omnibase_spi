@@ -7,8 +7,6 @@ set so the resolver can emit ``SKIPPED_NOT_OWNED`` for handlers that belong
 to a different process.
 """
 
-from __future__ import annotations
-
 from typing import Protocol, runtime_checkable
 
 

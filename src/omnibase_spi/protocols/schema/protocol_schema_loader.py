@@ -6,8 +6,6 @@
 Defines the canonical loader interface for node metadata and JSON schema files.
 """
 
-from __future__ import annotations
-
 from typing import Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types import ProtocolNodeMetadataBlock

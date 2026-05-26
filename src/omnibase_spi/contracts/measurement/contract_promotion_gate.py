@@ -13,9 +13,7 @@ The ``baseline_key`` is deterministically derived from
 This contract must NOT import from omnibase_core, omnibase_infra, or omniclaude.
 """
 
-from __future__ import annotations
-
-from typing import Any, Literal
+from typing import Any, Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -77,7 +75,7 @@ class ContractDimensionEvidence(BaseModel):
     )
 
     @model_validator(mode="after")
-    def _validate_delta_pct_with_zero_baseline(self) -> ContractDimensionEvidence:
+    def _validate_delta_pct_with_zero_baseline(self) -> Self:
         """Ensure delta_pct is None when baseline_value is 0."""
         if self.baseline_value == 0.0 and self.delta_pct is not None:
             raise ValueError(
@@ -149,7 +147,7 @@ class ContractPromotionGate(BaseModel):
     )
 
     @model_validator(mode="after")
-    def _validate_sufficient_count(self) -> ContractPromotionGate:
+    def _validate_sufficient_count(self) -> Self:
         """Ensure sufficient_count does not exceed total_count."""
         if self.sufficient_count > self.total_count:
             raise ValueError(

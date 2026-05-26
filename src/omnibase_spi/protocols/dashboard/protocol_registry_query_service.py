@@ -33,14 +33,11 @@ Note:
     in dashboard implementations.
 """
 
-from __future__ import annotations
-
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
-if TYPE_CHECKING:
-    from omnibase_core.models.contracts import ModelContractBase
-    from omnibase_core.models.dashboard import ModelCapabilityView, ModelNodeView
+from omnibase_core.models.contracts import ModelContractBase
+from omnibase_core.models.dashboard import ModelCapabilityView, ModelNodeView
 
 
 @runtime_checkable

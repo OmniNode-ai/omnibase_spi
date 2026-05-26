@@ -37,8 +37,6 @@ RBAC:
     - admin: Delete secrets, manage access policies
 """
 
-from __future__ import annotations
-
 from typing import Protocol, runtime_checkable
 
 

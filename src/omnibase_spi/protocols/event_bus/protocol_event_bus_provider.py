@@ -34,14 +34,11 @@ See Also:
     - ProtocolEventBusService: Service layer for event bus operations.
 """
 
-from __future__ import annotations
+from typing import Protocol, runtime_checkable
 
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
-
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.event_bus.protocol_event_bus_mixin import (
-        ProtocolEventBusBase,
-    )
+from omnibase_spi.protocols.event_bus.protocol_event_bus_mixin import (
+    ProtocolEventBusBase,
+)
 
 
 @runtime_checkable

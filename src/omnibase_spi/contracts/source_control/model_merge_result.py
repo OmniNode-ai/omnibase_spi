@@ -8,8 +8,6 @@ Returned by ProtocolCodeHost.merge_pull_request().
 This module MUST NOT import from omnibase_core, omnibase_infra, or omniclaude.
 """
 
-from __future__ import annotations
-
 from pydantic import BaseModel, Field
 
 

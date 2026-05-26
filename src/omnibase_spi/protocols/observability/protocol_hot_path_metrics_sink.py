@@ -23,12 +23,9 @@ Related tickets:
     - internal issue: Observability sink protocols
 """
 
-from __future__ import annotations
+from typing import Protocol, runtime_checkable
 
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
-
-if TYPE_CHECKING:
-    from omnibase_core.models.observability import ModelMetricsPolicy
+from omnibase_core.models.observability import ModelMetricsPolicy
 
 
 @runtime_checkable

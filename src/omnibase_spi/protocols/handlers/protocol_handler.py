@@ -7,15 +7,16 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
+from omnibase_core.models.handlers import ModelHandlerDescriptor
+from omnibase_core.types import JsonType
+
 if TYPE_CHECKING:
-    from omnibase_core.models.handlers import ModelHandlerDescriptor
     from omnibase_core.models.protocol import (
         ModelConnectionConfig,
         ModelOperationConfig,
         ModelProtocolRequest,
         ModelProtocolResponse,
     )
-    from omnibase_core.types import JsonType
 
 
 @runtime_checkable

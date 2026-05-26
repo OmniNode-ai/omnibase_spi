@@ -10,8 +10,6 @@ context.
 This contract must NOT import from omnibase_core, omnibase_infra, or omniclaude.
 """
 
-from __future__ import annotations
-
 from pydantic import BaseModel, Field
 
 from omnibase_spi.contracts.shared.contract_verdict import ContractVerdict

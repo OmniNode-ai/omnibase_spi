@@ -14,10 +14,8 @@ granularity and provider-level provenance tracking.
 This contract must NOT import from omnibase_core, omnibase_infra, or omniclaude.
 """
 
-from __future__ import annotations
-
 from datetime import datetime
-from typing import Any
+from typing import Any, Self
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -118,7 +116,7 @@ class ContractLlmUsageNormalized(BaseModel):
     )
 
     @model_validator(mode="after")
-    def _validate_consistency(self) -> ContractLlmUsageNormalized:
+    def _validate_consistency(self) -> Self:
         """Ensure usage_is_estimated is consistent with source and token sum.
 
         When source is ESTIMATED, usage_is_estimated must be True.
@@ -306,7 +304,7 @@ class ContractLlmCallMetrics(BaseModel):
         return v
 
     @model_validator(mode="after")
-    def _validate_token_consistency(self) -> ContractLlmCallMetrics:
+    def _validate_token_consistency(self) -> Self:
         """Ensure token fields and estimation flags are internally consistent.
 
         Checks:

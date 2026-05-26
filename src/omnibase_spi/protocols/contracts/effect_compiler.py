@@ -3,8 +3,6 @@
 
 """Effect contract compiler protocol."""
 
-from __future__ import annotations
-
 from pathlib import Path
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
@@ -32,7 +30,7 @@ class ProtocolEffectContractCompiler(Protocol):
     async def compile(
         self,
         contract_path: Path,
-    ) -> ModelEffectContract:
+    ) -> "ModelEffectContract":
         """
         Compile effect contract from YAML file.
 
@@ -51,7 +49,7 @@ class ProtocolEffectContractCompiler(Protocol):
     async def validate(
         self,
         contract_path: Path,
-    ) -> ModelContractValidationResult:
+    ) -> "ModelContractValidationResult":
         """
         Validate contract without compiling.
 

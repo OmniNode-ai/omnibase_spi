@@ -3,8 +3,6 @@
 
 """SkillRoutingError — structured exception for shim routing failures."""
 
-from __future__ import annotations
-
 from typing import Any
 
 from omnibase_spi.exceptions import SPIError

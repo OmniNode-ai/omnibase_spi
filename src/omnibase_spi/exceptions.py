@@ -8,8 +8,6 @@ This module defines the base exception types for all SPI-related errors.
 These are abstract error types that implementations should use or subclass.
 """
 
-from __future__ import annotations
-
 from copy import deepcopy
 from typing import Any
 

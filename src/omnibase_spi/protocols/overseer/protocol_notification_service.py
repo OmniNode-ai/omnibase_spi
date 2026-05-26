@@ -7,8 +7,6 @@ Defines the contract for routing overseer status updates, alerts, and
 summaries to external channels such as Slack, email, or webhook endpoints.
 """
 
-from __future__ import annotations
-
 from typing import Any, Protocol, runtime_checkable
 
 

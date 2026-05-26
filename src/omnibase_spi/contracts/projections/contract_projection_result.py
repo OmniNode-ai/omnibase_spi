@@ -27,8 +27,6 @@ Related:
     - omnibase_spi.exceptions.ProjectorError: raised on persistence failure
 """
 
-from __future__ import annotations
-
 from typing import Literal
 
 from pydantic import BaseModel, Field

@@ -12,8 +12,6 @@ Key Protocols:
     - ProtocolObservabilitySinkFactory: Factory for creating metrics and logging sinks
 """
 
-from __future__ import annotations
-
 from .protocol_hot_path_logging_sink import ProtocolHotPathLoggingSink
 from .protocol_hot_path_metrics_sink import ProtocolHotPathMetricsSink
 from .protocol_observability_sink_factory import ProtocolObservabilitySinkFactory

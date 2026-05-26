@@ -10,8 +10,6 @@ cross-model efficiency comparison.
 This contract must NOT import from omnibase_core, omnibase_infra, or omniclaude.
 """
 
-from __future__ import annotations
-
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field

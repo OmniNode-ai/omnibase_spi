@@ -38,13 +38,10 @@ See Also:
     - ProtocolRegistryBase: Generic registry base protocol
 """
 
-from __future__ import annotations
-
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Literal, Protocol, runtime_checkable
+from typing import Literal, Protocol, runtime_checkable
 
-if TYPE_CHECKING:
-    from omnibase_core.models.providers import ModelProviderDescriptor
+from omnibase_core.models.providers import ModelProviderDescriptor
 
 __all__ = ["ProtocolProviderRegistry"]
 

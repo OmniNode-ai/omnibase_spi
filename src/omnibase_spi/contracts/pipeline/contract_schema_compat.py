@@ -15,7 +15,7 @@ checking.  The policy is:
 This module must NOT import from omnibase_core, omnibase_infra, or omniclaude.
 """
 
-from __future__ import annotations
+from typing import Self
 
 from pydantic import BaseModel
 
@@ -38,7 +38,7 @@ class SchemaVersion(BaseModel):
     raw: str
 
     @classmethod
-    def parse(cls, version_str: str) -> SchemaVersion:
+    def parse(cls, version_str: str) -> Self:
         """Parse a version string like '1.0' into a SchemaVersion.
 
         Args:

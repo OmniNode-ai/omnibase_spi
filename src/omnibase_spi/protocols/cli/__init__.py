@@ -3,8 +3,6 @@
 
 """Protocols related to Command Line Interface (CLI) operations."""
 
-from __future__ import annotations
-
 from .protocol_cli import ProtocolCLI, ProtocolCLIResult
 from .protocol_cli_dir_fixture_case import ProtocolCLIDirFixtureCase
 from .protocol_cli_dir_fixture_registry import ProtocolCLIDirFixtureRegistry

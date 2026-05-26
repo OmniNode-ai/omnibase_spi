@@ -65,8 +65,6 @@ See Also:
     - ProtocolServiceRegistry: Specialized registry for service instances
 """
 
-from __future__ import annotations
-
 from typing import Protocol, TypeVar, runtime_checkable
 
 __all__ = ["ProtocolRegistryBase"]

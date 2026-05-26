@@ -7,20 +7,18 @@ from __future__ import annotations
 
 from collections.abc import AsyncGenerator, Iterator
 from typing import (
-    TYPE_CHECKING,
     Protocol,
     runtime_checkable,
 )
 
-if TYPE_CHECKING:
-    from omnibase_core.types import JsonType
-    from omnibase_spi.protocols.types.protocol_llm_types import (
-        ProtocolLLMHealthResponse,
-        ProtocolLLMRequest,
-        ProtocolLLMResponse,
-        ProtocolModelCapabilities,
-        ProtocolProviderConfig,
-    )
+from omnibase_core.types import JsonType
+from omnibase_spi.protocols.types.protocol_llm_types import (
+    ProtocolLLMHealthResponse,
+    ProtocolLLMRequest,
+    ProtocolLLMResponse,
+    ProtocolModelCapabilities,
+    ProtocolProviderConfig,
+)
 
 
 @runtime_checkable

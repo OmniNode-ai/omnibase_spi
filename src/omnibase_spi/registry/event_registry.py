@@ -34,8 +34,6 @@ Registered Topics
 This file must NOT import from omnibase_core, omnibase_infra, or omniclaude.
 """
 
-from __future__ import annotations
-
 from typing import NamedTuple
 
 

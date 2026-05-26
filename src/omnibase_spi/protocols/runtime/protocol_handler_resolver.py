@@ -8,8 +8,6 @@ implementations in omnibase_core narrow it to
 layer free of a hard dependency on core resolver models.
 """
 
-from __future__ import annotations
-
 from typing import Protocol, runtime_checkable
 
 

@@ -8,8 +8,6 @@ Returned by ProtocolCodeHost.get_pull_request() and list_pull_requests().
 This module MUST NOT import from omnibase_core, omnibase_infra, or omniclaude.
 """
 
-from __future__ import annotations
-
 from datetime import datetime
 
 from pydantic import BaseModel, Field

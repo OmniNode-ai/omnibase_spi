@@ -38,15 +38,12 @@ Note:
     projection semantics.
 """
 
-from __future__ import annotations
-
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 from uuid import UUID
 
-if TYPE_CHECKING:
-    from omnibase_core.models.common import ModelEnvelope
-    from omnibase_core.models.projectors import ModelProjectionResult
-    from omnibase_core.types import JsonType
+from omnibase_core.models.common import ModelEnvelope
+from omnibase_core.models.projectors import ModelProjectionResult
+from omnibase_core.types import JsonType
 
 __all__ = ["ProtocolEventProjector"]
 

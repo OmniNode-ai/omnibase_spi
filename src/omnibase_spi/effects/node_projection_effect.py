@@ -43,8 +43,6 @@ Related:
     - omnibase_spi.exceptions.ProjectorError: raised on failure.
 """
 
-from __future__ import annotations
-
 from typing import ClassVar, Protocol, runtime_checkable
 
 from omnibase_spi.contracts.projections.contract_projection_result import (

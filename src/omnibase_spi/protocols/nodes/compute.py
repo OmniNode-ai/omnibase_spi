@@ -1,6 +1,5 @@
 # SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
 # SPDX-License-Identifier: MIT
-
 """Compute node protocol for pure transformations."""
 
 from __future__ import annotations

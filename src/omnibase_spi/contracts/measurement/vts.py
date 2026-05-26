@@ -10,8 +10,6 @@ object with no business logic.
 This module must NOT import from omnibase_core, omnibase_infra, or omniclaude.
 """
 
-from __future__ import annotations
-
 from omnibase_spi.contracts.measurement.contract_pr_validation_rollup import (
     ContractValidationTax,
 )

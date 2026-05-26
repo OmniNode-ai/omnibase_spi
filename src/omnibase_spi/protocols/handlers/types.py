@@ -20,13 +20,10 @@ See Also:
 
 """
 
-from __future__ import annotations
+from typing import Literal, Protocol, runtime_checkable
 
-from typing import TYPE_CHECKING, Literal, Protocol, runtime_checkable
-
-if TYPE_CHECKING:
-    from omnibase_core.types import JsonType
-    from omnibase_spi.protocols.handlers.protocol_handler import ProtocolHandler
+from omnibase_core.types import JsonType
+from omnibase_spi.protocols.handlers.protocol_handler import ProtocolHandler
 
 # ==============================================================================
 # Handler Source Type Literal

@@ -16,8 +16,6 @@ Contains:
 All types are pure protocols with no implementation dependencies.
 """
 
-from __future__ import annotations
-
 from typing import Protocol, runtime_checkable
 from uuid import UUID
 

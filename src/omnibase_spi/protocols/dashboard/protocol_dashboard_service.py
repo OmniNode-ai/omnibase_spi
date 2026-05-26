@@ -41,12 +41,9 @@ Related tickets:
     - internal issue: Implement dashboard protocols for omnibase_spi
 """
 
-from __future__ import annotations
+from typing import Protocol, runtime_checkable
 
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
-
-if TYPE_CHECKING:
-    from omnibase_core.models.dashboard import ModelDashboardConfig
+from omnibase_core.models.dashboard import ModelDashboardConfig
 
 
 @runtime_checkable

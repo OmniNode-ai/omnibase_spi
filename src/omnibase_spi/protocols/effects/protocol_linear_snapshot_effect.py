@@ -31,14 +31,11 @@ Related:
     - ContractLinearSnapshotEvent: Return type.
 """
 
-from __future__ import annotations
+from typing import Protocol, runtime_checkable
 
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
-
-if TYPE_CHECKING:
-    from omnibase_spi.contracts.events.contract_linear_snapshot_event import (
-        ContractLinearSnapshotEvent,
-    )
+from omnibase_spi.contracts.events.contract_linear_snapshot_event import (
+    ContractLinearSnapshotEvent,
+)
 
 
 @runtime_checkable

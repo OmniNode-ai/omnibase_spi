@@ -15,8 +15,6 @@ contract model remains a pure data object with no business logic.
 This contract must NOT import from omnibase_core, omnibase_infra, or omniclaude.
 """
 
-from __future__ import annotations
-
 import hashlib
 from typing import Any, Literal
 

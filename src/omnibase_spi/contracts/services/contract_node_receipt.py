@@ -3,10 +3,8 @@
 
 """ProtocolNodeReceipt — frozen wire model for skill/node invocation outcomes."""
 
-from __future__ import annotations
-
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, Self
 from uuid import UUID
 
 from pydantic import BaseModel, Field, model_validator
@@ -41,7 +39,7 @@ class ProtocolNodeReceipt(BaseModel):
     output: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_failure_has_error_type(self) -> ProtocolNodeReceipt:
+    def _validate_failure_has_error_type(self) -> Self:
         if self.status == "failure" and self.error_type is None:
             raise ValueError(
                 "ProtocolNodeReceipt with status='failure' requires error_type"

@@ -10,8 +10,6 @@ represent the result of one discrete check (e.g., 'tests pass', 'lint clean',
 This contract must NOT import from omnibase_core, omnibase_infra, or omniclaude.
 """
 
-from __future__ import annotations
-
 from typing import Literal
 
 from pydantic import BaseModel, Field

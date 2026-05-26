@@ -14,8 +14,6 @@ re-exported here via __getattr__ (lazy) so that callers can import them
 from this subpackage without a circular import at package-init time.
 """
 
-from __future__ import annotations
-
 import importlib
 
 from omnibase_spi.protocols.runtime.protocol_domain_plugin import ProtocolDomainPlugin

@@ -9,27 +9,24 @@ that can be implemented independently or combined for comprehensive
 memory management capabilities.
 """
 
-from __future__ import annotations
-
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 from uuid import UUID
 
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.memory.protocol_memory_base import (
-        ProtocolMemoryMetadata,
-    )
-    from omnibase_spi.protocols.memory.protocol_memory_requests import (
-        ProtocolAgentCoordinationRequest,
-        ProtocolWorkflowExecutionRequest,
-    )
-    from omnibase_spi.protocols.memory.protocol_memory_responses import (
-        ProtocolAgentCoordinationResponse,
-        ProtocolMemoryResponse,
-        ProtocolWorkflowExecutionResponse,
-    )
-    from omnibase_spi.protocols.memory.protocol_memory_security import (
-        ProtocolMemorySecurityContext,
-    )
+from omnibase_spi.protocols.memory.protocol_memory_base import (
+    ProtocolMemoryMetadata,
+)
+from omnibase_spi.protocols.memory.protocol_memory_requests import (
+    ProtocolAgentCoordinationRequest,
+    ProtocolWorkflowExecutionRequest,
+)
+from omnibase_spi.protocols.memory.protocol_memory_responses import (
+    ProtocolAgentCoordinationResponse,
+    ProtocolMemoryResponse,
+    ProtocolWorkflowExecutionResponse,
+)
+from omnibase_spi.protocols.memory.protocol_memory_security import (
+    ProtocolMemorySecurityContext,
+)
 
 
 @runtime_checkable

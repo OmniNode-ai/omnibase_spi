@@ -8,8 +8,6 @@ Protocol definition for node discovery and registration in distributed environme
 Supports the ONEX Messaging Design v0.3 with environment isolation and node groups.
 """
 
-from __future__ import annotations
-
 from typing import Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types.protocol_core_types import (
@@ -55,7 +53,9 @@ class ProtocolNodeChangeCallback(Protocol):
         - ProtocolWatchHandle: Watch subscription handle
     """
 
-    async def __call__(self, node_info: ProtocolNodeInfo, change_type: str) -> None: ...
+    async def __call__(
+        self, node_info: "ProtocolNodeInfo", change_type: str
+    ) -> None: ...
 
 
 @runtime_checkable

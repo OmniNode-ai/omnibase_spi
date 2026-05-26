@@ -7,8 +7,6 @@ This is a marker protocol for testable objects (registries, CLIs, tools, etc.).
 Extend this for specific testable interfaces as needed.
 """
 
-from __future__ import annotations
-
 from typing import Protocol, runtime_checkable
 
 

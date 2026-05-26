@@ -119,7 +119,7 @@
         },
         "security_context": {
           "default": "None",
-          "type": "ProtocolMemorySecurityContext | None"
+          "type": "omnibase_spi.protocols.memory.protocol_memory_security.ProtocolMemorySecurityContext | None"
         },
         "timeout_seconds": {
           "default": "None",
@@ -136,11 +136,11 @@
         },
         "correlation_id": {
           "default": "None",
-          "type": "UUID | None"
+          "type": "uuid.UUID | None"
         },
         "security_context": {
           "default": "None",
-          "type": "ProtocolMemorySecurityContext | None"
+          "type": "omnibase_spi.protocols.memory.protocol_memory_security.ProtocolMemorySecurityContext | None"
         }
       },
       "return_type": "ProtocolMemoryResponse"
@@ -154,11 +154,11 @@
         },
         "correlation_id": {
           "default": "None",
-          "type": "UUID | None"
+          "type": "uuid.UUID | None"
         },
         "security_context": {
           "default": "None",
-          "type": "ProtocolMemorySecurityContext | None"
+          "type": "omnibase_spi.protocols.memory.protocol_memory_security.ProtocolMemorySecurityContext | None"
         }
       },
       "return_type": "ProtocolMemoryResponse"
@@ -177,11 +177,11 @@
         },
         "correlation_id": {
           "default": "None",
-          "type": "UUID | None"
+          "type": "uuid.UUID | None"
         },
         "security_context": {
           "default": "None",
-          "type": "ProtocolMemorySecurityContext | None"
+          "type": "omnibase_spi.protocols.memory.protocol_memory_security.ProtocolMemorySecurityContext | None"
         }
       },
       "return_type": "ProtocolMemoryResponse"
@@ -194,11 +194,11 @@
         },
         "correlation_id": {
           "default": "None",
-          "type": "UUID | None"
+          "type": "uuid.UUID | None"
         },
         "security_context": {
           "default": "None",
-          "type": "ProtocolMemorySecurityContext | None"
+          "type": "omnibase_spi.protocols.memory.protocol_memory_security.ProtocolMemorySecurityContext | None"
         }
       },
       "return_type": "ProtocolMemoryResponse"
@@ -875,7 +875,7 @@
       "kind": "async_method",
       "parameters": {
         "handler": {
-          "type": "Callable[[ModelEnvelope], Awaitable[None]]"
+          "type": "Callable[ModelEnvelope, Awaitable[None]]"
         },
         "topic": {
           "type": "str"
@@ -1817,7 +1817,7 @@
           "type": "str"
         }
       },
-      "return_type": "ModelCapabilityMetadata | None"
+      "return_type": "omnibase_core.models.capabilities.model_capability_metadata.ModelCapabilityMetadata | None"
     },
     "list_all": {
       "kind": "async_method",
@@ -2105,15 +2105,15 @@
       "parameters": {
         "correlation_id": {
           "default": "None",
-          "type": "UUID | None"
+          "type": "uuid.UUID | None"
         },
         "security_context": {
           "default": "None",
-          "type": "ProtocolMemorySecurityContext | None"
+          "type": "omnibase_spi.protocols.memory.protocol_memory_security.ProtocolMemorySecurityContext | None"
         },
         "target_nodes": {
           "default": "None",
-          "type": "list[UUID] | None"
+          "type": "list[uuid.UUID] | None"
         },
         "update_data": {
           "type": "ProtocolMemoryMetadata"
@@ -2129,7 +2129,7 @@
       "parameters": {
         "correlation_id": {
           "default": "None",
-          "type": "UUID | None"
+          "type": "uuid.UUID | None"
         },
         "include_node_details": {
           "default": "None",
@@ -2137,7 +2137,7 @@
         },
         "security_context": {
           "default": "None",
-          "type": "ProtocolMemorySecurityContext | None"
+          "type": "omnibase_spi.protocols.memory.protocol_memory_security.ProtocolMemorySecurityContext | None"
         }
       },
       "return_type": "ProtocolMemoryResponse"
@@ -2147,7 +2147,7 @@
       "parameters": {
         "correlation_id": {
           "default": "None",
-          "type": "UUID | None"
+          "type": "uuid.UUID | None"
         },
         "maintenance_parameters": {
           "type": "ProtocolMemoryMetadata"
@@ -2157,7 +2157,7 @@
         },
         "security_context": {
           "default": "None",
-          "type": "ProtocolMemorySecurityContext | None"
+          "type": "omnibase_spi.protocols.memory.protocol_memory_security.ProtocolMemorySecurityContext | None"
         },
         "timeout_seconds": {
           "default": "None",
@@ -2171,14 +2171,14 @@
       "parameters": {
         "correlation_id": {
           "default": "None",
-          "type": "UUID | None"
+          "type": "uuid.UUID | None"
         },
         "node_ids": {
           "type": "list[UUID]"
         },
         "security_context": {
           "default": "None",
-          "type": "ProtocolMemorySecurityContext | None"
+          "type": "omnibase_spi.protocols.memory.protocol_memory_security.ProtocolMemorySecurityContext | None"
         },
         "synchronization_scope": {
           "type": "ProtocolMemoryMetadata"
@@ -2285,7 +2285,7 @@
         },
         "metadata": {
           "default": "None",
-          "type": "dict[str, ContextValue] | None"
+          "type": "dict[str, omnibase_spi.protocols.types.protocol_base_types.ProtocolContextValue] | None"
         },
         "repo": {
           "type": "str"
@@ -2310,7 +2310,7 @@
           "type": "str"
         }
       },
-      "return_type": "dict[str, ContextValue]"
+      "return_type": "dict[str, ProtocolContextValue]"
     },
     "get_pull_request": {
       "kind": "async_method",
@@ -2322,7 +2322,7 @@
           "type": "str"
         }
       },
-      "return_type": "dict[str, ContextValue]"
+      "return_type": "dict[str, ProtocolContextValue]"
     },
     "health_check": {
       "kind": "async_method",
@@ -2344,7 +2344,7 @@
           "type": "str"
         }
       },
-      "return_type": "list[dict[str, ContextValue]]"
+      "return_type": "list[dict[str, ProtocolContextValue]]"
     },
     "merge_pull_request": {
       "kind": "async_method",
@@ -4828,7 +4828,7 @@
       "kind": "async_method",
       "parameters": {
         "handler": {
-          "type": "Callable[[ModelEnvelope], Awaitable[None]]"
+          "type": "Callable[ModelEnvelope, Awaitable[None]]"
         },
         "topic": {
           "type": "str"
@@ -5791,11 +5791,11 @@
         },
         "on_error": {
           "default": "None",
-          "type": "DeliveryCallback | None"
+          "type": "collections.abc.Callable[[str, bytes | None, bytes, Exception | None], None] | None"
         },
         "on_success": {
           "default": "None",
-          "type": "DeliveryCallback | None"
+          "type": "collections.abc.Callable[[str, bytes | None, bytes, Exception | None], None] | None"
         }
       },
       "return_type": "int"
@@ -5962,7 +5962,7 @@
     },
     "event_bus": {
       "kind": "attribute",
-      "type": "ProtocolEventBusBase | None"
+      "type": "omnibase_spi.protocols.event_bus.protocol_event_bus_mixin.ProtocolEventBusBase | None"
     },
     "has_bus_access": {
       "kind": "method",
@@ -6895,7 +6895,7 @@
     },
     "execution_constraints": {
       "kind": "property",
-      "return_type": "ProtocolExecutionConstraints | None"
+      "return_type": "omnibase_spi.protocols.contracts.protocol_handler_contract_types.ProtocolExecutionConstraints | None"
     },
     "has_constraints": {
       "kind": "method",
@@ -7314,7 +7314,7 @@
           "type": "str"
         }
       },
-      "return_type": "ProtocolResult | None"
+      "return_type": "omnibase_spi.protocols.types.protocol_file_result_types.ProtocolResult | None"
     },
     "pre_validate": {
       "kind": "async_method",
@@ -7329,7 +7329,7 @@
           "type": "str"
         }
       },
-      "return_type": "ProtocolResult | None"
+      "return_type": "omnibase_spi.protocols.types.protocol_file_result_types.ProtocolResult | None"
     },
     "requires_content_analysis": {
       "kind": "property",
@@ -7536,7 +7536,7 @@
         },
         "properties": {
           "default": "None",
-          "type": "Mapping[str, JsonType] | None"
+          "type": "collections.abc.Mapping[str, JsonType] | None"
         },
         "relationship_type": {
           "type": "str"
@@ -7579,7 +7579,7 @@
       "parameters": {
         "parameters": {
           "default": "None",
-          "type": "Mapping[str, JsonType] | None"
+          "type": "collections.abc.Mapping[str, JsonType] | None"
         },
         "query": {
           "type": "str"
@@ -7591,7 +7591,7 @@
       "kind": "async_method",
       "parameters": {
         "queries": {
-          "type": "list[tuple[str, Mapping[str, JsonType] | None]]"
+          "type": "list[tuple[str, collections.abc.Mapping[str, JsonType] | None]]"
         },
         "transaction": {
           "default": "True",
@@ -7621,7 +7621,7 @@
         },
         "options": {
           "default": "None",
-          "type": "Mapping[str, JsonType] | None"
+          "type": "collections.abc.Mapping[str, JsonType] | None"
         }
       },
       "return_type": "None"
@@ -7649,7 +7649,7 @@
         },
         "filters": {
           "default": "None",
-          "type": "ModelGraphTraversalFilters | None"
+          "type": "omnibase_core.models.graph.model_graph_traversal_filters.ModelGraphTraversalFilters | None"
         },
         "max_depth": {
           "default": "1",
@@ -7981,7 +7981,7 @@
     },
     "execution_constraints": {
       "kind": "property",
-      "return_type": "ProtocolExecutionConstraints | None"
+      "return_type": "omnibase_spi.protocols.contracts.protocol_handler_contract_types.ProtocolExecutionConstraints | None"
     },
     "handler_id": {
       "kind": "property",
@@ -8068,7 +8068,7 @@
         },
         "version": {
           "default": "'1.0.0'",
-          "type": "ModelSemVer | str"
+          "type": "omnibase_core.models.primitives.model_semver.ModelSemVer | str"
         }
       },
       "return_type": "ModelHandlerContract"
@@ -8492,12 +8492,12 @@
           "type": "str"
         }
       },
-      "return_type": "ModelHandlerDescriptor | None"
+      "return_type": "omnibase_core.models.handlers.model_handler_descriptor.ModelHandlerDescriptor | None"
     },
     "list_handler_descriptors": {
       "kind": "method",
       "parameters": {},
-      "return_type": "tuple[ModelHandlerDescriptor, ...]"
+      "return_type": "tuple[ModelHandlerDescriptor, Ellipsis]"
     },
     "source_type": {
       "kind": "property",
@@ -10213,7 +10213,7 @@
       "parameters": {
         "correlation_id": {
           "default": "None",
-          "type": "UUID | None"
+          "type": "uuid.UUID | None"
         },
         "dry_run": {
           "default": "None",
@@ -10224,7 +10224,7 @@
         },
         "security_context": {
           "default": "None",
-          "type": "ProtocolMemorySecurityContext | None"
+          "type": "omnibase_spi.protocols.memory.protocol_memory_security.ProtocolMemorySecurityContext | None"
         },
         "timeout_seconds": {
           "default": "None",
@@ -10244,14 +10244,14 @@
         },
         "correlation_id": {
           "default": "None",
-          "type": "UUID | None"
+          "type": "uuid.UUID | None"
         },
         "memory_ids": {
           "type": "list[UUID]"
         },
         "security_context": {
           "default": "None",
-          "type": "ProtocolMemorySecurityContext | None"
+          "type": "omnibase_spi.protocols.memory.protocol_memory_security.ProtocolMemorySecurityContext | None"
         },
         "timeout_seconds": {
           "default": "None",
@@ -10268,14 +10268,14 @@
         },
         "correlation_id": {
           "default": "None",
-          "type": "UUID | None"
+          "type": "uuid.UUID | None"
         },
         "safety_threshold_hours": {
           "type": "int"
         },
         "security_context": {
           "default": "None",
-          "type": "ProtocolMemorySecurityContext | None"
+          "type": "omnibase_spi.protocols.memory.protocol_memory_security.ProtocolMemorySecurityContext | None"
         },
         "timeout_seconds": {
           "default": "None",
@@ -10292,7 +10292,7 @@
         },
         "correlation_id": {
           "default": "None",
-          "type": "UUID | None"
+          "type": "uuid.UUID | None"
         },
         "restore_destination": {
           "default": "None",
@@ -10300,7 +10300,7 @@
         },
         "security_context": {
           "default": "None",
-          "type": "ProtocolMemorySecurityContext | None"
+          "type": "omnibase_spi.protocols.memory.protocol_memory_security.ProtocolMemorySecurityContext | None"
         },
         "timeout_seconds": {
           "default": "None",
@@ -12768,11 +12768,11 @@
         },
         "correlation_id": {
           "default": "None",
-          "type": "UUID | None"
+          "type": "uuid.UUID | None"
         },
         "security_context": {
           "default": "None",
-          "type": "ProtocolMemorySecurityContext | None"
+          "type": "omnibase_spi.protocols.memory.protocol_memory_security.ProtocolMemorySecurityContext | None"
         }
       },
       "return_type": "ProtocolMemoryResponse"
@@ -12839,7 +12839,7 @@
     },
     "access_level": {
       "kind": "attribute",
-      "type": "LiteralMemoryAccessLevel"
+      "type": "Literal[public, private, internal, restricted, confidential]"
     },
     "content": {
       "kind": "attribute",
@@ -12859,7 +12859,7 @@
     },
     "expires_at": {
       "kind": "attribute",
-      "type": "datetime | None"
+      "type": "datetime.datetime | None"
     },
     "memory_id": {
       "kind": "attribute",
@@ -15279,7 +15279,7 @@
       "parameters": {
         "match": {
           "default": "'any'",
-          "type": "Literal['any', 'all']"
+          "type": "Literal[any, all]"
         },
         "tags": {
           "type": "Sequence[str]"
@@ -15294,7 +15294,7 @@
           "type": "str"
         }
       },
-      "return_type": "ModelProviderDescriptor | None"
+      "return_type": "omnibase_core.models.providers.model_provider_descriptor.ModelProviderDescriptor | None"
     },
     "get_available_capability_ids": {
       "kind": "method",
@@ -15531,13 +15531,13 @@
           "type": "str"
         },
         "on_message": {
-          "type": "Callable[ProtocolEventMessage, Awaitable[None]]"
+          "type": "Callable[[ProtocolEventMessage], Awaitable[None]]"
         },
         "topic": {
           "type": "str"
         }
       },
-      "return_type": "Callable[Awaitable[None]]"
+      "return_type": "Callable[[], Awaitable[None]]"
     }
   },
   "ProtocolReducerNode": {
@@ -15680,7 +15680,7 @@
           "type": "str"
         }
       },
-      "return_type": "ModelNodeView | None"
+      "return_type": "omnibase_core.models.dashboard.model_node_view.ModelNodeView | None"
     },
     "get_node_contract": {
       "kind": "async_method",
@@ -15689,7 +15689,7 @@
           "type": "str"
         }
       },
-      "return_type": "ModelContractBase | None"
+      "return_type": "omnibase_core.models.contracts.model_contract_base.ModelContractBase | None"
     },
     "list_capabilities": {
       "kind": "async_method",
@@ -18205,7 +18205,7 @@
       "kind": "async_method",
       "parameters": {
         "handler": {
-          "type": "Callable[[ModelEnvelope], Awaitable[None]]"
+          "type": "Callable[ModelEnvelope, Awaitable[None]]"
         },
         "topic": {
           "type": "str"
@@ -18395,7 +18395,7 @@
         },
         "metadata": {
           "default": "None",
-          "type": "dict[str, ContextValue] | None"
+          "type": "dict[str, omnibase_spi.protocols.types.protocol_base_types.ProtocolContextValue] | None"
         },
         "title": {
           "type": "str"
@@ -18410,7 +18410,7 @@
           "type": "str"
         }
       },
-      "return_type": "dict[str, ContextValue]"
+      "return_type": "dict[str, ProtocolContextValue]"
     },
     "get_ticket_status": {
       "kind": "async_method",
@@ -18431,14 +18431,14 @@
       "parameters": {
         "filters": {
           "default": "None",
-          "type": "dict[str, ContextValue] | None"
+          "type": "dict[str, omnibase_spi.protocols.types.protocol_base_types.ProtocolContextValue] | None"
         },
         "limit": {
           "default": "50",
           "type": "int"
         }
       },
-      "return_type": "list[dict[str, ContextValue]]"
+      "return_type": "list[dict[str, ProtocolContextValue]]"
     },
     "update_ticket_status": {
       "kind": "async_method",
@@ -19712,7 +19712,7 @@
         },
         "index_config": {
           "default": "None",
-          "type": "ModelVectorIndexConfig | None"
+          "type": "omnibase_core.models.vector.model_vector_index_config.ModelVectorIndexConfig | None"
         },
         "index_name": {
           "type": "str"
@@ -19787,7 +19787,7 @@
       "parameters": {
         "filter_metadata": {
           "default": "None",
-          "type": "ModelVectorMetadataFilter | None"
+          "type": "omnibase_core.models.vector.model_vector_metadata_filter.ModelVectorMetadataFilter | None"
         },
         "include_metadata": {
           "default": "True",
@@ -19837,7 +19837,7 @@
         },
         "metadata": {
           "default": "None",
-          "type": "Mapping[str, JsonType] | None"
+          "type": "collections.abc.Mapping[str, JsonType] | None"
         },
         "vector": {
           "type": "list[float]"
@@ -20996,11 +20996,11 @@
       "parameters": {
         "correlation_id": {
           "default": "None",
-          "type": "UUID | None"
+          "type": "uuid.UUID | None"
         },
         "security_context": {
           "default": "None",
-          "type": "ProtocolMemorySecurityContext | None"
+          "type": "omnibase_spi.protocols.memory.protocol_memory_security.ProtocolMemorySecurityContext | None"
         },
         "workflow_id": {
           "type": "UUID"
@@ -21016,7 +21016,7 @@
         },
         "security_context": {
           "default": "None",
-          "type": "ProtocolMemorySecurityContext | None"
+          "type": "omnibase_spi.protocols.memory.protocol_memory_security.ProtocolMemorySecurityContext | None"
         },
         "timeout_seconds": {
           "default": "None",
@@ -21030,11 +21030,11 @@
       "parameters": {
         "correlation_id": {
           "default": "None",
-          "type": "UUID | None"
+          "type": "uuid.UUID | None"
         },
         "security_context": {
           "default": "None",
-          "type": "ProtocolMemorySecurityContext | None"
+          "type": "omnibase_spi.protocols.memory.protocol_memory_security.ProtocolMemorySecurityContext | None"
         },
         "workflow_id": {
           "type": "UUID"
@@ -21047,11 +21047,11 @@
       "parameters": {
         "correlation_id": {
           "default": "None",
-          "type": "UUID | None"
+          "type": "uuid.UUID | None"
         },
         "security_context": {
           "default": "None",
-          "type": "ProtocolMemorySecurityContext | None"
+          "type": "omnibase_spi.protocols.memory.protocol_memory_security.ProtocolMemorySecurityContext | None"
         },
         "workflow_id": {
           "type": "UUID"
@@ -21064,11 +21064,11 @@
       "parameters": {
         "correlation_id": {
           "default": "None",
-          "type": "UUID | None"
+          "type": "uuid.UUID | None"
         },
         "security_context": {
           "default": "None",
-          "type": "ProtocolMemorySecurityContext | None"
+          "type": "omnibase_spi.protocols.memory.protocol_memory_security.ProtocolMemorySecurityContext | None"
         },
         "workflow_id": {
           "type": "UUID"

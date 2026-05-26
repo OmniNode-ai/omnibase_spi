@@ -9,8 +9,6 @@ estimated locally (e.g. via a tokenizer), or is entirely missing.
 This module must NOT import from omnibase_core, omnibase_infra, or omniclaude.
 """
 
-from __future__ import annotations
-
 from enum import StrEnum
 
 

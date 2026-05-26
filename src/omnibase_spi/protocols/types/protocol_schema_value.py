@@ -9,9 +9,7 @@ This allows working with schema values without depending on
 the concrete ModelSchemaValue class.
 """
 
-from __future__ import annotations
-
-from typing import Protocol, runtime_checkable
+from typing import Protocol, Self, runtime_checkable
 
 
 @runtime_checkable
@@ -28,6 +26,6 @@ class ProtocolSchemaValue(Protocol):
         ...
 
     @classmethod
-    def from_value(cls, value: object) -> ProtocolSchemaValue:
+    def from_value(cls, value: object) -> Self:
         """Create from Python value."""
         ...

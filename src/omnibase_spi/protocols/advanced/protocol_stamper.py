@@ -7,8 +7,6 @@ This module defines the interface for stamping files with ONEX metadata blocks,
 including cryptographic hashes, version information, and lifecycle tracking.
 """
 
-from __future__ import annotations
-
 from typing import Any, Literal, Protocol, runtime_checkable
 
 from omnibase_spi.protocols.types import ProtocolResult

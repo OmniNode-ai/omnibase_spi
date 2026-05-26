@@ -53,6 +53,8 @@ See Also:
     - ProtocolEventBusProvider: Factory for obtaining event bus instances.
 """
 
+from __future__ import annotations
+
 from collections.abc import Awaitable, Callable
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
@@ -429,7 +431,7 @@ class ProtocolRedpandaAdapter(Protocol):
         topic: str,
         key: bytes | None,
         value: bytes,
-        headers: "EventBusHeaders",
+        headers: EventBusHeaders,
     ) -> None:
         """Publish event to Redpanda topic.
 
@@ -462,7 +464,7 @@ class ProtocolRedpandaAdapter(Protocol):
         self,
         topic: str,
         group_id: str,
-        on_message: Callable[["ProtocolEventMessage"], Awaitable[None]],
+        on_message: Callable[[ProtocolEventMessage], Awaitable[None]],
     ) -> Callable[[], Awaitable[None]]:
         """Subscribe to Redpanda topic with message handler.
 

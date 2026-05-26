@@ -6,13 +6,10 @@
 Defines a standardized interface for discovering and filtering files in directories.
 """
 
-from __future__ import annotations
-
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Protocol, TypeVar, runtime_checkable
+from typing import Protocol, TypeVar, runtime_checkable
 
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.types import ContextValue
+from omnibase_spi.protocols.types import ContextValue
 
 T = TypeVar("T")  # Generic type variable for processor result
 

@@ -49,8 +49,6 @@ See Also:
     - ProtocolWidgetRenderer: Widget rendering for dashboard components.
 """
 
-from __future__ import annotations
-
 from collections.abc import Callable, Sequence
 from typing import Any, Protocol, runtime_checkable
 

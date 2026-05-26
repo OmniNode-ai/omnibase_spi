@@ -7,8 +7,6 @@ This module defines the interface for adapters that convert command-line argumen
 into node input state objects for seamless CLI-to-node integration.
 """
 
-from __future__ import annotations
-
 from typing import Protocol, runtime_checkable
 
 

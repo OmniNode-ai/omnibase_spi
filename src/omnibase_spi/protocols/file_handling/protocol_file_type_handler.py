@@ -3,21 +3,18 @@
 
 """Protocols for file type handling, stamping, and validation in the ONEX ecosystem."""
 
-from __future__ import annotations
+from typing import Protocol, runtime_checkable
 
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
-
-if TYPE_CHECKING:
-    from omnibase_spi.protocols.types.protocol_core_types import (
-        ProtocolNodeMetadata,
-        ProtocolSemVer,
-    )
-    from omnibase_spi.protocols.types.protocol_file_handling_types import (
-        ProtocolCanHandleResult,
-        ProtocolExtractedBlock,
-        ProtocolResult,
-        ProtocolSerializedBlock,
-    )
+from omnibase_spi.protocols.types.protocol_core_types import (
+    ProtocolNodeMetadata,
+    ProtocolSemVer,
+)
+from omnibase_spi.protocols.types.protocol_file_handling_types import (
+    ProtocolCanHandleResult,
+    ProtocolExtractedBlock,
+    ProtocolResult,
+    ProtocolSerializedBlock,
+)
 
 
 @runtime_checkable

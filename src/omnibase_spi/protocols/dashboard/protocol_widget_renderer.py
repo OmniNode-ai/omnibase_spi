@@ -53,14 +53,11 @@ Related tickets:
     - internal issue: Create dashboard protocols for omnibase_spi
 """
 
-from __future__ import annotations
-
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
-if TYPE_CHECKING:
-    from omnibase_core.enums import EnumWidgetType
-    from omnibase_core.models.dashboard import ModelWidgetDefinition
+from omnibase_core.enums import EnumWidgetType
+from omnibase_core.models.dashboard import ModelWidgetDefinition
 
 
 @runtime_checkable

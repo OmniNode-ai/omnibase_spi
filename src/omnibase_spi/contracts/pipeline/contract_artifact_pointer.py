@@ -9,8 +9,6 @@ a pipeline phase, enabling downstream phases to locate it.
 This contract must NOT import from omnibase_core, omnibase_infra, or omniclaude.
 """
 
-from __future__ import annotations
-
 from typing import Any
 
 from pydantic import BaseModel, Field
