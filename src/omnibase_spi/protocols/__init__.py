@@ -373,11 +373,13 @@ from omnibase_spi.protocols.primitive_effect_executor import (
     ProtocolPrimitiveEffectExecutorV2,
 )
 
-# Projections protocols (5 protocols) - Projection persistence and state reading
+# Projections protocols (7 protocols) - Projection persistence and state reading
 # Projector writes projections with ordering; Reader queries materialized state
 from omnibase_spi.protocols.projections import (
     ProtocolBatchPersistResult,
     ProtocolPersistResult,
+    ProtocolProjectionDatabase,
+    ProtocolProjectionDatabaseSync,
     ProtocolProjectionReader,
     ProtocolProjector,
     ProtocolSequenceInfo,
@@ -658,6 +660,8 @@ __all__ = [
     "ProtocolPersistResult",
     "ProtocolPrimitiveEffectExecutor",
     "ProtocolPrimitiveEffectExecutorV2",
+    "ProtocolProjectionDatabase",
+    "ProtocolProjectionDatabaseSync",
     "ProtocolProjectionReader",
     "ProtocolProjector",
     "ProtocolProjectorLoader",
