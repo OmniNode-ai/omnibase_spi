@@ -27,6 +27,10 @@ Registered Topics
     Linear workstream snapshots.
     Partition key: ``snapshot_id`` for idempotent snapshot delivery.
 
+``onex.evt.omninode.skill-routing-failed.v1``
+    Emitted by skill shim when routing to any available node fails.
+    Partition key: ``skill_name`` for per-skill failure ordering.
+
 This file must NOT import from omnibase_core, omnibase_infra, or omniclaude.
 """
 
@@ -54,6 +58,12 @@ class EventRegistryEntry(NamedTuple):
     partition_key_fields: tuple[str, ...]
     producer_protocol: str
 
+
+# ---------------------------------------------------------------------------
+# Named topic constants — import these instead of hardcoding strings.
+# ---------------------------------------------------------------------------
+
+TOPIC_SKILL_ROUTING_FAILED: str = "onex.evt.omninode.skill-routing-failed.v1"
 
 # ---------------------------------------------------------------------------
 # Canonical registry
@@ -89,5 +99,11 @@ EVENT_REGISTRY: dict[str, EventRegistryEntry] = {
             "omnibase_spi.protocols.effects.protocol_linear_snapshot_effect"
             ".ProtocolLinearSnapshotEffect"
         ),
+    ),
+    TOPIC_SKILL_ROUTING_FAILED: EventRegistryEntry(
+        topic=TOPIC_SKILL_ROUTING_FAILED,
+        schema_version="1.0",
+        partition_key_fields=("skill_name",),
+        producer_protocol=("omnibase_spi.exceptions_skill_routing.SkillRoutingError"),
     ),
 }
