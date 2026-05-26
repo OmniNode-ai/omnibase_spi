@@ -8,12 +8,13 @@ from __future__ import annotations
 from typing import Any
 
 from omnibase_spi.exceptions import SPIError
+from omnibase_spi.registry.event_registry import TOPIC_SKILL_ROUTING_FAILED
 
 
 class SkillRoutingError(SPIError):
     """Raised when a skill shim cannot route to any available node.
 
-    Emits onex.evt.omniclaude.skill-routing-failed.v1 on every failure.
+    Emits TOPIC_SKILL_ROUTING_FAILED on every failure.
     Permanent vs transient failures are distinguished via ``is_transient``.
 
     Args:
@@ -66,7 +67,7 @@ class SkillRoutingError(SPIError):
     def kafka_payload(self) -> dict[str, Any]:
         """Return the canonical Kafka event payload for skill-routing-failed.v1."""
         return {
-            "event_type": "onex.evt.omniclaude.skill-routing-failed.v1",
+            "event_type": TOPIC_SKILL_ROUTING_FAILED,
             "skill_name": self.skill_name,
             "node_target": self.node_target,
             "failure_reason": self.failure_reason,

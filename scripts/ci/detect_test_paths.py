@@ -54,7 +54,10 @@ def _resolve(changed_files: list[str], config: ModelAdjacencyMap) -> list[str]:
         elif path.startswith(TEST_UNIT_PREFIX):
             parts = path.split("/")
             if len(parts) >= 3:
-                selected.add(f"{TEST_UNIT_PREFIX}{parts[2]}/")
+                if parts[2].endswith(".py"):
+                    selected.add(TEST_UNIT_PREFIX)
+                else:
+                    selected.add(f"{TEST_UNIT_PREFIX}{parts[2]}/")
 
     expanded: set[str] = set(direct_modules)
     for module in direct_modules:
@@ -64,6 +67,11 @@ def _resolve(changed_files: list[str], config: ModelAdjacencyMap) -> list[str]:
         selected.add(f"{TEST_UNIT_PREFIX}{module}/")
 
     return sorted(selected)
+
+
+def _existing_test_paths(selected_paths: list[str], adjacency_path: Path) -> list[str]:
+    repo_root = adjacency_path.parent.parent.parent
+    return [path for path in selected_paths if (repo_root / path).exists()]
 
 
 def compute_selection(
@@ -109,7 +117,7 @@ def compute_selection(
         return _full_suite(EnumFullSuiteReason.THRESHOLD_MODULES)
 
     # 5. Smart selection.
-    selected = _resolve(changed_files, config)
+    selected = _existing_test_paths(_resolve(changed_files, config), adjacency_path)
     if not selected:
         # Conservative one-shard fallback over the full tests/unit/ tree. This
         # is NOT a no-op — it runs ~3-5 min of unit tests. It fires for changes

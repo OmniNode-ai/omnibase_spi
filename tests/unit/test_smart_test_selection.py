@@ -43,6 +43,13 @@ class TestResolveTestPaths:
         )
         assert "tests/unit/factories/" in paths
 
+    def test_root_unit_test_file_maps_to_unit_root(self) -> None:
+        paths = resolve_test_paths(
+            ["tests/unit/test_skill_routing_error.py"],
+            ADJACENCY_PATH,
+        )
+        assert paths == ["tests/unit/"]
+
     def test_integration_test_change_ignored(self) -> None:
         paths = resolve_test_paths(
             ["tests/integration/test_protocol_integration.py"],
@@ -164,6 +171,16 @@ class TestComputeSelection:
     def test_no_mapped_changes_fallback_to_unit_root(self) -> None:
         sel = compute_selection(
             changed_files=["docs/architecture/README.md"],
+            adjacency_path=ADJACENCY_PATH,
+            ref_name="jonah/branch",
+            feature_flag_enabled=True,
+        )
+        assert sel.is_full_suite is False
+        assert sel.selected_paths == ["tests/unit/"]
+
+    def test_nonexistent_mapped_test_path_fallback_to_unit_root(self) -> None:
+        sel = compute_selection(
+            changed_files=["src/omnibase_spi/registry/event_registry.py"],
             adjacency_path=ADJACENCY_PATH,
             ref_name="jonah/branch",
             feature_flag_enabled=True,

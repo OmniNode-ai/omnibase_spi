@@ -8,6 +8,7 @@ from __future__ import annotations
 import pytest
 
 from omnibase_spi.exceptions_skill_routing import SkillRoutingError
+from omnibase_spi.registry.event_registry import TOPIC_SKILL_ROUTING_FAILED
 
 
 @pytest.mark.unit
@@ -70,7 +71,7 @@ class TestSkillRoutingError:
             error_type="permanent",
         )
         payload = err.kafka_payload()
-        assert payload["event_type"] == "onex.evt.omniclaude.skill-routing-failed.v1"
+        assert payload["event_type"] == TOPIC_SKILL_ROUTING_FAILED
         assert payload["skill_name"] == "summarize"
         assert payload["node_target"] == "node-01"
         assert payload["failure_reason"] == "node_unavailable"
