@@ -19,7 +19,13 @@ File type processing and stamping protocols:
 from .protocol_directory_traverser import ProtocolDirectoryTraverser
 from .protocol_file_discovery_source import ProtocolFileDiscoverySource
 from .protocol_file_io import ProtocolFileIO
-from .protocol_file_processing import ProtocolFileProcessor, ProtocolRateLimiter
+from .protocol_file_processing import (
+    ProtocolCacheManager,
+    ProtocolFileMetricsCollector,
+    ProtocolFileProcessor,
+    ProtocolRateLimiter,
+    ProtocolTreeAnalyzer,
+)
 from .protocol_file_reader import ProtocolFileReader
 from .protocol_file_type_handler import (
     ProtocolFileProcessingTypeHandler,
@@ -30,9 +36,11 @@ from .protocol_file_type_handler_registry import ProtocolFileTypeHandlerRegistry
 from .protocol_file_writer import ProtocolFileWriter
 
 __all__ = [
+    "ProtocolCacheManager",
     "ProtocolDirectoryTraverser",
     "ProtocolFileDiscoverySource",
     "ProtocolFileIO",
+    "ProtocolFileMetricsCollector",
     "ProtocolFileProcessingTypeHandler",
     "ProtocolFileProcessor",
     "ProtocolFileReader",
@@ -40,5 +48,6 @@ __all__ = [
     "ProtocolFileWriter",
     "ProtocolRateLimiter",
     "ProtocolStampOptions",
+    "ProtocolTreeAnalyzer",
     "ProtocolValidationOptions",
 ]
