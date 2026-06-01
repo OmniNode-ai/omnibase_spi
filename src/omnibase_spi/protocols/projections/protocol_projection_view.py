@@ -47,14 +47,15 @@ Related:
     - ContractProjectionResult: The return contract.
 """
 
-from typing import ClassVar, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, ClassVar, Protocol, runtime_checkable
 
-from omnibase_core.models.projectors.model_projection_intent import (
-    ModelProjectionIntent,
-)
-from omnibase_spi.contracts.projections.contract_projection_result import (
-    ContractProjectionResult,
-)
+if TYPE_CHECKING:
+    from omnibase_core.models.projectors.model_projection_intent import (
+        ModelProjectionIntent,
+    )
+    from omnibase_spi.contracts.projections.contract_projection_result import (
+        ContractProjectionResult,
+    )
 
 __all__ = ["ProtocolProjectionView"]
 
@@ -153,8 +154,8 @@ class ProtocolProjectionView(Protocol):
 
     def project_intent(
         self,
-        intent: ModelProjectionIntent,
-    ) -> ContractProjectionResult:
+        intent: "ModelProjectionIntent",
+    ) -> "ContractProjectionResult":
         """Project a ``ModelProjectionIntent`` to the persistence layer.
 
         Synchronously processes the intent and materializes the described

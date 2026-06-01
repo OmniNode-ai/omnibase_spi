@@ -10,7 +10,7 @@
 ### Changed
 - chore(OMN-12186): Remove from __future__ import annotations (#226)
 - ci(OMN-12477): add dev-only main-target-guard forward-port (#231)
-- Bumps omnibase-core pin to >=0.43.0
+- Bumps omnibase-core pin to >=0.42.0
 
 ## v0.21.0 (2026-05-21)
 

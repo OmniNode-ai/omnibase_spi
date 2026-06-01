@@ -33,11 +33,12 @@ Related:
     - default_github_pr_poller.yaml: YAML handler contract for this protocol.
 """
 
-from typing import Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
-from omnibase_spi.contracts.events.contract_github_pr_status_event import (
-    ContractGitHubPRStatusEvent,
-)
+if TYPE_CHECKING:
+    from omnibase_spi.contracts.events.contract_github_pr_status_event import (
+        ContractGitHubPRStatusEvent,
+    )
 
 
 @runtime_checkable
@@ -89,7 +90,7 @@ class ProtocolGitHubPRPollerEffect(Protocol):
         self,
         repo: str,
         pr_numbers: list[int],
-    ) -> list[ContractGitHubPRStatusEvent]:
+    ) -> list["ContractGitHubPRStatusEvent"]:
         """Poll GitHub for the current triage state of the given pull requests.
 
         Args:

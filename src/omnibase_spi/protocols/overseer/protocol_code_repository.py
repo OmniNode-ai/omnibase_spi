@@ -9,18 +9,20 @@ delete_branch, and rebase. Intended for overseer agents that need elevated
 Git/GitHub operations beyond standard pipeline automation.
 """
 
-from typing import Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
-from omnibase_spi.contracts.services.contract_source_control_types import (
-    ModelBranch,
-    ModelCIStatus,
-    ModelDiff,
-    ModelMergeResult,
-    ModelPullRequest,
-)
 from omnibase_spi.protocols.types.protocol_service_types import (
     ProtocolServiceHealthStatus,
 )
+
+if TYPE_CHECKING:
+    from omnibase_spi.contracts.services.contract_source_control_types import (
+        ModelBranch,
+        ModelCIStatus,
+        ModelDiff,
+        ModelMergeResult,
+        ModelPullRequest,
+    )
 
 
 @runtime_checkable
@@ -88,7 +90,7 @@ class ProtocolCodeRepository(Protocol):
 
     # -- Read operations --
 
-    async def get_pr(self, repo: str, pr_number: int) -> ModelPullRequest:
+    async def get_pr(self, repo: str, pr_number: int) -> "ModelPullRequest":
         """Retrieve a single pull request by number.
 
         Args:
@@ -105,7 +107,7 @@ class ProtocolCodeRepository(Protocol):
 
     async def list_prs(
         self, repo: str, state: str = "open", limit: int = 50
-    ) -> list[ModelPullRequest]:
+    ) -> list["ModelPullRequest"]:
         """List pull requests for a repository.
 
         Args:
@@ -118,7 +120,7 @@ class ProtocolCodeRepository(Protocol):
         """
         ...
 
-    async def get_ci_status(self, repo: str, ref: str) -> ModelCIStatus:
+    async def get_ci_status(self, repo: str, ref: str) -> "ModelCIStatus":
         """Get CI/check status for a git ref.
 
         Args:
@@ -130,7 +132,7 @@ class ProtocolCodeRepository(Protocol):
         """
         ...
 
-    async def get_diff(self, repo: str, base: str, head: str) -> ModelDiff:
+    async def get_diff(self, repo: str, base: str, head: str) -> "ModelDiff":
         """Get the diff between two refs.
 
         Args:
@@ -150,7 +152,7 @@ class ProtocolCodeRepository(Protocol):
         repo: str,
         branch_name: str,
         from_ref: str = "main",
-    ) -> ModelBranch:
+    ) -> "ModelBranch":
         """Create or update a branch in the remote repository.
 
         Args:
@@ -171,7 +173,7 @@ class ProtocolCodeRepository(Protocol):
         head: str,
         base: str = "main",
         draft: bool = False,
-    ) -> ModelPullRequest:
+    ) -> "ModelPullRequest":
         """Open a pull request.
 
         Args:
@@ -194,7 +196,7 @@ class ProtocolCodeRepository(Protocol):
         repo: str,
         pr_number: int,
         method: str = "squash",
-    ) -> ModelMergeResult:
+    ) -> "ModelMergeResult":
         """Merge a pull request with admin privileges, bypassing required reviews.
 
         Args:
@@ -215,7 +217,7 @@ class ProtocolCodeRepository(Protocol):
         repo: str,
         branch_name: str,
         target_ref: str,
-    ) -> ModelBranch:
+    ) -> "ModelBranch":
         """Force-push a branch to the specified ref.
 
         This operation rewrites remote history and should only be invoked by
@@ -248,7 +250,7 @@ class ProtocolCodeRepository(Protocol):
         repo: str,
         branch_name: str,
         onto: str = "main",
-    ) -> ModelBranch:
+    ) -> "ModelBranch":
         """Rebase a branch onto a target ref.
 
         Args:

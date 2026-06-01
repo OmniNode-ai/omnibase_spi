@@ -21,11 +21,12 @@ Example:
     >>> assert isinstance(MyEnricher(), ProtocolContextEnrichment)
 """
 
-from typing import Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
-from omnibase_spi.contracts.enrichment.contract_enrichment_result import (
-    ContractEnrichmentResult,
-)
+if TYPE_CHECKING:
+    from omnibase_spi.contracts.enrichment.contract_enrichment_result import (
+        ContractEnrichmentResult,
+    )
 
 __all__ = ["ProtocolContextEnrichment"]
 
@@ -55,7 +56,7 @@ class ProtocolContextEnrichment(Protocol):
         self,
         prompt: str,
         context: str,
-    ) -> ContractEnrichmentResult:
+    ) -> "ContractEnrichmentResult":
         """Enrich a prompt with relevant context.
 
         Analyzes the provided context in relation to the prompt and

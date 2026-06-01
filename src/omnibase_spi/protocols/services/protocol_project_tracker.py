@@ -14,16 +14,18 @@ remains available during transition but is deprecated.
 This protocol is a structural subtype of ProtocolExternalService.
 """
 
-from typing import Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
-from omnibase_spi.contracts.services.contract_project_tracker_types import (
-    ModelComment,
-    ModelIssue,
-    ModelProject,
-)
 from omnibase_spi.protocols.types.protocol_service_types import (
     ProtocolServiceHealthStatus,
 )
+
+if TYPE_CHECKING:
+    from omnibase_spi.contracts.services.contract_project_tracker_types import (
+        ModelComment,
+        ModelIssue,
+        ModelProject,
+    )
 
 
 @runtime_checkable
@@ -89,7 +91,7 @@ class ProtocolProjectTracker(Protocol):
 
     async def list_issues(
         self, filters: dict[str, str] | None = None, limit: int = 50
-    ) -> list[ModelIssue]:
+    ) -> list["ModelIssue"]:
         """List issues matching optional filters.
 
         Args:
@@ -101,7 +103,7 @@ class ProtocolProjectTracker(Protocol):
         """
         ...
 
-    async def get_issue(self, issue_id: str) -> ModelIssue:
+    async def get_issue(self, issue_id: str) -> "ModelIssue":
         """Retrieve a single issue by identifier.
 
         Args:
@@ -123,7 +125,7 @@ class ProtocolProjectTracker(Protocol):
         assignee: str | None = None,
         priority: str | None = None,
         team: str | None = None,
-    ) -> ModelIssue:
+    ) -> "ModelIssue":
         """Create a new issue in the project tracker.
 
         Args:
@@ -139,7 +141,9 @@ class ProtocolProjectTracker(Protocol):
         """
         ...
 
-    async def update_issue(self, issue_id: str, updates: dict[str, str]) -> ModelIssue:
+    async def update_issue(
+        self, issue_id: str, updates: dict[str, str]
+    ) -> "ModelIssue":
         """Update fields on an existing issue.
 
         Args:
@@ -154,7 +158,7 @@ class ProtocolProjectTracker(Protocol):
         """
         ...
 
-    async def search_issues(self, query: str, limit: int = 50) -> list[ModelIssue]:
+    async def search_issues(self, query: str, limit: int = 50) -> list["ModelIssue"]:
         """Search issues by text query.
 
         Args:
@@ -166,7 +170,7 @@ class ProtocolProjectTracker(Protocol):
         """
         ...
 
-    async def add_comment(self, issue_id: str, body: str) -> ModelComment:
+    async def add_comment(self, issue_id: str, body: str) -> "ModelComment":
         """Add a comment to an issue.
 
         Args:
@@ -181,7 +185,7 @@ class ProtocolProjectTracker(Protocol):
         """
         ...
 
-    async def get_project(self, project_id: str) -> ModelProject:
+    async def get_project(self, project_id: str) -> "ModelProject":
         """Retrieve a project by identifier.
 
         Args:
@@ -195,7 +199,7 @@ class ProtocolProjectTracker(Protocol):
         """
         ...
 
-    async def list_projects(self, limit: int = 50) -> list[ModelProject]:
+    async def list_projects(self, limit: int = 50) -> list["ModelProject"]:
         """List projects accessible to the current user.
 
         Args:
