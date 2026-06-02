@@ -1,3 +1,17 @@
+## v0.22.0 (2026-05-31)
+
+### Features
+- feat: Migrate projection protocols from compat to SPI (#229)
+
+### Bug Fixes
+- fix: retire ProtocolLLMAgentProvider and surface file_handling LACKS_INTEGRATION protocols (#230)
+- fix: Replace hardcoded Kafka topic in SPI exceptions (#228)
+
+### Changed
+- chore: Remove from __future__ import annotations (#226)
+- ci: add dev-only main-target-guard forward-port (#231)
+- Bumps omnibase-core pin to >=0.43.0
+
 ## v0.21.0 (2026-05-21)
 
 ### Changed

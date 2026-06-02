@@ -31,11 +31,12 @@ Related:
     - ContractLinearSnapshotEvent: Return type.
 """
 
-from typing import Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
-from omnibase_spi.contracts.events.contract_linear_snapshot_event import (
-    ContractLinearSnapshotEvent,
-)
+if TYPE_CHECKING:
+    from omnibase_spi.contracts.events.contract_linear_snapshot_event import (
+        ContractLinearSnapshotEvent,
+    )
 
 
 @runtime_checkable
@@ -62,7 +63,7 @@ class ProtocolLinearSnapshotEffect(Protocol):
     async def snapshot(
         self,
         workspace_id: str,
-    ) -> ContractLinearSnapshotEvent:
+    ) -> "ContractLinearSnapshotEvent":
         """Poll Linear for workstream state and produce a snapshot event.
 
         Args:

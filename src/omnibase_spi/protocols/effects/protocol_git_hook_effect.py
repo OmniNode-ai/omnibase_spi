@@ -29,11 +29,12 @@ Related:
     - ContractGitHookEvent: Return type.
 """
 
-from typing import Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
-from omnibase_spi.contracts.events.contract_git_hook_event import (
-    ContractGitHookEvent,
-)
+if TYPE_CHECKING:
+    from omnibase_spi.contracts.events.contract_git_hook_event import (
+        ContractGitHookEvent,
+    )
 
 
 @runtime_checkable
@@ -64,7 +65,7 @@ class ProtocolGitHookEffect(Protocol):
         author: str,
         outcome: str,
         gates: list[str] | None = None,
-    ) -> ContractGitHookEvent:
+    ) -> "ContractGitHookEvent":
         """Emit a Git hook event.
 
         Args:

@@ -120,6 +120,7 @@ jobs:
           # Create a clean virtual environment to test installation
           python -m venv /tmp/test-env
           source /tmp/test-env/bin/activate
+          pip install "omnibase-core @ git+https://github.com/OmniNode-ai/omnibase_core.git@v0.43.0"
           pip install dist/*.whl
           python -c "
           import sys
