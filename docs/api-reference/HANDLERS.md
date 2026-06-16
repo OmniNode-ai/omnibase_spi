@@ -10,7 +10,6 @@
 - [Architecture](#architecture)
 - [ProtocolHandler](#protocolhandler)
   - [Description](#description)
-  - [Migration Note](#migration-note)
   - [Properties](#properties)
   - [Methods](#methods)
     - [handler_type](#handler_type-property)
