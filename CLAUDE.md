@@ -114,9 +114,9 @@ class ProtocolRenderer(Protocol):
 
 ## Current Source Facts
 
-- Package version: `0.20.5`
+- Package version: `0.22.0`
 - Python: 3.12+
-- Protocol files: 248 `protocol_*.py` files across 37 protocol domains
+- Protocol files: 229 `protocol_*.py` files across 39 protocol domains
 - Package metadata: `pyproject.toml`
 
 ## See Also

@@ -55,6 +55,7 @@ Current docs in this repo describe the package as it exists now:
 - [Event Bus](api-reference/EVENT-BUS.md)
 - [MCP](api-reference/MCP.md)
 - [Memory](api-reference/MEMORY.md)
+- [Projections](api-reference/PROJECTIONS.md)
 - [Handlers](api-reference/HANDLERS.md)
 - [Nodes](api-reference/NODES.md)
 - [Contracts](api-reference/CONTRACTS.md)

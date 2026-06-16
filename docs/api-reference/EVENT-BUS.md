@@ -1,8 +1,8 @@
 # Event Bus API Reference
 
-![Version](https://img.shields.io/badge/SPI-v0.20.5-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.2.0-lightgrey)
+![Version](https://img.shields.io/badge/SPI-v0.22.0-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.2.0-lightgrey)
 
-> **Package Version**: 0.20.5 | **Status**: Stable | **Since**: v0.2.0
+> **Package Version**: 0.22.0 | **Status**: Stable | **Since**: v0.2.0
 
 ---
 
@@ -1712,87 +1712,6 @@ class EventProcessor:
         )
 ```
 
-## Event Orchestrator Protocol
-
-The `ProtocolEventOrchestrator` provides comprehensive workflow coordination:
-
-```python
-@runtime_checkable
-class ProtocolEventOrchestrator(Protocol):
-    """
-    Protocol for event orchestration and workflow coordination in ONEX systems.
-
-    Key Features:
-        - Agent lifecycle management (spawn, terminate, health monitoring)
-        - Work ticket assignment and load balancing
-        - Event-driven coordination with async patterns
-        - Comprehensive error handling and recovery
-        - Performance metrics and monitoring
-    """
-
-    async def handle_work_ticket_created(self, ticket: "ProtocolWorkTicket") -> bool: ...
-
-    async def assign_work_to_agent(
-        self,
-        ticket: "ProtocolWorkTicket",
-        agent_id: str | None = None,
-    ) -> str: ...
-
-    async def handle_agent_progress_update(
-        self, update: "ProtocolProgressUpdate"
-    ) -> bool: ...
-
-    async def handle_work_completion(self, result: "ProtocolWorkResult") -> bool: ...
-
-    async def handle_agent_error(self, error_event: "ProtocolAgentEvent") -> bool: ...
-
-    async def monitor_agent_health(self) -> dict[str, "ProtocolEventBusAgentStatus"]: ...
-
-    async def rebalance_workload(self) -> bool: ...
-
-    async def handle_agent_spawn_request(self, agent_config_template: str) -> str: ...
-
-    async def handle_agent_termination_request(
-        self, agent_id: str, reason: str
-    ) -> bool: ...
-
-    async def get_workflow_metrics(self) -> dict[str, float]: ...
-
-    async def subscribe_to_orchestration_events(
-        self,
-    ) -> AsyncIterator["ProtocolOnexEvent"]: ...
-
-    # Additional methods for priority, capacity, pause/resume, etc.
-```
-
-### Orchestrator Usage
-
-```python
-from omnibase_spi.protocols.event_bus import ProtocolEventOrchestrator
-
-# Initialize orchestrator
-orchestrator: ProtocolEventOrchestrator = get_orchestrator()
-
-# Handle work ticket creation
-ticket = create_work_ticket(task_type="data_processing")
-success = await orchestrator.handle_work_ticket_created(ticket)
-
-# Monitor agent health
-health_status = await orchestrator.monitor_agent_health()
-for agent_id, status in health_status.items():
-    print(f"Agent {agent_id}: {status}")
-
-# Subscribe to orchestration events
-async for event in orchestrator.subscribe_to_orchestration_events():
-    print(f"Event: {event.event_type}")
-    await process_orchestration_event(event)
-
-# Get workflow metrics
-metrics = await orchestrator.get_workflow_metrics()
-print(f"Throughput: {metrics['throughput_per_second']}")
-print(f"Average latency: {metrics['avg_latency_ms']}ms")
-```
-
 ## Event Pub/Sub Protocol
 
 The `ProtocolEventPubSub` provides simple pub/sub operations:
@@ -2015,7 +1934,7 @@ from omnibase_spi.protocols.types.protocol_event_bus_types import (
 
 ## See Also
 
-- **[WORKFLOW-ORCHESTRATION.md](./WORKFLOW-ORCHESTRATION.md)** - Workflow-specific event bus extensions
+- **[WORKFLOW-ORCHESTRATION.md](./WORKFLOW-ORCHESTRATION.md)** - Workflow-specific event bus extensions and event coordination (use `ProtocolWorkflowEventBus`, `ProtocolWorkflowEventCoordinator`, or `ProtocolWorkflowOrchestrator` for orchestration concerns)
 - **[HANDLERS.md](./HANDLERS.md)** - Handler protocols, which differ from event bus (request-response vs fire-and-forget)
 - **[NODES.md](./NODES.md)** - Node protocols including effect nodes that may publish events
 - **[EXCEPTIONS.md](./EXCEPTIONS.md)** - Exception hierarchy for event bus error handling
