@@ -226,7 +226,7 @@ from uuid import uuid4
 from omnibase_spi.protocols.types.protocol_event_bus_types import ProtocolEventMessage
 
 if TYPE_CHECKING:
-    from omnibase_core.models.runtime import ModelOnexEnvelope
+    from omnibase_core.models.events.model_event_envelope import ModelEventEnvelope
     from omnibase_core.types import JsonType
 
 @runtime_checkable
@@ -251,7 +251,7 @@ class ProtocolEventBusBase(Protocol):
 
     async def publish_envelope(
         self,
-        envelope: ModelOnexEnvelope,
+        envelope: ModelEventEnvelope,
         topic: str,
     ) -> None:
         """Publish envelope to topic (fire-and-forget).
@@ -268,13 +268,13 @@ class ProtocolEventBusBase(Protocol):
     async def subscribe(
         self,
         topic: str,
-        handler: Callable[[ModelOnexEnvelope], Awaitable[None]],
+        handler: Callable[[ModelEventEnvelope], Awaitable[None]],
     ) -> None:
         """Subscribe to topic with handler callback.
 
         Args:
             topic: The Kafka topic or channel to subscribe to.
-            handler: Async callback receiving ModelOnexEnvelope instances.
+            handler: Async callback receiving ModelEventEnvelope instances.
 
         Raises:
             SPIError: If subscription fails or topic is invalid.
@@ -339,10 +339,10 @@ class OrderService:
         await self._repository.save(order)
 
         # Publish event (fire-and-forget)
-        envelope = ModelOnexEnvelope(
+        envelope = ModelEventEnvelope(
             event_type="omninode.orders.event.order_created.v1",
             payload=order.model_dump(),
-            correlation_id=str(uuid4()),
+            correlation_id=uuid4(),
         )
         await self._bus.publish_envelope(envelope, "orders.events")
 
@@ -363,7 +363,7 @@ class InventoryService:
         """Stop consuming and release resources."""
         await self._bus.stop_consuming()
 
-    async def _handle_order_event(self, envelope: ModelOnexEnvelope) -> None:
+    async def _handle_order_event(self, envelope: ModelEventEnvelope) -> None:
         """Handle incoming order events.
 
         Args:
@@ -429,7 +429,7 @@ class PaymentService:
         result = PaymentResult.model_validate(response.data)
 
         # 2. Publish event via event bus (notify other services)
-        envelope = ModelOnexEnvelope(
+        envelope = ModelEventEnvelope(
             event_type="omninode.payments.event.payment_processed.v1",
             payload={"payment_id": payment.id, "status": result.status},
             correlation_id=payment.correlation_id,
