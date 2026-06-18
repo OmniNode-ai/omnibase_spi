@@ -83,11 +83,17 @@ Related tickets:
 from .protocol_dashboard_event_subscriber import ProtocolDashboardEventSubscriber
 from .protocol_dashboard_service import ProtocolDashboardService
 from .protocol_registry_query_service import ProtocolRegistryQueryService
+from .protocol_renderer import ProtocolRenderer
+from .protocol_renderer_capability_negotiator import (
+    ProtocolRendererCapabilityNegotiator,
+)
 from .protocol_widget_renderer import ProtocolWidgetRenderer
 
 __all__ = [
     "ProtocolDashboardEventSubscriber",
     "ProtocolDashboardService",
     "ProtocolRegistryQueryService",
+    "ProtocolRenderer",
+    "ProtocolRendererCapabilityNegotiator",
     "ProtocolWidgetRenderer",
 ]
