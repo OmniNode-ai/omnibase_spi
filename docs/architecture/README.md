@@ -37,16 +37,25 @@ imports.
 
 ## Repo Contents
 
-- `src/omnibase_spi/protocols/`: protocol domains such as event bus, handlers,
-  runtime, registry, storage, MCP, workflow orchestration, validation, and
-  dashboard surfaces.
+- `src/omnibase_spi/protocols/`: 231 `protocol_*.py` files across 39 protocol
+  domains such as event bus, handlers, runtime, registry, storage, MCP, workflow
+  orchestration, validation, and dashboard surfaces.
 - `src/omnibase_spi/contracts/`: selected frozen wire contracts used across repo
-  boundaries.
-- `src/omnibase_spi/exceptions.py`: SPI exception hierarchy.
+  boundaries (subdomains: database, defaults, delegation, enrichment, events,
+  measurement, pipeline, projections, services, shared, source_control,
+  validation).
+- `src/omnibase_spi/exceptions.py`: SPI exception hierarchy rooted at `SPIError`.
+- `src/omnibase_spi/exceptions_skill_routing.py`: skill-routing SPI exceptions.
+- `src/omnibase_spi/effects/`: effect-related public SPI helpers.
+- `src/omnibase_spi/enums/`: SPI-local enums.
+- `src/omnibase_spi/factories/`: factory helpers.
 - `src/omnibase_spi/registry/`: lightweight registry utilities that remain free
   of implementation package dependencies.
 - `scripts/validation/`: repo-local validation scripts for naming, namespace
   isolation, protocol shape, empty directories, and SPI typing patterns.
+
+> Verified against code on this refresh: top-level package layout and the
+> 231-file / 39-domain protocol count under `src/omnibase_spi/protocols/`.
 
 ## Protocol Shape
 

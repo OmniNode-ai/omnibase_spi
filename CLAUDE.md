@@ -116,8 +116,13 @@ class ProtocolRenderer(Protocol):
 
 - Package version: `0.22.0`
 - Python: 3.12+
-- Protocol files: 229 `protocol_*.py` files across 39 protocol domains
+- Protocol files: 231 `protocol_*.py` files across 39 protocol domains
 - Package metadata: `pyproject.toml`
+
+> Verified against code on this refresh: protocol-file count via
+> `find src/omnibase_spi/protocols -name 'protocol_*.py' | wc -l` (231) and
+> domain count via the immediate subdirectories of `protocols/` (39); version
+> from `pyproject.toml`.
 
 ## See Also
 

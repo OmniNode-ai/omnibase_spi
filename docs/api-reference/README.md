@@ -2,7 +2,7 @@
 
 ## Overview
 
-Complete API reference documentation for all **229 protocol files** across **39 protocol domains** in the omnibase-spi package. This reference provides detailed documentation for every public interface in the Service Provider Interface layer.
+Complete API reference documentation for all **231 protocol files** across **39 protocol domains** in the omnibase-spi package. This reference provides detailed documentation for every public interface in the Service Provider Interface layer.
 
 ## Protocol Architecture
 
@@ -113,7 +113,7 @@ The API reference is organized by domain, matching the package structure:
 ### Type System
 - **Type definitions are integrated within each protocol domain**
 - **All types follow consistent naming conventions**
-- **Comprehensive type coverage across all 229 protocol files**
+- **Comprehensive type coverage across all 231 protocol files**
 - **Type Protocols (14)**: ProtocolContract, ProtocolErrorInfo, and domain-specific type definitions
 - **ONEX Node Types (4)**: ProtocolEffectNode, ProtocolComputeNode, ProtocolReducerNode, ProtocolOrchestratorNode
 
@@ -277,7 +277,7 @@ Common patterns documented throughout:
 
 ## Protocol Statistics
 
-- **Total Protocols**: 229 protocol files
+- **Total Protocols**: 231 protocol files
 - **Domain Coverage**: 39 protocol domains
 - **Type Definitions**: 14 comprehensive type modules
 - **Enterprise Features**: Health monitoring, metrics, circuit breakers
@@ -958,6 +958,11 @@ def validate_node_types(
 - **Python Compatibility**: 3.12+
 - **Type Checking**: mypy strict mode compatible
 - **Runtime Checking**: All protocols are `@runtime_checkable`
+
+> Verified against code on this refresh: 231 `protocol_*.py` files and 39
+> protocol domains under `src/omnibase_spi/protocols/`; package version `0.22.0`
+> from `pyproject.toml`. The count changed from 229 after the OMN-13443 /
+> OMN-13453 local-runtime protocol relocation.
 
 ## See Also
 
