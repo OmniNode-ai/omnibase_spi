@@ -7,12 +7,6 @@ Includes:
     * ProtocolHandleable — structural ``handle()`` protocol for handlers.
     * ProtocolHandlerOwnershipQuery — local-vs-remote ownership decision.
     * ProtocolHandlerResolver — handler class → instance resolution.
-    * ProtocolLocalRuntimeBus (+ UnsubscribeCallback) — minimal event bus shape
-      used by the local runtime.
-    * ProtocolLocalRuntimeMessage — minimal bus message shape.
-    * ProtocolLocalRuntimeCallableTarget — local runtime call entry point.
-    * ProtocolLocalRuntimePayloadModel — publishable payload model shape.
-    * ProtocolLocalRuntimeDumpModel — handler return-value dump model shape.
 
 ModelDomainPluginConfig and ModelDomainPluginResult are concrete dataclasses
 that live in omnibase_core.models.runtime.model_domain_plugin; they are
@@ -30,22 +24,6 @@ from omnibase_spi.protocols.runtime.protocol_handler_ownership_query import (
 from omnibase_spi.protocols.runtime.protocol_handler_resolver import (
     ProtocolHandlerResolver,
 )
-from omnibase_spi.protocols.runtime.protocol_local_runtime_bus import (
-    ProtocolLocalRuntimeBus,
-    UnsubscribeCallback,
-)
-from omnibase_spi.protocols.runtime.protocol_local_runtime_callable_target import (
-    ProtocolLocalRuntimeCallableTarget,
-)
-from omnibase_spi.protocols.runtime.protocol_local_runtime_dump_model import (
-    ProtocolLocalRuntimeDumpModel,
-)
-from omnibase_spi.protocols.runtime.protocol_local_runtime_message import (
-    ProtocolLocalRuntimeMessage,
-)
-from omnibase_spi.protocols.runtime.protocol_local_runtime_payload_model import (
-    ProtocolLocalRuntimePayloadModel,
-)
 
 __all__: list[str] = [
     "ModelDomainPluginConfig",
@@ -54,12 +32,6 @@ __all__: list[str] = [
     "ProtocolHandleable",
     "ProtocolHandlerOwnershipQuery",
     "ProtocolHandlerResolver",
-    "ProtocolLocalRuntimeBus",
-    "ProtocolLocalRuntimeCallableTarget",
-    "ProtocolLocalRuntimeDumpModel",
-    "ProtocolLocalRuntimeMessage",
-    "ProtocolLocalRuntimePayloadModel",
-    "UnsubscribeCallback",
 ]
 
 _lazy: dict[str, str] = {
