@@ -961,8 +961,8 @@ def validate_node_types(
 
 > Verified against code on this refresh: 231 `protocol_*.py` files and 39
 > protocol domains under `src/omnibase_spi/protocols/`; package version `0.22.0`
-> from `pyproject.toml`. The count changed from 229 after the OMN-13443 /
-> OMN-13453 local-runtime protocol relocation.
+> from `pyproject.toml`. The count changed from 229 after the
+> local-runtime protocol relocation.
 
 ## See Also
 
