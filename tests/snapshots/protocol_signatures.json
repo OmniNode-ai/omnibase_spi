@@ -15595,10 +15595,10 @@
       "kind": "async_method",
       "parameters": {
         "input_data": {
-          "type": "ModelReductionInput"
+          "type": "ModelReducerInput[Any]"
         }
       },
-      "return_type": "ModelReductionOutput"
+      "return_type": "ModelReducerOutput[Any]"
     },
     "node_id": {
       "kind": "property",

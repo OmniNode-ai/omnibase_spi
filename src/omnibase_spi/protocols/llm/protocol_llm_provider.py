@@ -3,8 +3,6 @@
 
 """Protocol for universal LLM provider operations with model-agnostic interface."""
 
-from __future__ import annotations
-
 from collections.abc import AsyncGenerator, Iterator
 from typing import (
     Protocol,

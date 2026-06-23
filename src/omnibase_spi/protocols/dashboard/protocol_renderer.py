@@ -43,8 +43,6 @@ Related tickets:
     - OMN-13131: Phase 1 — close the runtime action loop (bus-native).
 """
 
-from __future__ import annotations
-
 from typing import Any, Protocol, runtime_checkable
 
 from omnibase_core.models.dashboard.model_action_contract import ModelActionContract

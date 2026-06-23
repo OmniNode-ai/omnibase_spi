@@ -2,8 +2,6 @@
 # SPDX-License-Identifier: MIT
 """Orchestrator node protocol for workflow coordination."""
 
-from __future__ import annotations
-
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 from omnibase_spi.protocols.nodes.base import ProtocolNode
@@ -38,8 +36,8 @@ class ProtocolOrchestratorNode(ProtocolNode, Protocol):
 
     async def execute(
         self,
-        input_data: ModelOrchestratorInput,
-    ) -> ModelOrchestratorOutput:
+        input_data: "ModelOrchestratorInput",
+    ) -> "ModelOrchestratorOutput":
         """
         Execute orchestration.
 

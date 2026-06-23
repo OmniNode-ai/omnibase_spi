@@ -3,8 +3,6 @@
 
 """Protocol for synchronous projection database adapters."""
 
-from __future__ import annotations
-
 from typing import ClassVar, Protocol, runtime_checkable
 
 

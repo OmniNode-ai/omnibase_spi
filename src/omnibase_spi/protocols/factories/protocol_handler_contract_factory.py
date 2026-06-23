@@ -9,8 +9,6 @@ handler type categories. Implementations provide safe, pre-configured
 contract templates that can be extended via the patch system.
 """
 
-from __future__ import annotations
-
 from typing import Protocol, runtime_checkable
 
 from omnibase_core.enums import EnumHandlerTypeCategory
