@@ -40,8 +40,6 @@ Related tickets:
     - OMN-13131: Phase 1 — close the runtime action loop (bus-native).
 """
 
-from __future__ import annotations
-
 from typing import Protocol, runtime_checkable
 
 from omnibase_core.enums.enum_empty_state_reason import EnumEmptyStateReason

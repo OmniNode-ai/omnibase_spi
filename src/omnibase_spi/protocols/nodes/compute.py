@@ -2,8 +2,6 @@
 # SPDX-License-Identifier: MIT
 """Compute node protocol for pure transformations."""
 
-from __future__ import annotations
-
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 from omnibase_spi.protocols.nodes.base import ProtocolNode
@@ -34,8 +32,8 @@ class ProtocolComputeNode(ProtocolNode, Protocol):
 
     async def execute(
         self,
-        input_data: ModelComputeInput[Any],
-    ) -> ModelComputeOutput[Any]:
+        input_data: "ModelComputeInput[Any]",
+    ) -> "ModelComputeOutput[Any]":
         """
         Execute pure computation.
 

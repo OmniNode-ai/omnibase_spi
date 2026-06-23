@@ -29,8 +29,6 @@ See Also:
     - ModelExecutionConstraints: Pydantic model for constraints
 """
 
-from __future__ import annotations
-
 from typing import Protocol, runtime_checkable
 
 from omnibase_core.models.common import ModelValidationResult

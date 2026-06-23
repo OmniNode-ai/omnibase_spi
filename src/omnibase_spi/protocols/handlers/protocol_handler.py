@@ -3,8 +3,6 @@
 
 """Protocol handler interface for DI-based effect nodes."""
 
-from __future__ import annotations
-
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 from omnibase_core.models.handlers import ModelHandlerDescriptor
@@ -82,7 +80,7 @@ class ProtocolHandler(Protocol):
 
     async def initialize(
         self,
-        config: ModelConnectionConfig,
+        config: "ModelConnectionConfig",
     ) -> None:
         """Initialize any clients or connection pools.
 
@@ -112,9 +110,9 @@ class ProtocolHandler(Protocol):
 
     async def execute(
         self,
-        request: ModelProtocolRequest,
-        operation_config: ModelOperationConfig,
-    ) -> ModelProtocolResponse:
+        request: "ModelProtocolRequest",
+        operation_config: "ModelOperationConfig",
+    ) -> "ModelProtocolResponse":
         """Execute a protocol-specific operation.
 
         Args:
