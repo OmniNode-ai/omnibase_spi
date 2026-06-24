@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: astral-sh/setup-uv@v7
         with:
@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: astral-sh/setup-uv@v7
         with:
@@ -57,7 +57,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: astral-sh/setup-uv@v7
         with:
@@ -111,7 +111,7 @@ jobs:
       selected_paths: ${{ steps.detect.outputs.selected_paths }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -178,7 +178,7 @@ jobs:
         split: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: astral-sh/setup-uv@v7
         with:
@@ -243,7 +243,7 @@ jobs:
     timeout-minutes: 10
     needs: [lint, typecheck, test-parallel, contract-compliance]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -345,7 +345,7 @@ jobs:
     name: AI-Slop Pattern Check (strict, PR diff)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Set up Python
@@ -380,10 +380,10 @@ jobs:
       }}
     if: github.event_name == 'pull_request' || github.event_name == 'merge_group' || github.event_name == 'push'
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Checkout onex_change_control
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: OmniNode-ai/onex_change_control
           path: onex_change_control
