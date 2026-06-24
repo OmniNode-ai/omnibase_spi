@@ -168,7 +168,7 @@ agent_id = await agent_manager.register_agent(
     agent_info=ProtocolAgentInfo(
         agent_id="agent-1",
         agent_type="data_processor",
-        host="192.168.1.100",
+        host="<onex-host>",
         port=8080
     ),
     capabilities=["data_processing", "ml_inference", "reporting"]

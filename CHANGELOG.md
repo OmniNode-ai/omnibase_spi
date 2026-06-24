@@ -15,8 +15,8 @@
 ## v0.21.0 (2026-05-21)
 
 ### Changed
-- feat(OMN-10603): migrate runner selector to vars.OMNI_TRUSTED_CI_RUNS_ON_JSON (#207)
-- fix(OMN-10970): wire skip-token rejection CI gate (#208)
+- feat: migrate runner selector to vars.OMNI_TRUSTED_CI_RUNS_ON_JSON (#207)
+- fix: wire skip-token rejection CI gate (#208)
 - chore: bump omnibase-core pin to >=0.41.0
 
 ### Notes
@@ -25,7 +25,7 @@
 ## v0.20.4 (2026-04-03)
 
 ### Bug Fixes
-- fix(ci): auto-tag workflow matches chore: release PR titles [OMN-6909] (#160)
+- fix(ci): auto-tag workflow matches chore: release PR titles (#160)
 
 ### Other Changes
 None
@@ -33,7 +33,7 @@ None
 ## v0.20.2 (2026-03-27)
 
 ### Fixed
-- fix(lint): remove unused ModelDeliveryResult import suppression [OMN-6670] (#155)
+- fix(lint): remove unused ModelDeliveryResult import suppression (#155)
 
 ## v0.20.1 (2026-03-26)
 
@@ -48,7 +48,7 @@ None
 ## v0.19.0 (2026-03-20)
 
 ### Added
-- feat(spi): add ContractSavingsEstimate wire-format model with tiered attribution [OMN-5544] (#146)
+- feat(spi): add ContractSavingsEstimate wire-format model with tiered attribution (#146)
 
 ### Changed
 - chore(hooks): add no-hardcoded-topics + cosmetic-lint from onex_change_control (#145)
@@ -56,11 +56,11 @@ None
 ## v0.18.0 (2026-03-19)
 
 ### Added
-- feat(ci): deploy CodeQL security scanning to omnibase_spi [OMN-5422] (#143)
+- feat(ci): deploy CodeQL security scanning to omnibase_spi (#143)
 
 ### Changed
-- ci(omnibase_spi): add ruff UP007 standards compliance workflow [OMN-5132] (#142)
-- docs: remove env-prefix mandate from SPI protocol contracts [OMN-5221] (#141)
+- ci(omnibase_spi): add ruff UP007 standards compliance workflow (#142)
+- docs: remove env-prefix mandate from SPI protocol contracts (#141)
 
 ## v0.16.1 (2026-03-12)
 
@@ -70,20 +70,20 @@ None
 ## v0.15.2 (2026-03-09)
 
 ### Added
-- feat(chunking): ChunkableEnvelope and EnvelopeChunker SPI protocols [OMN-4144] (#124)
-- feat(spi): add PrimitiveEffectExecutor typed SPI protocol (OMN-4220) (#126)
+- feat(chunking): ChunkableEnvelope and EnvelopeChunker SPI protocols (#124)
+- feat(spi): add PrimitiveEffectExecutor typed SPI protocol (#126)
 - feat(spi): add ProtocolFSMSurfaceAdapter to workflow_orchestration (#125)
 - feat(measurement): add model attribution and VTS computation (#121)
 
 ### Fixed
-- fix(ci): skip contract validation on merge-queue branch names (OMN-4308) (#127)
-- fix(ci): pin actions/checkout@v4 and actions/setup-python@v5 (OMN-3809) (#118)
+- fix(ci): skip contract validation on merge-queue branch names (#127)
+- fix(ci): pin actions/checkout@v4 and actions/setup-python@v5 (#118)
 
 ### Changed
-- OMN-3994: remove consul protocol references and regenerate snapshot (#123)
-- OMN-4052: wire contract validation gate into omnibase_spi CI (#122)
-- OMN-3831: replace hardcoded __version__ with importlib.metadata (#119)
-- OMN-3832: add validate-string-versions pre-commit hook (#120)
+- remove consul protocol references and regenerate snapshot (#123)
+- wire contract validation gate into omnibase_spi CI (#122)
+- replace hardcoded __version__ with importlib.metadata (#119)
+- add validate-string-versions pre-commit hook (#120)
 
 ## v0.15.1 (2026-03-07)
 
@@ -92,12 +92,12 @@ None
 - chore(deps): bump actions/checkout from 4 to 6 (#114)
 - chore(deps): bump astral-sh/setup-uv from 4 to 7 (#115)
 - chore(deps): bump actions/upload-artifact from 4 to 7 (#116)
-- chore: add no-planning-docs pre-commit hook (OMN-3618) (#109)
-- ci: CI resilience fixes [OMN-3662] (#110)
-- chore: add no-env-file pre-commit hook to omnibase_spi [OMN-3700] (#112)
-- chore: fix pre-existing AI-slop violations for --strict mode [OMN-3669] (#111)
+- chore: add no-planning-docs pre-commit hook (#109)
+- ci: CI resilience fixes (#110)
+- chore: add no-env-file pre-commit hook to omnibase_spi (#112)
+- chore: fix pre-existing AI-slop violations for --strict mode (#111)
 - docs: remove plan files migrated to omni_home (#108)
-- [OMN-3191] fix(validation): add code fence tracking to AI-slop checker (follow-up) (#107)
+- fix(validation): add code fence tracking to AI-slop checker (follow-up) (#107)
 
 ## [0.15.0] - 2026-02-28
 
@@ -118,8 +118,8 @@ _(none)_
 ## v0.14.0 (2026-02-27)
 
 ### Features
-- feat(protocols): export ProtocolRateLimiter and add resilience protocol tests [OMN-796] (#98)
-- feat(ci): add build and package verification workflow [OMN-793]
+- feat(protocols): export ProtocolRateLimiter and add resilience protocol tests (#98)
+- feat(ci): add build and package verification workflow
 
 ### Bug Fixes
 - fix(ci): correct merge_queue to merge_group event name
@@ -142,10 +142,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-#### ProtocolProjectionView SPI Contract for NodeProjectionEffect Pattern (OMN-2382) #91
+#### ProtocolProjectionView SPI Contract for NodeProjectionEffect Pattern #91
 - **`ProtocolProjectionView`**: New `@runtime_checkable` SPI contract in `protocols/projections/` defining the view-layer interface for the `NodeProjectionEffect` pattern — supports `render(artifact_ref: str) -> object` with forward-compatible `extra="allow"` semantics
 
-#### Event Registry, SPI Contracts, and Producer Protocols (OMN-2655) #90
+#### Event Registry, SPI Contracts, and Producer Protocols #90
 - **Event registry**: New `registry/` module in `omnibase_spi` providing a typed event registry for cross-boundary event-type discovery
 - **Event SPI contracts**: Frozen wire-format contracts in `contracts/events/` for event envelope, routing metadata, and emission results
 - **Producer protocols**: `ProtocolEventProducer` and `ProtocolEventEmitter` in `protocols/event_bus/` defining the SPI boundary for event emission with structured error returns
@@ -158,7 +158,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-#### Synchronous Effect Protocol and Node Projection Effect (OMN-2508)
+#### Synchronous Effect Protocol and Node Projection Effect
 - **`ProtocolEffect`**: New `@runtime_checkable` synchronous effect boundary protocol in `protocols/effects/` — defines `execute(intent: object) -> object` with `synchronous_execution: ClassVar[bool]` ordering guarantee flag
 - **`ProtocolNodeProjectionEffect`**: Concrete synchronous `ProtocolEffect` implementation in `effects/` — executes node projection persistence operations with blocking semantics (bridges async storage via `asyncio.run()`)
 - **`ContractProjectionResult`**: New frozen wire-format contract in `contracts/projections/` capturing projection outcome — `success`, `artifact_ref`, `schema_version`, and optional `error`; `extra="allow"` for forward compatibility
@@ -174,13 +174,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-#### Context Enrichment Protocol and Contract (OMN-2252)
+#### Context Enrichment Protocol and Contract
 - **`ProtocolContextEnrichment`**: New `@runtime_checkable` protocol in `protocols/intelligence/` defining `enrich(prompt, context)` for pluggable context enrichment implementations
 - **`ContractEnrichmentResult`**: Frozen wire-format contract in `contracts/enrichment/` capturing enrichment output — summary, token count, relevance score, and provenance metadata
 - Fixed SPI012 namespace isolation validator to allow `omnibase_spi.contracts` imports inside protocol files
 - 297 unit tests covering creation, immutability, field validation, and architectural guardrails
 
-#### Delegation Output Contracts (OMN-2254)
+#### Delegation Output Contracts
 - **`ContractDelegatedResponse`**: Unified output shape for all delegation handlers
 - **`ContractDelegationAttribution`**: Model name, endpoint, latency, and confidence metadata
 - **`ContractAttachment`**: File attachment envelope with content type and base64-encoded payload
@@ -204,7 +204,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-#### Canonical RRH Rule Enum (OMN-2139)
+#### Canonical RRH Rule Enum
 - **`RRHRule` redefined**: Replaced 17-rule enum (dev-toolchain checks) with canonical 13-rule enum covering 8 validation domains: repo (10xx), environment (11xx), kafka (12xx), kubernetes (13xx), toolchain (14xx), cross-checks branch/ticket (15xx), cross-checks contract fields (16xx), repo-boundary (17xx)
 - **`RRHRule` relocated**: Moved from `contracts/pipeline/enum_rrh_rule.py` to `enums/enum_rrh_rule.py`; re-exported via `omnibase_spi.contracts.pipeline` and `omnibase_spi.contracts` for backward compatibility
 - Updated `omnibase-core` dependency to >=0.17.0
@@ -213,7 +213,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-#### Shared Pipeline and Validation Wire-Format Contracts (OMN-2004)
+#### Shared Pipeline and Validation Wire-Format Contracts
 - **Shared primitives**: `ContractCheckResult` (single check outcome) and `ContractVerdict` (aggregated PASS/FAIL/QUARANTINE verdict)
 - **Pipeline contracts** (14 models): Hook invocation envelope/result, node operation request/result, `ContractNodeError`, `ContractRunContext`, `ContractSessionIndex`, `ContractWorkAuthorization`, `ContractExecutionContext`, `ContractRRHResult`, `ContractCheckpoint`, `ContractRepoScope`, `ContractArtifactPointer`, `ContractAuthGateInput`
 - **Pipeline enums**: `RRHRule` (17 rules), `AuthReasonCode` (12 codes)
@@ -223,7 +223,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - All contracts are frozen, `extra=allow`, with `schema_version` field and zero `omnibase_core`/infra/omniclaude imports
 - 252 unit tests covering creation, immutability, forward-compat, serialization round-trips, and architectural guardrails
 
-#### Measurement Pipeline Wire-Format Contracts (OMN-2024)
+#### Measurement Pipeline Wire-Format Contracts
 - **Measurement enums**: `ContractEnumPipelinePhase` (5 phases), `ContractEnumResultClassification` (5 categories), `MeasurementCheck` (CHECK-MEAS-001 through 006)
 - **Measurement contracts** (8 models): `ContractMeasurementContext` (correlation identity with baseline key derivation), `ContractProducer` (structured producer identity), `ContractPhaseMetrics` (primary measurement unit with sub-contracts for duration, cost, outcome, tests, and artifact pointers), `ContractMeasurementEvent` (domain envelope), `ContractAggregatedRun` (run-level rollup), `ContractPromotionGate` (per-dimension evidence), `ContractMeasuredAttribution` (attribution + measurement composition)
 - Measurement contracts use `frozen=True` + `extra="forbid"` + explicit extensions field (stricter than SPI convention because measurement data feeds promotion gates)
@@ -231,7 +231,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Null-byte separator in `derive_baseline_key` to prevent delimiter collision
 - 83 unit tests covering enum stability, frozen/forbid invariants, JSON round-trip, and validation behaviors
 
-#### Architecture Handshake (OMN-1983)
+#### Architecture Handshake
 - **Architecture handshake constraint map** (`.claude/architecture-handshake.md`): Installed naming conventions and dependency rules from `omnibase_core`
 - **CI workflow** (`.github/workflows/check-handshake.yml`): Verifies handshake stays in sync with `omnibase_core` source via SHA256 hash comparison
 
@@ -249,7 +249,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **ProtocolIntentGraph semantic fix** (OMN-1729): Updated `store_intent()` to accept `ModelIntentClassificationOutput` instead of `ModelIntentClassificationInput`
+- **ProtocolIntentGraph semantic fix**: Updated `store_intent()` to accept `ModelIntentClassificationOutput` instead of `ModelIntentClassificationInput`
   - Storage boundary now correctly accepts classification **output** (category, confidence, keywords)
   - Classification happens upstream; this protocol persists the results
   - Docstrings updated to reflect semantic change
@@ -266,7 +266,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **ProtocolEventPublisher semantics documentation** (OMN-1615): Codified topic override and partition_key semantics in protocol docstrings
+- **ProtocolEventPublisher semantics documentation**: Codified topic override and partition_key semantics in protocol docstrings
 - **Publisher Protocol Policy** in EVENT-BUS.md: Documents canonical interface rule forbidding handler-local publish protocols
 - **Protocol signature tests**: 18 unit tests verifying ProtocolEventPublisher interface contract
 - **SPDX header prevention hook**: Pre-commit hook to prevent SPDX license headers from being (re)introduced
@@ -282,7 +282,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Breaking Changes
 
-#### Handler Protocol `describe()` Method Now Async (OMN-710)
+#### Handler Protocol `describe()` Method Now Async
 
 The `describe()` method in specialized handler protocols has been changed from synchronous to asynchronous:
 
@@ -311,7 +311,7 @@ Making `describe()` async allows implementations to gather this runtime informat
 
 **Note:** The base `ProtocolHandler.describe()` remains synchronous and returns `dict[str, Any]`. Only the specialized storage handlers (`ProtocolGraphDatabaseHandler`, `ProtocolVectorStoreHandler`) have been updated to async with typed return models. See the "Handler Protocol Typed Model Introduction" section below for the complete list of signature changes affecting both input parameters and return types.
 
-#### Handler Protocol Typed Model Introduction (OMN-710)
+#### Handler Protocol Typed Model Introduction
 
 Specialized handler protocols now use typed Pydantic models from `omnibase_core` instead of untyped `dict[str, Any]` for both input parameters and return values. This provides compile-time type safety and runtime validation.
 
@@ -404,7 +404,7 @@ results = await handler.query_similar(
 )
 ```
 
-#### Producer Handler `send_batch()` Signature Change (OMN-710)
+#### Producer Handler `send_batch()` Signature Change
 
 The `send_batch()` method now accepts a `Sequence[ModelProducerMessage]` instead of raw tuples or dictionaries.
 
@@ -432,7 +432,7 @@ await producer.send_batch(messages)
 - `ModelProducerMessage` supports optional `headers` and `partition` fields
 - Consistent with the typed-dynamic pattern used across all handler protocols
 
-#### Vector Store Handler `initialize()` Signature Change (OMN-710)
+#### Vector Store Handler `initialize()` Signature Change
 
 The `initialize()` method now accepts a `ModelVectorConnectionConfig` instead of keyword arguments.
 
@@ -462,7 +462,7 @@ await handler.initialize(config)
 - Clear documentation of available configuration options via model fields
 - Enables serialization/deserialization of configuration for persistence
 
-#### Graph Database Handler `traverse()` Filter Parameter (OMN-710)
+#### Graph Database Handler `traverse()` Filter Parameter
 
 The `traverse()` method now accepts an optional `ModelGraphTraversalFilters` parameter instead of inline filter kwargs.
 
@@ -493,7 +493,7 @@ result = await handler.traverse(
 
 ### Added
 
-#### Handler Contract Factory (OMN-1120)
+#### Handler Contract Factory
 - **HandlerContractFactory**: Factory class for creating default handler contracts based on handler type category
   - Template-based approach using YAML files for safe, production-ready defaults
   - Supports COMPUTE, EFFECT, and NONDETERMINISTIC_COMPUTE handler types
@@ -520,7 +520,7 @@ result = await handler.traverse(
 
 ### Added
 
-- `ProtocolPatternExtractor` protocol for pattern extraction abstraction [OMN-1580]
+- `ProtocolPatternExtractor` protocol for pattern extraction abstraction
   - `extract_patterns()` - Extract patterns from session data
   - Supports 4 pattern kinds: FILE_ACCESS, ERROR, ARCHITECTURE, TOOL_USAGE
   - Uses typed `ModelPatternExtractionInput` and `ModelPatternExtractionOutput` from Core
@@ -534,7 +534,7 @@ result = await handler.traverse(
 ## [0.6.0] - 2026-01-25
 
 ### Added
-- `ProtocolIntentGraph` protocol for intent graph persistence abstraction [OMN-1479]
+- `ProtocolIntentGraph` protocol for intent graph persistence abstraction
   - `store_intent()` - Store intent classification to graph database
   - `get_session_intents()` - Query intents for a session
   - `health_check()` - Health check for graph connectivity
@@ -547,7 +547,7 @@ result = await handler.traverse(
 ## [0.5.0] - 2026-01-25
 
 ### Added
-- `ProtocolIntentClassifier` protocol for intent classification abstraction [OMN-1478]
+- `ProtocolIntentClassifier` protocol for intent classification abstraction
   - `classify()` - Classify user prompt into intent category
   - `get_supported_intents()` - List available intent types
   - `validate_intent()` - Validate intent classification result
@@ -560,7 +560,7 @@ result = await handler.traverse(
 
 ### Added
 
-#### Generic Registry Protocols (OMN-845)
+#### Generic Registry Protocols
 - **ProtocolRegistryBase[K, V]**: Generic registry protocol with type-safe CRUD operations
   - Generic key (K) and value (V) type parameters for compile-time type safety
   - Core operations: `register()`, `unregister()`, `get()`, `contains()`, `list_all()`, `clear()`
@@ -604,7 +604,7 @@ result = await handler.traverse(
 
 ### Changed
 
-#### Protocol Refactoring (OMN-845)
+#### Protocol Refactoring
 - **ProtocolServiceRegistry**: Refactored to extend `ProtocolRegistryBase[str, Any]`
   - Maintains backward compatibility with existing consumers
   - Inherits type-safe CRUD operations from base protocol
@@ -670,7 +670,7 @@ result = await handler.traverse(
 ### Fixed
 
 #### Validation Warnings
-- **274 Warnings Fixed** (OMN-375): Resolved all validation warnings across the codebase
+- **274 Warnings Fixed**: Resolved all validation warnings across the codebase
 - **Duplicate Protocol**: Removed duplicate `ProtocolEventBusAgentStatus` definition
 - **Namespace Isolation**: Fixed imports to ensure no Infra dependencies
 

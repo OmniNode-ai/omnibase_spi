@@ -2,7 +2,7 @@
 
 ![Version](https://img.shields.io/badge/SPI-v0.22.0-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.22.0-lightgrey)
 
-> **Package Version**: 0.22.0 | **Status**: Stable | **Since**: v0.22.0 (OMN-12190, migrated from omnibase_compat)
+> **Package Version**: 0.22.0 | **Status**: Stable | **Since**: v0.22.0 (migrated from omnibase_compat)
 
 ---
 
@@ -257,4 +257,4 @@ Together these layers ensure each message is processed exactly once and each ent
 
 ---
 
-*This API reference documents the projections protocols added in OMN-12190 (v0.22.0). Concrete implementations (PostgresProjector, ValkeyProjector) live in `omnibase_infra`.*
+*This API reference documents the projections protocols introduced in v0.22.0. Concrete implementations (PostgresProjector, ValkeyProjector) live in `omnibase_infra`.*
