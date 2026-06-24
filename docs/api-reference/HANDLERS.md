@@ -86,7 +86,7 @@ Implementations live in `omnibase_core` or `omnibase_infra`. This is the canonic
 from omnibase_spi.protocols.handlers import ProtocolHandler
 ```
 
-Do not use the root `protocols` barrel (`from omnibase_spi.protocols import ...`) — it is frozen as of OMN-11831. `ProtocolHandlerV3` is not exported from any barrel and should not be referenced.
+Do not use the root `protocols` barrel (`from omnibase_spi.protocols import ...`) — it is frozen and no longer extended. `ProtocolHandlerV3` is not exported from any barrel and should not be referenced.
 
 ### Properties
 

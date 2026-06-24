@@ -965,7 +965,7 @@ node_id = await node_registry.register_node(
     node_info=ProtocolWorkflowNodeInfo(
         node_id="worker-node-1",
         node_type="compute",
-        host="192.168.1.100",
+        host="<onex-host>",
         port=8080
     ),
     capabilities=[
