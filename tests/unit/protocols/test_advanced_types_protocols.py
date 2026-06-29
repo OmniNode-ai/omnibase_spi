@@ -1,28 +1,15 @@
 # SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
 # SPDX-License-Identifier: MIT
 
-"""Unit tests for protocol_advanced_types.py.
-
-Covers all 10 @runtime_checkable Protocol classes:
-  ProtocolOutputFormat, ProtocolOutputData, ProtocolMultiVectorDocument,
-  ProtocolInputDocument, ProtocolFixtureData, ProtocolSchemaDefinition,
-  ProtocolContractDocument, ProtocolIndexingConfiguration,
-  ProtocolAdaptiveChunk, ProtocolChunkingQualityMetrics.
-
-Also verifies:
-  - Module imports cleanly (no circular-import errors)
-  - Re-exported names from protocol_agent_ai_types are present in __all__
-  - Literal* type aliases resolve to str
-  - Conforming stubs satisfy isinstance(); non-conforming stubs do not
-  - Property return-type signatures via typing.get_type_hints()
-
-Ticket: OMN-13742
-"""
+"""Unit tests for protocol_advanced_types.py."""
 
 from __future__ import annotations
 
 import importlib
-from typing import Protocol, get_type_hints
+import sys
+import types
+from types import SimpleNamespace
+from typing import Protocol, get_args, get_origin, get_type_hints
 from uuid import UUID
 
 import pytest
@@ -52,258 +39,278 @@ from omnibase_spi.protocols.types.protocol_advanced_types import (
     ProtocolVelocityLog,
 )
 
-# ---------------------------------------------------------------------------
-# Conforming concrete stubs — one per Protocol
-# ---------------------------------------------------------------------------
-
-
-class _OutputFormat:
-    @property
-    def format_name(self) -> str:
-        return "JSON"
-
-    @property
-    def file_extension(self) -> str:
-        return ".json"
-
-    @property
-    def content_type(self) -> str:
-        return "application/json"
-
-    @property
-    def supports_metadata(self) -> bool:
-        return True
-
-
-class _OutputData:
-    @property
-    def content(self) -> str:
-        return "data"
-
-    @property
-    def metadata(self) -> dict:
-        return {}
-
-    @property
-    def format_type(self) -> _OutputFormat:
-        return _OutputFormat()
-
-    @property
-    def timestamp(self) -> str:
-        return "2024-01-01T00:00:00Z"
-
-    @property
-    def correlation_id(self) -> UUID:
-        return UUID("00000000-0000-0000-0000-000000000001")
-
-
-class _MultiVectorDocument:
-    @property
-    def document_id(self) -> UUID:
-        return UUID("00000000-0000-0000-0000-000000000002")
-
-    @property
-    def content_vectors(self) -> dict:
-        return {"content": [0.1, 0.2]}
-
-    @property
-    def metadata(self) -> dict:
-        return {}
-
-    @property
-    def chunk_info(self) -> dict:
-        return {}
-
-    @property
-    def embedding_models(self) -> list:
-        return ["model-v1"]
-
-
-class _InputDocument:
-    @property
-    def document_id(self) -> UUID:
-        return UUID("00000000-0000-0000-0000-000000000003")
-
-    @property
-    def content(self) -> str:
-        return "raw text"
-
-    @property
-    def content_type(self) -> str:
-        return "text/plain"
-
-    @property
-    def metadata(self) -> dict:
-        return {}
-
-    @property
-    def source_uri(self) -> str:
-        return "file:///doc.txt"
-
-
-class _FixtureData:
-    @property
-    def fixture_id(self) -> str:
-        return "fix-001"
-
-    @property
-    def fixture_type(self) -> str:
-        return "database"
-
-    @property
-    def data(self) -> dict:
-        return {}
-
-    @property
-    def dependencies(self) -> list:
-        return []
-
-    @property
-    def setup_actions(self) -> list:
-        return ["truncate"]
-
-    @property
-    def teardown_actions(self) -> list:
-        return ["truncate"]
-
-
-class _SchemaDefinition:
-    @property
-    def schema_name(self) -> str:
-        return "User"
-
-    @property
-    def schema_version(self) -> str:
-        return "1.0.0"
-
-    @property
-    def fields(self) -> dict:
-        return {}
-
-    @property
-    def validation_rules(self) -> list:
-        return []
-
-    @property
-    def relationships(self) -> dict:
-        return {}
-
-
-class _ContractDocument:
-    @property
-    def contract_id(self) -> UUID:
-        return UUID("00000000-0000-0000-0000-000000000004")
-
-    @property
-    def contract_type(self) -> str:
-        return "SLA"
-
-    @property
-    def parties(self) -> list:
-        return ["svc-a", "svc-b"]
-
-    @property
-    def terms(self) -> dict:
-        return {}
-
-    @property
-    def effective_date(self) -> str:
-        return "2024-01-01"
-
-    @property
-    def expiration_date(self) -> str | None:
-        return None
-
-
-class _IndexingConfiguration:
-    @property
-    def chunk_size(self) -> int:
-        return 512
-
-    @property
-    def chunk_overlap(self) -> int:
-        return 50
-
-    @property
-    def strategy(self) -> str:
-        return "fixed"
-
-    @property
-    def metadata_extraction(self) -> bool:
-        return True
-
-    @property
-    def preprocessing_options(self) -> dict:
-        return {}
-
-
-class _AdaptiveChunk:
-    @property
-    def chunk_id(self) -> UUID:
-        return UUID("00000000-0000-0000-0000-000000000005")
-
-    @property
-    def content(self) -> str:
-        return "chunk text"
-
-    @property
-    def start_position(self) -> int:
-        return 0
-
-    @property
-    def end_position(self) -> int:
-        return 512
-
-    @property
-    def metadata(self) -> dict:
-        return {}
-
-    @property
-    def embedding_vector(self) -> list | None:
-        return None
-
-
-class _ChunkingQualityMetrics:
-    @property
-    def total_chunks(self) -> int:
-        return 10
-
-    @property
-    def average_chunk_size(self) -> float:
-        return 256.0
-
-    @property
-    def quality_score(self) -> float:
-        return 0.9
-
-    @property
-    def coherence_score(self) -> float:
-        return 0.85
-
-    @property
-    def semantic_density(self) -> float:
-        return 0.7
-
-    @property
-    def metadata_coverage(self) -> float:
-        return 0.95
-
-
-# ---------------------------------------------------------------------------
-# Helper: check that a Protocol is @runtime_checkable
-# ---------------------------------------------------------------------------
-
-
-def _is_runtime_checkable(proto: type) -> bool:
-    return bool(
-        getattr(proto, "__protocol_attrs__", None) is not None
-        or hasattr(proto, "_is_runtime_protocol")
+MODULE_NAME = "omnibase_spi.protocols.types.protocol_advanced_types"
+UUID_VALUE = UUID("00000000-0000-0000-0000-000000000001")
+NONE_TYPE = type(None)
+
+LOCAL_PROTOCOL_ATTRS = {
+    ProtocolOutputFormat: (
+        "format_name",
+        "file_extension",
+        "content_type",
+        "supports_metadata",
+    ),
+    ProtocolOutputData: (
+        "content",
+        "metadata",
+        "format_type",
+        "timestamp",
+        "correlation_id",
+    ),
+    ProtocolMultiVectorDocument: (
+        "document_id",
+        "content_vectors",
+        "metadata",
+        "chunk_info",
+        "embedding_models",
+    ),
+    ProtocolInputDocument: (
+        "document_id",
+        "content",
+        "content_type",
+        "metadata",
+        "source_uri",
+    ),
+    ProtocolFixtureData: (
+        "fixture_id",
+        "fixture_type",
+        "data",
+        "dependencies",
+        "setup_actions",
+        "teardown_actions",
+    ),
+    ProtocolSchemaDefinition: (
+        "schema_name",
+        "schema_version",
+        "fields",
+        "validation_rules",
+        "relationships",
+    ),
+    ProtocolContractDocument: (
+        "contract_id",
+        "contract_type",
+        "parties",
+        "terms",
+        "effective_date",
+        "expiration_date",
+    ),
+    ProtocolIndexingConfiguration: (
+        "chunk_size",
+        "chunk_overlap",
+        "strategy",
+        "metadata_extraction",
+        "preprocessing_options",
+    ),
+    ProtocolAdaptiveChunk: (
+        "chunk_id",
+        "content",
+        "start_position",
+        "end_position",
+        "metadata",
+        "embedding_vector",
+    ),
+    ProtocolChunkingQualityMetrics: (
+        "total_chunks",
+        "average_chunk_size",
+        "quality_score",
+        "coherence_score",
+        "semantic_density",
+        "metadata_coverage",
+    ),
+}
+
+VALUE_BY_ATTR = {
+    "format_name": "JSON",
+    "file_extension": ".json",
+    "content_type": "text/plain",
+    "supports_metadata": True,
+    "content": "content",
+    "metadata": {},
+    "format_type": SimpleNamespace(
+        format_name="JSON",
+        file_extension=".json",
+        content_type="application/json",
+        supports_metadata=True,
+    ),
+    "timestamp": "2024-01-01T00:00:00Z",
+    "correlation_id": UUID_VALUE,
+    "document_id": UUID_VALUE,
+    "content_vectors": {"content": [0.1, 0.2]},
+    "chunk_info": {},
+    "embedding_models": ["model-v1"],
+    "source_uri": "file:///doc.txt",
+    "fixture_id": "fixture-001",
+    "fixture_type": "database",
+    "data": {},
+    "dependencies": [],
+    "setup_actions": ["truncate"],
+    "teardown_actions": ["truncate"],
+    "schema_name": "User",
+    "schema_version": "1.0.0",
+    "fields": {},
+    "validation_rules": [],
+    "relationships": {},
+    "contract_id": UUID_VALUE,
+    "contract_type": "SLA",
+    "parties": ["svc-a", "svc-b"],
+    "terms": {},
+    "effective_date": "2024-01-01",
+    "expiration_date": None,
+    "chunk_size": 512,
+    "chunk_overlap": 50,
+    "strategy": "fixed",
+    "metadata_extraction": True,
+    "preprocessing_options": {},
+    "chunk_id": UUID_VALUE,
+    "start_position": 0,
+    "end_position": 512,
+    "embedding_vector": None,
+    "total_chunks": 10,
+    "average_chunk_size": 256.0,
+    "quality_score": 0.9,
+    "coherence_score": 0.85,
+    "semantic_density": 0.7,
+    "metadata_coverage": 0.95,
+}
+
+RETURN_EXPECTATIONS = {
+    ProtocolOutputFormat: {
+        "format_name": str,
+        "file_extension": str,
+        "content_type": str,
+        "supports_metadata": bool,
+    },
+    ProtocolOutputData: {
+        "content": str,
+        "metadata": dict,
+        "format_type": ProtocolOutputFormat,
+        "timestamp": str,
+        "correlation_id": UUID,
+    },
+    ProtocolMultiVectorDocument: {
+        "document_id": UUID,
+        "content_vectors": dict,
+        "metadata": dict,
+        "chunk_info": dict,
+        "embedding_models": list,
+    },
+    ProtocolInputDocument: {
+        "document_id": UUID,
+        "content": str,
+        "content_type": str,
+        "metadata": dict,
+        "source_uri": str,
+    },
+    ProtocolFixtureData: {
+        "fixture_id": str,
+        "fixture_type": str,
+        "data": dict,
+        "dependencies": list,
+        "setup_actions": list,
+        "teardown_actions": list,
+    },
+    ProtocolSchemaDefinition: {
+        "schema_name": str,
+        "schema_version": str,
+        "fields": dict,
+        "validation_rules": list,
+        "relationships": dict,
+    },
+    ProtocolContractDocument: {
+        "contract_id": UUID,
+        "contract_type": str,
+        "parties": list,
+        "terms": dict,
+        "effective_date": str,
+        "expiration_date": str | None,
+    },
+    ProtocolIndexingConfiguration: {
+        "chunk_size": int,
+        "chunk_overlap": int,
+        "strategy": str,
+        "metadata_extraction": bool,
+        "preprocessing_options": dict,
+    },
+    ProtocolAdaptiveChunk: {
+        "chunk_id": UUID,
+        "content": str,
+        "start_position": int,
+        "end_position": int,
+        "metadata": dict,
+        "embedding_vector": list | None,
+    },
+    ProtocolChunkingQualityMetrics: {
+        "total_chunks": int,
+        "average_chunk_size": float,
+        "quality_score": float,
+        "coherence_score": float,
+        "semantic_density": float,
+        "metadata_coverage": float,
+    },
+}
+
+LOCAL_PROTOCOLS = tuple(LOCAL_PROTOCOL_ATTRS)
+REEXPORTED_PROTOCOLS = (
+    ProtocolAgentAction,
+    ProtocolAgentDebugIntelligence,
+    ProtocolAIExecutionMetrics,
+    ProtocolIntelligenceResult,
+    ProtocolPRTicket,
+    ProtocolVelocityLog,
+)
+LITERAL_ALIASES = (
+    LiteralOutputFormat,
+    LiteralDocumentType,
+    LiteralFixtureType,
+    LiteralContractType,
+    LiteralActionType,
+)
+RETURN_CASES = tuple(
+    pytest.param(proto, attr, expected, id=f"{proto.__name__}.{attr}")
+    for proto, expectations in RETURN_EXPECTATIONS.items()
+    for attr, expected in expectations.items()
+)
+
+
+def _container_for(proto: type) -> SimpleNamespace:
+    return SimpleNamespace(
+        **{attr: VALUE_BY_ATTR[attr] for attr in LOCAL_PROTOCOL_ATTRS[proto]}
     )
 
 
-# ---------------------------------------------------------------------------
-# Tests
-# ---------------------------------------------------------------------------
+def _container_missing(proto: type, missing_attr: str) -> SimpleNamespace:
+    return SimpleNamespace(
+        **{
+            attr: VALUE_BY_ATTR[attr]
+            for attr in LOCAL_PROTOCOL_ATTRS[proto]
+            if attr != missing_attr
+        }
+    )
+
+
+def _is_runtime_checkable(proto: type) -> bool:
+    return bool(getattr(proto, "_is_runtime_protocol", False))
+
+
+def _matches_expected_return(return_type: object, expected: object) -> bool:
+    if expected in {dict, list}:
+        return get_origin(return_type) is expected
+
+    if get_origin(expected) is types.UnionType:
+        args = get_args(expected)
+        if NONE_TYPE in args and len(args) == 2:
+            concrete = next(arg for arg in args if arg is not NONE_TYPE)
+            if get_origin(return_type) is not types.UnionType:
+                return False
+            return_args = get_args(return_type)
+            non_none_return = next(arg for arg in return_args if arg is not NONE_TYPE)
+            if concrete in {dict, list}:
+                return (
+                    NONE_TYPE in return_args and get_origin(non_none_return) is concrete
+                )
+            return set(return_args) == {concrete, NONE_TYPE}
+
+    return return_type is expected
 
 
 @pytest.mark.unit
@@ -311,45 +318,24 @@ class TestModuleImport:
     """Module can be imported and all expected names are exported."""
 
     def test_module_imports_cleanly(self) -> None:
-        """Reimporting module raises no circular-import or other errors."""
-        mod = importlib.import_module(
-            "omnibase_spi.protocols.types.protocol_advanced_types"
-        )
-        assert mod is not None
+        """Fresh import raises no circular-import or other errors."""
+        original = sys.modules.pop(MODULE_NAME, None)
+        try:
+            mod = importlib.import_module(MODULE_NAME)
+            assert mod is not None
+        finally:
+            if original is not None:
+                sys.modules[MODULE_NAME] = original
 
     def test_all_contains_ten_protocol_classes(self) -> None:
-        """__all__ exposes the ten Protocol classes defined in this module."""
-        local_protocols = [
-            "ProtocolOutputFormat",
-            "ProtocolOutputData",
-            "ProtocolMultiVectorDocument",
-            "ProtocolInputDocument",
-            "ProtocolFixtureData",
-            "ProtocolSchemaDefinition",
-            "ProtocolContractDocument",
-            "ProtocolIndexingConfiguration",
-            "ProtocolAdaptiveChunk",
-            "ProtocolChunkingQualityMetrics",
-        ]
-        for name in local_protocols:
-            assert name in _mod.__all__, f"{name!r} missing from __all__"
+        for proto in LOCAL_PROTOCOLS:
+            assert proto.__name__ in _mod.__all__, f"{proto.__name__!r} missing"
 
     def test_all_contains_reexported_agent_ai_names(self) -> None:
-        """Re-exported names from protocol_agent_ai_types appear in __all__."""
-        reexported = [
-            "LiteralActionType",
-            "ProtocolAgentAction",
-            "ProtocolAgentDebugIntelligence",
-            "ProtocolAIExecutionMetrics",
-            "ProtocolIntelligenceResult",
-            "ProtocolPRTicket",
-            "ProtocolVelocityLog",
-        ]
-        for name in reexported:
-            assert name in _mod.__all__, f"re-exported {name!r} missing from __all__"
+        for proto in REEXPORTED_PROTOCOLS:
+            assert proto.__name__ in _mod.__all__, f"{proto.__name__!r} missing"
 
     def test_all_contains_literal_aliases(self) -> None:
-        """LiteralOutputFormat, LiteralDocumentType, etc. are in __all__."""
         aliases = [
             "LiteralOutputFormat",
             "LiteralDocumentType",
@@ -360,650 +346,60 @@ class TestModuleImport:
             assert name in _mod.__all__, f"{name!r} missing from __all__"
 
     def test_all_names_are_importable(self) -> None:
-        """Every name in __all__ is actually importable from the module."""
         for name in _mod.__all__:
-            assert hasattr(_mod, name), f"{name!r} in __all__ but not found on module"
+            assert hasattr(_mod, name), f"{name!r} in __all__ but not found"
 
 
 @pytest.mark.unit
-class TestLiteralTypeAliases:
-    """Literal* type aliases are str (per module comment: 'Would be a Literal')."""
-
-    def test_literal_output_format_is_str(self) -> None:
-        assert LiteralOutputFormat is str
-
-    def test_literal_document_type_is_str(self) -> None:
-        assert LiteralDocumentType is str
-
-    def test_literal_fixture_type_is_str(self) -> None:
-        assert LiteralFixtureType is str
-
-    def test_literal_contract_type_is_str(self) -> None:
-        assert LiteralContractType is str
-
-    def test_literal_action_type_is_str(self) -> None:
-        """Re-exported LiteralActionType is also str."""
-        assert LiteralActionType is str
+@pytest.mark.parametrize("alias", LITERAL_ALIASES)
+def test_literal_type_aliases_are_str(alias: object) -> None:
+    assert alias is str
 
 
 @pytest.mark.unit
-class TestReExportedProtocols:
-    """Names re-exported from protocol_agent_ai_types are accessible here."""
-
-    def test_protocol_agent_action_is_protocol(self) -> None:
-        assert issubclass(ProtocolAgentAction, Protocol)
-
-    def test_protocol_agent_debug_intelligence_is_protocol(self) -> None:
-        assert issubclass(ProtocolAgentDebugIntelligence, Protocol)
-
-    def test_protocol_ai_execution_metrics_is_protocol(self) -> None:
-        assert issubclass(ProtocolAIExecutionMetrics, Protocol)
-
-    def test_protocol_intelligence_result_is_protocol(self) -> None:
-        assert issubclass(ProtocolIntelligenceResult, Protocol)
-
-    def test_protocol_pr_ticket_is_protocol(self) -> None:
-        assert issubclass(ProtocolPRTicket, Protocol)
-
-    def test_protocol_velocity_log_is_protocol(self) -> None:
-        assert issubclass(ProtocolVelocityLog, Protocol)
+@pytest.mark.parametrize("proto", REEXPORTED_PROTOCOLS)
+def test_reexported_agent_ai_names_are_protocols(proto: type) -> None:
+    assert issubclass(proto, Protocol)
 
 
 @pytest.mark.unit
-class TestProtocolOutputFormat:
-    """ProtocolOutputFormat: runtime-checkable, 4 properties."""
-
-    def test_is_protocol(self) -> None:
-        assert issubclass(ProtocolOutputFormat, Protocol)
-
-    def test_is_runtime_checkable(self) -> None:
-        assert _is_runtime_checkable(ProtocolOutputFormat)
-
-    def test_conforming_stub_satisfies_isinstance(self) -> None:
-        assert isinstance(_OutputFormat(), ProtocolOutputFormat)
-
-    def test_missing_file_extension_fails_isinstance(self) -> None:
-        class Partial:
-            @property
-            def format_name(self) -> str:
-                return "X"
-
-            @property
-            def content_type(self) -> str:
-                return "text/plain"
-
-            @property
-            def supports_metadata(self) -> bool:
-                return False
-
-        assert not isinstance(Partial(), ProtocolOutputFormat)
-
-    def test_has_required_attrs(self) -> None:
-        attrs = set(ProtocolOutputFormat.__protocol_attrs__)
-        assert {
-            "format_name",
-            "file_extension",
-            "content_type",
-            "supports_metadata",
-        } <= attrs
-
-    def test_format_name_return_type_is_str(self) -> None:
-        prop = ProtocolOutputFormat.__dict__["format_name"]
-        assert isinstance(prop, property)
-        hints = get_type_hints(prop.fget)
-        assert hints["return"] is str
-
-    def test_file_extension_return_type_is_str(self) -> None:
-        prop = ProtocolOutputFormat.__dict__["file_extension"]
-        hints = get_type_hints(prop.fget)
-        assert hints["return"] is str
-
-    def test_content_type_return_type_is_str(self) -> None:
-        prop = ProtocolOutputFormat.__dict__["content_type"]
-        hints = get_type_hints(prop.fget)
-        assert hints["return"] is str
+@pytest.mark.parametrize("proto", LOCAL_PROTOCOLS)
+def test_local_protocols_are_protocols(proto: type) -> None:
+    assert issubclass(proto, Protocol)
 
 
 @pytest.mark.unit
-class TestProtocolOutputData:
-    """ProtocolOutputData: 5 properties; correlation_id -> UUID."""
-
-    def test_is_runtime_checkable(self) -> None:
-        assert _is_runtime_checkable(ProtocolOutputData)
-
-    def test_conforming_stub_satisfies_isinstance(self) -> None:
-        assert isinstance(_OutputData(), ProtocolOutputData)
-
-    def test_missing_correlation_id_fails_isinstance(self) -> None:
-        class Partial:
-            @property
-            def content(self) -> str:
-                return ""
-
-            @property
-            def metadata(self) -> dict:
-                return {}
-
-            @property
-            def format_type(self) -> object:
-                return None
-
-            @property
-            def timestamp(self) -> str:
-                return ""
-
-        assert not isinstance(Partial(), ProtocolOutputData)
-
-    def test_has_required_attrs(self) -> None:
-        attrs = set(ProtocolOutputData.__protocol_attrs__)
-        assert {
-            "content",
-            "metadata",
-            "format_type",
-            "timestamp",
-            "correlation_id",
-        } <= attrs
-
-    def test_correlation_id_return_type_is_uuid(self) -> None:
-        prop = ProtocolOutputData.__dict__["correlation_id"]
-        hints = get_type_hints(prop.fget)
-        assert hints["return"] is UUID
-
-    def test_content_return_type_is_str(self) -> None:
-        prop = ProtocolOutputData.__dict__["content"]
-        hints = get_type_hints(prop.fget)
-        assert hints["return"] is str
+@pytest.mark.parametrize("proto", LOCAL_PROTOCOLS)
+def test_local_protocols_are_runtime_checkable(proto: type) -> None:
+    assert _is_runtime_checkable(proto)
 
 
 @pytest.mark.unit
-class TestProtocolMultiVectorDocument:
-    """ProtocolMultiVectorDocument: 5 properties; document_id -> UUID."""
-
-    def test_is_runtime_checkable(self) -> None:
-        assert _is_runtime_checkable(ProtocolMultiVectorDocument)
-
-    def test_conforming_stub_satisfies_isinstance(self) -> None:
-        assert isinstance(_MultiVectorDocument(), ProtocolMultiVectorDocument)
-
-    def test_missing_embedding_models_fails_isinstance(self) -> None:
-        class Partial:
-            @property
-            def document_id(self) -> UUID:
-                return UUID("00000000-0000-0000-0000-000000000001")
-
-            @property
-            def content_vectors(self) -> dict:
-                return {}
-
-            @property
-            def metadata(self) -> dict:
-                return {}
-
-            @property
-            def chunk_info(self) -> dict:
-                return {}
-
-        assert not isinstance(Partial(), ProtocolMultiVectorDocument)
-
-    def test_has_required_attrs(self) -> None:
-        attrs = set(ProtocolMultiVectorDocument.__protocol_attrs__)
-        expected = {
-            "document_id",
-            "content_vectors",
-            "metadata",
-            "chunk_info",
-            "embedding_models",
-        }
-        assert expected <= attrs
-
-    def test_document_id_return_type_is_uuid(self) -> None:
-        prop = ProtocolMultiVectorDocument.__dict__["document_id"]
-        hints = get_type_hints(prop.fget)
-        assert hints["return"] is UUID
-
-    def test_embedding_models_return_type_origin_is_list(self) -> None:
-        import typing
-
-        prop = ProtocolMultiVectorDocument.__dict__["embedding_models"]
-        hints = get_type_hints(prop.fget)
-        return_type = hints["return"]
-        assert typing.get_origin(return_type) is list
+@pytest.mark.parametrize("proto", LOCAL_PROTOCOLS)
+def test_anonymous_container_satisfies_protocol(proto: type) -> None:
+    assert isinstance(_container_for(proto), proto)
 
 
 @pytest.mark.unit
-class TestProtocolInputDocument:
-    """ProtocolInputDocument: 5 properties."""
-
-    def test_is_runtime_checkable(self) -> None:
-        assert _is_runtime_checkable(ProtocolInputDocument)
-
-    def test_conforming_stub_satisfies_isinstance(self) -> None:
-        assert isinstance(_InputDocument(), ProtocolInputDocument)
-
-    def test_missing_source_uri_fails_isinstance(self) -> None:
-        class Partial:
-            @property
-            def document_id(self) -> UUID:
-                return UUID("00000000-0000-0000-0000-000000000001")
-
-            @property
-            def content(self) -> str:
-                return ""
-
-            @property
-            def content_type(self) -> str:
-                return "text/plain"
-
-            @property
-            def metadata(self) -> dict:
-                return {}
-
-        assert not isinstance(Partial(), ProtocolInputDocument)
-
-    def test_has_required_attrs(self) -> None:
-        attrs = set(ProtocolInputDocument.__protocol_attrs__)
-        assert {
-            "document_id",
-            "content",
-            "content_type",
-            "metadata",
-            "source_uri",
-        } <= attrs
-
-    def test_document_id_return_type_is_uuid(self) -> None:
-        prop = ProtocolInputDocument.__dict__["document_id"]
-        hints = get_type_hints(prop.fget)
-        assert hints["return"] is UUID
-
-    def test_source_uri_return_type_is_str(self) -> None:
-        prop = ProtocolInputDocument.__dict__["source_uri"]
-        hints = get_type_hints(prop.fget)
-        assert hints["return"] is str
+@pytest.mark.parametrize("proto", LOCAL_PROTOCOLS)
+def test_missing_required_attr_fails_isinstance(proto: type) -> None:
+    missing_attr = LOCAL_PROTOCOL_ATTRS[proto][-1]
+    assert not isinstance(_container_missing(proto, missing_attr), proto)
 
 
 @pytest.mark.unit
-class TestProtocolFixtureData:
-    """ProtocolFixtureData: 6 properties."""
-
-    def test_is_runtime_checkable(self) -> None:
-        assert _is_runtime_checkable(ProtocolFixtureData)
-
-    def test_conforming_stub_satisfies_isinstance(self) -> None:
-        assert isinstance(_FixtureData(), ProtocolFixtureData)
-
-    def test_missing_teardown_actions_fails_isinstance(self) -> None:
-        class Partial:
-            @property
-            def fixture_id(self) -> str:
-                return "x"
-
-            @property
-            def fixture_type(self) -> str:
-                return "mock"
-
-            @property
-            def data(self) -> dict:
-                return {}
-
-            @property
-            def dependencies(self) -> list:
-                return []
-
-            @property
-            def setup_actions(self) -> list:
-                return []
-
-        assert not isinstance(Partial(), ProtocolFixtureData)
-
-    def test_has_required_attrs(self) -> None:
-        attrs = set(ProtocolFixtureData.__protocol_attrs__)
-        expected = {
-            "fixture_id",
-            "fixture_type",
-            "data",
-            "dependencies",
-            "setup_actions",
-            "teardown_actions",
-        }
-        assert expected <= attrs
-
-    def test_fixture_id_return_type_is_str(self) -> None:
-        prop = ProtocolFixtureData.__dict__["fixture_id"]
-        hints = get_type_hints(prop.fget)
-        assert hints["return"] is str
-
-    def test_fixture_type_return_type_is_str(self) -> None:
-        prop = ProtocolFixtureData.__dict__["fixture_type"]
-        hints = get_type_hints(prop.fget)
-        assert hints["return"] is str
-
-    def test_dependencies_return_type_origin_is_list(self) -> None:
-        import typing
-
-        prop = ProtocolFixtureData.__dict__["dependencies"]
-        hints = get_type_hints(prop.fget)
-        assert typing.get_origin(hints["return"]) is list
+@pytest.mark.parametrize("proto", LOCAL_PROTOCOLS)
+def test_protocol_attrs_contain_all_declared_properties(proto: type) -> None:
+    assert set(LOCAL_PROTOCOL_ATTRS[proto]) <= set(proto.__protocol_attrs__)
 
 
 @pytest.mark.unit
-class TestProtocolSchemaDefinition:
-    """ProtocolSchemaDefinition: 5 properties."""
-
-    def test_is_runtime_checkable(self) -> None:
-        assert _is_runtime_checkable(ProtocolSchemaDefinition)
-
-    def test_conforming_stub_satisfies_isinstance(self) -> None:
-        assert isinstance(_SchemaDefinition(), ProtocolSchemaDefinition)
-
-    def test_missing_relationships_fails_isinstance(self) -> None:
-        class Partial:
-            @property
-            def schema_name(self) -> str:
-                return "T"
-
-            @property
-            def schema_version(self) -> str:
-                return "1.0.0"
-
-            @property
-            def fields(self) -> dict:
-                return {}
-
-            @property
-            def validation_rules(self) -> list:
-                return []
-
-        assert not isinstance(Partial(), ProtocolSchemaDefinition)
-
-    def test_has_required_attrs(self) -> None:
-        attrs = set(ProtocolSchemaDefinition.__protocol_attrs__)
-        expected = {
-            "schema_name",
-            "schema_version",
-            "fields",
-            "validation_rules",
-            "relationships",
-        }
-        assert expected <= attrs
-
-    def test_schema_name_return_type_is_str(self) -> None:
-        prop = ProtocolSchemaDefinition.__dict__["schema_name"]
-        hints = get_type_hints(prop.fget)
-        assert hints["return"] is str
-
-    def test_schema_version_return_type_is_str(self) -> None:
-        prop = ProtocolSchemaDefinition.__dict__["schema_version"]
-        hints = get_type_hints(prop.fget)
-        assert hints["return"] is str
-
-    def test_fields_return_type_origin_is_dict(self) -> None:
-        import typing
-
-        prop = ProtocolSchemaDefinition.__dict__["fields"]
-        hints = get_type_hints(prop.fget)
-        assert typing.get_origin(hints["return"]) is dict
-
-
-@pytest.mark.unit
-class TestProtocolContractDocument:
-    """ProtocolContractDocument: 6 properties; contract_id -> UUID."""
-
-    def test_is_runtime_checkable(self) -> None:
-        assert _is_runtime_checkable(ProtocolContractDocument)
-
-    def test_conforming_stub_satisfies_isinstance(self) -> None:
-        assert isinstance(_ContractDocument(), ProtocolContractDocument)
-
-    def test_missing_parties_fails_isinstance(self) -> None:
-        class Partial:
-            @property
-            def contract_id(self) -> UUID:
-                return UUID("00000000-0000-0000-0000-000000000001")
-
-            @property
-            def contract_type(self) -> str:
-                return "API"
-
-            @property
-            def terms(self) -> dict:
-                return {}
-
-            @property
-            def effective_date(self) -> str:
-                return "2024-01-01"
-
-            @property
-            def expiration_date(self) -> str | None:
-                return None
-
-        assert not isinstance(Partial(), ProtocolContractDocument)
-
-    def test_has_required_attrs(self) -> None:
-        attrs = set(ProtocolContractDocument.__protocol_attrs__)
-        expected = {
-            "contract_id",
-            "contract_type",
-            "parties",
-            "terms",
-            "effective_date",
-            "expiration_date",
-        }
-        assert expected <= attrs
-
-    def test_contract_id_return_type_is_uuid(self) -> None:
-        prop = ProtocolContractDocument.__dict__["contract_id"]
-        hints = get_type_hints(prop.fget)
-        assert hints["return"] is UUID
-
-    def test_contract_type_return_type_is_str(self) -> None:
-        prop = ProtocolContractDocument.__dict__["contract_type"]
-        hints = get_type_hints(prop.fget)
-        assert hints["return"] is str
-
-    def test_parties_return_type_origin_is_list(self) -> None:
-        import typing
-
-        prop = ProtocolContractDocument.__dict__["parties"]
-        hints = get_type_hints(prop.fget)
-        assert typing.get_origin(hints["return"]) is list
-
-
-@pytest.mark.unit
-class TestProtocolIndexingConfiguration:
-    """ProtocolIndexingConfiguration: 5 properties; chunk_size/overlap -> int."""
-
-    def test_is_runtime_checkable(self) -> None:
-        assert _is_runtime_checkable(ProtocolIndexingConfiguration)
-
-    def test_conforming_stub_satisfies_isinstance(self) -> None:
-        assert isinstance(_IndexingConfiguration(), ProtocolIndexingConfiguration)
-
-    def test_missing_strategy_fails_isinstance(self) -> None:
-        class Partial:
-            @property
-            def chunk_size(self) -> int:
-                return 512
-
-            @property
-            def chunk_overlap(self) -> int:
-                return 50
-
-            @property
-            def metadata_extraction(self) -> bool:
-                return True
-
-            @property
-            def preprocessing_options(self) -> dict:
-                return {}
-
-        assert not isinstance(Partial(), ProtocolIndexingConfiguration)
-
-    def test_has_required_attrs(self) -> None:
-        attrs = set(ProtocolIndexingConfiguration.__protocol_attrs__)
-        expected = {
-            "chunk_size",
-            "chunk_overlap",
-            "strategy",
-            "metadata_extraction",
-            "preprocessing_options",
-        }
-        assert expected <= attrs
-
-    def test_chunk_size_return_type_is_int(self) -> None:
-        prop = ProtocolIndexingConfiguration.__dict__["chunk_size"]
-        hints = get_type_hints(prop.fget)
-        assert hints["return"] is int
-
-    def test_chunk_overlap_return_type_is_int(self) -> None:
-        prop = ProtocolIndexingConfiguration.__dict__["chunk_overlap"]
-        hints = get_type_hints(prop.fget)
-        assert hints["return"] is int
-
-    def test_strategy_return_type_is_str(self) -> None:
-        prop = ProtocolIndexingConfiguration.__dict__["strategy"]
-        hints = get_type_hints(prop.fget)
-        assert hints["return"] is str
-
-
-@pytest.mark.unit
-class TestProtocolAdaptiveChunk:
-    """ProtocolAdaptiveChunk: 6 properties; chunk_id -> UUID."""
-
-    def test_is_runtime_checkable(self) -> None:
-        assert _is_runtime_checkable(ProtocolAdaptiveChunk)
-
-    def test_conforming_stub_satisfies_isinstance(self) -> None:
-        assert isinstance(_AdaptiveChunk(), ProtocolAdaptiveChunk)
-
-    def test_missing_end_position_fails_isinstance(self) -> None:
-        class Partial:
-            @property
-            def chunk_id(self) -> UUID:
-                return UUID("00000000-0000-0000-0000-000000000001")
-
-            @property
-            def content(self) -> str:
-                return ""
-
-            @property
-            def start_position(self) -> int:
-                return 0
-
-            @property
-            def metadata(self) -> dict:
-                return {}
-
-            @property
-            def embedding_vector(self) -> list | None:
-                return None
-
-        assert not isinstance(Partial(), ProtocolAdaptiveChunk)
-
-    def test_has_required_attrs(self) -> None:
-        attrs = set(ProtocolAdaptiveChunk.__protocol_attrs__)
-        expected = {
-            "chunk_id",
-            "content",
-            "start_position",
-            "end_position",
-            "metadata",
-            "embedding_vector",
-        }
-        assert expected <= attrs
-
-    def test_chunk_id_return_type_is_uuid(self) -> None:
-        prop = ProtocolAdaptiveChunk.__dict__["chunk_id"]
-        hints = get_type_hints(prop.fget)
-        assert hints["return"] is UUID
-
-    def test_start_position_return_type_is_int(self) -> None:
-        prop = ProtocolAdaptiveChunk.__dict__["start_position"]
-        hints = get_type_hints(prop.fget)
-        assert hints["return"] is int
-
-    def test_end_position_return_type_is_int(self) -> None:
-        prop = ProtocolAdaptiveChunk.__dict__["end_position"]
-        hints = get_type_hints(prop.fget)
-        assert hints["return"] is int
-
-    def test_content_return_type_is_str(self) -> None:
-        prop = ProtocolAdaptiveChunk.__dict__["content"]
-        hints = get_type_hints(prop.fget)
-        assert hints["return"] is str
-
-
-@pytest.mark.unit
-class TestProtocolChunkingQualityMetrics:
-    """ProtocolChunkingQualityMetrics: 6 properties; scores are float."""
-
-    def test_is_runtime_checkable(self) -> None:
-        assert _is_runtime_checkable(ProtocolChunkingQualityMetrics)
-
-    def test_conforming_stub_satisfies_isinstance(self) -> None:
-        assert isinstance(_ChunkingQualityMetrics(), ProtocolChunkingQualityMetrics)
-
-    def test_missing_semantic_density_fails_isinstance(self) -> None:
-        class Partial:
-            @property
-            def total_chunks(self) -> int:
-                return 10
-
-            @property
-            def average_chunk_size(self) -> float:
-                return 256.0
-
-            @property
-            def quality_score(self) -> float:
-                return 0.9
-
-            @property
-            def coherence_score(self) -> float:
-                return 0.85
-
-            @property
-            def metadata_coverage(self) -> float:
-                return 0.95
-
-        assert not isinstance(Partial(), ProtocolChunkingQualityMetrics)
-
-    def test_has_required_attrs(self) -> None:
-        attrs = set(ProtocolChunkingQualityMetrics.__protocol_attrs__)
-        expected = {
-            "total_chunks",
-            "average_chunk_size",
-            "quality_score",
-            "coherence_score",
-            "semantic_density",
-            "metadata_coverage",
-        }
-        assert expected <= attrs
-
-    def test_total_chunks_return_type_is_int(self) -> None:
-        prop = ProtocolChunkingQualityMetrics.__dict__["total_chunks"]
-        hints = get_type_hints(prop.fget)
-        assert hints["return"] is int
-
-    def test_quality_score_return_type_is_float(self) -> None:
-        prop = ProtocolChunkingQualityMetrics.__dict__["quality_score"]
-        hints = get_type_hints(prop.fget)
-        assert hints["return"] is float
-
-    def test_coherence_score_return_type_is_float(self) -> None:
-        prop = ProtocolChunkingQualityMetrics.__dict__["coherence_score"]
-        hints = get_type_hints(prop.fget)
-        assert hints["return"] is float
-
-    def test_semantic_density_return_type_is_float(self) -> None:
-        prop = ProtocolChunkingQualityMetrics.__dict__["semantic_density"]
-        hints = get_type_hints(prop.fget)
-        assert hints["return"] is float
-
-    def test_metadata_coverage_return_type_is_float(self) -> None:
-        prop = ProtocolChunkingQualityMetrics.__dict__["metadata_coverage"]
-        hints = get_type_hints(prop.fget)
-        assert hints["return"] is float
-
-    def test_average_chunk_size_return_type_is_float(self) -> None:
-        prop = ProtocolChunkingQualityMetrics.__dict__["average_chunk_size"]
-        hints = get_type_hints(prop.fget)
-        assert hints["return"] is float
+@pytest.mark.parametrize(("proto", "attr", "expected"), RETURN_CASES)
+def test_protocol_property_return_hints(
+    proto: type, attr: str, expected: object
+) -> None:
+    prop = proto.__dict__[attr]
+    assert isinstance(prop, property)
+    assert prop.fget is not None
+    return_type = get_type_hints(prop.fget)["return"]
+    assert _matches_expected_return(return_type, expected)
