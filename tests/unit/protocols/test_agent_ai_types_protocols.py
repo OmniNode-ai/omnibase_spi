@@ -16,13 +16,13 @@ Ticket: OMN-13745
 
 from __future__ import annotations
 
+import importlib
 import inspect
 from typing import Any, Protocol, get_type_hints
 from uuid import UUID, uuid4
 
 import pytest
 
-import omnibase_spi.protocols.types.protocol_agent_ai_types as _agent_ai_mod
 from omnibase_spi.protocols.types.protocol_agent_ai_types import (
     LiteralActionType,
     ProtocolAgentAction,
@@ -35,6 +35,9 @@ from omnibase_spi.protocols.types.protocol_agent_ai_types import (
 from omnibase_spi.protocols.types.protocol_semantic_types import (
     ProtocolRetrievalOutputState,
 )
+
+MODULE_NAME = "omnibase_spi.protocols.types.protocol_agent_ai_types"
+_agent_ai_mod = importlib.import_module(MODULE_NAME)
 
 # ---------------------------------------------------------------------------
 # Minimal conforming stubs
@@ -256,7 +259,7 @@ class TestModuleImport:
 
     def test_clean_import(self) -> None:
         """Module imports without error and exposes expected names."""
-        import omnibase_spi.protocols.types.protocol_agent_ai_types as mod
+        mod = importlib.import_module(MODULE_NAME)
 
         assert mod is not None
 
