@@ -518,3 +518,13 @@ class ProtocolIntelligenceResult(Protocol):
 
 # Type aliases for common literal types
 LiteralActionType = str  # Would be a Literal in full implementation
+
+__all__ = [
+    "LiteralActionType",
+    "ProtocolAgentAction",
+    "ProtocolAgentDebugIntelligence",
+    "ProtocolAIExecutionMetrics",
+    "ProtocolIntelligenceResult",
+    "ProtocolPRTicket",
+    "ProtocolVelocityLog",
+]
