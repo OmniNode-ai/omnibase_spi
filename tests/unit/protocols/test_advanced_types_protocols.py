@@ -14,7 +14,6 @@ from uuid import UUID
 
 import pytest
 
-import omnibase_spi.protocols.types.protocol_advanced_types as _mod
 from omnibase_spi.protocols.types.protocol_advanced_types import (
     LiteralActionType,
     LiteralContractType,
@@ -38,10 +37,12 @@ from omnibase_spi.protocols.types.protocol_advanced_types import (
     ProtocolSchemaDefinition,
     ProtocolVelocityLog,
 )
+from omnibase_spi.protocols.types.protocol_core_types import ContextValue
 
 MODULE_NAME = "omnibase_spi.protocols.types.protocol_advanced_types"
 UUID_VALUE = UUID("00000000-0000-0000-0000-000000000001")
 NONE_TYPE = type(None)
+_mod = importlib.import_module(MODULE_NAME)
 
 LOCAL_PROTOCOL_ATTRS = {
     ProtocolOutputFormat: (
@@ -182,45 +183,45 @@ RETURN_EXPECTATIONS = {
     },
     ProtocolOutputData: {
         "content": str,
-        "metadata": dict,
+        "metadata": dict[str, ContextValue],
         "format_type": ProtocolOutputFormat,
         "timestamp": str,
         "correlation_id": UUID,
     },
     ProtocolMultiVectorDocument: {
         "document_id": UUID,
-        "content_vectors": dict,
-        "metadata": dict,
-        "chunk_info": dict,
-        "embedding_models": list,
+        "content_vectors": dict[str, list[float]],
+        "metadata": dict[str, ContextValue],
+        "chunk_info": dict[str, ContextValue],
+        "embedding_models": list[str],
     },
     ProtocolInputDocument: {
         "document_id": UUID,
         "content": str,
         "content_type": str,
-        "metadata": dict,
+        "metadata": dict[str, ContextValue],
         "source_uri": str,
     },
     ProtocolFixtureData: {
         "fixture_id": str,
         "fixture_type": str,
-        "data": dict,
-        "dependencies": list,
-        "setup_actions": list,
-        "teardown_actions": list,
+        "data": dict[str, ContextValue],
+        "dependencies": list[str],
+        "setup_actions": list[str],
+        "teardown_actions": list[str],
     },
     ProtocolSchemaDefinition: {
         "schema_name": str,
         "schema_version": str,
-        "fields": dict,
-        "validation_rules": list,
-        "relationships": dict,
+        "fields": dict[str, ContextValue],
+        "validation_rules": list[dict[str, ContextValue]],
+        "relationships": dict[str, ContextValue],
     },
     ProtocolContractDocument: {
         "contract_id": UUID,
         "contract_type": str,
-        "parties": list,
-        "terms": dict,
+        "parties": list[str],
+        "terms": dict[str, ContextValue],
         "effective_date": str,
         "expiration_date": str | None,
     },
@@ -229,15 +230,15 @@ RETURN_EXPECTATIONS = {
         "chunk_overlap": int,
         "strategy": str,
         "metadata_extraction": bool,
-        "preprocessing_options": dict,
+        "preprocessing_options": dict[str, ContextValue],
     },
     ProtocolAdaptiveChunk: {
         "chunk_id": UUID,
         "content": str,
         "start_position": int,
         "end_position": int,
-        "metadata": dict,
-        "embedding_vector": list | None,
+        "metadata": dict[str, ContextValue],
+        "embedding_vector": list[float] | None,
     },
     ProtocolChunkingQualityMetrics: {
         "total_chunks": int,
@@ -293,22 +294,33 @@ def _is_runtime_checkable(proto: type) -> bool:
 
 
 def _matches_expected_return(return_type: object, expected: object) -> bool:
-    if expected in {dict, list}:
-        return get_origin(return_type) is expected
+    if return_type == expected:
+        return True
 
-    if get_origin(expected) is types.UnionType:
+    expected_origin = get_origin(expected)
+    return_origin = get_origin(return_type)
+
+    if expected_origin is types.UnionType:
         args = get_args(expected)
         if NONE_TYPE in args and len(args) == 2:
             concrete = next(arg for arg in args if arg is not NONE_TYPE)
-            if get_origin(return_type) is not types.UnionType:
+            if return_origin is not types.UnionType:
                 return False
             return_args = get_args(return_type)
             non_none_return = next(arg for arg in return_args if arg is not NONE_TYPE)
-            if concrete in {dict, list}:
-                return (
-                    NONE_TYPE in return_args and get_origin(non_none_return) is concrete
-                )
-            return set(return_args) == {concrete, NONE_TYPE}
+            return NONE_TYPE in return_args and _matches_expected_return(
+                non_none_return, concrete
+            )
+
+    if expected_origin is not None:
+        if return_origin is not expected_origin:
+            return False
+        return_args = get_args(return_type)
+        expected_args = get_args(expected)
+        return len(return_args) == len(expected_args) and all(
+            _matches_expected_return(actual, wanted)
+            for actual, wanted in zip(return_args, expected_args, strict=True)
+        )
 
     return return_type is expected
 
@@ -337,6 +349,7 @@ class TestModuleImport:
 
     def test_all_contains_literal_aliases(self) -> None:
         aliases = [
+            "LiteralActionType",
             "LiteralOutputFormat",
             "LiteralDocumentType",
             "LiteralFixtureType",
