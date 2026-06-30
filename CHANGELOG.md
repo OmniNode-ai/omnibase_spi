@@ -1,3 +1,35 @@
+## v0.23.0 (2026-06-30)
+
+### Features
+- feat(OMN-13443): relocate local-runtime protocols to omnibase_spi.protocols.runtime (#240)
+- feat(OMN-13221): renderer + capability-negotiation protocols for bus-native action loop (#236)
+- feat(OMN-13291): wire validate-validator-requirements fleet gate (#238)
+- feat(OMN-13296): add reject-deploy-gate-skip-token pre-commit hook (#237)
+
+### Bug Fixes
+- fix(OMN-12273): type protocol duplicate classifications (#239)
+
+### Refactoring
+- refactor(OMN-13453): remove redundant spi local-runtime protocol copies (#241)
+- chore(OMN-12186): remove from __future__ import annotations in omnibase_spi src (#243)
+
+### Documentation
+- docs(OMN-13570): sanitize omnibase_spi documentation (local-env + OMN-XXXX + renames) (#246)
+- docs(OMN-13456): refresh architecture docs + exhibit (omnibase_spi) (#242)
+- docs(OMN-13198): retarget ModelOnexEnvelope doc references to ModelEventEnvelope (#235)
+- docs(OMN-13172): refresh omnibase_spi documentation (#234)
+
+### Tests
+- test(OMN-13742): raise coverage of protocol_advanced_types.py from 0% (#247)
+- test(OMN-13745): raise coverage of protocol_agent_ai_types to ~100% (#248)
+
+### Dependencies
+- Bump omnibase-core pin from git tag v0.45.0 to PyPI omnibase-core>=0.46.1,<0.47.0
+
+### CI / Chore
+- chore(deps): bump actions/cache from 5 to 6 (#245)
+- chore(deps): bump actions/checkout from 6 to 7 (#244)
+
 ## v0.22.0 (2026-05-31)
 
 ### Features
