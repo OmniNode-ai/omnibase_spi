@@ -2,7 +2,7 @@
 
 ## Overview
 
-Complete API reference documentation for all **248 protocol files** across **37 protocol domains** in the omnibase-spi package. This reference provides detailed documentation for every public interface in the Service Provider Interface layer.
+Complete API reference documentation for all **231 protocol files** across **39 protocol domains** in the omnibase-spi package. This reference provides detailed documentation for every public interface in the Service Provider Interface layer.
 
 ## Protocol Architecture
 
@@ -95,13 +95,16 @@ The API reference is organized by domain, matching the package structure:
 - **[Exceptions](./EXCEPTIONS.md)** - SPI exception hierarchy
 
 ### Workflow and Event Processing
-- **[Workflow Orchestration](./WORKFLOW-ORCHESTRATION.md)** - Event-driven FSM orchestration (12 protocols)
-- **[Event Bus](./EVENT-BUS.md)** - Distributed messaging infrastructure (14 protocols)
-- **[Memory Management](./MEMORY.md)** - Memory operations and workflow management (14 protocols)
+- **[Workflow Orchestration](./WORKFLOW-ORCHESTRATION.md)** - Event-driven FSM orchestration (10 protocols)
+- **[Event Bus](./EVENT-BUS.md)** - Distributed messaging infrastructure
+- **[Memory Management](./MEMORY.md)** - Memory operations and workflow management (12 protocols)
+
+### Projections
+- **[Projections](./PROJECTIONS.md)** - Projection persistence, reading, and view dispatch (8 protocols)
 
 ### Integration and Communication
-- **[MCP Integration](./MCP.md)** - Model Context Protocol coordination (14 protocols)
-- **[Networking](./NETWORKING.md)** - HTTP, Kafka, and communication protocols (6 protocols)
+- **[MCP Integration](./MCP.md)** - Model Context Protocol coordination (10 protocols)
+- **[Networking](./NETWORKING.md)** - HTTP, Kafka, and communication protocols (4 protocols)
 - **[File Handling](./FILE-HANDLING.md)** - File processing and type handling (8 protocols)
 
 ### Validation and Quality
@@ -110,7 +113,7 @@ The API reference is organized by domain, matching the package structure:
 ### Type System
 - **Type definitions are integrated within each protocol domain**
 - **All types follow consistent naming conventions**
-- **Comprehensive type coverage across all 248 protocol files**
+- **Comprehensive type coverage across all 231 protocol files**
 - **Type Protocols (14)**: ProtocolContract, ProtocolErrorInfo, and domain-specific type definitions
 - **ONEX Node Types (4)**: ProtocolEffectNode, ProtocolComputeNode, ProtocolReducerNode, ProtocolOrchestratorNode
 
@@ -221,7 +224,6 @@ Values:
 |----------|---------|-------|
 | `ProtocolEventBus` | Event messaging | Distributed communication |
 | `ProtocolKafkaAdapter` | Kafka integration | Event streaming |
-| `ProtocolEventOrchestrator` | Event coordination | Event routing |
 | `ProtocolEventPublisher` | Event publishing | Message distribution |
 | `ProtocolEventBusProvider` | Event bus provider | Component-level integration |
 
@@ -275,8 +277,8 @@ Common patterns documented throughout:
 
 ## Protocol Statistics
 
-- **Total Protocols**: 248 protocol files
-- **Domain Coverage**: 37 protocol domains
+- **Total Protocols**: 231 protocol files
+- **Domain Coverage**: 39 protocol domains
 - **Type Definitions**: 14 comprehensive type modules
 - **Enterprise Features**: Health monitoring, metrics, circuit breakers
 - **Architecture Patterns**: Event sourcing, dependency injection, distributed coordination
@@ -313,11 +315,9 @@ This section demonstrates common multi-protocol usage patterns showing how proto
 ```python
 from typing import Any
 
-from omnibase_spi.protocols import (
-    ProtocolHandler,
-    ProtocolHandlerRegistry,
-    ProtocolServiceRegistry,
-)
+from omnibase_spi.protocols.handlers import ProtocolHandler
+from omnibase_spi.protocols.registry import ProtocolHandlerRegistry
+from omnibase_spi.protocols.container import ProtocolServiceRegistry
 from omnibase_spi.exceptions import RegistryError
 
 
@@ -415,11 +415,9 @@ async def use_handler(
 ```python
 from typing import Any
 
-from omnibase_spi.protocols import (
-    ProtocolEffectNode,
-    ProtocolHandler,
-    ProtocolServiceRegistry,
-)
+from omnibase_spi.protocols.nodes import ProtocolEffectNode
+from omnibase_spi.protocols.handlers import ProtocolHandler
+from omnibase_spi.protocols.container import ProtocolServiceRegistry
 from omnibase_spi.exceptions import (
     InvalidProtocolStateError,
     ProtocolHandlerError,
@@ -535,10 +533,8 @@ async def create_api_effect_node(
 ```python
 from pathlib import Path
 
-from omnibase_spi.protocols import (
-    ProtocolEffectContractCompiler,
-    ProtocolWorkflowContractCompiler,
-)
+from omnibase_spi.protocols.contracts import ProtocolEffectContractCompiler
+from omnibase_spi.protocols.contracts import ProtocolWorkflowContractCompiler
 from omnibase_spi.exceptions import ContractCompilerError
 
 
@@ -657,11 +653,9 @@ from omnibase_spi.exceptions import (
     RegistryError,
     SPIError,
 )
-from omnibase_spi.protocols import (
-    ProtocolHandler,
-    ProtocolHandlerRegistry,
-    ProtocolOrchestratorNode,
-)
+from omnibase_spi.protocols.handlers import ProtocolHandler
+from omnibase_spi.protocols.registry import ProtocolHandlerRegistry
+from omnibase_spi.protocols.nodes import ProtocolOrchestratorNode
 
 # Assume a structured logger is available (e.g., structlog)
 log: Any  # Type: StructuredLogger
@@ -797,13 +791,13 @@ async def safe_workflow_execution(
 ```python
 from typing import Any
 
-from omnibase_spi.protocols import (
+from omnibase_spi.protocols.nodes import (
     ProtocolComputeNode,
     ProtocolEffectNode,
     ProtocolOrchestratorNode,
     ProtocolReducerNode,
-    ProtocolServiceRegistry,
 )
+from omnibase_spi.protocols.container import ProtocolServiceRegistry
 from omnibase_spi.exceptions import SPIError
 
 
@@ -960,10 +954,15 @@ def validate_node_types(
 
 ## Version Information
 
-- **API Reference Version**: current package 0.20.5
+- **API Reference Version**: current package 0.22.0
 - **Python Compatibility**: 3.12+
 - **Type Checking**: mypy strict mode compatible
 - **Runtime Checking**: All protocols are `@runtime_checkable`
+
+> Verified against code on this refresh: 231 `protocol_*.py` files and 39
+> protocol domains under `src/omnibase_spi/protocols/`; package version `0.22.0`
+> from `pyproject.toml`. The count changed from 229 after the
+> local-runtime protocol relocation.
 
 ## See Also
 

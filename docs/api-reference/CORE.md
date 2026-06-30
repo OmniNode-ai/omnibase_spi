@@ -538,7 +538,7 @@ await logger.log_structured(
     event="user_login",
     data={
         "user_id": "12345",
-        "ip_address": "192.168.1.100",
+        "ip_address": "<onex-host>",
         "user_agent": "Mozilla/5.0..."
     },
     correlation_id="req-abc123"
@@ -653,7 +653,7 @@ await logger.log_audit(
     action="user_login",
     user_id="12345",
     resource="authentication_service",
-    details={"ip_address": "192.168.1.100"}
+    details={"ip_address": "<onex-host>"}
 )
 ```
 

@@ -1,6 +1,6 @@
 # Handler Protocols API Reference
 
-![Version](https://img.shields.io/badge/SPI-v0.20.5-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.1.0-lightgrey)
+![Version](https://img.shields.io/badge/SPI-v0.22.0-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.1.0-lightgrey)
 
 ---
 
@@ -10,7 +10,6 @@
 - [Architecture](#architecture)
 - [ProtocolHandler](#protocolhandler)
   - [Description](#description)
-  - [Migration Note](#migration-note)
   - [Properties](#properties)
   - [Methods](#methods)
     - [handler_type](#handler_type-property)
@@ -79,19 +78,15 @@ Implementations live in `omnibase_core` or `omnibase_infra`. This is the canonic
 - `PostgresHandler`: SQL queries via asyncpg
 - `KafkaHandler`: Message publishing
 
-### Migration Note
+### Import Path
 
-`ProtocolHandlerV3` was the versioned name during the protocol evolution. As of v0.3.0, `ProtocolHandler` is the canonical name. `ProtocolHandlerV3` is provided as a backwards-compatible alias but will be removed in v0.5.0.
+`ProtocolHandler` is the canonical name. Import it from the `handlers` subdomain:
 
 ```python
-# Old (deprecated)
-from omnibase_spi.protocols import ProtocolHandlerV3
-
-# New (recommended)
-from omnibase_spi.protocols import ProtocolHandler
+from omnibase_spi.protocols.handlers import ProtocolHandler
 ```
 
-The protocols are identical - no code changes are needed beyond updating the import statement.
+Do not use the root `protocols` barrel (`from omnibase_spi.protocols import ...`) — it is frozen and no longer extended. `ProtocolHandlerV3` is not exported from any barrel and should not be referenced.
 
 ### Properties
 
@@ -622,7 +617,7 @@ async def health_check(self) -> dict[str, Any]:
 
 ## Version Information
 
-- **API Reference Version**: current package 0.20.5
+- **API Reference Version**: current package 0.22.0
 - **Python Compatibility**: 3.12+
 - **Type Checking**: mypy strict mode compatible
 - **Runtime Checking**: All protocols are `@runtime_checkable`

@@ -196,11 +196,13 @@ from omnibase_spi.protocols.core import (
     ProtocolVersionManager,
 )
 
-# Dashboard protocols (4 protocols) - Dashboard UI and widget rendering
+# Dashboard protocols (6 protocols) - Dashboard UI and widget rendering
 from omnibase_spi.protocols.dashboard import (
     ProtocolDashboardEventSubscriber,
     ProtocolDashboardService,
     ProtocolRegistryQueryService,
+    ProtocolRenderer,
+    ProtocolRendererCapabilityNegotiator,
     ProtocolWidgetRenderer,
 )
 
@@ -670,6 +672,8 @@ __all__ = [
     "ProtocolReducerNode",
     "ProtocolRedpandaAdapter",
     "ProtocolRegistryQueryService",
+    "ProtocolRenderer",
+    "ProtocolRendererCapabilityNegotiator",
     "ProtocolReply",
     "ProtocolRetryable",
     "ProtocolSchema",

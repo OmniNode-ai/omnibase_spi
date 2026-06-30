@@ -359,7 +359,7 @@ registration_id = await mcp_registry.register_subsystem(
     subsystem_metadata=ProtocolMCPSubsystemMetadata(
         subsystem_id="llm-subsystem-1",
         subsystem_type="llm",
-        host="192.168.1.100",
+        host="<onex-host>",
         port=8080
     ),
     tools=[

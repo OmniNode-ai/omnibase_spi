@@ -17,7 +17,7 @@ such as `omnibase_infra`.
 
 ## Current Role
 
-- Defines 248 `protocol_*.py` files across 37 protocol domains.
+- Defines 231 `protocol_*.py` files across 39 protocol domains.
 - Provides runtime-checkable Python `Protocol` contracts for service boundaries.
 - Provides frozen, data-only contracts in `src/omnibase_spi/contracts/` for
   selected cross-boundary wire formats.

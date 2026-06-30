@@ -2,8 +2,6 @@
 # SPDX-License-Identifier: MIT
 """Remote-agent transport protocol seam for A2A, MCP, and HTTP handlers."""
 
-from __future__ import annotations
-
 from collections.abc import AsyncIterator
 from typing import Protocol, runtime_checkable
 from uuid import UUID

@@ -159,7 +159,7 @@ sequenceDiagram
 
     loop Message Processing
         Kafka->>EventBus: poll messages
-        EventBus->>EventBus: deserialize to ModelOnexEnvelope
+        EventBus->>EventBus: deserialize to ModelEventEnvelope
         EventBus->>Handler: handler(envelope)
         Handler->>Handler: process envelope.payload
         Handler-->>EventBus: complete

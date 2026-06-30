@@ -67,8 +67,6 @@ class ProtocolEventBusProvider(Protocol):
 # omnibase_infra/event_bus/in_memory_provider.py
 """In-memory event bus provider for testing and development."""
 
-from __future__ import annotations
-
 from omnibase_spi.protocols.event_bus import (
     ProtocolEventBusBase,
     ProtocolEventBusProvider,
@@ -132,8 +130,6 @@ assert isinstance(InMemoryEventBusProvider(), ProtocolEventBusProvider)
 ```python
 # omnibase_infra/event_bus/kafka_provider.py
 """Kafka event bus provider for production use."""
-
-from __future__ import annotations
 
 import asyncio
 import logging
@@ -400,8 +396,6 @@ class ProtocolNode(Protocol):
 # omnibase_infra/nodes/compute/json_transform_node.py
 """JSON transformation compute node."""
 
-from __future__ import annotations
-
 from typing import TYPE_CHECKING
 
 from omnibase_spi.protocols.nodes import ProtocolComputeNode
@@ -486,8 +480,6 @@ assert isinstance(JsonTransformNode(), ProtocolComputeNode)
 ```python
 # omnibase_infra/nodes/compute/vectorization_node.py
 """Text vectorization compute node for embedding generation."""
-
-from __future__ import annotations
 
 import hashlib
 import logging
@@ -710,8 +702,6 @@ class ProtocolHandler(Protocol):
 # omnibase_infra/handlers/http_handler.py
 """HTTP REST handler for API calls."""
 
-from __future__ import annotations
-
 from typing import TYPE_CHECKING
 
 from omnibase_spi.protocols.handlers import ProtocolHandler
@@ -786,8 +776,6 @@ assert isinstance(HttpHandler(), ProtocolHandler)
 ```python
 # omnibase_infra/handlers/postgres_handler.py
 """PostgreSQL handler with connection pooling and resilience."""
-
-from __future__ import annotations
 
 import asyncio
 import logging
@@ -1056,7 +1044,7 @@ When implementing any SPI protocol, verify:
 
 - [ ] Use `TYPE_CHECKING` block for model imports to avoid circular imports
 - [ ] Return types match protocol specification
-- [ ] Use `from __future__ import annotations` for forward references
+- [ ] Use `TYPE_CHECKING` blocks for forward references (do not use `from __future__ import annotations`)
 
 ### Error Handling
 

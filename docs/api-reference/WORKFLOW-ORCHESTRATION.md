@@ -1,8 +1,8 @@
 # Workflow Orchestration API Reference
 
-![Version](https://img.shields.io/badge/SPI-v0.20.5-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.2.0-lightgrey)
+![Version](https://img.shields.io/badge/SPI-v0.22.0-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.2.0-lightgrey)
 
-> **Package Version**: 0.20.5 | **Status**: Stable | **Since**: v0.2.0
+> **Package Version**: 0.22.0 | **Status**: Stable | **Since**: v0.2.0
 
 ---
 
@@ -12,7 +12,7 @@ The ONEX workflow orchestration protocols provide comprehensive event-driven FSM
 
 ## 🏗️ Protocol Architecture
 
-The workflow orchestration domain consists of **12 specialized protocols** that provide complete workflow management:
+The workflow orchestration domain consists of **10 specialized protocols** that provide complete workflow management:
 
 ### Workflow Event Bus Protocol
 
@@ -965,7 +965,7 @@ node_id = await node_registry.register_node(
     node_info=ProtocolWorkflowNodeInfo(
         node_id="worker-node-1",
         node_type="compute",
-        host="192.168.1.100",
+        host="<onex-host>",
         port=8080
     ),
     capabilities=[

@@ -26,12 +26,35 @@ import re
 import sys
 from collections import defaultdict
 from dataclasses import dataclass
+from enum import StrEnum
 from pathlib import Path
 from typing import Any
 
 import timeout_utils
 from timeout_utils import timeout_context
 from validation_constants import KNOWN_ALLOWED_CONFLICTS
+
+
+class ProtocolClassification(StrEnum):
+    """Known structural classifications for discovered SPI protocols."""
+
+    FUNCTIONAL = "functional"
+    MARKER = "marker"
+    PROPERTY_ONLY = "property_only"
+    MIXIN = "mixin"
+
+    @classmethod
+    def parse(cls, value: ProtocolClassification | str) -> ProtocolClassification:
+        """Return a known protocol classification or fail clearly."""
+        if isinstance(value, cls):
+            return value
+        try:
+            return cls(value)
+        except ValueError as exc:
+            valid = ", ".join(item.value for item in cls)
+            raise ValueError(
+                f"Unknown protocol classification {value!r}; expected one of: {valid}"
+            ) from exc
 
 
 @dataclass
@@ -50,7 +73,7 @@ class ProtocolInfo:
     domain: str = "unknown"
     properties: list[str] = None
     base_protocols: list[str] = None
-    protocol_type: str = "functional"  # functional, marker, property_only, mixin
+    protocol_type: ProtocolClassification = ProtocolClassification.FUNCTIONAL
     docstring: str = ""
 
     def __post_init__(self):
@@ -58,6 +81,7 @@ class ProtocolInfo:
             self.properties = []
         if self.base_protocols is None:
             self.base_protocols = []
+        self.protocol_type = ProtocolClassification.parse(self.protocol_type)
 
 
 _PATH_DOMAIN_MAP: dict[str, str] = {
@@ -133,14 +157,14 @@ def _determine_protocol_type(
     methods: list[str],
     properties: list[str],
     base_protocols: list[str],
-) -> str:
+) -> ProtocolClassification:
     if not methods and not properties:
-        return "marker"
+        return ProtocolClassification.MARKER
     if not methods and properties:
-        return "property_only"
+        return ProtocolClassification.PROPERTY_ONLY
     if methods and not properties and base_protocols:
-        return "mixin"
-    return "functional"
+        return ProtocolClassification.MIXIN
+    return ProtocolClassification.FUNCTIONAL
 
 
 def _get_module_path(file_path: str) -> str:
@@ -221,13 +245,13 @@ def _extract_body_members(node: ast.ClassDef) -> tuple[list[str], list[str]]:
 def _build_signature_hash(
     name: str,
     domain: str,
-    protocol_type: str,
+    protocol_type: ProtocolClassification,
     methods: list[str],
     properties: list[str],
     base_protocols: list[str],
     docstring: str,
 ) -> str:
-    components = [f"name:{name}", f"domain:{domain}", f"type:{protocol_type}"]
+    components = [f"name:{name}", f"domain:{domain}", f"type:{protocol_type.value}"]
     if methods:
         components.append(f"methods:{':'.join(sorted(methods))}")
     if properties:
@@ -394,7 +418,7 @@ def _group_protocols(
         by_signature[protocol.signature_hash].append(protocol)
         by_name[protocol.name].append(protocol)
         by_domain[protocol.domain].append(protocol)
-        by_type[protocol.protocol_type].append(protocol)
+        by_type[protocol.protocol_type.value].append(protocol)
     return by_signature, by_name, by_domain, by_type
 
 
@@ -432,7 +456,7 @@ def _build_domain_distribution(
     for domain, domain_protocols in by_domain.items():
         type_dist: dict[str, int] = defaultdict(int)
         for p in domain_protocols:
-            type_dist[p.protocol_type] += 1
+            type_dist[p.protocol_type.value] += 1
         n = len(domain_protocols)
         distribution[domain] = {
             "count": n,
@@ -551,7 +575,7 @@ def _filter_real_duplicates(protocols: list[ProtocolInfo]) -> list[ProtocolInfo]
     for (_domain, protocol_type), domain_protocols in by_domain_type.items():
         if len(domain_protocols) > 1:
             # For property-only protocols, check if they have truly identical properties
-            if protocol_type == "property_only":
+            if protocol_type is ProtocolClassification.PROPERTY_ONLY:
                 property_groups = defaultdict(list)
                 for protocol in domain_protocols:
                     prop_key = "|".join(sorted(protocol.properties))

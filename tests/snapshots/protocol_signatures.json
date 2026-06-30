@@ -15595,10 +15595,10 @@
       "kind": "async_method",
       "parameters": {
         "input_data": {
-          "type": "ModelReductionInput"
+          "type": "ModelReducerInput[Any]"
         }
       },
-      "return_type": "ModelReductionOutput"
+      "return_type": "ModelReducerOutput[Any]"
     },
     "node_id": {
       "kind": "property",
@@ -15700,6 +15700,163 @@
       "kind": "async_method",
       "parameters": {},
       "return_type": "Sequence[ModelNodeView]"
+    }
+  },
+  "ProtocolRenderer": {
+    "__eq__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__ge__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__gt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__hash__": {
+      "kind": "method",
+      "parameters": {},
+      "return_type": "<empty>"
+    },
+    "__le__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__lt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "can_render": {
+      "kind": "async_method",
+      "parameters": {
+        "component": {
+          "type": "ModelComponentContract"
+        }
+      },
+      "return_type": "bool"
+    },
+    "emit_action": {
+      "kind": "async_method",
+      "parameters": {
+        "action": {
+          "type": "ModelActionContract"
+        },
+        "payload": {
+          "type": "Any"
+        }
+      },
+      "return_type": "ModelEventEnvelope[Any]"
+    },
+    "render": {
+      "kind": "async_method",
+      "parameters": {
+        "component": {
+          "type": "ModelComponentContract"
+        },
+        "data": {
+          "type": "Any"
+        }
+      },
+      "return_type": "Any"
+    },
+    "renderer_capability": {
+      "kind": "async_method",
+      "parameters": {},
+      "return_type": "ModelRendererCapabilityContract"
+    }
+  },
+  "ProtocolRendererCapabilityNegotiator": {
+    "__eq__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__ge__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__gt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__hash__": {
+      "kind": "method",
+      "parameters": {},
+      "return_type": "<empty>"
+    },
+    "__le__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__lt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "negotiate": {
+      "kind": "async_method",
+      "parameters": {
+        "component": {
+          "type": "ModelComponentContract"
+        },
+        "is_fresh": {
+          "type": "bool"
+        },
+        "renderer_capability": {
+          "type": "ModelRendererCapabilityContract"
+        }
+      },
+      "return_type": "omnibase_core.enums.enum_empty_state_reason.EnumEmptyStateReason | None"
     }
   },
   "ProtocolReply": {

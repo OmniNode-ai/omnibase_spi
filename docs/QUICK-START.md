@@ -7,11 +7,11 @@ Get up and running with ONEX SPI protocols in minutes. This guide provides immed
 ## Installation
 
 ```bash
-# Install the package
-pip install omnibase-spi
-
-# Or with uv
+# Install the package (preferred)
 uv add omnibase-spi
+
+# Or with pip
+pip install omnibase-spi
 ```
 
 ## Important: SPI vs Implementation

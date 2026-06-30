@@ -3,14 +3,12 @@
 
 """Reducer node protocol for state aggregation."""
 
-from __future__ import annotations
-
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 from omnibase_spi.protocols.nodes.base import ProtocolNode
 
 if TYPE_CHECKING:
-    from omnibase_core.models.reducer import ModelReductionInput, ModelReductionOutput
+    from omnibase_core.models.reducer import ModelReducerInput, ModelReducerOutput
 
 
 @runtime_checkable
@@ -36,8 +34,8 @@ class ProtocolReducerNode(ProtocolNode, Protocol):
 
     async def execute(
         self,
-        input_data: ModelReductionInput,
-    ) -> ModelReductionOutput:
+        input_data: "ModelReducerInput[Any]",
+    ) -> "ModelReducerOutput[Any]":
         """
         Execute state reduction.
 
