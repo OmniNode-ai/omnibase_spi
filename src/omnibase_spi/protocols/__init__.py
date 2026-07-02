@@ -407,8 +407,11 @@ from omnibase_spi.protocols.registry import (
     ProtocolProviderRegistry,
 )
 
-# Runtime protocols - Domain plugin lifecycle management + handler resolver
+# Runtime protocols - Dispatch engine + domain plugin lifecycle + handler resolver
 # ModelDomainPluginConfig and ModelDomainPluginResult live in omnibase_core.models.runtime.
+from omnibase_spi.protocols.runtime.protocol_dispatch_engine import (
+    ProtocolDispatchEngine,
+)
 from omnibase_spi.protocols.runtime.protocol_domain_plugin import ProtocolDomainPlugin
 from omnibase_spi.protocols.runtime.protocol_handleable import ProtocolHandleable
 from omnibase_spi.protocols.runtime.protocol_handler_ownership_query import (
@@ -502,6 +505,8 @@ from omnibase_spi.protocols.workflow_orchestration import (
 
 
 __all__ = [
+    # Runtime dispatch engine protocol (impls: MessageDispatchEngine, MixinNodeDispatch)
+    "ProtocolDispatchEngine",
     # Runtime plugin protocol (models live in omnibase_core.models.runtime.model_domain_plugin)
     "ProtocolDomainPlugin",
     # Container types and enums

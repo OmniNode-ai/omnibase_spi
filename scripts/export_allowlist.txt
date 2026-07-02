@@ -14,3 +14,8 @@ ProtocolDIServiceMetadata
 # Type alias for ProtocolRegistryServiceInstance (defined in container/__init__.py).
 # Only appears in docstring "See Also" references; no code-level consumers in this repo.
 ProtocolDIServiceInstance
+
+# Dispatch engine contract (OMN-12549) — relocated from omnibase_infra.protocols.
+# Consumed only by external packages: omnibase_infra (MessageDispatchEngine +
+# EventBusSubcontractWiring) and omnibase_core (MixinNodeDispatch). No in-repo consumer.
+ProtocolDispatchEngine

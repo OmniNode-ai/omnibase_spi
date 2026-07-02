@@ -3,6 +3,7 @@
 """Runtime protocols.
 
 Includes:
+    * ProtocolDispatchEngine — topic → handler dispatch engine contract.
     * ProtocolDomainPlugin — domain plugin lifecycle hooks.
     * ProtocolHandleable — structural ``handle()`` protocol for handlers.
     * ProtocolHandlerOwnershipQuery — local-vs-remote ownership decision.
@@ -16,6 +17,9 @@ from this subpackage without a circular import at package-init time.
 
 import importlib
 
+from omnibase_spi.protocols.runtime.protocol_dispatch_engine import (
+    ProtocolDispatchEngine,
+)
 from omnibase_spi.protocols.runtime.protocol_domain_plugin import ProtocolDomainPlugin
 from omnibase_spi.protocols.runtime.protocol_handleable import ProtocolHandleable
 from omnibase_spi.protocols.runtime.protocol_handler_ownership_query import (
@@ -28,6 +32,7 @@ from omnibase_spi.protocols.runtime.protocol_handler_resolver import (
 __all__: list[str] = [
     "ModelDomainPluginConfig",
     "ModelDomainPluginResult",
+    "ProtocolDispatchEngine",
     "ProtocolDomainPlugin",
     "ProtocolHandleable",
     "ProtocolHandlerOwnershipQuery",
