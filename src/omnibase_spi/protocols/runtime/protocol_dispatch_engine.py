@@ -168,7 +168,7 @@ class ProtocolDispatchEngine(Protocol):
                     envelope = deserialize(message)
                     await dispatch_engine.dispatch(topic, envelope)
         """
-        raise NotImplementedError
+        ...
 
     async def dispatch_with_transaction(
         self,
@@ -258,4 +258,4 @@ class ProtocolDispatchEngine(Protocol):
 
         .. versionadded:: 0.2.9
         """
-        raise NotImplementedError
+        ...
