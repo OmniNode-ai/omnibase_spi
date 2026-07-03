@@ -417,8 +417,20 @@ jobs:
     steps:
       - name: Check all jobs passed
         run: |
-          if [[ "${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}" == "true" ]]; then
-            echo "One or more required jobs failed or were cancelled"
+          # OMN-13875: also fail on `skipped`. A required dep here (build-and-verify)
+          # is skipped by GitHub when ANY of ITS upstreams (lint, typecheck,
+          # test-parallel, contract-compliance) fails or is skipped — so a
+          # Contract Compliance Check failure surfaces as build-and-verify=skipped,
+          # NOT failure/cancelled, and previously slipped through this gate.
+          # None of [build-and-verify, tests-gate, spi-validation-gate] has a
+          # path-filter or event-conditional `if:` that legitimately skips it on
+          # a gating event (PR/merge_group), so treating `skipped` as failure
+          # closes the slip without wedging the queue.
+          if [[ "${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'skipped') }}" == "true" ]]; then
+            echo "One or more required jobs failed, were cancelled, or were skipped"
+            echo "  build-and-verify: ${{ needs.build-and-verify.result }}"
+            echo "  tests-gate:       ${{ needs.tests-gate.result }}"
+            echo "  spi-validation-gate: ${{ needs.spi-validation-gate.result }}"
             exit 1
           fi
           echo "All required jobs passed"
