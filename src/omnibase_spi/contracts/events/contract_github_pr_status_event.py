@@ -25,6 +25,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
+from omnibase_spi.registry.event_registry import TOPIC_GITHUB_PR_STATUS
+
 TriageState = Literal[
     "draft",
     "stale",
@@ -45,7 +47,8 @@ class ContractGitHubPRStatusEvent(BaseModel):
 
     Attributes:
         schema_version: Wire-format version for forward compatibility.
-        event_type: Must equal ``"onex.evt.github.pr-status.v1"``.
+        event_type: Must equal ``onex.evt.github.pr-status.v1``
+            (:data:`~omnibase_spi.registry.event_registry.TOPIC_GITHUB_PR_STATUS`).
         repo: Repository identifier in ``{owner}/{name}`` format.
         pr_number: Pull request number (positive integer).
         triage_state: Current triage classification of the PR.
@@ -63,7 +66,7 @@ class ContractGitHubPRStatusEvent(BaseModel):
         description="Wire-format version for forward compatibility.",
     )
     event_type: str = Field(
-        default="onex.evt.github.pr-status.v1",
+        default=TOPIC_GITHUB_PR_STATUS,
         description="Fully-qualified event type identifier; equals the topic name.",
     )
     repo: str = Field(

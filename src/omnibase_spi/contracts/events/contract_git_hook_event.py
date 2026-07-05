@@ -25,6 +25,8 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
+from omnibase_spi.registry.event_registry import TOPIC_GIT_HOOK
+
 
 class ContractGitHookEvent(BaseModel):
     """SPI wire contract for a Git hook event.
@@ -33,7 +35,8 @@ class ContractGitHookEvent(BaseModel):
 
     Attributes:
         schema_version: Wire-format version for forward compatibility.
-        event_type: Must equal ``"onex.evt.git.hook.v1"``.
+        event_type: Must equal ``onex.evt.git.hook.v1``
+            (:data:`~omnibase_spi.registry.event_registry.TOPIC_GIT_HOOK`).
         hook: Hook name (e.g. ``"pre-commit"``, ``"post-receive"``).
         repo: Repository identifier (e.g. ``"OmniNode-ai/omniclaude"``).
         branch: Branch name the hook fired on.
@@ -50,7 +53,7 @@ class ContractGitHookEvent(BaseModel):
         description="Wire-format version for forward compatibility.",
     )
     event_type: str = Field(
-        default="onex.evt.git.hook.v1",
+        default=TOPIC_GIT_HOOK,
         description="Fully-qualified event type identifier; equals the topic name.",
     )
     hook: str = Field(
