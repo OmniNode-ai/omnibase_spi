@@ -25,6 +25,8 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
+from omnibase_spi.registry.event_registry import TOPIC_LINEAR_SNAPSHOT
+
 
 class ContractLinearSnapshotEvent(BaseModel):
     """SPI wire contract for a Linear snapshot event.
@@ -34,7 +36,8 @@ class ContractLinearSnapshotEvent(BaseModel):
 
     Attributes:
         schema_version: Wire-format version for forward compatibility.
-        event_type: Must equal ``"onex.evt.linear.snapshot.v1"``.
+        event_type: Must equal ``onex.evt.linear.snapshot.v1``
+            (:data:`~omnibase_spi.registry.event_registry.TOPIC_LINEAR_SNAPSHOT`).
         snapshot_id: Globally-unique identifier for this snapshot (used as
             the Kafka partition key).
         workstreams: List of Linear workstream identifiers captured in
@@ -49,7 +52,7 @@ class ContractLinearSnapshotEvent(BaseModel):
         description="Wire-format version for forward compatibility.",
     )
     event_type: str = Field(
-        default="onex.evt.linear.snapshot.v1",
+        default=TOPIC_LINEAR_SNAPSHOT,
         description="Fully-qualified event type identifier; equals the topic name.",
     )
     snapshot_id: str = Field(

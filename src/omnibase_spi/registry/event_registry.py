@@ -1,5 +1,6 @@
 # SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
 # SPDX-License-Identifier: MIT
+# onex-topic-sot: canonical SPI event/topic registry (OMN-13944)
 
 """SPI Event Registry — canonical mapping of event_type → wire metadata.
 
@@ -62,6 +63,9 @@ class EventRegistryEntry(NamedTuple):
 # ---------------------------------------------------------------------------
 
 TOPIC_SKILL_ROUTING_FAILED: str = "onex.evt.omninode.skill-routing-failed.v1"
+TOPIC_GITHUB_PR_STATUS: str = "onex.evt.github.pr-status.v1"
+TOPIC_GIT_HOOK: str = "onex.evt.git.hook.v1"
+TOPIC_LINEAR_SNAPSHOT: str = "onex.evt.linear.snapshot.v1"
 
 # ---------------------------------------------------------------------------
 # Canonical registry
@@ -71,8 +75,8 @@ TOPIC_SKILL_ROUTING_FAILED: str = "onex.evt.omninode.skill-routing-failed.v1"
 # ---------------------------------------------------------------------------
 
 EVENT_REGISTRY: dict[str, EventRegistryEntry] = {
-    "onex.evt.github.pr-status.v1": EventRegistryEntry(
-        topic="onex.evt.github.pr-status.v1",
+    TOPIC_GITHUB_PR_STATUS: EventRegistryEntry(
+        topic=TOPIC_GITHUB_PR_STATUS,
         schema_version="1.0",
         partition_key_fields=("repo", "pr_number"),
         producer_protocol=(
@@ -80,8 +84,8 @@ EVENT_REGISTRY: dict[str, EventRegistryEntry] = {
             ".ProtocolGitHubPRPollerEffect"
         ),
     ),
-    "onex.evt.git.hook.v1": EventRegistryEntry(
-        topic="onex.evt.git.hook.v1",
+    TOPIC_GIT_HOOK: EventRegistryEntry(
+        topic=TOPIC_GIT_HOOK,
         schema_version="1.0",
         partition_key_fields=("repo", "branch"),
         producer_protocol=(
@@ -89,8 +93,8 @@ EVENT_REGISTRY: dict[str, EventRegistryEntry] = {
             ".ProtocolGitHookEffect"
         ),
     ),
-    "onex.evt.linear.snapshot.v1": EventRegistryEntry(
-        topic="onex.evt.linear.snapshot.v1",
+    TOPIC_LINEAR_SNAPSHOT: EventRegistryEntry(
+        topic=TOPIC_LINEAR_SNAPSHOT,
         schema_version="1.0",
         partition_key_fields=("snapshot_id",),
         producer_protocol=(
