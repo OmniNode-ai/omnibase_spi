@@ -1,3 +1,8 @@
+## v0.23.1 (2026-07-08)
+
+### Chore
+- chore(OMN-14138): catch up dev version identity to 0.23.1 (already released to PyPI/main via the OMN-12549 dev->main promotion on 2026-07-02, which bumped only the promotion branch and never back-propagated to dev). No source changes; version-identity reconciliation only, closing the sibling-pin drift that blocked workspace-candidate runtime builds (OMN-12977 preflight).
+
 ## v0.23.0 (2026-06-30)
 
 ### Features
