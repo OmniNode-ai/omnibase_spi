@@ -1,7 +1,8 @@
 # SPDX-FileCopyrightText: 2026 OmniNode.ai Inc.
 # SPDX-License-Identifier: MIT
 
-# required-checks.yaml v3 (OMN-14859 — fan-out of OMN-14854's schema v3 guard)
+# required-checks.yaml v3 (OMN-14859 — fan-out of OMN-14854's schema v3 guard;
+# RECONCILED 2026-07-25 under OMN-15120 fan-out from the omnimarket#1895 canary)
 # Location: .github/required-checks.yaml
 #
 # This file is the OPERATIONAL input to the Required-Check Skip-Vector Guard
@@ -10,14 +11,20 @@
 # omniclaude@main and runs it against THIS manifest + this repo's own
 # .github/workflows/ directory (required-check-skip-guard-caller.yml).
 #
-# Exhaustive: every context in required_status_checks.contexts for
-# omnibase_spi's `dev` branch has a `mode: REQUIRED` row below (fetched via
-# `gh api repos/OmniNode-ai/omnibase_spi/branches/dev/protection/required_status_checks`,
-# 21 contexts, verified 2026-07-20). Scope is dev-only (main's required set is
-# a strict subset missing "Dep Provenance Gate", "Enforce validator-requirements.yaml
-# (OMN-13291)", "Detect Changes", and "no-noncanonical-lifecycle-classes" —
-# same single-branch-manifest limitation the omniclaude canary flagged as an
-# open follow-up, not resolved here).
+# Exhaustive: every context in required_status_checks.contexts for BOTH
+# omnibase_spi branches has a `mode: REQUIRED` row below, verified 2026-07-25 via
+# `gh api repos/OmniNode-ai/omnibase_spi/branches/{dev,main}/protection/required_status_checks`
+# and diffed with the canonical `reconcile_manifest_vs_live.py --branch <dev|main>`
+# (OMN-15117 per-branch `branch:` field support, canonical source: omniclaude/dev).
+# dev = 21 contexts, main = 17 contexts (dev superset). Every REQUIRED row below
+# now carries an optional `branch: dev` field (OMN-15117 schema extension) when
+# the context is required on dev ONLY; a row with no `branch:` field is required
+# on BOTH branches. Drift found and corrected at this pass: "Detect Changes" was
+# previously documented as dev-only but is now live-required on main too (no
+# `branch:` tag); "pr-title / check-title" was previously undocumented as
+# single-branch but is live-required on dev only (added `branch: dev`).
+# Post-reconcile: `reconcile_manifest_vs_live.py --branch dev` and `--branch main`
+# both PASS (empty diff) — see PR body for full command output.
 #
 # Do NOT rename/remove a REQUIRED row without following the Branch Protection
 # Migration Safety procedure — flip branch protection first (or same PR), then
@@ -52,11 +59,12 @@ gates:
 
   - name: "Dep Provenance Gate"
     mode: REQUIRED
+    branch: dev
     producer_kind: local
     workflow: dep-provenance-gate.yml
     job_path: ["dep-provenance-gate"]
     skip_semantics: never
-    rationale: "OMN-13873 first-party git-source override gate. Live required status check on omnibase_spi dev branch protection (not required on main)."
+    rationale: "OMN-13873 first-party git-source override gate. Live required status check on omnibase_spi dev branch protection only (verified 2026-07-25)."
 
   - name: "PEP 604 Type Union Check (UP007)"
     mode: REQUIRED
@@ -88,13 +96,7 @@ gates:
     workflow: ci.yml
     job_path: ["build-and-verify"]
     skip_semantics: never
-    rationale: "Live required status check on omnibase_spi dev branch protection. OMN-15118 vector-5
-      fix: `needs: [lint, typecheck, test-parallel, contract-compliance]` had no `if:` override —
-      fixed by adding `if: always()` plus an explicit first step that fails when any of the four
-      needs results is not 'success', so the job can neither silently skip-as-pass nor decouple from
-      its upstreams' results. None of the four is independently required-and-redundant the way
-      OMN-15112's `verify / verify`/occ-preflight coupling was, so `if: always()` alone (without the
-      explicit check) would have removed real enforcement, not merely closed a false-green window."
+    rationale: "Live required status check on omnibase_spi dev branch protection. OMN-15118 vector-5 fix: `needs: [lint, typecheck, test-parallel, contract-compliance]` had no `if:` override — fixed by adding `if: always()` plus an explicit first step that fails when any of the four needs results is not 'success', so the job can neither silently skip-as-pass nor decouple from its upstreams' results. None of the four is independently required-and-redundant the way OMN-15112's `verify / verify`/occ-preflight coupling was, so `if: always()` alone (without the explicit check) would have removed real enforcement, not merely closed a false-green window."
 
   - name: "Check architecture handshake"
     mode: REQUIRED
@@ -135,19 +137,16 @@ gates:
     workflow: ci.yml
     job_path: ["detect-changes"]
     skip_semantics: never
-    rationale: "Smart-test-selection matrix emitter (needs: [lint, typecheck]). Live required status
-      check on omnibase_spi dev branch protection (not required on main). OMN-15118 vector-5 fix:
-      added `if: always()` on the producing job plus an explicit first step that fails when
-      `needs.lint.result` or `needs.typecheck.result` is not 'success', so the job can neither
-      silently skip-as-pass nor decouple from either upstream's result."
+    rationale: "Smart-test-selection matrix emitter (needs: [lint, typecheck]). Live required status check on omnibase_spi dev AND main branch protection (re-verified 2026-07-25; previously documented as dev-only, drift corrected under OMN-15120). OMN-15118 vector-5 fix: added `if: always()` on the producing job plus an explicit first step that fails when `needs.lint.result` or `needs.typecheck.result` is not 'success', so the job can neither silently skip-as-pass nor decouple from either upstream's result."
 
   - name: "Enforce validator-requirements.yaml (OMN-13291)"
     mode: REQUIRED
+    branch: dev
     producer_kind: local
     workflow: validate-validator-requirements.yml
     job_path: ["validate-validator-requirements"]
     skip_semantics: never
-    rationale: "Fleet validator-requirements gate. Live required status check on omnibase_spi dev branch protection (not required on main)."
+    rationale: "Fleet validator-requirements gate. Live required status check on omnibase_spi dev branch protection only (verified 2026-07-25)."
 
   - name: "Lint & Format"
     mode: REQUIRED
@@ -167,12 +166,13 @@ gates:
 
   - name: "pr-title / check-title"
     mode: REQUIRED
+    branch: dev
     producer_kind: cross_repo
     caller_workflow: pr-title-check.yml
     caller_job: pr-title
     cross_repo_ref: "OmniNode-ai/onex_change_control/.github/workflows/pr-title-check-reusable.yml@main"
     skip_semantics: never
-    rationale: "PR title ticket-reference check, reusable hosted in onex_change_control. Live required status check on omnibase_spi dev branch protection."
+    rationale: "PR title ticket-reference check, reusable hosted in onex_change_control. Live required status check on omnibase_spi dev branch protection only (not live-required on main as of 2026-07-25 readback — previously undocumented as single-branch)."
 
   - name: "SPI Validation Gate"
     mode: REQUIRED
@@ -208,11 +208,12 @@ gates:
 
   - name: "no-noncanonical-lifecycle-classes"
     mode: REQUIRED
+    branch: dev
     producer_kind: local
     workflow: ci.yml
     job_path: ["no-noncanonical-lifecycle-classes"]
     skip_semantics: never
-    rationale: "OMN-14350 non-canonical lifecycle-class ratchet. Live required status check on omnibase_spi dev branch protection (not required on main)."
+    rationale: "OMN-14350 non-canonical lifecycle-class ratchet. Live required status check on omnibase_spi dev branch protection only (verified 2026-07-25)."
 
   - name: "required-check-skip-guard / check-skip-vectors"
     mode: ADVISORY
