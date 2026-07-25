@@ -88,7 +88,13 @@ gates:
     workflow: ci.yml
     job_path: ["build-and-verify"]
     skip_semantics: never
-    rationale: "Live required status check on omnibase_spi dev branch protection."
+    rationale: "Live required status check on omnibase_spi dev branch protection. OMN-15118 vector-5
+      fix: `needs: [lint, typecheck, test-parallel, contract-compliance]` had no `if:` override —
+      fixed by adding `if: always()` plus an explicit first step that fails when any of the four
+      needs results is not 'success', so the job can neither silently skip-as-pass nor decouple from
+      its upstreams' results. None of the four is independently required-and-redundant the way
+      OMN-15112's `verify / verify`/occ-preflight coupling was, so `if: always()` alone (without the
+      explicit check) would have removed real enforcement, not merely closed a false-green window."
 
   - name: "Check architecture handshake"
     mode: REQUIRED
@@ -129,7 +135,11 @@ gates:
     workflow: ci.yml
     job_path: ["detect-changes"]
     skip_semantics: never
-    rationale: "Smart-test-selection matrix emitter (needs: [lint, typecheck]). Live required status check on omnibase_spi dev branch protection (not required on main)."
+    rationale: "Smart-test-selection matrix emitter (needs: [lint, typecheck]). Live required status
+      check on omnibase_spi dev branch protection (not required on main). OMN-15118 vector-5 fix:
+      added `if: always()` on the producing job plus an explicit first step that fails when
+      `needs.lint.result` or `needs.typecheck.result` is not 'success', so the job can neither
+      silently skip-as-pass nor decouple from either upstream's result."
 
   - name: "Enforce validator-requirements.yaml (OMN-13291)"
     mode: REQUIRED

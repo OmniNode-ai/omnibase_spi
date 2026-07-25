@@ -102,6 +102,7 @@ jobs:
   detect-changes:
     name: Detect Changes
     needs: [lint, typecheck]
+    if: always()
     runs-on: ubuntu-latest
     outputs:
       is_full_suite: ${{ steps.detect.outputs.is_full_suite }}
@@ -111,6 +112,19 @@ jobs:
       selected_paths: ${{ steps.detect.outputs.selected_paths }}
 
     steps:
+      # OMN-15118 vector-5 fix: `needs: [lint, typecheck]` alone lets GitHub's
+      # implicit `success()`-over-needs skip this job when either upstream
+      # fails/cancels, and a skipped job satisfies branch protection as
+      # passing (this is a REQUIRED context on dev). `if: always()` above
+      # stops the skip; this step is the other required half — it explicitly
+      # fails the job when either dependency did not succeed, so the job's
+      # own conclusion is FAILURE, never a decorative pass.
+      - name: Fail when upstream lint/typecheck did not succeed
+        if: needs.lint.result != 'success' || needs.typecheck.result != 'success'
+        run: |
+          echo "::error::lint result was ${{ needs.lint.result }}, typecheck result was ${{ needs.typecheck.result }}; refusing to run detect-changes."
+          exit 1
+
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
@@ -242,7 +256,26 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: [lint, typecheck, test-parallel, contract-compliance]
+    if: always()
     steps:
+      # OMN-15118 vector-5 fix: `needs: [lint, typecheck, test-parallel,
+      # contract-compliance]` alone lets GitHub's implicit `success()`-over-needs
+      # skip this job when any of the four fails/cancels, and a skipped job
+      # satisfies branch protection as passing (this is a REQUIRED context on
+      # dev). `if: always()` above stops the skip; this step is the other
+      # required half — it explicitly fails the job when any dependency did
+      # not succeed, so the job's own conclusion is FAILURE, never a
+      # decorative pass.
+      - name: Fail when an upstream dependency did not succeed
+        if: |
+          needs.lint.result != 'success' ||
+          needs.typecheck.result != 'success' ||
+          needs.test-parallel.result != 'success' ||
+          needs.contract-compliance.result != 'success'
+        run: |
+          echo "::error::upstream results — lint=${{ needs.lint.result }} typecheck=${{ needs.typecheck.result }} test-parallel=${{ needs.test-parallel.result }} contract-compliance=${{ needs.contract-compliance.result }}; refusing to run build-and-verify."
+          exit 1
+
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
