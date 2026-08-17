@@ -158,43 +158,35 @@ async def test_event_handler(message: ProtocolEventMessage, context: dict[str, C
 ```python
 import asyncio
 import time
-from omnibase_spi.protocols.memory import ProtocolMemoryBase
+from omnibase_spi.protocols.memory import ProtocolKeyValueStore
 
 async def test_memory_performance():
     """Test memory performance under load."""
-    memory = MockMemory()
+    store: ProtocolKeyValueStore = MockKeyValueStore()
 
-    # Test batch operations
+    # Test lookups at scale
     start_time = time.time()
-    operations = []
     for i in range(1000):
-        operations.append(
-            ProtocolMemoryOperation("store", f"key_{i}", f"value_{i}")
-        )
-
-    batch_result = await memory.batch_store(operations)
+        assert store.has_key(f"key_{i}") or True
     end_time = time.time()
 
-    assert batch_result.success_count == 1000
     assert (end_time - start_time) < 1.0  # Should complete in under 1 second
 
 async def test_concurrent_operations():
-    """Test concurrent memory operations."""
-    memory = MockMemory()
+    """Test concurrent key-value lookups."""
+    store: ProtocolKeyValueStore = MockKeyValueStore()
 
     # Create concurrent tasks
-    tasks = []
-    for i in range(100):
-        task = asyncio.create_task(
-            memory.store(f"concurrent_key_{i}", f"value_{i}")
-        )
-        tasks.append(task)
+    tasks = [
+        asyncio.create_task(store.get_value(f"concurrent_key_{i}"))
+        for i in range(100)
+    ]
 
     # Wait for all tasks to complete
     results = await asyncio.gather(*tasks)
 
-    # Verify all operations succeeded
-    assert all(results)
+    # Verify all lookups completed without raising
+    assert len(results) == 100
 ```
 
 ## Validation Testing
@@ -202,35 +194,31 @@ async def test_concurrent_operations():
 ### Input Validation Tests
 
 ```python
-from omnibase_spi.protocols.validation import ProtocolValidation
+from omnibase_spi.protocols.schema import ProtocolInputValidator
 
 async def test_input_validation():
     """Test input validation."""
-    validator = MockValidator()
+    validator: ProtocolInputValidator = MockInputValidator()
 
-    # Test valid data
-    valid_data = {"name": "John Doe", "age": 30, "email": "john@example.com"}
-    result = await validator.validate_data(
-        data=valid_data,
-        validation_schema=ProtocolValidationSchema(
-            type="object",
-            properties={
-                "name": {"type": "string", "minLength": 1},
-                "age": {"type": "integer", "minimum": 0, "maximum": 120},
-                "email": {"type": "string", "format": "email"}
-            },
-            required=["name", "age", "email"]
-        )
+    # Test a valid email
+    result = await validator.validate_string(
+        value="john@example.com",
+        min_length=1,
+        max_length=254,
+        pattern=None,
+        allow_empty=False,
     )
-    assert result.valid
+    assert result.is_valid
 
-    # Test invalid data
-    invalid_data = {"name": "", "age": -1, "email": "invalid-email"}
-    result = await validator.validate_data(
-        data=invalid_data,
-        validation_schema=schema
+    # Test an unsafe value against injection patterns
+    result = await validator.check_security_patterns(
+        value="'; DROP TABLE users; --",
+        check_sql_injection=True,
+        check_xss=False,
+        check_path_traversal=False,
+        check_command_injection=False,
     )
-    assert not result.valid
+    assert not result.is_valid
     assert len(result.errors) > 0
 ```
 

@@ -1,8 +1,8 @@
 # Workflow Orchestration API Reference
 
-![Version](https://img.shields.io/badge/SPI-v0.22.0-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.2.0-lightgrey)
+![Version](https://img.shields.io/badge/SPI-v0.23.1-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.2.0-lightgrey)
 
-> **Package Version**: 0.22.0 | **Status**: Stable | **Since**: v0.2.0
+> **Package Version**: 0.23.1 | **Status**: Stable | **Since**: v0.2.0
 
 ---
 
@@ -211,63 +211,107 @@ class ProtocolWorkflowOrchestrator(Protocol):
     ) -> ProtocolWorkflowMetrics: ...
 ```
 
-### Workflow Persistence Protocol
+### Workflow Persistence Protocols
+
+> There is no single `ProtocolWorkflowPersistence` class — persistence is
+> split into three focused protocols in
+> `protocol_workflow_persistence.py`: an append-only event store, a
+> snapshot store, and a current-state store. (The module name matches the
+> file, not a single class inside it — the same pattern as
+> `omnibase_spi.protocols.memory.protocol_memory_base`, whose base class is
+> `ProtocolKeyValueStore`, not `ProtocolMemoryBase`.)
 
 ```python
+from omnibase_spi.protocols.workflow_orchestration import (
+    ProtocolEventStore,
+    ProtocolEventStoreResult,
+    ProtocolEventStoreTransaction,
+    ProtocolSnapshotStore,
+)
+
 @runtime_checkable
-class ProtocolWorkflowPersistence(Protocol):
+class ProtocolEventStore(Protocol):
     """
-    Protocol for workflow state persistence and recovery.
+    Protocol for workflow event store operations.
 
-    Provides durable storage for workflow state, events, and snapshots
-    with support for recovery and replay operations.
-
-    Key Features:
-        - Workflow state persistence
-        - Event store operations
-        - Snapshot management
-        - Recovery and replay support
-        - Performance optimization
+    Provides event sourcing capabilities with append-only event storage,
+    sequence number guarantees, transactional consistency, event stream
+    reading, and optimistic concurrency control.
     """
 
-    async def save_workflow_state(
+    async def append_events(
+        self,
+        events: list["ProtocolWorkflowEvent"],
+        expected_sequence: int | None,
+        transaction: "ProtocolEventStoreTransaction | None",
+    ) -> ProtocolEventStoreResult: ...
+
+    async def read_events(
+        self,
+        query_options: "ProtocolEventQueryOptions",
+        transaction: "ProtocolEventStoreTransaction | None",
+    ) -> list["ProtocolWorkflowEvent"]: ...
+
+    async def get_event_stream(
         self,
         workflow_type: str,
         instance_id: UUID,
-        state: ProtocolWorkflowState,
-    ) -> bool: ...
+        from_sequence: int,
+        to_sequence: int | None,
+    ) -> list["ProtocolWorkflowEvent"]: ...
 
-    async def load_workflow_state(
+    async def get_last_sequence_number(
         self, workflow_type: str, instance_id: UUID
-    ) -> ProtocolWorkflowState | None: ...
+    ) -> int: ...
 
-    async def save_workflow_event(
-        self, event: ProtocolWorkflowEvent
-    ) -> bool: ...
+    async def begin_transaction(self) -> ProtocolEventStoreTransaction: ...
 
-    async def load_workflow_events(
+    async def delete_event_stream(
+        self, workflow_type: str, instance_id: UUID
+    ) -> ProtocolEventStoreResult: ...
+
+    async def archive_old_events(
+        self, before_timestamp: "ProtocolDateTime", batch_size: int
+    ) -> ProtocolEventStoreResult: ...
+
+
+@runtime_checkable
+class ProtocolSnapshotStore(Protocol):
+    """
+    Protocol for workflow snapshot store operations.
+
+    Provides point-in-time state capture for fast reconstruction,
+    recovery/replay optimization, and state validation checkpoints.
+    """
+
+    async def save_snapshot(
         self,
-        workflow_type: str,
-        instance_id: UUID,
-        from_sequence: int = 0,
-        to_sequence: int | None = None,
-    ) -> list[ProtocolWorkflowEvent]: ...
-
-    async def create_snapshot(
-        self,
-        workflow_type: str,
-        instance_id: UUID,
-        sequence_number: int,
+        snapshot: "ProtocolWorkflowSnapshot",
+        transaction: "ProtocolEventStoreTransaction | None",
     ) -> bool: ...
 
     async def load_snapshot(
-        self, workflow_type: str, instance_id: UUID
+        self, workflow_type: str, instance_id: UUID, sequence_number: int | None
     ) -> ProtocolWorkflowSnapshot | None: ...
 
-    async def cleanup_old_events(
-        self, workflow_type: str, instance_id: UUID, before_sequence: int
+    async def list_snapshots(
+        self, workflow_type: str, instance_id: UUID, limit: int
+    ) -> list[dict[str, ContextValue]]: ...
+
+    async def delete_snapshot(
+        self, workflow_type: str, instance_id: UUID, sequence_number: int
+    ) -> bool: ...
+
+    async def cleanup_old_snapshots(
+        self, workflow_type: str, instance_id: UUID, keep_count: int
     ) -> int: ...
 ```
+
+`ProtocolLiteralWorkflowStateStore` rounds this out with current-instance
+storage (`save_workflow_instance`, `load_workflow_instance`,
+`query_workflow_instances`, `lock_workflow_instance`/`unlock_workflow_instance`)
+— see `src/omnibase_spi/protocols/workflow_orchestration/protocol_workflow_persistence.py`
+for the full signature.
 
 ### Work Queue Protocol
 

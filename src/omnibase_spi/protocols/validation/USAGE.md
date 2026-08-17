@@ -1,93 +1,83 @@
-# Quick Usage Guide - Protocol Validation Utilities
+# Quick Usage Guide - Validation Protocols
 
-## Quick Start
+This module is protocol-only (see [README.md](./README.md)) — there is no
+`validate_protocol_implementation()` function, no `validation_decorator()`,
+no `ArtifactContainerValidator`, and no `enable_protocol_validation()` toggle
+anywhere in `omnibase_spi`. What follows are the real protocols and how a
+caller typically uses an implementation obtained from `omnibase_core` or
+`omnibase_infra`.
 
-### 1. Basic Validation
+## 1. Generic Protocol Conformance Check
+
 ```python
-from omnibase_spi.protocols.validation import validate_protocol_implementation
-from omnibase_spi.protocols.container.protocol_artifact_container import ProtocolArtifactContainer
+from omnibase_spi.protocols.validation import ProtocolValidator
 
-# Your implementation
-container = MyArtifactContainer()
+validator: ProtocolValidator = get_validator()
+validator.strict_mode = True
 
-# Validate it
-result = validate_protocol_implementation(container, ProtocolArtifactContainer)
-
-if result.is_valid:
-    print("✓ Implementation is valid!")
-else:
-    print("✗ Validation failed:")
+result = await validator.validate_implementation(my_impl, MyProtocol)
+if not result.is_valid:
     for error in result.errors:
         print(f"  - {error}")
 ```
 
-### 2. Automatic Validation with Decorators
+## 2. Import Validation
+
 ```python
-from omnibase_spi.protocols.validation import validation_decorator
+from omnibase_spi.protocols.validation import ProtocolImportValidator
 
-@validation_decorator(ProtocolArtifactContainer)
-class MyContainer:
-    # Implementation automatically validated on instantiation
-    def get_status(self): ...
-    def get_artifacts(self): ...
-    # ... other methods
-
-container = MyContainer()  # Validates automatically
+import_validator: ProtocolImportValidator = get_import_validator()
+analysis = await import_validator.validate_import_security("subprocess")
+print(f"Security risk: {analysis.security_risk}")
 ```
 
-### 3. Specialized Validators
+## 3. Compliance Validation
+
 ```python
-from omnibase_spi.protocols.validation import ArtifactContainerValidator
+from omnibase_spi.protocols.validation import ProtocolComplianceValidator
 
-# Use domain-specific validator
-validator = ArtifactContainerValidator(strict_mode=True)
-result = validator.validate_implementation(container, ProtocolArtifactContainer)
+compliance_validator: ProtocolComplianceValidator = get_compliance_validator()
+report = await compliance_validator.validate_file_compliance("src/module.py")
+print(f"ONEX compliance: {report.onex_compliance_score:.0%}")
+```
 
-print(result.get_summary())  # Detailed report
+## 4. Quality Validation
+
+```python
+from omnibase_spi.protocols.validation import ProtocolQualityValidator
+
+quality_validator: ProtocolQualityValidator = get_quality_validator()
+report = await quality_validator.validate_file_quality("src/module.py")
+print(f"Quality score: {report.overall_score:.1f}/100")
+```
+
+## 5. Orchestrating All Three
+
+```python
+from omnibase_spi.protocols.validation import ProtocolValidationOrchestrator
+
+orchestrator: ProtocolValidationOrchestrator = get_validation_orchestrator()
+scope = await orchestrator.create_validation_scope(
+    repository_path="/workspace/omnibase_spi",
+    validation_types=["imports", "quality", "compliance"],
+)
+report = orchestrator.orchestrate_validation(scope)
+print(f"Success rate: {report.summary.success_rate:.0%}")
 ```
 
 ## Common Error Types
 
-| Error | Meaning | Fix |
-|-------|---------|-----|
-| `missing_method` | Protocol method not implemented | Add the missing method |
-| `not_callable` | Attribute exists but isn't a method | Make it callable |
-| `parameter_count_mismatch` | Wrong number of parameters | Match protocol signature |
-
-## Environment Setup
-
-The validation utilities automatically detect development vs production:
-
-- **Development**: Full validation enabled
-- **Production**: Validation automatically disabled
-
-Override with:
-```python
-from omnibase_spi.protocols.validation import enable_protocol_validation
-
-enable_protocol_validation(True)   # Force enable
-enable_protocol_validation(False)  # Force disable
-```
-
-## Running Tests
-
-```bash
-# Run examples
-python -m omnibase_spi.protocols.validation.examples
-
-# Run integration tests  
-python src/omnibase/protocols/validation/test_integration.py
-```
-
-## Development Workflow
-
-1. **Early Development**: Use basic validation to identify missing methods
-2. **Implementation**: Use decorators for automatic validation  
-3. **Testing**: Use specialized validators for comprehensive checks
-4. **Deployment**: Final validation before production
+`ProtocolValidationError` (returned inside `ProtocolValidationResult.errors`,
+not raised) carries `error_type`, `message`, `context`, and `severity`.
+Common `error_type` values used across the compliance/quality validators
+include `missing_method`, `parameter_count_mismatch`, and
+`protocol_compliance`.
 
 ## Need Help?
 
-- Check the [README.md](./README.md) for detailed documentation
-- Example files are not included in the SPI package
-- Integration tests are implementation-specific
+- Full signatures: [README.md](./README.md) and
+  [`docs/api-reference/VALIDATION.md`](../../../../docs/api-reference/VALIDATION.md)
+- SPI exception hierarchy (separate from the validation-result errors above):
+  [`docs/api-reference/EXCEPTIONS.md`](../../../../docs/api-reference/EXCEPTIONS.md)
+- Concrete node implementations live in `omnibase_core` and `omnibase_infra`,
+  not in this package.

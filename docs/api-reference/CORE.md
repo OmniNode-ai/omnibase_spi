@@ -1,8 +1,8 @@
 # Core Protocols API Reference
 
-![Version](https://img.shields.io/badge/SPI-v0.20.5-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.1.0-lightgrey)
+![Version](https://img.shields.io/badge/SPI-v0.23.1-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.1.0-lightgrey)
 
-> **Package Version**: 0.20.5 | **Status**: Stable | **Since**: v0.1.0
+> **Package Version**: 0.23.1 | **Status**: Stable | **Since**: v0.1.0
 
 ---
 
@@ -91,61 +91,43 @@ class ProtocolHealthMonitor(Protocol):
 ### Logger Protocol
 
 ```python
+from uuid import UUID
+
 from omnibase_spi.protocols.core import ProtocolLogger
-from omnibase_spi.protocols.types.protocol_core_types import LogLevel
+from omnibase_spi.protocols.types import (
+    LiteralLogLevel,
+    ProtocolLogContext,
+    ProtocolLogEntry,
+)
 
 @runtime_checkable
 class ProtocolLogger(Protocol):
     """
-    Protocol for structured logging across ONEX services.
+    Protocol for structured logging with distributed tracing support.
 
-    Provides consistent logging patterns, structured data support,
-    and integration with observability systems.
+    Defines the contract for all logging implementations in the ONEX
+    ecosystem: consistent logging patterns, structured data capture, and
+    correlation-ID tracking for distributed observability.
 
     Key Features:
-        - Structured logging with context
-        - Multiple log levels (TRACE, DEBUG, INFO, WARNING, ERROR, CRITICAL, FATAL)
-        - Performance metrics integration
-        - Audit trail capabilities
-        - Integration with external logging systems
+        - Structured logging with typed log levels (`LiteralLogLevel`)
+        - Distributed tracing via correlation IDs
+        - Contextual metadata attachment (`ProtocolLogContext`)
+        - Level-based filtering for performance
+        - Async-first design
     """
 
-    async def log(
+    async def emit(
         self,
-        level: LogLevel,
+        level: LiteralLogLevel,
         message: str,
-        context: dict[str, Any] | None = None,
-        correlation_id: str | None = None,
+        correlation_id: UUID,
+        context: ProtocolLogContext | None = None,
     ) -> None: ...
 
-    async def log_structured(
-        self,
-        level: LogLevel,
-        event: str,
-        data: dict[str, Any],
-        correlation_id: str | None = None,
-    ) -> None: ...
+    async def log(self, entry: ProtocolLogEntry) -> None: ...
 
-    async def log_performance(
-        self,
-        operation: str,
-        duration_ms: float,
-        metadata: dict[str, Any] | None = None,
-    ) -> None: ...
-
-    async def log_audit(
-        self,
-        action: str,
-        user_id: str | None = None,
-        resource: str | None = None,
-        details: dict[str, Any] | None = None,
-    ) -> None: ...
-
-    def set_correlation_id(self, correlation_id: str) -> None: ...
-
-    def get_correlation_id(self) -> str | None: ...
-
-    async def flush(self) -> None: ...
+    async def is_level_enabled(self, level: LiteralLogLevel) -> bool: ...
 ```
 
 ### Service Discovery Protocol
@@ -245,61 +227,82 @@ class ProtocolErrorHandler(Protocol):
     ) -> ProtocolErrorStatistics: ...
 ```
 
-### Performance Metrics Protocol
+### Performance Metrics Collector Protocol
 
 ```python
-@runtime_checkable
-class ProtocolPerformanceMetrics(Protocol):
-    """
-    Protocol for performance metrics collection and analysis.
+from omnibase_spi.protocols.core import ProtocolPerformanceMetricsCollector
+from omnibase_spi.protocols.types import (
+    LiteralPerformanceCategory,
+    ProtocolContextValue,
+    ProtocolDateTime,
+    ProtocolPerformanceMetric,
+    ProtocolPerformanceMetrics,
+)
 
-    Provides comprehensive performance monitoring, metrics collection,
-    and performance analysis across ONEX services.
+@runtime_checkable
+class ProtocolPerformanceMetricsCollector(Protocol):
+    """
+    Protocol for performance metrics collection and monitoring.
+
+    Provides standardized performance measurement interface for tracking
+    system health, identifying bottlenecks, and enabling proactive
+    optimization across ONEX distributed services.
 
     Key Features:
-        - Performance metrics collection
-        - Real-time performance monitoring
-        - Performance trend analysis
-        - Resource utilization tracking
-        - Performance alerting
+        - Multi-category performance metrics (latency, throughput, resource, etc.)
+        - Real-time and historical performance tracking
+        - Configurable alerting thresholds and notifications
+        - Performance trend analysis and baseline management
+        - Cross-service performance correlation
+        - Automated performance recommendations
     """
 
-    async def record_metric(
+    async def collect_performance_metrics(
+        self, service_name: str
+    ) -> ProtocolPerformanceMetrics: ...
+
+    async def collect_category_metrics(
+        self, service_name: str, categories: list[LiteralPerformanceCategory]
+    ) -> list[ProtocolPerformanceMetric]: ...
+
+    async def record_performance_metric(
+        self, metric: ProtocolPerformanceMetric
+    ) -> bool: ...
+
+    async def record_performance_metrics_batch(
+        self, metrics: list[ProtocolPerformanceMetric]
+    ) -> int: ...
+
+    async def set_performance_threshold(
         self,
         metric_name: str,
-        value: float,
-        tags: dict[str, str] | None = None,
-        timestamp: datetime | None = None,
-    ) -> None: ...
+        warning_threshold: float | None,
+        critical_threshold: float | None,
+    ) -> bool: ...
 
-    async def record_timing(
-        self,
-        operation: str,
-        duration_ms: float,
-        metadata: dict[str, Any] | None = None,
-    ) -> None: ...
+    async def check_performance_thresholds(
+        self, metrics: ProtocolPerformanceMetrics
+    ) -> list[dict[str, ProtocolContextValue]]: ...
 
-    async def record_counter(
+    async def export_performance_report(
         self,
-        counter_name: str,
-        increment: int = 1,
-        tags: dict[str, str] | None = None,
-    ) -> None: ...
-
-    async def get_metrics(
-        self,
-        metric_name: str | None = None,
-        time_range_hours: int = 24,
-    ) -> list[ProtocolMetricDataPoint]: ...
+        service_name: str,
+        start_time: ProtocolDateTime,
+        end_time: ProtocolDateTime,
+        categories: list[LiteralPerformanceCategory] | None,
+    ) -> dict[str, ProtocolContextValue]: ...
 
     async def get_performance_summary(
-        self, time_range_hours: int
-    ) -> ProtocolPerformanceSummary: ...
-
-    async def get_resource_utilization(
-        self,
-    ) -> ProtocolResourceUtilization: ...
+        self, service_names: list[str], summary_period_hours: int
+    ) -> dict[str, ProtocolContextValue]: ...
 ```
+
+> The full protocol defines 18 methods (thresholds, baselines, real-time
+> monitoring sessions, cross-service correlation, bottleneck prediction).
+> See `src/omnibase_spi/protocols/core/protocol_performance_metrics.py` for
+> the complete contract. The aggregated data shape it returns,
+> `ProtocolPerformanceMetrics`, is a `types`-domain data protocol (not a
+> `core` protocol) — import it from `omnibase_spi.protocols.types`.
 
 ### Canonical Serializer Protocol
 
@@ -483,7 +486,8 @@ Values:
 ### Logging Types
 
 ```python
-LogLevel = Literal["TRACE", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL", "FATAL"]
+# omnibase_spi.protocols.types.protocol_base_types
+LiteralLogLevel = Literal["TRACE", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL", "FATAL"]
 """
 Log severity levels used throughout the system.
 
@@ -599,28 +603,22 @@ print(f"Error type: {error_type}")
 ### Performance Metrics
 
 ```python
-from omnibase_spi.protocols.core import ProtocolPerformanceMetrics
+from omnibase_spi.protocols.core import ProtocolPerformanceMetricsCollector
 
-# Initialize metrics
-metrics: ProtocolPerformanceMetrics = get_performance_metrics()
+# Initialize collector
+collector: ProtocolPerformanceMetricsCollector = get_performance_collector()
 
-# Record metrics
-await metrics.record_metric(
-    metric_name="response_time",
-    value=125.5,
-    tags={"service": "user-api", "endpoint": "/users"}
+# Record a single metric
+await collector.record_performance_metric(latency_metric)
+
+# Collect the aggregated metrics for a service
+metrics = await collector.collect_performance_metrics(service_name="user-api")
+print(f"Health score: {metrics.overall_health_score}")
+
+# Get a rollup summary across services
+summary = await collector.get_performance_summary(
+    service_names=["user-api"], summary_period_hours=24
 )
-
-# Record timing
-await metrics.record_timing(
-    operation="database_query",
-    duration_ms=45.2,
-    metadata={"query": "SELECT * FROM users"}
-)
-
-# Get performance summary
-summary = await metrics.get_performance_summary(time_range_hours=24)
-print(f"Average response time: {summary.avg_response_time_ms}ms")
 ```
 
 ## 🔍 Implementation Notes
@@ -736,10 +734,10 @@ restored_contract = ContractImpl.from_dict(contract_dict)
 ### ONEX Error Protocol
 
 ```python
-from omnibase_spi.protocols.types import ProtocolOnexError
+from omnibase_spi.protocols.types import ProtocolError
 
 @runtime_checkable
-class ProtocolOnexError(Protocol):
+class ProtocolError(Protocol):
     """
     Protocol for ONEX error objects.
 
@@ -778,10 +776,10 @@ class ProtocolOnexError(Protocol):
 #### Usage
 
 ```python
-from omnibase_spi.protocols.types import ProtocolOnexError
+from omnibase_spi.protocols.types import ProtocolError
 
 # Create error instance
-error: ProtocolOnexError = create_onex_error(
+error: ProtocolError = create_onex_error(
     error_code="VALIDATION_FAILED",
     error_message="Invalid workflow configuration",
     error_category="validation",
@@ -799,7 +797,7 @@ logger.error(f"Error: {error.error_message}", extra=error.to_dict())
 ## 📊 Protocol Statistics
 
 - **Total Protocols**: 13 core protocols
-- **Type Protocols**: 14 type definition protocols (including ProtocolContract, ProtocolOnexError)
+- **Type Protocols**: 14 type definition protocols (including ProtocolContract, ProtocolError)
 - **Health Monitoring**: Multi-level health checks with dependency tracking
 - **Logging**: Structured logging with correlation ID support
 - **Service Discovery**: Dynamic service registration and discovery

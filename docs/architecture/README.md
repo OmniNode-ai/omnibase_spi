@@ -37,7 +37,7 @@ imports.
 
 ## Repo Contents
 
-- `src/omnibase_spi/protocols/`: 231 `protocol_*.py` files across 39 protocol
+- `src/omnibase_spi/protocols/`: 232 `protocol_*.py` files across 39 protocol
   domains such as event bus, handlers, runtime, registry, storage, MCP, workflow
   orchestration, validation, and dashboard surfaces.
 - `src/omnibase_spi/contracts/`: selected frozen wire contracts used across repo
@@ -55,7 +55,7 @@ imports.
   isolation, protocol shape, empty directories, and SPI typing patterns.
 
 > Verified against code on this refresh: top-level package layout and the
-> 231-file / 39-domain protocol count under `src/omnibase_spi/protocols/`.
+> 232-file / 39-domain protocol count under `src/omnibase_spi/protocols/`.
 
 ## Protocol Shape
 

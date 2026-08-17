@@ -4,6 +4,19 @@
 
 Advanced protocol design patterns for composing complex behaviors from simpler protocol components.
 
+> **Import paths used below**: `ProtocolLogger`, `ProtocolHealthMonitor` are
+> in `omnibase_spi.protocols.core`. `ProtocolPerformanceMetrics` is a
+> `types`-domain data protocol (`omnibase_spi.protocols.types`), not a
+> `core`-domain protocol — see [CORE.md](../api-reference/CORE.md) for the
+> `ProtocolPerformanceMetricsCollector` that produces it. `ProtocolServiceRegistry`
+> is in `omnibase_spi.protocols.container`. `ProtocolWorkflowOrchestrator`,
+> `ProtocolWorkflowEventBus`, `ProtocolEventStore` are in
+> `omnibase_spi.protocols.workflow_orchestration` — there is no single
+> `ProtocolWorkflowPersistence`, see [WORKFLOW-ORCHESTRATION.md](../api-reference/WORKFLOW-ORCHESTRATION.md#workflow-persistence-protocols).
+> The composite/facade/chain/pipeline class names below (`ProtocolCompositeService`,
+> `ProtocolServiceFacade`, `ProtocolProcessingChain`, `ProtocolProcessingPipeline`)
+> are illustrative — they are not exported by `omnibase_spi`.
+
 ## Composition Patterns
 
 ### Protocol Aggregation
@@ -60,8 +73,9 @@ class ProtocolWorkflowManager(Protocol):
     # Delegate event handling
     event_bus: ProtocolWorkflowEventBus
 
-    # Delegate persistence
-    persistence: ProtocolWorkflowPersistence
+    # Delegate persistence (there is no single ProtocolWorkflowPersistence —
+    # persistence splits into ProtocolEventStore and ProtocolSnapshotStore)
+    event_store: ProtocolEventStore
 
     async def start_workflow(
         self,
@@ -86,9 +100,19 @@ class ProtocolWorkflowManager(Protocol):
             )
         )
 
-        # Delegate persistence
-        await self.persistence.save_workflow_state(
-            workflow_type, instance_id, workflow.state
+        # Delegate persistence: append the "started" event to the event store
+        await self.event_store.append_events(
+            events=[
+                ProtocolWorkflowEvent(
+                    workflow_type=workflow_type,
+                    instance_id=instance_id,
+                    event_type="started",
+                    sequence_number=1,
+                    data=initial_data,
+                )
+            ],
+            expected_sequence=None,
+            transaction=None,
         )
 
         return workflow

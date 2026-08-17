@@ -4,325 +4,256 @@
 
 Comprehensive guide to memory system implementation patterns using ONEX SPI memory protocols.
 
+> The memory domain (`omnibase_spi.protocols.memory`) does not export a single
+> generic `ProtocolMemoryBase` "do everything" interface. It is decomposed into
+> a base key-value protocol (`ProtocolKeyValueStore`), composable focused
+> interfaces (agent coordination, workflow management, caching, streaming,
+> security), and typed request/response DTOs for the memory node archetypes
+> (`ProtocolMemoryComputeNode`, `ProtocolMemoryEffectNode`,
+> `ProtocolMemoryReducerNode`, `ProtocolMemoryOrchestratorNode`). This guide
+> was rewritten to match that real surface (OMN-16127); every import below
+> resolves against the live package.
+
 ## Memory Architecture
 
 The memory system provides:
-- **Key-value storage** with TTL support
-- **Workflow state persistence** with event sourcing
-- **Memory security** with encryption and access control
-- **Agent coordination** with distributed management
-- **Streaming operations** with real-time updates
+- **Key-value storage** via `ProtocolKeyValueStore` and its extensions
+- **Agent coordination** via `ProtocolAgentCoordinator`
+- **Memory security** via `ProtocolMemorySecurityNode` (PII detection, encryption, audit)
+- **Streaming operations** via `ProtocolStreamingMemoryNode`
+- **Caching** via `ProtocolMemoryCache`
 
 ## Basic Memory Operations
 
-### Memory Base Protocol
+### Key-Value Store Protocol
+
+`ProtocolKeyValueStore` is the base protocol every memory data structure in
+the domain composes from (`ProtocolMemoryMetadata`, `ProtocolWorkflowConfiguration`,
+`ProtocolAnalysisParameters`, and `ProtocolAggregationCriteria` all extend it).
 
 ```python
-from omnibase_spi.protocols.memory import ProtocolMemoryBase
+from omnibase_spi.protocols.memory import ProtocolKeyValueStore
 
-# Initialize memory
-memory: ProtocolMemoryBase = get_memory()
+class SimpleKeyValueStore:
+    """Concrete implementation of ProtocolKeyValueStore."""
 
-# Store data with TTL
-await memory.store(
-    key="user:12345",
-    value={"name": "John Doe", "email": "john@example.com"},
-    ttl_seconds=3600,
-    metadata={"created_by": "system"}
-)
+    def __init__(self) -> None:
+        self._data: dict[str, str] = {}
 
-# Retrieve data
-user_data = await memory.retrieve("user:12345")
-print(f"User: {user_data}")
+    @property
+    def keys(self) -> list[str]:
+        return list(self._data.keys())
 
-# Check existence
-if await memory.exists("user:12345"):
-    print("User exists")
+    async def get_value(self, key: str) -> str | None:
+        return self._data.get(key)
 
-# Get metadata
-metadata = await memory.get_metadata("user:12345")
-print(f"Created by: {metadata['created_by']}")
+    def has_key(self, key: str) -> bool:
+        return key in self._data
+
+    async def validate_store(self) -> bool:
+        return all(isinstance(v, str) for v in self._data.values())
+
+
+store = SimpleKeyValueStore()
+assert isinstance(store, ProtocolKeyValueStore)
 ```
 
-### Advanced Memory Operations
+## Memory Caching
 
 ```python
-from omnibase_spi.protocols.memory import ProtocolMemoryOperations
+from uuid import uuid4
 
-# Initialize advanced operations
-memory_ops: ProtocolMemoryOperations = get_memory_operations()
+from omnibase_spi.protocols.memory import ProtocolMemoryCache
 
-# Batch operations
-operations = [
-    ProtocolMemoryOperation("store", "key1", "value1"),
-    ProtocolMemoryOperation("store", "key2", "value2"),
-    ProtocolMemoryOperation("delete", "key3", None)
-]
+memory_cache: ProtocolMemoryCache = get_memory_cache()
+memory_id = uuid4()
 
-batch_result = await memory_ops.batch_store(operations)
-print(f"Batch operations completed: {batch_result.success_count}")
-
-# Atomic operations
-counter = await memory_ops.atomic_increment("page_views", 1)
-print(f"Page views: {counter}")
-
-# Compare and swap
-success = await memory_ops.atomic_compare_and_swap(
-    "user:12345:status",
-    "pending",
-    "active"
+# Cache a memory record with TTL
+await memory_cache.cache_memory(
+    memory_id=memory_id,
+    cache_ttl_seconds=3600,
+    cache_level="hot",
 )
-print(f"Status updated: {success}")
+
+# Invalidate on update
+await memory_cache.invalidate_cache(
+    memory_id=memory_id,
+    invalidation_scope="single",
+)
+
+# Warm cache for a batch of frequently-accessed records
+await memory_cache.warm_cache(
+    memory_ids=[memory_id],
+    warming_strategy="eager",
+)
+
+stats = await memory_cache.get_cache_stats(cache_scope="hot")
 ```
 
 ## Memory Security
 
-### Encryption and Access Control
+`ProtocolMemorySecurityNode` (in `omnibase_spi.protocols.memory`) provides
+access validation, PII detection, input validation, rate limiting, audit
+trail creation, and encryption — all keyed off a `ProtocolMemorySecurityContext`
+(`omnibase_spi.protocols.memory`).
 
 ```python
-from omnibase_spi.protocols.memory import ProtocolMemorySecurity
+from uuid import uuid4
 
-# Initialize memory security
-memory_security: ProtocolMemorySecurity = get_memory_security()
-
-# Encrypt sensitive data
-encrypted_data = await memory_security.encrypt_data(
-    data={"ssn": "123-45-6789", "credit_score": 750},
-    key_id="encryption-key-1"
+from omnibase_spi.protocols.memory import (
+    ProtocolMemorySecurityContext,
+    ProtocolMemorySecurityNode,
 )
 
-# Store encrypted data
-await memory.store("user:12345:sensitive", encrypted_data)
+security_node: ProtocolMemorySecurityNode = get_memory_security_node()
+security_context: ProtocolMemorySecurityContext = get_security_context()
 
-# Check access permissions
-has_access = await memory_security.check_access_permission(
-    user_id="admin-1",
-    resource="user:12345:sensitive",
-    action="read"
+# Validate access before an operation
+await security_node.validate_access(
+    security_context=security_context,
+    operation_type="read",
+    resource_id=uuid4(),
 )
 
-if has_access:
-    # Decrypt and retrieve data
-    encrypted_data = await memory.retrieve("user:12345:sensitive")
-    decrypted_data = await memory_security.decrypt_data(encrypted_data)
-    print(f"Sensitive data: {decrypted_data}")
+# Detect PII in free-text content before persisting it
+pii_result = await security_node.detect_pii(
+    content="Contact: jane.doe@example.com, SSN 123-45-6789",
+    detection_threshold=0.8,
+)
 
-# Audit access
-await memory_security.audit_memory_access(
-    user_id="admin-1",
-    resource="user:12345:sensitive",
-    action="read",
-    result="success"
+# Encrypt sensitive data before storage
+encrypted = await security_node.encrypt_sensitive_data(
+    data=sensitive_metadata,
+    encryption_level="aes256",
+)
+
+# ... store `encrypted`, then later:
+decrypted = await security_node.decrypt_sensitive_data(
+    encrypted_data=encrypted,
+    security_context=security_context,
+)
+
+# Record an audit trail entry for compliance
+await security_node.create_audit_trail(
+    audit_info=audit_trail_entry,
+    security_context=security_context,
 )
 ```
 
 ## Memory Streaming
 
-### Real-time Memory Updates
+`ProtocolStreamingMemoryNode` handles chunked content transfer, cursor-based
+pagination, compression, and streamed embedding-vector batches.
 
 ```python
-from omnibase_spi.protocols.memory import ProtocolMemoryStreaming
+from uuid import uuid4
 
-# Initialize memory streaming
-memory_streaming: ProtocolMemoryStreaming = get_memory_streaming()
-
-# Create memory stream
-stream_id = await memory_streaming.create_memory_stream(
-    stream_name="user-changes",
-    filter_pattern="user:*"
+from omnibase_spi.protocols.memory import (
+    ProtocolCursorPagination,
+    ProtocolStreamingConfig,
+    ProtocolStreamingMemoryNode,
 )
 
-# Subscribe to memory changes
-subscription_id = await memory_streaming.subscribe_to_memory_changes(
-    stream_id=stream_id,
-    handler=memory_change_handler
+streaming_node: ProtocolStreamingMemoryNode = get_streaming_memory_node()
+memory_id = uuid4()
+streaming_config: ProtocolStreamingConfig = get_streaming_config()
+
+# Stream memory content in chunks
+async for chunk in streaming_node.stream_memory_content(
+    memory_id=memory_id,
+    streaming_config=streaming_config,
+):
+    print(f"Received chunk: {chunk}")
+
+# Cursor-based pagination over large memory collections
+pagination_config: ProtocolCursorPagination = get_cursor_pagination(
+    limit=100,
+    sort_field="created_at",
 )
+page = await streaming_node.paginate_memories_cursor(pagination_config)
 
-# Memory change handler
-async def memory_change_handler(change: ProtocolMemoryChange) -> None:
-    print(f"Memory change: {change.key} - {change.change_type}")
-    print(f"Old value: {change.old_value}")
-    print(f"New value: {change.new_value}")
-
-# Publish memory change
-await memory_streaming.publish_memory_change(
-    key="user:12345",
-    old_value={"name": "John Doe"},
-    new_value={"name": "John Smith"},
-    change_type="updated"
+# Compress a large memory record in place
+await streaming_node.compress_memory_content(
+    memory_id=memory_id,
+    compression_algorithm="zstd",
+    compression_level=6,
 )
 ```
 
-## Agent Management
+## Agent Coordination
 
-### Distributed Agent Coordination
-
-```python
-from omnibase_spi.protocols.memory import ProtocolAgentManager, ProtocolAgentPool
-
-# Initialize agent manager
-agent_manager: ProtocolAgentManager = get_agent_manager()
-
-# Register agent
-agent_id = await agent_manager.register_agent(
-    agent_info=ProtocolAgentInfo(
-        agent_id="agent-1",
-        agent_type="data_processor",
-        host="<onex-host>",
-        port=8080
-    ),
-    capabilities=["data_processing", "ml_inference", "reporting"]
-)
-
-# Get available agents
-available_agents = await agent_manager.get_available_agents("data_processing")
-print(f"Available agents: {len(available_agents)}")
-
-# Assign task to agent
-task_id = await agent_manager.assign_task_to_agent(
-    task=ProtocolAgentTask(
-        task_type="data_processing",
-        data={"dataset": "sales_data.csv"},
-        priority="high"
-    ),
-    agent_id=agent_id
-)
-
-# Initialize agent pool
-agent_pool: ProtocolAgentPool = get_agent_pool()
-
-# Create agent pool
-pool_id = await agent_pool.create_agent_pool(
-    pool_name="data-processing-pool",
-    pool_config=ProtocolAgentPoolConfig(
-        min_size=2,
-        max_size=10,
-        target_size=5
-    )
-)
-
-# Add agents to pool
-await agent_pool.add_agent_to_pool(pool_id, agent_id)
-
-# Scale pool
-await agent_pool.scale_pool(pool_id, target_size=8)
-```
-
-## Memory Patterns
-
-### Caching Patterns
+`ProtocolAgentCoordinator` (composable interface, `omnibase_spi.protocols.memory`)
+is the real agent-coordination surface — there is no `ProtocolAgentManager` or
+`ProtocolAgentPool` in the package.
 
 ```python
-# Cache with TTL
-await memory.store(
-    key="cache:expensive_calculation",
-    value=calculation_result,
-    ttl_seconds=300  # 5 minutes
+from uuid import uuid4
+
+from omnibase_spi.protocols.memory import (
+    ProtocolAgentCoordinationRequest,
+    ProtocolAgentCoordinator,
+    ProtocolMemoryMetadata,
 )
 
-# Check cache first
-cached_result = await memory.retrieve("cache:expensive_calculation")
-if cached_result:
-    return cached_result
-else:
-    # Perform expensive calculation
-    result = perform_expensive_calculation()
-    await memory.store("cache:expensive_calculation", result, ttl_seconds=300)
-    return result
-```
+agent_coordinator: ProtocolAgentCoordinator = get_agent_coordinator()
+agent_id = uuid4()
 
-### Session Management
-
-```python
-# Store session data
-session_id = "session-abc123"
-await memory.store(
-    key=f"session:{session_id}",
-    value={
-        "user_id": "12345",
-        "login_time": datetime.now().isoformat(),
-        "permissions": ["read", "write"]
-    },
-    ttl_seconds=3600  # 1 hour
+# Register an agent
+await agent_coordinator.register_agent(
+    agent_id=agent_id,
+    agent_capabilities=["data_processing", "ml_inference"],
+    agent_metadata=agent_metadata,  # ProtocolMemoryMetadata
 )
 
-# Retrieve session
-session_data = await memory.retrieve(f"session:{session_id}")
-if session_data:
-    print(f"User {session_data['user_id']} is logged in")
-```
-
-### Workflow State Persistence
-
-```python
-# Store workflow state
-workflow_state = {
-    "workflow_type": "order-processing",
-    "instance_id": "123e4567-e89b-12d3-a456-426614174000",
-    "current_state": "payment_processing",
-    "data": {"order_id": "ORD-12345", "amount": 99.99}
-}
-
-await memory.store(
-    key=f"workflow:{workflow_state['instance_id']}",
-    value=workflow_state,
-    ttl_seconds=86400  # 24 hours
+# List agents that can handle a capability
+available = await agent_coordinator.list_available_agents(
+    capability_filter=["data_processing"],
 )
 
-# Retrieve workflow state
-state = await memory.retrieve(f"workflow:{workflow_state['instance_id']}")
-if state:
-    print(f"Workflow state: {state['current_state']}")
-```
+# Coordinate a multi-agent task
+coordination_request: ProtocolAgentCoordinationRequest = build_coordination_request()
+result = await agent_coordinator.coordinate_agents(coordination_request)
 
-## Performance Optimization
-
-### Batch Operations
-
-```python
-# Use batch operations for performance
-operations = []
-for i in range(1000):
-    operations.append(
-        ProtocolMemoryOperation("store", f"key_{i}", f"value_{i}")
-    )
-
-batch_result = await memory_ops.batch_store(operations)
-print(f"Stored {batch_result.success_count} items")
-```
-
-### Memory Monitoring
-
-```python
-# Get memory statistics
-stats = await memory.get_memory_stats()
-print(f"Total keys: {stats.total_keys}")
-print(f"Memory usage: {stats.memory_usage_bytes} bytes")
-print(f"Hit rate: {stats.hit_rate}%")
+# Query status, then deregister when finished
+await agent_coordinator.get_agent_status(agent_id)
+await agent_coordinator.unregister_agent(agent_id)
 ```
 
 ## Best Practices
 
 ### Memory Management
 
-1. **Use TTL** - Set appropriate TTL values for data
-2. **Batch Operations** - Use batch operations for performance
-3. **Monitor Usage** - Track memory usage and performance
-4. **Secure Data** - Encrypt sensitive data
-5. **Audit Access** - Log all memory access for security
+1. **Compose from `ProtocolKeyValueStore`** — build custom memory data
+   structures by extending it, matching `ProtocolMemoryMetadata` and
+   `ProtocolWorkflowConfiguration`'s pattern.
+2. **Use the security node for anything PII-adjacent** — `detect_pii()` and
+   `encrypt_sensitive_data()` are first-class operations, not an afterthought.
+3. **Prefer cursor pagination for large collections** — `ProtocolCursorPagination`
+   gives stable ordering; do not page with raw offsets.
+4. **Cache explicitly, invalidate explicitly** — `ProtocolMemoryCache` has no
+   implicit TTL sweep; call `invalidate_cache()` on writes.
 
 ### Error Handling
 
+The memory domain has its own error *data* protocols in the same package
+(`ProtocolMemoryError`, `ProtocolMemoryNotFoundError`,
+`ProtocolMemoryAuthorizationError`, `ProtocolMemoryValidationError`,
+`ProtocolMemoryTimeoutError`, `ProtocolMemoryCapacityError`,
+`ProtocolMemoryCorruptionError`). These are plain `Protocol` shapes (not
+`Exception` subclasses) that describe a standardized error payload —
+`error_code`, `error_message`, `error_timestamp`, `correlation_id`,
+`error_category` — carried inside a response object, not raised and caught
+with `try`/`except`. Actual Python exceptions for handler/SPI-level failures
+come from `omnibase_spi.exceptions` (see [EXCEPTIONS.md](../api-reference/EXCEPTIONS.md)).
+
 ```python
-try:
-    result = await memory.retrieve("key")
-    if result is None:
-        print("Key not found")
-    else:
-        print(f"Retrieved: {result}")
-except MemoryError as e:
-    print(f"Memory operation failed: {e}")
-    # Handle error appropriately
+from omnibase_spi.protocols.memory import ProtocolMemoryNotFoundError
+
+async def handle_lookup(memory_id: UUID) -> None:
+    response = await memory_node.retrieve_memory(memory_id)
+    error: ProtocolMemoryNotFoundError | None = response.error
+    if error is not None:
+        print(f"[{error.error_code}] {error.error_message}")
 ```
 
 ## API Reference

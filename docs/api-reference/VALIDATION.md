@@ -1,632 +1,596 @@
 # Validation API Reference
 
-![Version](https://img.shields.io/badge/SPI-v0.20.5-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.3.0-lightgrey)
+![Version](https://img.shields.io/badge/SPI-v0.23.1-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.3.0-lightgrey)
 
-> **Package Version**: 0.20.5 | **Status**: Stable | **Since**: v0.3.0
+> **Package Version**: 0.23.1 | **Status**: Stable | **Since**: v0.3.0
 
 ---
 
 ## Overview
 
-The ONEX validation protocols provide comprehensive input validation, schema checking, compliance validation, and quality assurance capabilities. These protocols enable sophisticated validation patterns with contract compliance, import validation, and pre-commit checking.
+The `omnibase_spi.protocols.validation` domain provides the interfaces behind
+four ONEX validation node archetypes — import validation (`NodeImportValidatorCompute`),
+quality validation (`NodeQualityValidatorEffect`), compliance validation
+(`NodeComplianceValidatorReducer`), and validation orchestration
+(`NodeValidationOrchestratorOrchestrator`) — plus a generic protocol-conformance
+validator and a validation-provider/session management surface. It does **not**
+define a generic input-sanitization or pre-commit-checking protocol; those
+concerns live elsewhere (see the notes on each section below).
+
+> This page was rewritten against the live package for OMN-16127. Every
+> class name below imports at the shown path; the previous revision
+> documented several fabricated protocols (`ProtocolContractCompliance`,
+> `ProtocolInputValidationTool`, `ProtocolPrecommitChecker`) that do not
+> exist anywhere in `omnibase_spi`.
 
 ## 🏗️ Protocol Architecture
 
-The validation domain consists of **11 specialized protocols** that provide complete validation infrastructure:
+The validation domain exports **26 names** across generic protocol
+validation, import validation, quality validation, compliance validation,
+validation orchestration, provider/session management, and one standalone
+execution-constraint validator.
 
-### Validation Protocol
+### Generic Protocol Validator
 
 ```python
-from omnibase_spi.protocols.validation import ProtocolValidation
-from omnibase_spi.protocols.types.protocol_core_types import ContextValue
+from omnibase_spi.protocols.validation import (
+    ProtocolValidationError,
+    ProtocolValidationResult,
+    ProtocolValidator,
+)
 
 @runtime_checkable
-class ProtocolValidation(Protocol):
+class ProtocolValidator(Protocol):
     """
-    Core validation protocol for data validation operations.
+    Protocol for protocol compliance validation functionality.
 
-    Provides comprehensive validation capabilities with
-    schema validation, rule-based validation, and custom validators.
-
-    Key Features:
-        - Schema-based validation
-        - Rule-based validation
-        - Custom validator support
-        - Performance optimization
-        - Error reporting and diagnostics
-        - Validation result caching
+    Validates whether an implementation satisfies a `typing.Protocol`
+    requirement, with a configurable strict mode for additional rigor.
+    This is the core "does this object implement that protocol"
+    validation primitive; see `ProtocolValidationDecorator` for a
+    decorator-based wrapper around the same check.
     """
 
-    async def validate_data(
-        self,
-        data: ContextValue,
-        validation_schema: ProtocolValidationSchema,
-        options: ProtocolValidationOptions | None = None,
+    strict_mode: bool
+
+    async def validate_implementation(
+        self, implementation: object, protocol: type
     ) -> ProtocolValidationResult: ...
-
-    async def validate_against_rules(
-        self,
-        data: ContextValue,
-        rules: list[ProtocolValidationRule],
-    ) -> ProtocolValidationResult: ...
-
-    async def validate_schema(
-        self, schema: ProtocolValidationSchema
-    ) -> ProtocolValidationResult: ...
-
-    async def register_custom_validator(
-        self,
-        validator_name: str,
-        validator_func: ProtocolCustomValidator,
-    ) -> bool: ...
-
-    async def unregister_custom_validator(
-        self, validator_name: str
-    ) -> bool: ...
-
-    async def get_validation_metrics(
-        self, time_range_hours: int = 24
-    ) -> ProtocolValidationMetrics: ...
-
-    async def clear_validation_cache(self) -> int: ...
-
-    async def get_validation_statistics(
-        self,
-    ) -> ProtocolValidationStatistics: ...
 ```
+
+`ProtocolValidationResult` captures `is_valid`, `protocol_name`,
+`implementation_name`, and lists of `ProtocolValidationError` (`errors`,
+`warnings`), plus `add_error()` / `add_warning()` for incremental building
+and `get_summary()`. `ProtocolValidationDecorator` wraps the same check as a
+class decorator (`validation_decorator(protocol)`) or an explicit async call
+(`validate_protocol_implementation(implementation, protocol, strict=...)`).
+
+> There is no `ProtocolValidation` (singular, no trailing "or") name in this
+> domain — that name lives in a different domain entirely:
+> `omnibase_spi.protocols.onex.ProtocolValidation`, which validates ONEX
+> envelope/reply/contract structures, not arbitrary implementations. Do not
+> confuse the two.
+
+### Import Validator Protocol
+
+For `NodeImportValidatorCompute` implementations: validates import
+statements and dependency chains against a repository-type-aware allow list.
+
+```python
+from omnibase_spi.protocols.validation import (
+    ProtocolImportAnalysis,
+    ProtocolImportValidationConfig,
+    ProtocolImportValidator,
+)
+
+@runtime_checkable
+class ProtocolImportValidator(Protocol):
+    """
+    Protocol interface for import validation in ONEX systems.
+
+    Defines the interface for NodeImportValidatorCompute nodes that
+    validate import statements, dependencies, and security implications
+    across ONEX repositories.
+    """
+
+    validation_config: "ProtocolImportValidationConfig"
+    security_scanning_enabled: bool
+    dependency_analysis_enabled: bool
+
+    async def validate_import(
+        self, import_path: str, description: str, context: "JsonType | None" = None
+    ) -> "ProtocolValidationResult": ...
+
+    async def validate_from_import(
+        self,
+        from_path: str,
+        import_items: str,
+        description: str,
+        context: "JsonType | None" = None,
+    ) -> "ProtocolValidationResult": ...
+
+    async def validate_import_security(
+        self, import_path: str, context: "JsonType | None" = None
+    ) -> ProtocolImportAnalysis: ...
+
+    async def validate_dependency_chain(
+        self, import_path: str, max_depth: int | None = None
+    ) -> list[ProtocolImportAnalysis]: ...
+
+    async def validate_repository_imports(
+        self, repository_path: str, patterns: list[str] | None = None
+    ) -> list["ProtocolValidationResult"]: ...
+
+    async def get_validation_summary(self) -> "JsonType": ...
+
+    async def configure_validation(
+        self, config: "ProtocolImportValidationConfig"
+    ) -> None: ...
+
+    async def reset_validation_state(self) -> None: ...
+```
+
+`ProtocolImportValidationConfig` carries `allowed_imports`,
+`allowed_import_items`, `repository_type`, and `validation_mode`.
+`ProtocolImportAnalysis` is the result of a single-import security check:
+`import_path`, `is_valid`, `security_risk`, `dependency_level`, plus
+`get_risk_summary()` / `get_recommendations()`.
+
+### Quality Validator Protocol
+
+For `NodeQualityValidatorEffect` implementations: code quality, complexity,
+and maintainability assessment.
+
+```python
+from omnibase_spi.protocols.validation import (
+    ProtocolQualityIssue,
+    ProtocolQualityMetrics,
+    ProtocolQualityReport,
+    ProtocolQualityStandards,
+    ProtocolQualityValidator,
+)
+
+@runtime_checkable
+class ProtocolQualityValidator(Protocol):
+    """
+    Protocol interface for code quality validation in ONEX systems.
+
+    Defines the interface for NodeQualityValidatorEffect nodes that
+    assess code quality, complexity metrics, maintainability, and
+    compliance with coding standards.
+    """
+
+    standards: "ProtocolQualityStandards"
+    enable_complexity_analysis: bool
+    enable_duplication_detection: bool
+    enable_style_checking: bool
+
+    async def validate_file_quality(
+        self, file_path: str, content: str | None = None
+    ) -> ProtocolQualityReport: ...
+
+    async def validate_directory_quality(
+        self, directory_path: str, file_patterns: list[str] | None = None
+    ) -> list[ProtocolQualityReport]: ...
+
+    def calculate_quality_metrics(
+        self, file_path: str, content: str | None = None
+    ) -> ProtocolQualityMetrics: ...
+
+    def detect_code_smells(
+        self, file_path: str, content: str | None = None
+    ) -> list[ProtocolQualityIssue]: ...
+
+    async def check_naming_conventions(
+        self, file_path: str, content: str | None = None
+    ) -> list[ProtocolQualityIssue]: ...
+
+    async def analyze_complexity(
+        self, file_path: str, content: str | None = None
+    ) -> list[ProtocolQualityIssue]: ...
+
+    async def validate_documentation(
+        self, file_path: str, content: str | None = None
+    ) -> list[ProtocolQualityIssue]: ...
+
+    def suggest_refactoring(
+        self, file_path: str, content: str | None = None
+    ) -> list[str]: ...
+
+    def configure_standards(self, standards: "ProtocolQualityStandards") -> None: ...
+
+    async def get_validation_summary(
+        self, reports: list[ProtocolQualityReport]
+    ) -> "ProtocolValidationResult": ...
+```
+
+`ProtocolQualityMetrics` carries `cyclomatic_complexity`,
+`maintainability_index`, `lines_of_code`, `code_duplication_percentage`,
+`test_coverage_percentage`, `technical_debt_score`.
+`ProtocolQualityStandards` defines the configurable thresholds
+(`max_complexity`, `min_maintainability_score`, `max_line_length`, etc.)
+that a `ProtocolQualityReport` is checked against.
 
 ### Compliance Validator Protocol
 
+For `NodeComplianceValidatorReducer` implementations: ONEX naming,
+architecture-layer, and directory-structure compliance.
+
 ```python
+from omnibase_spi.protocols.validation import (
+    ProtocolArchitectureCompliance,
+    ProtocolComplianceReport,
+    ProtocolComplianceRule,
+    ProtocolComplianceValidator,
+    ProtocolComplianceViolation,
+    ProtocolONEXStandards,
+)
+
 @runtime_checkable
 class ProtocolComplianceValidator(Protocol):
     """
-    Protocol for compliance validation operations.
+    Protocol interface for compliance validation in ONEX systems.
 
-    Provides compliance checking with standards validation,
-    policy enforcement, and regulatory compliance.
-
-    Key Features:
-        - Standards compliance checking
-        - Policy enforcement
-        - Regulatory compliance
-        - Audit trail generation
-        - Compliance reporting
-        - Risk assessment
+    Defines the interface for NodeComplianceValidatorReducer nodes that
+    validate compliance with ONEX standards, architectural patterns,
+    and ecosystem requirements.
     """
 
-    async def validate_compliance(
-        self,
-        data: ContextValue,
-        compliance_standard: str,
-        options: ProtocolComplianceOptions,
-    ) -> ProtocolComplianceResult: ...
+    onex_standards: "ProtocolONEXStandards"
+    architecture_rules: "ProtocolArchitectureCompliance"
+    custom_rules: list[ProtocolComplianceRule]
+    strict_mode: bool
 
-    async def check_policy_compliance(
-        self,
-        data: ContextValue,
-        policy: ProtocolCompliancePolicy,
-    ) -> ProtocolComplianceResult: ...
-
-    async def validate_regulatory_compliance(
-        self,
-        data: ContextValue,
-        regulation: str,
-        jurisdiction: str,
-    ) -> ProtocolComplianceResult: ...
-
-    async def generate_compliance_report(
-        self,
-        compliance_results: list[ProtocolComplianceResult],
-        format: LiteralReportFormat = "json",
+    async def validate_file_compliance(
+        self, file_path: str, content: str | None = None
     ) -> ProtocolComplianceReport: ...
 
-    async def get_compliance_standards(
-        self,
-    ) -> list[ProtocolComplianceStandard]: ...
+    async def validate_repository_compliance(
+        self, repository_path: str, file_patterns: list[str] | None = None
+    ) -> list[ProtocolComplianceReport]: ...
 
-    async def register_compliance_standard(
-        self, standard: ProtocolComplianceStandard
+    async def validate_onex_naming(
+        self, file_path: str, content: str | None = None
+    ) -> list[ProtocolComplianceViolation]: ...
+
+    async def validate_architecture_compliance(
+        self, file_path: str, content: str | None = None
+    ) -> list[ProtocolComplianceViolation]: ...
+
+    async def validate_directory_structure(
+        self, repository_path: str
+    ) -> list[ProtocolComplianceViolation]: ...
+
+    async def validate_dependency_compliance(
+        self, file_path: str, imports: list[str]
+    ) -> list[ProtocolComplianceViolation]: ...
+
+    async def aggregate_compliance_results(
+        self, reports: list["ProtocolComplianceReport"]
+    ) -> "ProtocolValidationResult": ...
+
+    def add_custom_rule(self, rule: "ProtocolComplianceRule") -> None: ...
+
+    def configure_onex_standards(self, standards: "ProtocolONEXStandards") -> None: ...
+
+    async def get_compliance_summary(
+        self, reports: list[ProtocolComplianceReport]
+    ) -> str: ...
+```
+
+`ProtocolONEXStandards` defines naming-pattern regexes (`enum_naming_pattern`,
+`model_naming_pattern`, `protocol_naming_pattern`, `node_naming_pattern`) and
+`required_directories` / `forbidden_patterns`. `ProtocolArchitectureCompliance`
+enforces the SPI/Core/Infra dependency direction (`allowed_dependencies`,
+`forbidden_dependencies`). `ProtocolComplianceReport` aggregates
+`ProtocolComplianceViolation` instances with `onex_compliance_score` and
+`architecture_compliance_score`.
+
+### Validation Orchestrator Protocol
+
+For `NodeValidationOrchestratorOrchestrator` implementations: coordinates
+import, quality, and compliance validation across a repository.
+
+```python
+from omnibase_spi.protocols.validation import (
+    ProtocolValidationMetrics,
+    ProtocolValidationOrchestrator,
+    ProtocolValidationReport,
+    ProtocolValidationScope,
+    ProtocolValidationSummary,
+    ProtocolValidationWorkflow,
+)
+
+@runtime_checkable
+class ProtocolValidationOrchestrator(Protocol):
+    """
+    Protocol interface for validation orchestration in ONEX systems.
+
+    Defines the interface for NodeValidationOrchestratorOrchestrator nodes
+    that coordinate validation workflows across multiple validation nodes
+    including import, quality, compliance, and security validation.
+    """
+
+    orchestration_id: str
+    default_scope: "ProtocolValidationScope"
+
+    def orchestrate_validation(
+        self,
+        scope: "ProtocolValidationScope",
+        workflow: "ProtocolValidationWorkflow | None" = None,
+    ) -> ProtocolValidationReport: ...
+
+    async def validate_imports(
+        self, scope: "ProtocolValidationScope"
+    ) -> list["ProtocolValidationResult"]: ...
+
+    async def validate_quality(
+        self, scope: "ProtocolValidationScope"
+    ) -> list["ProtocolValidationResult"]: ...
+
+    async def validate_compliance(
+        self, scope: "ProtocolValidationScope"
+    ) -> list["ProtocolValidationResult"]: ...
+
+    async def create_validation_workflow(
+        self,
+        workflow_name: str,
+        validation_steps: list[str],
+        dependencies: list[str],
+        parallel_execution: bool | None = None,
+    ) -> ProtocolValidationWorkflow: ...
+
+    async def create_validation_scope(
+        self,
+        repository_path: str,
+        validation_types: list[str] | None = None,
+        file_patterns: list[str] | None = None,
+        exclusion_patterns: list[str] | None = None,
+    ) -> ProtocolValidationScope: ...
+
+    async def get_orchestration_metrics(self) -> ProtocolValidationMetrics: ...
+```
+
+`ProtocolValidationScope` bounds a run (`repository_path`,
+`validation_types`, `file_patterns`, `exclusion_patterns`).
+`ProtocolValidationWorkflow` orders the steps (`validation_steps`,
+`dependencies`, `parallel_execution`, `timeout_seconds`).
+`ProtocolValidationReport` aggregates `scope`, `workflow`, `results`,
+`summary` (`ProtocolValidationSummary`), and `metrics`
+(`ProtocolValidationMetrics`) into one artifact.
+
+### Validation Provider Protocol
+
+Session-based validation-rule management — the central orchestration point
+for rule registration, rule sets, and validation sessions.
+
+```python
+from omnibase_spi.protocols.validation import ProtocolValidationProvider
+
+@runtime_checkable
+class ProtocolValidationProvider(Protocol):
+    """
+    Protocol interface for comprehensive validation model providers.
+
+    Orchestrates validation workflows, manages validation rules and rule
+    sets, and provides quality-assurance capabilities across
+    BASIC/STANDARD/COMPREHENSIVE/PARANOID validation levels and
+    strict/lenient/smoke/regression/integration execution modes.
+    """
+
+    provider_id: str
+    provider_name: str
+
+    async def register_validation_rule(self, rule) -> bool: ...
+
+    async def create_rule_set(
+        self, rule_set_name: str, rule_ids: list[str], rule_set_metadata=None
+    ): ...
+
+    async def create_validation_session(
+        self, session_name: str, session_metadata=None
+    ): ...
+
+    async def validate(
+        self,
+        targets: list,
+        rule_sets: list,
+        level: str = "STANDARD",
+        mode: str = "strict",
+        context: dict | None = None,
+    ) -> list["ProtocolValidationResult"]: ...
+
+    def is_validation_successful(
+        self, results: list["ProtocolValidationResult"]
     ) -> bool: ...
 
-    async def get_compliance_metrics(
-        self, time_range_hours: int = 24
-    ) -> ProtocolComplianceMetrics: ...
-
-    async def assess_compliance_risk(
-        self, data: ContextValue, context: dict[str, Any]
-    ) -> ProtocolRiskAssessment: ...
+    async def generate_quality_report(
+        self, session, results: list["ProtocolValidationResult"], report_format=None
+    ) -> str: ...
 ```
 
-### Contract Compliance Protocol
+This is an abridged signature — the full protocol also defines rule
+lifecycle management (`unregister_validation_rule`, `get_validation_rule`,
+`list_validation_rules`), session management (`get_active_sessions`,
+`cleanup_completed_sessions`), and provider health/caching
+(`get_provider_health`, `clear_validation_cache`,
+`optimize_rule_execution`). See
+`src/omnibase_spi/protocols/validation/protocol_validation_provider.py`.
+
+### Constraint Validator Protocol
+
+A standalone protocol (not part of the four-node validation family above)
+for `NodeConstraintValidatorCompute` implementations: validates that a set
+of `ModelExecutionConstraints` are internally consistent for a given
+`ModelExecutionProfile` — cycle detection, phase validation, and
+determinism checks.
 
 ```python
+from omnibase_core.models.common import ModelValidationResult
+from omnibase_core.models.contracts import ModelExecutionProfile
+from omnibase_core.models.contracts.model_execution_constraints import (
+    ModelExecutionConstraints,
+)
+from omnibase_core.models.execution import ModelExecutionConflict
+from omnibase_spi.protocols.validation import ProtocolConstraintValidator
+
 @runtime_checkable
-class ProtocolContractCompliance(Protocol):
-    """
-    Protocol for contract compliance validation.
+class ProtocolConstraintValidator(Protocol):
+    """Protocol for validating execution constraints don't conflict.
 
-    Provides contract validation with interface compliance,
-    protocol adherence, and contract testing.
-
-    Key Features:
-        - Interface compliance checking
-        - Protocol adherence validation
-        - Contract testing and verification
-        - API contract validation
-        - Service contract compliance
-        - Contract evolution support
+    Detects circular dependencies, impossible phase constraints,
+    conflicting must_run declarations, and nondeterministic effects
+    scheduled in disallowed phases.
     """
 
-    async def validate_interface_compliance(
+    async def validate(
         self,
-        implementation: Any,
-        interface: Type[Any],
-    ) -> ProtocolComplianceResult: ...
+        profile: ModelExecutionProfile,
+        constraints: list[ModelExecutionConstraints],
+    ) -> ModelValidationResult[ModelExecutionConflict]: ...
 
-    async def validate_protocol_adherence(
+    async def detect_cycles(
+        self, constraints: list[ModelExecutionConstraints]
+    ) -> list[ModelExecutionConflict]: ...
+
+    async def validate_phase_constraints(
         self,
-        implementation: Any,
-        protocol: Type[Protocol],
-    ) -> ProtocolComplianceResult: ...
+        profile: ModelExecutionProfile,
+        constraints: list[ModelExecutionConstraints],
+    ) -> list[ModelExecutionConflict]: ...
 
-    async def validate_api_contract(
+    async def validate_determinism(
         self,
-        api_spec: ProtocolAPIContract,
-        implementation: Any,
-    ) -> ProtocolComplianceResult: ...
-
-    async def validate_service_contract(
-        self,
-        service_contract: ProtocolServiceContract,
-        service_implementation: Any,
-    ) -> ProtocolComplianceResult: ...
-
-    async def generate_contract_report(
-        self,
-        compliance_results: list[ProtocolComplianceResult],
-    ) -> ProtocolContractReport: ...
-
-    async def validate_contract_evolution(
-        self,
-        old_contract: ProtocolContract,
-        new_contract: ProtocolContract,
-    ) -> ProtocolEvolutionResult: ...
-
-    async def get_contract_metrics(
-        self, time_range_hours: int = 24
-    ) -> ProtocolContractMetrics: ...
+        profile: ModelExecutionProfile,
+        constraints: list[ModelExecutionConstraints],
+    ) -> list[ModelExecutionConflict]: ...
 ```
 
-### Input Validation Tool Protocol
+Note this protocol returns `omnibase_core` models directly
+(`ModelValidationResult`, `ModelExecutionConflict`) rather than the
+`ProtocolValidationResult` used elsewhere on this page — it predates and is
+independent of the four-node validation family.
+
+### Input Validator Protocol
+
+> Lives in the `schema` domain, not `validation` — imported here because it
+> is the input-sanitization/security-validation counterpart to the
+> validation-domain protocols above. There is no `ProtocolInputValidationTool`
+> anywhere in the package.
 
 ```python
-@runtime_checkable
-class ProtocolInputValidationTool(Protocol):
-    """
-    Protocol for input validation tool operations.
+from omnibase_spi.protocols.schema import ProtocolInputValidator
+from omnibase_spi.protocols.types import (
+    ContextValue,
+    LiteralValidationLevel,
+    LiteralValidationMode,
+)
+from omnibase_spi.protocols.validation import ProtocolValidationResult
 
-    Provides specialized input validation with
-    sanitization, format checking, and security validation.
+@runtime_checkable
+class ProtocolInputValidator(Protocol):
+    """
+    Protocol for standardized input validation across ONEX services.
+
+    Provides comprehensive input validation, sanitization, and security
+    checking to prevent injection attacks and ensure data integrity.
 
     Key Features:
-        - Input sanitization and cleaning
-        - Format validation and conversion
-        - Security validation and filtering
-        - Performance optimization
-        - Error handling and reporting
-        - Validation rule management
+        - Multi-level validation (basic to paranoid)
+        - Type-specific validation rules (string, numeric, collection)
+        - Security-focused validation (SQL injection, XSS, path traversal)
+        - Custom validation rule support
+        - Batch validation for performance
     """
 
     async def validate_input(
         self,
-        input_data: ContextValue,
-        input_type: str,
-        validation_rules: list[ProtocolInputValidationRule],
-    ) -> ProtocolInputValidationResult: ...
+        value: ContextValue,
+        rules: list[str],
+        validation_level: LiteralValidationLevel = "STANDARD",
+    ) -> ProtocolValidationResult: ...
+
+    async def validate_string(
+        self,
+        value: str,
+        min_length: int | None,
+        max_length: int | None,
+        pattern: str | None,
+        allow_empty: bool,
+    ) -> ProtocolValidationResult: ...
 
     async def sanitize_input(
         self,
-        input_data: ContextValue,
-        sanitization_rules: list[ProtocolSanitizationRule],
-    ) -> ContextValue: ...
-
-    async def validate_format(
-        self,
-        input_data: ContextValue,
-        expected_format: str,
-    ) -> bool: ...
-
-    async def convert_format(
-        self,
-        input_data: ContextValue,
-        from_format: str,
-        to_format: str,
-    ) -> ContextValue: ...
-
-    async def validate_security(
-        self,
-        input_data: ContextValue,
-        security_rules: list[ProtocolSecurityRule],
-    ) -> ProtocolSecurityValidationResult: ...
-
-    async def get_validation_rules(
-        self, input_type: str
-    ) -> list[ProtocolInputValidationRule]: ...
-
-    async def register_validation_rule(
-        self,
-        input_type: str,
-        rule: ProtocolInputValidationRule,
-    ) -> bool: ...
-
-    async def get_input_validation_metrics(
-        self, time_range_hours: int = 24
-    ) -> ProtocolInputValidationMetrics: ...
-```
-
-### Import Validator Protocol
-
-```python
-@runtime_checkable
-class ProtocolImportValidator(Protocol):
-    """
-    Protocol for import validation operations.
-
-    Provides import validation with dependency checking,
-    circular import detection, and import optimization.
-
-    Key Features:
-        - Import dependency validation
-        - Circular import detection
-        - Import optimization suggestions
-        - Dependency graph analysis
-        - Import performance monitoring
-        - Import security validation
-    """
-
-    async def validate_imports(
-        self,
-        file_path: str,
-        import_statements: list[str],
-    ) -> ProtocolImportValidationResult: ...
-
-    async def detect_circular_imports(
-        self, file_path: str
-    ) -> list[ProtocolCircularImport]: ...
-
-    async def validate_import_dependencies(
-        self,
-        file_path: str,
-        dependencies: list[str],
-    ) -> ProtocolDependencyValidationResult: ...
-
-    async def optimize_imports(
-        self, file_path: str
-    ) -> ProtocolImportOptimizationResult: ...
-
-    async def get_import_graph(
-        self, file_path: str
-    ) -> ProtocolImportGraph: ...
-
-    async def validate_import_security(
-        self,
-        file_path: str,
-        import_statements: list[str],
-    ) -> ProtocolSecurityValidationResult: ...
-
-    async def get_import_metrics(
-        self, file_path: str
-    ) -> ProtocolImportMetrics: ...
-
-    async def suggest_import_improvements(
-        self, file_path: str
-    ) -> list[ProtocolImportSuggestion]: ...
-```
-
-### Pre-commit Checker Protocol
-
-```python
-@runtime_checkable
-class ProtocolPrecommitChecker(Protocol):
-    """
-    Protocol for pre-commit validation operations.
-
-    Provides pre-commit validation with code quality checks,
-    security scanning, and compliance validation.
-
-    Key Features:
-        - Code quality validation
-        - Security vulnerability scanning
-        - Compliance checking
-        - Performance validation
-        - Documentation validation
-        - Test coverage checking
-    """
-
-    async def run_precommit_checks(
-        self,
-        file_paths: list[str],
-        check_types: list[LiteralPrecommitCheckType],
-    ) -> ProtocolPrecommitResult: ...
-
-    async def validate_code_quality(
-        self, file_paths: list[str]
-    ) -> ProtocolCodeQualityResult: ...
-
-    async def scan_security_vulnerabilities(
-        self, file_paths: list[str]
-    ) -> ProtocolSecurityScanResult: ...
-
-    async def validate_compliance(
-        self, file_paths: list[str]
-    ) -> ProtocolComplianceResult: ...
-
-    async def check_performance(
-        self, file_paths: list[str]
-    ) -> ProtocolPerformanceCheckResult: ...
-
-    async def validate_documentation(
-        self, file_paths: list[str]
-    ) -> ProtocolDocumentationValidationResult: ...
-
-    async def check_test_coverage(
-        self, file_paths: list[str]
-    ) -> ProtocolTestCoverageResult: ...
-
-    async def get_precommit_metrics(
-        self, time_range_hours: int = 24
-    ) -> ProtocolPrecommitMetrics: ...
-```
-
-### Quality Validator Protocol
-
-```python
-@runtime_checkable
-class ProtocolQualityValidator(Protocol):
-    """
-    Protocol for quality validation operations.
-
-    Provides comprehensive quality validation with
-    code quality metrics, performance validation, and maintainability checks.
-
-    Key Features:
-        - Code quality metrics
-        - Performance validation
-        - Maintainability assessment
-        - Complexity analysis
-        - Documentation quality
-        - Test quality validation
-    """
-
-    async def validate_code_quality(
-        self,
-        file_paths: list[str],
-        quality_standards: ProtocolQualityStandards,
-    ) -> ProtocolQualityValidationResult: ...
-
-    async def assess_maintainability(
-        self, file_paths: list[str]
-    ) -> ProtocolMaintainabilityAssessment: ...
-
-    async def analyze_complexity(
-        self, file_paths: list[str]
-    ) -> ProtocolComplexityAnalysis: ...
-
-    async def validate_performance(
-        self, file_paths: list[str]
-    ) -> ProtocolPerformanceValidationResult: ...
-
-    async def check_documentation_quality(
-        self, file_paths: list[str]
-    ) -> ProtocolDocumentationQualityResult: ...
-
-    async def validate_test_quality(
-        self, file_paths: list[str]
-    ) -> ProtocolTestQualityResult: ...
-
-    async def get_quality_metrics(
-        self, file_paths: list[str]
-    ) -> ProtocolQualityMetrics: ...
-
-    async def generate_quality_report(
-        self,
-        quality_results: list[ProtocolQualityValidationResult],
-        format: LiteralReportFormat = "json",
-    ) -> ProtocolQualityReport: ...
-```
-
-### Validation Orchestrator Protocol
-
-```python
-@runtime_checkable
-class ProtocolValidationOrchestrator(Protocol):
-    """
-    Protocol for validation orchestration operations.
-
-    Provides validation orchestration with workflow management,
-    parallel validation, and result aggregation.
-
-    Key Features:
-        - Validation workflow orchestration
-        - Parallel validation execution
-        - Result aggregation and reporting
-        - Validation pipeline management
-        - Performance optimization
-        - Error handling and recovery
-    """
-
-    async def orchestrate_validation(
-        self,
-        validation_requests: list[ProtocolValidationRequest],
-        orchestration_options: ProtocolOrchestrationOptions,
-    ) -> ProtocolOrchestrationResult: ...
-
-    async def execute_validation_pipeline(
-        self,
-        pipeline: list[ProtocolValidationStep],
-        data: ContextValue,
-    ) -> ProtocolPipelineResult: ...
-
-    async def parallel_validate(
-        self,
-        validation_tasks: list[ProtocolValidationTask],
-        max_concurrent: int = 5,
-    ) -> list[ProtocolValidationResult]: ...
-
-    async def aggregate_validation_results(
-        self,
-        results: list[ProtocolValidationResult],
-        aggregation_strategy: LiteralAggregationStrategy,
-    ) -> ProtocolAggregatedResult: ...
-
-    async def get_orchestration_metrics(
-        self, time_range_hours: int = 24
-    ) -> ProtocolOrchestrationMetrics: ...
-
-    async def optimize_validation_workflow(
-        self, workflow: ProtocolValidationWorkflow
-    ) -> ProtocolOptimizationResult: ...
-```
-
-### Validation Provider Protocol
-
-```python
-@runtime_checkable
-class ProtocolValidationProvider(Protocol):
-    """
-    Protocol for validation provider operations.
-
-    Provides validation provider management with
-    provider registration, discovery, and coordination.
-
-    Key Features:
-        - Validation provider registration
-        - Provider discovery and selection
-        - Provider coordination
-        - Performance monitoring
-        - Error handling and recovery
-        - Provider lifecycle management
-    """
-
-    async def register_validation_provider(
-        self,
-        provider_info: ProtocolValidationProviderInfo,
-        capabilities: list[str],
+        value: str,
+        remove_html: bool | None = None,
+        escape_special_chars: bool | None = None,
+        normalize_whitespace: bool | None = None,
     ) -> str: ...
 
-    async def unregister_validation_provider(
-        self, provider_id: str
-    ) -> bool: ...
-
-    async def discover_validation_providers(
-        self, capability: str | None = None
-    ) -> list[ProtocolValidationProviderInfo]: ...
-
-    async def select_validation_provider(
+    async def validate_batch(
         self,
-        validation_request: ProtocolValidationRequest,
-        selection_criteria: ProtocolSelectionCriteria,
-    ) -> ProtocolValidationProviderInfo: ...
+        inputs: list[dict[str, object]],
+        validation_mode: LiteralValidationMode = "strict",
+    ) -> list[ProtocolValidationResult]: ...
 
-    async def coordinate_validation_providers(
+    async def check_security_patterns(
         self,
-        coordination_task: ProtocolValidationCoordinationTask,
-    ) -> ProtocolCoordinationResult: ...
-
-    async def get_provider_metrics(
-        self, provider_id: str
-    ) -> ProtocolProviderMetrics: ...
-
-    async def get_provider_health(
-        self, provider_id: str
-    ) -> ProtocolProviderHealth: ...
+        value: str,
+        check_sql_injection: bool,
+        check_xss: bool,
+        check_path_traversal: bool,
+        check_command_injection: bool,
+    ) -> ProtocolValidationResult: ...
 ```
 
-## 🔧 Type Definitions
+> Abridged — the full protocol also defines `validate_numeric`,
+> `validate_collection`, `validate_email`, `validate_url`, and
+> `add_custom_rule`. See
+> `src/omnibase_spi/protocols/schema/protocol_input_validator.py`.
 
-### Validation Types
-
-```python
-LiteralReportFormat = Literal["json", "xml", "html", "pdf", "csv"]
-"""
-Report format types.
-
-Values:
-    json: JSON format
-    xml: XML format
-    html: HTML format
-    pdf: PDF format
-    csv: CSV format
-"""
-
-LiteralPrecommitCheckType = Literal[
-    "code_quality", "security", "compliance", "performance", "documentation", "tests"
-]
-"""
-Pre-commit check types.
-
-Values:
-    code_quality: Code quality validation
-    security: Security vulnerability scanning
-    compliance: Compliance checking
-    performance: Performance validation
-    documentation: Documentation validation
-    tests: Test coverage and quality
-"""
-
-LiteralAggregationStrategy = Literal["all_pass", "any_pass", "majority_pass", "weighted"]
-"""
-Validation result aggregation strategies.
-
-Values:
-    all_pass: All validations must pass
-    any_pass: Any validation can pass
-    majority_pass: Majority of validations must pass
-    weighted: Weighted aggregation based on importance
-"""
-```
+There is also no `ProtocolPrecommitChecker` in the package — no protocol in
+`omnibase_spi` documents pre-commit-check orchestration. Pre-commit checking
+in the ONEX platform is implemented directly in each repo's
+`scripts/validation/` tree (see e.g. `omnibase_spi/scripts/validation/run_all_validations.py`
+in this repository), not through an SPI protocol.
 
 ## 🚀 Usage Examples
 
-### Basic Validation
+### Generic Protocol Compliance
 
 ```python
-from omnibase_spi.protocols.validation import ProtocolValidation
+from omnibase_spi.protocols.validation import ProtocolValidator
 
-# Initialize validation
-validator: ProtocolValidation = get_validator()
+validator: ProtocolValidator = get_validator()
+validator.strict_mode = True
 
-# Validate data against schema
-validation_result = await validator.validate_data(
-    data={"name": "John Doe", "age": 30, "email": "john@example.com"},
-    validation_schema=ProtocolValidationSchema(
-        type="object",
-        properties={
-            "name": {"type": "string", "minLength": 1},
-            "age": {"type": "integer", "minimum": 0, "maximum": 120},
-            "email": {"type": "string", "format": "email"}
-        },
-        required=["name", "age", "email"]
-    )
+result = await validator.validate_implementation(my_node_impl, ProtocolNode)
+
+print(f"Valid: {result.is_valid}")
+print(f"Protocol: {result.protocol_name}")
+if not result.is_valid:
+    for error in result.errors:
+        print(f"[{error.severity}] {error.error_type}: {error.message}")
+```
+
+### Import Validation
+
+```python
+from omnibase_spi.protocols.validation import ProtocolImportValidator
+
+import_validator: ProtocolImportValidator = get_import_validator()
+
+analysis = await import_validator.validate_import_security("subprocess")
+print(f"Security risk: {analysis.security_risk}")
+
+result = await import_validator.validate_from_import(
+    from_path="omnibase_infra.plugins",
+    import_items="PluginComputeBase",
+    description="spi module must not import infra",
 )
-
-print(f"Validation passed: {validation_result.valid}")
-if not validation_result.valid:
-    print(f"Validation errors: {validation_result.errors}")
-
-# Validate against rules
-rules = [
-    ProtocolValidationRule("min_length", 5),
-    ProtocolValidationRule("max_length", 100),
-    ProtocolValidationRule("pattern", r"^[a-zA-Z\s]+$")
-]
-
-rule_result = await validator.validate_against_rules(
-    data="Hello World",
-    rules=rules
-)
-print(f"Rule validation passed: {rule_result.valid}")
+if not result.is_valid:
+    for error in result.errors:
+        print(f"[{error.severity}] {error.message}")
 ```
 
 ### Compliance Validation
@@ -634,115 +598,17 @@ print(f"Rule validation passed: {rule_result.valid}")
 ```python
 from omnibase_spi.protocols.validation import ProtocolComplianceValidator
 
-# Initialize compliance validator
 compliance_validator: ProtocolComplianceValidator = get_compliance_validator()
 
-# Validate compliance
-compliance_result = await compliance_validator.validate_compliance(
-    data=user_data,
-    compliance_standard="GDPR",
-    options=ProtocolComplianceOptions(
-        strict_mode=True,
-        include_audit_trail=True
-    )
+report = await compliance_validator.validate_file_compliance(
+    "src/omnibase_spi/protocols/memory/protocol_example.py"
 )
 
-print(f"GDPR compliance: {compliance_result.compliant}")
-print(f"Compliance score: {compliance_result.score}")
-
-# Check policy compliance
-policy_result = await compliance_validator.check_policy_compliance(
-    data=user_data,
-    policy=ProtocolCompliancePolicy(
-        name="Data Retention Policy",
-        rules=["max_retention_7_years", "encryption_required"]
-    )
-)
-
-# Generate compliance report
-report = await compliance_validator.generate_compliance_report(
-    compliance_results=[compliance_result, policy_result],
-    format="html"
-)
-```
-
-### Input Validation
-
-```python
-from omnibase_spi.protocols.validation import ProtocolInputValidationTool
-
-# Initialize input validation tool
-input_validator: ProtocolInputValidationTool = get_input_validator()
-
-# Validate input
-input_result = await input_validator.validate_input(
-    input_data="user@example.com",
-    input_type="email",
-    validation_rules=[
-        ProtocolInputValidationRule("format", "email"),
-        ProtocolInputValidationRule("max_length", 254),
-        ProtocolInputValidationRule("allowed_domains", ["example.com", "test.com"])
-    ]
-)
-
-print(f"Input validation passed: {input_result.valid}")
-
-# Sanitize input
-sanitized_input = await input_validator.sanitize_input(
-    input_data="<script>alert('xss')</script>Hello World",
-    sanitization_rules=[
-        ProtocolSanitizationRule("remove_html_tags"),
-        ProtocolSanitizationRule("escape_special_chars")
-    ]
-)
-print(f"Sanitized input: {sanitized_input}")
-
-# Validate security
-security_result = await input_validator.validate_security(
-    input_data=user_input,
-    security_rules=[
-        ProtocolSecurityRule("no_sql_injection"),
-        ProtocolSecurityRule("no_xss"),
-        ProtocolSecurityRule("no_path_traversal")
-    ]
-)
-print(f"Security validation passed: {security_result.valid}")
-```
-
-### Pre-commit Validation
-
-```python
-from omnibase_spi.protocols.validation import ProtocolPrecommitChecker
-
-# Initialize pre-commit checker
-precommit_checker: ProtocolPrecommitChecker = get_precommit_checker()
-
-# Run pre-commit checks
-precommit_result = await precommit_checker.run_precommit_checks(
-    file_paths=["src/main.py", "src/utils.py"],
-    check_types=["code_quality", "security", "compliance"]
-)
-
-print(f"Pre-commit checks passed: {precommit_result.all_passed}")
-print(f"Failed checks: {precommit_result.failed_checks}")
-
-# Validate code quality
-quality_result = await precommit_checker.validate_code_quality(
-    file_paths=["src/main.py"]
-)
-print(f"Code quality score: {quality_result.quality_score}")
-
-# Scan security vulnerabilities
-security_scan = await precommit_checker.scan_security_vulnerabilities(
-    file_paths=["src/main.py"]
-)
-print(f"Security vulnerabilities: {security_scan.vulnerability_count}")
-
-# Check test coverage
-coverage_result = await precommit_checker.check_test_coverage(
-    file_paths=["src/main.py"]
-)
-print(f"Test coverage: {coverage_result.coverage_percentage}%")
+print(f"ONEX compliance: {report.onex_compliance_score:.0%}")
+print(f"Architecture compliance: {report.architecture_compliance_score:.0%}")
+if not report.overall_compliance:
+    for fix in await report.get_priority_fixes():
+        print(f"  - {fix.rule.rule_name}: {fix.violation_text}")
 ```
 
 ### Quality Validation
@@ -750,34 +616,14 @@ print(f"Test coverage: {coverage_result.coverage_percentage}%")
 ```python
 from omnibase_spi.protocols.validation import ProtocolQualityValidator
 
-# Initialize quality validator
 quality_validator: ProtocolQualityValidator = get_quality_validator()
 
-# Validate code quality
-quality_result = await quality_validator.validate_code_quality(
-    file_paths=["src/main.py", "src/utils.py"],
-    quality_standards=ProtocolQualityStandards(
-        min_complexity_score=8.0,
-        max_cyclomatic_complexity=10,
-        min_test_coverage=80.0
-    )
-)
+report = await quality_validator.validate_file_quality("src/main.py")
+print(f"Score: {report.overall_score:.1f}/100")
+print(f"Compliant: {report.standards_compliance}")
 
-print(f"Quality validation passed: {quality_result.valid}")
-print(f"Quality score: {quality_result.quality_score}")
-
-# Assess maintainability
-maintainability = await quality_validator.assess_maintainability(
-    file_paths=["src/main.py"]
-)
-print(f"Maintainability score: {maintainability.score}")
-
-# Analyze complexity
-complexity = await quality_validator.analyze_complexity(
-    file_paths=["src/main.py"]
-)
-print(f"Cyclomatic complexity: {complexity.cyclomatic_complexity}")
-print(f"Cognitive complexity: {complexity.cognitive_complexity}")
+for issue in await report.get_critical_issues():
+    print(f"[{issue.severity}] {issue.file_path}:{issue.line_number} {issue.message}")
 ```
 
 ### Validation Orchestration
@@ -785,102 +631,27 @@ print(f"Cognitive complexity: {complexity.cognitive_complexity}")
 ```python
 from omnibase_spi.protocols.validation import ProtocolValidationOrchestrator
 
-# Initialize validation orchestrator
 orchestrator: ProtocolValidationOrchestrator = get_validation_orchestrator()
 
-# Orchestrate validation
-orchestration_result = await orchestrator.orchestrate_validation(
-    validation_requests=[
-        ProtocolValidationRequest(
-            data=user_data,
-            validation_type="schema",
-            priority="high"
-        ),
-        ProtocolValidationRequest(
-            data=user_data,
-            validation_type="compliance",
-            priority="medium"
-        )
-    ],
-    orchestration_options=ProtocolOrchestrationOptions(
-        parallel_execution=True,
-        max_concurrent=3,
-        timeout_seconds=30
-    )
+scope = await orchestrator.create_validation_scope(
+    repository_path="/workspace/omnibase_spi",
+    validation_types=["imports", "quality", "compliance"],
 )
 
-print(f"Orchestration completed: {orchestration_result.success}")
-print(f"Total validations: {orchestration_result.total_validations}")
-print(f"Passed validations: {orchestration_result.passed_validations}")
-
-# Execute validation pipeline
-pipeline_result = await orchestrator.execute_validation_pipeline(
-    pipeline=[
-        ProtocolValidationStep("sanitize", {"rules": ["trim", "lowercase"]}),
-        ProtocolValidationStep("validate", {"schema": "user_schema"}),
-        ProtocolValidationStep("compliance", {"standard": "GDPR"})
-    ],
-    data=user_data
-)
-
-print(f"Pipeline result: {pipeline_result.success}")
-print(f"Pipeline steps completed: {pipeline_result.completed_steps}")
-```
-
-## 🔍 Implementation Notes
-
-### Custom Validators
-
-Registering custom validation logic:
-
-```python
-# Register custom validator
-async def custom_email_validator(data: str) -> bool:
-    return "@" in data and "." in data.split("@")[-1]
-
-await validator.register_custom_validator(
-    "custom_email",
-    custom_email_validator
-)
-```
-
-### Validation Caching
-
-Performance optimization with caching:
-
-```python
-# Clear validation cache
-cache_cleared = await validator.clear_validation_cache()
-print(f"Cleared {cache_cleared} cached validations")
-```
-
-### Parallel Validation
-
-Efficient parallel validation:
-
-```python
-# Parallel validation
-validation_tasks = [
-    ProtocolValidationTask(data, "schema"),
-    ProtocolValidationTask(data, "compliance"),
-    ProtocolValidationTask(data, "security")
-]
-
-results = await orchestrator.parallel_validate(
-    validation_tasks,
-    max_concurrent=3
-)
+report = orchestrator.orchestrate_validation(scope)
+print(f"Validation id: {report.validation_id}")
+print(f"Success rate: {report.summary.success_rate:.0%}")
 ```
 
 ## 📊 Protocol Statistics
 
-- **Total Protocols**: 11 validation protocols
-- **Validation Types**: Schema, rule-based, compliance, security
-- **Quality Assurance**: Code quality, maintainability, performance
-- **Pre-commit Support**: Comprehensive pre-commit validation
-- **Orchestration**: Parallel validation and workflow management
-- **Provider Management**: Validation provider coordination
-- **Reporting**: Multiple report formats and aggregation strategies
+- **Total exported names**: 26 (`omnibase_spi.protocols.validation`)
+- **Node families covered**: import, quality, compliance, orchestration
+- **Related but not exported here**: `ProtocolInputValidator` (`schema`
+  domain), `ProtocolConstraintValidator` (standalone, `omnibase_core`-typed
+  return values)
+- **Not in the package**: `ProtocolValidation`, `ProtocolContractCompliance`,
+  `ProtocolInputValidationTool`, `ProtocolPrecommitChecker`
 
 ---
 
@@ -894,4 +665,4 @@ results = await orchestrator.parallel_validate(
 
 ---
 
-*This API reference is automatically generated from protocol definitions and maintained alongside the codebase.*
+*This API reference is maintained alongside the codebase; verified against `src/omnibase_spi/protocols/validation/` on this refresh.*

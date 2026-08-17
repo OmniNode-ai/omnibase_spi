@@ -1,8 +1,8 @@
 # Projections API Reference
 
-![Version](https://img.shields.io/badge/SPI-v0.22.0-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.22.0-lightgrey)
+![Version](https://img.shields.io/badge/SPI-v0.23.1-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.22.0-lightgrey)
 
-> **Package Version**: 0.22.0 | **Status**: Stable | **Since**: v0.22.0 (migrated from omnibase_compat)
+> **Package Version**: 0.23.1 | **Status**: Stable | **Since**: v0.22.0 (migrated from omnibase_compat)
 
 ---
 

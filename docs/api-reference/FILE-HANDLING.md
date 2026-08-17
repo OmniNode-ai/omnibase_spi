@@ -1,8 +1,8 @@
 # File Handling API Reference
 
-![Version](https://img.shields.io/badge/SPI-v0.20.5-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.3.0-lightgrey)
+![Version](https://img.shields.io/badge/SPI-v0.23.1-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.3.0-lightgrey)
 
-> **Package Version**: 0.20.5 | **Status**: Stable | **Since**: v0.3.0
+> **Package Version**: 0.23.1 | **Status**: Stable | **Since**: v0.3.0
 
 ---
 
@@ -152,105 +152,124 @@ class ProtocolFileWriter(Protocol):
     ) -> bool: ...
 ```
 
-### File Type Handler Protocol
+### File Processing Type Handler Protocol
 
 ```python
+from omnibase_spi.protocols.file_handling import ProtocolFileProcessingTypeHandler
+from omnibase_spi.protocols.types import (
+    ProtocolCanHandleResult,
+    ProtocolExtractedBlock,
+    ProtocolNodeMetadata,
+    ProtocolResult,
+    ProtocolSemVer,
+    ProtocolSerializedBlock,
+)
+
 @runtime_checkable
-class ProtocolFileTypeHandler(Protocol):
+class ProtocolFileProcessingTypeHandler(Protocol):
     """
-    Protocol for file type handling operations.
+    Protocol for file type nodes in the ONEX stamper engine.
 
-    Provides file type detection, processing, and validation
-    with support for multiple file formats and MIME types.
-
-    Key Features:
-        - File type detection and validation
-        - MIME type identification
-        - File format processing
-        - Content validation
-        - Metadata extraction
-        - Performance optimization
+    Defines the contract every per-file-type node satisfies: metadata
+    extraction, extract -> serialize -> inject -> validate stamping, and
+    pre/post validation, keyed by extension or filename.
     """
 
-    async def detect_file_type(
-        self, file_path: str
-    ) -> ProtocolFileTypeInfo: ...
+    async def metadata(self) -> ProtocolNodeMetadata: ...
 
-    async def detect_file_type_from_content(
-        self, content: bytes
-    ) -> ProtocolFileTypeInfo: ...
+    @property
+    def node_name(self) -> str: ...
 
-    async def validate_file_type(
-        self, file_path: str, expected_type: str
-    ) -> bool: ...
+    @property
+    def node_version(self) -> ProtocolSemVer: ...
 
-    async def get_mime_type(self, file_path: str) -> str: ...
+    @property
+    def supported_extensions(self) -> list[str]: ...
 
-    async def get_file_extension(self, file_path: str) -> str: ...
+    @property
+    def supported_filenames(self) -> list[str]: ...
 
-    async def is_text_file(self, file_path: str) -> bool: ...
+    @property
+    def node_priority(self) -> int: ...
 
-    async def is_binary_file(self, file_path: str) -> bool: ...
+    async def can_handle(self, path: str, content: str) -> ProtocolCanHandleResult: ...
 
-    async def get_file_encoding(
-        self, file_path: str
-    ) -> str | None: ...
+    async def extract_block(
+        self, path: str, content: str
+    ) -> ProtocolExtractedBlock: ...
 
-    async def process_file_by_type(
-        self, file_path: str, processing_options: dict[str, Any]
-    ) -> ProtocolFileProcessingResult: ...
+    async def serialize_block(
+        self, meta: ProtocolExtractedBlock
+    ) -> ProtocolSerializedBlock: ...
+
+    async def stamp(
+        self, path: str, content: str, options: ProtocolStampOptions
+    ) -> ProtocolResult: ...
+
+    async def validate(
+        self, path: str, content: str, options: ProtocolValidationOptions
+    ) -> ProtocolResult: ...
 ```
+
+> Abridged — the full protocol also defines `node_author`, `node_description`,
+> `requires_content_analysis`, `normalize_rest`, `pre_validate`, and
+> `post_validate`. See
+> `src/omnibase_spi/protocols/file_handling/protocol_file_type_handler.py`.
 
 ### File Type Handler Registry Protocol
 
 ```python
+from omnibase_spi.protocols.file_handling import ProtocolFileTypeHandlerRegistry
+
 @runtime_checkable
 class ProtocolFileTypeHandlerRegistry(Protocol):
     """
-    Protocol for file type handler registry operations.
+    Protocol interface for file type handler registries in ONEX ecosystem.
 
-    Manages file type handlers with registration,
-    discovery, and handler management.
-
-    Key Features:
-        - Handler registration and discovery
-        - File type to handler mapping
-        - Handler lifecycle management
-        - Performance monitoring
-        - Error handling and recovery
+    Manages file type handlers, extension mappings, and type-specific
+    processing across ONEX service components: extension-based, named,
+    and special-filename registration with priority-based conflict
+    resolution.
     """
+
+    async def register(
+        self, extension: str, handler: ProtocolFileProcessingTypeHandler
+    ) -> None: ...
+
+    async def register_special(
+        self, filename: str, handler: ProtocolFileProcessingTypeHandler
+    ) -> None: ...
 
     async def register_handler(
         self,
-        file_type: str,
-        handler: ProtocolFileTypeHandler,
-        priority: int = 0,
-    ) -> bool: ...
-
-    async def unregister_handler(
-        self, file_type: str, handler_id: str
-    ) -> bool: ...
+        extension_or_name: str,
+        handler: ProtocolFileProcessingTypeHandler
+        | type[ProtocolFileProcessingTypeHandler],
+        source: str,
+        priority: int | None = None,
+        override: bool | None = None,
+        **handler_kwargs: object,
+    ) -> None: ...
 
     async def get_handler(
-        self, file_type: str
-    ) -> ProtocolFileTypeHandler | None: ...
+        self, path: str
+    ) -> ProtocolFileProcessingTypeHandler | None: ...
 
-    async def get_all_handlers(
-        self,
-    ) -> dict[str, list[ProtocolFileTypeHandler]]: ...
+    async def get_named_handler(
+        self, name: str
+    ) -> ProtocolFileProcessingTypeHandler | None: ...
 
-    async def get_supported_types(
-        self,
-    ) -> list[str]: ...
+    async def handled_extensions(self) -> set[str]: ...
 
-    async def get_handler_metrics(
-        self, handler_id: str
-    ) -> ProtocolHandlerMetrics: ...
+    async def handled_specials(self) -> set[str]: ...
 
-    async def update_handler_priority(
-        self, file_type: str, handler_id: str, priority: int
-    ) -> bool: ...
+    async def clear_registry(self) -> None: ...
 ```
+
+> Abridged — the full protocol also defines `list_handlers`,
+> `handled_names`, `register_all_handlers`, and
+> `register_node_local_handlers`. See
+> `src/omnibase_spi/protocols/file_handling/protocol_file_type_handler_registry.py`.
 
 ### Directory Traverser Protocol
 
@@ -369,64 +388,38 @@ class ProtocolFileDiscoverySource(Protocol):
     ) -> bool: ...
 ```
 
-### File Processing Protocol
+### File Processor Protocol
 
 ```python
+from omnibase_spi.protocols.file_handling import ProtocolFileProcessor
+from omnibase_spi.protocols.file_handling.protocol_file_processing import (
+    ProtocolFileProcessingResult,
+    ProtocolProjectAnalysis,
+)
+
 @runtime_checkable
-class ProtocolFileProcessing(Protocol):
+class ProtocolFileProcessor(Protocol):
     """
-    Protocol for file processing operations.
+    Protocol for file processing operations in ONEX ecosystem.
 
-    Provides comprehensive file processing with
-    transformation, validation, and metadata management.
-
-    Key Features:
-        - File transformation and processing
-        - Content validation and sanitization
-        - Metadata extraction and management
-        - Performance optimization
-        - Error handling and recovery
-        - Processing pipeline support
+    Defines the contract for file processing with support for single
+    files, directories, and entire project analysis, with performance
+    tracking and error reporting.
     """
 
-    async def process_file(
-        self,
-        file_path: str,
-        processing_pipeline: list[ProtocolFileProcessor],
-        options: ProtocolProcessingOptions,
-    ) -> ProtocolFileProcessingResult: ...
+    async def process_file(self, file_path: str) -> ProtocolFileProcessingResult: ...
 
-    async def transform_file(
-        self,
-        file_path: str,
-        transformation: ProtocolFileTransformation,
-        output_path: str,
-    ) -> bool: ...
+    async def process_directory(
+        self, directory: str
+    ) -> list[ProtocolFileProcessingResult]: ...
 
-    async def validate_file_content(
-        self,
-        file_path: str,
-        validation_rules: list[ProtocolValidationRule],
-    ) -> ProtocolValidationResult: ...
-
-    async def extract_metadata(
-        self, file_path: str
-    ) -> ProtocolFileMetadata: ...
-
-    async def sanitize_file_content(
-        self,
-        file_path: str,
-        sanitization_rules: list[ProtocolSanitizationRule],
-    ) -> bool: ...
-
-    async def get_processing_metrics(
-        self, processing_id: str
-    ) -> ProtocolProcessingMetrics: ...
-
-    async def cancel_processing(
-        self, processing_id: str
-    ) -> bool: ...
+    async def process_project(self, project_root: str) -> ProtocolProjectAnalysis: ...
 ```
+
+> `ProtocolFileProcessingResult` and `ProtocolProjectAnalysis` are defined in
+> `protocol_file_processing.py` alongside `ProtocolFileProcessor` but are not
+> re-exported from the `file_handling` domain `__init__.py` — import them
+> from the submodule path shown above.
 
 ### File I/O Protocol
 
@@ -621,42 +614,27 @@ await file_writer.set_file_permissions(
 )
 ```
 
-### File Type Detection
+### File Type Handling (Stamper Engine)
 
 ```python
-from omnibase_spi.protocols.file_handling import ProtocolFileTypeHandler
+from omnibase_spi.protocols.file_handling import ProtocolFileProcessingTypeHandler
 
-# Initialize file type handler
-file_type_handler: ProtocolFileTypeHandler = get_file_type_handler()
+# A per-file-type node from the stamper engine
+handler: ProtocolFileProcessingTypeHandler = get_python_file_handler()
 
-# Detect file type
-file_type_info = await file_type_handler.detect_file_type(
-    "/path/to/document.pdf"
-)
-print(f"File type: {file_type_info.type}")
-print(f"MIME type: {file_type_info.mime_type}")
-print(f"Extension: {file_type_info.extension}")
+print(f"Handles: {handler.supported_extensions}")
 
-# Detect from content
-with open("/path/to/unknown", "rb") as f:
-    content = f.read(1024)  # Read first 1KB
-    type_info = await file_type_handler.detect_file_type_from_content(content)
-    print(f"Detected type: {type_info.type}")
+# Check if this handler can process a file
+with open("/path/to/document.py") as f:
+    content = f.read()
 
-# Validate file type
-is_valid = await file_type_handler.validate_file_type(
-    "/path/to/image.jpg",
-    expected_type="image"
-)
-print(f"File type valid: {is_valid}")
-
-# Check if text file
-is_text = await file_type_handler.is_text_file("/path/to/document.txt")
-print(f"Is text file: {is_text}")
-
-# Get file encoding
-encoding = await file_type_handler.get_file_encoding("/path/to/document.txt")
-print(f"File encoding: {encoding}")
+can_handle = await handler.can_handle("/path/to/document.py", content)
+if can_handle.can_handle:
+    block = await handler.extract_block("/path/to/document.py", content)
+    result = await handler.stamp(
+        "/path/to/document.py", content, options=stamp_options
+    )
+    print(f"Stamp succeeded: {result.success}")
 ```
 
 ### Directory Traversal
@@ -708,51 +686,24 @@ print(f"Python files count: {file_count}")
 ### File Processing
 
 ```python
-from omnibase_spi.protocols.file_handling import ProtocolFileProcessing
+from omnibase_spi.protocols.file_handling import ProtocolFileProcessor
 
 # Initialize file processor
-processor: ProtocolFileProcessing = get_file_processor()
+processor: ProtocolFileProcessor = get_file_processor()
 
-# Process file with pipeline
-processing_result = await processor.process_file(
-    file_path="/path/to/document.txt",
-    processing_pipeline=[
-        ProtocolFileProcessor("text_extraction"),
-        ProtocolFileProcessor("metadata_extraction"),
-        ProtocolFileProcessor("content_validation")
-    ],
-    options=ProtocolProcessingOptions(
-        output_format="json",
-        preserve_original=True
-    )
-)
+# Process a single file
+result = await processor.process_file("/path/to/document.txt")
+print(f"Processing result: {result.success}")
+print(f"Processing time: {result.processing_time_ms}ms")
+if not result.success:
+    print(f"Error: {result.error_message}")
 
-print(f"Processing result: {processing_result.success}")
-print(f"Output file: {processing_result.output_path}")
+# Process an entire directory
+results = await processor.process_directory("/path/to/project")
+print(f"Processed {len(results)} files")
 
-# Transform file
-await processor.transform_file(
-    file_path="/path/to/document.txt",
-    transformation=ProtocolFileTransformation(
-        type="text_to_markdown",
-        options={"heading_level": 2}
-    ),
-    output_path="/path/to/document.md"
-)
-
-# Validate file content
-validation_result = await processor.validate_file_content(
-    file_path="/path/to/document.txt",
-    validation_rules=[
-        ProtocolValidationRule("min_length", 100),
-        ProtocolValidationRule("max_length", 10000),
-        ProtocolValidationRule("encoding", "utf-8")
-    ]
-)
-
-print(f"Validation passed: {validation_result.valid}")
-if not validation_result.valid:
-    print(f"Validation errors: {validation_result.errors}")
+# Process an entire project (tree structure + aggregate stats)
+analysis = await processor.process_project("/path/to/project")
 ```
 
 ### File I/O Operations

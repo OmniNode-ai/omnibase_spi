@@ -114,15 +114,16 @@ class ProtocolRenderer(Protocol):
 
 ## Current Source Facts
 
-- Package version: `0.22.0`
+- Package version: `0.23.1`
 - Python: 3.12+
-- Protocol files: 231 `protocol_*.py` files across 39 protocol domains
+- Protocol files: 232 `protocol_*.py` files across 39 protocol domains
 - Package metadata: `pyproject.toml`
 
 > Verified against code on this refresh: protocol-file count via
-> `find src/omnibase_spi/protocols -name 'protocol_*.py' | wc -l` (231) and
+> `find src/omnibase_spi/protocols -name 'protocol_*.py' | wc -l` (232) and
 > domain count via the immediate subdirectories of `protocols/` (39); version
-> from `pyproject.toml`.
+> from `pyproject.toml` (OMN-16127). `tests/test_doc_protocol_imports.py`
+> enforces these counts in CI so a future refresh cannot go stale silently.
 
 ## See Also
 
