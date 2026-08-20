@@ -433,12 +433,17 @@ jobs:
       - name: Validate contract YAML files
         working-directory: onex_change_control
         run: |
-          CONTRACTS=$(find "$GITHUB_WORKSPACE/onex_change_control/contracts" -name "OMN-*.yaml" 2>/dev/null)
-          if [ -z "$CONTRACTS" ]; then
+          # -maxdepth 1: contracts/v1/*.yaml is a deliberately different shape
+          # (occ-contract/v1, validated by check-contract-shape-v1), not
+          # ticket_contract. An unscoped recursive find walks into contracts/v1/
+          # and fails every PR org-wide the moment any v1 contract exists,
+          # regardless of this PR's own diff. Matches omnimarket's ci.yml.
+          mapfile -t CONTRACTS < <(find "$GITHUB_WORKSPACE/onex_change_control/contracts" -maxdepth 1 -type f -name "OMN-*.yaml" 2>/dev/null)
+          if [ "${#CONTRACTS[@]}" -eq 0 ]; then
             echo "No contract YAML files found — skipping validation"
             exit 0
           fi
-          uv run validate-yaml $CONTRACTS
+          uv run validate-yaml "${CONTRACTS[@]}"
         env:
           GH_TOKEN: ${{ github.token }}
 
