@@ -130,17 +130,29 @@ jobs:
       # tags are cut from dev; dev CI + this job already validated it).
       # Promotion PRs to main are retired -- main protection now empties
       # required_status_checks on main and restricts pushes to this job's
-      # automation identity, so no separate token/secret is needed: the
-      # same GITHUB_TOKEN persisted by actions/checkout@v7 above already
-      # authenticates this push.
+      # automation identity.
+      #
+      # OMN-16343: the workflow GITHUB_TOKEN cannot be authorized by main's
+      # push restriction (proven live on omnibase_core, GH006, 2026-08-21),
+      # so mint an installation token for the org-owned app
+      # onexbot-occ-writer and push with that identity instead.
+      - name: Mint onexbot-occ-writer app token
+        id: app-token
+        if: ${{ !contains(steps.tag.outputs.tag, 'rc') }}
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.ONEXBOT_OCC_APP_ID }}
+          private-key: ${{ secrets.ONEXBOT_OCC_PRIVATE_KEY }}
+
       - name: Sync main to release tag
         if: ${{ !contains(steps.tag.outputs.tag, 'rc') }}
         env:
           RELEASE_TAG: ${{ steps.tag.outputs.tag }}
+          APP_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
           set -euo pipefail
           TAG="$RELEASE_TAG"
           TAG_SHA=$(git rev-list -n 1 "$TAG")
           echo "Resolved tag $TAG -> commit $TAG_SHA"
-          git push origin "${TAG_SHA}:refs/heads/main"
+          git push "https://x-access-token:${APP_TOKEN}@github.com/${{ github.repository }}.git" "${TAG_SHA}:refs/heads/main"
           echo "main fast-forwarded to $TAG_SHA ($TAG)"
