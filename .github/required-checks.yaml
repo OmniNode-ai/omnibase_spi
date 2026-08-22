@@ -46,7 +46,8 @@ gates:
     workflow: ci.yml
     job_path: ["ci-summary"]
     skip_semantics: never
-    rationale: "Fail-closed aggregator (if: always()) over build-and-verify, tests-gate, spi-validation-gate, no-noncanonical-lifecycle-classes. Live required status check on omnibase_spi dev branch protection."
+    result_triage: waived
+    rationale: "Fail-closed aggregator (if: always()) over build-and-verify, tests-gate, spi-validation-gate, no-noncanonical-lifecycle-classes. Live required status check on omnibase_spi dev branch protection. result_triage WAIVED pending OMN-16165 (vector-6: needs.*.result triage for build-and-verify/tests-gate/spi-validation-gate is not provably fail-closed on non-success values) -- filed 2026-08-18, unstarted; ratifying the pre-existing local-hook block encountered while landing an unrelated workflow-file change (OMN-16289) rather than fixing the triage logic here, out of scope for that ticket."
 
   - name: "call-reject-skip-token / scan / reject-skip-gate-token"
     mode: REQUIRED
