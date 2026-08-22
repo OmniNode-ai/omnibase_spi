@@ -1,18 +1,24 @@
 # Networking API Reference
 
-![Version](https://img.shields.io/badge/SPI-v0.20.5-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.3.0-lightgrey)
+![Version](https://img.shields.io/badge/SPI-v0.23.2-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.3.0-lightgrey)
 
-> **Package Version**: 0.20.5 | **Status**: Stable | **Since**: v0.3.0
+> **Package Version**: 0.23.2 | **Status**: Stable | **Since**: v0.3.0
 
 ---
 
 ## Overview
 
-The ONEX networking protocols provide comprehensive communication infrastructure with HTTP clients, Kafka integration, circuit breakers, and communication bridges. These protocols enable robust distributed communication with resilience patterns and performance optimization.
+The ONEX networking protocols provide comprehensive communication infrastructure with HTTP clients, circuit breakers, and communication bridges. These protocols enable robust distributed communication with resilience patterns and performance optimization.
+
+> **Kafka is not in this domain.** Kafka/event-streaming protocols
+> (`ProtocolKafkaAdapter`, `ProtocolRedpandaAdapter`, `ProtocolSchemaRegistry`)
+> live in `omnibase_spi.protocols.event_bus` — see
+> [EVENT-BUS.md](./EVENT-BUS.md). There is no `ProtocolKafkaClient` or
+> `ProtocolKafkaExtended` anywhere in the package.
 
 ## 🏗️ Protocol Architecture
 
-The networking domain consists of **6 specialized protocols** that provide complete communication infrastructure:
+The networking domain consists of **4 specialized protocols** that provide complete communication infrastructure:
 
 ### HTTP Client Protocol
 
@@ -105,7 +111,7 @@ class ProtocolHttpClient(Protocol):
 
 ```python
 @runtime_checkable
-class ProtocolHttpExtended(Protocol):
+class ProtocolHttpExtendedClient(Protocol):
     """
     Protocol for extended HTTP client operations.
 
@@ -166,139 +172,6 @@ class ProtocolHttpExtended(Protocol):
     async def get_connection_pool_stats(
         self,
     ) -> ProtocolConnectionPoolStats: ...
-```
-
-### Kafka Client Protocol
-
-```python
-@runtime_checkable
-class ProtocolKafkaClient(Protocol):
-    """
-    Protocol for Kafka client operations.
-
-    Provides comprehensive Kafka integration with
-    producer and consumer functionality.
-
-    Key Features:
-        - Kafka producer and consumer operations
-        - Topic management and partitioning
-        - Consumer group coordination
-        - Offset management and commit strategies
-        - Schema registry integration
-        - Performance monitoring
-    """
-
-    async def create_producer(
-        self, config: ProtocolKafkaProducerConfig
-    ) -> str: ...
-
-    async def create_consumer(
-        self, config: ProtocolKafkaConsumerConfig
-    ) -> str: ...
-
-    async def produce_message(
-        self,
-        producer_id: str,
-        topic: str,
-        key: bytes | None,
-        value: bytes,
-        headers: dict[str, bytes] | None = None,
-        partition: int | None = None,
-    ) -> ProtocolKafkaProduceResult: ...
-
-    async def consume_messages(
-        self,
-        consumer_id: str,
-        topics: list[str],
-        timeout_ms: int = 1000,
-    ) -> list[ProtocolKafkaMessage]: ...
-
-    async def commit_offsets(
-        self, consumer_id: str, offsets: dict[str, int]
-    ) -> bool: ...
-
-    async def get_consumer_group_info(
-        self, group_id: str
-    ) -> ProtocolConsumerGroupInfo: ...
-
-    async def create_topic(
-        self,
-        topic: str,
-        partitions: int,
-        replication_factor: int,
-    ) -> bool: ...
-
-    async def delete_topic(self, topic: str) -> bool: ...
-
-    async def get_topic_metadata(
-        self, topic: str
-    ) -> ProtocolTopicMetadata: ...
-
-    async def get_kafka_metrics(
-        self, client_id: str
-    ) -> ProtocolKafkaMetrics: ...
-```
-
-### Kafka Extended Protocol
-
-```python
-@runtime_checkable
-class ProtocolKafkaExtended(Protocol):
-    """
-    Protocol for extended Kafka operations.
-
-    Provides advanced Kafka functionality including
-    streaming, schema evolution, and performance optimization.
-
-    Key Features:
-        - Kafka streaming and real-time processing
-        - Schema evolution and compatibility
-        - Advanced partitioning strategies
-        - Performance tuning and optimization
-        - Monitoring and diagnostics
-        - Security and authentication
-    """
-
-    async def create_stream_processor(
-        self, config: ProtocolKafkaStreamConfig
-    ) -> str: ...
-
-    async def process_kafka_stream(
-        self,
-        processor_id: str,
-        input_topics: list[str],
-        output_topic: str,
-        processor_func: ProtocolKafkaStreamProcessor,
-    ) -> bool: ...
-
-    async def register_schema(
-        self,
-        subject: str,
-        schema: dict[str, Any],
-        schema_type: LiteralSchemaType,
-    ) -> int: ...
-
-    async def get_schema(
-        self, subject: str, version: int | None = None
-    ) -> ProtocolSchemaInfo: ...
-
-    async def check_schema_compatibility(
-        self, subject: str, schema: dict[str, Any]
-    ) -> ProtocolCompatibilityResult: ...
-
-    async def optimize_kafka_performance(
-        self,
-        topic: str,
-        settings: dict[str, Any],
-    ) -> bool: ...
-
-    async def get_kafka_diagnostics(
-        self, topic: str | None = None
-    ) -> ProtocolKafkaDiagnostics: ...
-
-    async def configure_kafka_security(
-        self, security_config: ProtocolKafkaSecurityConfig
-    ) -> bool: ...
 ```
 
 ### Circuit Breaker Protocol
@@ -443,16 +316,6 @@ Values:
     deflate: DEFLATE compression
     brotli: Brotli compression
 """
-
-LiteralSchemaType = Literal["AVRO", "JSON", "PROTOBUF"]
-"""
-Schema types for Kafka integration.
-
-Values:
-    AVRO: Apache Avro schema
-    JSON: JSON schema
-    PROTOBUF: Protocol Buffers schema
-"""
 ```
 
 ## 🚀 Usage Examples
@@ -497,10 +360,10 @@ await http_client.configure_retry_policy(
 ### HTTP Extended Operations
 
 ```python
-from omnibase_spi.protocols.networking import ProtocolHttpExtended
+from omnibase_spi.protocols.networking import ProtocolHttpExtendedClient
 
 # Initialize HTTP extended client
-http_extended: ProtocolHttpExtended = get_http_extended()
+http_extended: ProtocolHttpExtendedClient = get_http_extended()
 
 # Stream large response
 async for chunk in http_extended.stream_request(
@@ -532,59 +395,6 @@ token = await http_extended.authenticate_oauth2(
 )
 
 print(f"Access token: {token.access_token}")
-```
-
-### Kafka Operations
-
-```python
-from omnibase_spi.protocols.networking import ProtocolKafkaClient
-
-# Initialize Kafka client
-kafka_client: ProtocolKafkaClient = get_kafka_client()
-
-# Create producer
-producer_id = await kafka_client.create_producer(
-    ProtocolKafkaProducerConfig(
-        bootstrap_servers=["kafka1:9092", "kafka2:9092"],
-        acks="all",
-        retries=3
-    )
-)
-
-# Produce message
-result = await kafka_client.produce_message(
-    producer_id=producer_id,
-    topic="user-events",
-    key=b"user-12345",
-    value=b'{"action": "user_created", "user_id": "12345"}',
-    headers={"event_type": b"user_created"}
-)
-
-print(f"Message produced to partition {result.partition} at offset {result.offset}")
-
-# Create consumer
-consumer_id = await kafka_client.create_consumer(
-    ProtocolKafkaConsumerConfig(
-        bootstrap_servers=["kafka1:9092", "kafka2:9092"],
-        group_id="user-service",
-        auto_offset_reset="earliest"
-    )
-)
-
-# Consume messages
-messages = await kafka_client.consume_messages(
-    consumer_id=consumer_id,
-    topics=["user-events"],
-    timeout_ms=5000
-)
-
-for message in messages:
-    print(f"Received: {message.value.decode()}")
-    print(f"Partition: {message.partition}, Offset: {message.offset}")
-
-# Commit offsets
-offsets = {message.topic: message.offset for message in messages}
-await kafka_client.commit_offsets(consumer_id, offsets)
 ```
 
 ### Circuit Breaker Operations
@@ -706,27 +516,6 @@ await http_client.configure_circuit_breaker(
 )
 ```
 
-### Kafka Integration Patterns
-
-Comprehensive Kafka usage:
-
-```python
-# Schema registry integration
-schema_version = await kafka_extended.register_schema(
-    subject="user-events-value",
-    schema=user_event_schema,
-    schema_type="AVRO"
-)
-
-# Stream processing
-processor_id = await kafka_extended.create_stream_processor(
-    ProtocolKafkaStreamConfig(
-        application_id="user-event-processor",
-        bootstrap_servers=["kafka:9092"]
-    )
-)
-```
-
 ### Circuit Breaker Patterns
 
 Resilient communication patterns:
@@ -748,9 +537,8 @@ result = await circuit_breaker.execute_with_circuit_breaker(
 
 ## 📊 Protocol Statistics
 
-- **Total Protocols**: 6 networking protocols
+- **Total Protocols**: 4 networking protocols
 - **HTTP Support**: Full HTTP/HTTPS with advanced features
-- **Kafka Integration**: Producer, consumer, and streaming support
 - **Circuit Breakers**: Resilient communication patterns
 - **Communication Bridges**: Protocol translation and routing
 - **Performance**: Connection pooling, compression, and optimization

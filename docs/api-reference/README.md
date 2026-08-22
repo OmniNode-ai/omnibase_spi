@@ -2,7 +2,7 @@
 
 ## Overview
 
-Complete API reference documentation for all **231 protocol files** across **39 protocol domains** in the omnibase-spi package. This reference provides detailed documentation for every public interface in the Service Provider Interface layer.
+Complete API reference documentation for all **232 protocol files** across **39 protocol domains** in the omnibase-spi package. This reference provides detailed documentation for every public interface in the Service Provider Interface layer.
 
 ## Protocol Architecture
 
@@ -113,7 +113,7 @@ The API reference is organized by domain, matching the package structure:
 ### Type System
 - **Type definitions are integrated within each protocol domain**
 - **All types follow consistent naming conventions**
-- **Comprehensive type coverage across all 231 protocol files**
+- **Comprehensive type coverage across all 232 protocol files**
 - **Type Protocols (14)**: ProtocolContract, ProtocolErrorInfo, and domain-specific type definitions
 - **ONEX Node Types (4)**: ProtocolEffectNode, ProtocolComputeNode, ProtocolReducerNode, ProtocolOrchestratorNode
 
@@ -209,7 +209,7 @@ Values:
 | `ProtocolWorkflowEventBus` | Event-driven orchestration | Workflow coordination |
 | `ProtocolWorkflowOrchestrator` | Workflow management | Distributed execution |
 | `ProtocolWorkQueue` | Task scheduling | Work distribution |
-| `ProtocolWorkflowPersistence` | State management | Workflow state storage |
+| `ProtocolEventStore` / `ProtocolSnapshotStore` | State management | Workflow state storage (no single `ProtocolWorkflowPersistence`) |
 
 ### MCP Integration
 | Protocol | Purpose | Usage |
@@ -222,7 +222,7 @@ Values:
 ### Event Processing
 | Protocol | Purpose | Usage |
 |----------|---------|-------|
-| `ProtocolEventBus` | Event messaging | Distributed communication |
+| `ProtocolEventBusProvider` | Event messaging | Distributed communication (no bare `ProtocolEventBus` in this package) |
 | `ProtocolKafkaAdapter` | Kafka integration | Event streaming |
 | `ProtocolEventPublisher` | Event publishing | Message distribution |
 | `ProtocolEventBusProvider` | Event bus provider | Component-level integration |
@@ -277,7 +277,7 @@ Common patterns documented throughout:
 
 ## Protocol Statistics
 
-- **Total Protocols**: 231 protocol files
+- **Total Protocols**: 232 protocol files
 - **Domain Coverage**: 39 protocol domains
 - **Type Definitions**: 14 comprehensive type modules
 - **Enterprise Features**: Health monitoring, metrics, circuit breakers
@@ -954,15 +954,17 @@ def validate_node_types(
 
 ## Version Information
 
-- **API Reference Version**: current package 0.22.0
+- **API Reference Version**: current package 0.23.2
 - **Python Compatibility**: 3.12+
 - **Type Checking**: mypy strict mode compatible
 - **Runtime Checking**: All protocols are `@runtime_checkable`
 
-> Verified against code on this refresh: 231 `protocol_*.py` files and 39
-> protocol domains under `src/omnibase_spi/protocols/`; package version `0.22.0`
-> from `pyproject.toml`. The count changed from 229 after the
-> local-runtime protocol relocation.
+> Verified against code on this refresh: 232 `protocol_*.py` files and 39
+> protocol domains under `src/omnibase_spi/protocols/`; package version
+> `0.23.2` from `pyproject.toml` (OMN-16127). Re-verify with
+> `find src/omnibase_spi/protocols -name 'protocol_*.py' | wc -l` and
+> `grep '^version' pyproject.toml` — `tests/test_doc_protocol_imports.py`
+> enforces both counts match this file on every CI run.
 
 ## See Also
 

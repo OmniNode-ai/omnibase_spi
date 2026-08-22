@@ -4,6 +4,14 @@
 
 A comprehensive guide for choosing the right protocols for your use case.
 
+> Rewritten against the live package (OMN-16127) — every protocol name below
+> imports at the domain shown; the previous revision named several protocols
+> that do not exist anywhere in `omnibase_spi` (`ProtocolErrorHandler` is
+> real, but `ProtocolMemoryBase`, `ProtocolMemoryOperations`,
+> `ProtocolMemorySecurity`, `ProtocolAgentManager`, `ProtocolKafkaClient`,
+> `ProtocolValidation`, `ProtocolInputValidationTool`, and
+> `ProtocolPrecommitChecker` were fabricated).
+
 ## Core System Protocols
 
 ### When to Use Core Protocols
@@ -14,11 +22,12 @@ A comprehensive guide for choosing the right protocols for your use case.
 - Performance metrics and monitoring
 - Service discovery and registration
 
-**Key Protocols:**
+**Key Protocols** (`omnibase_spi.protocols.core`):
 - `ProtocolLogger` - Structured logging across services
 - `ProtocolHealthMonitor` - Health monitoring and status tracking
 - `ProtocolErrorHandler` - Centralized error handling
-- `ProtocolPerformanceMetrics` - Performance monitoring
+- `ProtocolPerformanceMetricsCollector` - Performance metrics collection (returns
+  `ProtocolPerformanceMetrics`, which is a `types`-domain data protocol, not `core`)
 
 ## Container Management Protocols
 
@@ -30,7 +39,7 @@ A comprehensive guide for choosing the right protocols for your use case.
 - Service health monitoring
 - Factory patterns and injection contexts
 
-**Key Protocols:**
+**Key Protocols** (`omnibase_spi.protocols.container`):
 - `ProtocolServiceRegistry` - Service registration and resolution
 - `ProtocolServiceFactory` - Service instance creation
 - `ProtocolDependencyGraph` - Dependency analysis
@@ -46,10 +55,12 @@ A comprehensive guide for choosing the right protocols for your use case.
 - Workflow state management and projections
 - Distributed task scheduling
 
-**Key Protocols:**
+**Key Protocols** (`omnibase_spi.protocols.workflow_orchestration`):
 - `ProtocolWorkflowOrchestrator` - Workflow lifecycle management
 - `ProtocolWorkflowEventBus` - Event-driven coordination
-- `ProtocolWorkflowPersistence` - State persistence
+- `ProtocolEventStore` / `ProtocolSnapshotStore` - Event-sourced persistence
+  (there is no single `ProtocolWorkflowPersistence` — see
+  [WORKFLOW-ORCHESTRATION.md](../api-reference/WORKFLOW-ORCHESTRATION.md#workflow-persistence-protocols))
 - `ProtocolWorkQueue` - Task scheduling
 
 ## MCP Integration Protocols
@@ -62,7 +73,7 @@ A comprehensive guide for choosing the right protocols for your use case.
 - Load balancing across implementations
 - Tool execution tracking and monitoring
 
-**Key Protocols:**
+**Key Protocols** (`omnibase_spi.protocols.mcp`):
 - `ProtocolMCPRegistry` - Tool registration and discovery
 - `ProtocolMCPToolProxy` - Tool execution coordination
 - `ProtocolMCPMonitor` - Health monitoring
@@ -78,8 +89,10 @@ A comprehensive guide for choosing the right protocols for your use case.
 - Message serialization and routing
 - Dead letter queue handling
 
-**Key Protocols:**
-- `ProtocolEventBus` - Core event messaging
+**Key Protocols** (`omnibase_spi.protocols.event_bus`):
+- `ProtocolEventBusProvider` - Event bus instance creation and lifecycle
+  (there is no bare `ProtocolEventBus` in this package — see
+  [EVENT-BUS.md](../api-reference/EVENT-BUS.md))
 - `ProtocolKafkaAdapter` - Kafka integration
 - `ProtocolEventPublisher` - Event publishing
 - `ProtocolDLQHandler` - Dead letter queue handling
@@ -90,31 +103,40 @@ A comprehensive guide for choosing the right protocols for your use case.
 
 **Use Memory Protocols when you need:**
 - Key-value storage operations
-- Workflow state persistence
-- Memory security and streaming
 - Agent coordination and management
+- Memory security, PII detection, and encryption
+- Streaming and cursor-paginated content
 
-**Key Protocols:**
-- `ProtocolMemoryBase` - Basic memory operations
-- `ProtocolMemoryOperations` - Advanced memory operations
-- `ProtocolMemorySecurity` - Security and encryption
-- `ProtocolAgentManager` - Agent coordination
+**Key Protocols** (`omnibase_spi.protocols.memory`):
+- `ProtocolKeyValueStore` - Base key-value storage shape (there is no
+  `ProtocolMemoryBase`)
+- `ProtocolMemoryCache` - Caching with TTL, invalidation, and warming
+- `ProtocolMemorySecurityNode` - PII detection, access control, encryption
+- `ProtocolAgentCoordinator` - Agent registration and coordination (there is
+  no `ProtocolAgentManager` or `ProtocolAgentPool`)
+
+See the [Memory Protocols Guide](../examples/MEMORY_PROTOCOLS_GUIDE.md) for
+worked examples of all four.
 
 ## Networking Protocols
 
 ### When to Use Networking Protocols
 
 **Use Networking Protocols when you need:**
-- HTTP client operations
-- Kafka integration
+- HTTP client operations, including streaming and OAuth2/JWT
 - Circuit breaker patterns
-- Communication bridges
+- Communication bridges between protocols
 
-**Key Protocols:**
+**Key Protocols** (`omnibase_spi.protocols.networking`):
 - `ProtocolHttpClient` - HTTP operations
-- `ProtocolKafkaClient` - Kafka integration
+- `ProtocolHttpExtendedClient` - Streaming, WebSocket, and advanced auth
 - `ProtocolCircuitBreaker` - Circuit breaker patterns
 - `ProtocolCommunicationBridge` - Protocol bridging
+
+> Kafka is **not** in this domain — there is no `ProtocolKafkaClient`.
+> Kafka/event-streaming protocols (`ProtocolKafkaAdapter`,
+> `ProtocolRedpandaAdapter`, `ProtocolSchemaRegistry`) live in
+> `omnibase_spi.protocols.event_bus`.
 
 ## File Handling Protocols
 
@@ -126,10 +148,10 @@ A comprehensive guide for choosing the right protocols for your use case.
 - Directory traversal and discovery
 - File I/O optimization
 
-**Key Protocols:**
+**Key Protocols** (`omnibase_spi.protocols.file_handling`):
 - `ProtocolFileReader` - File reading operations
 - `ProtocolFileWriter` - File writing operations
-- `ProtocolFileTypeHandler` - Type detection
+- `ProtocolFileTypeHandlerRegistry` - Type detection and handler dispatch
 - `ProtocolDirectoryTraverser` - Directory traversal
 
 ## Validation Protocols
@@ -137,16 +159,24 @@ A comprehensive guide for choosing the right protocols for your use case.
 ### When to Use Validation Protocols
 
 **Use Validation Protocols when you need:**
-- Input validation and sanitization
-- Schema validation and compliance
-- Quality assurance and testing
-- Pre-commit validation
+- Generic protocol-conformance checking
+- ONEX naming/architecture compliance checking
+- Code quality and complexity assessment
+- Import/dependency validation
 
-**Key Protocols:**
-- `ProtocolValidation` - Core validation
-- `ProtocolComplianceValidator` - Compliance checking
-- `ProtocolInputValidationTool` - Input validation
-- `ProtocolPrecommitChecker` - Pre-commit validation
+**Key Protocols** (`omnibase_spi.protocols.validation`, unless noted):
+- `ProtocolValidator` - Generic "does X implement protocol Y" check (there
+  is no `ProtocolValidation`)
+- `ProtocolComplianceValidator` - ONEX naming and architecture compliance
+- `ProtocolImportValidator` - Import/dependency validation
+- `ProtocolQualityValidator` - Code quality and complexity assessment
+- `ProtocolInputValidator` (in `omnibase_spi.protocols.schema`, not
+  `validation`) - Input sanitization and injection-pattern checking
+
+> There is no `ProtocolInputValidationTool` or `ProtocolPrecommitChecker`
+> anywhere in the package — see
+> [VALIDATION.md](../api-reference/VALIDATION.md) for the full, real
+> validation surface.
 
 ## Selection Decision Tree
 

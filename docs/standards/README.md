@@ -49,8 +49,8 @@ class ProtocolExample(Protocol):
 
 - **Complete Coverage**: All parameters and return values must have type hints
 - **No Any Types**: Avoid `Any` types in public interfaces
-- **Union Types**: Use `Union` for multiple possible types
-- **Optional Types**: Use `Optional` for optional parameters
+- **PEP 604 Unions**: Use `X | Y`, not `Union[X, Y]`
+- **PEP 604 Optionals**: Use `X | None`, not `Optional[X]`
 - **Generic Types**: Use generic types where appropriate
 
 ## Code Quality Standards
@@ -58,7 +58,8 @@ class ProtocolExample(Protocol):
 ### Code Style
 
 1. **Formatting**
-   - Use black for code formatting
+   - Use `ruff format` for code formatting (this repo is ruff-only; there is
+     no `black` dependency or configuration anywhere in the tree)
    - Follow PEP 8 style guidelines
    - Maintain consistent indentation
 

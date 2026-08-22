@@ -1,6 +1,6 @@
 # Handler Protocols API Reference
 
-![Version](https://img.shields.io/badge/SPI-v0.22.0-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.1.0-lightgrey)
+![Version](https://img.shields.io/badge/SPI-v0.23.2-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.1.0-lightgrey)
 
 ---
 
@@ -208,7 +208,7 @@ Provides introspection information about the handler including its type, support
   - `connection_info`: Non-sensitive connection details (optional)
 
 **Raises**:
-- `HandlerNotInitializedError`: If called before `initialize()`
+- `InvalidProtocolStateError`: If called before `initialize()`
 
 **Security Warning**:
 
@@ -257,7 +257,7 @@ Performs a lightweight check to verify the handler is operational and can commun
   - `last_error`: Most recent error message if unhealthy (optional)
 
 **Raises**:
-- `HandlerNotInitializedError`: If called before `initialize()`
+- `InvalidProtocolStateError`: If called before `initialize()`
 
 **Caching**:
 Implementations SHOULD cache health check results for 5-30 seconds to avoid overwhelming the backend service with repeated health probes.
@@ -383,7 +383,6 @@ from typing import Any
 from omnibase_spi.protocols.handlers import ProtocolHandler
 from omnibase_spi.exceptions import (
     HandlerInitializationError,
-    HandlerNotInitializedError,
     InvalidProtocolStateError,
     ProtocolHandlerError,
 )
@@ -477,7 +476,7 @@ class HttpRestHandler:
     def describe(self) -> dict[str, Any]:
         """Return handler metadata."""
         if not self._config:
-            raise HandlerNotInitializedError("Handler not initialized")
+            raise InvalidProtocolStateError("Handler not initialized")
         return {
             "handler_type": self.handler_type,
             "base_url": self._config.base_url,
@@ -488,7 +487,7 @@ class HttpRestHandler:
     async def health_check(self) -> dict[str, Any]:
         """Check HTTP connectivity."""
         if not self._client or not self._config:
-            raise HandlerNotInitializedError("Handler not initialized")
+            raise InvalidProtocolStateError("Handler not initialized")
 
         start = time.monotonic()
         try:
@@ -617,7 +616,7 @@ async def health_check(self) -> dict[str, Any]:
 
 ## Version Information
 
-- **API Reference Version**: current package 0.22.0
+- **API Reference Version**: current package 0.23.2
 - **Python Compatibility**: 3.12+
 - **Type Checking**: mypy strict mode compatible
 - **Runtime Checking**: All protocols are `@runtime_checkable`

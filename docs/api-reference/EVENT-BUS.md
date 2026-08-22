@@ -1,8 +1,8 @@
 # Event Bus API Reference
 
-![Version](https://img.shields.io/badge/SPI-v0.22.0-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.2.0-lightgrey)
+![Version](https://img.shields.io/badge/SPI-v0.23.2-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.2.0-lightgrey)
 
-> **Package Version**: 0.22.0 | **Status**: Stable | **Since**: v0.2.0
+> **Package Version**: 0.23.2 | **Status**: Stable | **Since**: v0.2.0
 
 ---
 
@@ -1926,7 +1926,6 @@ from omnibase_spi.protocols.types.protocol_event_bus_types import (
     ProtocolEventMessage,
     ProtocolEventHeaders,
     ProtocolEvent,
-    ProtocolOnexEvent,
     LiteralEventPriority,
     LiteralAuthStatus,
 )

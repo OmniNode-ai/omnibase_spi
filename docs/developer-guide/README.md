@@ -364,21 +364,25 @@ result = await mcp_registry.execute_tool(
 
 #### Memory Operations
 
+There is no single `ProtocolMemoryBase` interface — the memory domain
+composes from `ProtocolKeyValueStore` plus focused interfaces
+(`ProtocolAgentCoordinator`, `ProtocolMemoryCache`, `ProtocolStreamingMemoryNode`,
+`ProtocolMemorySecurityNode`). See the
+[Memory Protocols Guide](../examples/MEMORY_PROTOCOLS_GUIDE.md) for the full
+set. Base key-value access:
+
 ```python
-from omnibase_spi.protocols.memory import ProtocolMemoryBase
+from omnibase_spi.protocols.memory import ProtocolKeyValueStore
 
-# Initialize memory
-memory: ProtocolMemoryBase = get_memory()
+# Initialize a key-value backed memory structure
+store: ProtocolKeyValueStore = get_memory_store()
 
-# Store data
-await memory.store(
-    key="user:12345",
-    value={"name": "John Doe", "email": "john@example.com"},
-    ttl_seconds=3600
-)
+# Read
+value = await store.get_value("user:12345")
 
-# Retrieve data
-user_data = await memory.retrieve("user:12345")
+# Existence check
+if store.has_key("user:12345"):
+    print("Present")
 ```
 
 ### Validation Integration
@@ -386,22 +390,18 @@ user_data = await memory.retrieve("user:12345")
 #### Input Validation
 
 ```python
-from omnibase_spi.protocols.validation import ProtocolValidation
+from omnibase_spi.protocols.schema import ProtocolInputValidator
 
 # Initialize validator
-validator: ProtocolValidation = get_validator()
+validator: ProtocolInputValidator = get_input_validator()
 
-# Validate data
-validation_result = await validator.validate_data(
-    data={"name": "John Doe", "age": 30},
-    validation_schema=ProtocolValidationSchema(
-        type="object",
-        properties={
-            "name": {"type": "string", "minLength": 1},
-            "age": {"type": "integer", "minimum": 0, "maximum": 120}
-        },
-        required=["name", "age"]
-    )
+# Validate a single field
+validation_result = await validator.validate_string(
+    value="John Doe",
+    min_length=1,
+    max_length=None,
+    pattern=None,
+    allow_empty=False,
 )
 ```
 

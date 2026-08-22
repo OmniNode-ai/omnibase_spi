@@ -383,51 +383,44 @@ print(f"Tool result: {result}")
 
 ### Memory Operations
 
+> There is no single `ProtocolMemoryBase` protocol in the package — the
+> memory domain is decomposed into `ProtocolKeyValueStore` (base key-value
+> shape) plus focused interfaces. See the
+> [Memory Protocols Guide](MEMORY_PROTOCOLS_GUIDE.md) for the full surface.
+
 ```python
-from omnibase_spi.protocols.memory import ProtocolMemoryBase
+from omnibase_spi.protocols.memory import ProtocolKeyValueStore
 
-# Initialize memory
-memory: ProtocolMemoryBase = get_memory()
+# Initialize a key-value backed memory structure
+memory: ProtocolKeyValueStore = get_memory()
 
-# Store data with TTL
-await memory.store(
-    key="user:12345",
-    value={"name": "John Doe", "email": "john@example.com"},
-    ttl_seconds=3600
-)
-
-# Retrieve data
-user_data = await memory.retrieve("user:12345")
+# Read a value
+user_data = await memory.get_value("user:12345")
 print(f"User data: {user_data}")
 
 # Check existence
-if await memory.exists("user:12345"):
+if memory.has_key("user:12345"):
     print("User exists")
 ```
 
 ### Validation
 
 ```python
-from omnibase_spi.protocols.validation import ProtocolValidation
+from omnibase_spi.protocols.schema import ProtocolInputValidator
 
 # Initialize validator
-validator: ProtocolValidation = get_validator()
+validator: ProtocolInputValidator = get_input_validator()
 
-# Validate data
-validation_result = await validator.validate_data(
-    data={"name": "John Doe", "age": 30, "email": "john@example.com"},
-    validation_schema=ProtocolValidationSchema(
-        type="object",
-        properties={
-            "name": {"type": "string", "minLength": 1},
-            "age": {"type": "integer", "minimum": 0, "maximum": 120},
-            "email": {"type": "string", "format": "email"}
-        },
-        required=["name", "age", "email"]
-    )
+# Validate a field
+validation_result = await validator.validate_string(
+    value="john@example.com",
+    min_length=1,
+    max_length=254,
+    pattern=None,
+    allow_empty=False,
 )
 
-if validation_result.valid:
+if validation_result.is_valid:
     print("Data is valid")
 else:
     print(f"Validation errors: {validation_result.errors}")
@@ -441,7 +434,7 @@ else:
 from omnibase_spi.protocols.container import ProtocolServiceRegistry
 from omnibase_spi.protocols.workflow_orchestration import ProtocolWorkflowOrchestrator
 from omnibase_spi.protocols.event_bus import ProtocolEventBusProvider
-from omnibase_spi.protocols.memory import ProtocolMemoryBase
+from omnibase_spi.protocols.memory import ProtocolMemoryCache
 
 class OrderProcessingService:
     """Complete order processing service."""
@@ -451,7 +444,7 @@ class OrderProcessingService:
         registry: ProtocolServiceRegistry,
         orchestrator: ProtocolWorkflowOrchestrator,
         event_bus: ProtocolEventBusProvider,
-        memory: ProtocolMemoryBase
+        memory: ProtocolMemoryCache
     ):
         self.registry = registry
         self.orchestrator = orchestrator
@@ -467,11 +460,13 @@ class OrderProcessingService:
             initial_data=order_data
         )
 
-        # Store order data
-        await self.memory.store(
-            key=f"order:{workflow.instance_id}",
-            value=order_data,
-            ttl_seconds=86400
+        # Cache the existing workflow record for hot follow-up reads.
+        # The workflow service owns persistence of initial_data; this cache
+        # API only takes the existing memory/workflow identifier.
+        await self.memory.cache_memory(
+            memory_id=workflow.instance_id,
+            cache_ttl_seconds=86400,
+            cache_level="hot",
         )
 
         # Publish event
