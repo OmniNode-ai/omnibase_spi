@@ -1,6 +1,6 @@
 # Contract Compiler Protocols API Reference
 
-![Version](https://img.shields.io/badge/SPI-v0.23.1-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.2.0-lightgrey)
+![Version](https://img.shields.io/badge/SPI-v0.23.2-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.2.0-lightgrey)
 
 ---
 
@@ -896,7 +896,7 @@ Common validation errors and their meanings:
 
 ## Version Information
 
-- **API Reference Version**: current package 0.23.1
+- **API Reference Version**: current package 0.23.2
 - **Python Compatibility**: 3.12+
 - **Type Checking**: mypy strict mode compatible
 - **Runtime Checking**: All protocols are `@runtime_checkable`

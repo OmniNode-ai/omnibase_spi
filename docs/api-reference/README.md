@@ -954,14 +954,14 @@ def validate_node_types(
 
 ## Version Information
 
-- **API Reference Version**: current package 0.23.1
+- **API Reference Version**: current package 0.23.2
 - **Python Compatibility**: 3.12+
 - **Type Checking**: mypy strict mode compatible
 - **Runtime Checking**: All protocols are `@runtime_checkable`
 
 > Verified against code on this refresh: 232 `protocol_*.py` files and 39
 > protocol domains under `src/omnibase_spi/protocols/`; package version
-> `0.23.1` from `pyproject.toml` (OMN-16127). Re-verify with
+> `0.23.2` from `pyproject.toml` (OMN-16127). Re-verify with
 > `find src/omnibase_spi/protocols -name 'protocol_*.py' | wc -l` and
 > `grep '^version' pyproject.toml` — `tests/test_doc_protocol_imports.py`
 > enforces both counts match this file on every CI run.
