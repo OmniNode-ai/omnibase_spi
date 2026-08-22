@@ -7,7 +7,7 @@ Protocol interface definitions for ONEX validation nodes.
 `omnibase_spi.protocols.validation` is a **pure protocol module**: every
 public name is a `typing.Protocol` decorated with `@runtime_checkable`, with
 `...` method bodies. It contains **no concrete implementations, no runtime
-validation engine, and no decorators** — consistent with the rest of
+validation engine, and no concrete decorators** — consistent with the rest of
 `omnibase_spi` and the repo's protocol-only rule (see the root
 [`CLAUDE.md`](../../../../CLAUDE.md) and
 [`docs/architecture/DEPENDENCY-DIRECTION.md`](../../../../docs/architecture/DEPENDENCY-DIRECTION.md)):
@@ -17,11 +17,12 @@ SPI defines the contracts, concrete implementations live in `omnibase_core`
 > An earlier revision of this file described a concrete
 > `validate_protocol_implementation()` function, a `ProtocolValidator` class
 > with runtime introspection logic, `ArtifactContainerValidator`,
-> `enable_protocol_validation()`, and decorator-based auto-validation. None
-> of that exists in this module or anywhere in `omnibase_spi` — it
-> contradicted the package's own protocol-only rule. This rewrite
-> (OMN-16127) describes the real, protocol-only surface; every import below
-> resolves against the live package.
+> `enable_protocol_validation()`, and decorator-based auto-validation. The
+> similarly named `ProtocolValidationDecorator.validate_protocol_implementation()`
+> and `.validation_decorator()` members are protocol method requirements only;
+> `omnibase_spi` does not implement them. This rewrite (OMN-16127) describes
+> the real, protocol-only surface; every import below resolves against the live
+> package.
 
 ## What's In This Module
 

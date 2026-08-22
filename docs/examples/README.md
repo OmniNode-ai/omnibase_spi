@@ -460,7 +460,9 @@ class OrderProcessingService:
             initial_data=order_data
         )
 
-        # Cache the order data
+        # Cache the existing workflow record for hot follow-up reads.
+        # The workflow service owns persistence of initial_data; this cache
+        # API only takes the existing memory/workflow identifier.
         await self.memory.cache_memory(
             memory_id=workflow.instance_id,
             cache_ttl_seconds=86400,

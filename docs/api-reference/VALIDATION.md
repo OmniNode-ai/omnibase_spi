@@ -47,8 +47,9 @@ class ProtocolValidator(Protocol):
     Validates whether an implementation satisfies a `typing.Protocol`
     requirement, with a configurable strict mode for additional rigor.
     This is the core "does this object implement that protocol"
-    validation primitive; see `ProtocolValidationDecorator` for a
-    decorator-based wrapper around the same check.
+    validation primitive; see `ProtocolValidationDecorator` for the
+    protocol interface that concrete implementation packages may provide
+    when they support decorator-based wrappers around the same check.
     """
 
     strict_mode: bool
@@ -61,9 +62,13 @@ class ProtocolValidator(Protocol):
 `ProtocolValidationResult` captures `is_valid`, `protocol_name`,
 `implementation_name`, and lists of `ProtocolValidationError` (`errors`,
 `warnings`), plus `add_error()` / `add_warning()` for incremental building
-and `get_summary()`. `ProtocolValidationDecorator` wraps the same check as a
-class decorator (`validation_decorator(protocol)`) or an explicit async call
+and `get_summary()`. `ProtocolValidationDecorator` is also only a protocol:
+it specifies the optional interface a concrete implementation package may
+offer for a class decorator (`validation_decorator(protocol)`) or an explicit
+async call
 (`validate_protocol_implementation(implementation, protocol, strict=...)`).
+`omnibase_spi` exports these protocol names but does not ship concrete
+decorators or runtime validation functions.
 
 > There is no `ProtocolValidation` (singular, no trailing "or") name in this
 > domain — that name lives in a different domain entirely:
