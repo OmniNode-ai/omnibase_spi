@@ -404,12 +404,27 @@ jobs:
 
   contract-compliance:
     name: Contract Compliance Check
-    # OMNI_RUNNER_SELECTOR_V1 - trusted events default to self-hosted omnibase-ci; pull_request defaults to ubuntu-latest
+    # OMNI_RUNNER_SELECTOR_V1 (OMN-16438): upgraded from the stale pre-OMN-16413
+    # inverted variant, which only checked `github.event_name != 'pull_request'`
+    # and so routed EVERY pull_request event -- including trusted same-repo PRs --
+    # to ubuntu-latest. `uv sync` here resolves onex_change_control's dependency
+    # set from the internal-only `.201` Tailscale PyPI mirror
+    # (http://omninode-pc.tail75df5e.ts.net:3141/root/pypi/...).
+    # onex-allow-internal-ip OMN-16438 reason="doc comment naming the host this fix routes around; not runnable"
+    # `ubuntu-latest` is GitHub-hosted, non-tailnet, and cannot resolve that hostname.
+    # Same defect class as OMN-16413 (omnibase_core#1579), OMN-16427
+    # (omninode_infra#969), OMN-16428 (omnimarket), and OMN-16431 (omniclaude#2023) --
+    # adopts the identical fork-aware selector: only an ACTUAL fork PR (head repo
+    # != base repo) routes to the public ubuntu-latest runner; every same-repo
+    # pull_request, push, and merge_group gets the tailnet-connected self-hosted
+    # omnibase-ci fleet, which CAN reach the .201 mirror. This does NOT widen the
+    # trust boundary: untrusted fork code still never reaches the self-hosted fleet.
     runs-on: >-
       ${{
-        github.event_name != 'pull_request'
-        && fromJSON(vars.OMNI_TRUSTED_CI_RUNS_ON_JSON || '["self-hosted","omnibase-ci"]')
-        || fromJSON(vars.OMNI_PUBLIC_PR_RUNS_ON_JSON || '["ubuntu-latest"]')
+        (github.event_name == 'pull_request' &&
+         github.event.pull_request.head.repo.full_name != github.repository)
+        && fromJSON(vars.OMNI_PUBLIC_PR_RUNS_ON_JSON || '["ubuntu-latest"]')
+        || fromJSON(vars.OMNI_TRUSTED_CI_RUNS_ON_JSON || '["self-hosted","omnibase-ci"]')
       }}
     if: github.event_name == 'pull_request' || github.event_name == 'merge_group' || github.event_name == 'push'
     steps:
