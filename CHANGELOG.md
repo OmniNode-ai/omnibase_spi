@@ -1,3 +1,8 @@
+## v0.23.3 (2026-08-30)
+
+### Dependencies
+- chore(OMN-17148): widen the `omnibase-core` requirement from `>=0.46.1,<0.47.0` to `>=0.46.1,<0.48.0` so a published `omnibase-spi` admits `omnibase-core` 0.47.x. Every published spi (0.23.0 through 0.23.2) capped core below 0.47.0, which made `omnibase_infra` unreleasable from 0.38.12 onward: its own OMN-14070 pre-publish resolvability gate refused the cut because `omnibase-infra==0.38.13` requires `omnibase-core==0.47.1` while `omnibase-spi==0.23.2` excludes it. The floor stays at 0.46.1 — the full suite and `mypy --strict` pass unchanged against both `omnibase-core==0.47.1` and `omnibase-core==0.46.13`, so this widens the admissible core range rather than narrowing it, and is therefore a patch rather than a minor. No source changes.
+
 ## v0.23.1 (2026-07-08)
 
 ### Chore
