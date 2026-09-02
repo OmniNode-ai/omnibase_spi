@@ -3,7 +3,9 @@
 > Shared Python, Git, and testing standards are in `~/.claude/CLAUDE.md`.
 
 This file provides repo-local context for Claude Code when working in
-`omnibase_spi`.
+`omnibase_spi`. It is the single in-tree agent context file: `AGENT.md` was
+folded into it by OMN-16608 because every line it held (context pointers,
+commands, cross-repo rules, protocol rules) was already stated here.
 
 ## Repository Overview
 
@@ -31,7 +33,7 @@ Rules:
 - SPI -> implementation repos: forbidden.
 - Implementation repos -> SPI + Core: expected.
 
-Canonical explanation: `docs/architecture/DEPENDENCY-DIRECTION.md`.
+Canonical explanation: [Dependency Direction](https://github.com/OmniNode-ai/knowledge-base/blob/main/architecture/omnibase-spi-dependency-direction.md) in the knowledge base.
 
 ## What SPI Contains
 
@@ -112,6 +114,10 @@ class ProtocolRenderer(Protocol):
 | General domain models in protocol modules | Forbidden |
 | Data-only wire contracts under `contracts/` | Allowed when narrow |
 
+Where each repo sits: `omnibase_core` holds shared models and types,
+`omnibase_infra` and the product repos hold implementations, and
+`onex_change_control` holds evidence and definition-of-done receipts.
+
 ## Current Source Facts
 
 - Package version: `0.23.1`
@@ -127,11 +133,16 @@ class ProtocolRenderer(Protocol):
 
 ## See Also
 
-- [Docs index](docs/README.md)
-- [Dependency direction](docs/architecture/DEPENDENCY-DIRECTION.md)
-- [Architecture](docs/architecture/README.md)
+Full documentation → https://github.com/OmniNode-ai/knowledge-base
+
+- [Overview](https://github.com/OmniNode-ai/knowledge-base/blob/main/architecture/omnibase-spi-overview.md)
+- [Dependency direction](https://github.com/OmniNode-ai/knowledge-base/blob/main/architecture/omnibase-spi-dependency-direction.md)
+- [Developer guide](https://github.com/OmniNode-ai/knowledge-base/blob/main/guides/omnibase-spi-developer-guide.md)
+- [Testing](https://github.com/OmniNode-ai/knowledge-base/blob/main/guides/omnibase-spi-testing.md)
+- [Glossary](https://github.com/OmniNode-ai/knowledge-base/blob/main/reference/omnibase-spi-glossary.md)
+
+In this repository:
+
 - [API reference](docs/api-reference/README.md)
-- [Developer guide](docs/developer-guide/README.md)
-- [Testing guide](docs/TESTING.md)
-- [Contributing](CONTRIBUTING.md)
+- [Contributing](.github/CONTRIBUTING.md)
 - [Security](SECURITY.md)

@@ -14,7 +14,7 @@ to declare their execution ordering requirements.
 See Also:
     - ProtocolExecutionConstraints: The constraints definition protocol
     - ProtocolHandlerContract: Contract interface that uses this protocol
-    - docs/architecture/HANDLER_PROTOCOL_DRIVEN_ARCHITECTURE.md
+    - Handler-protocol architecture: https://github.com/OmniNode-ai/knowledge-base
 """
 
 from typing import Protocol, runtime_checkable

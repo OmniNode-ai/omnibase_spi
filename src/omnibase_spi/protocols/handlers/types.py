@@ -15,7 +15,7 @@ Handler Source Types:
 
 See Also:
     - protocol_handler.py: The main ProtocolHandler interface for I/O handlers
-    - docs/architecture/HANDLER_PROTOCOL_DRIVEN_ARCHITECTURE.md
+    - Handler-protocol architecture: https://github.com/OmniNode-ai/knowledge-base
     - omnibase_core: Contains concrete handler implementations and models
 
 """

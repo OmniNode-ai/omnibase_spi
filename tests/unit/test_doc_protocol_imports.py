@@ -34,13 +34,19 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 
 # Markdown roots to scan for fenced python code containing omnibase_spi
 # imports. Deliberately broad -- any doc anywhere in the tree can drift.
+#
+# OMN-16608: prose documentation moved to the knowledge-base repo, so the
+# in-tree surface this scans is now the versioned API reference under
+# docs/api-reference/ plus the repo-intrinsic markdown the KB doc gate
+# allows to remain. CONTRIBUTING.md moved to .github/, where GitHub also
+# reads it and where the gate's allowed set covers it.
 DOC_GLOBS: tuple[str, ...] = (
     "docs/**/*.md",
     "src/**/*.md",
     "scripts/**/*.md",
     "README.md",
     "CLAUDE.md",
-    "CONTRIBUTING.md",
+    ".github/CONTRIBUTING.md",
 )
 
 FENCE_RE = re.compile(r"```(?:python|py)\n(.*?)```", re.DOTALL)

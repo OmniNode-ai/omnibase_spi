@@ -30,7 +30,7 @@ dependencies = [
 [project.urls]
 Homepage = "https://github.com/OmniNode-ai/omnibase_spi"
 Repository = "https://github.com/OmniNode-ai/omnibase_spi"
-Documentation = "https://github.com/OmniNode-ai/omnibase_spi/tree/main/docs"
+Documentation = "https://github.com/OmniNode-ai/knowledge-base"
 
 [dependency-groups]
 dev = [

@@ -1,6 +1,9 @@
 # Contributing
 
-Start with the repo-local guide at [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md).
+Full documentation → https://github.com/OmniNode-ai/knowledge-base
+
+Start with the [developer guide](https://github.com/OmniNode-ai/knowledge-base/blob/main/guides/omnibase-spi-developer-guide.md)
+in the knowledge base.
 
 For most changes:
 
@@ -14,6 +17,6 @@ pre-commit run --all-files
 ```
 
 Before adding a protocol, read
-[Dependency Direction](docs/architecture/DEPENDENCY-DIRECTION.md). The most
+[Dependency Direction](https://github.com/OmniNode-ai/knowledge-base/blob/main/architecture/omnibase-spi-dependency-direction.md). The most
 important rule is that SPI may import Core models and types, but Core must not
 import SPI and SPI must not import implementation repos.

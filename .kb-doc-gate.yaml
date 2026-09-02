@@ -1,0 +1,22 @@
+# KB doc gate — repo config for omnibase_spi. OMN-16589 (gate), OMN-17172
+# (fleet rollout), OMN-16608 (this repo's Wave-4 migration).
+#
+# Canonical validator + reusable workflow: scripts/kb_doc_gate.py and
+# .github/workflows/kb-doc-gate-reusable.yml in omniclaude. The default
+# allowed set lives in DEFAULT_ALLOWED in that script; `allowed:` here is
+# ADDITIVE to it, and `mode:` here wins over the workflow's `with: mode:`.
+
+# strict — fails if ANY tracked markdown outside the allowed set exists on the
+# branch, not just markdown this PR touched. Flipped on by OMN-16608, which
+# migrated this repo's prose documentation to the knowledge-base repo.
+mode: strict
+
+allowed:
+  # Versioned API reference. Bucket B of the knowledge base's own
+  # docs-taxonomy.md ("Versioned API reference generated from a code tag ...
+  # stays in its repository. It is only true for the tag it was generated
+  # from, and moving it here would strand it from the thing that regenerates
+  # it"). tests/unit/test_doc_protocol_imports.py enforces that the protocol
+  # file/domain counts and version badges stamped in these files match the
+  # live package, so they are code-coupled, not prose. 16 files.
+  - "docs/api-reference/**"
