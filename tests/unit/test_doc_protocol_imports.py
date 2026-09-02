@@ -46,7 +46,6 @@ DOC_GLOBS: tuple[str, ...] = (
     "scripts/**/*.md",
     "README.md",
     "CLAUDE.md",
-    "AGENT.md",
     ".github/CONTRIBUTING.md",
 )
 

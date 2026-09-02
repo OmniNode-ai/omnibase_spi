@@ -20,9 +20,3 @@ allowed:
   # file/domain counts and version badges stamped in these files match the
   # live package, so they are code-coupled, not prose. 16 files.
   - "docs/api-reference/**"
-
-  # LLM navigation index, the same class of in-tree agent operating context
-  # as CLAUDE.md (which the default set allows) — a pointer file, capped at
-  # 50 lines by the org's cross-repo AGENT.md standard, deliberately holding
-  # no prose of its own. Its fixed root path is what agent tooling reads.
-  - "AGENT.md"

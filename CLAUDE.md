@@ -3,7 +3,9 @@
 > Shared Python, Git, and testing standards are in `~/.claude/CLAUDE.md`.
 
 This file provides repo-local context for Claude Code when working in
-`omnibase_spi`.
+`omnibase_spi`. It is the single in-tree agent context file: `AGENT.md` was
+folded into it by OMN-16608 because every line it held (context pointers,
+commands, cross-repo rules, protocol rules) was already stated here.
 
 ## Repository Overview
 
@@ -111,6 +113,10 @@ class ProtocolRenderer(Protocol):
 | Implementation repos import SPI | Allowed |
 | General domain models in protocol modules | Forbidden |
 | Data-only wire contracts under `contracts/` | Allowed when narrow |
+
+Where each repo sits: `omnibase_core` holds shared models and types,
+`omnibase_infra` and the product repos hold implementations, and
+`onex_change_control` holds evidence and definition-of-done receipts.
 
 ## Current Source Facts
 

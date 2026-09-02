@@ -147,7 +147,7 @@ Kept in this repository:
 - [API reference](docs/api-reference/README.md) — versioned, generated against
   this package's code tag, so it cannot live in the knowledge base
 - [Contributing](.github/CONTRIBUTING.md), [Security](SECURITY.md)
-- [Agent context](AGENT.md), [Claude context](CLAUDE.md)
+- [Agent context](CLAUDE.md) — the single in-tree agent context file
 
 ## License
 

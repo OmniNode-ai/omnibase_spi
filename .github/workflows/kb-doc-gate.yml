@@ -14,7 +14,7 @@
 # branch, not only markdown a PR touched. Flipped from 'diff' by OMN-16608,
 # which migrated this repo's prose documentation to the knowledge-base repo and
 # brought the residual doc count to zero. The repo-specific additions to the
-# allowed set (docs/api-reference/**, AGENT.md) and their justification live in
+# allowed set (docs/api-reference/**) and its justification live in
 # .kb-doc-gate.yaml at this repo's root, whose 'mode:' also wins over the
 # 'with: mode:' below — both are set to strict so the two never read differently.
 #
