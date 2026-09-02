@@ -14,7 +14,7 @@ registration regardless of source.
 
 See Also:
     - omnibase_core.models.handlers.ModelHandlerDescriptor: The descriptor model
-    - docs/architecture/HANDLER_PROTOCOL_DRIVEN_ARCHITECTURE.md
+    - Handler-protocol architecture: https://github.com/OmniNode-ai/knowledge-base
 
 Example:
     ```python

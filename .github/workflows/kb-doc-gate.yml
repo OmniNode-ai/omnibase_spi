@@ -10,13 +10,13 @@
 # tests/**/{fixtures,data,golden}/** subtrees. Everything else is documentation
 # that must leave.
 #
-# mode: diff — fails a PR that ADDS or MODIFIES markdown outside that set.
-# Deletions always pass (that is the migration doing its job), and a rename is
-# judged on its destination. Flip this repo to 'strict' (fails if ANY markdown
-# outside the set EXISTS on the branch) by adding a .kb-doc-gate.yaml at this
-# repo's root containing 'mode: strict', once this repo's KB Wave-4 migration
-# lands and its residual doc count reaches zero. Doing it earlier blocks every
-# unrelated PR against the existing sprawl.
+# mode: strict — fails if ANY tracked markdown outside that set EXISTS on the
+# branch, not only markdown a PR touched. Flipped from 'diff' by OMN-16608,
+# which migrated this repo's prose documentation to the knowledge-base repo and
+# brought the residual doc count to zero. The repo-specific additions to the
+# allowed set (docs/api-reference/**, AGENT.md) and their justification live in
+# .kb-doc-gate.yaml at this repo's root, whose 'mode:' also wins over the
+# 'with: mode:' below — both are set to strict so the two never read differently.
 #
 # Validator + reusable workflow live in omniclaude (mirrors deploy-gate.yml's
 # thin-caller pattern). Pinned by immutable SHA, not @main: omniclaude's main is
@@ -39,4 +39,4 @@ jobs:
   kb-doc-gate:
     uses: OmniNode-ai/omniclaude/.github/workflows/kb-doc-gate-reusable.yml@a78b103e55f1ad595572ecde6ea818c2c585f025
     with:
-      mode: diff
+      mode: strict

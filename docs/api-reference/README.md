@@ -968,14 +968,16 @@ def validate_node_types(
 
 ## See Also
 
-- **[Glossary](../GLOSSARY.md)** - Definitions of terms used in this reference (Protocol, Handler, Node, Contract, etc.)
-- **[Quick Start Guide](../QUICK-START.md)** - Get up and running quickly
-- **[Developer Guide](../developer-guide/README.md)** - Complete development workflow
-- **[Architecture Overview](../architecture/README.md)** - Design principles and patterns
-- **[Contributing Guide](../CONTRIBUTING.md)** - How to contribute to the project
+Full documentation → https://github.com/OmniNode-ai/knowledge-base
+
+- **[Glossary](https://github.com/OmniNode-ai/knowledge-base/blob/main/reference/omnibase-spi-glossary.md)** - Definitions of terms used in this reference (Protocol, Handler, Node, Contract, etc.)
+- **[Quick Start Guide](https://github.com/OmniNode-ai/knowledge-base/blob/main/guides/omnibase-spi-quick-start.md)** - Get up and running quickly
+- **[Developer Guide](https://github.com/OmniNode-ai/knowledge-base/blob/main/guides/omnibase-spi-developer-guide.md)** - Complete development workflow
+- **[Architecture Overview](https://github.com/OmniNode-ai/knowledge-base/blob/main/architecture/omnibase-spi-overview.md)** - Design principles and patterns
+- **[Contributing Guide](../../.github/CONTRIBUTING.md)** - How to contribute to the project
 - **[Main README](../../README.md)** - Repository overview
 
-For term definitions, see the [Glossary](../GLOSSARY.md).
+For term definitions, see the [Glossary](https://github.com/OmniNode-ai/knowledge-base/blob/main/reference/omnibase-spi-glossary.md).
 
 ---
 

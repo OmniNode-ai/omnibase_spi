@@ -64,8 +64,8 @@ Forbidden:
 - Protocol files that perform I/O or instantiate concrete services
 - General domain `BaseModel` classes in SPI protocol modules
 
-See [Dependency Direction](docs/architecture/DEPENDENCY-DIRECTION.md) for the
-full rule, examples, and rationale.
+See [Dependency Direction](https://github.com/OmniNode-ai/knowledge-base/blob/main/architecture/omnibase-spi-dependency-direction.md)
+in the knowledge base for the full rule, examples, and rationale.
 
 ## Install
 
@@ -122,16 +122,32 @@ uv build
 
 ## Documentation
 
-- [Docs index](docs/README.md)
-- [Dependency direction](docs/architecture/DEPENDENCY-DIRECTION.md)
-- [Architecture overview](docs/architecture/README.md)
-- [API reference](docs/api-reference/README.md)
-- [Developer guide](docs/developer-guide/README.md)
-- [Testing guide](docs/TESTING.md)
-- [Contributing](CONTRIBUTING.md)
-- [Security](SECURITY.md)
-- [Agent context](AGENT.md)
-- [Claude context](CLAUDE.md)
+Full documentation → https://github.com/OmniNode-ai/knowledge-base
+
+The knowledge base is the single home for this package's prose documentation:
+architecture, guides, patterns, standards, glossary, and testing. This
+repository keeps only what must ship beside the code.
+
+Start here:
+
+- [Overview](https://github.com/OmniNode-ai/knowledge-base/blob/main/architecture/omnibase-spi-overview.md)
+- [Dependency direction](https://github.com/OmniNode-ai/knowledge-base/blob/main/architecture/omnibase-spi-dependency-direction.md)
+- [Quick start](https://github.com/OmniNode-ai/knowledge-base/blob/main/guides/omnibase-spi-quick-start.md)
+- [Developer guide](https://github.com/OmniNode-ai/knowledge-base/blob/main/guides/omnibase-spi-developer-guide.md)
+- [Testing](https://github.com/OmniNode-ai/knowledge-base/blob/main/guides/omnibase-spi-testing.md)
+- [Glossary](https://github.com/OmniNode-ai/knowledge-base/blob/main/reference/omnibase-spi-glossary.md)
+
+Internal-only material — runbooks and reference that need real internal
+topology — lives in the private
+[internal knowledge base](https://github.com/OmniNode-ai/knowledge-base-internal)
+(teammate access, granted per person).
+
+Kept in this repository:
+
+- [API reference](docs/api-reference/README.md) — versioned, generated against
+  this package's code tag, so it cannot live in the knowledge base
+- [Contributing](.github/CONTRIBUTING.md), [Security](SECURITY.md)
+- [Agent context](AGENT.md), [Claude context](CLAUDE.md)
 
 ## License
 

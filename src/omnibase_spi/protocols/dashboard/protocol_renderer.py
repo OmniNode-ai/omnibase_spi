@@ -9,9 +9,8 @@ it consumes a ``ModelComponentContract`` plus projection data and produces
 renderable output, and — when a declared UI action fires — it emits a canonical
 command envelope **onto the bus directly** (bus transport, no HTTP hop).
 
-Architecture Context (plan
-``docs/plans/2026-06-13-contract-driven-ui-platform-unified-plan.md`` §5b/§5c/§7,
-invariant 2):
+Architecture Context (contract-driven UI platform plan, §5b/§5c/§7,
+invariant 2 — see https://github.com/OmniNode-ai/knowledge-base):
 
     1. Each renderer advertises its capability surface
        (``ModelRendererCapabilityContract``) on startup and on a heartbeat. This

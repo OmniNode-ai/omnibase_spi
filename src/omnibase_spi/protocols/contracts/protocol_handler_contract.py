@@ -23,7 +23,7 @@ handler registration. Serialization is handled by the implementing model
 See Also:
     - protocol_handler_contract_types.py: Supporting protocols (behavior, capabilities, constraints)
     - protocol_validation.py: Validation result protocol
-    - docs/architecture/HANDLER_PROTOCOL_DRIVEN_ARCHITECTURE.md
+    - Handler-protocol architecture: https://github.com/OmniNode-ai/knowledge-base
 """
 
 from typing import Protocol, runtime_checkable

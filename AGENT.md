@@ -5,11 +5,15 @@ them.
 
 ## Context
 
-- Docs index: `docs/README.md`
-- Dependency direction: `docs/architecture/DEPENDENCY-DIRECTION.md`
-- Architecture: `docs/architecture/README.md`
-- API reference: `docs/api-reference/README.md`
+Prose documentation lives in the knowledge base, not in this repo:
+https://github.com/OmniNode-ai/knowledge-base
+
+- Overview: https://github.com/OmniNode-ai/knowledge-base/blob/main/architecture/omnibase-spi-overview.md
+- Dependency direction: https://github.com/OmniNode-ai/knowledge-base/blob/main/architecture/omnibase-spi-dependency-direction.md
+- Developer guide: https://github.com/OmniNode-ai/knowledge-base/blob/main/guides/omnibase-spi-developer-guide.md
+- API reference (in-tree, versioned): `docs/api-reference/README.md`
 - Repo conventions: `CLAUDE.md`
+- Contribution flow: `.github/CONTRIBUTING.md`
 
 ## Commands
 

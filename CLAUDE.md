@@ -31,7 +31,7 @@ Rules:
 - SPI -> implementation repos: forbidden.
 - Implementation repos -> SPI + Core: expected.
 
-Canonical explanation: `docs/architecture/DEPENDENCY-DIRECTION.md`.
+Canonical explanation: [Dependency Direction](https://github.com/OmniNode-ai/knowledge-base/blob/main/architecture/omnibase-spi-dependency-direction.md) in the knowledge base.
 
 ## What SPI Contains
 
@@ -127,11 +127,16 @@ class ProtocolRenderer(Protocol):
 
 ## See Also
 
-- [Docs index](docs/README.md)
-- [Dependency direction](docs/architecture/DEPENDENCY-DIRECTION.md)
-- [Architecture](docs/architecture/README.md)
+Full documentation → https://github.com/OmniNode-ai/knowledge-base
+
+- [Overview](https://github.com/OmniNode-ai/knowledge-base/blob/main/architecture/omnibase-spi-overview.md)
+- [Dependency direction](https://github.com/OmniNode-ai/knowledge-base/blob/main/architecture/omnibase-spi-dependency-direction.md)
+- [Developer guide](https://github.com/OmniNode-ai/knowledge-base/blob/main/guides/omnibase-spi-developer-guide.md)
+- [Testing](https://github.com/OmniNode-ai/knowledge-base/blob/main/guides/omnibase-spi-testing.md)
+- [Glossary](https://github.com/OmniNode-ai/knowledge-base/blob/main/reference/omnibase-spi-glossary.md)
+
+In this repository:
+
 - [API reference](docs/api-reference/README.md)
-- [Developer guide](docs/developer-guide/README.md)
-- [Testing guide](docs/TESTING.md)
-- [Contributing](CONTRIBUTING.md)
+- [Contributing](.github/CONTRIBUTING.md)
 - [Security](SECURITY.md)

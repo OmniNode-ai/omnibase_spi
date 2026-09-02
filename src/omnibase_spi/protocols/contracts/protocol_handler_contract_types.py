@@ -22,7 +22,7 @@ Protocol Categories:
 See Also:
     - protocol_handler_contract.py: The main ProtocolHandlerContract interface
     - types.py: Handler descriptor and source type definitions
-    - docs/architecture/HANDLER_PROTOCOL_DRIVEN_ARCHITECTURE.md
+    - Handler-protocol architecture: https://github.com/OmniNode-ai/knowledge-base
 
 Note:
     Property names in these protocols match corresponding field names in

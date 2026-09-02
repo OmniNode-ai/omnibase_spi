@@ -8,9 +8,9 @@ Phase-1 capability dispatcher satisfies when deciding whether a
 ``ModelComponentContract`` may be routed to a renderer given that renderer's
 freshly-advertised ``ModelRendererCapabilityContract``.
 
-Architecture Context (plan
-``docs/plans/2026-06-13-contract-driven-ui-platform-unified-plan.md`` §7
-"Renderer Capability Registry — ownership spec"):
+Architecture Context (contract-driven UI platform plan, §7
+"Renderer Capability Registry — ownership spec" — see
+https://github.com/OmniNode-ai/knowledge-base):
 
     - Each renderer publishes its ``ModelRendererCapabilityContract`` on startup
       and on a heartbeat; the omnimarket ``node_renderer_capability_projection``
