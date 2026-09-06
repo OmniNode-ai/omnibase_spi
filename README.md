@@ -137,11 +137,6 @@ Start here:
 - [Testing](https://github.com/OmniNode-ai/knowledge-base/blob/main/guides/omnibase-spi-testing.md)
 - [Glossary](https://github.com/OmniNode-ai/knowledge-base/blob/main/reference/omnibase-spi-glossary.md)
 
-Internal-only material — runbooks and reference that need real internal
-topology — lives in the private
-[internal knowledge base](https://github.com/OmniNode-ai/knowledge-base-internal)
-(teammate access, granted per person).
-
 Kept in this repository:
 
 - [API reference](docs/api-reference/README.md) — versioned, generated against
