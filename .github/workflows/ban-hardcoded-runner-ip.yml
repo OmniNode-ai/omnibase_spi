@@ -4,6 +4,13 @@
 
 # Calls the reusable ban-hardcoded-runner-ip check from omniclaude.
 # Implements OMN-10603.
+#
+# OMN-17993: the paths: filter must list every path the reusable scans. It
+# listed workflows only, while the reusable also scans tests/** — the blind
+# spot that let omnibase_compat, a repository that ships this same gate, carry
+# the exact banned literal as a test fixture. A widened scanner behind a filter
+# that still excludes tests/ is never triggered by the change that introduces
+# the violation.
 
 name: Ban Hardcoded Runner IP
 
@@ -12,6 +19,7 @@ on:
     branches: [main, dev]
     paths:
       - .github/workflows/**
+      - tests/**
 
 jobs:
   ban-hardcoded-runner-ip:
