@@ -56,3 +56,23 @@ def test_no_unannotated_runner_ip_literal_in_tests() -> None:
             if re.search(re.escape(BANNED), line) and _ANNOTATION not in line:
                 offenders.append(f"{path.relative_to(REPO_ROOT)}:{lineno}")
     assert offenders == [], "\n".join(offenders)
+
+
+@pytest.mark.unit
+def test_caller_pins_reusable_to_an_exact_sha() -> None:
+    """`@main` on this reusable is inert, so the ref must be a 40-hex SHA.
+
+    omniclaude's `main` is release-synced and lags `dev` by design, so
+    `...@main` still resolves to the pre-OMN-17993 scanner body that scans
+    workflow files only. A tests-only diff carrying the banned literal
+    triggers the job (this caller's `paths:` filter was widened) and the
+    `@main` body prints "No workflow files to check." and exits 0 green.
+    Pinning the exact SHA of the widened body is what makes the gate real.
+    """
+    doc = yaml.safe_load(CALLER.read_text(encoding="utf-8"))
+    uses = doc["jobs"]["ban-hardcoded-runner-ip"]["uses"]
+    ref = uses.rsplit("@", 1)[1]
+    assert re.fullmatch(r"[0-9a-f]{40}", ref), (
+        f"ban-hardcoded-runner-ip must pin an exact 40-hex SHA, got {ref!r}. "
+        "A branch or tag ref re-introduces the OMN-17993 inert-gate defect."
+    )
