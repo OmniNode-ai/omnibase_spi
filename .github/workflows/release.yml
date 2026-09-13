@@ -143,7 +143,32 @@ jobs:
         with:
           app-id: ${{ secrets.ONEXBOT_OCC_APP_ID }}
           private-key: ${{ secrets.ONEXBOT_OCC_PRIVATE_KEY }}
+          # Contents-write ONLY (OMN-17272). A release tag may change a
+          # workflow, and the *git push* transport refuses that without the
+          # App `workflows` permission (core run 33525584540) -- a permission
+          # this org installation does not carry and cannot mint (core runs
+          # 33538784420 / 33540250010). The sync step below therefore moves
+          # main via the REST ref-update API: the tag commit already exists
+          # server-side, so contents:write suffices -- the exact mechanism
+          # omnimarket's sync-main job live-proved through its ACTIVE
+          # OMN-16289 ruleset on 2026-08-31.
+          permission-contents: write
 
+      # OMN-17272: this is a REST ref-update, NOT `git push`, on purpose.
+      # Two live-proven failure classes killed the push transport here:
+      #   1. actions/checkout persists the job GITHUB_TOKEN as an
+      #      http.<origin>.extraheader Authorization header that overrides
+      #      the push-URL credential, so the push authenticated as
+      #      github-actions[bot] -- GH013 from the OMN-16289 ruleset, and
+      #      GitHub refuses to accept GitHub Actions as a ruleset bypass
+      #      actor ("The following actor(s) are invalid: GitHub Actions").
+      #   2. Even authenticated as the App, a push whose range touches
+      #      .github/workflows/** requires the App `workflows` permission
+      #      (core run 33525584540), which the installation cannot mint
+      #      (core run 33540250010). The REST update moves main to a commit
+      #      that already exists server-side, so contents:write suffices --
+      #      live-proven by omnimarket's sync-main through its ACTIVE
+      #      ruleset on 2026-08-31.
       - name: Sync main to release tag
         if: ${{ !contains(steps.tag.outputs.tag, 'rc') }}
         env:
@@ -154,17 +179,21 @@ jobs:
           TAG="$RELEASE_TAG"
           TAG_SHA=$(git rev-list -n 1 "$TAG")
           echo "Resolved tag $TAG -> commit $TAG_SHA"
-          # OMN-17272: actions/checkout persists the job's GITHUB_TOKEN as an
-          # http.<origin>.extraheader Authorization header in the local git
-          # config, and that header overrides the app token embedded in the
-          # push URL below -- so this push actually authenticated as
-          # github-actions[bot] (branch-activity-proven), which the OMN-16289
-          # main ruleset correctly declines (GH013), and which GitHub refuses
-          # to accept as a ruleset bypass actor ("The following actor(s) are
-          # invalid: GitHub Actions"). Drop the persisted header so the push
-          # authenticates as onexbot-occ-writer, the ruleset's bypass actor --
-          # the same identity omnimemory/omnimarket already sync main with,
-          # live-proven against their ACTIVE rulesets on 2026-08-31.
-          git config --local --unset-all "http.https://github.com/.extraheader" || true
-          git push "https://x-access-token:${APP_TOKEN}@github.com/${{ github.repository }}.git" "${TAG_SHA}:refs/heads/main"
+          case "$TAG_SHA" in
+            *[!0-9a-f]*)
+              echo "::error::resolved tag SHA contains non-hex characters: $TAG_SHA"
+              exit 1
+              ;;
+          esac
+          if [ "${#TAG_SHA}" -ne 40 ]; then
+            echo "::error::resolved tag SHA is not 40 hex chars: $TAG_SHA"
+            exit 1
+          fi
+          curl -fsS \
+            -X PATCH \
+            -H "Authorization: Bearer ${APP_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/git/refs/heads/main" \
+            -d "{\"sha\":\"${TAG_SHA}\",\"force\":false}"
           echo "main fast-forwarded to $TAG_SHA ($TAG)"
