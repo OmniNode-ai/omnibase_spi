@@ -55,10 +55,21 @@
 # publisher never ran (OMN-14939). Re-pin to `@main` or a main SHA once the
 # reusable promotes to omniclaude main (OMN-14812-style follow-up).
 #
-# SECRET-FREE: no `secrets: inherit` — the dev-lane broker comes from
-# omnimarket's committed config/ci_bus_lanes.yaml overlay (OMN-14813), and the
-# dev-lane listener is plaintext. This repo needs no Kafka secrets for this
-# workflow.
+# BROKER-SECRET-FREE, SASL-CREDENTIALLED (OMN-14813 + OMN-18012). The paragraph
+# this replaces said "SECRET-FREE: no `secrets: inherit` ... the dev-lane
+# listener is plaintext. This repo needs no Kafka secrets for this workflow."
+# The first half still holds and always will: the BROKER comes from omnimarket's
+# committed config/ci_bus_lanes.yaml overlay and must never be a secret, because
+# an opaque broker value is the OMN-14800 silent-repoint surface.
+#
+# The second half expired at ~16:40Z on 2026-09-07, when OMN-18012 Phase B
+# enabled SASL/SCRAM-SHA-256 on the dev-lane listener. The overlay now DECLARES
+# that transport (SASL_PLAINTEXT / SCRAM-SHA-256 -- authenticated, not encrypted)
+# and omnimarket's publisher reads the protocol from it rather than inferring
+# TLS from credential presence. `secrets: inherit` is therefore added below so
+# KAFKA_SASL_{USERNAME,PASSWORD} reach the publisher; without them it fail-fasts
+# on the declared SASL lane instead of publishing unauthenticated. A credential
+# is not a broker address and re-creates none of the OMN-14800 surface.
 #
 # MANUAL REPLAY ENTRYPOINT (OMN-14993): `workflow_dispatch` lets an operator
 # manually re-request a mint for a PR whose original `pull_request` event was
@@ -76,13 +87,13 @@
 # stays sourced from omnimarket) rather than threading override inputs
 # through the shared cross-repo reusable used by every born-path caller.
 #
-# Ticket: OMN-15012, OMN-14993, OMN-14160
+# Ticket: OMN-15012, OMN-14993, OMN-14160, OMN-18012
 
 name: OCC Companion Effect Publisher
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
+    types: [opened, edited, synchronize, reopened, ready_for_review]
   workflow_dispatch:
     inputs:
       pr_number:
@@ -111,9 +122,14 @@ jobs:
       github.event_name == 'pull_request' &&
       github.actor != 'dependabot[bot]' &&
       github.actor != 'renovate[bot]' &&
+      (github.event.action != 'edited' || github.event.changes.body) &&
       (contains(github.event.pull_request.title, 'OMN-') ||
        contains(github.event.pull_request.head.ref, 'OMN-'))
     uses: OmniNode-ai/omniclaude/.github/workflows/call-occ-companion-effect-reusable.yml@dev
+    # OMN-18012: the dev lane declares SASL, so the publisher needs the
+    # KAFKA_SASL_* credentials. The broker is still resolved from omnimarket's
+    # committed overlay, never from a secret.
+    secrets: inherit
     with:
       lane: dev
 
