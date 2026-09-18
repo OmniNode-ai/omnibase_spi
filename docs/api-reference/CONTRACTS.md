@@ -1,6 +1,6 @@
 # Contract Compiler Protocols API Reference
 
-![Version](https://img.shields.io/badge/SPI-v0.23.3-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.2.0-lightgrey)
+![Version](https://img.shields.io/badge/SPI-v0.23.4-blue) ![Status](https://img.shields.io/badge/status-stable-green) ![Since](https://img.shields.io/badge/since-v0.2.0-lightgrey)
 
 ---
 
