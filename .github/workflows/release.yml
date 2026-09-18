@@ -8,6 +8,15 @@ on:
       tag:
         description: 'Version tag to release (e.g. v0.13.0)'
         required: true
+      sync_only:
+        description: >-
+          Skip every publishing step and move main to the tag's commit only.
+          For a tag whose artifacts are ALREADY published and whose main sync
+          failed: the publishing half is irreversible and must not be retried,
+          while the pointer half is idempotent and safe to repeat.
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: write
@@ -57,13 +66,16 @@ jobs:
           echo "Version validated: $PKG_VERSION"
 
       - uses: astral-sh/setup-uv@v7
+        if: ${{ !inputs.sync_only }}
         with:
           python-version: '3.12'
 
       - name: Build wheel + sdist
+        if: ${{ !inputs.sync_only }}
         run: uv build
 
       - name: Verify dist artifacts exist
+        if: ${{ !inputs.sync_only }}
         run: |
           ls -la dist/
           ls dist/*.whl dist/*.tar.gz >/dev/null 2>&1 || {
@@ -72,6 +84,7 @@ jobs:
           }
 
       - name: Verify PyPI dependency-pin resolvability (OMN-14070)
+        if: ${{ !inputs.sync_only }}
         # omnimarket 0.4.6 was published pinning a nonexistent
         # omnibase-compat==0.5.1 (OMN-14064) because nothing anywhere resolved
         # a package's declared [project.dependencies] pins against the real
@@ -86,12 +99,14 @@ jobs:
           python3 scripts/ci/verify_pypi_pin_resolvability.py dist/
 
       - name: Publish to PyPI
+        if: ${{ !inputs.sync_only }}
         run: |
           uv publish --token "$UV_PUBLISH_TOKEN" dist/*.whl dist/*.tar.gz
         env:
           UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TOKEN }}
 
       - name: Generate checksums
+        if: ${{ !inputs.sync_only }}
         run: sha256sum dist/*.whl dist/*.tar.gz > dist/SHA256SUMS.txt
 
       - name: Set release tag
@@ -114,6 +129,7 @@ jobs:
           fi
 
       - name: Create GitHub Release
+        if: ${{ !inputs.sync_only }}
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.tag.outputs.tag }}
@@ -136,6 +152,18 @@ jobs:
       # push restriction (proven live on omnibase_core, GH006, 2026-08-21),
       # so mint an installation token for the org-owned app
       # onexbot-occ-writer and push with that identity instead.
+      #
+      # OMN-17272: the steps from here down are the ONLY ones a sync_only run
+      # executes, and they carry no sync_only guard on purpose. The two halves
+      # of a release fail with very different consequences: publishing is
+      # irreversible, and the pointer move is idempotent. Run 35304497808
+      # published 0.23.4 and then failed here, which left the irreversible half
+      # done and the repeatable half undone -- and with no way to retry only
+      # the repeatable one, because re-dispatching the whole workflow would
+      # have re-uploaded artifacts the index already holds. sync_only is that
+      # missing entry point. It cannot silently skip the proof: the readback
+      # below is outside the guard too, so a sync-only run that does not move
+      # the ref still fails.
       - name: Mint onexbot-occ-writer app token
         id: app-token
         if: ${{ !contains(steps.tag.outputs.tag, 'rc') }}
