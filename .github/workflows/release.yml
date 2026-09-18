@@ -154,17 +154,57 @@ jobs:
           TAG="$RELEASE_TAG"
           TAG_SHA=$(git rev-list -n 1 "$TAG")
           echo "Resolved tag $TAG -> commit $TAG_SHA"
-          # OMN-17272: actions/checkout persists the job's GITHUB_TOKEN as an
-          # http.<origin>.extraheader Authorization header in the local git
-          # config, and that header overrides the app token embedded in the
-          # push URL below -- so this push actually authenticated as
-          # github-actions[bot] (branch-activity-proven), which the OMN-16289
-          # main ruleset correctly declines (GH013), and which GitHub refuses
-          # to accept as a ruleset bypass actor ("The following actor(s) are
-          # invalid: GitHub Actions"). Drop the persisted header so the push
-          # authenticates as onexbot-occ-writer, the ruleset's bypass actor --
-          # the same identity omnimemory/omnimarket already sync main with,
-          # live-proven against their ACTIVE rulesets on 2026-08-31.
-          git config --local --unset-all "http.https://github.com/.extraheader" || true
-          git push "https://x-access-token:${APP_TOKEN}@github.com/${{ github.repository }}.git" "${TAG_SHA}:refs/heads/main"
+          # The ref moves over REST, NOT through git's credential layer.
+          #
+          # This replaced an OMN-17272 mitigation that unset
+          # `http.https://github.com/.extraheader` from the LOCAL git config.
+          # That worked when it was written and silently stopped working:
+          # actions/checkout v7 no longer writes the credential there. It writes
+          # it into a separate file and links it, which the run log shows
+          # directly --
+          #
+          #   git config --file .../git-credentials-<uuid>.config \
+          #     http.https://github.com/.extraheader AUTHORIZATION: basic ***
+          #   git config --local includeIf.gitdir:<repo>/.git.path <that file>
+          #
+          # -- so the unset matched nothing, was swallowed by its own `|| true`,
+          # and the included header still overrode the App token in the push
+          # URL. The push then authenticated as github-actions[bot], which is
+          # not a bypass actor for the OMN-16289 ruleset, and was declined with
+          # GH013. Run 35304497808 failed exactly there, AFTER publishing
+          # 0.23.4 to PyPI: the sync is the last step, so the irreversible half
+          # had already happened.
+          #
+          # REST has no such failure mode. The identity is bound to the
+          # Authorization header this request sends and no git config can
+          # override it, and `"force": false` keeps the server-side
+          # fast-forward guard. This is the same call omnibase_infra,
+          # omnibase_core and omniclaude already use.
+          curl --fail-with-body --silent --show-error \
+            -X PATCH \
+            -H "Authorization: Bearer ${APP_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/git/refs/heads/main" \
+            --data "{\"sha\":\"${TAG_SHA}\",\"force\":false}"
           echo "main fast-forwarded to $TAG_SHA ($TAG)"
+
+      - name: Read the pointer back
+        if: ${{ !contains(steps.tag.outputs.tag, 'rc') }}
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          RELEASE_TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          set -euo pipefail
+          # A sync that reports success without reading the pointer back cannot
+          # tell a moved ref from an accepted request. The GH013 failure above
+          # was loud, but the class it belongs to -- a push that looks like it
+          # worked while the ruleset declined it -- is exactly what OMN-16343
+          # found silently on omnibase_core.
+          expected="$(git rev-list -n 1 "${RELEASE_TAG}")"
+          actual="$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/heads/main" --jq '.object.sha')"
+          if [ "${actual}" != "${expected}" ]; then
+            echo "::error::main reads back as ${actual}, not ${expected}. The sync did not land."
+            exit 1
+          fi
+          echo "::notice::readback confirms main == ${actual}"
