@@ -1,3 +1,18 @@
+## v0.23.4 (2026-09-18)
+
+### Release
+- Cut omnibase_spi from dev at 0.23.4 under the release-trains roll-out (OMN-18595). dev was level with the published v0.23.3, so this release moves `[project].version` to 0.23.4 as well as adding this entry; `release.yml` validates that the tag and the declared version agree, so the two must move together.
+- 1 release-relevant commit(s) since v0.23.3, all already merged to dev under their own required contexts. Nothing speculative is included.
+
+### Release-train premise, stated rather than implied
+- **Green CI on the candidate's gating commit.** Every required context on `omnibase_spi@dev` reported success for the gating commit of `6ad21cfa6f40` — resolved from the merged pull request's head, because required contexts are PR-time gates that never report on a squash-merge commit.
+- **Ancestry.** `main` is an ancestor of `dev` (main-only 0, dev-only 18), so the release fast-forward can succeed.
+- **No lab premise, and why that is honest.** This repo has no lab lane and cannot produce a lab-pass receipt for any sha. A cut here is a PyPI publish plus a `main` fast-forward, never a deploy. The repos that DO reach a runtime pick this release up through governed pin bumps that carry their own lab receipt, so the lab proof point sits with the consumer.
+- **Premise verified locally rather than by the train.** The train cannot currently read branch protection: its App installation lacks the `administration` permission, so its own premise refuses every repo (dispatch run 35301341015). That grant is an org-level decision and is filed as a DECISION-REQUESTED. The premise above was therefore resolved with the same code path, run against the live repositories, rather than skipped.
+
+### Staging only, verified from parsed YAML
+- `deploy-onex-prod.yml` in omninode_infra declares `workflow_dispatch` and no push trigger, so a `main` fast-forward cannot reach it, and no omnibase_spi workflow references it. Of this repo's main/release/tag-triggered workflows, none carries a production signature.
+
 ## v0.23.3 (2026-08-30)
 
 ### Dependencies
