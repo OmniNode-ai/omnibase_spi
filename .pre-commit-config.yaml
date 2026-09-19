@@ -486,6 +486,21 @@ repos:
         files: ^(\.github/workflows/.*\.ya?ml|scripts/.*)$
         stages: [pre-commit]
 
+  - repo: local
+    hooks:
+      - id: validate-gitignore-baseline
+        name: Gitignore Baseline Validator (OMN-12453)
+        description: |
+          Assert that every managed block declared in architecture-handshakes/gitignore-baseline.yaml appears VERBATIM in the target repo's .gitignore. Enforces universal block on all repos; python block on repos that contain pyproject.toml. Suppress all findings for a file with: # gitignore-ok: <reason>
+        language: python
+        entry: python -m omnibase_core.validators.gitignore_baseline
+        pass_filenames: false
+        stages:
+          - pre-commit
+        additional_dependencies:
+          - omnibase-core @ git+https://github.com/OmniNode-ai/omnibase_core.git@5d562ab415bcbeb60eb852f5fb6d80b455da1624
+
+
 default_install_hook_types: [pre-commit, commit-msg]
 default_stages: [pre-commit]
 fail_fast: false
