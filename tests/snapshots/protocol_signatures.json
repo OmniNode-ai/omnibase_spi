@@ -3821,6 +3821,10 @@
     "dispatch": {
       "kind": "async_method",
       "parameters": {
+        "delivery": {
+          "default": "None",
+          "type": "ModelMessageDeliveryContext | None"
+        },
         "envelope": {
           "type": "ModelEventEnvelope[object]"
         },
@@ -3833,6 +3837,10 @@
     "dispatch_with_transaction": {
       "kind": "async_method",
       "parameters": {
+        "delivery": {
+          "default": "None",
+          "type": "ModelMessageDeliveryContext | None"
+        },
         "envelope": {
           "type": "ModelEventEnvelope[object]"
         },
