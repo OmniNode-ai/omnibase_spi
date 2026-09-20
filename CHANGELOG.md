@@ -1,3 +1,13 @@
+## v0.23.5 (2026-09-20)
+
+### Release
+- Cut omnibase-spi from dev at 0.23.5 by the scheduled release train.
+- 1 release-relevant commit(s) merged since v0.23.4.
+- Opened by the release train, which cuts only when the repo's declared lab-evidence premise holds for the exact candidate commit.
+
+### Included Since v0.23.4
+- feat(OMN-18922): the dispatch protocol accepts an optional delivery context (#310)
+
 ## v0.23.4 (2026-09-18)
 
 ### Release
