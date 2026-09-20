@@ -56,6 +56,9 @@ from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from omnibase_core.models.dispatch.model_dispatch_result import ModelDispatchResult
+    from omnibase_core.models.dispatch.model_message_delivery_context import (
+        ModelMessageDeliveryContext,
+    )
     from omnibase_core.models.events.model_event_envelope import ModelEventEnvelope
 
 
@@ -120,8 +123,30 @@ class ProtocolDispatchEngine(Protocol):
         self,
         topic: str,
         envelope: ModelEventEnvelope[object],
+        *,
+        delivery: ModelMessageDeliveryContext | None = None,
     ) -> ModelDispatchResult | None:
         """Dispatch an event envelope to the appropriate handler(s).
+
+        OMN-18922. ``delivery`` carries the facts about THIS DELIVERY — the
+        topic, partition and offset the consumer actually read this copy at,
+        and the broker timestamp when the consume path has one. It is
+        deliberately separate from the envelope, which is the PRODUCER's
+        truth: the same event redelivered at another offset is the same
+        event, so coordinates on the envelope would make two copies of one
+        event look like two events, and consumer-side facts smuggled through
+        producer-set headers would break that identity less visibly.
+
+        Keyword-only with a ``None`` default, so every implementor that
+        predates it stays structurally valid and every caller that does not
+        pass it is unchanged. A consumer that cannot determine the
+        coordinates passes nothing rather than inventing a zero — a fixed
+        offset is indistinguishable from a real one downstream, and that is
+        the defect this parameter exists to end (OMN-18905: every
+        in-process projection writer published at offset 0, so every
+        snapshot delta after the first for a given key was discarded as a
+        replay, freezing dashboard panels at zero consumer lag behind a
+        green readiness endpoint).
 
         Routes the envelope to handlers registered for the given topic.
         The dispatch engine resolves handlers based on topic patterns,
@@ -176,8 +201,15 @@ class ProtocolDispatchEngine(Protocol):
         topic: str,
         envelope: ModelEventEnvelope[object],
         tx: object,
+        delivery: ModelMessageDeliveryContext | None = None,
     ) -> ModelDispatchResult | None:
         """Dispatch an event envelope with database transaction context.
+
+        ``delivery`` means exactly what it means on :meth:`dispatch`, and is
+        accepted here for the same reason: a transactional dispatch has a
+        delivery too, and a protocol whose two entry points disagreed about
+        what a caller may state would push every implementor into deciding
+        which one to believe.
 
         This method enables transaction-scoped dispatch for correct idempotency
         semantics. The transaction parameter allows handlers to participate in
