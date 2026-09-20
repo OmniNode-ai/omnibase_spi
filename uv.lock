@@ -676,7 +676,7 @@ wheels = [
 
 [[package]]
 name = "omnibase-spi"
-version = "0.23.4"
+version = "0.23.5"
 source = { editable = "." }
 dependencies = [
     { name = "omnibase-core" },
