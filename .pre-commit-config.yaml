@@ -167,12 +167,14 @@ repos:
         stages: [manual]
 
       # Enhanced namespace isolation
+      # CI keeps the whole-tree backstop in the spi-validation-gate job.
       - id: validate-namespace-isolation
         name: SPI Namespace Isolation Validation
         entry: ./scripts/validate-namespace-isolation.sh
         language: system
-        always_run: true
-        pass_filenames: false
+        types: [python]
+        files: ^src/omnibase_spi/.*\.py$
+        pass_filenames: true
         stages: [pre-commit]
 
       # Enhanced SPI purity check
@@ -185,6 +187,7 @@ repos:
         stages: [pre-commit]
 
       # Enhanced SPI typing pattern validation (adapted from omnibase_core)
+      # CI keeps the whole-tree backstop in the spi-validation-gate job.
       - id: validate-spi-typing-patterns
         name: SPI Typing Pattern Validation
         entry: uv run python scripts/validation/validate_spi_typing_patterns.py
@@ -196,6 +199,7 @@ repos:
         stages: [pre-commit]
 
       # Enhanced SPI naming convention validation (adapted from omnibase_core)
+      # CI keeps the whole-tree backstop in the spi-validation-gate job.
       - id: validate-spi-naming-conventions
         name: SPI Naming Convention Validation
         entry: uv run python scripts/validation/validate_spi_naming.py
