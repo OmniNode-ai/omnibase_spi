@@ -37,6 +37,12 @@ on:
         required: true
         type: string
 
+# OMN-19641: cancel only superseded pull request runs.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+
 permissions:
   contents: write
   pull-requests: write
@@ -82,9 +88,11 @@ jobs:
               exit 0
               ;;
           esac
-          echo "pr=$PR" >> "$GITHUB_OUTPUT"
-          echo "actor=$ACTOR" >> "$GITHUB_OUTPUT"
-          echo "skip=false" >> "$GITHUB_OUTPUT"
+          {
+            echo "pr=$PR"
+            echo "actor=$ACTOR"
+            echo "skip=false"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Enable auto-merge (squash)
         if: steps.resolve.outputs.skip != 'true' && steps.resolve.outputs.actor == 'jonahgabriel'
