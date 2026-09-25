@@ -9,9 +9,11 @@ import subprocess
 from pathlib import Path
 
 import pytest
+import yaml
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 PRECOMMIT_CONFIG = REPO_ROOT / ".pre-commit-config.yaml"
+CI_WORKFLOW = REPO_ROOT / ".github" / "workflows" / "ci.yml"
 
 pytestmark = pytest.mark.unit
 
@@ -32,6 +34,13 @@ def _hook_script_path(hook_id: str) -> str:
     return script.group(0).removeprefix("./")
 
 
+def _spi_validation_gate_commands() -> list[str]:
+    workflow = yaml.safe_load(CI_WORKFLOW.read_text(encoding="utf-8"))
+    job = workflow["jobs"]["spi-validation-gate"]
+    assert job["name"] == "SPI Validation Gate"
+    return [step["run"] for step in job["steps"] if "run" in step]
+
+
 @pytest.mark.parametrize(
     ("hook_id", "expected_script"),
     [
@@ -50,13 +59,40 @@ def test_staged_hook_has_whole_tree_ci_backstop(
     hook_id: str, expected_script: str
 ) -> None:
     script = _hook_script_path(hook_id)
-    workflows = "\n".join(
-        workflow.read_text(encoding="utf-8")
-        for workflow in (REPO_ROOT / ".github" / "workflows").glob("*.yml")
-    )
+    commands = "\n".join(_spi_validation_gate_commands())
 
     assert script == expected_script
-    assert script in workflows, f"{hook_id} has no whole-tree CI backstop"
+    assert script in commands, (
+        f"{hook_id} has no whole-tree CI backstop in spi-validation-gate"
+    )
+
+
+@pytest.mark.parametrize(
+    ("hook_id", "expected_script"),
+    [
+        (
+            "validate-naming-patterns",
+            "scripts/validation/validate_naming_patterns.py",
+        ),
+        (
+            "validate-namespace-isolation-new",
+            "scripts/validation/validate_namespace_isolation.py",
+        ),
+    ],
+)
+def test_unified_staged_hook_has_strict_required_ci_backstop(
+    hook_id: str, expected_script: str
+) -> None:
+    script = _hook_script_path(hook_id)
+    unified_commands = [
+        command
+        for command in _spi_validation_gate_commands()
+        if "scripts/validation/run_all_validations.py" in command
+    ]
+
+    assert script == expected_script
+    assert len(unified_commands) == 1
+    assert "--strict" in unified_commands[0].split()
 
 
 def test_namespace_shell_guard_only_checks_supplied_files(tmp_path: Path) -> None:

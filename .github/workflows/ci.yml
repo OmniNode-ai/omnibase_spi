@@ -82,7 +82,7 @@ jobs:
             --exclude-pattern exceptions_skill_routing.py
 
       - name: Run unified standalone SPI validation suite
-        run: python scripts/validation/run_all_validations.py --verbose
+        run: python scripts/validation/run_all_validations.py --verbose --strict
 
       - name: SPI typing pattern validation (whole-tree backstop)
         run: uv run python scripts/validation/validate_spi_typing_patterns.py src/
