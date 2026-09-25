@@ -192,8 +192,7 @@ repos:
         types: [python]
         files: ^src/.*\.py$
         exclude: ^(tests/|scripts/).*\.py$
-        pass_filenames: false
-        args: ['src/']
+        pass_filenames: true
         stages: [pre-commit]
 
       # Enhanced SPI naming convention validation (adapted from omnibase_core)
@@ -204,8 +203,7 @@ repos:
         types: [python]
         files: ^src/.*\.py$
         exclude: ^(tests/|scripts/).*\.py$
-        pass_filenames: false
-        args: ['src/']
+        pass_filenames: true
         stages: [pre-commit]
 
       # ======================================================================
@@ -232,7 +230,7 @@ repos:
         types: [python]
         files: ^src/omnibase_spi/.*\.py$
         exclude: ^(tests/|scripts/).*\.py$
-        pass_filenames: false
+        pass_filenames: true
         stages: [pre-commit]
 
       # Namespace isolation - No Infra imports, no Pydantic models
@@ -243,7 +241,7 @@ repos:
         types: [python]
         files: ^src/omnibase_spi/.*\.py$
         exclude: ^(tests/|scripts/).*\.py$
-        pass_filenames: false
+        pass_filenames: true
         stages: [pre-commit]
 
       # Unified runner - Run all validators (for CI or manual runs)
