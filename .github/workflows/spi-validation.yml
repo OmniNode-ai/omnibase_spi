@@ -27,6 +27,12 @@ on:
           - quick
           - pre-commit
 
+# OMN-19641: cancel only superseded pull request runs.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+
 jobs:
   spi-validation:
     name: SPI Protocol Validation
@@ -97,7 +103,9 @@ jobs:
         id: parse-results
         run: |
           # Find the actual validation report file
-          REPORT_FILE=$(ls comprehensive_spi_validation_*.json 2>/dev/null | head -1)
+          shopt -s nullglob
+          report_files=(comprehensive_spi_validation_*.json)
+          REPORT_FILE="${report_files[0]:-}"
 
           if [ -n "$REPORT_FILE" ] && [ -f "$REPORT_FILE" ]; then
             echo "Found validation report: $REPORT_FILE"
@@ -129,9 +137,11 @@ jobs:
           print(summary.get('protocols_analyzed', 0))
           ")
 
-            echo "error_count=$ERROR_COUNT" >> $GITHUB_OUTPUT
-            echo "warning_count=$WARNING_COUNT" >> $GITHUB_OUTPUT
-            echo "total_protocols=$TOTAL_PROTOCOLS" >> $GITHUB_OUTPUT
+            {
+              echo "error_count=$ERROR_COUNT"
+              echo "warning_count=$WARNING_COUNT"
+              echo "total_protocols=$TOTAL_PROTOCOLS"
+            } >> "$GITHUB_OUTPUT"
 
             # Create summary based on results
             if [ "$ERROR_COUNT" -gt 0 ]; then
@@ -157,9 +167,11 @@ jobs:
             echo "CRITICAL: No validation report found!"
             echo "The SPI validator should have generated a report but none was found."
             echo "This indicates a critical failure in the validation pipeline."
-            echo "error_count=999" >> $GITHUB_OUTPUT
-            echo "warning_count=0" >> $GITHUB_OUTPUT
-            echo "total_protocols=0" >> $GITHUB_OUTPUT
+            {
+              echo "error_count=999"
+              echo "warning_count=0"
+              echo "total_protocols=0"
+            } >> "$GITHUB_OUTPUT"
             exit 1
           fi
 
