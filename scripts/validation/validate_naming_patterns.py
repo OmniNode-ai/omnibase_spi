@@ -566,10 +566,10 @@ Pattern Rules:
         """,
     )
     parser.add_argument(
-        "path",
-        nargs="?",
-        default="src/",
-        help="Path to validate (default: src/)",
+        "paths",
+        nargs="*",
+        default=["src/"],
+        help="Files or directories to validate (default: src/)",
     )
     parser.add_argument(
         "--verbose",
@@ -580,16 +580,17 @@ Pattern Rules:
 
     args = parser.parse_args()
 
-    base_path = Path(args.path)
+    base_paths = [Path(value) for value in args.paths]
+    for base_path in base_paths:
+        if not base_path.exists():
+            print(f"Error: Path does not exist: {base_path}")
+            return 1
 
-    if not base_path.exists():
-        print(f"Error: Path does not exist: {base_path}")
-        return 1
+    print(f"Validating SPI naming patterns in: {', '.join(map(str, base_paths))}")
 
-    print(f"Validating SPI naming patterns in: {base_path}")
-
-    # Discover files
-    python_files = discover_python_files(base_path)
+    python_files = sorted(
+        {path for base_path in base_paths for path in discover_python_files(base_path)}
+    )
 
     if not python_files:
         print("No Python files found to validate")

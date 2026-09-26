@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
   pull_request:
     branches: [main, dev]
   merge_group:
@@ -55,7 +55,7 @@ jobs:
   spi-validation-gate:
     name: SPI Validation Gate
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
 
@@ -66,6 +66,24 @@ jobs:
 
       - name: Install dependencies
         run: uv sync --group dev
+
+      # The hook needs the canonical validator; CI has no OMNI_HOME registry.
+      - name: Fetch skip-vector validator (omniclaude canonical source)
+        uses: actions/checkout@v7
+        with:
+          repository: OmniNode-ai/omniclaude
+          ref: dev
+          path: .omniclaude-skip-guard
+          persist-credentials: false
+          sparse-checkout: |
+            .github/actions/required-check-skip-guard/validate_no_required_check_skip_vectors.py
+            .github/actions/required-check-skip-guard/_workflow_model.py
+          sparse-checkout-cone-mode: false
+
+      - name: Run the whole-tree pre-commit suite
+        run: uv run pre-commit run --all-files --show-diff-on-failure
+        env:
+          REQUIRED_CHECK_SKIP_GUARD_VALIDATOR: ${{ github.workspace }}/.omniclaude-skip-guard/.github/actions/required-check-skip-guard/validate_no_required_check_skip_vectors.py
 
       - name: Run comprehensive SPI validator
         run: |
@@ -82,7 +100,16 @@ jobs:
             --exclude-pattern exceptions_skill_routing.py
 
       - name: Run unified standalone SPI validation suite
-        run: python scripts/validation/run_all_validations.py --verbose
+        run: python scripts/validation/run_all_validations.py --verbose --strict
+
+      - name: SPI typing pattern validation (whole-tree backstop)
+        run: uv run python scripts/validation/validate_spi_typing_patterns.py src/
+
+      - name: SPI naming convention validation (whole-tree backstop)
+        run: uv run python scripts/validation/validate_spi_naming.py src/
+
+      - name: SPI namespace isolation validation (whole-tree backstop)
+        run: bash scripts/validate-namespace-isolation.sh
 
       - name: Upload SPI validation reports
         uses: actions/upload-artifact@v7

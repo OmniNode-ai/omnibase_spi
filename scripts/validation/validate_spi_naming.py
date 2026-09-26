@@ -153,7 +153,9 @@ class SPINamingValidator(ast.NodeVisitor):
     def _validate_protocol_naming(self, node: ast.ClassDef) -> None:
         """Validate protocol class naming conventions."""
         class_name = node.name
-        expected_pattern = self.SPI_NAMING_PATTERNS["protocols"]["pattern"]
+        protocol_config = self.SPI_NAMING_PATTERNS["protocols"]
+        assert isinstance(protocol_config, dict)
+        expected_pattern = str(protocol_config["pattern"])
 
         # Check basic Protocol prefix
         if not re.match(expected_pattern, class_name):
@@ -222,7 +224,9 @@ class SPINamingValidator(ast.NodeVisitor):
     def _validate_type_alias_class(self, node: ast.ClassDef) -> None:
         """Validate type alias class naming."""
         class_name = node.name
-        expected_pattern = self.SPI_NAMING_PATTERNS["type_aliases"]["pattern"]
+        alias_config = self.SPI_NAMING_PATTERNS["type_aliases"]
+        assert isinstance(alias_config, dict)
+        expected_pattern = str(alias_config["pattern"])
 
         if not re.match(expected_pattern, class_name):
             self.violations.append(
@@ -251,7 +255,9 @@ class SPINamingValidator(ast.NodeVisitor):
         if isinstance(node.value, ast.Subscript) or self._is_literal_type_assignment(
             node
         ):
-            expected_pattern = self.SPI_NAMING_PATTERNS["literal_types"]["pattern"]
+            literal_config = self.SPI_NAMING_PATTERNS["literal_types"]
+            assert isinstance(literal_config, dict)
+            expected_pattern = str(literal_config["pattern"])
 
             if not re.match(expected_pattern, name):
                 self.violations.append(
@@ -413,6 +419,9 @@ def validate_file(file_path: Path) -> list[NamingViolation]:
 
 def discover_python_files(base_path: Path) -> list[Path]:
     """Discover Python files for validation."""
+    if base_path.is_file():
+        return [base_path] if base_path.suffix == ".py" else []
+
     python_files = []
 
     try:
@@ -516,26 +525,33 @@ def print_naming_report(violations: list[NamingViolation]) -> None:
         print(f"\n❌ NAMING VALIDATION FAILED: {error_count} errors must be fixed")
 
 
-def main():
+def main() -> int:
     """Main validation function."""
     parser = argparse.ArgumentParser(description="Validate SPI naming conventions")
-    parser.add_argument("path", nargs="?", default="src/", help="Path to validate")
+    parser.add_argument("paths", nargs="*", default=["src/"], help="Paths to validate")
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose output")
 
     args = parser.parse_args()
 
     try:
-        base_path = Path(args.path)
+        base_paths = [Path(value) for value in args.paths]
+        for base_path in base_paths:
+            if not base_path.exists():
+                print(f"❌ Path does not exist: {base_path}")
+                return 1
 
-        if not base_path.exists():
-            print(f"❌ Path does not exist: {base_path}")
-            return 1
+        print(
+            f"🏷️  Validating SPI naming conventions in: {', '.join(map(str, base_paths))}"
+        )
 
-        print(f"🏷️  Validating SPI naming conventions in: {base_path}")
-
-        # Discover Python files
         with timeout_context("file_discovery"):
-            python_files = discover_python_files(base_path)
+            python_files = sorted(
+                {
+                    path
+                    for base_path in base_paths
+                    for path in discover_python_files(base_path)
+                }
+            )
 
         if not python_files:
             print("✅ No Python files to validate")
