@@ -15,22 +15,22 @@
 # DRY, NOT a re-implementation: omniclaude is the canonical source for
 # validate_no_required_check_skip_vectors.py (its own reusable workflow says
 # so: all repos call it via `uses:` instead of running their own copy). This
-# wrapper executes that SAME file, resolved from the OMNI_HOME sibling clone
-# -- identical to omnibase_infra's copy of this hook. Local and CI verdicts
-# cannot diverge on validator logic, because both run the identical script
-# against this repo's own .github/required-checks.yaml manifest and
-# .github/workflows/ directory.
+# wrapper executes that SAME file. Local runs resolve it from the OMNI_HOME
+# sibling clone; CI sets REQUIRED_CHECK_SKIP_GUARD_VALIDATOR to the absolute
+# path from its canonical-source checkout. Local and CI verdicts cannot diverge
+# on validator logic, because both run the identical script against this repo's
+# own .github/required-checks.yaml manifest and .github/workflows/ directory.
 #
 # FAIL-LOUD (root CLAUDE.md Rule #8, and the fail-loud pre-commit meta-gate):
-# if OMNI_HOME is unset or the sibling omniclaude clone does not contain the
-# validator, this hook hard-errors (exit 1) with remediation. It never
-# degrades to a green skip -- a gate that cannot run must be
-# byte-indistinguishable from a failing gate.
+# if the explicit override is invalid, OMNI_HOME is unset, or the sibling
+# omniclaude clone does not contain the validator, this hook hard-errors
+# (exit 1) with remediation. It never degrades to a green skip -- a gate that
+# cannot run must be byte-indistinguishable from a failing gate.
 #
-# Honest drift note: CI resolves the validator at the omniclaude ref pinned in
-# required-check-skip-guard-caller.yml; this local hook runs whatever is
-# currently checked out in $OMNI_HOME/omniclaude (tracking dev). A same-session
-# `git -C "$OMNI_HOME/omniclaude" pull --ff-only` keeps them converged.
+# Honest drift note: CI fetches the validator from omniclaude dev; this local
+# hook runs whatever is currently checked out in $OMNI_HOME/omniclaude
+# (tracking dev). A same-session `git -C "$OMNI_HOME/omniclaude" pull --ff-only`
+# keeps them converged.
 
 set -euo pipefail
 
@@ -40,16 +40,27 @@ else
     REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 fi
 
-if [[ -z "${OMNI_HOME:-}" ]]; then
+if [[ -n "${REQUIRED_CHECK_SKIP_GUARD_VALIDATOR:-}" ]]; then
+    if [[ "${REQUIRED_CHECK_SKIP_GUARD_VALIDATOR}" != /* ]]; then
+        echo "ERROR: REQUIRED_CHECK_SKIP_GUARD_VALIDATOR must be an absolute path." >&2
+        exit 1
+    fi
+    VALIDATOR="${REQUIRED_CHECK_SKIP_GUARD_VALIDATOR}"
+    if [[ ! -f "${VALIDATOR}" ]]; then
+        echo "ERROR: REQUIRED_CHECK_SKIP_GUARD_VALIDATOR points to a missing file:" >&2
+        echo "${VALIDATOR}" >&2
+        exit 1
+    fi
+elif [[ -z "${OMNI_HOME:-}" ]]; then
     echo "ERROR: OMNI_HOME is not set. required-check-skip-guard needs the" >&2
     echo "canonical validator from the omniclaude sibling clone at" >&2
     # Deliberately single-quoted/literal, not an expansion.
     # shellcheck disable=SC2016
     echo '$OMNI_HOME/omniclaude -- set OMNI_HOME to the omni_home path.' >&2
     exit 1
+else
+    VALIDATOR="${OMNI_HOME}/omniclaude/.github/actions/required-check-skip-guard/validate_no_required_check_skip_vectors.py"
 fi
-
-VALIDATOR="${OMNI_HOME}/omniclaude/.github/actions/required-check-skip-guard/validate_no_required_check_skip_vectors.py"
 
 if [[ ! -f "${VALIDATOR}" ]]; then
     echo "ERROR: canonical validator missing at ${VALIDATOR}." >&2

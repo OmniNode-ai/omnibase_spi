@@ -67,8 +67,23 @@ jobs:
       - name: Install dependencies
         run: uv sync --group dev
 
+      # The hook needs the canonical validator; CI has no OMNI_HOME registry.
+      - name: Fetch skip-vector validator (omniclaude canonical source)
+        uses: actions/checkout@v7
+        with:
+          repository: OmniNode-ai/omniclaude
+          ref: dev
+          path: .omniclaude-skip-guard
+          persist-credentials: false
+          sparse-checkout: |
+            .github/actions/required-check-skip-guard/validate_no_required_check_skip_vectors.py
+            .github/actions/required-check-skip-guard/_workflow_model.py
+          sparse-checkout-cone-mode: false
+
       - name: Run the whole-tree pre-commit suite
         run: uv run pre-commit run --all-files --show-diff-on-failure
+        env:
+          REQUIRED_CHECK_SKIP_GUARD_VALIDATOR: ${{ github.workspace }}/.omniclaude-skip-guard/.github/actions/required-check-skip-guard/validate_no_required_check_skip_vectors.py
 
       - name: Run comprehensive SPI validator
         run: |

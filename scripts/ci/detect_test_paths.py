@@ -21,6 +21,15 @@ SRC_PREFIX = "src/omnibase_spi/"
 TEST_UNIT_PREFIX = "tests/unit/"
 TEST_INTEGRATION_PREFIX = "tests/integration/"
 
+CI_CONFIG_PATHS = (
+    ".pre-commit-config.yaml",
+    ".pre-commit-hooks/",
+    ".github/workflows/",
+    ".github/required-checks.yaml",
+    "scripts/validation/",
+    "scripts/validate-namespace-isolation.sh",
+)
+
 FULL_SUITE_BRANCHES = {"main"}
 
 
@@ -31,12 +40,13 @@ def resolve_test_paths(
     """Map changed file paths to deterministic UNIT test directories.
 
     Behavior:
+      - CI validation/configuration changes: include the whole tests/unit/ tree.
       - Source changes under src/omnibase_spi/<module>: include
         tests/unit/<module>/.
       - Test-only changes under tests/unit/: include the changed unit-test directory.
       - Test-only changes under tests/integration/: ignored (integration runs always).
-      - Files outside src/ and tests/unit/: no contribution; caller decides
-        whether to escalate to full suite.
+      - Other files outside src/ and tests/unit/: no contribution; caller
+        decides whether to escalate to full suite.
     """
     config = load_adjacency_map(adjacency_path)
     return _resolve(changed_files, config)
@@ -47,7 +57,14 @@ def _resolve(changed_files: list[str], config: ModelAdjacencyMap) -> list[str]:
     selected: set[str] = set()
 
     for path in changed_files:
-        if path.startswith(SRC_PREFIX):
+        if any(
+            path.startswith(config_path)
+            if config_path.endswith("/")
+            else path == config_path
+            for config_path in CI_CONFIG_PATHS
+        ):
+            selected.add(TEST_UNIT_PREFIX)
+        elif path.startswith(SRC_PREFIX):
             module = path[len(SRC_PREFIX) :].split("/", 1)[0]
             if module in config.adjacency:
                 direct_modules.add(module)
@@ -65,6 +82,9 @@ def _resolve(changed_files: list[str], config: ModelAdjacencyMap) -> list[str]:
 
     for module in expanded:
         selected.add(f"{TEST_UNIT_PREFIX}{module}/")
+
+    if TEST_UNIT_PREFIX in selected:
+        return [TEST_UNIT_PREFIX]
 
     return sorted(selected)
 
