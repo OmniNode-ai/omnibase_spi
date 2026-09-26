@@ -501,6 +501,12 @@ Examples:
         help="Path to validate (default: src/omnibase_spi)",
     )
     parser.add_argument(
+        "paths",
+        nargs="*",
+        type=Path,
+        help="Explicit staged files or directories to validate",
+    )
+    parser.add_argument(
         "--verbose",
         "-v",
         action="store_true",
@@ -509,21 +515,19 @@ Examples:
 
     args = parser.parse_args()
 
-    # Validate path exists
-    if not args.path.exists():
-        print(f"ERROR: Path does not exist: {args.path}")
-        return 1
+    paths = args.paths or [args.path]
+    passed = True
+    for path in paths:
+        if not path.exists():
+            print(f"ERROR: Path does not exist: {path}")
+            return 1
 
-    print(f"Validating namespace isolation in: {args.path}")
+        print(f"Validating namespace isolation in: {path}")
+        report = validate_directory(path, verbose=args.verbose)
+        print_report(report, verbose=args.verbose)
+        passed = report.passed and passed
 
-    # Run validation
-    report = validate_directory(args.path, verbose=args.verbose)
-
-    # Print report
-    print_report(report, verbose=args.verbose)
-
-    # Return exit code
-    return 0 if report.passed else 1
+    return 0 if passed else 1
 
 
 if __name__ == "__main__":

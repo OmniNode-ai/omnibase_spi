@@ -522,6 +522,9 @@ def validate_file(file_path: Path) -> list[TypingViolation]:
 
 def discover_python_files(base_path: Path) -> list[Path]:
     """Discover Python files for validation."""
+    if base_path.is_file():
+        return [base_path] if base_path.suffix == ".py" else []
+
     python_files = []
 
     try:
@@ -608,10 +611,10 @@ def print_typing_report(violations: list[TypingViolation]) -> None:
         print(f"\n❌ TYPING VALIDATION FAILED: {error_count} errors must be fixed")
 
 
-def main():
+def main() -> int:
     """Main validation function."""
     parser = argparse.ArgumentParser(description="Validate SPI typing patterns")
-    parser.add_argument("path", nargs="?", default="src/", help="Path to validate")
+    parser.add_argument("paths", nargs="*", default=["src/"], help="Paths to validate")
     parser.add_argument(
         "--auto-fix",
         action="store_true",
@@ -622,17 +625,24 @@ def main():
     args = parser.parse_args()
 
     try:
-        base_path = Path(args.path)
+        base_paths = [Path(value) for value in args.paths]
+        for base_path in base_paths:
+            if not base_path.exists():
+                print(f"❌ Path does not exist: {base_path}")
+                return 1
 
-        if not base_path.exists():
-            print(f"❌ Path does not exist: {base_path}")
-            return 1
+        print(
+            f"📝 Validating SPI typing patterns in: {', '.join(map(str, base_paths))}"
+        )
 
-        print(f"📝 Validating SPI typing patterns in: {base_path}")
-
-        # Discover Python files
         with timeout_context("file_discovery"):
-            python_files = discover_python_files(base_path)
+            python_files = sorted(
+                {
+                    path
+                    for base_path in base_paths
+                    for path in discover_python_files(base_path)
+                }
+            )
 
         if not python_files:
             print("✅ No Python files to validate")

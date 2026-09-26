@@ -71,6 +71,33 @@ class TestResolveTestPaths:
         )
         assert paths == []
 
+    def test_ci_config_change_maps_to_unit_root(self) -> None:
+        paths = resolve_test_paths(
+            [".github/workflows/ci.yml"],
+            ADJACENCY_PATH,
+        )
+        assert paths == ["tests/unit/"]
+
+    def test_ci_config_and_source_change_map_to_unit_root(self) -> None:
+        paths = resolve_test_paths(
+            [
+                ".pre-commit-config.yaml",
+                "src/omnibase_spi/factories/factory_something.py",
+            ],
+            ADJACENCY_PATH,
+        )
+        assert paths == ["tests/unit/"]
+
+    def test_unit_root_selection_collapses_module_subdirectories(self) -> None:
+        paths = resolve_test_paths(
+            [
+                "tests/unit/test_skill_routing_error.py",
+                "src/omnibase_spi/factories/factory_something.py",
+            ],
+            ADJACENCY_PATH,
+        )
+        assert paths == ["tests/unit/"]
+
     def test_result_is_sorted(self) -> None:
         paths = resolve_test_paths(
             [

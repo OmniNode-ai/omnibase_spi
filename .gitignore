@@ -304,3 +304,6 @@ build/
 docs/evidence/
 merge-sweep/
 # === end onex-managed: public_repo_hygiene ===
+
+# OMN-19612: CI sparse checkout of the omniclaude skip-vector validator (ci.yml spi-validation-gate)
+.omniclaude-skip-guard/
