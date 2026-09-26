@@ -13,6 +13,12 @@ on:
   push:
     branches: [main]
 
+# OMN-19641: cancel only superseded pull request runs.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+
 jobs:
   call:
     uses: OmniNode-ai/omnibase_core/.github/workflows/validate-docs.yml@main

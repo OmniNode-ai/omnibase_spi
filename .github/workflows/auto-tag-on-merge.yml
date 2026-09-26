@@ -4,6 +4,12 @@ on:
   pull_request:
     types: [closed]
 
+# OMN-19641: cancel only superseded pull request runs.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+
 # OMN-18658: this job used to delegate to
 # `OmniNode-ai/omnibase_core/.github/workflows/auto-tag-reusable.yml@main`,
 # which pushes the release tag with the job's default workflow GITHUB_TOKEN. A
