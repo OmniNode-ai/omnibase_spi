@@ -1,0 +1,25 @@
+# Baseline for check-hardcoded-model-config-compute (OMN-19252).
+# Plan: knowledge-base-internal beta/plans/2026-09-23-remove-hardcoded-model-config.md
+# (task A1 and the per-repository ratchet of tasks A3.x).
+#
+# RULE: entries only leave. A finding not listed here fails. An entry that no
+# longer matches its file fails until it is removed. CI refuses a pull request
+# whose copy of this file carries an entry its base branch did not. Retired lab
+# values (family R) are never admitted. Entries are keyed by line content
+# (sha1 of the stripped line), not by line number.
+#
+# Regenerate only to SHRINK it:
+#   python -m omnibase_core.validation.hardcoded_model_config.runtime_hardcoded_model_config \
+#     --all --baseline <this file> --write-baseline
+
+schema_version: 1
+entries:
+  - path: src/omnibase_spi/contracts/delegation/contract_delegation_attribution.py
+    family: M
+    content_sha1: a2c5b46ad956e05b34dde2d481d3811f1f15d1eb
+  - path: src/omnibase_spi/contracts/enrichment/contract_enrichment_result.py
+    family: M
+    content_sha1: 9d99553d889c3c1fb548b742349fe353b6a8106b
+  - path: src/omnibase_spi/contracts/measurement/contract_llm_call_metrics.py
+    family: M
+    content_sha1: 5f13244c2569b313e1e487ee9bc4a3c38eb65095
