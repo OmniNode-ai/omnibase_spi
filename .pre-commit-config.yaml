@@ -67,6 +67,13 @@ repos:
   # TODO(OMN-3832-followup): Re-enable once validate-string-versions is packaged as a
   # proper Python CLI entrypoint in omnibase_core (currently only works as a local script).
 
+  # OMN-19183 plan task A3.x: shrink-only baseline config/hardcoded_model_config_baseline.yaml;
+  # no inline suppression marker; pin must equal core_ref in .github/workflows/hardcoded-model-config.yml.
+  - repo: https://github.com/OmniNode-ai/omnibase_core
+    rev: f873d2c30201c05d4be020fa0b281b5edbfb8307 # v0.47.24
+    hooks:
+      - id: check-hardcoded-model-config-compute
+
   # Configuration and Security Hooks
   - repo: local
     hooks:
