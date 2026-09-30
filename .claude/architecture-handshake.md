@@ -1,15 +1,15 @@
 <!-- HANDSHAKE_METADATA
 source: omnibase_core/architecture-handshakes/repos/omnibase_spi.md
-source_version: 0.15.0
-source_sha256: fe347e70980b41cb15cbeb8ac6a77fd9cc412c3637927c2d4ad0dad1acb69c0b
-installed_at: 2026-02-06T20:06:41Z
+source_version: 0.47.25
+source_sha256: 1984468f466b27099f06492cd0f90fd7994ea666f6da9c18a9286276fa201dcd
+installed_at: 2026-09-29T20:57:07Z
 installed_by: jonah
 -->
 
 # OmniNode Architecture – Constraint Map (omnibase_spi)
 
 > **Role**: Service Provider Interface – protocol contracts and exceptions
-> **Handshake Version**: 0.1.0 (constraint map format; source_version in metadata tracks omnibase_core release)
+> **Handshake Version**: 0.1.0
 
 ## Core Principles
 
@@ -34,30 +34,36 @@ installed_by: jonah
 5. **Never import from `omnibase_infra`** - Not even transitively
 6. **SPI → Core imports allowed** - Runtime imports of models and contract types
 
+## Platform-Wide Rules
+
+1. **No backwards compatibility** - Breaking changes always acceptable. No deprecation periods, shims, or migration paths.
+2. **Delete old code immediately** - Never leave deprecated code "for reference." If unused, delete it.
+3. **No speculative refactors** - Only make changes that are directly requested or clearly necessary.
+4. **No silent schema changes** - All schema changes must be explicit and deliberate.
+5. **Frozen event schemas** - All models crossing boundaries (events, intents, actions, envelopes, projections) must use `frozen=True`. Internal mutable state is fine.
+6. **Explicit timestamps** - Never use `datetime.now()` defaults. Inject timestamps explicitly.
+7. **No hardcoded configuration** - All config via `.env` or Pydantic Settings. No localhost defaults.
+8. **Kafka is required infrastructure** - Use async/non-blocking patterns. Never block the calling thread waiting for Kafka acks.
+9. **No `# type: ignore` without justification** - Requires explanation comment and ticket reference.
+
 ## Non-Goals (DO NOT)
 
 - ❌ No concrete implementations
 - ❌ No business logic
 - ❌ No I/O operations
-- ❌ No backwards compatibility shims
 
 ## Naming Conventions
 
 | Type | Convention | Example |
 |------|------------|---------|
 | Node protocols | `Protocol{Type}Node` | `ProtocolComputeNode` |
-| Compiler protocols | `Protocol{Type}ContractCompiler` | `ProtocolEffectContractCompiler` |
 | Handler protocols | `Protocol{Type}Handler` | `ProtocolHandler` |
 | Service protocols | `Protocol{Domain}Service` | `ProtocolDashboardService` |
 | MCP protocols | `ProtocolMCP{Function}` | `ProtocolMCPRegistry` |
-| Renderer protocols | `Protocol{Type}Renderer` | `ProtocolWidgetRenderer` |
-| Subscriber protocols | `Protocol{Domain}EventSubscriber` | `ProtocolDashboardEventSubscriber` |
-| Query protocols | `Protocol{Domain}QueryService` | `ProtocolRegistryQueryService` |
-| Exceptions | `{Type}Error` | `SPIError`, `RegistryError` |
 
 ## Layer Boundaries
 
-```text
+```
 omnibase_core (contracts, models)
     ↑ imported by
 omnibase_spi (YOU ARE HERE)
