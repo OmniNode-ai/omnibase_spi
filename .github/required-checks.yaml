@@ -216,6 +216,14 @@ gates:
     skip_semantics: never
     rationale: "OMN-14350 non-canonical lifecycle-class ratchet. Live required status check on omnibase_spi dev branch protection only (verified 2026-07-25)."
 
+  - name: "Shape-Gate Independence (OMN-20298)"
+    mode: ADVISORY
+    producer_kind: local
+    workflow: shape-gate-independence.yml
+    job_path: ["shape-gate-independence"]
+    skip_semantics: never
+    rationale: "OMN-20298: unconditional job (no needs, no if) that refuses any shape-gate detector job depending on occ-preflight. Not yet in required_status_checks on omnibase_spi branch protection; mode flips to REQUIRED in the same change as the branch-protection flip, per the schema-v3 rule above."
+
   - name: "required-check-skip-guard / check-skip-vectors"
     mode: ADVISORY
     producer_kind: local
