@@ -1,0 +1,12 @@
+name: planted
+on: [pull_request]
+jobs:
+  occ-preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo preflight
+  canonical-inference-gate:
+    runs-on: ubuntu-latest
+    needs: occ-preflight
+    steps:
+      - run: echo detector
