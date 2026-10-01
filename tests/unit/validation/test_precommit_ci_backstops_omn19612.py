@@ -131,7 +131,9 @@ def test_validator_fetch_precedes_and_configures_whole_tree_step() -> None:
     assert fetch_step["uses"] == "actions/checkout@v7"
     checkout = fetch_step["with"]
     assert checkout["repository"] == "OmniNode-ai/omniclaude"
-    assert checkout["ref"] == "dev"
+    assert (
+        checkout["ref"] == "be0f2414abcabbbd7c7060400caf27417102c771"
+    )  # OMN-20001 pin
     assert checkout["persist-credentials"] is False
     assert checkout["sparse-checkout-cone-mode"] is False
 
