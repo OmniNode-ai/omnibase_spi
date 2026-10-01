@@ -1,0 +1,59 @@
+# canonical-file-shape baseline. Shrink-only.
+# Every line is a code file outside a canonical location that existed
+# when the ratchet was installed. Delete a line when its file is removed,
+# moved into a canonical location or rewritten as contract + node +
+# handler. A new line is refused.
+.pre-commit-hooks/reject-deploy-gate-skip-token.sh
+.pre-commit-hooks/reject-required-check-skip-vector.sh
+examples/protocol_container_usage.py
+scripts/check_dep_provenance.py
+scripts/check_unused_exports.py
+scripts/ci/__init__.py
+scripts/ci/detect_test_paths.py
+scripts/ci/occ_manual_replay_precheck.py
+scripts/ci/test_selection_loader.py
+scripts/ci/test_selection_models.py
+scripts/ci/verify_pypi_pin_resolvability.py
+scripts/validate-namespace-isolation.sh
+scripts/validate-spi-purity.sh
+scripts/validation/__init__.py
+scripts/validation/check_ai_slop.py
+scripts/validation/check_precommit_additional_dependencies.sh
+scripts/validation/check_results.py
+scripts/validation/compare_protocols.py
+scripts/validation/comprehensive_spi_validator.py
+scripts/validation/protocol_signature_hasher.py
+scripts/validation/run_all_validations.py
+scripts/validation/shared_utils.py
+scripts/validation/spi_validator/__init__.py
+scripts/validation/spi_validator/ast_checks.py
+scripts/validation/spi_validator/autofix.py
+scripts/validation/spi_validator/config.py
+scripts/validation/spi_validator/duplicate_analyzer.py
+scripts/validation/spi_validator/engine.py
+scripts/validation/spi_validator/file_validator.py
+scripts/validation/spi_validator/models.py
+scripts/validation/spi_validator/reporter.py
+scripts/validation/test_signature_improvements.py
+scripts/validation/timeout_utils.py
+scripts/validation/validate_architecture.py
+scripts/validation/validate_hardcoded_env_vars.py
+scripts/validation/validate_namespace_isolation.py
+scripts/validation/validate_naming_patterns.py
+scripts/validation/validate_no_empty_directories.py
+scripts/validation/validate_precommit_fail_loud.py
+scripts/validation/validate_precommit_pin_parity.py
+scripts/validation/validate_protocol_duplicates.py
+scripts/validation/validate_secrets.py
+scripts/validation/validate_spi_naming.py
+scripts/validation/validate_spi_protocols.py
+scripts/validation/validate_spi_typing_patterns.py
+scripts/validation/validation_constants.py
+src/omnibase_spi/__init__.py
+src/omnibase_spi/effects/__init__.py
+src/omnibase_spi/effects/node_projection_effect.py
+src/omnibase_spi/exceptions.py
+src/omnibase_spi/exceptions_skill_routing.py
+src/omnibase_spi/factories/__init__.py
+src/omnibase_spi/registry/__init__.py
+src/omnibase_spi/registry/event_registry.py
