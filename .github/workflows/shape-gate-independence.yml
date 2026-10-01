@@ -1,0 +1,44 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+
+# OMN-20298: no shape-gate detector job may depend on the change-control
+# preflight (occ-preflight). The validator is consumed from omnibase_core
+# (PR 1833); this workflow only runs it. Unconditional: no `needs:`, no `if:`.
+# It lives in its own workflow file so the omnibase_core pin here does not
+# collide with the ci.yml pin-parity ratchet (validate_precommit_pin_parity.py).
+
+name: Shape-Gate Independence
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+  merge_group:
+  workflow_dispatch:
+
+concurrency:
+  group: shape-gate-independence-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  shape-gate-independence:
+    name: Shape-Gate Independence (OMN-20298)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "0.8.3"
+      - name: Refuse shape-gate jobs that depend on occ-preflight
+        run: |
+          uv run --no-project \
+            --with 'omnibase-core @ git+https://github.com/OmniNode-ai/omnibase_core@5220ecf1758b4475c2963ec13171b6431fdc2224' \
+            python -m omnibase_core.validators.shape_gate_independence

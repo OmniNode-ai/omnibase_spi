@@ -27,6 +27,13 @@ repos:
         args: [--allowlist, .onex_ratchets/noncanonical_class_allowlist.yaml, src/omnibase_spi]
         files: ^src/omnibase_spi/.*\.py$
 
+  # OMN-20298: shape-gate detector jobs must not depend on occ-preflight
+  # (guard from omnibase_core PR 1833).
+  - repo: https://github.com/OmniNode-ai/omnibase_core
+    rev: 5220ecf1758b4475c2963ec13171b6431fdc2224 # pragma: allowlist secret
+    hooks:
+      - id: check-shape-gate-independence
+
   # YAML formatting (standard across ecosystem)
   - repo: https://github.com/google/yamlfmt
     rev: v0.21.0
