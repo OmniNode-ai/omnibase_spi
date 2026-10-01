@@ -16,6 +16,6 @@ concurrency:
 
 jobs:
   pr-title:
-    uses: OmniNode-ai/onex_change_control/.github/workflows/pr-title-check-reusable.yml@main
+    uses: OmniNode-ai/onex_change_control/.github/workflows/pr-title-check-reusable.yml@a89a6f30fabf74189195f57b57fcc5d4751f4c48 # pinned onex_change_control rev (OMN-20001)
     permissions:
       pull-requests: read

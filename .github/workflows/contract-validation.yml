@@ -105,7 +105,7 @@ jobs:
       - name: Run contract validation
         id: validate-contract
         if: steps.resolve-branch.outputs.skip_validation != 'true'
-        uses: OmniNode-ai/onex_change_control/.github/actions/validate-contract@main
+        uses: OmniNode-ai/onex_change_control/.github/actions/validate-contract@a89a6f30fabf74189195f57b57fcc5d4751f4c48 # pinned onex_change_control rev (OMN-20001)
         with:
           branch-name: ${{ steps.resolve-branch.outputs.resolved_branch }}
           contracts-path: contracts

@@ -46,14 +46,10 @@
 # trusted runner (unreachable dev broker) is a non-blocking red signal, not a
 # merge gate.
 #
-# PIN CHOICE (E1 failure class): the reusable is pinned `@dev` because that is
-# the ref that resolves. `@main` is exactly how the autobind born path died
-# for the original omnibase_infra caller: it pinned call-occ-autobind-reusable.yml@main
-# while the file existed only on omniclaude dev (verified 2026-07-22:
-# `gh api repos/OmniNode-ai/omniclaude/contents/.github/workflows/call-occ-autobind-reusable.yml?ref=main`
-# -> HTTP 404), so every invocation failed at workflow parse time and the
-# publisher never ran (OMN-14939). Re-pin to `@main` or a main SHA once the
-# reusable promotes to omniclaude main (OMN-14812-style follow-up).
+# PIN CHOICE (OMN-20001): the reusable and the omnimarket publisher checkout
+# are pinned to exact shas, not branches, so a merge in a sibling repo cannot
+# turn this check red. Bump by a consumer PR that edits the shas after the new
+# revs are integration-tested here.
 #
 # BROKER-SECRET-FREE, SASL-CREDENTIALLED (OMN-14813 + OMN-18012). The paragraph
 # this replaces said "SECRET-FREE: no `secrets: inherit` ... the dev-lane
@@ -125,7 +121,7 @@ jobs:
       (github.event.action != 'edited' || github.event.changes.body) &&
       (contains(github.event.pull_request.title, 'OMN-') ||
        contains(github.event.pull_request.head.ref, 'OMN-'))
-    uses: OmniNode-ai/omniclaude/.github/workflows/call-occ-companion-effect-reusable.yml@dev
+    uses: OmniNode-ai/omniclaude/.github/workflows/call-occ-companion-effect-reusable.yml@be0f2414abcabbbd7c7060400caf27417102c771 # pinned omniclaude rev (OMN-20001)
     # OMN-18012: the dev lane declares SASL, so the publisher needs the
     # KAFKA_SASL_* credentials. The broker is still resolved from omnimarket's
     # committed overlay, never from a secret.
@@ -184,7 +180,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: OmniNode-ai/omnimarket
-          ref: dev
+          ref: e11987165b960cb86cdeab7d0ad3fe1884bb2572 # pinned omnimarket rev (OMN-20001)
           path: .occ-companion-effect-src
           persist-credentials: false
           sparse-checkout: |

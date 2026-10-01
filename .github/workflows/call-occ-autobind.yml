@@ -102,16 +102,11 @@ jobs:
       github.actor != 'renovate[bot]' &&
       (contains(github.event.pull_request.title, 'OMN-') ||
        contains(github.event.pull_request.head.ref, 'OMN-'))
-    # OMN-14941 (F1 repin): pinned `@dev` because that is the ref that
-    # resolves today -- call-occ-autobind-reusable.yml exists only on
-    # omniclaude dev (verified 2026-07-22 via
-    # `gh api repos/OmniNode-ai/omniclaude/contents/.github/workflows/call-occ-autobind-reusable.yml?ref=main`
-    # -> HTTP 404). Pinning `@main` here would be the exact E1 failure class
-    # that stranded the original omnibase_infra caller (OMN-14939): every
-    # invocation fails at workflow parse time ("workflow was not found") and
-    # the autobind publisher never runs. Re-pin to `@main` or a main SHA once
-    # the reusable promotes to omniclaude main (OMN-14812).
-    uses: OmniNode-ai/omniclaude/.github/workflows/call-occ-autobind-reusable.yml@dev
+    # OMN-20001: pinned to an exact omniclaude sha, not a branch, so a merge
+    # in omniclaude cannot turn this required check red. The reusable exists
+    # at that sha (verified via gh api contents?ref=<sha>). Bump by a consumer
+    # PR that edits this sha after the new rev is integration-tested here.
+    uses: OmniNode-ai/omniclaude/.github/workflows/call-occ-autobind-reusable.yml@be0f2414abcabbbd7c7060400caf27417102c771 # pinned omniclaude rev (OMN-20001)
     secrets: inherit
     with:
       lane: dev
@@ -166,7 +161,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: OmniNode-ai/omnimarket
-          ref: dev
+          ref: e11987165b960cb86cdeab7d0ad3fe1884bb2572 # pinned omnimarket rev (OMN-20001)
           path: .occ-autobind-src
           persist-credentials: false
           sparse-checkout: |
