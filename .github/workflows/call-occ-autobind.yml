@@ -106,7 +106,7 @@ jobs:
     # in omniclaude cannot turn this required check red. The reusable exists
     # at that sha (verified via gh api contents?ref=<sha>). Bump by a consumer
     # PR that edits this sha after the new rev is integration-tested here.
-    uses: OmniNode-ai/omniclaude/.github/workflows/call-occ-autobind-reusable.yml@be0f2414abcabbbd7c7060400caf27417102c771 # pinned omniclaude rev (OMN-20001)
+    uses: OmniNode-ai/omniclaude/.github/workflows/call-occ-autobind-reusable.yml@a612b51fbd541b5d00c281211a60d4ab25bcecad # pinned omniclaude rev (OMN-20001)
     secrets: inherit
     with:
       lane: dev
