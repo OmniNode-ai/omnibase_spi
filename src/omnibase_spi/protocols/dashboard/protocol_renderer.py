@@ -10,7 +10,7 @@ renderable output, and — when a declared UI action fires — it emits a canoni
 command envelope **onto the bus directly** (bus transport, no HTTP hop).
 
 Architecture Context (contract-driven UI platform plan, §5b/§5c/§7,
-invariant 2 — see https://github.com/OmniNode-ai/knowledge-base):
+invariant 2 — see https://github.com/OmniNode-ai/knowledge_base):
 
     1. Each renderer advertises its capability surface
        (``ModelRendererCapabilityContract``) on startup and on a heartbeat. This

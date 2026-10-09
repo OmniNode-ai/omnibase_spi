@@ -10,7 +10,7 @@ freshly-advertised ``ModelRendererCapabilityContract``.
 
 Architecture Context (contract-driven UI platform plan, §7
 "Renderer Capability Registry — ownership spec" — see
-https://github.com/OmniNode-ai/knowledge-base):
+https://github.com/OmniNode-ai/knowledge_base):
 
     - Each renderer publishes its ``ModelRendererCapabilityContract`` on startup
       and on a heartbeat; the omnimarket ``node_renderer_capability_projection``

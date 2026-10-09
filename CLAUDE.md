@@ -33,7 +33,7 @@ Rules:
 - SPI -> implementation repos: forbidden.
 - Implementation repos -> SPI + Core: expected.
 
-Canonical explanation: [Dependency Direction](https://github.com/OmniNode-ai/knowledge-base/blob/main/architecture/omnibase-spi-dependency-direction.md) in the knowledge base.
+Canonical explanation: [Dependency Direction](https://github.com/OmniNode-ai/knowledge_base/blob/main/architecture/omnibase-spi-dependency-direction.md) in the knowledge base.
 
 ## What SPI Contains
 
@@ -135,11 +135,11 @@ Where each repo sits: `omnibase_core` holds shared models and types,
 
 Full documentation → https://github.com/OmniNode-ai/knowledge-base
 
-- [Overview](https://github.com/OmniNode-ai/knowledge-base/blob/main/architecture/omnibase-spi-overview.md)
-- [Dependency direction](https://github.com/OmniNode-ai/knowledge-base/blob/main/architecture/omnibase-spi-dependency-direction.md)
-- [Developer guide](https://github.com/OmniNode-ai/knowledge-base/blob/main/guides/omnibase-spi-developer-guide.md)
-- [Testing](https://github.com/OmniNode-ai/knowledge-base/blob/main/guides/omnibase-spi-testing.md)
-- [Glossary](https://github.com/OmniNode-ai/knowledge-base/blob/main/reference/omnibase-spi-glossary.md)
+- [Overview](https://github.com/OmniNode-ai/knowledge_base/blob/main/architecture/omnibase-spi-overview.md)
+- [Dependency direction](https://github.com/OmniNode-ai/knowledge_base/blob/main/architecture/omnibase-spi-dependency-direction.md)
+- [Developer guide](https://github.com/OmniNode-ai/knowledge_base/blob/main/guides/omnibase-spi-developer-guide.md)
+- [Testing](https://github.com/OmniNode-ai/knowledge_base/blob/main/guides/omnibase-spi-testing.md)
+- [Glossary](https://github.com/OmniNode-ai/knowledge_base/blob/main/reference/omnibase-spi-glossary.md)
 
 In this repository:
 
