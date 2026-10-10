@@ -39,6 +39,13 @@ requirements:
       - id: "AC7"
         statement: |-
           AC7: the caller passes occ-context equal to call-reject-skip-token / occ-preflight / eligibility, the nested name the reject-skip caller job reports, instead of the reusable's default occ-preflight / eligibility that this repository never reports -- falsifier: uv run pytest tests/ci/test_repo_evidence_caller_omn20074.py -q -k occ_context
+  - id: "req-cosmetic-lint-from-core"
+    statement: |-
+      omnibase_spi's cosmetic-lint pre-commit hook comes from omnibase_core, which exports it under the same hook id, instead of from onex_change_control, so no pre-commit block pins onex_change_control.
+    acceptance:
+      - id: "AC8"
+        statement: |-
+          AC8: .pre-commit-config.yaml declares cosmetic-lint once, with no settings, in an omnibase_core block pinned to a full commit sha, and no block pins onex_change_control -- falsifier: uv run pytest tests/ci/test_precommit_hooks_core_omn20074.py -q -k cosmetic
 evidence_requirements:
   - kind: "tests"
     description: "The caller workflow has the required base-branch trigger and read-only permissions."
@@ -61,6 +68,8 @@ evidence_requirements:
   - kind: "tests"
     description: "The shadow's OCC lookup names a job this repository reports."
     command: "uv run pytest tests/ci/test_repo_evidence_caller_omn20074.py -q -k occ_context"
+    description: "cosmetic-lint sits in an omnibase_core block at a full sha and no block pins onex_change_control."
+    command: "uv run pytest tests/ci/test_precommit_hooks_core_omn20074.py -q -k cosmetic"
 emergency_bypass:
   enabled: false
   justification: ""
@@ -125,3 +134,11 @@ dod_evidence:
         check_value: "uv run pytest tests/ci/test_repo_evidence_caller_omn20074.py -q -k occ_context"
         cwd: "${OMNI_HOME}/omnibase_spi"
     binds_ac: ["AC7"]
+  - id: "dod-cosmetic-lint-from-core-ac8"
+    description: "cosmetic-lint sits in an omnibase_core block at a full sha and no block pins onex_change_control."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/ci/test_precommit_hooks_core_omn20074.py -q -k cosmetic"
+        cwd: "${OMNI_HOME}/omnibase_spi"
+    binds_ac: ["AC8"]

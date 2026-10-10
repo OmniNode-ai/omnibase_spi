@@ -1,11 +1,11 @@
 # SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
 # SPDX-License-Identifier: MIT
 
-"""OMN-20074: no-hardcoded-topics and no-untracked-todos come from omnibase_core, with every exclude and setting unchanged.
+"""OMN-20074: the pre-commit hooks come from omnibase_core, with every exclude and setting unchanged.
 
-OCC retirement S8: the hooks of these ids used to be pulled from the
-change-control repository; omnibase_core exports them under the same ids, so only
-``repo:`` and ``rev:`` change.
+OCC retirement S8: no-hardcoded-topics, no-untracked-todos and cosmetic-lint used
+to be pulled from the change-control repository; omnibase_core exports them under
+the same ids, so only ``repo:`` and ``rev:`` change.
 """
 
 from __future__ import annotations
@@ -25,19 +25,20 @@ CHANGE_CONTROL_REPO = "https://github.com/OmniNode-ai/onex_change_control"
 EXPECTED_EXCLUDE: dict[str, str | None] = {
     "no-hardcoded-topics": "^(src/omnibase_spi/contracts/events/contract_git_hook_event\\.py|src/omnibase_spi/contracts/events/contract_linear_snapshot_event\\.py|src/omnibase_spi/contracts/events/contract_github_pr_status_event\\.py|src/omnibase_spi/registry/event_registry\\.py|src/omnibase_spi/contracts/defaults/default_github_pr_poller\\.yaml|src/omnibase_spi/exceptions_skill_routing\\.py)$",
     "no-untracked-todos": None,
+    "cosmetic-lint": None,
 }
 # The keys each hook carried, so a widened or added setting is refused.
 EXPECTED_KEYS: dict[str, list[str]] = {
     "no-hardcoded-topics": ["exclude", "id"],
     "no-untracked-todos": ["id", "stages"],
+    "cosmetic-lint": ["id"],
 }
 # The stages each hook carried (None: no stages key).
 EXPECTED_STAGES: dict[str, list[str] | None] = {
     "no-hardcoded-topics": None,
     "no-untracked-todos": ["pre-commit"],
+    "cosmetic-lint": None,
 }
-# Hook ids the change-control repository still supplies after the move.
-REMAINING_CHANGE_CONTROL_HOOKS: set[str] = {"cosmetic-lint"}
 
 
 def _repos() -> list[dict[str, object]]:
@@ -90,11 +91,5 @@ def test_hook_keeps_its_exclude_and_settings(hook_id: str) -> None:
     assert hook.get("stages") == EXPECTED_STAGES[hook_id]
 
 
-def test_change_control_block_supplies_only_the_hooks_not_yet_ported() -> None:
-    supplied = {
-        str(hook["id"])
-        for repo in _repos()
-        if repo["repo"] == CHANGE_CONTROL_REPO
-        for hook in _hooks(repo)
-    }
-    assert supplied == REMAINING_CHANGE_CONTROL_HOOKS
+def test_cosmetic_lint_change_control_block_is_gone() -> None:
+    assert [r for r in _repos() if r["repo"] == CHANGE_CONTROL_REPO] == []
