@@ -32,6 +32,13 @@ requirements:
       - id: "AC6"
         statement: |-
           AC6: .pre-commit-config.yaml declares no-hardcoded-topics and no-untracked-todos once each, in an omnibase_core block pinned to a full commit sha, with each exclude and setting unchanged and only cosmetic-lint left in the onex_change_control block -- falsifier: uv run pytest tests/ci/test_precommit_hooks_core_omn20074.py -q
+  - id: "req-shadow-occ-context"
+    statement: |-
+      omnibase_spi's S5 shadow must read OCC's verdict from a check-run this repository actually reports, so a run records a verdict instead of waiting out the lookup and reading not_compared.
+    acceptance:
+      - id: "AC7"
+        statement: |-
+          AC7: the caller passes occ-context equal to call-reject-skip-token / occ-preflight / eligibility, the nested name the reject-skip caller job reports, instead of the reusable's default occ-preflight / eligibility that this repository never reports -- falsifier: uv run pytest tests/ci/test_repo_evidence_caller_omn20074.py -q -k occ_context
 evidence_requirements:
   - kind: "tests"
     description: "The caller workflow has the required base-branch trigger and read-only permissions."
@@ -51,6 +58,9 @@ evidence_requirements:
   - kind: "tests"
     description: "Migrated hooks sit in an omnibase_core block at a full sha, excludes unchanged."
     command: "uv run pytest tests/ci/test_precommit_hooks_core_omn20074.py -q"
+  - kind: "tests"
+    description: "The shadow's OCC lookup names a job this repository reports."
+    command: "uv run pytest tests/ci/test_repo_evidence_caller_omn20074.py -q -k occ_context"
 emergency_bypass:
   enabled: false
   justification: ""
@@ -98,3 +108,11 @@ dod_evidence:
       - check_type: "test_passes"
         check_value: "uv run pytest tests/ci/test_precommit_hooks_core_omn20074.py -q"
         cwd: "${OMNI_HOME}/omnibase_spi"
+  - id: "dod-shadow-occ-context-ac7"
+    description: "The shadow's OCC lookup names a job this repository reports."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/ci/test_repo_evidence_caller_omn20074.py -q -k occ_context"
+        cwd: "${OMNI_HOME}/omnibase_spi"
+    binds_ac: ["AC7"]
