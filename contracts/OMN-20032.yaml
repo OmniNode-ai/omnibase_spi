@@ -35,7 +35,6 @@ dod_evidence:
       - check_type: "test_passes"
         check_value: "uv run pytest tests/ci/test_repo_evidence_caller_verifier_floor_omn20032.py -q -k carries_the_verifier_floor"
         cwd: "${OMNI_HOME}/omnibase_spi"
-    binds_ac: ["AC11"]
   - id: "dod-omn20032-caller-verifier-at-floor"
     description: "The caller's verifier-version is at or above the floor and the comparison has a refusing and an admitting case."
     source: "manual"
@@ -43,4 +42,3 @@ dod_evidence:
       - check_type: "test_passes"
         check_value: "uv run pytest tests/ci/test_repo_evidence_caller_verifier_floor_omn20032.py -q -k \"at_or_above_the_floor or floor_comparison\""
         cwd: "${OMNI_HOME}/omnibase_spi"
-    binds_ac: ["AC12"]
