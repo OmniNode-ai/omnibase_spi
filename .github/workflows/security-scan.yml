@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 #
 # CodeQL security and quality analysis for omnibase_spi.
-# Calls the reusable workflow in onex_change_control.
+# Calls the reusable workflow in omnibase_core.
 # OMN-5422
 
 name: Security Scan
@@ -25,7 +25,7 @@ concurrency:
 jobs:
   codeql:
     name: CodeQL
-    uses: OmniNode-ai/onex_change_control/.github/workflows/codeql-reusable.yml@a89a6f30fabf74189195f57b57fcc5d4751f4c48 # pinned onex_change_control rev (OMN-20001)
+    uses: OmniNode-ai/omnibase_core/.github/workflows/codeql-reusable.yml@3fbb43eaff028a30edccb1b9b794e0a3f3d9523c # pinned omnibase_core rev (OMN-20074)
     with:
       language: python
       query_suite: security-and-quality

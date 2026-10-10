@@ -112,9 +112,9 @@ gates:
     producer_kind: cross_repo
     caller_workflow: security-scan.yml
     caller_job: codeql
-    cross_repo_ref: "OmniNode-ai/onex_change_control/.github/workflows/codeql-reusable.yml@main"
+    cross_repo_ref: "OmniNode-ai/omnibase_core/.github/workflows/codeql-reusable.yml@main"
     skip_semantics: never
-    rationale: "CodeQL security/quality scan, reusable hosted in onex_change_control. Live required status check on omnibase_spi dev branch protection."
+    rationale: "CodeQL security/quality scan, reusable hosted in omnibase_core. Live required status check on omnibase_spi dev branch protection."
 
   - name: "Contract Compliance Check"
     mode: REQUIRED
