@@ -10,7 +10,6 @@ change-control repository; omnibase_core exports them under the same ids, so onl
 
 from __future__ import annotations
 
-import hashlib
 import re
 from pathlib import Path
 
@@ -22,9 +21,9 @@ pytestmark = pytest.mark.unit
 CONFIG = Path(__file__).resolve().parents[2] / ".pre-commit-config.yaml"
 CORE_REPO = "https://github.com/OmniNode-ai/omnibase_core"
 CHANGE_CONTROL_REPO = "https://github.com/OmniNode-ai/onex_change_control"
-# sha256 of the exclude string each hook carried in the change-control block (None: no exclude).
-EXPECTED_EXCLUDE_SHA256: dict[str, str | None] = {
-    "no-hardcoded-topics": "dd4133ea3dc0241fabf0b6ae3d088bad3909642d8691481f7343b875fb5e54a8",  # pragma: allowlist secret
+# Each hook's exclude from the change-control block, byte for byte (None: no exclude).
+EXPECTED_EXCLUDE: dict[str, str | None] = {
+    "no-hardcoded-topics": "^(src/omnibase_spi/contracts/events/contract_git_hook_event\\.py|src/omnibase_spi/contracts/events/contract_linear_snapshot_event\\.py|src/omnibase_spi/contracts/events/contract_github_pr_status_event\\.py|src/omnibase_spi/registry/event_registry\\.py|src/omnibase_spi/contracts/defaults/default_github_pr_poller\\.yaml|src/omnibase_spi/exceptions_skill_routing\\.py)$",
     "no-untracked-todos": None,
 }
 # The keys each hook carried, so a widened or added setting is refused.
@@ -64,7 +63,7 @@ def _declarations(hook_id: str) -> list[tuple[dict[str, object], dict[str, objec
     ]
 
 
-@pytest.mark.parametrize("hook_id", sorted(EXPECTED_EXCLUDE_SHA256))
+@pytest.mark.parametrize("hook_id", sorted(EXPECTED_EXCLUDE))
 def test_hook_is_declared_once_in_an_omnibase_core_block_at_a_full_sha(
     hook_id: str,
 ) -> None:
@@ -77,16 +76,16 @@ def test_hook_is_declared_once_in_an_omnibase_core_block_at_a_full_sha(
     assert re.fullmatch(r"[0-9a-f]{40}", rev)
 
 
-@pytest.mark.parametrize("hook_id", sorted(EXPECTED_EXCLUDE_SHA256))
+@pytest.mark.parametrize("hook_id", sorted(EXPECTED_EXCLUDE))
 def test_hook_keeps_its_exclude_and_settings(hook_id: str) -> None:
     _, hook = _declarations(hook_id)[0]
     exclude = hook.get("exclude")
-    expected = EXPECTED_EXCLUDE_SHA256[hook_id]
+    expected = EXPECTED_EXCLUDE[hook_id]
     if expected is None:
         assert exclude is None
     else:
         assert isinstance(exclude, str)
-        assert hashlib.sha256(exclude.encode()).hexdigest() == expected
+        assert exclude == expected
     assert sorted(hook) == EXPECTED_KEYS[hook_id]
     assert hook.get("stages") == EXPECTED_STAGES[hook_id]
 
