@@ -25,6 +25,13 @@ requirements:
       - id: "AC5"
         statement: |-
           AC5: every acceptance criterion of this contract names a falsifier that is also a dod_evidence check and runs an existing test file -- falsifier: uv run pytest tests/ci/test_repo_evidence_caller_omn20074.py -q -k falsifier_per_criterion
+  - id: "req-precommit-hooks-from-core"
+    statement: |-
+      omnibase_spi's no-hardcoded-topics and no-untracked-todos pre-commit hooks come from omnibase_core, which exports them under the same hook ids, instead of from onex_change_control, with every exclude and setting unchanged.
+    acceptance:
+      - id: "AC6"
+        statement: |-
+          AC6: .pre-commit-config.yaml declares no-hardcoded-topics and no-untracked-todos once each, in an omnibase_core block pinned to a full commit sha, with each exclude and setting unchanged and only cosmetic-lint left in the onex_change_control block -- falsifier: uv run pytest tests/ci/test_precommit_hooks_core_omn20074.py -q
 evidence_requirements:
   - kind: "tests"
     description: "The caller workflow has the required base-branch trigger and read-only permissions."
@@ -41,6 +48,9 @@ evidence_requirements:
   - kind: "tests"
     description: "Every criterion of this contract is bound to a runnable check."
     command: "uv run pytest tests/ci/test_repo_evidence_caller_omn20074.py -q -k falsifier_per_criterion"
+  - kind: "tests"
+    description: "Migrated hooks sit in an omnibase_core block at a full sha, excludes unchanged."
+    command: "uv run pytest tests/ci/test_precommit_hooks_core_omn20074.py -q"
 emergency_bypass:
   enabled: false
   justification: ""
@@ -80,4 +90,11 @@ dod_evidence:
     checks:
       - check_type: "test_passes"
         check_value: "uv run pytest tests/ci/test_repo_evidence_caller_omn20074.py -q -k falsifier_per_criterion"
+        cwd: "${OMNI_HOME}/omnibase_spi"
+  - id: "dod-precommit-hooks-from-core-ac6"
+    description: "Migrated hooks sit in an omnibase_core block at a full sha, excludes unchanged."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/ci/test_precommit_hooks_core_omn20074.py -q"
         cwd: "${OMNI_HOME}/omnibase_spi"
