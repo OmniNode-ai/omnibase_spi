@@ -18,7 +18,7 @@ Security Considerations:
     - Failed verifications SHOULD NOT leak timing information
 
 See Also:
-    - Handler-protocol architecture: https://github.com/OmniNode-ai/knowledge-base
+    - Handler-protocol architecture: https://github.com/OmniNode-ai/knowledge_base
     - omnibase_infra: Contains concrete verifier implementations
 
 Example:

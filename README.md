@@ -64,7 +64,7 @@ Forbidden:
 - Protocol files that perform I/O or instantiate concrete services
 - General domain `BaseModel` classes in SPI protocol modules
 
-See [Dependency Direction](https://github.com/OmniNode-ai/knowledge-base/blob/main/architecture/omnibase-spi-dependency-direction.md)
+See [Dependency Direction](https://github.com/OmniNode-ai/knowledge_base/blob/main/architecture/omnibase-spi-dependency-direction.md)
 in the knowledge base for the full rule, examples, and rationale.
 
 ## Install
@@ -130,12 +130,12 @@ repository keeps only what must ship beside the code.
 
 Start here:
 
-- [Overview](https://github.com/OmniNode-ai/knowledge-base/blob/main/architecture/omnibase-spi-overview.md)
-- [Dependency direction](https://github.com/OmniNode-ai/knowledge-base/blob/main/architecture/omnibase-spi-dependency-direction.md)
-- [Quick start](https://github.com/OmniNode-ai/knowledge-base/blob/main/guides/omnibase-spi-quick-start.md)
-- [Developer guide](https://github.com/OmniNode-ai/knowledge-base/blob/main/guides/omnibase-spi-developer-guide.md)
-- [Testing](https://github.com/OmniNode-ai/knowledge-base/blob/main/guides/omnibase-spi-testing.md)
-- [Glossary](https://github.com/OmniNode-ai/knowledge-base/blob/main/reference/omnibase-spi-glossary.md)
+- [Overview](https://github.com/OmniNode-ai/knowledge_base/blob/main/architecture/omnibase-spi-overview.md)
+- [Dependency direction](https://github.com/OmniNode-ai/knowledge_base/blob/main/architecture/omnibase-spi-dependency-direction.md)
+- [Quick start](https://github.com/OmniNode-ai/knowledge_base/blob/main/guides/omnibase-spi-quick-start.md)
+- [Developer guide](https://github.com/OmniNode-ai/knowledge_base/blob/main/guides/omnibase-spi-developer-guide.md)
+- [Testing](https://github.com/OmniNode-ai/knowledge_base/blob/main/guides/omnibase-spi-testing.md)
+- [Glossary](https://github.com/OmniNode-ai/knowledge_base/blob/main/reference/omnibase-spi-glossary.md)
 
 Kept in this repository:
 
