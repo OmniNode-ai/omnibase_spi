@@ -1,3 +1,13 @@
+## v0.23.6 (2026-10-10)
+
+### Release
+- Cut omnibase-spi from dev at 0.23.6 by the scheduled release train.
+- 1 release-relevant commit(s) merged since v0.23.5.
+- Opened by the release train, which cuts only when the repo's declared lab-evidence premise holds for the exact candidate commit.
+
+### Included Since v0.23.5
+- chore: omnibase_spi names the renamed public repository knowledge_base (#352)
+
 ## v0.23.5 (2026-09-20)
 
 ### Release
