@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
 # SPDX-License-Identifier: MIT
 
-"""OMN-20074: no-hardcoded-topics and no-untracked-todos come from omnibase_core, with every exclude and setting unchanged.
+"""OMN-20074: no-hardcoded-topics, no-untracked-todos and cosmetic-lint come from omnibase_core, with every exclude and setting unchanged.
 
 OCC retirement S8: the hooks of these ids used to be pulled from the
 change-control repository; omnibase_core exports them under the same ids, so only
@@ -25,19 +25,22 @@ CHANGE_CONTROL_REPO = "https://github.com/OmniNode-ai/onex_change_control"
 EXPECTED_EXCLUDE: dict[str, str | None] = {
     "no-hardcoded-topics": "^(src/omnibase_spi/contracts/events/contract_git_hook_event\\.py|src/omnibase_spi/contracts/events/contract_linear_snapshot_event\\.py|src/omnibase_spi/contracts/events/contract_github_pr_status_event\\.py|src/omnibase_spi/registry/event_registry\\.py|src/omnibase_spi/contracts/defaults/default_github_pr_poller\\.yaml|src/omnibase_spi/exceptions_skill_routing\\.py)$",
     "no-untracked-todos": None,
+    "cosmetic-lint": None,
 }
 # The keys each hook carried, so a widened or added setting is refused.
 EXPECTED_KEYS: dict[str, list[str]] = {
     "no-hardcoded-topics": ["exclude", "id"],
     "no-untracked-todos": ["id", "stages"],
+    "cosmetic-lint": ["id"],
 }
 # The stages each hook carried (None: no stages key).
 EXPECTED_STAGES: dict[str, list[str] | None] = {
     "no-hardcoded-topics": None,
     "no-untracked-todos": ["pre-commit"],
+    "cosmetic-lint": None,
 }
-# Hook ids the change-control repository still supplies after the move.
-REMAINING_CHANGE_CONTROL_HOOKS: set[str] = {"cosmetic-lint"}
+# Hook ids the change-control repository still supplies after the move: none.
+REMAINING_CHANGE_CONTROL_HOOKS: set[str] = set()
 
 
 def _repos() -> list[dict[str, object]]:

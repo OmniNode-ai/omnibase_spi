@@ -32,6 +32,13 @@ requirements:
       - id: "AC6"
         statement: |-
           AC6: .pre-commit-config.yaml declares no-hardcoded-topics and no-untracked-todos once each, in an omnibase_core block pinned to a full commit sha, with each exclude and setting unchanged and only cosmetic-lint left in the onex_change_control block -- falsifier: uv run pytest tests/ci/test_precommit_hooks_core_omn20074.py -q
+  - id: "req-cosmetic-lint-from-core"
+    statement: |-
+      omnibase_spi's cosmetic-lint pre-commit hook comes from omnibase_core, which exports it under the same hook id, instead of from onex_change_control, so no pre-commit block pulls from onex_change_control.
+    acceptance:
+      - id: "AC7"
+        statement: |-
+          AC7: .pre-commit-config.yaml declares cosmetic-lint once, in the omnibase_core block pinned to a full commit sha, with no setting beyond its id, and no block pulls from the onex_change_control repository, which supersedes the last clause of AC6 -- falsifier: uv run pytest tests/ci/test_precommit_hooks_core_omn20074.py -q
 evidence_requirements:
   - kind: "tests"
     description: "The caller workflow has the required base-branch trigger and read-only permissions."
@@ -50,6 +57,9 @@ evidence_requirements:
     command: "uv run pytest tests/ci/test_repo_evidence_caller_omn20074.py -q -k falsifier_per_criterion"
   - kind: "tests"
     description: "Migrated hooks sit in an omnibase_core block at a full sha, excludes unchanged."
+    command: "uv run pytest tests/ci/test_precommit_hooks_core_omn20074.py -q"
+  - kind: "tests"
+    description: "cosmetic-lint sits in the omnibase_core block at a full sha and no block pulls from onex_change_control."
     command: "uv run pytest tests/ci/test_precommit_hooks_core_omn20074.py -q"
 emergency_bypass:
   enabled: false
@@ -93,6 +103,13 @@ dod_evidence:
         cwd: "${OMNI_HOME}/omnibase_spi"
   - id: "dod-precommit-hooks-from-core-ac6"
     description: "Migrated hooks sit in an omnibase_core block at a full sha, excludes unchanged."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/ci/test_precommit_hooks_core_omn20074.py -q"
+        cwd: "${OMNI_HOME}/omnibase_spi"
+  - id: "dod-cosmetic-lint-from-core-ac7"
+    description: "cosmetic-lint sits in the omnibase_core block at a full sha and no block pulls from onex_change_control."
     source: "manual"
     checks:
       - check_type: "test_passes"
