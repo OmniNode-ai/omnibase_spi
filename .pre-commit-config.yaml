@@ -390,7 +390,7 @@ repos:
 
   # Skip-token rejection gate (OMN-10414 / OMN-13296)
   # Blocks [skip-*] bypass tokens in staged markdown/yaml/txt files.
-  # Escape hatch: add '# skip-token-allowed: <receipt-id>' with a traceable approval receipt.
+  # There is no escape hatch (OMN-20074): a skip token is rejected whatever comment accompanies it.
   - repo: local
     hooks:
       - id: reject-deploy-gate-skip-token
