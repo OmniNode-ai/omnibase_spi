@@ -3,8 +3,10 @@
 
 # Contract Validation Gate
 #
-# Validates ONEX ticket contracts for PRs in omnibase_spi with the validators
-# from onex_change_control, checked out at the sha pinned in this file.
+# Validates the ONEX ticket contract of a PR's branch ticket with the installed
+# omnibase_core ModelTicketContract, at omnibase_spi's locked core version
+# (OMN-20074). Core refuses a binds_ac entry that is not a criterion label and a
+# binds_ac item with check_type command_exit_0 (omnibase_core#1935).
 #
 # Required status check: "contract-validation"
 # Must pass (or skip) before merging to main.
@@ -49,19 +51,6 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      - name: Auth preflight — confirm onex_change_control action is accessible
-        id: auth-preflight
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          echo "Checking visibility of OmniNode-ai/onex_change_control..."
-          if gh api repos/OmniNode-ai/onex_change_control --silent; then
-            echo "::notice::onex_change_control repo is accessible."
-          else
-            echo "::error::Cannot reach OmniNode-ai/onex_change_control. Composite action will not resolve."
-            exit 1
-          fi
-
       - name: Resolve branch name
         id: resolve-branch
         env:
@@ -79,6 +68,8 @@ jobs:
             exit 0
           fi
 
+          echo "skip_validation=false" >> "$GITHUB_OUTPUT"
+
           # Prefer workflow_dispatch input, then PR head ref, then ref name
           if [[ -n "$WORKFLOW_INPUT_BRANCH" ]]; then
             BRANCH="$WORKFLOW_INPUT_BRANCH"
@@ -90,46 +81,19 @@ jobs:
           echo "resolved_branch=$BRANCH" >> "$GITHUB_OUTPUT"
           echo "::notice::Resolved branch name: $BRANCH"
 
-          # Pre-check: skip early if no OMN-XXXX ticket ID in branch name.
-          # The composite action has a known edge case where it may exit non-zero
-          # when no ticket ID is found, even though the intent is to skip gracefully.
-          # Performing the check here avoids invoking the composite action at all.
-          TICKET_ID=$(echo "$BRANCH" | grep -oiE 'OMN-[0-9]+' | head -1)
-          if [[ -z "$TICKET_ID" ]]; then
-            echo "skip_validation=true" >> "$GITHUB_OUTPUT"
-            echo "::notice::No OMN-XXXX ticket ID found in branch — skipping contract validation."
-          else
-            echo "skip_validation=false" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Check out calling repository
         if: steps.resolve-branch.outputs.skip_validation != 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.sha }}
-          persist-credentials: false
-
-      # Validators are read at this SHA (OMN-20001); bump it in this repo's own PR to move
-      # validator versions. The OCC validate-contract composite action is not used because
-      # its validator checkout resolves github.action_ref to the nested checkout's "v4".
-      - name: Check out pinned contract validators
-        if: steps.resolve-branch.outputs.skip_validation != 'true'
-        uses: actions/checkout@v4
-        with:
-          repository: OmniNode-ai/onex_change_control
-          ref: 438cb38d8a0c017c1144f1066a2f907f72544c92
-          path: .onex_change_control_validators
           persist-credentials: false
 
       - name: Set up uv
         if: steps.resolve-branch.outputs.skip_validation != 'true'
         uses: astral-sh/setup-uv@v7
         with:
-          version: "latest"
-
-      - name: Install Python 3.12
-        if: steps.resolve-branch.outputs.skip_validation != 'true'
-        run: uv python install 3.12
+          enable-cache: true
+          cache-dependency-glob: uv.lock
 
       - name: Run contract validation
         id: validate-contract
@@ -143,6 +107,12 @@ jobs:
           TICKET_ID=$(printf '%s\n' "$BRANCH" | grep -ioE 'OMN-[0-9]+' | head -n 1 | tr '[:lower:]' '[:upper:]' || true)
           echo "ticket-id=$TICKET_ID" >> "$GITHUB_OUTPUT"
 
+          if [[ -z "$TICKET_ID" ]]; then
+            echo "validation-status=skipped" >> "$GITHUB_OUTPUT"
+            echo "::notice::No OMN-XXXX ticket ID found in branch name; contract validation skipped."
+            exit 0
+          fi
+
           CONTRACT_PATH="contracts/$TICKET_ID.yaml"
           if [[ ! -f "$CONTRACT_PATH" ]]; then
             CONTRACT_PATH="contracts/${TICKET_ID,,}.yaml"
@@ -153,20 +123,46 @@ jobs:
             exit 0
           fi
 
-          cd .onex_change_control_validators
           for attempt in 1 2 3; do
-            if uv sync --no-group dev; then
+            if uv sync --locked; then
               break
             fi
             if [[ "$attempt" -eq 3 ]]; then
               echo "validation-status=failed" >> "$GITHUB_OUTPUT"
-              echo "::error::Failed to sync contract validators after 3 attempts."
+              echo "::error::Failed to sync omnibase_spi dependencies after 3 attempts."
               exit 1
             fi
             sleep "$((10 * attempt))"
           done
 
-          if uv run validate-yaml "../$CONTRACT_PATH"; then
+          if uv run python3 - "$CONTRACT_PATH" <<'PY'
+          import sys
+          from pathlib import Path
+
+          from omnibase_core.models.errors.model_onex_error import ModelOnexError
+          from omnibase_core.models.ticket.model_ticket_contract import ModelTicketContract
+
+          # Named contracts, or every contracts/OMN-*.yaml when none are named.
+          paths = [Path(arg) for arg in sys.argv[1:]] or sorted(Path("contracts").glob("OMN-*.yaml"))
+          if not paths:
+              print("::error::contracts/ holds no OMN-*.yaml ticket contract")
+              sys.exit(1)
+
+          broken = []
+          for path in paths:
+              try:
+                  ModelTicketContract.from_yaml(path.read_text(encoding="utf-8"))
+              except (OSError, ModelOnexError) as exc:
+                  broken.append((path, " ".join(str(exc).split())))
+
+          for path, reason in broken:
+              print(f"::error file={path.as_posix()}::{path.as_posix()}: {reason}")
+          if broken:
+              print(f"ERROR: {len(broken)} of {len(paths)} ticket contract(s) fail omnibase_core's ModelTicketContract.")
+              sys.exit(1)
+          print(f"OK: {len(paths)} ticket contract(s) pass omnibase_core's ModelTicketContract.")
+          PY
+          then
             echo "validation-status=passed" >> "$GITHUB_OUTPUT"
           else
             echo "validation-status=failed" >> "$GITHUB_OUTPUT"
