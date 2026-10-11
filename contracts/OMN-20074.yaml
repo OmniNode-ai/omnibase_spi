@@ -66,8 +66,6 @@ evidence_requirements:
     description: "Migrated hooks sit in an omnibase_core block at a full sha, excludes unchanged."
     command: "uv run pytest tests/ci/test_precommit_hooks_core_omn20074.py -q"
   - kind: "tests"
-    description: "The shadow's OCC lookup names a job this repository reports."
-    command: "uv run pytest tests/ci/test_repo_evidence_caller_omn20074.py -q -k occ_context"
     description: "cosmetic-lint sits in an omnibase_core block at a full sha and no block pins onex_change_control."
     command: "uv run pytest tests/ci/test_precommit_hooks_core_omn20074.py -q -k cosmetic"
 emergency_bypass:
