@@ -1,0 +1,35 @@
+---
+schema_version: "1.0.0"
+ticket_id: OMN-20939
+title: The CI workflow comment names no lab host
+summary: The comment in ci.yml that named the internal Tailscale PyPI mirror host now says only that the
+  mirror is internal-only.
+is_seam_ticket: false
+interface_change: false
+interfaces_touched: []
+requirements:
+  - id: req-omn20939-spi
+    statement: omnibase_spi's CI workflow must name no lab host or tailnet.
+    acceptance:
+      - id: AC1
+        statement: 'AC1: .github/workflows/ci.yml names no tailnet host -- falsifier: git grep -nE
+          "[.]ts[.]net|192[.]168[.]" -- .github/workflows/ci.yml exits 1 at the head of this change and
+          0 at the merge base'
+evidence_requirements:
+  - kind: tests
+    description: The workflow file holds no tailnet or RFC 1918 name.
+    command: '! git grep -nE "[.]ts[.]net|192[.]168[.]" -- .github/workflows/ci.yml'
+emergency_bypass:
+  enabled: false
+  justification: ''
+  follow_up_ticket_id: ''
+dod_evidence:
+  - id: dod-omn-20939-ac1
+    description: The workflow file holds no tailnet or RFC 1918 name.
+    source: manual
+    checks:
+      - check_type: test_passes
+        check_value: '! git grep -nE "[.]ts[.]net|192[.]168[.]" -- .github/workflows/ci.yml'
+        cwd: ${OMNI_HOME}/omnibase_spi
+    binds_ac:
+      - AC1

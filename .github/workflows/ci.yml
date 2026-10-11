@@ -435,9 +435,7 @@ jobs:
     # inverted variant, which only checked `github.event_name != 'pull_request'`
     # and so routed EVERY pull_request event -- including trusted same-repo PRs --
     # to ubuntu-latest. `uv sync` here resolves onex_change_control's dependency
-    # set from the internal-only `.201` Tailscale PyPI mirror
-    # (http://omninode-pc.tail75df5e.ts.net:3141/root/pypi/...).
-    # onex-allow-internal-ip OMN-16438 reason="doc comment naming the host this fix routes around; not runnable"
+    # set from an internal-only Tailscale PyPI mirror.
     # `ubuntu-latest` is GitHub-hosted, non-tailnet, and cannot resolve that hostname.
     # Same defect class as OMN-16413 (omnibase_core#1579), OMN-16427
     # (omninode_infra#969), OMN-16428 (omnimarket), and OMN-16431 (omniclaude#2023) --
