@@ -5,17 +5,20 @@
 No deployment or lab configuration lives in a shipped repository, and the check
 that refuses it is a required CI context on every shipped repository. omniclaude
 ships the check as the ``deployment-config`` job of its reusable hygiene workflow
-and as the exported ``deployment-config`` pre-commit hook. This repository's caller workflow pins that reusable at the commit below.
+and as the exported ``deployment-config`` pre-commit hook.
+This repository's caller workflow pins that reusable at the commit below.
 
 The job reads no private vocabulary and uses no secret, so it runs on a fork pull
-request. The pin below is the omniclaude commit that carries the job; the local hook
-runs the same commit, so the local and CI verdicts cannot diverge.
+request. The caller pins the omniclaude commit that carries the job; the local hook runs the
+same commit, so the local and CI verdicts cannot diverge.
 
-Falsifier: restore the previous pin or drop the hook and the named test fails.
+Falsifier: drop the hook, or move it off the caller's revision, and the named test
+fails.
 """
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 from typing import Any
 
@@ -28,7 +31,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 CALLER = REPO_ROOT / ".github" / "workflows" / "public-repo-hygiene.yml"
 PRECOMMIT = REPO_ROOT / ".pre-commit-config.yaml"
 
-GATE_REV = "0c9f9146d8dd0446fc5c10952aa57247b3a880ae"
+SHA_RE = re.compile(r"^[0-9a-f]{40}$")
 REUSABLE = "OmniNode-ai/omniclaude/.github/workflows/public-repo-hygiene-reusable.yml"
 OMNICLAUDE = "https://github.com/OmniNode-ai/omniclaude"
 CALLER_JOB_ID = "public-repo-hygiene"
@@ -40,9 +43,16 @@ def _load(path: Path) -> dict[Any, Any]:
     return loaded
 
 
-def test_caller_calls_the_reusable_hygiene_workflow_at_the_gate_revision() -> None:
+def _caller_pin() -> str:
     job = _load(CALLER)["jobs"][CALLER_JOB_ID]
-    assert job["uses"] == f"{REUSABLE}@{GATE_REV}"
+    uses = str(job["uses"])
+    assert uses.startswith(f"{REUSABLE}@"), uses
+    return uses.removeprefix(f"{REUSABLE}@")
+
+
+def test_caller_calls_the_reusable_hygiene_workflow_at_an_immutable_commit() -> None:
+    pin = _caller_pin()
+    assert SHA_RE.match(pin), f"pin must be a lowercase 40-hex commit, got {pin!r}"
 
 
 def test_caller_runs_on_every_pull_request_to_the_default_branch() -> None:
@@ -54,7 +64,7 @@ def test_caller_runs_on_every_pull_request_to_the_default_branch() -> None:
     assert "if" not in workflow["jobs"][CALLER_JOB_ID]
 
 
-def test_precommit_runs_the_deployment_config_hook_at_the_gate_revision() -> None:
+def test_precommit_runs_the_deployment_config_hook_at_the_callers_revision() -> None:
     blocks = [
         (repo, hook)
         for repo in _load(PRECOMMIT)["repos"]
@@ -64,7 +74,7 @@ def test_precommit_runs_the_deployment_config_hook_at_the_gate_revision() -> Non
     ]
     assert len(blocks) == 1, "exactly one deployment-config hook is declared"
     repo, hook = blocks[0]
-    assert str(repo["rev"]).split()[0] == GATE_REV
+    assert str(repo["rev"]).split()[0] == _caller_pin()
     # The exported hook already runs over the staged added lines, always_run, in the
     # pre-commit stage. An override here would narrow it.
     narrowing = {"entry", "args", "files", "exclude", "stages", "always_run"}
