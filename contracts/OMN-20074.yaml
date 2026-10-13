@@ -32,6 +32,37 @@ requirements:
       - id: "AC6"
         statement: |-
           AC6: .pre-commit-config.yaml declares no-hardcoded-topics and no-untracked-todos once each, in an omnibase_core block pinned to a full commit sha, with each exclude and setting unchanged and only cosmetic-lint left in the onex_change_control block -- falsifier: uv run pytest tests/ci/test_precommit_hooks_core_omn20074.py -q
+  - id: "req-shadow-occ-context"
+    statement: |-
+      omnibase_spi's S5 shadow must read OCC's verdict from a check-run this repository actually reports, so a run records a verdict instead of waiting out the lookup and reading not_compared.
+    acceptance:
+      - id: "AC7"
+        statement: |-
+          AC7: the caller passes occ-context equal to call-reject-skip-token / occ-preflight / eligibility, the nested name the reject-skip caller job reports, instead of the reusable's default occ-preflight / eligibility that this repository never reports -- falsifier: uv run pytest tests/ci/test_repo_evidence_caller_omn20074.py -q -k occ_context
+  - id: "req-cosmetic-lint-from-core"
+    statement: |-
+      omnibase_spi's cosmetic-lint pre-commit hook comes from omnibase_core, which exports it under the same hook id, instead of from onex_change_control, so no pre-commit block pins onex_change_control.
+    acceptance:
+      - id: "AC8"
+        statement: |-
+          AC8: .pre-commit-config.yaml declares cosmetic-lint once, with no settings, in an omnibase_core block pinned to a full commit sha, and no block pins onex_change_control -- falsifier: uv run pytest tests/ci/test_precommit_hooks_core_omn20074.py -q -k cosmetic
+  - id: "req-codeql-from-core"
+    statement: |-
+      omnibase_spi's CodeQL caller uses omnibase_core's codeql-reusable.yml instead of onex_change_control's, with the job id, the inputs and the required context unchanged.
+    acceptance:
+      - id: "AC11"
+        statement: |-
+          AC11: security-scan.yml's codeql job calls OmniNode-ai/omnibase_core/.github/workflows/codeql-reusable.yml at the full sha 3fbb43eaff028a30edccb1b9b794e0a3f3d9523c and names no onex_change_control, the job id, name and inputs are unchanged so the required context CodeQL / CodeQL Analysis (python) is unchanged, and the required-checks.yaml CodeQL row's cross_repo_ref names the omnibase_core file -- falsifier: uv run pytest tests/ci/test_codeql_from_core_omn20074.py -q
+  - id: "req-contract-validation-core-validator"
+    statement: |-
+      omnibase_spi's contract-validation workflow validates the branch ticket's contract with omnibase_core's ModelTicketContract instead of onex_change_control's composite action, under unchanged workflow and job names.
+    acceptance:
+      - id: "AC9"
+        statement: |-
+          AC9: .github/workflows/contract-validation.yml names no onex_change_control (no auth preflight, no composite action, no validate-yaml), validates with omnibase_core's ModelTicketContract, and keeps its workflow name Contract Validation and its job name contract-validation -- falsifier: uv run pytest tests/ci/test_contract_validation_core_validator_omn20074.py -q -k test_workflow_
+      - id: "AC10"
+        statement: |-
+          AC10: the contract-validation step's own run block, run over this repository's contracts, passes the branch ticket's contract and every contracts/OMN-*.yaml, skips a branch with no ticket or no contract, and fails a planted binds_ac entry that is not a criterion label and a planted binds_ac item of check_type command_exit_0, each naming the file and the rule -- falsifier: uv run pytest tests/ci/test_contract_validation_core_validator_omn20074.py -q
 evidence_requirements:
   - kind: "tests"
     description: "The caller workflow has the required base-branch trigger and read-only permissions."
@@ -51,6 +82,21 @@ evidence_requirements:
   - kind: "tests"
     description: "Migrated hooks sit in an omnibase_core block at a full sha, excludes unchanged."
     command: "uv run pytest tests/ci/test_precommit_hooks_core_omn20074.py -q"
+  - kind: "tests"
+    description: "The shadow's OCC lookup names a job this repository reports."
+    command: "uv run pytest tests/ci/test_repo_evidence_caller_omn20074.py -q -k occ_context"
+  - kind: "tests"
+    description: "cosmetic-lint sits in an omnibase_core block at a full sha and no block pins onex_change_control."
+    command: "uv run pytest tests/ci/test_precommit_hooks_core_omn20074.py -q -k cosmetic"
+  - kind: "tests"
+    description: "The CodeQL caller uses the omnibase_core reusable at a full sha, shape unchanged."
+    command: "uv run pytest tests/ci/test_codeql_from_core_omn20074.py -q"
+  - kind: "tests"
+    description: "The contract-validation workflow reads no onex_change_control and keeps its names."
+    command: "uv run pytest tests/ci/test_contract_validation_core_validator_omn20074.py -q -k test_workflow_"
+  - kind: "tests"
+    description: "The contract-validation step admits the repo contracts and refuses both planted binds_ac shapes."
+    command: "uv run pytest tests/ci/test_contract_validation_core_validator_omn20074.py -q"
 emergency_bypass:
   enabled: false
   justification: ""
@@ -63,6 +109,10 @@ dod_evidence:
       - check_type: "test_passes"
         check_value: "uv run pytest tests/ci/test_repo_evidence_caller_omn20074.py -q -k base_branch"
         cwd: "${OMNI_HOME}/omnibase_spi"
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/ci/test_repo_evidence_caller_omn20074.py -q -k bare_call_with_no_secrets"
+        cwd: "${OMNI_HOME}/omnibase_spi"
+    binds_ac: ["AC1"]
   - id: "dod-repo-evidence-ac2"
     description: "The caller pins the current receipt-gate by full sha."
     source: "manual"
@@ -70,6 +120,7 @@ dod_evidence:
       - check_type: "test_passes"
         check_value: "uv run pytest tests/ci/test_repo_evidence_caller_omn20074.py -q -k current_receipt_gate"
         cwd: "${OMNI_HOME}/omnibase_spi"
+    binds_ac: ["AC2"]
   - id: "dod-repo-evidence-ac3"
     description: "The caller runs in shadow mode and compares with OCC."
     source: "manual"
@@ -77,6 +128,7 @@ dod_evidence:
       - check_type: "test_passes"
         check_value: "uv run pytest tests/ci/test_repo_evidence_caller_omn20074.py -q -k shadow_mode"
         cwd: "${OMNI_HOME}/omnibase_spi"
+    binds_ac: ["AC3"]
   - id: "dod-repo-evidence-ac4"
     description: "The OCC callers stay."
     source: "manual"
@@ -84,6 +136,7 @@ dod_evidence:
       - check_type: "test_passes"
         check_value: "uv run pytest tests/ci/test_repo_evidence_caller_omn20074.py -q -k removes_no_occ_caller"
         cwd: "${OMNI_HOME}/omnibase_spi"
+    binds_ac: ["AC4"]
   - id: "dod-repo-evidence-ac5"
     description: "Every criterion of this contract is bound to a runnable check."
     source: "manual"
@@ -91,6 +144,7 @@ dod_evidence:
       - check_type: "test_passes"
         check_value: "uv run pytest tests/ci/test_repo_evidence_caller_omn20074.py -q -k falsifier_per_criterion"
         cwd: "${OMNI_HOME}/omnibase_spi"
+    binds_ac: ["AC5"]
   - id: "dod-precommit-hooks-from-core-ac6"
     description: "Migrated hooks sit in an omnibase_core block at a full sha, excludes unchanged."
     source: "manual"
@@ -98,3 +152,44 @@ dod_evidence:
       - check_type: "test_passes"
         check_value: "uv run pytest tests/ci/test_precommit_hooks_core_omn20074.py -q"
         cwd: "${OMNI_HOME}/omnibase_spi"
+    binds_ac: ["AC6"]
+  - id: "dod-shadow-occ-context-ac7"
+    description: "The shadow's OCC lookup names a job this repository reports."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/ci/test_repo_evidence_caller_omn20074.py -q -k occ_context"
+        cwd: "${OMNI_HOME}/omnibase_spi"
+    binds_ac: ["AC7"]
+  - id: "dod-cosmetic-lint-from-core-ac8"
+    description: "cosmetic-lint sits in an omnibase_core block at a full sha and no block pins onex_change_control."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/ci/test_precommit_hooks_core_omn20074.py -q -k cosmetic"
+        cwd: "${OMNI_HOME}/omnibase_spi"
+    binds_ac: ["AC8"]
+  - id: "dod-codeql-from-core-ac11"
+    description: "The CodeQL caller uses the omnibase_core reusable at a full sha, shape unchanged."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/ci/test_codeql_from_core_omn20074.py -q"
+        cwd: "${OMNI_HOME}/omnibase_spi"
+    binds_ac: ["AC11"]
+  - id: "dod-contract-validation-core-ac9"
+    description: "The contract-validation workflow reads no onex_change_control and keeps its names."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/ci/test_contract_validation_core_validator_omn20074.py -q -k test_workflow_"
+        cwd: "${OMNI_HOME}/omnibase_spi"
+    binds_ac: ["AC9"]
+  - id: "dod-contract-validation-core-ac10"
+    description: "The contract-validation step admits the repo contracts and refuses both planted binds_ac shapes."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/ci/test_contract_validation_core_validator_omn20074.py -q"
+        cwd: "${OMNI_HOME}/omnibase_spi"
+    binds_ac: ["AC10"]

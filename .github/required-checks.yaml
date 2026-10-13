@@ -112,9 +112,9 @@ gates:
     producer_kind: cross_repo
     caller_workflow: security-scan.yml
     caller_job: codeql
-    cross_repo_ref: "OmniNode-ai/onex_change_control/.github/workflows/codeql-reusable.yml@main"
+    cross_repo_ref: "OmniNode-ai/omnibase_core/.github/workflows/codeql-reusable.yml@main"
     skip_semantics: never
-    rationale: "CodeQL security/quality scan, reusable hosted in onex_change_control. Live required status check on omnibase_spi dev branch protection."
+    rationale: "CodeQL security/quality scan, reusable hosted in omnibase_core. Live required status check on omnibase_spi dev branch protection."
 
   - name: "Contract Compliance Check"
     mode: REQUIRED
@@ -168,12 +168,11 @@ gates:
   - name: "pr-title / check-title"
     mode: REQUIRED
     branch: dev
-    producer_kind: cross_repo
-    caller_workflow: pr-title-check.yml
-    caller_job: pr-title
-    cross_repo_ref: "OmniNode-ai/onex_change_control/.github/workflows/pr-title-check-reusable.yml@main"
+    producer_kind: local
+    workflow: pr-title-check.yml
+    job_path: ["pr-title"]
     skip_semantics: never
-    rationale: "PR title ticket-reference check, reusable hosted in onex_change_control. Live required status check on omnibase_spi dev branch protection only (not live-required on main as of 2026-07-25 readback — previously undocumented as single-branch)."
+    rationale: "PR title ticket-reference check: the job runs omnimarket's node_pr_title_check_compute from a pinned omnimarket release (OMN-20996). Live required status check on omnibase_spi dev branch protection only."
 
   - name: "SPI Validation Gate"
     mode: REQUIRED

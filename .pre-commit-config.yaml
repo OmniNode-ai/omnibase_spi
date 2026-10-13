@@ -7,6 +7,18 @@
 # - Use `pre-commit run --all-files` to test all hooks before pushing
 
 repos:
+  # OMN-20940: deployment and lab configuration never lives in a shipped
+  # repository. This hook runs the same check, at the same omniclaude commit,
+  # as the required CI context public-repo-hygiene / deployment-config (the
+  # caller .github/workflows/public-repo-hygiene.yml), so the local and CI
+  # verdicts cannot diverge. It matches by shape: no vocabulary, no token,
+  # no OMNI_HOME, and it runs on a fork.
+  - repo: https://github.com/OmniNode-ai/omniclaude
+    rev: 0c9f9146d8dd0446fc5c10952aa57247b3a880ae
+    hooks:
+      - id: deployment-config
+        require_serial: true
+
   # Stub implementation detection — sourced from omnibase_core (OMN-5599)
   - repo: https://github.com/OmniNode-ai/omnibase_core
     rev: 458f44ef24564956c6430ae7671570aed035c853 # pragma: allowlist secret
@@ -65,11 +77,11 @@ repos:
       - id: check-added-large-files
         args: [--maxkb=1000]
 
-  # Hardcoded topic strings and ticketed TODO format — sourced from omnibase_core
-  # (OMN-20074, OCC retirement S8: same hook ids, no longer pulled from the
-  # change-control repository)
+  # Hardcoded topic strings, ticketed TODO format and cosmetic lint — sourced from
+  # omnibase_core (OMN-20074, OCC retirement S8: same hook ids, no longer pulled from
+  # the change-control repository)
   - repo: https://github.com/OmniNode-ai/omnibase_core
-    rev: 4a4177335d11b138a29fe28e2f4c5575afa92b2b
+    rev: 6f70e56604a9f9d98b34bb9c3768a4468aeca71e
     hooks:
       - id: no-hardcoded-topics
         # Pre-existing violations — pending migration to canonical topic constants.
@@ -83,12 +95,6 @@ repos:
         exclude: ^(src/omnibase_spi/contracts/events/contract_git_hook_event\.py|src/omnibase_spi/contracts/events/contract_linear_snapshot_event\.py|src/omnibase_spi/contracts/events/contract_github_pr_status_event\.py|src/omnibase_spi/registry/event_registry\.py|src/omnibase_spi/contracts/defaults/default_github_pr_poller\.yaml|src/omnibase_spi/exceptions_skill_routing\.py)$
       - id: no-untracked-todos
         stages: [pre-commit]
-
-  # Cross-repo enforcement hooks from onex_change_control: cosmetic-lint only. It has no
-  # omnibase_core export yet (a later OCC retirement slice), so this block stays.
-  - repo: https://github.com/OmniNode-ai/onex_change_control
-    rev: 8d7e85bc00e7f1b1306d1cb40949be1ab6e7e91a
-    hooks:
       - id: cosmetic-lint
 
   # ONEX String Version Anti-Pattern Detection
@@ -396,7 +402,7 @@ repos:
 
   # Skip-token rejection gate (OMN-10414 / OMN-13296)
   # Blocks [skip-*] bypass tokens in staged markdown/yaml/txt files.
-  # Escape hatch: add '# skip-token-allowed: <receipt-id>' with a traceable approval receipt.
+  # There is no escape hatch (OMN-20074): a skip token is rejected whatever comment accompanies it.
   - repo: local
     hooks:
       - id: reject-deploy-gate-skip-token
