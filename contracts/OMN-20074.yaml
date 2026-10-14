@@ -52,7 +52,10 @@ requirements:
     acceptance:
       - id: "AC11"
         statement: |-
-          AC11: security-scan.yml's codeql job calls OmniNode-ai/omnibase_core/.github/workflows/codeql-reusable.yml at the full sha 3fbb43eaff028a30edccb1b9b794e0a3f3d9523c and names no onex_change_control, the job id, name and inputs are unchanged so the required context CodeQL / CodeQL Analysis (python) is unchanged, and the required-checks.yaml CodeQL row's cross_repo_ref names the omnibase_core file -- falsifier: uv run pytest tests/ci/test_codeql_from_core_omn20074.py -q
+          AC11: security-scan.yml's codeql job calls OmniNode-ai/omnibase_core/.github/workflows/codeql-reusable.yml at a full 40-character lowercase hexadecimal commit sha and names no onex_change_control, the job id, name and inputs are unchanged so the required context CodeQL / CodeQL Analysis (python) is unchanged, and the required-checks.yaml CodeQL row's cross_repo_ref names the omnibase_core file -- falsifier: uv run pytest tests/ci/test_codeql_from_core_omn20074.py -q
+      - id: "AC13"
+        statement: |-
+          AC13: the CodeQL caller check accepts immutable full-sha pin updates while refusing branch names, tags, abbreviated or malformed shas, and other reusable paths -- falsifier: uv run pytest tests/ci/test_codeql_from_core_omn20074.py -q -k core_reusable
   - id: "req-contract-validation-core-validator"
     statement: |-
       omnibase_spi's contract-validation workflow validates the branch ticket's contract with omnibase_core's ModelTicketContract instead of onex_change_control's composite action, under unchanged workflow and job names.
@@ -211,3 +214,11 @@ dod_evidence:
         check_value: "uv run pytest tests/ci/test_no_occ_callers_omn20074.py -q"
         cwd: "${OMNI_HOME}/omnibase_spi"
     binds_ac: ["AC12"]
+  - id: "dod-codeql-pin-updates-ac13"
+    description: "Regression cases accept both observed full-sha pins and reject mutable refs, malformed shas and other reusable paths."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/ci/test_codeql_from_core_omn20074.py -q -k core_reusable"
+        cwd: "${OMNI_HOME}/omnibase_spi"
+    binds_ac: ["AC13"]
