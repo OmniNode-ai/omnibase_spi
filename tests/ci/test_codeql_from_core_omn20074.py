@@ -24,10 +24,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 CALLER = REPO_ROOT / ".github" / "workflows" / "security-scan.yml"
 REQUIRED_CHECKS = REPO_ROOT / ".github" / "required-checks.yaml"
 
-# Squash commit of omnibase_core#1940, which adds the reusable on that repo's dev branch.
-CORE_REUSABLE_PIN = "3fbb43eaff028a30edccb1b9b794e0a3f3d9523c"
 CORE_REUSABLE_PATH = "OmniNode-ai/omnibase_core/.github/workflows/codeql-reusable.yml"
-CORE_REUSABLE_USES = f"{CORE_REUSABLE_PATH}@{CORE_REUSABLE_PIN}"
 FORBIDDEN_REFERENCE = "onex_change_control"
 CALLER_JOB_ID = "codeql"
 CALLER_JOB_NAME = "CodeQL"
@@ -42,6 +39,14 @@ EXPECTED_PERMISSIONS = {
 
 def _names_occ(text: str) -> bool:
     return FORBIDDEN_REFERENCE in text
+
+
+def _is_pinned_core_reusable(uses: str) -> bool:
+    # Dependabot may advance the immutable pin without changing the reusable.
+    return (
+        re.fullmatch(rf"{re.escape(CORE_REUSABLE_PATH)}@[0-9a-f]{{40}}", uses)
+        is not None
+    )
 
 
 def _caller_job() -> dict[str, Any]:
@@ -62,8 +67,40 @@ def _codeql_row() -> dict[str, Any]:
 
 
 def test_codeql_caller_uses_the_core_reusable_at_the_full_sha() -> None:
-    assert _caller_job()["uses"] == CORE_REUSABLE_USES
-    assert re.fullmatch(r"[0-9a-f]{40}", CORE_REUSABLE_PIN)
+    assert _is_pinned_core_reusable(_caller_job()["uses"])
+
+
+@pytest.mark.parametrize(
+    "pin",
+    [
+        "3fbb43eaff028a30edccb1b9b794e0a3f3d9523c",
+        "191675512e942a357fcbecfebdfd4ae858e5f093",
+    ],
+)
+def test_core_reusable_accepts_full_sha_pin_updates(pin: str) -> None:
+    assert _is_pinned_core_reusable(f"{CORE_REUSABLE_PATH}@{pin}")
+
+
+@pytest.mark.parametrize(
+    "ref",
+    ["main", "dev", "v1.0.0", "3fbb43e", "a" * 39, "a" * 41, "g" * 40, ""],
+)
+def test_core_reusable_rejects_mutable_or_malformed_refs(ref: str) -> None:
+    assert not _is_pinned_core_reusable(f"{CORE_REUSABLE_PATH}@{ref}")
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "OmniNode-ai/onex_change_control/.github/workflows/codeql-reusable.yml",
+        "other/omnibase_core/.github/workflows/codeql-reusable.yml",
+        "OmniNode-ai/omnibase_core/.github/workflows/receipt-gate.yml",
+        "OmniNode-ai/omnibase_core/xgithub/workflows/codeql-reusable.yml",
+        f"prefix/{CORE_REUSABLE_PATH}",
+    ],
+)
+def test_core_reusable_rejects_other_workflows(path: str) -> None:
+    assert not _is_pinned_core_reusable(f"{path}@{'a' * 40}")
 
 
 def test_codeql_caller_names_no_onex_change_control() -> None:
@@ -93,4 +130,4 @@ def test_occ_reference_check_has_a_positive_control() -> None:
     assert _names_occ(
         "uses: OmniNode-ai/onex_change_control/.github/workflows/codeql-reusable.yml@main"
     )
-    assert not _names_occ(f"uses: {CORE_REUSABLE_USES}")
+    assert not _names_occ(f"uses: {CORE_REUSABLE_PATH}@{'a' * 40}")
