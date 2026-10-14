@@ -10,7 +10,6 @@ scripts/check_dep_provenance.py
 scripts/check_unused_exports.py
 scripts/ci/__init__.py
 scripts/ci/detect_test_paths.py
-scripts/ci/occ_manual_replay_precheck.py
 scripts/ci/test_selection_loader.py
 scripts/ci/test_selection_models.py
 scripts/ci/verify_pypi_pin_resolvability.py

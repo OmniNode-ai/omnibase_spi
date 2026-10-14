@@ -431,21 +431,9 @@ jobs:
 
   contract-compliance:
     name: Contract Compliance Check
-    # OMNI_RUNNER_SELECTOR_V1 (OMN-16438): upgraded from the stale pre-OMN-16413
-    # inverted variant, which only checked `github.event_name != 'pull_request'`
-    # and so routed EVERY pull_request event -- including trusted same-repo PRs --
-    # to ubuntu-latest. `uv sync` here resolves onex_change_control's dependency
-    # set from the internal-only `.201` Tailscale PyPI mirror
-    # (http://omninode-pc.tail75df5e.ts.net:3141/root/pypi/...).
-    # onex-allow-internal-ip OMN-16438 reason="doc comment naming the host this fix routes around; not runnable"
-    # `ubuntu-latest` is GitHub-hosted, non-tailnet, and cannot resolve that hostname.
-    # Same defect class as OMN-16413 (omnibase_core#1579), OMN-16427
-    # (omninode_infra#969), OMN-16428 (omnimarket), and OMN-16431 (omniclaude#2023) --
-    # adopts the identical fork-aware selector: only an ACTUAL fork PR (head repo
-    # != base repo) routes to the public ubuntu-latest runner; every same-repo
-    # pull_request, push, and merge_group gets the tailnet-connected self-hosted
-    # omnibase-ci fleet, which CAN reach the .201 mirror. This does NOT widen the
-    # trust boundary: untrusted fork code still never reaches the self-hosted fleet.
+    # OMNI_RUNNER_SELECTOR_V1 (OMN-16438): only fork pull requests use the
+    # public runner; trusted events use the self-hosted omnibase-ci fleet.
+    # OMN-20074 S6: validate this repository's contracts with locked core.
     runs-on: >-
       ${{
         (github.event_name == 'pull_request' &&
@@ -457,38 +445,46 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Checkout onex_change_control
-        uses: actions/checkout@v7
-        with:
-          repository: OmniNode-ai/onex_change_control
-          ref: a89a6f30fabf74189195f57b57fcc5d4751f4c48 # pinned onex_change_control rev; bump in a consumer PR (OMN-20001)
-          path: onex_change_control
-
       - uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
-          cache-dependency-glob: 'onex_change_control/uv.lock'
+          cache-dependency-glob: uv.lock
 
-      - name: Install onex_change_control
-        working-directory: onex_change_control
-        run: uv sync --all-extras
+      - name: Install dependencies
+        run: uv sync --frozen
 
       - name: Validate contract YAML files
-        working-directory: onex_change_control
         run: |
-          # -maxdepth 1: contracts/v1/*.yaml is a deliberately different shape
-          # (occ-contract/v1, validated by check-contract-shape-v1), not
-          # ticket_contract. An unscoped recursive find walks into contracts/v1/
-          # and fails every PR org-wide the moment any v1 contract exists,
-          # regardless of this PR's own diff. Matches omnimarket's ci.yml.
-          mapfile -t CONTRACTS < <(find "$GITHUB_WORKSPACE/onex_change_control/contracts" -maxdepth 1 -type f -name "OMN-*.yaml" 2>/dev/null)
-          if [ "${#CONTRACTS[@]}" -eq 0 ]; then
-            echo "No contract YAML files found — skipping validation"
-            exit 0
-          fi
-          uv run validate-yaml "${CONTRACTS[@]}"
-        env:
-          GH_TOKEN: ${{ github.token }}
+          set -euo pipefail
+          # Validate only top-level ticket contracts in this repository.
+          mapfile -t CONTRACTS < <(find contracts -maxdepth 1 -type f -name "OMN-*.yaml")
+          uv run python3 - "${CONTRACTS[@]}" <<'PY'
+          import sys
+          from pathlib import Path
+
+          from omnibase_core.models.errors.model_onex_error import ModelOnexError
+          from omnibase_core.models.ticket.model_ticket_contract import ModelTicketContract
+
+          # Named contracts, or every contracts/OMN-*.yaml when none are named.
+          paths = [Path(arg) for arg in sys.argv[1:]] or sorted(Path("contracts").glob("OMN-*.yaml"))
+          if not paths:
+              print("::error::contracts/ holds no OMN-*.yaml ticket contract")
+              sys.exit(1)
+
+          broken = []
+          for path in paths:
+              try:
+                  ModelTicketContract.from_yaml(path.read_text(encoding="utf-8"))
+              except (OSError, ModelOnexError) as exc:
+                  broken.append((path, " ".join(str(exc).split())))
+
+          for path, reason in broken:
+              print(f"::error file={path.as_posix()}::{path.as_posix()}: {reason}")
+          if broken:
+              print(f"ERROR: {len(broken)} of {len(paths)} ticket contract(s) fail omnibase_core's ModelTicketContract.")
+              sys.exit(1)
+          print(f"OK: {len(paths)} ticket contract(s) pass omnibase_core's ModelTicketContract.")
+          PY
 
   no-noncanonical-lifecycle-classes:
     name: no-noncanonical-lifecycle-classes
