@@ -1,0 +1,39 @@
+schema_version: "1.0.0"
+ticket_id: "OMN-21124"
+title: "omnibase_spi: ProtocolContextSource reads through the core context-source contract models"
+summary: "Add the runtime-checkable ProtocolContextSource whose handle takes a ModelContextSourceRequest and returns a ModelContextSourceResult, both imported from omnibase_core only (the core half merged as omnibase_core#1988, first released in omnibase-core 0.47.44, which the lock now pins). The synchronous_execution class flag follows ProtocolEffect's convention so the sync definition-B style handle passes the SPI typing validator."
+is_seam_ticket: false
+interface_change: false
+interfaces_touched: []
+requirements:
+  - id: "req-context-source-protocol"
+    statement: "The SPI carries the context-source protocol with its wire types imported from core."
+    acceptance:
+      - id: "AC1"
+        statement: >-
+          AC1: a runtime-checkable protocol exists whose handle(Request) -> Result uses omnibase_core's ModelContextSourceRequest and ModelContextSourceResult imported from core only, a conforming implementation satisfies isinstance while a class without handle does not, and the repo's layering/typing validators pass -- falsifier: uv run pytest tests/protocols/intelligence/test_protocol_context_source.py -q fails at the merge base where the protocol and the pinned core models do not exist
+evidence_requirements:
+  - kind: "tests"
+    description: "Protocol compliance, non-compliance rejection, import-discipline assertions and the layering validators."
+    command: "uv run pytest tests/protocols/intelligence/test_protocol_context_source.py -q"
+emergency_bypass:
+  enabled: false
+  justification: ""
+  follow_up_ticket_id: ""
+dod_evidence:
+  - id: "dod-protocol-compliance"
+    description: "The protocol exists, is runtime-checkable over handle, and its signature types come from omnibase_core; a non-conforming class fails isinstance."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/protocols/intelligence/test_protocol_context_source.py -q"
+    binds_ac: ["AC1"]
+  - id: "dod-layering-validators"
+    description: "The context-source protocol tests and the repo's layering checks pass together: namespace isolation, protocol architecture validation, typing patterns, naming and the unified standalone suite."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/protocols/intelligence/test_protocol_context_source.py -q"
+      - check_type: "command"
+        check_value: "uv run python scripts/validation/run_all_validations.py --verbose --strict"
+    binds_ac: ["AC1"]

@@ -9,6 +9,7 @@ enrichment, and intent graph persistence.
 
 Protocols:
     ProtocolContextEnrichment: Protocol for enriching prompts with context.
+    ProtocolContextSource: Protocol for one typed context-source read.
     ProtocolIntentClassifier: Protocol for classifying user intents from text.
     ProtocolIntentGraph: Protocol for intent graph persistence operations.
     ProtocolPatternExtractor: Protocol for extracting patterns from content.
@@ -28,6 +29,9 @@ Example:
 from omnibase_spi.protocols.intelligence.protocol_context_enrichment import (
     ProtocolContextEnrichment,
 )
+from omnibase_spi.protocols.intelligence.protocol_context_source import (
+    ProtocolContextSource,
+)
 from omnibase_spi.protocols.intelligence.protocol_intent_classifier import (
     ProtocolIntentClassifier,
 )
@@ -40,6 +44,7 @@ from omnibase_spi.protocols.intelligence.protocol_pattern_extractor import (
 
 __all__ = [
     "ProtocolContextEnrichment",
+    "ProtocolContextSource",
     "ProtocolIntentClassifier",
     "ProtocolIntentGraph",
     "ProtocolPatternExtractor",
