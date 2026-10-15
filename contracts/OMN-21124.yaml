@@ -29,9 +29,11 @@ dod_evidence:
         check_value: "uv run pytest tests/protocols/intelligence/test_protocol_context_source.py -q"
     binds_ac: ["AC1"]
   - id: "dod-layering-validators"
-    description: "The repo's layering checks pass with the new protocol: namespace isolation, protocol architecture validation, typing patterns, naming and the unified standalone suite."
+    description: "The context-source protocol tests and the repo's layering checks pass together: namespace isolation, protocol architecture validation, typing patterns, naming and the unified standalone suite."
     source: "manual"
     checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/protocols/intelligence/test_protocol_context_source.py -q"
       - check_type: "command"
         check_value: "uv run python scripts/validation/run_all_validations.py --verbose --strict"
     binds_ac: ["AC1"]
