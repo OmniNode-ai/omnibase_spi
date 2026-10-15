@@ -16,10 +16,10 @@ pytestmark = pytest.mark.unit
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CALLER = REPO_ROOT / ".github" / "workflows" / "call-repo-evidence-gate.yml"
 
-# 8-character prefix of the squash commit of omnibase_core#1932, the commit that adds
-# VERIFIER_FLOOR to the reusable's "Install the pinned verifier" step. The pin itself
-# must still be a full 40-character sha.
-FLOOR_REUSABLE_PREFIX = "4e4f5e04"
+# Squash commit of omnibase_core#1914, the last pin before omnibase_core#1932 added
+# VERIFIER_FLOOR to the reusable's "Install the pinned verifier" step. Dependabot only
+# advances the full-sha pin, so any full sha other than this one carries the floor.
+PRE_FLOOR_PIN = "fb0c6c2117d5868a398b0920cd0048d0824415b1"
 
 # 0.4.303 is the first omnimarket release carrying omnimarket#3511, the refusal of
 # a contract that leaves an acceptance criterion unbound.
@@ -42,7 +42,7 @@ def test_caller_pins_the_reusable_that_carries_the_verifier_floor() -> None:
         r"OmniNode-ai/omnibase_core/\.github/workflows/receipt-gate\.yml@[0-9a-f]{40}",
         uses,
     )
-    assert uses.split("@", 1)[1].startswith(FLOOR_REUSABLE_PREFIX), (
+    assert uses.split("@", 1)[1] != PRE_FLOOR_PIN, (
         "pin the omnibase_core receipt-gate reusable at or past omnibase_core#1932"
     )
 

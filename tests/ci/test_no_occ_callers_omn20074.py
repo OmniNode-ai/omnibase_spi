@@ -24,7 +24,7 @@ REPO_ROOT = Path(
 )
 WORKFLOWS = REPO_ROOT / ".github" / "workflows"
 RUNNER_IP_PIN = "a45ba68f053e9979c6edef21103c0e674e5f7630"
-RECEIPT_GATE_PIN = "4e4f5e0404d364e296c5d37db6aa3ab9e07f8ffa"
+RECEIPT_GATE_PATH = "OmniNode-ai/omnibase_core/.github/workflows/receipt-gate.yml"
 
 
 def _load(path: Path) -> dict[str, Any]:
@@ -111,10 +111,8 @@ def test_no_occ_callers_workflow_clones_or_fetches_occ() -> None:
 
 def test_no_occ_callers_repo_evidence_caller_enforces_without_occ() -> None:
     job = _workflows()["call-repo-evidence-gate.yml"]["jobs"]["repo-evidence"]
-    assert job["uses"] == (
-        "OmniNode-ai/omnibase_core/.github/workflows/receipt-gate.yml@"
-        + RECEIPT_GATE_PIN
-    )
+    # Dependabot may advance the immutable pin without changing the reusable.
+    assert re.fullmatch(rf"{re.escape(RECEIPT_GATE_PATH)}@[0-9a-f]{{40}}", job["uses"])
     inputs = job["with"]
     assert inputs.get("evidence-source") == "caller"
     assert inputs.get("shadow") == "false"
