@@ -27,11 +27,13 @@ WORKFLOWS = REPO_ROOT / ".github" / "workflows"
 CALLER = WORKFLOWS / "call-repo-evidence-gate.yml"
 CONTRACT = REPO_ROOT / "contracts" / "OMN-20074.yaml"
 
-# Squash commit of omnibase_core#1932 on that repository's dev branch, a descendant
-# of #1914 (OMN-20032). 0.4.305 is the first omnimarket release carrying
-# omnimarket#3563, the verifier half of the contract-home marker, and it ships the
-# node_dod_verify occ-difference classifier (omnimarket#3277, 0.4.294).
-RECEIPT_GATE_PIN = "4e4f5e0404d364e296c5d37db6aa3ab9e07f8ffa"
+RECEIPT_GATE_PATH = "OmniNode-ai/omnibase_core/.github/workflows/receipt-gate.yml"
+# Squash commit of omnibase_core#1914, which predates the VERIFIER_FLOOR refusal of
+# #1932 (OMN-20032). Dependabot only advances the pin, so this is the one pin to refuse.
+PRE_FLOOR_PIN = "fb0c6c2117d5868a398b0920cd0048d0824415b1"
+# 0.4.305 is the first omnimarket release carrying omnimarket#3563, the verifier half
+# of the contract-home marker, and it ships the node_dod_verify occ-difference
+# classifier (omnimarket#3277, 0.4.294).
 VERIFIER_FLOOR = (0, 4, 305)
 
 
@@ -71,13 +73,56 @@ def test_caller_job_is_a_bare_call_with_no_secrets() -> None:
     assert "secrets: inherit" not in CALLER.read_text(encoding="utf-8")
 
 
+def _is_pinned_receipt_gate(uses: str) -> bool:
+    # Dependabot may advance the immutable pin without changing the reusable.
+    match = re.fullmatch(rf"{re.escape(RECEIPT_GATE_PATH)}@([0-9a-f]{{40}})", uses)
+    return match is not None and match.group(1) != PRE_FLOOR_PIN
+
+
 def test_caller_pins_the_current_receipt_gate_by_full_sha() -> None:
-    uses = _job()["uses"]
-    assert re.fullmatch(
-        r"OmniNode-ai/omnibase_core/\.github/workflows/receipt-gate\.yml@[0-9a-f]{40}",
-        uses,
-    )
-    assert uses.endswith(f"@{RECEIPT_GATE_PIN}")
+    assert _is_pinned_receipt_gate(_job()["uses"])
+
+
+@pytest.mark.parametrize(
+    "pin",
+    [
+        "4e4f5e0404d364e296c5d37db6aa3ab9e07f8ffa",
+        "5bfbf807ad684e820733ab3d4eeb26e78d15327e",
+    ],
+)
+def test_receipt_gate_pin_accepts_full_sha_pin_updates(pin: str) -> None:
+    assert _is_pinned_receipt_gate(f"{RECEIPT_GATE_PATH}@{pin}")
+
+
+@pytest.mark.parametrize(
+    "ref",
+    [
+        "main",
+        "dev",
+        "v1.0.0",
+        "4e4f5e04",
+        "a" * 39,
+        "a" * 41,
+        "g" * 40,
+        "",
+        PRE_FLOOR_PIN,
+    ],
+)
+def test_receipt_gate_pin_rejects_mutable_malformed_or_pre_floor_refs(ref: str) -> None:
+    assert not _is_pinned_receipt_gate(f"{RECEIPT_GATE_PATH}@{ref}")
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "OmniNode-ai/onex_change_control/.github/workflows/receipt-gate.yml",
+        "other/omnibase_core/.github/workflows/receipt-gate.yml",
+        "OmniNode-ai/omnibase_core/.github/workflows/codeql-reusable.yml",
+        f"prefix/{RECEIPT_GATE_PATH}",
+    ],
+)
+def test_receipt_gate_pin_rejects_other_workflows(path: str) -> None:
+    assert not _is_pinned_receipt_gate(f"{path}@{'a' * 40}")
 
 
 def test_current_receipt_gate_verifier_version_is_at_or_above_the_floor() -> None:

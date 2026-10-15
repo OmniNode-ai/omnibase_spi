@@ -15,7 +15,7 @@ requirements:
           AC1: omnibase_spi carries a caller workflow for the receipt-gate's caller-evidence mode that runs from the base branch (pull_request_target) on dev and main with read-only permissions and no secrets -- falsifier: uv run pytest tests/ci/test_repo_evidence_caller_omn20074.py -q -k base_branch
       - id: "AC2"
         statement: |-
-          AC2: the caller pins the reusable by the full sha of the omnibase_core#1914 squash commit, the pin omnibase_core's own caller uses, with a verifier-version of 0.4.305 or later -- falsifier: uv run pytest tests/ci/test_repo_evidence_caller_omn20074.py -q -k current_receipt_gate
+          AC2: the caller pins OmniNode-ai/omnibase_core/.github/workflows/receipt-gate.yml at a full 40-character lowercase hexadecimal commit sha other than the pre-floor omnibase_core#1914 squash commit, with a verifier-version of 0.4.305 or later -- falsifier: uv run pytest tests/ci/test_repo_evidence_caller_omn20074.py -q -k current_receipt_gate
       - id: "AC3"
         statement: |-
           AC3: the caller sets evidence-source caller, shadow "false" and compare-with-occ "false", so repo-evidence / dod-verify carries the real verdict of this repository's own contracts without comparing with OCC -- falsifier: uv run pytest tests/ci/test_repo_evidence_caller_omn20074.py -q -k shadow_mode
@@ -56,6 +56,9 @@ requirements:
       - id: "AC13"
         statement: |-
           AC13: the CodeQL caller check accepts immutable full-sha pin updates while refusing branch names, tags, abbreviated or malformed shas, and other reusable paths -- falsifier: uv run pytest tests/ci/test_codeql_from_core_omn20074.py -q -k core_reusable
+      - id: "AC14"
+        statement: |-
+          AC14: the repo-evidence caller check accepts immutable full-sha receipt-gate pin updates while refusing branch names, tags, abbreviated or malformed shas, the pre-floor omnibase_core#1914 pin, and other reusable paths -- falsifier: uv run pytest tests/ci/test_repo_evidence_caller_omn20074.py -q -k receipt_gate_pin
   - id: "req-contract-validation-core-validator"
     statement: |-
       omnibase_spi's contract-validation workflow validates the branch ticket's contract with omnibase_core's ModelTicketContract instead of onex_change_control's composite action, under unchanged workflow and job names.
@@ -110,6 +113,9 @@ evidence_requirements:
   - kind: "tests"
     description: "The S6 cut-over retires OCC callers, pins runner-IP without nested preflight, and validates repo-owned contracts with core."
     command: "uv run pytest tests/ci/test_no_occ_callers_omn20074.py -q"
+  - kind: "tests"
+    description: "Regression cases accept observed full-sha receipt-gate pins and reject mutable refs, malformed shas, the pre-floor pin and other reusable paths."
+    command: "uv run pytest tests/ci/test_repo_evidence_caller_omn20074.py -q -k receipt_gate_pin"
 emergency_bypass:
   enabled: false
   justification: ""
@@ -222,3 +228,11 @@ dod_evidence:
         check_value: "uv run pytest tests/ci/test_codeql_from_core_omn20074.py -q -k core_reusable"
         cwd: "${OMNI_HOME}/omnibase_spi"
     binds_ac: ["AC13"]
+  - id: "dod-receipt-gate-pin-updates-ac14"
+    description: "Regression cases accept observed full-sha receipt-gate pins and reject mutable refs, malformed shas, the pre-floor pin and other reusable paths."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/ci/test_repo_evidence_caller_omn20074.py -q -k receipt_gate_pin"
+        cwd: "${OMNI_HOME}/omnibase_spi"
+    binds_ac: ["AC14"]
