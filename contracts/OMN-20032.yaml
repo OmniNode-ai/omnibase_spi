@@ -12,7 +12,7 @@ requirements:
     acceptance:
       - id: "AC11"
         statement: |-
-          AC11: .github/workflows/call-repo-evidence-gate.yml pins receipt-gate.yml by a full 40-character sha at or past 4e4f5e0404d364e296c5d37db6aa3ab9e07f8ffa, the squash commit of omnibase_core#1932, and never the pre-floor omnibase_core#1914 pin fb0c6c2117d5868a398b0920cd0048d0824415b1 -- falsifier: uv run pytest tests/ci/test_repo_evidence_caller_verifier_floor_omn20032.py -q -k carries_the_verifier_floor
+          AC11: .github/workflows/call-repo-evidence-gate.yml pins receipt-gate.yml by a full 40-character sha whose prefix is 4e4f5e04, the squash commit 4e4f5e0404d364e296c5d37db6aa3ab9e07f8ffa of omnibase_core#1932 -- falsifier: uv run pytest tests/ci/test_repo_evidence_caller_verifier_floor_omn20032.py -q -k carries_the_verifier_floor
       - id: "AC12"
         statement: |-
           AC12: the caller's verifier-version is at or above the reusable's VERIFIER_FLOOR 0.4.303, the comparison refuses 0.4.280 and 0.4.302 and admits 0.4.303 and 0.4.305 -- falsifier: uv run pytest tests/ci/test_repo_evidence_caller_verifier_floor_omn20032.py -q -k "at_or_above_the_floor or floor_comparison"
