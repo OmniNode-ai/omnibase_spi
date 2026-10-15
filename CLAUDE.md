@@ -115,8 +115,9 @@ class ProtocolRenderer(Protocol):
 | Data-only wire contracts under `contracts/` | Allowed when narrow |
 
 Where each repo sits: `omnibase_core` holds shared models and types,
-`omnibase_infra` and the product repos hold implementations, and
-`onex_change_control` holds evidence and definition-of-done receipts.
+`omnibase_infra` and the product repos hold implementations, and each
+repo holds its own evidence in `contracts/<OMN-N>.yaml`, checked by the
+`repo-evidence / dod-verify` context.
 
 ## Current Source Facts
 

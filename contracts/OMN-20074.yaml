@@ -76,6 +76,13 @@ requirements:
       - id: "AC12"
         statement: |-
           AC12: the S6 cut-over: no workflow calls or checks out onex_change_control, the minting callers and their helper are deleted, the runner-IP caller pins a45ba68f, and Contract Compliance Check validates this repository's contracts with omnibase_core -- falsifier: uv run pytest tests/ci/test_no_occ_callers_omn20074.py -q
+  - id: "req-remaining-occ-refs"
+    statement: |-
+      omnibase_spi drops the references to onex_change_control that nothing needs after the S6 cut-over: the validator-requirements spec, the CLAUDE.md evidence line, the skip-token hook remediation and the dep-provenance gate text.
+    acceptance:
+      - id: "AC15"
+        statement: |-
+          AC15: validator-requirements.yaml names no onex_change_control and takes no-hardcoded-topics and no-untracked-todos from omnibase_core, CLAUDE.md places evidence in contracts/<OMN-N>.yaml checked by repo-evidence / dod-verify, the skip-token hook remediation names no OCC contract, and the dep-provenance gate text and pyproject.toml name no onex-change-control -- falsifier: uv run pytest tests/ci/test_occ_remaining_refs_removed_omn20074.py -q
 evidence_requirements:
   - kind: "tests"
     description: "The caller workflow has the required base-branch trigger and read-only permissions."
@@ -116,6 +123,9 @@ evidence_requirements:
   - kind: "tests"
     description: "Regression cases accept observed full-sha receipt-gate pins and reject mutable refs, malformed shas, the pre-floor pin and other reusable paths."
     command: "uv run pytest tests/ci/test_repo_evidence_caller_omn20074.py -q -k receipt_gate_pin"
+  - kind: "tests"
+    description: "The references to onex_change_control that nothing needs are gone."
+    command: "uv run pytest tests/ci/test_occ_remaining_refs_removed_omn20074.py -q"
 emergency_bypass:
   enabled: false
   justification: ""
@@ -236,3 +246,11 @@ dod_evidence:
         check_value: "uv run pytest tests/ci/test_repo_evidence_caller_omn20074.py -q -k receipt_gate_pin"
         cwd: "${OMNI_HOME}/omnibase_spi"
     binds_ac: ["AC14"]
+  - id: "dod-remaining-occ-refs-ac15"
+    description: "The references to onex_change_control that nothing needs are gone."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/ci/test_occ_remaining_refs_removed_omn20074.py -q"
+        cwd: "${OMNI_HOME}/omnibase_spi"
+    binds_ac: ["AC15"]

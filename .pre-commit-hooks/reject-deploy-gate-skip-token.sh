@@ -204,7 +204,7 @@ for file in "$@"; do
         echo "ERROR: $file contains a [skip-*] bypass token." >&2
         echo "  Per $RULE_REF, there is no bypass. Fix the gate properly:" >&2
         echo "    1. Add dod_evidence with type: no_deployable_artifact (preferred)" >&2
-        echo "    2. For receipt-gate: add Evidence-Source + Evidence-Ticket to PR body and push OCC contract+receipts" >&2
+        echo "    2. For repo-evidence / dod-verify: bind every acceptance criterion in contracts/<OMN-N>.yaml to a dod_evidence check" >&2
         echo "  Ticket: $TICKET_REF" >&2
         FOUND_VIOLATION=1
     fi
