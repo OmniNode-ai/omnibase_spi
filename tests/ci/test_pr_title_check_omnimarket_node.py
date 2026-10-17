@@ -23,12 +23,7 @@ MANIFEST = ROOT / ".github/required-checks.yaml"
 REQUIREMENTS = ROOT / ".github/pr-title-node/requirements.txt"
 CONTEXT = "pr-title / check-title"
 NODE_MODULE = "omnimarket.nodes.node_pr_title_check_compute"
-RUNNER = """${{
-  (github.event_name == 'pull_request' &&
-   github.event.pull_request.head.repo.full_name != github.repository)
-  && fromJSON(vars.OMNI_PUBLIC_PR_RUNS_ON_JSON || '["ubuntu-latest"]')
-  || fromJSON(vars.OMNI_TRUSTED_CI_RUNS_ON_JSON || '["self-hosted","omnibase-ci"]')
-}}"""
+RUNNER = "ubuntu-latest"
 
 # Decision branches from the previously pinned reusable. Keep this oracle
 # independent of the installed node, including empty-title precedence and the

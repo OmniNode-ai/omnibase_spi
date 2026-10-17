@@ -12,10 +12,19 @@ requirements:
       - id: "AC1"
         statement: >-
           AC1: every docs/api-reference page that carries a Version badge points it at https://img.shields.io/pypi/v/omnibase-spi, no doc hard-codes an SPI-vX.Y.Z badge, and the pattern that detects a hard-coded badge matches the badge that went stale in 0.23.7 -- falsifier: uv run pytest tests/unit/test_doc_protocol_imports.py -q fails with the pull request's test file laid over the merge base, where 15 pages hard-code SPI-v0.23.6
+  - id: "req-omn19998-public-runner-placement"
+    statement: "Operator RULING 2026-10-16T07:07:09Z: CI runners are for private repositories only. omnibase_spi is public, so every workflow job runs on a literal GitHub-hosted label, and omnibase_core's check-public-runner-placement runs as a CI Summary required job and as a pre-commit hook at one core release."
+    acceptance:
+      - id: "AC2"
+        statement: >-
+          AC2: no workflow names the self-hosted fleet or computes a runs-on label from a variable, the Public Runner Placement job is unconditional, hosted, carries a positive control and the same core release as the pre-commit hook, and CI Summary requires its success -- falsifier: uv run pytest tests/ci/test_public_runner_placement_omn19998.py -q fails at the merge base, where nine workflow jobs fall back to the omnibase-ci fleet and neither the job nor the hook exists
 evidence_requirements:
   - kind: "tests"
     description: "The doc-drift suite reads every markdown doc under the repo's doc globs for a hard-coded version badge and for the PyPI-backed Version badge."
     command: "uv run pytest tests/unit/test_doc_protocol_imports.py -q"
+  - kind: "tests"
+    description: "The placement tests read every workflow file for the fleet fallback and a computed runs-on, the ci.yml job, .pre-commit-config.yaml and the CI Summary wiring."
+    command: "uv run pytest tests/ci/test_public_runner_placement_omn19998.py -q"
 emergency_bypass:
   enabled: false
   justification: ""
@@ -28,3 +37,10 @@ dod_evidence:
       - check_type: "test_passes"
         check_value: "uv run pytest tests/unit/test_doc_protocol_imports.py -q"
     binds_ac: ["AC1"]
+  - id: "dod-omn19998-ac2-public-runner-placement"
+    description: "AC2 tests read the workflows, the CI job, the pre-commit hook and the CI Summary wiring."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/ci/test_public_runner_placement_omn19998.py -q"
+    binds_ac: ["AC2"]

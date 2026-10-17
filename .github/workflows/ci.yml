@@ -431,16 +431,10 @@ jobs:
 
   contract-compliance:
     name: Contract Compliance Check
-    # OMNI_RUNNER_SELECTOR_V1 (OMN-16438): only fork pull requests use the
-    # public runner; trusted events use the self-hosted omnibase-ci fleet.
+    # OMN-19998: this repository is public, so its CI runs on GitHub-hosted runners only
+    # (RULING 2026-10-16T07:07:09Z); check-public-runner-placement refuses any runs-on that is not a literal hosted label.
     # OMN-20074 S6: validate this repository's contracts with locked core.
-    runs-on: >-
-      ${{
-        (github.event_name == 'pull_request' &&
-         github.event.pull_request.head.repo.full_name != github.repository)
-        && fromJSON(vars.OMNI_PUBLIC_PR_RUNS_ON_JSON || '["ubuntu-latest"]')
-        || fromJSON(vars.OMNI_TRUSTED_CI_RUNS_ON_JSON || '["self-hosted","omnibase-ci"]')
-      }}
+    runs-on: ubuntu-latest
     if: github.event_name == 'pull_request' || github.event_name == 'merge_group' || github.event_name == 'push'
     steps:
       - uses: actions/checkout@v7
@@ -579,10 +573,69 @@ jobs:
               python -m omnibase_core.validators.canonical_file_shape --head HEAD
           fi
 
+  # Public-repository runner placement (OMN-19998). RULING 2026-10-16T07:07:09Z:
+  # "Ci runners should be for private repos only." omnibase_spi is public, so the
+  # omnibase_core check refuses any job whose runs-on is not a literal GitHub-hosted
+  # label (this repository has no entry in the core baseline) and, against the
+  # merge base, a job added back. Same core release as the
+  # check-public-runner-placement pre-commit hook (rev v0.47.46).
+  # Unconditional: no `if:`, no `needs:`; CI Summary requires its success.
+  public-runner-placement:
+    name: Public Runner Placement (OMN-19998)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      # The published release whose tag v0.47.46 is the pre-commit hook's rev.
+      RUNNER_PLACEMENT_CORE: "omnibase-core==0.47.46"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "0.8.3"
+      - name: Positive control (planted self-hosted job refused)
+        run: |
+          set -u
+          printf 'on: push\njobs:\n  planted:\n    runs-on: [self-hosted, omnibase-ci]\n    steps:\n      - run: "true"\n' \
+            > .github/workflows/zz-canary-planted.yml
+          git add .github/workflows/zz-canary-planted.yml
+          if uv run --no-project --with "$RUNNER_PLACEMENT_CORE" \
+            python -m omnibase_core.handlers.handler_public_runner_placement_cli --repo omnibase_spi --visibility public \
+            .github/workflows/zz-canary-planted.yml; then
+            echo "POSITIVE CONTROL FAILED: planted self-hosted job was accepted"
+            exit 1
+          fi
+          echo "positive control: planted self-hosted job refused"
+          git rm -q --cached .github/workflows/zz-canary-planted.yml
+          rm .github/workflows/zz-canary-planted.yml
+      - name: Refuse new self-hosted jobs in this public repository
+        env:
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          MQ_BASE: ${{ github.event.merge_group.base_sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+        run: |
+          set -u
+          base="${PR_BASE:-${MQ_BASE:-${PUSH_BEFORE:-}}}"
+          args=(--repo omnibase_spi --visibility public)
+          if [ -n "$base" ] && git cat-file -e "${base}^{commit}" 2>/dev/null; then
+            args+=(--base-ref "$(git merge-base "$base" HEAD)")
+          else
+            echo "no base revision on this event; checking the tree against the baseline only"
+          fi
+          uv run --no-project --with "$RUNNER_PLACEMENT_CORE" \
+            python -m omnibase_core.handlers.handler_public_runner_placement_cli "${args[@]}"
+
   ci-summary:
     name: CI Summary
     runs-on: ubuntu-latest
-    needs: [build-and-verify, tests-gate, spi-validation-gate, no-noncanonical-lifecycle-classes, canonical-file-shape]
+    needs: [build-and-verify, tests-gate, spi-validation-gate, no-noncanonical-lifecycle-classes, canonical-file-shape, public-runner-placement]
     if: always()
     steps:
       - name: Check all jobs passed
@@ -592,6 +645,7 @@ jobs:
           SPI_VALIDATION_GATE_RESULT: ${{ needs.spi-validation-gate.result }}
           NO_NONCANONICAL_LIFECYCLE_CLASSES_RESULT: ${{ needs.no-noncanonical-lifecycle-classes.result }}
           CANONICAL_FILE_SHAPE_RESULT: ${{ needs.canonical-file-shape.result }}
+          PUBLIC_RUNNER_PLACEMENT_RESULT: ${{ needs.public-runner-placement.result }}
         run: |
           # OMN-15304: this aggregator previously read `needs.*.result` only
           # through `contains(needs.*.result, 'failure'|'cancelled'|'skipped')`.
@@ -640,4 +694,5 @@ jobs:
           check_result "tests-gate" "${TESTS_GATE_RESULT}"
           check_result "spi-validation-gate" "${SPI_VALIDATION_GATE_RESULT}"
           check_result "canonical-file-shape" "${CANONICAL_FILE_SHAPE_RESULT}"
+          check_result "public-runner-placement" "${PUBLIC_RUNNER_PLACEMENT_RESULT}"
           echo "All required jobs passed"
