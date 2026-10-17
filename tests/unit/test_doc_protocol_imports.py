@@ -11,11 +11,12 @@ verifies it actually resolves against the *live* package — catching the
 class of defect this ticket fixed: docs that name protocols, exceptions, or
 functions that were renamed, moved, or never existed.
 
-It also single-sources the version badge and protocol/domain counts that are
-otherwise hand-copied across ~16 files: this suite fails if any doc's
-``SPI-vX.Y.Z`` badge or ``protocol_*.py`` file count drifts from the live
-package, so a future release bump or protocol addition/removal cannot go
-stale silently the way v0.20.5/v0.22.0 and the 231-file count did.
+It also keeps the version badge from going stale and single-sources the
+protocol/domain counts that are otherwise hand-copied across ~16 files: this
+suite fails if any doc hard-codes an ``SPI-vX.Y.Z`` badge (the badge reads the
+published version from PyPI instead, so a release bump needs no docs edit) or
+if a ``protocol_*.py`` file count drifts from the live package, so a protocol
+addition/removal cannot go stale silently the way the 231-file count did.
 
 Run standalone: ``uv run pytest tests/unit/test_doc_protocol_imports.py -v``
 """
@@ -50,7 +51,13 @@ DOC_GLOBS: tuple[str, ...] = (
 )
 
 FENCE_RE = re.compile(r"```(?:python|py)\n(.*?)```", re.DOTALL)
-BADGE_RE = re.compile(r"SPI-v(\d+\.\d+\.\d+)-blue")
+# A hard-coded `SPI-vX.Y.Z` shields badge goes stale at the next release, and the
+# release train's release commit changes only CHANGELOG.md, pyproject.toml and
+# uv.lock (anything wider is not exempt from the repo-evidence gate), so the
+# version badge is the PyPI-backed one, which always shows the published version
+# (OMN-19998).
+HARDCODED_BADGE_RE = re.compile(r"img\.shields\.io/badge/SPI-v\d+\.\d+\.\d+")
+VERSION_BADGE_RE = re.compile(r"!\[Version\]\((?P<url>[^)]*)\)")
 
 
 def _doc_files() -> list[Path]:
@@ -146,33 +153,55 @@ def test_no_documented_import_statement_is_empty() -> None:
         assert stmt.module.startswith("omnibase_spi")
 
 
-def _live_package_version() -> str:
-    pyproject = REPO_ROOT / "pyproject.toml"
-    data = tomllib.loads(pyproject.read_text(encoding="utf-8"))
-    version = data["project"]["version"]
-    assert isinstance(version, str)
-    return version
+def _package_name() -> str:
+    data = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    name = data["project"]["name"]
+    assert isinstance(name, str)
+    return name.replace("_", "-").lower()
 
 
 @pytest.mark.unit
-def test_version_badges_match_live_package_version() -> None:
-    """Every `SPI-vX.Y.Z` badge in the docs must match the live pyproject
-    version -- the single-source enforcement for OMN-16127's AC (no stale
-    version badges).
-    """
-    live_version = _live_package_version()
-    stale: list[str] = []
-    for doc in _doc_files():
-        content = doc.read_text(encoding="utf-8")
-        for match in BADGE_RE.finditer(content):
-            badge_version = match.group(1)
-            if badge_version != live_version:
-                stale.append(
-                    f"{_relpath(doc)}: badge says v{badge_version}, live is v{live_version}"
-                )
+def test_docs_hardcode_no_version_badge() -> None:
+    """No doc may carry a `SPI-vX.Y.Z` badge: it goes stale at the next release.
 
-    assert not stale, f"{len(stale)} stale version badge(s) found:\n" + "\n".join(
-        f"  - {f}" for f in stale
+    The release commit moves pyproject.toml and uv.lock only, so a hard-coded
+    version in the docs fails this test on every release PR (omnibase_spi#384,
+    0.23.7, OMN-19998).
+    """
+    found = [
+        f"{_relpath(doc)}: {match.group(0)}"
+        for doc in _doc_files()
+        for match in HARDCODED_BADGE_RE.finditer(doc.read_text(encoding="utf-8"))
+    ]
+    assert not found, f"{len(found)} hard-coded version badge(s) found:\n" + "\n".join(
+        f"  - {f}" for f in found
+    )
+
+
+@pytest.mark.unit
+def test_version_badges_read_the_published_version_from_pypi() -> None:
+    """Every `![Version](...)` badge points at the PyPI-backed badge of this package."""
+    prefix = f"https://img.shields.io/pypi/v/{_package_name()}"
+    wrong: list[str] = []
+    badges = 0
+    for doc in _doc_files():
+        for match in VERSION_BADGE_RE.finditer(doc.read_text(encoding="utf-8")):
+            badges += 1
+            if not match.group("url").startswith(prefix):
+                wrong.append(f"{_relpath(doc)}: {match.group('url')}")
+    assert badges, "expected the api-reference pages to carry a Version badge"
+    assert not wrong, f"{len(wrong)} Version badge(s) not PyPI-backed:\n" + "\n".join(
+        f"  - {w}" for w in wrong
+    )
+
+
+@pytest.mark.unit
+def test_hardcoded_badge_pattern_catches_a_stale_badge() -> None:
+    """Positive control: the pattern above matches the badge that went stale in 0.23.7."""
+    stale = "![Version](https://img.shields.io/badge/SPI-v0.23.6-blue)"
+    assert HARDCODED_BADGE_RE.search(stale)
+    assert not HARDCODED_BADGE_RE.search(
+        "![Version](https://img.shields.io/pypi/v/omnibase-spi?label=SPI)"
     )
 
 
