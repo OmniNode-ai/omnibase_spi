@@ -48,6 +48,16 @@ repos:
         files: ^src/omnibase_spi/.*\.py$
       - id: canonical-file-shape
 
+  # OMN-19998: public-repository runner placement (RULING 2026-10-16T07:07:09Z,
+  # "Ci runners should be for private repos only"). CI twin job
+  # public-runner-placement in .github/workflows/ci.yml; keep this rev equal to
+  # that job's release.
+  - repo: https://github.com/OmniNode-ai/omnibase_core
+    rev: v0.47.46
+    hooks:
+      - id: check-public-runner-placement
+        args: [--repo, omnibase_spi, --visibility, public]
+
   # OMN-20298: shape-gate detector jobs must not depend on occ-preflight
   # (guard from omnibase_core PR 1833).
   - repo: local
