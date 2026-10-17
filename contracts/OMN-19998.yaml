@@ -1,0 +1,30 @@
+schema_version: "1.0.0"
+ticket_id: "OMN-19998"
+title: "omnibase_spi: the api-reference version badge reads the published version, so a release commit needs no docs edit"
+summary: "The 15 docs/api-reference pages carried a hard-coded SPI-vX.Y.Z shields badge that tests/unit/test_doc_protocol_imports.py compared with pyproject.toml. The release train's release commit moves CHANGELOG.md, pyproject.toml and uv.lock only (a wider diff is not exempt from the repo-evidence gate), so the 0.23.7 release PR failed that test, Build & Package Verification, Tests Gate and CI Summary. The pages now carry the PyPI-backed badge and the test refuses a hard-coded version badge."
+is_seam_ticket: false
+interface_change: false
+interfaces_touched: []
+requirements:
+  - id: "req-pypi-version-badge"
+    statement: "The api-reference version badge cannot go stale at a release."
+    acceptance:
+      - id: "AC1"
+        statement: >-
+          AC1: every docs/api-reference page that carries a Version badge points it at https://img.shields.io/pypi/v/omnibase-spi, no doc hard-codes an SPI-vX.Y.Z badge, and the pattern that detects a hard-coded badge matches the badge that went stale in 0.23.7 -- falsifier: uv run pytest tests/unit/test_doc_protocol_imports.py -q fails with the pull request's test file laid over the merge base, where 15 pages hard-code SPI-v0.23.6
+evidence_requirements:
+  - kind: "tests"
+    description: "The doc-drift suite reads every markdown doc under the repo's doc globs for a hard-coded version badge and for the PyPI-backed Version badge."
+    command: "uv run pytest tests/unit/test_doc_protocol_imports.py -q"
+emergency_bypass:
+  enabled: false
+  justification: ""
+  follow_up_ticket_id: ""
+dod_evidence:
+  - id: "dod-pypi-version-badge"
+    description: "The 15 api-reference pages carry the PyPI-backed Version badge, no doc hard-codes an SPI-vX.Y.Z badge, and the detection pattern has a positive control."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/unit/test_doc_protocol_imports.py -q"
+    binds_ac: ["AC1"]
