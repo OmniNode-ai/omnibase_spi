@@ -1,0 +1,51 @@
+schema_version: "1.0.0"
+ticket_id: "OMN-17427"
+title: "Remove unconsumed repository documentation and requirements files"
+summary: "Remove the unconsumed changelog and security page, reduce the root README to a knowledge-base pointer, preserve machine-read documentation and fixtures, and install the existing PR-title node runtime from a frozen UV dependency group."
+is_seam_ticket: false
+interface_change: false
+interfaces_touched: []
+requirements:
+  - id: "req-documentation-cleanup"
+    statement: "Human-prose documentation is removed except for the operator's explicit retained-file categories."
+    acceptance:
+      - id: "AC1"
+        statement: "AC1: CHANGELOG.md and SECURITY.md are absent, README.md has three to five lines and links to the public knowledge_base, and CLAUDE.md no longer links to the removed security page."
+      - id: "AC2"
+        statement: "AC2: machine-read API documentation, agent context, templates, license and tool data remain, and the existing documentation-input tests pass."
+      - id: "AC3"
+        statement: "AC3: no requirements*.txt remains, the PR-title workflow installs the pr-title dependency group from pyproject.toml and uv.lock with frozen UV resolution, and the published node's verdict tests pass."
+evidence_requirements:
+  - kind: "tests"
+    description: "Documentation-input tests and PR-title workflow installation and verdict tests."
+    command: "uv run --frozen pytest tests/ci/test_pr_title_check_omnimarket_node.py -q"
+emergency_bypass:
+  enabled: false
+  justification: ""
+  follow_up_ticket_id: ""
+dod_evidence:
+  - id: "dod-documentation-removal"
+    description: "Deleted prose, concise root entry point and removed security link."
+    source: "manual"
+    checks:
+      - check_type: "command"
+        check_value: >-
+          python3 -c 'from pathlib import Path; assert not Path("CHANGELOG.md").exists(); assert not Path("SECURITY.md").exists(); s=Path("README.md").read_text(); assert 3 <= len(s.splitlines()) <= 5; assert "https://github.com/OmniNode-ai/knowledge_base" in s; assert "SECURITY.md" not in Path("CLAUDE.md").read_text()'
+    binds_ac: ["AC1"]
+  - id: "dod-machine-read-documents"
+    description: "Retained documentation still satisfies its existing consumers with the root README reduced to a knowledge-base pointer."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run --frozen pytest tests/unit/test_doc_protocol_imports.py -q"
+      - check_type: "command"
+        check_value: >-
+          python3 -c 'from pathlib import Path; s=Path("README.md").read_text(); assert 3 <= len(s.splitlines()) <= 5; assert "https://github.com/OmniNode-ai/knowledge_base" in s'
+    binds_ac: ["AC2"]
+  - id: "dod-uv-pr-title"
+    description: "Frozen dependency-group installation and installed published-node verdicts."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run --frozen pytest tests/ci/test_pr_title_check_omnimarket_node.py -q"
+    binds_ac: ["AC3"]

@@ -33,6 +33,7 @@ Repository = "https://github.com/OmniNode-ai/omnibase_spi"
 Documentation = "https://github.com/OmniNode-ai/knowledge_base"
 
 [dependency-groups]
+pr-title = ["pydantic>=2.11"]
 dev = [
     "mypy>=1.13.0",
     "pre-commit>=4.0.0",
