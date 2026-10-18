@@ -1,4 +1,0 @@
-# SPDX-FileCopyrightText: 2026 OmniNode.ai Inc.
-# SPDX-License-Identifier: MIT
-# OMN-20996: the published node's runtime dependency, matching the caller template.
-pydantic>=2.11

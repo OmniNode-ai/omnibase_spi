@@ -699,6 +699,9 @@ dev = [
     { name = "types-pyyaml" },
     { name = "types-requests" },
 ]
+pr-title = [
+    { name = "pydantic" },
+]
 
 [package.metadata]
 requires-dist = [
@@ -722,6 +725,7 @@ dev = [
     { name = "types-pyyaml", specifier = ">=6.0.12.20250915" },
     { name = "types-requests", specifier = ">=2.32.4.20250913" },
 ]
+pr-title = [{ name = "pydantic", specifier = ">=2.11" }]
 
 [[package]]
 name = "orderly-set"

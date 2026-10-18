@@ -146,4 +146,3 @@ In this repository:
 
 - [API reference](docs/api-reference/README.md)
 - [Contributing](.github/CONTRIBUTING.md)
-- [Security](SECURITY.md)

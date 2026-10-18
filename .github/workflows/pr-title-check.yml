@@ -24,12 +24,14 @@ jobs:
       contents: read
     steps:
       # OMN-15012: the validator's broad workflow keyword is not coverage.
-      # Keep the node's runtime dependency in the scoped requirements file.
-      - name: Checkout node requirements
+      # OMN-17427: resolve the node runtime group from the UV project lock.
+      - name: Checkout node dependency metadata
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-          sparse-checkout: .github/pr-title-node/requirements.txt
+          sparse-checkout: |
+            pyproject.toml
+            uv.lock
           sparse-checkout-cone-mode: false
 
       - name: Install uv
@@ -43,8 +45,7 @@ jobs:
         run: |
           set -euo pipefail
           venv="${RUNNER_TEMP}/pr-title-check"
-          uv venv --quiet --python 3.12 "${venv}"
+          UV_PROJECT_ENVIRONMENT="${venv}" uv sync --frozen --only-group pr-title --no-install-project --python 3.12
           uv pip install --quiet --python "${venv}/bin/python" --no-deps "omnimarket==${OMNIMARKET_VERSION}"
-          uv pip install --quiet --python "${venv}/bin/python" --requirements .github/pr-title-node/requirements.txt
           "${venv}/bin/python" -I -c 'import json, os; print(json.dumps({"title": os.environ["PR_TITLE"], "author": os.environ["PR_AUTHOR"]}))' \
             | "${venv}/bin/python" -I -m omnimarket.nodes.node_pr_title_check_compute
