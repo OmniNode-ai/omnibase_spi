@@ -7,4 +7,3 @@
 
 ### Included Since v0.23.7
 - chore: remove unconsumed prose and use UV for title checks (#391)
-
