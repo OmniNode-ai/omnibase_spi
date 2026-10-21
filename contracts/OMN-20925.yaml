@@ -55,3 +55,12 @@ dod_evidence:
       - check_type: "command"
         check_value: "git diff --quiet origin/dev...HEAD -- . ':(exclude).github/workflows/call-reject-skip.yml' ':(exclude)contracts/OMN-20925.yaml'"
     binds_ac: ["AC3"]
+  - id: "dod-omn20925-pr401-ac1-ac3"
+    description: "PR #401 moves the caller to omniclaude dev revision c0a6f20e57111a09c725437b9585d3f487afffcb, which has 4358450cc as an ancestor and whose reject-deploy-gate-skip.yml names no occ-preflight.yml reusable; the branch changes only call-reject-skip.yml and this contract."
+    source: "manual"
+    checks:
+      - check_type: "command"
+        check_value: "grep -qE 'reject-deploy-gate-skip\\.yml@c0a6f20e57111a09c725437b9585d3f487afffcb( |$)' .github/workflows/call-reject-skip.yml && ! grep -q 'occ-preflight\\.yml@' .github/workflows/call-reject-skip.yml && grep -q 'call-reject-skip-token:' .github/workflows/call-reject-skip.yml"
+      - check_type: "command"
+        check_value: "git diff --quiet origin/dev...HEAD -- . ':(exclude).github/workflows/call-reject-skip.yml' ':(exclude)contracts/OMN-20925.yaml'"
+    binds_ac: ["AC1", "AC3"]
