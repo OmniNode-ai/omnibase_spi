@@ -254,3 +254,16 @@ dod_evidence:
         check_value: "uv run pytest tests/ci/test_occ_remaining_refs_removed_omn20074.py -q"
         cwd: "${OMNI_HOME}/omnibase_spi"
     binds_ac: ["AC15"]
+  - id: "dod-codeql-pin-pr399-ac11-ac13"
+    description: "PR 399 advances the immutable CodeQL reusable pin to dc5d5b53721d309c5a9f7299bbfa49340bc9c2f7 with the caller job, inputs, permissions and required context unchanged."
+    source: "manual"
+    checks:
+      - check_type: "grep"
+        check_value:
+          pattern: 'uses: OmniNode-ai/omnibase_core/\.github/workflows/codeql-reusable\.yml@dc5d5b53721d309c5a9f7299bbfa49340bc9c2f7'
+          path: ".github/workflows/security-scan.yml"
+        cwd: "${OMNI_HOME}/omnibase_spi"
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/ci/test_codeql_from_core_omn20074.py -q"
+        cwd: "${OMNI_HOME}/omnibase_spi"
+    binds_ac: ["AC11", "AC13"]
