@@ -1,0 +1,40 @@
+schema_version: "1.0.0"
+ticket_id: "OMN-21294"
+title: "omnibase_spi: carry the OMN-14160 ticket contract moved from onex_change_control"
+summary: "Move the OMN-14160 ticket contract from onex_change_control into omnibase_spi/contracts/ unchanged, and add a test parametrized over the moved ticket ids that requires each contract to exist, load as a mapping naming its own ticket id, load through omnibase_core's strict loader and pass omnibase_core's ModelTicketContract."
+is_seam_ticket: false
+interface_change: false
+interfaces_touched: []
+requirements:
+  - id: "req-moved-contracts-present"
+    statement: "The ticket contracts moved from onex_change_control are present in this repository and validate."
+    acceptance:
+      - id: "AC1"
+        statement: >-
+          AC1: contracts/OMN-14160.yaml exists, loads with yaml.safe_load as a mapping and its ticket_id equals OMN-14160 -- falsifier: uv run pytest tests/ci/test_moved_contracts_present_omn21294.py -q fails at the merge base where the moved contract is absent
+      - id: "AC2"
+        statement: >-
+          AC2: the moved contract loads through omnibase_core's strict loader with no duplicate mapping key and passes omnibase_core's ModelTicketContract, the model the contract-validation workflow runs -- falsifier: the same test fails at the merge base where the moved contract is absent
+evidence_requirements:
+  - kind: "tests"
+    description: "Moved-contract presence, ticket id, strict load and ModelTicketContract validation, parametrized over the moved ticket ids."
+    command: "uv run pytest tests/ci/test_moved_contracts_present_omn21294.py -q"
+emergency_bypass:
+  enabled: false
+  justification: ""
+  follow_up_ticket_id: ""
+dod_evidence:
+  - id: "dod-moved-contract-present"
+    description: "Each moved contract exists, loads as a mapping and names its own ticket id."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/ci/test_moved_contracts_present_omn21294.py -q"
+    binds_ac: ["AC1"]
+  - id: "dod-moved-contract-validates"
+    description: "Each moved contract loads through the strict loader and passes omnibase_core's ModelTicketContract."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/ci/test_moved_contracts_present_omn21294.py -q"
+    binds_ac: ["AC2"]
