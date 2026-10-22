@@ -21,4 +21,4 @@ concurrency:
 
 jobs:
   call:
-    uses: OmniNode-ai/omnibase_core/.github/workflows/validate-docs.yml@bac865f4f32a3f8ca80cabcfac06c8400d8c80d7 # pinned omnibase_core rev (OMN-20001)
+    uses: OmniNode-ai/omnibase_core/.github/workflows/validate-docs.yml@eb1432595f6842b10c71bfac01672c20eee20351 # pinned omnibase_core rev (OMN-20001)
