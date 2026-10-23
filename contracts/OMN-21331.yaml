@@ -15,22 +15,22 @@ requirements:
         statement: "AC4: the canonical file shape workflow in omnibase_spi reads omnibase_core through the dev-merge tag, not a commit sha -- falsifier: git grep for a 40-hex omnibase_core reference on the CANONICAL_FILE_SHAPE_CORE line returns nothing"
 evidence_requirements:
   - kind: ci
-    description: The workflow triggers on pull requests and the merge queue and carries the planted-sample step.
-    command: grep -q "merge_group:" .github/workflows/ci.yml && grep -q "pull_request" .github/workflows/ci.yml && grep -q "zz_canary_planted" .github/workflows/ci.yml
+    description: The workflow uses the dev-merge tag on pull requests and the merge queue, and its real planted-sample step refuses bad code and accepts canonical test code.
+    command: env PYTHONDONTWRITEBYTECODE=1 uv run pytest tests/ci/test_canonical_file_shape_dev_tag_omn21331.py -q
   - kind: ci
     description: The canonical file shape workflow names a dev-merge tag and no commit sha for omnibase_core.
-    command: "! git grep -qE 'CANONICAL_FILE_SHAPE_CORE: .*[0-9a-f]{40}' -- .github/workflows && git grep -q 'CANONICAL_FILE_SHAPE_CORE: .*omnibase_core@dev-' -- .github/workflows"
+    command: env PYTHONDONTWRITEBYTECODE=1 uv run pytest tests/ci/test_canonical_file_shape_dev_tag_omn21331.py -q
 emergency_bypass:
   enabled: false
   justification: ""
   follow_up_ticket_id: ""
 dod_evidence:
   - id: dod-omn21331-ac2
-    description: The workflow triggers on pull requests and the merge queue and its planted-sample step is present.
+    description: The workflow uses the dev-merge tag on pull requests and the merge queue, and its real planted-sample step refuses bad code and accepts canonical test code.
     source: manual
     checks:
-      - check_type: command
-        check_value: grep -q "merge_group:" .github/workflows/ci.yml && grep -q "pull_request" .github/workflows/ci.yml && grep -q "zz_canary_planted" .github/workflows/ci.yml
+      - check_type: test_passes
+        check_value: env PYTHONDONTWRITEBYTECODE=1 uv run pytest tests/ci/test_canonical_file_shape_dev_tag_omn21331.py -q
         cwd: ${OMNI_HOME}/omnibase_spi
     binds_ac:
       - AC2
@@ -38,8 +38,8 @@ dod_evidence:
     description: The canonical file shape workflow names a dev-merge tag and no commit sha for omnibase_core.
     source: manual
     checks:
-      - check_type: command
-        check_value: "! git grep -qE 'CANONICAL_FILE_SHAPE_CORE: .*[0-9a-f]{40}' -- .github/workflows && git grep -q 'CANONICAL_FILE_SHAPE_CORE: .*omnibase_core@dev-' -- .github/workflows"
+      - check_type: test_passes
+        check_value: env PYTHONDONTWRITEBYTECODE=1 uv run pytest tests/ci/test_canonical_file_shape_dev_tag_omn21331.py -q
         cwd: ${OMNI_HOME}/omnibase_spi
     binds_ac:
       - AC4
