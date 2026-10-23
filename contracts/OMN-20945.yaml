@@ -50,10 +50,10 @@ dod_evidence:
         cwd: "${OMNI_HOME}/omnibase_spi"
     binds_ac: ["AC2"]
   - id: "dod-contracts-strict-load-ac3"
-    description: "AC3, this repository's part of the scan: every contracts/*.yaml in omnibase_spi loads through load_yaml_mapping_no_duplicates with no duplicate mapping key. The scan of all nine product repositories is item dod-omn20945-ac3-duplicates-scanned in omnimarket's contracts/OMN-20945.yaml; this item does not run it."
+    description: "AC3, this repository's part of the scan: the focused test scans every contracts/*.yaml in omnibase_spi with load_yaml_mapping_no_duplicates and lists each duplicate by file, line and key (empty here), after a positive control shows a planted duplicate is listed by file, line and key. The scan of all nine product repositories is item dod-omn20945-ac3-duplicates-scanned in omnimarket's contracts/OMN-20945.yaml; this item does not run it."
     source: "manual"
     checks:
       - check_type: "test_passes"
-        check_value: "uv run pytest tests/ci/test_contracts_strict_load_omn20945.py -q -k every_contract_loads"
+        check_value: "uv run pytest tests/ci/test_contracts_strict_load_omn20945.py -q -k ac3"
         cwd: "${OMNI_HOME}/omnibase_spi"
     binds_ac: ["AC3"]
