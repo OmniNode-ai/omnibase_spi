@@ -25,6 +25,18 @@ pytestmark = pytest.mark.unit
 CONTRACTS = Path(__file__).resolve().parents[2] / "contracts"
 
 
+def _scan(paths: list[Path]) -> list[tuple[str, int, str]]:
+    duplicates: list[tuple[str, int, str]] = []
+    for path in paths:
+        try:
+            load_yaml_mapping_no_duplicates(
+                path.read_text(encoding="utf-8"), source=path.name
+            )
+        except DuplicateYamlMappingKeyError as error:
+            duplicates.append((error.source, error.line, str(error.key)))
+    return duplicates
+
+
 def test_every_contract_loads_without_a_duplicate_mapping_key() -> None:
     paths = sorted(CONTRACTS.glob("*.yaml"))
     assert paths, f"no contract under {CONTRACTS}"
@@ -45,3 +57,17 @@ def test_strict_loader_refuses_a_duplicate_key() -> None:
             "item:\n  description: first\n  description: second\n",
             source="positive-control.yaml",
         )
+
+
+def test_ac3_scan_lists_each_duplicate_by_file_line_and_key(tmp_path: Path) -> None:
+    planted = tmp_path / "OMN-0.yaml"
+    planted.write_text(
+        "item:\n  description: first\n  description: second\n", encoding="utf-8"
+    )
+    # The loader reports the third line using 1-based line numbering.
+    assert _scan([planted]) == [("OMN-0.yaml", 3, "description")]
+
+    paths = sorted(CONTRACTS.glob("*.yaml"))
+    assert paths, f"no contract under {CONTRACTS}"
+    duplicates = _scan(paths)
+    assert duplicates == [], f"contracts with duplicate (file, line, key): {duplicates}"
