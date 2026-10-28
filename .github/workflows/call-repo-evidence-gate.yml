@@ -56,7 +56,7 @@ permissions:
 
 jobs:
   repo-evidence:
-    uses: OmniNode-ai/omnibase_core/.github/workflows/receipt-gate.yml@dc5d5b53721d309c5a9f7299bbfa49340bc9c2f7 # OMN-20032: immutable full-SHA pin, the squash commit of omnibase_core#1932 on that repo's dev branch; descends from #1914 (carries the shadow input) and adds the VERIFIER_FLOOR 0.4.303 refusal to the verifier install step
+    uses: OmniNode-ai/omnibase_core/.github/workflows/receipt-gate.yml@c54925b433b29b450952141146687f9f988ccf2a # OMN-20032: immutable full-SHA pin, the squash commit of omnibase_core#1932 on that repo's dev branch; descends from #1914 (carries the shadow input) and adds the VERIFIER_FLOOR 0.4.303 refusal to the verifier install step
     with:
       evidence-source: caller
       verifier-version: 0.4.310
