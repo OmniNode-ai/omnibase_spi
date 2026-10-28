@@ -14,7 +14,7 @@ repos:
   # verdicts cannot diverge. It matches by shape: no vocabulary, no token,
   # no OMNI_HOME, and it runs on a fork.
   - repo: https://github.com/OmniNode-ai/omniclaude
-    rev: d59fe60828e33a97d1202edd4b17a553b8ea46f2
+    rev: fcb1a9047e65c97f2577cafbc392f202afa57d36
     hooks:
       - id: deployment-config
         require_serial: true
