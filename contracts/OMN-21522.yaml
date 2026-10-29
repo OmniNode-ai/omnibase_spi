@@ -31,10 +31,8 @@ dod_evidence:
       - check_type: test_passes
         check_value: env PYTHONDONTWRITEBYTECODE=1 uv run pytest tests/ci/test_canonical_file_shape_canary_omn21522.py tests/ci/test_canonical_file_shape_dev_tag_omn21331.py -q
         cwd: ${OMNI_HOME}/omnibase_spi
-      - check_type: grep
-        check_value:
-          pattern: '^# Burn-down ticket: OMN-21522$'
-          path: ".onex_ratchets/canonical_file_shape_burndown_baseline.txt"
+      - check_type: command
+        check_value: "grep -Eq '^# Burn-down ticket: OMN-21522$' .onex_ratchets/canonical_file_shape_burndown_baseline.txt"
         cwd: ${OMNI_HOME}/omnibase_spi
     binds_ac:
       - AC1
