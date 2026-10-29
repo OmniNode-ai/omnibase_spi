@@ -1,0 +1,56 @@
+schema_version: "1.0.0"
+ticket_id: OMN-21522
+title: omnibase_spi switches to the canonical-file-shape node entry with a ticketed first-install burn-down baseline
+summary: The canonical-file-shape pre-commit hook and the Canonical File Shape CI job in omnibase_spi run the node_canonical_file_shape_check_compute entry of omnibase_core at one dev-merge tag. The whole-tree file-shape rules refuse two paths that the repository's existing 53-entry baseline does not list; they sit in a first-installed ticketed burn-down baseline that names this ticket, beside the existing baseline, which is not changed.
+is_seam_ticket: false
+interface_change: false
+interfaces_touched: []
+requirements:
+  - id: req-omn21522-omnibase-spi-canonical-file-shape-switch
+    statement: The hook and the CI job read omnibase_core at the same dev-merge tag, pass on the whole tree with the existing baseline plus the ticketed burn-down baseline, and refuse a new unbound handler and a new baseline line.
+    acceptance:
+      - id: AC1
+        statement: "AC1: the hook is wired at the omnibase_core tag and passes on the whole tree with a baseline of exactly the measured findings, this ticket named in its header -- falsifier: `uv run pre-commit run canonical-file-shape --all-files` exits 0 and `grep -c -v '^#' .onex_ratchets/canonical_file_shape_baseline.txt` prints the count measured at the switch commit"
+      - id: AC2
+        statement: "AC2: a canary commit adding one new unbound handler is refused with handler_outside_node and a canary adding one baseline line for an existing refused file is refused with baseline-growth -- falsifier: `uv run pytest` of the repository's canary test passes on both cases"
+      - id: AC3
+        statement: "AC3: on 2026-11-12 the baseline holds zero entries -- falsifier: `grep -c -v '^#' .onex_ratchets/canonical_file_shape_baseline.txt` prints 0"
+evidence_requirements:
+  - kind: ci
+    description: The hook and the CI job name the same dev-merge tag, the burn-down baseline names this ticket and lists two entries, and the canaries are refused.
+    command: env PYTHONDONTWRITEBYTECODE=1 uv run pytest tests/ci/test_canonical_file_shape_canary_omn21522.py tests/ci/test_canonical_file_shape_dev_tag_omn21331.py -q
+emergency_bypass:
+  enabled: false
+  justification: ""
+  follow_up_ticket_id: ""
+dod_evidence:
+  - id: dod-omn21522-ac1
+    description: The hook rev and the CI job tag are one dev-merge tag, the existing baseline holds 53 entries unchanged, and the burn-down baseline holds the two measured findings under a header naming OMN-21522.
+    source: manual
+    checks:
+      - check_type: test_passes
+        check_value: env PYTHONDONTWRITEBYTECODE=1 uv run pytest tests/ci/test_canonical_file_shape_canary_omn21522.py tests/ci/test_canonical_file_shape_dev_tag_omn21331.py -q
+        cwd: ${OMNI_HOME}/omnibase_spi
+      - check_type: command
+        check_value: "grep -Eq '^# Burn-down ticket: OMN-21522$' .onex_ratchets/canonical_file_shape_burndown_baseline.txt"
+        cwd: ${OMNI_HOME}/omnibase_spi
+    binds_ac:
+      - AC1
+  - id: dod-omn21522-ac2
+    description: The canary test plants one unbound handler and adds one baseline line for an existing refused file; the node entry refuses them with handler_outside_node and baseline-growth.
+    source: manual
+    checks:
+      - check_type: test_passes
+        check_value: env PYTHONDONTWRITEBYTECODE=1 uv run pytest tests/ci/test_canonical_file_shape_canary_omn21522.py -q
+        cwd: ${OMNI_HOME}/omnibase_spi
+    binds_ac:
+      - AC2
+  - id: dod-omn21522-ac3
+    description: Zero entries on 2026-11-12 is read on that date from the two baseline files; this contract binds the shrink-only refusal that keeps the count from rising until then, and the ticket stays open until the count is read as 0.
+    source: manual
+    checks:
+      - check_type: test_passes
+        check_value: env PYTHONDONTWRITEBYTECODE=1 uv run pytest tests/ci/test_canonical_file_shape_canary_omn21522.py -q
+        cwd: ${OMNI_HOME}/omnibase_spi
+    binds_ac:
+      - AC3
