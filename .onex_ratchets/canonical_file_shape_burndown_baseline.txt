@@ -1,0 +1,8 @@
+# Burn-down ticket: OMN-21522
+# canonical-file-shape burn-down baseline. Shrink-only once installed.
+# Every line is a file a file-shape rule refuses that the ticket above burns
+# down. Delete a line when its file is removed, moved into a canonical
+# location or rewritten as contract + node + handler. A new line is refused
+# and the file is never deleted, even when empty.
+src/omnibase_spi/protocols/registry/handler_registry.py
+tests/test_precommit_additional_dependencies_omn19666.sh
