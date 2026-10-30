@@ -50,12 +50,26 @@ def _members(protocol: type) -> tuple[str, ...]:
 
 
 def _core_names(signature: inspect.Signature) -> inspect.Signature:
-    """Drop ``self`` and undo the protocol's import alias for the decision model."""
-    parameters = list(signature.parameters.values())[1:]
-    returned = signature.return_annotation
-    if isinstance(returned, str):
-        returned = returned.replace("ModelDoneDecision", "ModelDoneWriteDecision")
-    return signature.replace(parameters=parameters, return_annotation=returned)
+    """Drop ``self`` and undo the protocol's import aliases for the core models."""
+    aliases = {
+        "ModelDoneDecision": "ModelDoneWriteDecision",
+        "ModelDoneReceiptRequest": "ModelDoneWriteReceiptRequest",
+    }
+
+    def resolve(annotation: object) -> object:
+        if not isinstance(annotation, str):
+            return annotation
+        for alias, name in aliases.items():
+            annotation = annotation.replace(alias, name)
+        return annotation
+
+    parameters = [
+        parameter.replace(annotation=resolve(parameter.annotation))
+        for parameter in list(signature.parameters.values())[1:]
+    ]
+    return signature.replace(
+        parameters=parameters, return_annotation=resolve(signature.return_annotation)
+    )
 
 
 def _gate_stand_in() -> SimpleNamespace:
@@ -99,6 +113,12 @@ def test_protocol_signature_matches_the_handler_function(name: str) -> None:
     expected = inspect.signature(getattr(handler_module, name))
     actual = inspect.signature(getattr(ProtocolDoneWriteReceiptGate, name))
     assert _core_names(actual) == expected
+
+
+def test_decide_signature_matches_the_handler_class_handle() -> None:
+    expected = inspect.signature(getattr(handler_module, _HANDLER_CLASS).handle)
+    actual = inspect.signature(ProtocolDoneWriteReceiptGate.decide)
+    assert _core_names(actual) == _core_names(expected)
 
 
 def test_handler_class_is_exported_with_handle() -> None:
