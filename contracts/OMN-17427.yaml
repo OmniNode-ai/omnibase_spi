@@ -15,6 +15,11 @@ requirements:
         statement: "AC2: machine-read API documentation, agent context, templates, license and tool data remain, and the existing documentation-input tests pass."
       - id: "AC3"
         statement: "AC3: no requirements*.txt remains, the PR-title workflow installs the pr-title dependency group from pyproject.toml and uv.lock with frozen UV resolution, and the published node's verdict tests pass."
+  - id: "req-done-write-gate-protocols"
+    statement: "The Done-write receipt gate protocols live in the SPI, because core does not use them and their one consumer is infra's evidence autoclose sweep."
+    acceptance:
+      - id: "AC4"
+        statement: "AC4: ProtocolDoneWriteReceiptGate and ProtocolDoneWriteReceiptQueries are exported from omnibase_spi.protocols.services, import only core models, and omnibase_core's node_done_write_receipt_gate_compute handler module satisfies them structurally (every non-decide member exported and signature-equal) -- falsifier: uv run pytest tests/protocols/services/test_protocol_done_write_receipt_gate.py -q fails at the merge base where the protocol modules do not exist"
 evidence_requirements:
   - kind: "tests"
     description: "Documentation-input tests and PR-title workflow installation and verdict tests."
@@ -49,3 +54,10 @@ dod_evidence:
       - check_type: "test_passes"
         check_value: "uv run --frozen pytest tests/ci/test_pr_title_check_omnimarket_node.py -q"
     binds_ac: ["AC3"]
+  - id: "dod-done-write-gate-protocols"
+    description: "The gate protocols exist in the SPI and core's handler module satisfies them structurally and by signature."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run --frozen pytest tests/protocols/services/test_protocol_done_write_receipt_gate.py -q"
+    binds_ac: ["AC4"]
