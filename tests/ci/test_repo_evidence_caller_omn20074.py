@@ -7,7 +7,7 @@ S6 cut-over: ``shadow`` and ``compare-with-occ`` are both "false", so
 The OCC minting callers and their helper are gone (see
 ``test_no_occ_callers_omn20074.py``).
 
-These tests guard the base-branch trigger, immutable pin, caller inputs, stable
+These tests guard the base-branch trigger, fixed dev-tag pin, caller inputs, stable
 context prefix, retirement of the OCC callers and runnable contract falsifiers.
 """
 
@@ -29,7 +29,7 @@ CONTRACT = REPO_ROOT / "contracts" / "OMN-20074.yaml"
 
 RECEIPT_GATE_PATH = "OmniNode-ai/omnibase_core/.github/workflows/receipt-gate.yml"
 # Squash commit of omnibase_core#1914, which predates the VERIFIER_FLOOR refusal of
-# #1932 (OMN-20032). Dependabot only advances the pin, so this is the one pin to refuse.
+# #1932 (OMN-20032). The pin is a dev-merge tag now, so this sha is refused as a ref.
 PRE_FLOOR_PIN = "fb0c6c2117d5868a398b0920cd0048d0824415b1"
 # 0.4.305 is the first omnimarket release carrying omnimarket#3563, the verifier half
 # of the contract-home marker, and it ships the node_dod_verify occ-difference
@@ -74,23 +74,25 @@ def test_caller_job_is_a_bare_call_with_no_secrets() -> None:
 
 
 def _is_pinned_receipt_gate(uses: str) -> bool:
-    # Dependabot may advance the immutable pin without changing the reusable.
-    match = re.fullmatch(rf"{re.escape(RECEIPT_GATE_PATH)}@([0-9a-f]{{40}})", uses)
-    return match is not None and match.group(1) != PRE_FLOOR_PIN
+    # The pin advances to a newer omnibase_core dev-merge tag without changing the reusable.
+    match = re.fullmatch(
+        rf"{re.escape(RECEIPT_GATE_PATH)}@(dev-\d{{14}}-[0-9a-f]{{12}})", uses
+    )
+    return match is not None
 
 
-def test_caller_pins_the_current_receipt_gate_by_full_sha() -> None:
+def test_caller_pins_the_current_receipt_gate_by_dev_merge_tag() -> None:
     assert _is_pinned_receipt_gate(_job()["uses"])
 
 
 @pytest.mark.parametrize(
     "pin",
     [
-        "4e4f5e0404d364e296c5d37db6aa3ab9e07f8ffa",
-        "5bfbf807ad684e820733ab3d4eeb26e78d15327e",
+        "dev-20261030152335-66d35d2283c3",
+        "dev-20261030214334-59faa7f31f38",
     ],
 )
-def test_receipt_gate_pin_accepts_full_sha_pin_updates(pin: str) -> None:
+def test_receipt_gate_pin_accepts_dev_merge_tag_updates(pin: str) -> None:
     assert _is_pinned_receipt_gate(f"{RECEIPT_GATE_PATH}@{pin}")
 
 
@@ -100,15 +102,15 @@ def test_receipt_gate_pin_accepts_full_sha_pin_updates(pin: str) -> None:
         "main",
         "dev",
         "v1.0.0",
-        "4e4f5e04",
-        "a" * 39,
-        "a" * 41,
-        "g" * 40,
+        "dev-20261030152335",
+        "dev-20261030152335-66d35d2283c",
+        "dev-20261030152335-66d35d2283cg",
+        "a" * 40,
         "",
         PRE_FLOOR_PIN,
     ],
 )
-def test_receipt_gate_pin_rejects_mutable_malformed_or_pre_floor_refs(ref: str) -> None:
+def test_receipt_gate_pin_rejects_mutable_malformed_or_full_sha_refs(ref: str) -> None:
     assert not _is_pinned_receipt_gate(f"{RECEIPT_GATE_PATH}@{ref}")
 
 

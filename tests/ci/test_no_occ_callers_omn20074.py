@@ -111,8 +111,10 @@ def test_no_occ_callers_workflow_clones_or_fetches_occ() -> None:
 
 def test_no_occ_callers_repo_evidence_caller_enforces_without_occ() -> None:
     job = _workflows()["call-repo-evidence-gate.yml"]["jobs"]["repo-evidence"]
-    # Dependabot may advance the immutable pin without changing the reusable.
-    assert re.fullmatch(rf"{re.escape(RECEIPT_GATE_PATH)}@[0-9a-f]{{40}}", job["uses"])
+    # The pin advances to a newer omnibase_core dev-merge tag without changing the reusable.
+    assert re.fullmatch(
+        rf"{re.escape(RECEIPT_GATE_PATH)}@dev-\d{{14}}-[0-9a-f]{{12}}", job["uses"]
+    )
     inputs = job["with"]
     assert inputs.get("evidence-source") == "caller"
     assert inputs.get("shadow") == "false"
@@ -123,7 +125,7 @@ def test_no_occ_callers_repo_evidence_caller_enforces_without_occ() -> None:
 
 def test_no_occ_callers_runner_ip_reusable_has_no_nested_preflight() -> None:
     job = _workflows()["ban-hardcoded-runner-ip.yml"]["jobs"]["ban-hardcoded-runner-ip"]
-    # Dependabot may advance the immutable pin without changing the reusable.
+    # The pin advances to a newer omnibase_core dev-merge tag without changing the reusable.
     assert re.fullmatch(rf"{re.escape(RUNNER_IP_PATH)}@[0-9a-f]{{40}}", job["uses"])
 
 

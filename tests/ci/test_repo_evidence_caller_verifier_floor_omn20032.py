@@ -17,8 +17,8 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 CALLER = REPO_ROOT / ".github" / "workflows" / "call-repo-evidence-gate.yml"
 
 # Squash commit of omnibase_core#1914, the last pin before omnibase_core#1932 added
-# VERIFIER_FLOOR to the reusable's "Install the pinned verifier" step. Dependabot only
-# advances the full-sha pin, so any full sha other than this one carries the floor.
+# VERIFIER_FLOOR to the reusable's "Install the pinned verifier" step. The pin is a
+# dev-merge tag of a descendant of #1932 now, so a tag never equals this sha.
 PRE_FLOOR_PIN = "fb0c6c2117d5868a398b0920cd0048d0824415b1"
 
 # 0.4.303 is the first omnimarket release carrying omnimarket#3511, the refusal of
@@ -39,7 +39,7 @@ def _job() -> dict[str, Any]:
 def test_caller_pins_the_reusable_that_carries_the_verifier_floor() -> None:
     uses = _job()["uses"]
     assert re.fullmatch(
-        r"OmniNode-ai/omnibase_core/\.github/workflows/receipt-gate\.yml@[0-9a-f]{40}",
+        r"OmniNode-ai/omnibase_core/\.github/workflows/receipt-gate\.yml@dev-\d{14}-[0-9a-f]{12}",
         uses,
     )
     assert uses.split("@", 1)[1] != PRE_FLOOR_PIN, (
