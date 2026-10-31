@@ -463,6 +463,7 @@ from omnibase_spi.protocols.storage import (
 # Provides structured validation with error reporting and compliance checking
 from omnibase_spi.protocols.validation import (
     ProtocolConstraintValidator,
+    ProtocolModelSwapValidator,
     ProtocolValidationDecorator,
     ProtocolValidationError,
     ProtocolValidationResult,
@@ -649,6 +650,7 @@ __all__ = [
     "ProtocolMemoryRecord",
     "ProtocolMetricsCollector",
     "ProtocolModelRouter",
+    "ProtocolModelSwapValidator",
     "ProtocolNode",
     "ProtocolNodeCliAdapter",
     "ProtocolNodeConfiguration",

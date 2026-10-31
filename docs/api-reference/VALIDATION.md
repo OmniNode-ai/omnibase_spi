@@ -25,10 +25,10 @@ concerns live elsewhere (see the notes on each section below).
 
 ## 🏗️ Protocol Architecture
 
-The validation domain exports **26 names** across generic protocol
+The validation domain exports **27 names** across generic protocol
 validation, import validation, quality validation, compliance validation,
 validation orchestration, provider/session management, and one standalone
-execution-constraint validator.
+execution-constraint validator and one model-swap validator.
 
 ### Generic Protocol Validator
 
@@ -657,6 +657,25 @@ print(f"Success rate: {report.summary.success_rate:.0%}")
   return values)
 - **Not in the package**: `ProtocolValidation`, `ProtocolContractCompliance`,
   `ProtocolInputValidationTool`, `ProtocolPrecommitChecker`
+
+## Model-Swap Validator
+
+`ProtocolModelSwapValidator` validates evidence for one candidate model without
+authorizing a routing change. It imports its request and result contracts from
+`omnibase_core.models.model_swap_validation`. The `validator_id` property
+identifies the implementation and its pinned version; `validate` is asynchronous.
+
+```python
+from omnibase_spi.protocols.validation import ProtocolModelSwapValidator
+
+# A candidate implementation can be checked without invoking its validator.
+assert isinstance(validator, ProtocolModelSwapValidator)
+result = await validator.validate(request)
+assert result.evidence_only is True
+```
+
+Implementations publish typed completed or failed evidence. Their result never
+authorizes a model swap; routing ownership remains with the consuming platform.
 
 ---
 
