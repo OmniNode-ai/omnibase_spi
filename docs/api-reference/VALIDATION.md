@@ -658,20 +658,6 @@ print(f"Success rate: {report.summary.success_rate:.0%}")
 - **Not in the package**: `ProtocolValidation`, `ProtocolContractCompliance`,
   `ProtocolInputValidationTool`, `ProtocolPrecommitChecker`
 
----
-
-## See Also
-
-- **[CONTRACTS.md](./CONTRACTS.md)** - Contract compilers that use validation for YAML contract validation
-- **[CORE.md](./CORE.md)** - Core protocols including error handling patterns
-- **[FILE-HANDLING.md](./FILE-HANDLING.md)** - File validation protocols
-- **[EXCEPTIONS.md](./EXCEPTIONS.md)** - Exception hierarchy for validation errors
-- **[README.md](./README.md)** - Complete API reference index
-
----
-
-*This API reference is maintained alongside the codebase; verified against `src/omnibase_spi/protocols/validation/` on this refresh.*
-
 ## Model-Swap Validator
 
 `ProtocolModelSwapValidator` validates evidence for one candidate model without
@@ -690,3 +676,17 @@ assert result.evidence_only is True
 
 Implementations publish typed completed or failed evidence. Their result never
 authorizes a model swap; routing ownership remains with the consuming platform.
+
+---
+
+## See Also
+
+- **[CONTRACTS.md](./CONTRACTS.md)** - Contract compilers that use validation for YAML contract validation
+- **[CORE.md](./CORE.md)** - Core protocols including error handling patterns
+- **[FILE-HANDLING.md](./FILE-HANDLING.md)** - File validation protocols
+- **[EXCEPTIONS.md](./EXCEPTIONS.md)** - Exception hierarchy for validation errors
+- **[README.md](./README.md)** - Complete API reference index
+
+---
+
+*This API reference is maintained alongside the codebase; verified against `src/omnibase_spi/protocols/validation/` on this refresh.*
