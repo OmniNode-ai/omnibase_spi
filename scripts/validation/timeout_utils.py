@@ -13,11 +13,25 @@ import os
 import signal
 import sys
 import threading
-import time
+import tomllib
 from collections.abc import Callable, Generator
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, TypeVar
+
+
+def load_script_setting(key: str, pyproject: Path | None = None) -> Any:
+    """Return ``key`` of ``[tool.omnibase_spi.validation_scripts]`` in pyproject.toml.
+
+    The validation scripts hold no timeout or pin-pair literal of their own. A
+    missing table or key raises ``KeyError`` naming the missing part; there is no default.
+    """
+    path = pyproject or Path(__file__).resolve().parents[2] / "pyproject.toml"
+    node = tomllib.loads(path.read_text(encoding="utf-8"))
+    for part in ("tool", "omnibase_spi", "validation_scripts", key):
+        node = node[part]
+    return node
+
 
 # Error message constants for Ruff TRY003 compliance
 TIMEOUT_ERROR_MESSAGES = {
@@ -107,7 +121,7 @@ class CrossPlatformTimeout:
         if self.timer:
             self.timer.cancel()
             # Give timer thread a moment to finish
-            self.timer.join(timeout=0.1)
+            self.timer.join(timeout=load_script_setting("timer_join_grace_seconds"))
 
         if self.timed_out:
             raise TimeoutError(self.error_message)
@@ -251,7 +265,7 @@ def create_cleanup_function(files_to_cleanup: list[Path]) -> Callable[[], None]:
 def safe_file_operation(  # noqa: UP047
     file_path: Path,
     operation: Callable[[Path], T],
-    timeout_seconds: int = 30,
+    timeout_seconds: int | None = None,
 ) -> T:
     """
     Perform a file operation with timeout and error handling.
@@ -259,7 +273,8 @@ def safe_file_operation(  # noqa: UP047
     Args:
         file_path: Path to the file
         operation: Function that takes a Path and returns result
-        timeout_seconds: Timeout for the operation
+        timeout_seconds: Timeout for the operation; defaults to the
+            ``file_operation_timeout_seconds`` setting in pyproject.toml
 
     Returns:
         Result of the operation
@@ -269,6 +284,8 @@ def safe_file_operation(  # noqa: UP047
         OSError: If file operation fails
     """
     error_message = f"File operation timed out for {file_path}"
+    if timeout_seconds is None:
+        timeout_seconds = load_script_setting("file_operation_timeout_seconds")
 
     with CrossPlatformTimeout(timeout_seconds, error_message):
         try:
@@ -310,32 +327,3 @@ def cancel_timeout() -> None:  # stub-ok
     This function does nothing but exists for backward compatibility.
     Use context managers for proper timeout cancellation.
     """
-
-
-if __name__ == "__main__":
-    # Test the timeout functionality
-    print("Testing cross-platform timeout utilities...")
-
-    # Test platform info
-    platform_info = get_platform_info()
-    print(f"Platform info: {platform_info}")
-
-    # Test short timeout
-    try:
-        with timeout_context("general", 1):
-            print("Starting 2-second sleep (should timeout)...")
-            time.sleep(2)
-        print("ERROR: Should have timed out!")
-    except TimeoutError as e:
-        print(f"✅ Timeout worked correctly: {e}")
-
-    # Test normal operation
-    try:
-        with timeout_context("general", 2):
-            print("Starting 1-second sleep (should complete)...")
-            time.sleep(1)
-        print("✅ Normal operation completed successfully")
-    except TimeoutError:
-        print("ERROR: Should not have timed out!")
-
-    print("Timeout utility tests completed.")

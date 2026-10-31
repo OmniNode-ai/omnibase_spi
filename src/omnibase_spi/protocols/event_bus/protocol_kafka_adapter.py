@@ -273,7 +273,7 @@ class ProtocolKafkaAdapter(Protocol):
         """
         ...
 
-    async def close(self, timeout_seconds: float = 30.0) -> None:
+    async def close(self, timeout_seconds: float | None = None) -> None:
         """Close Kafka adapter and release resources.
 
         Cleanly shuts down producer and consumer connections, flushes
@@ -281,7 +281,7 @@ class ProtocolKafkaAdapter(Protocol):
 
         Args:
             timeout_seconds: Maximum time to wait for cleanup to complete.
-                Defaults to 30.0 seconds.
+                None uses the timeout declared in the implementation's contract.
 
         Returns:
             None. The method completes when all resources are released.

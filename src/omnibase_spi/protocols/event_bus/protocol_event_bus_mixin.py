@@ -148,7 +148,7 @@ class ProtocolEventBusBase(Protocol):
         """
         ...
 
-    async def stop_consuming(self, timeout_seconds: float = 30.0) -> None:
+    async def stop_consuming(self, timeout_seconds: float | None = None) -> None:
         """
         Stop consuming messages and gracefully shut down the consumer.
 
@@ -161,7 +161,7 @@ class ProtocolEventBusBase(Protocol):
 
         Args:
             timeout_seconds: Maximum time to wait for graceful shutdown.
-                Defaults to 30.0 seconds. After this timeout, the consumer
+                None uses the timeout declared in the implementation's contract. After this timeout, the consumer
                 will be forcefully terminated. Set to 0 for immediate
                 termination (not recommended for production).
 

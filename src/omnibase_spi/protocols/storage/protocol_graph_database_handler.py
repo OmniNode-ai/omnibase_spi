@@ -268,7 +268,7 @@ class ProtocolGraphDatabaseHandler(Protocol):
         """
         ...
 
-    async def shutdown(self, timeout_seconds: float = 30.0) -> None:
+    async def shutdown(self, timeout_seconds: float | None = None) -> None:
         """
         Close database connections and release resources.
 
@@ -278,7 +278,7 @@ class ProtocolGraphDatabaseHandler(Protocol):
 
         Args:
             timeout_seconds: Maximum time to wait for shutdown to complete.
-                Defaults to 30.0 seconds.
+                None uses the timeout declared in the implementation's contract.
 
         Raises:
             TimeoutError: If shutdown does not complete within the specified

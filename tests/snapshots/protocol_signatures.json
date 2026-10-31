@@ -865,8 +865,8 @@
       "kind": "async_method",
       "parameters": {
         "timeout_seconds": {
-          "default": "30.0",
-          "type": "float"
+          "default": "None",
+          "type": "float | None"
         }
       },
       "return_type": "None"
@@ -1304,8 +1304,8 @@
           "type": "str"
         },
         "timeout_seconds": {
-          "default": "30.0",
-          "type": "float"
+          "default": "None",
+          "type": "float | None"
         }
       },
       "return_type": "bool"
@@ -2261,8 +2261,8 @@
       "kind": "async_method",
       "parameters": {
         "timeout_seconds": {
-          "default": "30.0",
-          "type": "float"
+          "default": "None",
+          "type": "float | None"
         }
       },
       "return_type": "None"
@@ -3326,8 +3326,8 @@
       "kind": "async_method",
       "parameters": {
         "timeout_seconds": {
-          "default": "30.0",
-          "type": "float"
+          "default": "None",
+          "type": "float | None"
         }
       },
       "return_type": "None"
@@ -3558,8 +3558,8 @@
       "kind": "async_method",
       "parameters": {
         "timeout_seconds": {
-          "default": "30.0",
-          "type": "float"
+          "default": "None",
+          "type": "float | None"
         }
       },
       "return_type": "None"
@@ -4318,8 +4318,8 @@
       "kind": "async_method",
       "parameters": {
         "timeout_seconds": {
-          "default": "30.0",
-          "type": "float"
+          "default": "None",
+          "type": "float | None"
         }
       },
       "return_type": "None"
@@ -4905,8 +4905,8 @@
       "kind": "async_method",
       "parameters": {
         "timeout_seconds": {
-          "default": "30.0",
-          "type": "float"
+          "default": "None",
+          "type": "float | None"
         }
       },
       "return_type": "None"
@@ -5138,8 +5138,8 @@
       "kind": "async_method",
       "parameters": {
         "timeout_seconds": {
-          "default": "30.0",
-          "type": "float"
+          "default": "None",
+          "type": "float | None"
         }
       },
       "return_type": "None"
@@ -5283,8 +5283,8 @@
       "kind": "async_method",
       "parameters": {
         "timeout_seconds": {
-          "default": "30.0",
-          "type": "float"
+          "default": "None",
+          "type": "float | None"
         }
       },
       "return_type": "None"
@@ -5513,8 +5513,8 @@
       "kind": "async_method",
       "parameters": {
         "timeout_seconds": {
-          "default": "30.0",
-          "type": "float"
+          "default": "None",
+          "type": "float | None"
         }
       },
       "return_type": "None"
@@ -5808,8 +5808,8 @@
       "kind": "async_method",
       "parameters": {
         "timeout_seconds": {
-          "default": "30.0",
-          "type": "float"
+          "default": "None",
+          "type": "float | None"
         }
       },
       "return_type": "None"
@@ -5823,8 +5823,8 @@
       "kind": "async_method",
       "parameters": {
         "timeout_seconds": {
-          "default": "30.0",
-          "type": "float"
+          "default": "None",
+          "type": "float | None"
         }
       },
       "return_type": "None"
@@ -5951,8 +5951,8 @@
       "kind": "async_method",
       "parameters": {
         "timeout_seconds": {
-          "default": "30.0",
-          "type": "float"
+          "default": "None",
+          "type": "float | None"
         }
       },
       "return_type": "None"
@@ -6509,8 +6509,8 @@
       "kind": "async_method",
       "parameters": {
         "timeout_seconds": {
-          "default": "30.0",
-          "type": "float"
+          "default": "None",
+          "type": "float | None"
         }
       },
       "return_type": "None"
@@ -7717,8 +7717,8 @@
       "kind": "async_method",
       "parameters": {
         "timeout_seconds": {
-          "default": "30.0",
-          "type": "float"
+          "default": "None",
+          "type": "float | None"
         }
       },
       "return_type": "None"
@@ -7904,8 +7904,8 @@
       "kind": "async_method",
       "parameters": {
         "timeout_seconds": {
-          "default": "30.0",
-          "type": "float"
+          "default": "None",
+          "type": "float | None"
         }
       },
       "return_type": "None"
@@ -9044,8 +9044,8 @@
       "kind": "async_method",
       "parameters": {
         "timeout_seconds": {
-          "default": "30.0",
-          "type": "float"
+          "default": "None",
+          "type": "float | None"
         }
       },
       "return_type": "None"
@@ -9135,8 +9135,8 @@
       "kind": "async_method",
       "parameters": {
         "timeout_seconds": {
-          "default": "30.0",
-          "type": "float"
+          "default": "None",
+          "type": "float | None"
         }
       },
       "return_type": "None"
@@ -9228,8 +9228,8 @@
       "kind": "async_method",
       "parameters": {
         "timeout_seconds": {
-          "default": "30.0",
-          "type": "float"
+          "default": "None",
+          "type": "float | None"
         }
       },
       "return_type": "None"
@@ -9876,8 +9876,8 @@
       "kind": "async_method",
       "parameters": {
         "timeout_seconds": {
-          "default": "30.0",
-          "type": "float"
+          "default": "None",
+          "type": "float | None"
         }
       },
       "return_type": "None"
@@ -15563,8 +15563,8 @@
       "kind": "async_method",
       "parameters": {
         "timeout_seconds": {
-          "default": "30.0",
-          "type": "float"
+          "default": "None",
+          "type": "float | None"
         }
       },
       "return_type": "None"
@@ -16545,8 +16545,8 @@
       "kind": "async_method",
       "parameters": {
         "timeout_seconds": {
-          "default": "30.0",
-          "type": "float"
+          "default": "None",
+          "type": "float | None"
         }
       },
       "return_type": "None"
@@ -16646,8 +16646,8 @@
       "kind": "async_method",
       "parameters": {
         "timeout_seconds": {
-          "default": "30.0",
-          "type": "float"
+          "default": "None",
+          "type": "float | None"
         }
       },
       "return_type": "None"
@@ -16992,8 +16992,8 @@
       "kind": "async_method",
       "parameters": {
         "timeout_seconds": {
-          "default": "30.0",
-          "type": "float"
+          "default": "None",
+          "type": "float | None"
         }
       },
       "return_type": "None"
@@ -18439,8 +18439,8 @@
       "kind": "async_method",
       "parameters": {
         "timeout_seconds": {
-          "default": "30.0",
-          "type": "float"
+          "default": "None",
+          "type": "float | None"
         }
       },
       "return_type": "None"
@@ -18617,8 +18617,8 @@
       "kind": "async_method",
       "parameters": {
         "timeout_seconds": {
-          "default": "30.0",
-          "type": "float"
+          "default": "None",
+          "type": "float | None"
         }
       },
       "return_type": "None"
@@ -20063,8 +20063,8 @@
       "kind": "async_method",
       "parameters": {
         "timeout_seconds": {
-          "default": "30.0",
-          "type": "float"
+          "default": "None",
+          "type": "float | None"
         }
       },
       "return_type": "None"

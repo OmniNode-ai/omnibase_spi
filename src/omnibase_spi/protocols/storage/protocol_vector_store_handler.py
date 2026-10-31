@@ -275,7 +275,7 @@ class ProtocolVectorStoreHandler(Protocol):
         """
         ...
 
-    async def shutdown(self, timeout_seconds: float = 30.0) -> None:
+    async def shutdown(self, timeout_seconds: float | None = None) -> None:
         """
         Release resources and close connections to the vector store.
 
@@ -285,7 +285,7 @@ class ProtocolVectorStoreHandler(Protocol):
 
         Args:
             timeout_seconds: Maximum time to wait for shutdown to complete.
-                Defaults to 30.0 seconds.
+                None uses the timeout declared in the implementation's contract.
 
         Raises:
             TimeoutError: If shutdown does not complete within the timeout.

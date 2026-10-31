@@ -86,7 +86,7 @@ class ProtocolDatabaseService(Protocol):
         """
         ...
 
-    async def close(self, timeout_seconds: float = 30.0) -> None:
+    async def close(self, timeout_seconds: float | None = None) -> None:
         """Release resources and close connections.
 
         Args:

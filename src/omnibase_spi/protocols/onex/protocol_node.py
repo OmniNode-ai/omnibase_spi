@@ -127,7 +127,7 @@ class ProtocolOnexNodeLegacy(Protocol):
                 # Set up connections, load resources
                 ...
 
-            async def shutdown(self, timeout_seconds: float = 30.0) -> None:
+            async def shutdown(self, timeout_seconds: float | None = None) -> None:
                 # Clean up connections, flush pending operations
                 ...
 

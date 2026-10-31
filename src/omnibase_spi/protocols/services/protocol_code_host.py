@@ -188,12 +188,12 @@ class ProtocolCodeHost(Protocol):
         """
         ...
 
-    async def close(self, timeout_seconds: float = 30.0) -> None:
+    async def close(self, timeout_seconds: float | None = None) -> None:
         """Release resources and close connections to the code host.
 
         Args:
             timeout_seconds: Maximum time to wait for cleanup.
-                Defaults to 30.0 seconds.
+                None uses the timeout declared in the implementation's contract.
 
         Raises:
             TimeoutError: If cleanup does not complete within the timeout.

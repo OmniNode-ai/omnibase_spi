@@ -43,6 +43,8 @@ import time
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from timeout_utils import load_script_setting
+
 # ============================================================================
 # Data Structures
 # ============================================================================
@@ -222,7 +224,7 @@ def run_validator(
             capture_output=True,
             text=True,
             cwd=str(repo_root),
-            timeout=300,  # 5 minute timeout
+            timeout=load_script_setting("validator_timeout_seconds"),
         )
         duration = time.time() - start_time
 
@@ -235,14 +237,13 @@ def run_validator(
             stderr=result.stderr,
         )
 
-    except subprocess.TimeoutExpired:
-        duration = time.time() - start_time
+    except subprocess.TimeoutExpired as exc:
         return ValidatorResult(
             name=config.name,
             description=config.description,
             exit_code=2,
-            duration_seconds=duration,
-            error="Validator timed out after 5 minutes",
+            duration_seconds=time.time() - start_time,
+            error=f"Validator timed out after {exc.timeout} seconds",
         )
 
     except Exception as e:

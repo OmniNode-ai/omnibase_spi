@@ -486,7 +486,7 @@ class ProtocolEventBusProducerHandler(Protocol):
         """
         ...
 
-    async def flush(self, timeout_seconds: float = 30.0) -> None:
+    async def flush(self, timeout_seconds: float | None = None) -> None:
         """
         Flush all pending messages to ensure delivery.
 
@@ -496,7 +496,7 @@ class ProtocolEventBusProducerHandler(Protocol):
 
         Args:
             timeout_seconds: Maximum time to wait for pending messages to
-                be delivered. Defaults to 30.0 seconds.
+                be delivered. None uses the timeout declared in the implementation's contract.
 
         Raises:
             TimeoutError: If flush does not complete within the timeout.
@@ -520,7 +520,7 @@ class ProtocolEventBusProducerHandler(Protocol):
         """
         ...
 
-    async def close(self, timeout_seconds: float = 30.0) -> None:
+    async def close(self, timeout_seconds: float | None = None) -> None:
         """
         Close the producer and release all resources.
 
@@ -530,7 +530,7 @@ class ProtocolEventBusProducerHandler(Protocol):
 
         Args:
             timeout_seconds: Maximum time to wait for cleanup to complete.
-                Defaults to 30.0 seconds.
+                None uses the timeout declared in the implementation's contract.
 
         Raises:
             TimeoutError: If cleanup does not complete within the timeout.
