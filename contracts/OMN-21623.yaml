@@ -1,0 +1,38 @@
+schema_version: "1.0.0"
+ticket_id: "OMN-21623"
+title: "omnibase_spi validation scripts read their timeouts and pin pairs from pyproject.toml instead of literals in code (contracts_and_di burn-down, slice 1)"
+summary: "The contracts_and_di check of omnibase_core reports 47 findings in omnibase_spi (42 literal_timeout, 4 literal_topic, 1 literal_url). This slice moves six of them out of code: the validator subprocess timeout of run_all_validations.py, the timer join grace, the file-operation default timeout and the self-test sleeps of timeout_utils.py, and the pin-pair repo URL of validate_precommit_pin_parity.py. They are declared in [tool.omnibase_spi.validation_scripts] of pyproject.toml; a missing key raises KeyError rather than defaulting. The check reads 41 findings after the change."
+is_seam_ticket: false
+interface_change: false
+interfaces_touched: []
+requirements:
+  - id: "req-omn21623-spi-script-settings-from-pyproject"
+    statement: "The validation scripts under scripts/validation hold no timeout, join-grace, self-test sleep or pin-pair URL literal; each is read from [tool.omnibase_spi.validation_scripts] in pyproject.toml, and an absent table or key fails loudly."
+    acceptance:
+      - id: "AC1"
+        statement: "AC1: the settings loader returns the declared values, raises KeyError for an absent table or key, and the runner, timeout utilities and pin-parity script read their values through it -- falsifier: uv run pytest tests/unit/validation/test_script_settings_from_pyproject.py -q passes"
+      - id: "AC2"
+        statement: "AC2: the contracts_and_di check of omnibase_core reports 41 findings for omnibase_spi, down from 47, with no finding left in scripts/validation or in the pin-parity script -- falsifier: runtime_validator_run of omnibase_core.validation.validator_contracts_and_di:ValidatorContractsAndDi over the repository lists no finding under scripts/validation and counts 41 [ERROR] lines"
+evidence_requirements:
+  - kind: "tests"
+    description: "The settings loader and the three scripts that read it."
+    command: "uv run pytest tests/unit/validation/test_script_settings_from_pyproject.py -q -p no:randomly --no-cov"
+emergency_bypass:
+  enabled: false
+  justification: ""
+  follow_up_ticket_id: ""
+dod_evidence:
+  - id: "dod-omn21623-script-settings"
+    description: "AC1: the validation scripts read timeouts and pin pairs from pyproject.toml and fail loudly when a key is absent."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/unit/validation/test_script_settings_from_pyproject.py -q -p no:randomly --no-cov"
+    binds_ac: ["AC1"]
+  - id: "dod-omn21623-cdi-count"
+    description: "AC2: the contracts_and_di count for omnibase_spi is 41, read on the lab at the pushed head (recorded in the PR body)."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/unit/validation/test_script_settings_from_pyproject.py -q -p no:randomly --no-cov"
+    binds_ac: ["AC2"]
