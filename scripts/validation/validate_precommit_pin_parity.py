@@ -22,10 +22,10 @@ pins its shared-validator core SHA inline in `ci.yml` itself -- the
 `uv run --no-project --with 'omnibase-core @ git+...@<sha>'
 python -m omnibase_core.validators.no_noncanonical_lifecycle_classes`, and the
 `repo:` hook of the same id in .pre-commit-config.yaml pins the same core SHA.
-So the one PIN_PAIRS row names `.github/workflows/ci.yml` as the CI side, giving
+So the one precommit_pin_pairs row names `.github/workflows/ci.yml` as the CI side, giving
 a strict 1:1 hook<->gate comparison.
 
-PIN_PAIRS below is a small, explicitly-verified table -- add a new pair only
+The precommit_pin_pairs table in pyproject.toml is a small, explicitly-verified table -- add a new pair only
 after confirming (by hand, via `git diff <old-rev> <new-rev>` in omnibase_core)
 that both sides really do reference the same validator, not two independently
 pinned tools that happen to share an upstream repo. The other omnibase_core
@@ -42,21 +42,11 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+from timeout_utils import load_script_setting
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CONFIG_PATH = REPO_ROOT / ".pre-commit-config.yaml"
 
-# (pre-commit hook id, pre-commit repo URL, CI workflow file (repo-relative),
-#  validator module the pair references [for humans/audit only]) -> both sides
-# must resolve to the identical pinned omnibase_core SHA.
-PIN_PAIRS: tuple[tuple[str, str, str, str], ...] = (
-    (
-        "no-noncanonical-lifecycle-classes",
-        "https://github.com/OmniNode-ai/omnibase_core",
-        ".github/workflows/ci.yml",
-        "no_noncanonical_lifecycle_classes",
-    ),
-)
 
 _CI_PIN_RE = re.compile(
     r"omnibase-core\s*@\s*git\+https://github\.com/OmniNode-ai/omnibase_core"
@@ -88,13 +78,15 @@ def main() -> int:
 
     violations: list[str] = []
 
-    for hook_id, repo_url, ci_workflow_rel, validator in PIN_PAIRS:
+    for hook_id, repo_url, ci_workflow_rel, validator in load_script_setting(
+        "precommit_pin_pairs"
+    ):
         ci_workflow_path = REPO_ROOT / ci_workflow_rel
         if not ci_workflow_path.is_file():
             violations.append(
                 f"pin-parity: CI workflow {ci_workflow_rel!r} not found "
                 f"(hook {hook_id!r}, validator {validator!r}) -- "
-                "update PIN_PAIRS or restore the workflow."
+                "update precommit_pin_pairs in pyproject.toml or restore the workflow."
             )
             continue
 
@@ -102,7 +94,7 @@ def main() -> int:
         if precommit_rev is None:
             violations.append(
                 f"pin-parity: hook id={hook_id!r} not found under repo={repo_url!r} "
-                f"in {CONFIG_PATH.name} -- update PIN_PAIRS or the config."
+                f"in {CONFIG_PATH.name} -- update precommit_pin_pairs in pyproject.toml or the config."
             )
             continue
 
@@ -111,7 +103,7 @@ def main() -> int:
             violations.append(
                 f"pin-parity: no CI-pinned SHA found in {ci_workflow_rel} "
                 f"(hook {hook_id!r}, validator {validator!r}) -- "
-                "update PIN_PAIRS or restore the CI pin."
+                "update precommit_pin_pairs in pyproject.toml or restore the CI pin."
             )
             continue
 
@@ -130,7 +122,9 @@ def main() -> int:
             print(f"  {v}\n")
         return 1
 
-    print("OK: all pinned revs in PIN_PAIRS match their CI-pinned counterpart.")
+    print(
+        "OK: all pinned revs in precommit_pin_pairs match their CI-pinned counterpart."
+    )
     return 0
 
 

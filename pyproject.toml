@@ -350,6 +350,19 @@ exclude = [
 module = "omnibase_core.*"
 ignore_missing_imports = true
 
+# Settings the scripts under scripts/validation read at run time (OMN-21623): the
+# scripts hold no timeout or pin-pair literal of their own.
+[tool.omnibase_spi.validation_scripts]
+validator_timeout_seconds = 300        # one validator subprocess in run_all_validations.py
+timer_join_grace_seconds = 0.1         # wait for the timeout timer thread to finish
+file_operation_timeout_seconds = 30    # default budget of timeout_utils.safe_file_operation
+
+# (pre-commit hook id, pre-commit repo URL, CI workflow file, validator module [for audit])
+# rows checked by validate_precommit_pin_parity.py: both sides must pin the same SHA
+precommit_pin_pairs = [
+    ["no-noncanonical-lifecycle-classes", "https://github.com/OmniNode-ai/omnibase_core", ".github/workflows/ci.yml", "no_noncanonical_lifecycle_classes"],
+]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src", "."]
