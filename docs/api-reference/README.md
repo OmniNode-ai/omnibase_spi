@@ -113,7 +113,7 @@ The API reference is organized by domain, matching the package structure:
 ### Type System
 - **Type definitions are integrated within each protocol domain**
 - **All types follow consistent naming conventions**
-- **Comprehensive type coverage across all 236 protocol files**
+- **Comprehensive type coverage across all 246 protocol files**
 - **Type Protocols (14)**: ProtocolContract, ProtocolErrorInfo, and domain-specific type definitions
 - **ONEX Node Types (4)**: ProtocolEffectNode, ProtocolComputeNode, ProtocolReducerNode, ProtocolOrchestratorNode
 
