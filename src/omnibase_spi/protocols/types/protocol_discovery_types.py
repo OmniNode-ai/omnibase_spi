@@ -293,7 +293,7 @@ class ProtocolDiscoveryQuery(Protocol):
             target_type: str = "COMPUTE"
             required_capabilities: list[str] = ["gpu-compute"]
             filters: dict[str, ContextValue] = {"region": "us-west"}
-            timeout_seconds: float = 30.0
+            timeout_seconds: float | None = None
 
         query = NodeDiscoveryQuery()
         assert isinstance(query, ProtocolDiscoveryQuery)

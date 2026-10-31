@@ -144,7 +144,7 @@ class ProtocolCLIDirFixtureCase(Protocol):
         ...
 
     async def cleanup_fixture(
-        self, base_path: str, timeout_seconds: float = 30.0
+        self, base_path: str, timeout_seconds: float | None = None
     ) -> bool:
         """
         Clean up the directory fixture.
@@ -152,7 +152,7 @@ class ProtocolCLIDirFixtureCase(Protocol):
         Args:
             base_path: Base path where fixture should be cleaned up
             timeout_seconds: Maximum time to wait for cleanup to complete.
-                Defaults to 30.0 seconds.
+                None uses the timeout declared in the implementation's contract.
 
         Returns:
             True if cleanup succeeded, False otherwise

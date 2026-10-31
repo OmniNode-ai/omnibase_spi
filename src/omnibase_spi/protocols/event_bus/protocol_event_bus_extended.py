@@ -183,12 +183,12 @@ class ProtocolEventBusConsumer(Protocol):
         """
         ...
 
-    async def close_consumer(self, timeout_seconds: float = 30.0) -> None:
+    async def close_consumer(self, timeout_seconds: float | None = None) -> None:
         """Close the EventBus consumer and release resources.
 
         Args:
             timeout_seconds: Maximum time to wait for cleanup to complete.
-                Defaults to 30.0 seconds.
+                None uses the timeout declared in the implementation's contract.
 
         Raises:
             TimeoutError: If cleanup does not complete within the specified timeout.
@@ -609,12 +609,12 @@ class ProtocolEventBusExtendedClient(Protocol):
         """
         ...
 
-    async def close_client(self, timeout_seconds: float = 30.0) -> None:
+    async def close_client(self, timeout_seconds: float | None = None) -> None:
         """Close the extended EventBus client and release all resources.
 
         Args:
             timeout_seconds: Maximum time to wait for cleanup to complete.
-                Defaults to 30.0 seconds.
+                None uses the timeout declared in the implementation's contract.
 
         Raises:
             TimeoutError: If cleanup does not complete within the specified timeout.

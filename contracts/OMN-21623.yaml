@@ -1,7 +1,7 @@
 schema_version: "1.0.0"
 ticket_id: "OMN-21623"
-title: "omnibase_spi validation scripts read their timeouts and pin pairs from pyproject.toml instead of literals in code (contracts_and_di burn-down, slice 1)"
-summary: "The contracts_and_di check of omnibase_core reports 47 findings in omnibase_spi (42 literal_timeout, 4 literal_topic, 1 literal_url). This slice moves six of them out of code: the validator subprocess timeout of run_all_validations.py, the timer join grace, the file-operation default timeout and the self-test sleeps of timeout_utils.py, and the pin-pair repo URL of validate_precommit_pin_parity.py. They are declared in [tool.omnibase_spi.validation_scripts] of pyproject.toml; a missing key raises KeyError rather than defaulting. The check reads 41 findings after the change."
+title: "omnibase_spi holds no timeout, join-grace, sleep or pin-pair literal: validation scripts read pyproject.toml and protocol shutdown signatures take None for the contract-declared timeout (contracts_and_di burn-down)"
+summary: "The contracts_and_di check of omnibase_core reports 47 findings in omnibase_spi (42 literal_timeout, 4 literal_topic, 1 literal_url). This slice moves six of them out of code: the validator subprocess timeout of run_all_validations.py, the timer join grace, the file-operation default timeout and the self-test sleeps of timeout_utils.py, and the pin-pair repo URL of validate_precommit_pin_parity.py. They are declared in [tool.omnibase_spi.validation_scripts] of pyproject.toml; a missing key raises KeyError rather than defaulting. Thirty-six protocol close, shutdown, stop, flush and disconnect signatures declared timeout_seconds: float = 30.0; they now take timeout_seconds: float | None = None, where None selects the timeout the implementation's contract declares, and the protocol signature snapshot is regenerated. The check reads 5 findings after the change (1 literal_timeout in the vendored verify_pypi script, 4 literal_topic in the event registry)."
 is_seam_ticket: false
 interface_change: false
 interfaces_touched: []
@@ -12,11 +12,16 @@ requirements:
       - id: "AC1"
         statement: "AC1: the settings loader returns the declared values, raises KeyError for an absent table or key, and the runner, timeout utilities and pin-parity script read their values through it -- falsifier: uv run pytest tests/unit/validation/test_script_settings_from_pyproject.py -q passes"
       - id: "AC2"
-        statement: "AC2: the contracts_and_di check of omnibase_core reports 41 findings for omnibase_spi, down from 47, with no finding left in scripts/validation or in the pin-parity script -- falsifier: runtime_validator_run of omnibase_core.validation.validator_contracts_and_di:ValidatorContractsAndDi over the repository lists no finding under scripts/validation and counts 41 [ERROR] lines"
+        statement: "AC2: the contracts_and_di check of omnibase_core reports 5 findings for omnibase_spi, down from 47, with no literal_timeout finding left under src/ or scripts/validation and no literal_url finding -- falsifier: runtime_validator_run of omnibase_core.validation.validator_contracts_and_di:ValidatorContractsAndDi over the repository lists no finding under scripts/validation and counts 5 [ERROR] lines"
+      - id: "AC3"
+        statement: "AC3: every protocol close, shutdown, stop, flush and disconnect signature that carried timeout_seconds: float = 30.0 takes timeout_seconds: float | None = None, and the protocol signature snapshot records the change -- falsifier: uv run pytest tests/test_protocol_snapshot.py tests/test_forward_references.py -q passes and grep -rn 'timeout_seconds: float = 30.0' src returns nothing"
 evidence_requirements:
   - kind: "tests"
     description: "The settings loader and the three scripts that read it."
     command: "uv run pytest tests/unit/validation/test_script_settings_from_pyproject.py -q -p no:randomly --no-cov"
+  - kind: "tests"
+    description: "The protocol signature snapshot and the handler shutdown signature."
+    command: "uv run pytest tests/test_protocol_snapshot.py tests/test_forward_references.py -q -p no:randomly --no-cov"
 emergency_bypass:
   enabled: false
   justification: ""
@@ -30,9 +35,16 @@ dod_evidence:
         check_value: "uv run pytest tests/unit/validation/test_script_settings_from_pyproject.py -q -p no:randomly --no-cov"
     binds_ac: ["AC1"]
   - id: "dod-omn21623-cdi-count"
-    description: "AC2: the contracts_and_di count for omnibase_spi is 41, read on the lab at the pushed head (recorded in the PR body)."
+    description: "AC2: the contracts_and_di count for omnibase_spi is 5, read on the lab at the pushed head (recorded in the PR body)."
     source: "manual"
     checks:
       - check_type: "test_passes"
         check_value: "uv run pytest tests/unit/validation/test_script_settings_from_pyproject.py -q -p no:randomly --no-cov"
     binds_ac: ["AC2"]
+  - id: "dod-omn21623-protocol-timeout-defaults"
+    description: "AC3: the protocol timeout defaults are None and the signature snapshot matches."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/test_protocol_snapshot.py tests/test_forward_references.py -q -p no:randomly --no-cov"
+    binds_ac: ["AC3"]

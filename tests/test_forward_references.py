@@ -818,8 +818,8 @@ class TestIsinstanceChecks:
             async def initialize(self, config: object) -> None:
                 """No-op initialization for testing."""
 
-            async def shutdown(self, timeout_seconds: float = 30.0) -> None:
-                """No-op shutdown. Default 30.0s matches protocol contract."""
+            async def shutdown(self, timeout_seconds: float | None = None) -> None:
+                """No-op shutdown. None selects the contract-declared timeout."""
 
             async def execute(
                 self, request: object, operation_config: object
@@ -1262,7 +1262,7 @@ class TestModuleReimport:
             async def initialize(self, config: object) -> None:
                 pass
 
-            async def shutdown(self, timeout_seconds: float = 30.0) -> None:
+            async def shutdown(self, timeout_seconds: float | None = None) -> None:
                 pass
 
             async def execute(
@@ -1496,8 +1496,8 @@ class TestModuleReimport:
             async def initialize(self, config: object) -> None:
                 """No-op initialization for testing."""
 
-            async def shutdown(self, timeout_seconds: float = 30.0) -> None:
-                """No-op shutdown. Default 30.0s matches protocol contract."""
+            async def shutdown(self, timeout_seconds: float | None = None) -> None:
+                """No-op shutdown. None selects the contract-declared timeout."""
 
             async def execute(
                 self, request: object, operation_config: object
@@ -2265,7 +2265,8 @@ class TestProtocolSignatureValidation:
 
         The shutdown method must have:
         - self: implicit first parameter
-        - timeout_seconds: parameter with default value of 30.0
+        - timeout_seconds: optional parameter defaulting to None, which selects
+          the timeout the implementation's contract declares
         """
         from omnibase_spi.protocols.handlers import ProtocolHandler
 
@@ -2283,8 +2284,8 @@ class TestProtocolSignatureValidation:
         assert timeout_param.default is not inspect.Parameter.empty, (
             "timeout_seconds should have a default value"
         )
-        assert timeout_param.default == 30.0, (
-            f"timeout_seconds default should be 30.0, got {timeout_param.default}"
+        assert timeout_param.default is None, (
+            f"timeout_seconds default should be None, got {timeout_param.default}"
         )
 
         # Verify return annotation exists (should be None for shutdown)
@@ -2710,7 +2711,7 @@ class TestProtocolInheritanceChains:
             async def initialize(self) -> None:
                 """Initialize effect node resources."""
 
-            async def shutdown(self, timeout_seconds: float = 30.0) -> None:
+            async def shutdown(self, timeout_seconds: float | None = None) -> None:
                 """Shutdown effect node resources."""
 
             async def execute(self, input_data: object) -> object:

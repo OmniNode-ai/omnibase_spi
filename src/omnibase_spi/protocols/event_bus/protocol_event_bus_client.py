@@ -88,7 +88,7 @@ class ProtocolEventBusClient(Protocol):
         """
         ...
 
-    async def stop(self, timeout_seconds: float = 30.0) -> None:
+    async def stop(self, timeout_seconds: float | None = None) -> None:
         """
         Stop the EventBus client and clean up resources.
 
@@ -97,7 +97,7 @@ class ProtocolEventBusClient(Protocol):
 
         Args:
             timeout_seconds: Maximum time to wait for shutdown to complete.
-                Defaults to 30.0 seconds.
+                None uses the timeout declared in the implementation's contract.
 
         Raises:
             ShutdownError: If shutdown process fails.

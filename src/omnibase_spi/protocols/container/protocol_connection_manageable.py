@@ -94,12 +94,12 @@ class ProtocolConnectionManageable(Protocol):
 
     async def establish_connection(self) -> bool: ...
 
-    async def close_connection(self, timeout_seconds: float = 30.0) -> bool:
+    async def close_connection(self, timeout_seconds: float | None = None) -> bool:
         """Close the connection and release resources.
 
         Args:
             timeout_seconds: Maximum time to wait for close to complete.
-                Defaults to 30.0 seconds.
+                None uses the timeout declared in the implementation's contract.
 
         Returns:
             True if close succeeded, False otherwise.
@@ -109,12 +109,12 @@ class ProtocolConnectionManageable(Protocol):
         """
         ...
 
-    async def disconnect(self, timeout_seconds: float = 30.0) -> bool:
+    async def disconnect(self, timeout_seconds: float | None = None) -> bool:
         """Disconnect from the remote service.
 
         Args:
             timeout_seconds: Maximum time to wait for disconnect to complete.
-                Defaults to 30.0 seconds.
+                None uses the timeout declared in the implementation's contract.
 
         Returns:
             True if disconnect succeeded, False otherwise.

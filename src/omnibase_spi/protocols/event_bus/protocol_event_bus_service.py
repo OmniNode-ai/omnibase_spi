@@ -422,14 +422,14 @@ class ProtocolHttpEventBusAdapter(Protocol):
         """
         ...
 
-    async def close(self, timeout_seconds: float = 30.0) -> None:
+    async def close(self, timeout_seconds: float | None = None) -> None:
         """Close HTTP event bus adapter and release resources.
 
         Cleanly shuts down HTTP connections and releases resources.
 
         Args:
             timeout_seconds: Maximum time to wait for cleanup to complete.
-                Defaults to 30.0 seconds.
+                None uses the timeout declared in the implementation's contract.
 
         Raises:
             TimeoutError: If cleanup does not complete within the specified timeout.
