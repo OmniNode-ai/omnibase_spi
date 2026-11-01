@@ -120,7 +120,8 @@ def test_no_occ_callers_repo_evidence_caller_enforces_without_occ() -> None:
     assert inputs.get("shadow") == "false"
     assert inputs.get("compare-with-occ") == "false"
     assert "occ-context" not in inputs
-    assert inputs.get("verifier-version") == "0.4.310"
+    assert re.fullmatch(r"dev-\d{14}-[0-9a-f]{12}", inputs.get("verifier-tag", ""))
+    assert "verifier-version" not in inputs
 
 
 def test_no_occ_callers_runner_ip_reusable_has_no_nested_preflight() -> None:

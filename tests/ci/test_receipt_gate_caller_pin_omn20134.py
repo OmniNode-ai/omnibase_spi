@@ -35,3 +35,9 @@ def test_caller_pins_the_reusable_at_the_pin_tag() -> None:
 def test_pin_tag_is_a_dev_merge_tag_and_not_a_commit_sha() -> None:
     assert re.fullmatch(r"dev-\d{14}-[0-9a-f]{12}", RECEIPT_GATE_PIN_TAG)
     assert not re.fullmatch(r"[0-9a-f]{40}", _uses().split("@", 1)[1])
+
+
+def test_pin_tag_is_the_omnibase_core_tag_that_carries_the_verifier_tag_input() -> None:
+    # OMN-21854: dev-20261101005012-ac2f26e3e5bf contains omnibase_core#2203, whose
+    # receipt-gate.yml accepts verifier-tag.
+    assert RECEIPT_GATE_PIN_TAG == "dev-20261101005012-ac2f26e3e5bf"

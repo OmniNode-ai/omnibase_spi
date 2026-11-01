@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
 # SPDX-License-Identifier: MIT
-"""OMN-20032: pin the receipt-gate reusable that refuses a verifier below the floor."""
+"""OMN-20032, OMN-21854: the caller pins the receipt-gate reusable that enforces the verifier floor and installs its verifier from a dev-merge tag."""
 
 from __future__ import annotations
 
@@ -21,13 +21,7 @@ CALLER = REPO_ROOT / ".github" / "workflows" / "call-repo-evidence-gate.yml"
 # dev-merge tag of a descendant of #1932 now, so a tag never equals this sha.
 PRE_FLOOR_PIN = "fb0c6c2117d5868a398b0920cd0048d0824415b1"
 
-# 0.4.303 is the first omnimarket release carrying omnimarket#3511, the refusal of
-# a contract that leaves an acceptance criterion unbound.
-VERIFIER_FLOOR = (0, 4, 303)
-
-
-def _version(text: str) -> tuple[int, ...]:
-    return tuple(int(part) for part in text.split("."))
+VERIFIER_TAG_PATTERN = r"dev-\d{14}-[0-9a-f]{12}"
 
 
 def _job() -> dict[str, Any]:
@@ -47,17 +41,33 @@ def test_caller_pins_the_reusable_that_carries_the_verifier_floor() -> None:
     )
 
 
-def test_caller_verifier_version_is_at_or_above_the_floor() -> None:
-    assert _version(_job()["with"]["verifier-version"]) >= VERIFIER_FLOOR, (
-        "verifier-version must be at or above the reusable's VERIFIER_FLOOR 0.4.303"
+def test_caller_verifier_tag_replaces_the_version_at_or_above_the_floor() -> None:
+    inputs = _job()["with"]
+    assert re.fullmatch(VERIFIER_TAG_PATTERN, inputs["verifier-tag"]), (
+        "verifier-tag must be an omnimarket dev-merge tag; the reusable refuses a tag "
+        "that does not descend from its floor commit"
     )
+    assert "verifier-version" not in inputs
+
+
+def test_verifier_tag_pattern_admits_a_dev_merge_tag() -> None:
+    assert re.fullmatch(VERIFIER_TAG_PATTERN, "dev-20261101000200-949993edf3b7")
 
 
 @pytest.mark.parametrize(
-    ("version", "expected"),
-    [("0.4.280", False), ("0.4.302", False), ("0.4.303", True), ("0.4.305", True)],
+    "tag",
+    [
+        "0.4.310",
+        "main",
+        "dev-20261101000200",
+        "dev-20261101000200-949993edf3b",
+        "dev-20261101000200-949993EDF3B7",
+        "dev-20261101000200-949993edf3b7a",
+        "949993edf3b76b95bd2eb38326ea8d74cac9b40f",
+        "",
+    ],
 )
-def test_floor_comparison_has_a_refusing_and_an_admitting_case(
-    version: str, expected: bool
+def test_verifier_tag_pattern_refuses_a_version_branch_sha_or_malformed_tag(
+    tag: str,
 ) -> None:
-    assert (_version(version) >= VERIFIER_FLOOR) is expected
+    assert not re.fullmatch(VERIFIER_TAG_PATTERN, tag)
