@@ -12,6 +12,7 @@ by its environment variable from the workflow. An absent table or key raises
 
 from __future__ import annotations
 
+import subprocess
 import tomllib
 from pathlib import Path
 
@@ -28,30 +29,39 @@ def _declared(key: str) -> int:
     return int(data["tool"]["omnibase_spi"]["validation_scripts"][key])
 
 
-@pytest.mark.unit
-def test_venv_budget_is_the_declared_value(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.delenv(pin_gate._VENV_TIMEOUT_ENV_VAR, raising=False)
-    assert pin_gate.venv_timeout_seconds() == _declared(
-        "pin_resolve_venv_timeout_seconds"
-    )
+def _timeouts_used(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> list[object]:
+    """Run the gate with ``subprocess.run`` faked; return the timeout of each call."""
+    seen: list[object] = []
+
+    def fake_run(*_args: object, **kwargs: object) -> subprocess.CompletedProcess[str]:
+        seen.append(kwargs["timeout"])
+        return subprocess.CompletedProcess([], 0, "", "")
+
+    monkeypatch.setattr(pin_gate, "_resolve_uv", lambda: "uv")
+    monkeypatch.setattr(pin_gate.subprocess, "run", fake_run)
+    wheel = tmp_path / "x-1-py3-none-any.whl"
+    wheel.write_bytes(b"")
+    pin_gate.verify_pin_resolvability(wheel)
+    return seen
 
 
 @pytest.mark.unit
-def test_install_budget_is_the_declared_value(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.delenv(pin_gate._INSTALL_TIMEOUT_ENV_VAR, raising=False)
-    assert pin_gate.install_timeout_seconds() == _declared(
-        "pin_resolve_install_timeout_seconds"
-    )
-
-
-@pytest.mark.unit
-def test_environment_overrides_the_declared_budgets(
-    monkeypatch: pytest.MonkeyPatch,
+def test_budgets_are_the_declared_values(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
-    monkeypatch.setenv(pin_gate._INSTALL_TIMEOUT_ENV_VAR, "2400")
-    monkeypatch.setenv(pin_gate._VENV_TIMEOUT_ENV_VAR, "90")
-    assert pin_gate.install_timeout_seconds() == 2400
-    assert pin_gate.venv_timeout_seconds() == 90
+    monkeypatch.delenv("PYPI_PIN_RESOLVE_TIMEOUT_SECONDS", raising=False)
+    assert _timeouts_used(monkeypatch, tmp_path)[:2] == [
+        _declared("pin_resolve_venv_timeout_seconds"),
+        _declared("pin_resolve_install_timeout_seconds"),
+    ]
+
+
+@pytest.mark.unit
+def test_environment_overrides_the_install_budget(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.setenv("PYPI_PIN_RESOLVE_TIMEOUT_SECONDS", "2400")
+    assert _timeouts_used(monkeypatch, tmp_path)[1] == 2400
 
 
 @pytest.mark.unit
@@ -59,7 +69,7 @@ def test_absent_key_raises_key_error(tmp_path: Path) -> None:
     pyproject = tmp_path / "pyproject.toml"
     pyproject.write_text("[tool.omnibase_spi.validation_scripts]\n", encoding="utf-8")
     with pytest.raises(KeyError, match="pin_resolve_venv_timeout_seconds"):
-        pin_gate.declared_budget_seconds("pin_resolve_venv_timeout_seconds", pyproject)
+        pin_gate.load_script_setting("pin_resolve_venv_timeout_seconds", pyproject)
 
 
 @pytest.mark.unit
@@ -67,9 +77,7 @@ def test_absent_table_raises_key_error(tmp_path: Path) -> None:
     pyproject = tmp_path / "pyproject.toml"
     pyproject.write_text("[project]\nname = 'x'\n", encoding="utf-8")
     with pytest.raises(KeyError, match="tool"):
-        pin_gate.declared_budget_seconds(
-            "pin_resolve_install_timeout_seconds", pyproject
-        )
+        pin_gate.load_script_setting("pin_resolve_install_timeout_seconds", pyproject)
 
 
 @pytest.mark.unit
