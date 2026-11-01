@@ -1,0 +1,50 @@
+schema_version: "1.0.0"
+ticket_id: "OMN-21739"
+title: "omnibase_spi contracts_and_di literal_timeout burn-down, slice rf1300-c5: timeout defaults come from the contract or overlay through DI"
+summary: "The contracts_and_di check of omnibase_core (origin/dev) reports 5 findings for omnibase_spi src and scripts before this change (1 literal_timeout, 4 literal_topic) and 4 after it (0 literal_timeout, 4 literal_topic). The 36 protocol timeout_seconds defaults the ticket text counts were already moved by OMN-21623 (#425); the one literal_timeout left was the uv venv budget of scripts/ci/verify_pypi_pin_resolvability.py. That budget and the uv pip install budget (an environment default literal the checker does not flag) are now declared under [tool.omnibase_spi.validation_scripts] in pyproject.toml as pin_resolve_venv_timeout_seconds and pin_resolve_install_timeout_seconds and read at call time; the environment variable PYPI_PIN_RESOLVE_TIMEOUT_SECONDS still overrides the install budget from the workflow. An absent table or key raises KeyError. No baseline entry or suppression is added."
+is_seam_ticket: false
+interface_change: false
+interfaces_touched: []
+requirements:
+  - id: "req-omn21739-pin-gate-budgets-from-pyproject"
+    statement: "scripts/ci/verify_pypi_pin_resolvability.py holds no timeout literal; its uv venv and uv pip install budgets are read from [tool.omnibase_spi.validation_scripts] in pyproject.toml or the workflow environment, and an absent table or key fails loudly."
+    acceptance:
+      - id: "AC1"
+        statement: "AC1: the contracts_and_di count for literal_timeout over the slice paths drops to zero and the repo total drops by the slice size, with no baseline entry or suppression added -- falsifier: onex run of runtime_validator_run with the contracts_and_di reference over omnibase_spi src before and after, counts compared per rule"
+      - id: "AC2"
+        statement: "AC2: every moved timeout is taken through an injected parameter bound from the node contract or overlay and none remains hard-coded in the touched code -- falsifier: uv run pytest tests -q over the touched modules plus the checker re-run on the slice paths"
+      - id: "AC3"
+        statement: "AC3: the slice lands as one PR titled with this ticket id and carries lab proof of the tests and the checker re-run -- falsifier: uv run pytest tests -q on the lab through lab-run at the PR head, receipt path in the PR body"
+evidence_requirements:
+  - kind: "tests"
+    description: "The pin gate reads its budgets from pyproject.toml, honours the environment overrides and fails loudly on an absent key; the script holds no budget literal."
+    command: "uv run pytest tests/ci/test_pin_resolvability_budgets_omn21739.py -q -p no:randomly --no-cov"
+  - kind: "tests"
+    description: "The existing pin-resolvability gate tests still pass against the changed script."
+    command: "uv run pytest tests/ci/test_verify_pypi_pin_resolvability.py tests/ci/test_pin_resolvability_conflict_report.py tests/ci/test_pin_resolvability_gate_workflow.py -q -p no:randomly --no-cov"
+emergency_bypass:
+  enabled: false
+  justification: ""
+  follow_up_ticket_id: ""
+dod_evidence:
+  - id: "dod-omn21739-cdi-literal-timeout-zero"
+    description: "AC1: the contracts_and_di literal_timeout count over src and scripts is 0 (was 1); total 4 (was 5); the script holds no budget literal."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/ci/test_pin_resolvability_budgets_omn21739.py -q -p no:randomly --no-cov"
+    binds_ac: ["AC1"]
+  - id: "dod-omn21739-budgets-injected"
+    description: "AC2: both budgets come from pyproject.toml or the workflow environment, and the gate's existing tests pass."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/ci/test_pin_resolvability_budgets_omn21739.py tests/ci/test_verify_pypi_pin_resolvability.py tests/ci/test_pin_resolvability_conflict_report.py tests/ci/test_pin_resolvability_gate_workflow.py -q -p no:randomly --no-cov"
+    binds_ac: ["AC2"]
+  - id: "dod-omn21739-one-pr"
+    description: "AC3: one PR titled with OMN-21739; built in a cloud session, so its proof is the focused test run named in the PR body and the PR's CI (no lab receipt yet)."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/ci/test_pin_resolvability_budgets_omn21739.py -q -p no:randomly --no-cov"
+    binds_ac: ["AC3"]

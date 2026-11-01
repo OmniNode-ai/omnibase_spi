@@ -356,6 +356,10 @@ ignore_missing_imports = true
 validator_timeout_seconds = 300        # one validator subprocess in run_all_validations.py
 timer_join_grace_seconds = 0.1         # wait for the timeout timer thread to finish
 file_operation_timeout_seconds = 30    # default budget of timeout_utils.safe_file_operation
+# scripts/ci/verify_pypi_pin_resolvability.py (OMN-21739); the environment variable
+# PYPI_PIN_RESOLVE_TIMEOUT_SECONDS overrides the install budget
+pin_resolve_install_timeout_seconds = 1800  # cold no-cache install of the wheel's closure (OMN-16047)
+pin_resolve_venv_timeout_seconds = 120      # local scratch `uv venv`, no index access
 
 # (pre-commit hook id, pre-commit repo URL, CI workflow file, validator module [for audit])
 # rows checked by validate_precommit_pin_parity.py: both sides must pin the same SHA
