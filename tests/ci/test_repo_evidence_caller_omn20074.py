@@ -31,10 +31,8 @@ RECEIPT_GATE_PATH = "OmniNode-ai/omnibase_core/.github/workflows/receipt-gate.ym
 # Squash commit of omnibase_core#1914, which predates the VERIFIER_FLOOR refusal of
 # #1932 (OMN-20032). The pin is a dev-merge tag now, so this sha is refused as a ref.
 PRE_FLOOR_PIN = "fb0c6c2117d5868a398b0920cd0048d0824415b1"
-# 0.4.305 is the first omnimarket release carrying omnimarket#3563, the verifier half
-# of the contract-home marker, and it ships the node_dod_verify occ-difference
-# classifier (omnimarket#3277, 0.4.294).
-VERIFIER_FLOOR = (0, 4, 305)
+# OMN-21854: the verifier is installed from an omnimarket dev-merge tag, not a release.
+VERIFIER_TAG_PATTERN = r"dev-\d{14}-[0-9a-f]{12}"
 
 
 def _load(path: Path) -> dict[Any, Any]:
@@ -90,6 +88,7 @@ def test_caller_pins_the_current_receipt_gate_by_dev_merge_tag() -> None:
     [
         "dev-20261030152335-66d35d2283c3",
         "dev-20261030214334-59faa7f31f38",
+        "dev-20261101005012-ac2f26e3e5bf",
     ],
 )
 def test_receipt_gate_pin_accepts_dev_merge_tag_updates(pin: str) -> None:
@@ -127,9 +126,10 @@ def test_receipt_gate_pin_rejects_other_workflows(path: str) -> None:
     assert not _is_pinned_receipt_gate(f"{path}@{'a' * 40}")
 
 
-def test_current_receipt_gate_verifier_version_is_at_or_above_the_floor() -> None:
-    version = tuple(int(part) for part in _job()["with"]["verifier-version"].split("."))
-    assert version >= VERIFIER_FLOOR
+def test_current_receipt_gate_installs_its_verifier_from_a_dev_merge_tag() -> None:
+    inputs = _job()["with"]
+    assert re.fullmatch(VERIFIER_TAG_PATTERN, inputs["verifier-tag"])
+    assert "verifier-version" not in inputs
 
 
 def test_caller_shadow_mode_is_off_and_the_evidence_source_is_the_caller() -> None:
@@ -138,8 +138,8 @@ def test_caller_shadow_mode_is_off_and_the_evidence_source_is_the_caller() -> No
     # Quoted strings: the reusable's boolean-like inputs are string inputs.
     assert inputs["shadow"] == "false"
     assert inputs["compare-with-occ"] == "false"
-    version = tuple(int(part) for part in inputs["verifier-version"].split("."))
-    assert version >= VERIFIER_FLOOR
+    assert re.fullmatch(VERIFIER_TAG_PATTERN, inputs["verifier-tag"])
+    assert "verifier-version" not in inputs
 
 
 def test_caller_ends_the_occ_comparison() -> None:
