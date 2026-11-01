@@ -52,7 +52,7 @@ summary when ``GITHUB_STEP_SUMMARY`` is set.
 Exit codes: ``0`` all declared pins resolve; ``1`` a pin failed to resolve, the
 check exceeded its wall-clock budget, or dist/ did not contain exactly one
 wheel; ``2`` bad invocation. A timeout and an unresolvable pin both exit ``1``
-but print distinct reports -- see :data:`_INSTALL_TIMEOUT_SECONDS` and
+but print distinct reports -- see :func:`install_timeout_seconds` and
 :class:`PinResolveTimeoutError` (OMN-16047); do not read a timeout as evidence
 that a pin is broken.
 """
@@ -65,13 +65,23 @@ import shutil
 import subprocess  # nosec B404 - invokes `uv venv`/`uv pip install` with a fixed, non-shell argv
 import sys
 import tempfile
+import tomllib
 from pathlib import Path
 
-#: Env var overriding :data:`_INSTALL_TIMEOUT_SECONDS`, so a slower fleet can be
+#: The two wall-clock budgets below hold no value in this file (OMN-21739): each is
+#: declared under ``[tool.omnibase_spi.validation_scripts]`` in the repository's
+#: pyproject.toml and read at call time, and an absent table or key raises
+#: ``KeyError`` rather than falling back to an in-code default. Each can also be
+#: overridden from the workflow through its environment variable.
+_PYPROJECT = Path(__file__).resolve().parents[2] / "pyproject.toml"
+_SETTINGS_TABLE = ("tool", "omnibase_spi", "validation_scripts")
+
+#: Env var overriding the ``uv pip install`` budget, so a slower fleet can be
 #: accommodated from the workflow without editing this file.
 _INSTALL_TIMEOUT_ENV_VAR = "PYPI_PIN_RESOLVE_TIMEOUT_SECONDS"
 
-#: Wall-clock ceiling for the ``uv pip install`` of the built wheel.
+#: pyproject key of the wall-clock ceiling for the ``uv pip install`` of the built
+#: wheel.
 #:
 #: This is a *throughput* budget, not a resolution budget: ``--no-cache`` forces a
 #: cold download + unpack of the whole transitive closure on every run. For
@@ -82,14 +92,48 @@ _INSTALL_TIMEOUT_ENV_VAR = "PYPI_PIN_RESOLVE_TIMEOUT_SECONDS"
 #: v0.38.4 timed out at exactly 300s twice in a row before publish was ever
 #: attempted, stranding PyPI at 0.36.1. See OMN-16047.
 #:
-#: Keep this comfortably under the release job's ``timeout-minutes`` so a timeout
+#: Keep it comfortably under the release job's ``timeout-minutes`` so a timeout
 #: surfaces as this script's diagnostic failure rather than an opaque job kill.
-_INSTALL_TIMEOUT_SECONDS = int(os.environ.get(_INSTALL_TIMEOUT_ENV_VAR, "1800"))
+_INSTALL_TIMEOUT_KEY = "pin_resolve_install_timeout_seconds"
 
-#: Creating the scratch venv is purely local work (no index access), so it gets a
-#: much smaller budget of its own. Sharing the install budget would let a hung
-#: ``uv venv`` silently consume the entire allowance before the install starts.
-_VENV_TIMEOUT_SECONDS = 120
+#: Env var overriding the ``uv venv`` budget.
+_VENV_TIMEOUT_ENV_VAR = "PYPI_PIN_VENV_TIMEOUT_SECONDS"
+
+#: pyproject key of the ``uv venv`` budget. Creating the scratch venv is purely
+#: local work (no index access), so it gets a much smaller budget of its own.
+#: Sharing the install budget would let a hung ``uv venv`` silently consume the
+#: entire allowance before the install starts.
+_VENV_TIMEOUT_KEY = "pin_resolve_venv_timeout_seconds"
+
+
+def declared_budget_seconds(key: str, pyproject: Path | None = None) -> int:
+    """Return ``key`` of ``[tool.omnibase_spi.validation_scripts]`` as whole seconds.
+
+    A missing table or key raises ``KeyError`` naming the missing part; there is
+    no default.
+    """
+    table = tomllib.loads((pyproject or _PYPROJECT).read_text(encoding="utf-8"))
+    for part in _SETTINGS_TABLE:
+        table = table[part]
+    value: int = int(table[key])
+    return value
+
+
+def _budget_seconds(key: str, env_var: str) -> int:
+    override = os.environ.get(env_var)
+    if override is not None:
+        return int(override)
+    return declared_budget_seconds(key)
+
+
+def install_timeout_seconds() -> int:
+    """The ``uv pip install`` budget: the env override, else the pyproject value."""
+    return _budget_seconds(_INSTALL_TIMEOUT_KEY, _INSTALL_TIMEOUT_ENV_VAR)
+
+
+def venv_timeout_seconds() -> int:
+    """The ``uv venv`` budget: the env override, else the pyproject value."""
+    return _budget_seconds(_VENV_TIMEOUT_KEY, _VENV_TIMEOUT_ENV_VAR)
 
 
 class PinResolveTimeoutError(Exception):
@@ -242,6 +286,8 @@ def verify_pin_resolvability(wheel_path: Path) -> tuple[bool, str]:
     Returns ``(ok, combined_stdout_stderr_log)``.
     """
     uv_bin = _resolve_uv()
+    venv_budget = venv_timeout_seconds()
+    install_budget = install_timeout_seconds()
     with tempfile.TemporaryDirectory(prefix="pypi-pin-resolve-") as tmp:
         tmp_path = Path(tmp)
         venv_dir = tmp_path / "venv"
@@ -252,13 +298,11 @@ def verify_pin_resolvability(wheel_path: Path) -> tuple[bool, str]:
                 cwd=tmp_path,
                 capture_output=True,
                 text=True,
-                timeout=_VENV_TIMEOUT_SECONDS,
+                timeout=venv_budget,
                 check=False,
             )
         except subprocess.TimeoutExpired as exc:
-            raise PinResolveTimeoutError(
-                "uv venv", _VENV_TIMEOUT_SECONDS, exc, ""
-            ) from exc
+            raise PinResolveTimeoutError("uv venv", venv_budget, exc, "") from exc
 
         if create.returncode != 0:
             return False, create.stdout + create.stderr
@@ -281,13 +325,13 @@ def verify_pin_resolvability(wheel_path: Path) -> tuple[bool, str]:
                 cwd=tmp_path,
                 capture_output=True,
                 text=True,
-                timeout=_INSTALL_TIMEOUT_SECONDS,
+                timeout=install_budget,
                 check=False,
             )
         except subprocess.TimeoutExpired as exc:
             raise PinResolveTimeoutError(
                 "uv pip install",
-                _INSTALL_TIMEOUT_SECONDS,
+                install_budget,
                 exc,
                 create.stdout + create.stderr,
             ) from exc
