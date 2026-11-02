@@ -102,9 +102,12 @@ async def check_list_entries_are_sorted_direct_children(
 
 async def check_remove_reports_whether_it_removed(store: ProtocolDurableStore) -> None:
     await store.write_atomic("rm/x", b"1")
-    assert await store.remove("rm/x") is True
-    assert await store.read("rm/x") is None
-    assert await store.remove("rm/x") is False
+    removed_first = await store.remove("rm/x")
+    assert removed_first is True
+    after = await store.read("rm/x")
+    assert after is None
+    removed_again = await store.remove("rm/x")
+    assert removed_again is False
 
 
 CHECKS: tuple[Callable[[ProtocolDurableStore], Awaitable[None] | None], ...] = (

@@ -52,7 +52,7 @@ class FilesystemDurableStore:
             raise ValueError("a line holds no newline")
         target = self._p(path)
         target.parent.mkdir(parents=True, exist_ok=True)
-        fd = os.open(target, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o644)
+        fd = os.open(target, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o600)
         try:
             os.write(fd, line.encode() + b"\n")
         finally:
@@ -62,7 +62,7 @@ class FilesystemDurableStore:
         target = self._p(path)
         target.parent.mkdir(parents=True, exist_ok=True)
         try:
-            fd = os.open(target, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644)
+            fd = os.open(target, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
         except FileExistsError:
             return False
         try:
@@ -98,7 +98,7 @@ class FilesystemTreeLock:
     def acquire(self, key: str) -> str | None:
         token = uuid.uuid4().hex
         try:
-            fd = os.open(self._p(key), os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644)
+            fd = os.open(self._p(key), os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
         except FileExistsError:
             return None
         try:

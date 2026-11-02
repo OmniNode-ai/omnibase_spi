@@ -9,9 +9,10 @@ remote branch still points at the head the caller expected, so two pushes from
 one base cannot both land.
 """
 
-from typing import Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
-from omnibase_spi.contracts.source_control import ModelPushResult
+if TYPE_CHECKING:
+    from omnibase_spi.contracts.source_control import ModelPushResult
 
 
 @runtime_checkable
@@ -24,7 +25,7 @@ class ProtocolGitRemote(Protocol):
 
     async def push_with_lease(
         self, sha: str, branch: str, expected_head: str | None
-    ) -> ModelPushResult:
+    ) -> "ModelPushResult":
         """Push ``sha`` to ``branch`` only if the remote branch is at ``expected_head``.
 
         ``expected_head`` None means the branch must not exist. A lease that no
