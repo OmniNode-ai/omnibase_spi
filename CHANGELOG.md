@@ -1,3 +1,13 @@
+## v0.23.11 (2026-11-02)
+
+### Release
+- Cut omnibase-spi from dev at 0.23.11 by the scheduled release train.
+- 1 release-relevant commit(s) merged since v0.23.10.
+- Opened by the release train, which cuts only when the repo's declared lab-evidence premise holds for the exact candidate commit.
+
+### Included Since v0.23.10
+- refactor: pin-resolvability gate reads its timeouts from pyproject.toml (#428)
+
 ## v0.23.10 (2026-11-01)
 
 ### Release
