@@ -15,9 +15,9 @@ requirements:
           AC1: no registry repository's .github/dependabot.yml declares a version-update schedule (security alerts stay on) -- falsifier: uv run pytest tests/ci -k no_dependabot_version_updates, a ratchet over every registry clone's dependabot.yml seeded with a planted schedule as positive control
 evidence_requirements:
   - kind: "ci"
-    description: "Check this repository's contribution to AC1 by rejecting the removed configuration."
+    description: "Run the SPI regression tests that reject Dependabot configuration under either YAML filename."
     command: >-
-      python3 -c 'from pathlib import Path; assert not Path(".github/dependabot.yml").exists(), "Dependabot version-update configuration remains"; print("PASS: SPI has no Dependabot version-update configuration")'
+      env PYTHONDONTWRITEBYTECODE=1 uv run pytest tests/ci/test_no_dependabot_version_updates_omn21351.py -q --no-cov
 emergency_bypass:
   enabled: false
   justification: ""
@@ -28,7 +28,7 @@ dod_evidence:
       SPI contribution to AC1 only: the former pip and GitHub Actions weekly version-update configuration is absent. Registry-wide AC1 remains pending until the other repositories and the central ratchet satisfy it.
     source: "manual"
     checks:
-      - check_type: "command"
+      - check_type: "test_passes"
         check_value: >-
-          python3 -c 'from pathlib import Path; assert not Path(".github/dependabot.yml").exists(), "Dependabot version-update configuration remains"; print("PASS: SPI has no Dependabot version-update configuration")'
+          env PYTHONDONTWRITEBYTECODE=1 uv run pytest tests/ci/test_no_dependabot_version_updates_omn21351.py -q --no-cov
     binds_ac: ["AC1"]
