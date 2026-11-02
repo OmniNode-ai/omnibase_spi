@@ -5,7 +5,7 @@ summary: "The clock protocol that omnimarket nodes declare in protocol_dependenc
 is_seam_ticket: false
 interface_change: true
 interfaces_touched:
-  - "omnibase_spi.protocols.core.protocol_clock.ProtocolClock"
+  - "protocols"
 requirements:
   - id: "req-omn22000-spi-clock"
     statement: "omnibase_spi must define ProtocolClock in its core protocol domain as a runtime-checkable protocol with one now() read, exported from the domain and the package."
