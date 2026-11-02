@@ -1,0 +1,59 @@
+schema_version: "1.0.0"
+ticket_id: "OMN-21941"
+title: "Consume the canonical check-ai-slop validator from omnibase_core"
+summary: "Replace the repository copy of check-ai-slop with the exported omnibase_core hook and runtime at the same dev-merge tag. Remove the local script, its dedicated test and its canonical-file-shape baseline entry; retain validators without an equivalent core hook."
+is_seam_ticket: false
+interface_change: false
+interfaces_touched: []
+requirements:
+  - id: "req-omn21941-canonical-ai-slop"
+    statement: "The check-ai-slop hook and strict CI job consume the canonical core validator at one tag, and the redundant local copy is removed."
+    acceptance:
+      - id: "AC1"
+        statement: "AC1: exactly one check-ai-slop hook is declared, in the omnibase_core block at dev-20261029151319-6e0a5eee541a, for the pre-commit stage."
+      - id: "AC2"
+        statement: "AC2: the ai-slop-check job retains its required context and changed-file selection and invokes the core runtime with --strict at the same tag as the hook."
+      - id: "AC3"
+        statement: "AC3: the local checker, its dedicated test and empty package initializer are removed, its baseline entry is absent, and the other seven validator candidates remain."
+evidence_requirements:
+  - kind: "tests"
+    description: "Existing staged-hook CI backstops and test selection remain valid after replacing the local validator."
+    command: "env PYTHONDONTWRITEBYTECODE=1 uv run --frozen pytest tests/unit/validation/test_precommit_ci_backstops_omn19612.py tests/unit/test_smart_test_selection.py -q --no-cov"
+emergency_bypass:
+  enabled: false
+  justification: ""
+  follow_up_ticket_id: ""
+dod_evidence:
+  - id: "dod-omn21941-core-hook"
+    description: "AC1: the only check-ai-slop declaration consumes the exported core hook at the existing canonical-file-shape tag."
+    source: "manual"
+    checks:
+      - check_type: "command"
+        check_value: |
+          uv run --frozen python -c 'from pathlib import Path; import yaml; config=yaml.safe_load(Path(".pre-commit-config.yaml").read_text()); found=[(repo, hook) for repo in config["repos"] for hook in repo.get("hooks", []) if hook["id"] == "check-ai-slop"]; assert len(found) == 1; repo, hook=found[0]; assert repo["repo"] == "https://github.com/OmniNode-ai/omnibase_core"; assert repo["rev"] == "dev-20261029151319-6e0a5eee541a"; assert hook == {"id": "check-ai-slop", "stages": ["pre-commit"]}; assert any(h["id"] == "canonical-file-shape" for h in repo["hooks"])'
+        cwd: "${OMNI_HOME}/omnibase_spi"
+    binds_ac: ["AC1"]
+  - id: "dod-omn21941-strict-ci-runtime"
+    description: "AC2: the existing required CI job selects changed Python and Markdown files and runs the canonical core runtime in strict mode at the hook tag."
+    source: "manual"
+    checks:
+      - check_type: "command"
+        check_value: |
+          uv run --frozen python -c 'from pathlib import Path; import yaml; config=yaml.safe_load(Path(".pre-commit-config.yaml").read_text()); repo=next(r for r in config["repos"] if any(h["id"] == "check-ai-slop" for h in r.get("hooks", []))); job=yaml.safe_load(Path(".github/workflows/ci.yml").read_text())["jobs"]["ai-slop-check"]; assert job["name"] == "AI-Slop Pattern Check (strict, PR diff)"; assert "if" not in job and not job.get("continue-on-error", False); assert job["env"]["AI_SLOP_CORE"] == "omnibase-core @ git+https://github.com/OmniNode-ai/omnibase_core@" + repo["rev"]; changed=next(s for s in job["steps"] if s.get("id") == "changed"); assert "git diff" in changed["run"] and "--name-only" in changed["run"] and "*.py" in changed["run"] and "*.md" in changed["run"]; runs=[s for s in job["steps"] if "omnibase_core.nodes.node_ai_slop_check_compute.runtime_ai_slop_check --strict $FILES" in s.get("run", "")]; assert len(runs) == 1; assert "uv run --no-project --with" in runs[0]["run"] and "AI_SLOP_CORE" in runs[0]["run"]; assert not runs[0].get("continue-on-error", False); assert "scripts/validation/check_ai_slop.py" not in Path(".github/workflows/ci.yml").read_text()'
+        cwd: "${OMNI_HOME}/omnibase_spi"
+      - check_type: "test_passes"
+        check_value: "env PYTHONDONTWRITEBYTECODE=1 uv run --frozen pytest tests/unit/validation/test_precommit_ci_backstops_omn19612.py -q --no-cov"
+        cwd: "${OMNI_HOME}/omnibase_spi"
+    binds_ac: ["AC2"]
+  - id: "dod-omn21941-remove-redundant-copy"
+    description: "AC3: the redundant script, dedicated tests and baseline entry are absent, while the seven validators without an equivalent exported hook remain."
+    source: "manual"
+    checks:
+      - check_type: "command"
+        check_value: |
+          uv run --frozen python -c 'from pathlib import Path; removed=["scripts/validation/check_ai_slop.py", "tests/unit/scripts/test_check_ai_slop.py", "tests/unit/scripts/__init__.py"]; assert all(not Path(p).exists() for p in removed); assert removed[0] not in Path(".onex_ratchets/canonical_file_shape_baseline.txt").read_text().splitlines(); retained=["scripts/check_dep_provenance.py", "scripts/validation/validate_precommit_fail_loud.py", "scripts/validation/validate_precommit_pin_parity.py", "scripts/validation/validate_secrets.py", "scripts/validation/check_precommit_additional_dependencies.sh", ".pre-commit-hooks/reject-deploy-gate-skip-token.sh", ".pre-commit-hooks/reject-required-check-skip-vector.sh"]; assert all(Path(p).is_file() for p in retained); assert removed[0] not in Path(".pre-commit-config.yaml").read_text()'
+        cwd: "${OMNI_HOME}/omnibase_spi"
+      - check_type: "test_passes"
+        check_value: "env PYTHONDONTWRITEBYTECODE=1 uv run --frozen pytest tests/unit/test_smart_test_selection.py -q --no-cov"
+        cwd: "${OMNI_HOME}/omnibase_spi"
+    binds_ac: ["AC3"]
