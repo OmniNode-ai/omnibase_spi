@@ -175,11 +175,12 @@ from omnibase_spi.protocols.contracts import (
     ProtocolWorkflowContractCompiler,
 )
 
-# Core protocols (16 protocols) - Fundamental system contracts
+# Core protocols (17 protocols) - Fundamental system contracts
 # Includes serialization, logging, health monitoring, and service discovery
 from omnibase_spi.protocols.core import (
     ProtocolAuditLogger,
     ProtocolCanonicalSerializer,
+    ProtocolClock,
     ProtocolDistributedTracing,
     ProtocolErrorHandler,
     ProtocolErrorSanitizer,
@@ -545,6 +546,7 @@ __all__ = [
     "ProtocolCapabilityRegistry",
     "ProtocolCircuitBreaker",
     "ProtocolCliWorkflow",
+    "ProtocolClock",
     "ProtocolClusterCoordinator",
     "ProtocolCodeHost",
     "ProtocolCommunicationBridge",
