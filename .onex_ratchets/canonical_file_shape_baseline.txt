@@ -16,7 +16,6 @@ scripts/ci/verify_pypi_pin_resolvability.py
 scripts/validate-namespace-isolation.sh
 scripts/validate-spi-purity.sh
 scripts/validation/__init__.py
-scripts/validation/check_ai_slop.py
 scripts/validation/check_precommit_additional_dependencies.sh
 scripts/validation/check_results.py
 scripts/validation/compare_protocols.py
