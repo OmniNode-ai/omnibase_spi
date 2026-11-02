@@ -44,11 +44,17 @@ repos:
   # OMN-21522: the canonical-file-shape hook now runs the
   # node_canonical_file_shape_check_compute entry; the hook id is unchanged. rev is the
   # omnibase_core dev-merge tag that carries omnibase_core#2124.
+  #
+  # OMN-21941: check-ai-slop is consumed from the same tag and the repository
+  # copy of the checker is deleted. The CI job ai-slop-check runs the same core
+  # module at the same tag.
   - repo: https://github.com/OmniNode-ai/omnibase_core
     rev: dev-20261029151319-6e0a5eee541a
     hooks:
       - id: canonical-file-shape
         args: [--rules, file-shape]
+      - id: check-ai-slop
+        stages: [pre-commit]
   - repo: https://github.com/OmniNode-ai/omnibase_core
     rev: f50d00fc7918d0b12ccd0d3497160325e32e7ac5 # pragma: allowlist secret
     hooks:
@@ -378,13 +384,6 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
-        stages: [pre-commit]
-      - id: check-ai-slop
-        name: Check for AI-slop patterns
-        language: system
-        entry: uv run python scripts/validation/check_ai_slop.py --strict
-        types_or: [python, markdown]
-        pass_filenames: true
         stages: [pre-commit]
 
       # ======================================================================

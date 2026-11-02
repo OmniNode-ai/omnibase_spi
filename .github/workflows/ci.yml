@@ -401,9 +401,13 @@ jobs:
             exit 1
           fi
 
+  # OMN-21941: runs the omnibase_core check-ai-slop module at the same tag as the
+  # check-ai-slop pre-commit hook; the repository copy of the checker is deleted.
   ai-slop-check:
     name: AI-Slop Pattern Check (strict, PR diff)
     runs-on: ubuntu-latest
+    env:
+      AI_SLOP_CORE: "omnibase-core @ git+https://github.com/OmniNode-ai/omnibase_core@dev-20261029151319-6e0a5eee541a"
     steps:
       - uses: actions/checkout@v7
         with:
@@ -412,6 +416,10 @@ jobs:
         uses: actions/setup-python@v7
         with:
           python-version: '3.12'
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "0.8.3"
       - name: Compute changed Python/Markdown files vs PR base
         id: changed
         run: |
@@ -426,7 +434,8 @@ jobs:
         run: |
           FILES="${{ steps.changed.outputs.files }}"
           if [ -z "$FILES" ]; then exit 0; fi
-          python scripts/validation/check_ai_slop.py --strict $FILES
+          uv run --no-project --with "$AI_SLOP_CORE" \
+            python -m omnibase_core.nodes.node_ai_slop_check_compute.runtime_ai_slop_check --strict $FILES
 
 
   contract-compliance:

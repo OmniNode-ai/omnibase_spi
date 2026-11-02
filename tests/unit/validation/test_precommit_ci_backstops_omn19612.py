@@ -282,3 +282,19 @@ def test_skip_vector_hook_requires_omni_home_without_override() -> None:
 
     assert result.returncode == 1
     assert "OMNI_HOME" in result.stderr
+
+
+def test_ai_slop_check_consumes_core_validator_without_local_copy() -> None:
+    config = _load_mapping(PRECOMMIT_CONFIG)
+    repos = cast("list[dict[str, Any]]", config["repos"])
+    declaring = [
+        repo
+        for repo in repos
+        if any(hook["id"] == "check-ai-slop" for hook in repo.get("hooks", []))
+    ]
+
+    assert len(declaring) == 1
+    assert declaring[0]["repo"] == "https://github.com/OmniNode-ai/omnibase_core"
+    job = cast("dict[str, dict[str, Any]]", _workflow()["jobs"])["ai-slop-check"]
+    assert job["env"]["AI_SLOP_CORE"].endswith("@" + declaring[0]["rev"])
+    assert not (REPO_ROOT / "scripts" / "validation" / "check_ai_slop.py").exists()
