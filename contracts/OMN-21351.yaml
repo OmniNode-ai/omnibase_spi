@@ -1,0 +1,34 @@
+schema_version: "1.0.0"
+ticket_id: "OMN-21351"
+title: "Remove SPI Dependabot version-update schedules"
+summary: >-
+  Remove this repository's weekly pip and GitHub Actions version-update configuration. This is the SPI contribution to AC1; the registry ratchet, release-train refresh and post-merge PR cleanup are owned outside this repository. Repository security-alert settings are unchanged.
+is_seam_ticket: false
+interface_change: false
+interfaces_touched: []
+requirements:
+  - id: "req-spi-no-dependabot-version-updates"
+    statement: "SPI no longer declares Dependabot version-update schedules."
+    acceptance:
+      - id: "AC1"
+        statement: >-
+          AC1: no registry repository's .github/dependabot.yml declares a version-update schedule (security alerts stay on) -- falsifier: uv run pytest tests/ci -k no_dependabot_version_updates, a ratchet over every registry clone's dependabot.yml seeded with a planted schedule as positive control
+evidence_requirements:
+  - kind: "ci"
+    description: "Run the SPI regression tests that reject Dependabot configuration under either YAML filename."
+    command: >-
+      env PYTHONDONTWRITEBYTECODE=1 uv run pytest tests/ci/test_no_dependabot_version_updates_omn21351.py -q --no-cov
+emergency_bypass:
+  enabled: false
+  justification: ""
+  follow_up_ticket_id: ""
+dod_evidence:
+  - id: "dod-spi-no-dependabot-version-updates"
+    description: >-
+      SPI contribution to AC1 only: the former pip and GitHub Actions weekly version-update configuration is absent. Registry-wide AC1 remains pending until the other repositories and the central ratchet satisfy it.
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: >-
+          env PYTHONDONTWRITEBYTECODE=1 uv run pytest tests/ci/test_no_dependabot_version_updates_omn21351.py -q --no-cov
+    binds_ac: ["AC1"]
