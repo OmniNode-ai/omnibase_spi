@@ -9,6 +9,7 @@ This module defines effect execution interfaces for the ONEX kernel:
 - ``ProtocolPrimitiveEffectExecutor``: async primitive effects (kernel dispatch)
 - ``ProtocolGitHubPRPollerEffect``: GitHub PR triage state poller (internal issue)
 - ``ProtocolGitHookEffect``: Git hook event emitter (internal issue)
+- ``ProtocolGitRemote``: remote branch head read and leased push
 - ``ProtocolLinearSnapshotEffect``: Linear workspace snapshot poller (internal issue)
 """
 
@@ -16,6 +17,7 @@ from omnibase_spi.protocols.effects.protocol_effect import ProtocolEffect
 from omnibase_spi.protocols.effects.protocol_git_hook_effect import (
     ProtocolGitHookEffect,
 )
+from omnibase_spi.protocols.effects.protocol_git_remote import ProtocolGitRemote
 from omnibase_spi.protocols.effects.protocol_github_pr_poller_effect import (
     ProtocolGitHubPRPollerEffect,
 )
@@ -33,6 +35,7 @@ __all__ = [
     "LiteralEffectId",
     "ProtocolEffect",
     "ProtocolGitHookEffect",
+    "ProtocolGitRemote",
     "ProtocolGitHubPRPollerEffect",
     "ProtocolLinearSnapshotEffect",
     "ProtocolPrimitiveEffectExecutor",

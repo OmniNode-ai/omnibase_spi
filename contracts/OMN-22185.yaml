@@ -1,0 +1,37 @@
+schema_version: "1.0.0"
+ticket_id: "OMN-22185"
+title: "Lander P0, omnibase_spi part: ProtocolDurableStore, ProtocolTreeLock, ProtocolGitRemote, ProtocolContainmentUnit and ProtocolHostCall with in-memory adapters and conformance suites"
+summary: "Part of OMN-22185. The lane-owned lander's nodes take five injected protocols; none existed in omnibase_spi, omnibase_core or omnimarket. This change defines them in omnibase_spi, each with an in-memory adapter and a conformance suite that the in-memory adapter and a reference adapter over the real filesystem, git or process table pass. The omnibase_core validator (AC2) and the omnimarket append_if_absent (AC3) are the second and third pull requests of the ticket."
+is_seam_ticket: false
+interface_change: true
+interfaces_touched:
+  - "protocols"
+requirements:
+  - id: "req-omn22185-spi-protocols"
+    statement: "omnibase_spi must define ProtocolDurableStore, ProtocolTreeLock, ProtocolGitRemote, ProtocolContainmentUnit and ProtocolHostCall as runtime-checkable protocols, each with an in-memory adapter and a conformance suite that every adapter passes."
+    acceptance:
+      - id: "AC1"
+        statement: "AC1: Every protocol and validator a later task names exists, with a conformance suite that its in-memory and real adapters both pass -- falsifier: the conformance suites, each with a positive control (uv run pytest on the suites in omnibase_spi and omnibase_core)"
+evidence_requirements:
+  - kind: "tests"
+    description: "The conformance suites for the five protocols, the contract tests, the snapshot test and the documentation count test."
+    command: "uv run pytest tests/unit/protocols/conformance tests/test_protocol_snapshot.py tests/unit/test_doc_protocol_imports.py -q --no-cov -p no:randomly"
+emergency_bypass:
+  enabled: false
+  justification: ""
+  follow_up_ticket_id: ""
+dod_evidence:
+  - id: "dod-omn22185-spi-conformance"
+    description: "AC1 (omnibase_spi part): the in-memory and reference adapters of the five protocols pass each conformance suite."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/unit/protocols/conformance/test_conformance.py -q --no-cov -p no:randomly"
+    binds_ac: ["AC1"]
+  - id: "dod-omn22185-spi-positive-control"
+    description: "AC1 (positive control): a deliberately broken adapter is refused by each suite, and the wire contracts hold their three-kind shape."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/unit/protocols/conformance/test_conformance.py tests/unit/protocols/conformance/test_contracts.py -k 'control or contract or answer or push or request' -q --no-cov -p no:randomly"
+    binds_ac: ["AC1"]

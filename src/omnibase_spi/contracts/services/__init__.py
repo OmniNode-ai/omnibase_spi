@@ -29,6 +29,10 @@ from omnibase_spi.contracts.services.contract_source_control_types import (
     ModelMergeResult,
     ModelPullRequest,
 )
+from omnibase_spi.contracts.services.model_host_call_types import (
+    ModelHostCallAnswer,
+    ModelHostCallRequest,
+)
 
 __all__ = [
     "ModelBranch",
@@ -38,6 +42,8 @@ __all__ = [
     "ModelDatabaseHealth",
     "ModelDiff",
     "ModelExecuteResult",
+    "ModelHostCallAnswer",
+    "ModelHostCallRequest",
     "ModelIssue",
     "ModelMergeResult",
     "ModelMigrationStatus",

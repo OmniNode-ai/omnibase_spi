@@ -3,11 +3,14 @@
 """Runtime protocols.
 
 Includes:
+    * ProtocolContainmentUnit — run a command in a unit of its own, list members, stop.
     * ProtocolDispatchEngine — topic → handler dispatch engine contract.
     * ProtocolDomainPlugin — domain plugin lifecycle hooks.
     * ProtocolHandleable — structural ``handle()`` protocol for handlers.
     * ProtocolHandlerOwnershipQuery — local-vs-remote ownership decision.
     * ProtocolHandlerResolver — handler class → instance resolution.
+    * ProtocolHostCall — one typed call to a host under a timeout.
+    * ProtocolTreeLock — non-blocking lock on a named tree, released by token.
 
 ModelDomainPluginConfig and ModelDomainPluginResult are concrete dataclasses
 that live in omnibase_core.models.runtime.model_domain_plugin; they are
@@ -17,6 +20,9 @@ from this subpackage without a circular import at package-init time.
 
 import importlib
 
+from omnibase_spi.protocols.runtime.protocol_containment_unit import (
+    ProtocolContainmentUnit,
+)
 from omnibase_spi.protocols.runtime.protocol_dispatch_engine import (
     ProtocolDispatchEngine,
 )
@@ -28,15 +34,20 @@ from omnibase_spi.protocols.runtime.protocol_handler_ownership_query import (
 from omnibase_spi.protocols.runtime.protocol_handler_resolver import (
     ProtocolHandlerResolver,
 )
+from omnibase_spi.protocols.runtime.protocol_host_call import ProtocolHostCall
+from omnibase_spi.protocols.runtime.protocol_tree_lock import ProtocolTreeLock
 
 __all__: list[str] = [
     "ModelDomainPluginConfig",
     "ModelDomainPluginResult",
+    "ProtocolContainmentUnit",
     "ProtocolDispatchEngine",
     "ProtocolDomainPlugin",
     "ProtocolHandleable",
     "ProtocolHandlerOwnershipQuery",
     "ProtocolHandlerResolver",
+    "ProtocolHostCall",
+    "ProtocolTreeLock",
 ]
 
 _lazy: dict[str, str] = {

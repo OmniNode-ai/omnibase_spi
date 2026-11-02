@@ -4,6 +4,7 @@
 """Protocols for managing data storage and persistence."""
 
 from .protocol_database_connection import ProtocolDatabaseConnection
+from .protocol_durable_store import ProtocolDurableStore
 from .protocol_graph_database_handler import ProtocolGraphDatabaseHandler
 from .protocol_idempotency_store import ProtocolIdempotencyStore
 from .protocol_storage_backend import (
@@ -14,6 +15,7 @@ from .protocol_vector_store_handler import ProtocolVectorStoreHandler
 
 __all__ = [
     "ProtocolDatabaseConnection",
+    "ProtocolDurableStore",
     "ProtocolGraphDatabaseHandler",
     "ProtocolIdempotencyStore",
     "ProtocolStorageBackend",
