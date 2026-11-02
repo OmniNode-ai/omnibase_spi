@@ -2970,6 +2970,91 @@
       "return_type": "bool"
     }
   },
+  "ProtocolContainmentUnit": {
+    "__eq__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__ge__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__gt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__hash__": {
+      "kind": "method",
+      "parameters": {},
+      "return_type": "<empty>"
+    },
+    "__le__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__lt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "members": {
+      "kind": "method",
+      "parameters": {
+        "unit": {
+          "type": "str"
+        }
+      },
+      "return_type": "tuple[int, Ellipsis]"
+    },
+    "run_contained": {
+      "kind": "method",
+      "parameters": {
+        "argv": {
+          "type": "Sequence[str]"
+        },
+        "unit": {
+          "type": "str"
+        }
+      },
+      "return_type": "int"
+    },
+    "stop": {
+      "kind": "method",
+      "parameters": {
+        "timeout_s": {
+          "type": "float"
+        },
+        "unit": {
+          "type": "str"
+        }
+      },
+      "return_type": "bool"
+    }
+  },
   "ProtocolContextEnrichment": {
     "__eq__": {
       "kind": "method",
@@ -4161,6 +4246,121 @@
         }
       },
       "return_type": "ModelDomainPluginResult"
+    }
+  },
+  "ProtocolDurableStore": {
+    "__eq__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__ge__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__gt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__hash__": {
+      "kind": "method",
+      "parameters": {},
+      "return_type": "<empty>"
+    },
+    "__le__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__lt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "append_line": {
+      "kind": "async_method",
+      "parameters": {
+        "line": {
+          "type": "str"
+        },
+        "path": {
+          "type": "str"
+        }
+      },
+      "return_type": "None"
+    },
+    "create_exclusive": {
+      "kind": "async_method",
+      "parameters": {
+        "data": {
+          "type": "bytes"
+        },
+        "path": {
+          "type": "str"
+        }
+      },
+      "return_type": "bool"
+    },
+    "list_entries": {
+      "kind": "async_method",
+      "parameters": {
+        "directory": {
+          "type": "str"
+        }
+      },
+      "return_type": "tuple[str, Ellipsis]"
+    },
+    "read": {
+      "kind": "async_method",
+      "parameters": {
+        "path": {
+          "type": "str"
+        }
+      },
+      "return_type": "bytes | None"
+    },
+    "remove": {
+      "kind": "async_method",
+      "parameters": {
+        "path": {
+          "type": "str"
+        }
+      },
+      "return_type": "bool"
+    },
+    "write_atomic": {
+      "kind": "async_method",
+      "parameters": {
+        "data": {
+          "type": "bytes"
+        },
+        "path": {
+          "type": "str"
+        }
+      },
+      "return_type": "None"
     }
   },
   "ProtocolEffect": {
@@ -7609,6 +7809,82 @@
       "return_type": "~T"
     }
   },
+  "ProtocolGitRemote": {
+    "__eq__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__ge__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__gt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__hash__": {
+      "kind": "method",
+      "parameters": {},
+      "return_type": "<empty>"
+    },
+    "__le__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__lt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "push_with_lease": {
+      "kind": "async_method",
+      "parameters": {
+        "branch": {
+          "type": "str"
+        },
+        "expected_head": {
+          "type": "str | None"
+        },
+        "sha": {
+          "type": "str"
+        }
+      },
+      "return_type": "ModelPushResult"
+    },
+    "remote_head": {
+      "kind": "async_method",
+      "parameters": {
+        "branch": {
+          "type": "str"
+        }
+      },
+      "return_type": "str | None"
+    }
+  },
   "ProtocolGraphDatabaseHandler": {
     "__eq__": {
       "kind": "method",
@@ -8869,6 +9145,70 @@
         }
       },
       "return_type": "bool"
+    }
+  },
+  "ProtocolHostCall": {
+    "__eq__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__ge__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__gt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__hash__": {
+      "kind": "method",
+      "parameters": {},
+      "return_type": "<empty>"
+    },
+    "__le__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__lt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "call": {
+      "kind": "method",
+      "parameters": {
+        "request": {
+          "type": "ModelHostCallRequest"
+        },
+        "timeout_s": {
+          "type": "float"
+        }
+      },
+      "return_type": "ModelHostCallAnswer"
     }
   },
   "ProtocolHotPathLoggingSink": {
@@ -19092,6 +19432,88 @@
       "kind": "async_method",
       "parameters": {
         "module_path": {
+          "type": "str"
+        }
+      },
+      "return_type": "bool"
+    }
+  },
+  "ProtocolTreeLock": {
+    "__eq__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__ge__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__gt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__hash__": {
+      "kind": "method",
+      "parameters": {},
+      "return_type": "<empty>"
+    },
+    "__le__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__lt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "acquire": {
+      "kind": "method",
+      "parameters": {
+        "key": {
+          "type": "str"
+        }
+      },
+      "return_type": "str | None"
+    },
+    "inspect": {
+      "kind": "method",
+      "parameters": {
+        "key": {
+          "type": "str"
+        }
+      },
+      "return_type": "str | None"
+    },
+    "release": {
+      "kind": "method",
+      "parameters": {
+        "key": {
+          "type": "str"
+        },
+        "token": {
           "type": "str"
         }
       },

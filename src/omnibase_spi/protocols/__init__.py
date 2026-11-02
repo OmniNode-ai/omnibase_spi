@@ -223,6 +223,7 @@ from omnibase_spi.protocols.effects import (
     LiteralEffectCategory,
     LiteralEffectId,
     ProtocolEffect,
+    ProtocolGitRemote,
     ProtocolPrimitiveEffectExecutor,
 )
 
@@ -410,6 +411,9 @@ from omnibase_spi.protocols.registry import (
 
 # Runtime protocols - Dispatch engine + domain plugin lifecycle + handler resolver
 # ModelDomainPluginConfig and ModelDomainPluginResult live in omnibase_core.models.runtime.
+from omnibase_spi.protocols.runtime.protocol_containment_unit import (
+    ProtocolContainmentUnit,
+)
 from omnibase_spi.protocols.runtime.protocol_dispatch_engine import (
     ProtocolDispatchEngine,
 )
@@ -421,6 +425,8 @@ from omnibase_spi.protocols.runtime.protocol_handler_ownership_query import (
 from omnibase_spi.protocols.runtime.protocol_handler_resolver import (
     ProtocolHandlerResolver,
 )
+from omnibase_spi.protocols.runtime.protocol_host_call import ProtocolHostCall
+from omnibase_spi.protocols.runtime.protocol_tree_lock import ProtocolTreeLock
 
 # Schema protocols (2 protocols) - Schema loading and validation
 from omnibase_spi.protocols.schema import (
@@ -453,6 +459,7 @@ from omnibase_spi.protocols.services import (
 # Storage protocols (6 protocols) - Data storage and persistence
 from omnibase_spi.protocols.storage import (
     ProtocolDatabaseConnection,
+    ProtocolDurableStore,
     ProtocolGraphDatabaseHandler,
     ProtocolIdempotencyStore,
     ProtocolStorageBackend,
@@ -552,6 +559,7 @@ __all__ = [
     "ProtocolCommunicationBridge",
     "ProtocolComputeNode",
     "ProtocolContainer",
+    "ProtocolContainmentUnit",
     "ProtocolConstraintValidator",
     "ProtocolContainerService",
     "ProtocolContextEnrichment",
@@ -565,6 +573,7 @@ __all__ = [
     "ProtocolDependencyGraph",
     "ProtocolDetectionMatch",
     "ProtocolDistributedTracing",
+    "ProtocolDurableStore",
     "ProtocolEffect",
     "ProtocolEffectContractCompiler",
     "ProtocolEffectNode",
@@ -601,6 +610,7 @@ __all__ = [
     "ProtocolFileHandlerRegistry",
     "ProtocolFileProcessingTypeHandler",
     "ProtocolFileReader",
+    "ProtocolGitRemote",
     "ProtocolGraphDatabaseHandler",
     "ProtocolHandleable",
     "ProtocolHandler",
@@ -612,6 +622,7 @@ __all__ = [
     "ProtocolHandlerOwnershipQuery",
     "ProtocolHandlerRegistry",
     "ProtocolHandlerResolver",
+    "ProtocolHostCall",
     "ProtocolHandlerSource",
     "ProtocolHealthDetails",
     "ProtocolHealthMonitor",
@@ -704,6 +715,7 @@ __all__ = [
     "ProtocolSyncEventBus",
     "ProtocolTaskSchedulingCriteria",
     "ProtocolTicketService",
+    "ProtocolTreeLock",
     "ProtocolTimeBasedOperations",
     "ProtocolToolDiscoveryService",
     "ProtocolTrustedSchemaLoader",
