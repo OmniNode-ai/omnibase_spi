@@ -14,6 +14,7 @@ After the comprehensive reorganization, the core domain now contains only
 from omnibase_spi.protocols.core.protocol_canonical_serializer import (
     ProtocolCanonicalSerializer,
 )
+from omnibase_spi.protocols.core.protocol_clock import ProtocolClock
 from omnibase_spi.protocols.core.protocol_error_handler import ProtocolErrorHandler
 from omnibase_spi.protocols.core.protocol_error_sanitizer import (
     ProtocolErrorSanitizer,
@@ -41,6 +42,7 @@ from omnibase_spi.protocols.core.protocol_version_manager import ProtocolVersion
 __all__ = [
     "ProtocolAuditLogger",
     "ProtocolCanonicalSerializer",
+    "ProtocolClock",
     "ProtocolDistributedTracing",
     "ProtocolErrorHandler",
     "ProtocolErrorSanitizer",

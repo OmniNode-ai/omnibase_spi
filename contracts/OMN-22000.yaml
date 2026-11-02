@@ -1,0 +1,39 @@
+schema_version: "1.0.0"
+ticket_id: "OMN-22000"
+title: "ProtocolClock placed in omnibase_spi (omnibase_spi half of W1.6a Protocol placement)"
+summary: "The clock protocol that omnimarket nodes declare in protocol_dependencies was defined in omnimarket.protocols. This change defines it in the omnibase_spi core protocol domain, with the export, the snapshot entry and the doc counts, so that the omnimarket half can re-point every consumer and contract reference at the dev-merge tag that carries it."
+is_seam_ticket: false
+interface_change: true
+interfaces_touched:
+  - "protocols"
+requirements:
+  - id: "req-omn22000-spi-clock"
+    statement: "omnibase_spi must define ProtocolClock in its core protocol domain as a runtime-checkable protocol with one now() read, exported from the domain and the package."
+    acceptance:
+      - id: "AC1"
+        statement: "AC1: ProtocolClock resolves from omnibase_spi.protocols.core.protocol_clock, omnibase_spi.protocols.core and omnibase_spi.protocols as one object, and an object with now() passes isinstance while an object without it does not -- falsifier: uv run pytest tests/unit/protocols/core/test_protocol_clock.py"
+      - id: "AC2"
+        statement: "AC2: the protocol signature snapshot holds ProtocolClock and the stamped protocol counts match the live count -- falsifier: uv run pytest tests/test_protocol_snapshot.py tests/unit/test_doc_protocol_imports.py"
+evidence_requirements:
+  - kind: "tests"
+    description: "The clock protocol tests, the snapshot test and the documentation count test."
+    command: "uv run pytest tests/unit/protocols/core/test_protocol_clock.py tests/test_protocol_snapshot.py tests/unit/test_doc_protocol_imports.py -q --no-cov -p no:randomly"
+emergency_bypass:
+  enabled: false
+  justification: ""
+  follow_up_ticket_id: ""
+dod_evidence:
+  - id: "dod-omn22000-clock-resolves"
+    description: "AC1: ProtocolClock resolves from its three import paths as one object and checks structurally."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/unit/protocols/core/test_protocol_clock.py -q --no-cov -p no:randomly"
+    binds_ac: ["AC1"]
+  - id: "dod-omn22000-snapshot-and-counts"
+    description: "AC2: the snapshot test and the documentation count test pass with ProtocolClock present."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/test_protocol_snapshot.py tests/unit/test_doc_protocol_imports.py -q --no-cov -p no:randomly"
+    binds_ac: ["AC2"]

@@ -430,6 +430,20 @@ class ProtocolVersionManager(Protocol):
     ) -> dict[str, bool]: ...
 ```
 
+### Clock Protocol
+
+```python
+@runtime_checkable
+class ProtocolClock(Protocol):
+    """One read of the current time."""
+
+    def now(self) -> datetime: ...
+```
+
+A node that needs the time takes a clock instead of calling the system clock, so a
+test or a lab binding can swap it for a fixed or a stepping one. Import it from
+`omnibase_spi.protocols.core.protocol_clock`.
+
 ## 🔧 Type Definitions
 
 ### Health Status Types
