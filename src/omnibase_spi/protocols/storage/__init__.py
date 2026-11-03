@@ -11,6 +11,12 @@ from .protocol_storage_backend import (
     ProtocolStorageBackend,
     ProtocolStorageBackendFactory,
 )
+from .protocol_transcript_store import (
+    ProtocolTranscriptObjectRecord,
+    ProtocolTranscriptSource,
+    ProtocolTranscriptStore,
+    TranscriptPutOutcome,
+)
 from .protocol_vector_store_handler import ProtocolVectorStoreHandler
 
 __all__ = [
@@ -20,5 +26,9 @@ __all__ = [
     "ProtocolIdempotencyStore",
     "ProtocolStorageBackend",
     "ProtocolStorageBackendFactory",
+    "ProtocolTranscriptObjectRecord",
+    "ProtocolTranscriptSource",
+    "ProtocolTranscriptStore",
     "ProtocolVectorStoreHandler",
+    "TranscriptPutOutcome",
 ]
