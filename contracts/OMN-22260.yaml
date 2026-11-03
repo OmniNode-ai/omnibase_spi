@@ -13,7 +13,7 @@ requirements:
       - id: "AC1"
         statement: "AC1: ProtocolTranscriptStore, ProtocolTranscriptSource, ProtocolTranscriptObjectRecord and TranscriptPutOutcome resolve from omnibase_spi.protocols.storage and omnibase_spi.protocols; the store protocol's coroutine methods are exactly list_objects, read, stat and put and none of their names deletes or lowers; a late put of a shorter copy is refused -- falsifier: uv run pytest tests/unit/protocols/storage/test_protocol_transcript_store.py"
       - id: "AC2"
-        statement: "AC2: the stamped protocol file count matches the live count and the protocol signature snapshot test passes -- falsifier: uv run pytest tests/test_protocol_snapshot.py tests/unit/test_doc_protocol_imports.py"
+        statement: "AC2: with the transcript store API present, the stamped protocol file count matches the live count and the protocol signature snapshot test passes -- falsifier: uv run pytest tests/unit/protocols/storage/test_protocol_transcript_store.py tests/test_protocol_snapshot.py tests/unit/test_doc_protocol_imports.py"
 evidence_requirements:
   - kind: "tests"
     description: "The transcript store protocol tests, the snapshot test and the documentation count test."
@@ -31,9 +31,9 @@ dod_evidence:
         check_value: "uv run pytest tests/unit/protocols/storage/test_protocol_transcript_store.py -q --no-cov -p no:randomly"
     binds_ac: ["AC1"]
   - id: "dod-omn22260-snapshot-and-counts"
-    description: "AC2: the snapshot test and the documentation count test pass with the new protocol file present."
+    description: "AC2: the transcript store API tests, snapshot test and documentation count test pass together; the API tests fail when the new protocol is absent."
     source: "manual"
     checks:
       - check_type: "test_passes"
-        check_value: "uv run pytest tests/test_protocol_snapshot.py tests/unit/test_doc_protocol_imports.py -q --no-cov -p no:randomly"
+        check_value: "uv run pytest tests/unit/protocols/storage/test_protocol_transcript_store.py tests/test_protocol_snapshot.py tests/unit/test_doc_protocol_imports.py -q --no-cov -p no:randomly"
     binds_ac: ["AC2"]
