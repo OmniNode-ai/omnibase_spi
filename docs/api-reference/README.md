@@ -959,7 +959,7 @@ def validate_node_types(
 - **Type Checking**: mypy strict mode compatible
 - **Runtime Checking**: All protocols are `@runtime_checkable`
 
-> Verified against code on this refresh: 244 `protocol_*.py` files and 40
+> Verified against code on this refresh: 245 `protocol_*.py` files and 40
 > protocol domains under `src/omnibase_spi/protocols/`; package version
 > `0.23.3` from `pyproject.toml` (OMN-16127). Re-verify with
 > `find src/omnibase_spi/protocols -name 'protocol_*.py' | wc -l` and

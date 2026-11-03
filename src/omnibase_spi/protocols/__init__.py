@@ -471,7 +471,11 @@ from omnibase_spi.protocols.storage import (
     ProtocolIdempotencyStore,
     ProtocolStorageBackend,
     ProtocolStorageBackendFactory,
+    ProtocolTranscriptObjectRecord,
+    ProtocolTranscriptSource,
+    ProtocolTranscriptStore,
     ProtocolVectorStoreHandler,
+    TranscriptPutOutcome,
 )
 
 # Validation protocols (5 protocols) - Input validation and error handling

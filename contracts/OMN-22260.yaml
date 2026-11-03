@@ -1,0 +1,39 @@
+schema_version: "1.0.0"
+ticket_id: "OMN-22260"
+title: "Transcript store port in omnibase_spi (omnibase_spi companion of the transcript mirror)"
+summary: "The transcript mirror and the transcript scan read and write transcript files through one port. This change defines ProtocolTranscriptStore, its read-side ProtocolTranscriptSource and the put outcome type in the omnibase_spi storage domain, so the omnimarket half can declare them in its node contracts after the dev-merge tag that carries this change exists."
+is_seam_ticket: false
+interface_change: true
+interfaces_touched:
+  - "protocols"
+requirements:
+  - id: "req-omn22260-spi-transcript-store"
+    statement: "omnibase_spi must define a transcript store protocol whose write side is put only, with no method that deletes an object or lowers one."
+    acceptance:
+      - id: "AC1"
+        statement: "AC1: ProtocolTranscriptStore, ProtocolTranscriptSource, ProtocolTranscriptObjectRecord and TranscriptPutOutcome resolve from omnibase_spi.protocols.storage and omnibase_spi.protocols; the store protocol's coroutine methods are exactly list_objects, read, stat and put and none of their names deletes or lowers; a late put of a shorter copy is refused -- falsifier: uv run pytest tests/unit/protocols/storage/test_protocol_transcript_store.py"
+      - id: "AC2"
+        statement: "AC2: with the transcript store API present, the stamped protocol file count matches the live count and the protocol signature snapshot test passes -- falsifier: uv run pytest tests/unit/protocols/storage/test_protocol_transcript_store.py tests/test_protocol_snapshot.py tests/unit/test_doc_protocol_imports.py"
+evidence_requirements:
+  - kind: "tests"
+    description: "The transcript store protocol tests, the snapshot test and the documentation count test."
+    command: "uv run pytest tests/unit/protocols/storage/test_protocol_transcript_store.py tests/test_protocol_snapshot.py tests/unit/test_doc_protocol_imports.py -q --no-cov -p no:randomly"
+emergency_bypass:
+  enabled: false
+  justification: ""
+  follow_up_ticket_id: ""
+dod_evidence:
+  - id: "dod-omn22260-store-protocol"
+    description: "AC1: the transcript store protocol has put as its only write method and refuses a late shorter put."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/unit/protocols/storage/test_protocol_transcript_store.py -q --no-cov -p no:randomly"
+    binds_ac: ["AC1"]
+  - id: "dod-omn22260-snapshot-and-counts"
+    description: "AC2: the transcript store API tests, snapshot test and documentation count test pass together; the API tests fail when the new protocol is absent."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/unit/protocols/storage/test_protocol_transcript_store.py tests/test_protocol_snapshot.py tests/unit/test_doc_protocol_imports.py -q --no-cov -p no:randomly"
+    binds_ac: ["AC2"]

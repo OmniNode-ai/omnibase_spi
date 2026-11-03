@@ -819,6 +819,25 @@ except FileProcessingError as e:
 - **Performance**: Streaming, chunking, and optimization
 - **Metadata**: Comprehensive file metadata management
 
+## Transcript Store Protocol
+
+```python
+@runtime_checkable
+class ProtocolTranscriptStore(ProtocolTranscriptSource, Protocol):
+    async def stat(self, key: str) -> ProtocolTranscriptObjectRecord | None: ...
+    async def put(
+        self, key: str, content: bytes, revision: int, sha256: str
+    ) -> TranscriptPutOutcome: ...
+```
+
+A keyed set of transcript files, each held with a revision (record count) and a
+sha256. The read side (`ProtocolTranscriptSource`: `list_objects`, `read`) is all a
+directory handler needs. The write side is `put` only: no method deletes an object
+or lowers one, and `put` stores a copy only when the store's recorded revision is
+below the copy's, decided on the store. Outcomes: `stored`, `unchanged`,
+`refused-stale`, `refused-conflict`. Import it from
+`omnibase_spi.protocols.storage.protocol_transcript_store`.
+
 ---
 
 ## See Also
