@@ -1,3 +1,16 @@
+## v0.23.12 (2026-11-03)
+
+### Release
+- Cut omnibase-spi from dev at 0.23.12 by the scheduled release train.
+- 4 release-relevant commit(s) merged since v0.23.11.
+- Opened by the release train, which cuts only when the repo's declared lab-evidence premise holds for the exact candidate commit.
+
+### Included Since v0.23.11
+- feat: ProtocolTranscriptStore, the transcript store port (#438)
+- fix: name the registry root field registry_root in the lane host transport wire models (#437)
+- feat: three lane protocols in omnibase_spi: ProtocolLaneHostTransport, ProtocolLaneHostPool, ProtocolWorkLedgerStore (#436)
+- feat: five lander protocols in omnibase_spi with in-memory adapters and conformance suites (#435)
+
 ## v0.23.11 (2026-11-02)
 
 ### Release
