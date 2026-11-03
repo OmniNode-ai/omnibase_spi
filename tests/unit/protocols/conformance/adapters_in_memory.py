@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
 # SPDX-License-Identifier: MIT
 
-"""In-memory adapters for the five lander protocols (OMN-22185).
+"""In-memory adapters for the five lander protocols (OMN-22185) and the three lane protocols (OMN-22198).
 
 They live with the conformance suites, not in the package: the omnibase_spi purity
 gate allows no concrete class in ``src``. Each is the ``local``-profile adapter of
@@ -12,7 +12,22 @@ import itertools
 import threading
 from collections.abc import Callable, Sequence
 
-from omnibase_spi.contracts.services import ModelHostCallAnswer, ModelHostCallRequest
+from omnibase_spi.contracts.services import (
+    ModelHostCallAnswer,
+    ModelHostCallRequest,
+    ModelLaneHostPoolRequest,
+    ModelLaneHostPoolSnapshot,
+    ModelLanePrepareWorktreeRequest,
+    ModelLanePrepareWorktreeResult,
+    ModelLaneReadEngineExitRequest,
+    ModelLaneReadEngineExitResult,
+    ModelLaneReadLogTailRequest,
+    ModelLaneReadLogTailResult,
+    ModelLaneStartEngineRequest,
+    ModelLaneStartEngineResult,
+    ModelLaneStopEngineRequest,
+    ModelLaneStopEngineResult,
+)
 from omnibase_spi.contracts.source_control import ModelPushResult
 from omnibase_spi.exceptions import InvalidProtocolStateError
 
@@ -230,3 +245,158 @@ class InMemoryGitRemote:
                 )
             self._heads[branch] = sha
             return ModelPushResult(pushed=True, remote_head=sha)
+
+
+class InMemoryLaneHostTransport:
+    """A scripted lane host: records every call in order, and the test scripts the engine.
+
+    A start answers ``started`` unless the test scripts another state with
+    ``script_start``. An engine ends only when the test calls ``script_exit`` or a
+    stop reaches it; an engine marked ``script_stubborn`` survives every stop.
+    """
+
+    synchronous_execution = True
+
+    def __init__(self) -> None:
+        self.calls: list[tuple[str, str]] = []
+        self._start_state: str = "started"
+        self._refusing: str | None = None
+        self._running: set[str] = set()
+        self._exit_codes: dict[str, int] = {}
+        self._stubborn: set[str] = set()
+        self._logs: dict[str, list[str]] = {}
+
+    def script_start(self, state: str) -> None:
+        """Make the next starts settle as ``started``, ``failed`` or ``unresolved``."""
+        self._start_state = state
+
+    def script_prepare_refusal(self, error: str | None) -> None:
+        """Make prepare_worktree fail with ``error``; None makes it succeed again."""
+        self._refusing = error
+
+    def script_exit(self, run_id: str, exit_code: int) -> None:
+        """End the run's engine with ``exit_code``."""
+        self._running.discard(run_id)
+        self._exit_codes[run_id] = exit_code
+
+    def script_stubborn(self, run_id: str) -> None:
+        """Make the run's engine survive every stop."""
+        self._stubborn.add(run_id)
+
+    def script_log(self, run_id: str, lines: Sequence[str]) -> None:
+        """Set the run's engine log."""
+        self._logs[run_id] = list(lines)
+
+    def prepare_worktree(
+        self, request: ModelLanePrepareWorktreeRequest
+    ) -> ModelLanePrepareWorktreeResult:
+        """Return a workdir under the first candidate omni_home, or the scripted refusal."""
+        self.calls.append(("prepare_worktree", request.run_id))
+        if self._refusing is not None:
+            return ModelLanePrepareWorktreeResult(prepared=False, error=self._refusing)
+        omni_home = (
+            request.omni_home_candidates[0] if request.omni_home_candidates else "/omni"
+        )
+        return ModelLanePrepareWorktreeResult(
+            prepared=True,
+            omni_home=omni_home,
+            workdir=f"{omni_home}/omni_worktrees/{request.lane}/{request.repo}",
+        )
+
+    def start_engine_detached(
+        self, request: ModelLaneStartEngineRequest
+    ) -> ModelLaneStartEngineResult:
+        """Settle the start as scripted; a started engine is running."""
+        self.calls.append(("start_engine_detached", request.run_id))
+        if self._start_state == "started":
+            self._running.add(request.run_id)
+            return ModelLaneStartEngineResult(
+                state="started", session_id=f"session-{request.run_id}"
+            )
+        if self._start_state == "failed":
+            return ModelLaneStartEngineResult(
+                state="failed", error="engine exited at start"
+            )
+        return ModelLaneStartEngineResult(state="unresolved")
+
+    def read_engine_exit(
+        self, request: ModelLaneReadEngineExitRequest
+    ) -> ModelLaneReadEngineExitResult:
+        """Return the exit code once the engine has ended, else running."""
+        self.calls.append(("read_engine_exit", request.run_id))
+        if request.run_id in self._exit_codes:
+            return ModelLaneReadEngineExitResult(
+                running=False, exit_code=self._exit_codes[request.run_id]
+            )
+        return ModelLaneReadEngineExitResult(running=True)
+
+    def stop_engine(
+        self, request: ModelLaneStopEngineRequest
+    ) -> ModelLaneStopEngineResult:
+        """End the engine unless it is stubborn; confirmed says whether it ended."""
+        self.calls.append(("stop_engine", request.run_id))
+        if request.run_id in self._stubborn:
+            return ModelLaneStopEngineResult(confirmed=False, detail="engine survived")
+        if request.run_id in self._exit_codes:
+            return ModelLaneStopEngineResult(
+                confirmed=True, exit_code=self._exit_codes[request.run_id]
+            )
+        self.script_exit(request.run_id, -15)
+        return ModelLaneStopEngineResult(confirmed=True, exit_code=-15)
+
+    def read_log_tail(
+        self, request: ModelLaneReadLogTailRequest
+    ) -> ModelLaneReadLogTailResult:
+        """Return the log lines from the offset and the offset to read next."""
+        self.calls.append(("read_log_tail", request.run_id))
+        log = self._logs.get(request.run_id, [])
+        return ModelLaneReadLogTailResult(
+            lines=tuple(log[request.offset :]),
+            next_offset=max(request.offset, len(log)),
+        )
+
+
+class InMemoryLaneHostPool:
+    """A pool that returns the snapshot the test scripted, and records each request."""
+
+    synchronous_execution = True
+
+    def __init__(self, snapshot: ModelLaneHostPoolSnapshot | None = None) -> None:
+        self.snapshot = snapshot or ModelLaneHostPoolSnapshot()
+        self.requests: list[ModelLaneHostPoolRequest] = []
+
+    def read_pool(self, request: ModelLaneHostPoolRequest) -> ModelLaneHostPoolSnapshot:
+        """Return the scripted snapshot."""
+        self.requests.append(request)
+        return self.snapshot
+
+
+class InMemoryWorkLedgerStore:
+    """A ledger held as raw lines; a row belongs to the lane its ``lane=`` cell names."""
+
+    def __init__(self) -> None:
+        self._rows: list[str] = []
+        self._queued: dict[tuple[str, str], list[str]] = {}
+
+    def append(self, row: str) -> None:
+        """Add a raw ledger line after the existing ones."""
+        self._rows.append(row)
+
+    def queue(self, lane: str, run_id: str, row: str) -> None:
+        """Record a row the lane queued on its host for relay."""
+        self._queued.setdefault((lane, run_id), []).append(row)
+
+    @staticmethod
+    def _lane_of(row: str) -> str | None:
+        for cell in row.replace("|", " ").split():
+            if cell.startswith("lane="):
+                return cell[len("lane=") :]
+        return None
+
+    def rows_for_lane(self, lane: str) -> tuple[str, ...]:
+        """Return the lane's rows, oldest first."""
+        return tuple(row for row in self._rows if self._lane_of(row) == lane)
+
+    def queued_rows(self, lane: str, run_id: str) -> tuple[str, ...]:
+        """Return the rows the lane queued in ``run_id``."""
+        return tuple(self._queued.get((lane, run_id), ()))

@@ -19,21 +19,38 @@ from typing import Any
 
 import pytest
 
-from omnibase_spi.contracts.services import ModelHostCallAnswer, ModelHostCallRequest
+from omnibase_spi.contracts.services import (
+    ModelHostCallAnswer,
+    ModelHostCallRequest,
+    ModelLaneHostPoolReading,
+    ModelLaneHostPoolRequest,
+    ModelLaneHostPoolSnapshot,
+    ModelLaneHostRef,
+    ModelLaneReadEngineExitRequest,
+    ModelLaneStartEngineRequest,
+    ModelLaneStopEngineRequest,
+    ModelLaneStopEngineResult,
+)
 from omnibase_spi.contracts.source_control import ModelPushResult
 from tests.unit.protocols.conformance import (
     suite_containment_unit,
     suite_durable_store,
     suite_git_remote,
     suite_host_call,
+    suite_lane_host_pool,
+    suite_lane_host_transport,
     suite_tree_lock,
+    suite_work_ledger_store,
 )
 from tests.unit.protocols.conformance.adapters_in_memory import (
     InMemoryContainmentUnit,
     InMemoryDurableStore,
     InMemoryGitRemote,
     InMemoryHostCall,
+    InMemoryLaneHostPool,
+    InMemoryLaneHostTransport,
     InMemoryTreeLock,
+    InMemoryWorkLedgerStore,
 )
 from tests.unit.protocols.conformance.adapters_reference import (
     EnvMarkerContainmentUnit,
@@ -92,6 +109,31 @@ class _InMemoryHostHarness:
         self.host.arrange_silence(operation)
 
 
+class _LaneHostHarness:
+    def __init__(self, transport: Any = None) -> None:
+        self.transport = transport or InMemoryLaneHostTransport()
+        self.script_start = self.transport.script_start
+        self.script_prepare_refusal = self.transport.script_prepare_refusal
+        self.script_exit = self.transport.script_exit
+        self.script_stubborn = self.transport.script_stubborn
+        self.script_log = self.transport.script_log
+
+
+class _LanePoolHarness:
+    def __init__(self, pool: Any = None) -> None:
+        self.pool = pool or InMemoryLaneHostPool()
+
+    def arrange(self, snapshot: ModelLaneHostPoolSnapshot) -> None:
+        self.pool.snapshot = snapshot
+
+
+class _LedgerHarness:
+    def __init__(self, store: Any = None) -> None:
+        self.store = store or InMemoryWorkLedgerStore()
+        self.append = self.store.append
+        self.queue = self.store.queue
+
+
 # ---------------------------------------------------------- broken adapters
 
 
@@ -138,6 +180,31 @@ class _BrokenHostCall(InMemoryHostCall):
         if answer.outcome == "unknown":
             return ModelHostCallAnswer(request_id=request.request_id, outcome="ok")
         return answer
+
+
+class _BrokenLaneHostTransport(InMemoryLaneHostTransport):
+    """stop_engine confirms even when the engine survived."""
+
+    def stop_engine(
+        self, request: ModelLaneStopEngineRequest
+    ) -> ModelLaneStopEngineResult:
+        super().stop_engine(request)
+        return ModelLaneStopEngineResult(confirmed=True)
+
+
+class _BrokenLaneHostPool(InMemoryLaneHostPool):
+    """read_pool drops the readings."""
+
+    def read_pool(self, request: ModelLaneHostPoolRequest) -> ModelLaneHostPoolSnapshot:
+        return super().read_pool(request).model_copy(update={"readings": ()})
+
+
+class _BrokenWorkLedgerStore(InMemoryWorkLedgerStore):
+    """rows_for_lane matches by prefix and returns newest first."""
+
+    def rows_for_lane(self, lane: str) -> tuple[str, ...]:
+        rows = [r for r in self._rows if (self._lane_of(r) or "").startswith(lane)]
+        return tuple(reversed(rows))
 
 
 # ------------------------------------------------------------------- suites
@@ -215,6 +282,67 @@ def test_host_call_conformance(check: Callable[..., None]) -> None:
     check(_InMemoryHostHarness())
 
 
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "check",
+    suite_lane_host_transport.CHECKS,
+    ids=_ids(suite_lane_host_transport.CHECKS),
+)
+def test_lane_host_transport_conformance(check: Callable[..., None]) -> None:
+    check(_LaneHostHarness())
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "check", suite_lane_host_pool.CHECKS, ids=_ids(suite_lane_host_pool.CHECKS)
+)
+def test_lane_host_pool_conformance(check: Callable[..., None]) -> None:
+    check(_LanePoolHarness())
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "check", suite_work_ledger_store.CHECKS, ids=_ids(suite_work_ledger_store.CHECKS)
+)
+def test_work_ledger_store_conformance(check: Callable[..., None]) -> None:
+    check(_LedgerHarness())
+
+
+@pytest.mark.unit
+def test_in_memory_lane_host_records_calls_in_order() -> None:
+    host = InMemoryLaneHostTransport()
+    ref = ModelLaneHostRef(name="host-a")
+    host.start_engine_detached(
+        ModelLaneStartEngineRequest(
+            host=ref,
+            lane="l",
+            run_id="r",
+            workdir="/w",
+            engine_argv=("e",),
+            timeout_seconds=1.0,
+        )
+    )
+    host.read_engine_exit(ModelLaneReadEngineExitRequest(host=ref, run_id="r"))
+    host.stop_engine(
+        ModelLaneStopEngineRequest(host=ref, run_id="r", grace_seconds=1.0)
+    )
+    assert [name for name, _ in host.calls] == [
+        "start_engine_detached",
+        "read_engine_exit",
+        "stop_engine",
+    ]
+
+
+@pytest.mark.unit
+def test_in_memory_lane_host_pool_records_the_request() -> None:
+    pool = InMemoryLaneHostPool(
+        ModelLaneHostPoolSnapshot(readings=(ModelLaneHostPoolReading(name="h"),))
+    )
+    request = ModelLaneHostPoolRequest(engine="claude", pinned_host="h")
+    assert pool.read_pool(request).readings[0].name == "h"
+    assert pool.requests == [request]
+
+
 # ----------------------------------------------------------- positive controls
 
 
@@ -257,6 +385,36 @@ def test_control_host_call_suite_refuses_silence_reported_as_ok() -> None:
     with pytest.raises(AssertionError):
         suite_host_call.check_no_answer_in_time_is_unknown_and_does_not_raise(
             _InMemoryHostHarness(_BrokenHostCall())
+        )
+
+
+@pytest.mark.unit
+def test_control_lane_host_suite_refuses_a_stop_that_confirms_a_surviving_engine() -> (
+    None
+):
+    with pytest.raises(AssertionError):
+        suite_lane_host_transport.check_an_engine_that_survives_the_stop_is_not_confirmed(
+            _LaneHostHarness(_BrokenLaneHostTransport())
+        )
+
+
+@pytest.mark.unit
+def test_control_lane_host_pool_suite_refuses_a_pool_that_drops_readings() -> None:
+    with pytest.raises(AssertionError):
+        suite_lane_host_pool.check_every_host_reading_and_every_limit_comes_back(
+            _LanePoolHarness(_BrokenLaneHostPool())
+        )
+
+
+@pytest.mark.unit
+def test_control_work_ledger_suite_refuses_prefix_match_and_newest_first() -> None:
+    with pytest.raises(AssertionError):
+        suite_work_ledger_store.check_a_lane_name_that_prefixes_another_does_not_match(
+            _LedgerHarness(_BrokenWorkLedgerStore())
+        )
+    with pytest.raises(AssertionError):
+        suite_work_ledger_store.check_rows_for_lane_are_that_lanes_rows_oldest_first(
+            _LedgerHarness(_BrokenWorkLedgerStore())
         )
 
 

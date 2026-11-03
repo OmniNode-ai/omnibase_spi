@@ -10641,6 +10641,172 @@
       "return_type": "ProtocolLLMProviderImpl"
     }
   },
+  "ProtocolLaneHostPool": {
+    "__eq__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__ge__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__gt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__hash__": {
+      "kind": "method",
+      "parameters": {},
+      "return_type": "<empty>"
+    },
+    "__le__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__lt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "read_pool": {
+      "kind": "method",
+      "parameters": {
+        "request": {
+          "type": "ModelLaneHostPoolRequest"
+        }
+      },
+      "return_type": "ModelLaneHostPoolSnapshot"
+    },
+    "synchronous_execution": {
+      "kind": "attribute",
+      "type": "ClassVar[bool]"
+    }
+  },
+  "ProtocolLaneHostTransport": {
+    "__eq__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__ge__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__gt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__hash__": {
+      "kind": "method",
+      "parameters": {},
+      "return_type": "<empty>"
+    },
+    "__le__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__lt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "prepare_worktree": {
+      "kind": "method",
+      "parameters": {
+        "request": {
+          "type": "ModelLanePrepareWorktreeRequest"
+        }
+      },
+      "return_type": "ModelLanePrepareWorktreeResult"
+    },
+    "read_engine_exit": {
+      "kind": "method",
+      "parameters": {
+        "request": {
+          "type": "ModelLaneReadEngineExitRequest"
+        }
+      },
+      "return_type": "ModelLaneEngineExitState"
+    },
+    "read_log_tail": {
+      "kind": "method",
+      "parameters": {
+        "request": {
+          "type": "ModelLaneReadLogTailRequest"
+        }
+      },
+      "return_type": "ModelLaneLogTailChunk"
+    },
+    "start_engine_detached": {
+      "kind": "method",
+      "parameters": {
+        "request": {
+          "type": "ModelLaneStartEngineRequest"
+        }
+      },
+      "return_type": "ModelLaneStartEngineResult"
+    },
+    "stop_engine": {
+      "kind": "method",
+      "parameters": {
+        "request": {
+          "type": "ModelLaneStopEngineRequest"
+        }
+      },
+      "return_type": "ModelLaneEngineStopOutcome"
+    },
+    "synchronous_execution": {
+      "kind": "attribute",
+      "type": "ClassVar[bool]"
+    }
+  },
   "ProtocolLifecycleManager": {
     "__eq__": {
       "kind": "method",
@@ -20921,6 +21087,79 @@
         }
       },
       "return_type": "Any"
+    }
+  },
+  "ProtocolWorkLedgerStore": {
+    "__eq__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__ge__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__gt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__hash__": {
+      "kind": "method",
+      "parameters": {},
+      "return_type": "<empty>"
+    },
+    "__le__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__lt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "queued_rows": {
+      "kind": "method",
+      "parameters": {
+        "lane": {
+          "type": "str"
+        },
+        "run_id": {
+          "type": "str"
+        }
+      },
+      "return_type": "tuple[str, Ellipsis]"
+    },
+    "rows_for_lane": {
+      "kind": "method",
+      "parameters": {
+        "lane": {
+          "type": "str"
+        }
+      },
+      "return_type": "tuple[str, Ellipsis]"
     }
   },
   "ProtocolWorkQueue": {

@@ -282,6 +282,13 @@ from omnibase_spi.protocols.intelligence import (
     ProtocolPatternExtractor,
 )
 
+# Lane protocols (3 protocols) - Lane host transport, host pool and work ledger store
+from omnibase_spi.protocols.lane import (
+    ProtocolLaneHostPool,
+    ProtocolLaneHostTransport,
+    ProtocolWorkLedgerStore,
+)
+
 # LLM protocols (3 protocols) - Large Language Model integration
 # LLM provider interfaces, model routing, and semantic processing
 from omnibase_spi.protocols.llm import (
@@ -637,6 +644,8 @@ __all__ = [
     "ProtocolIntentClassifier",
     "ProtocolIntentGraph",
     "ProtocolKafkaAdapter",
+    "ProtocolLaneHostPool",
+    "ProtocolLaneHostTransport",
     "ProtocolKeyValueStore",
     "ProtocolLLMProvider",
     "ProtocolLLMToolProvider",
@@ -731,6 +740,7 @@ __all__ = [
     "ProtocolVersionLoader",
     "ProtocolVersionManager",
     "ProtocolWidgetRenderer",
+    "ProtocolWorkLedgerStore",
     "ProtocolWorkQueue",
     "ProtocolWorkflowContractCompiler",
     "ProtocolWorkflowEventBus",

@@ -123,12 +123,12 @@ repo holds its own evidence in `contracts/<OMN-N>.yaml`, checked by the
 
 - Package version: `0.23.1`
 - Python: 3.12+
-- Protocol files: 241 `protocol_*.py` files across 39 protocol domains
+- Protocol files: 244 `protocol_*.py` files across 40 protocol domains
 - Package metadata: `pyproject.toml`
 
 > Verified against code on this refresh: protocol-file count via
-> `find src/omnibase_spi/protocols -name 'protocol_*.py' | wc -l` (241) and
-> domain count via the immediate subdirectories of `protocols/` (39); version
+> `find src/omnibase_spi/protocols -name 'protocol_*.py' | wc -l` (244) and
+> domain count via the immediate subdirectories of `protocols/` (40); version
 > from `pyproject.toml` (OMN-16127). `tests/test_doc_protocol_imports.py`
 > enforces these counts in CI so a future refresh cannot go stale silently.
 

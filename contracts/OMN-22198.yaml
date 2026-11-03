@@ -1,0 +1,37 @@
+schema_version: "1.0.0"
+ticket_id: "OMN-22198"
+title: "Lane start nodes, omnibase_spi part: ProtocolLaneHostTransport, ProtocolLaneHostPool and ProtocolWorkLedgerStore with wire models, in-memory adapters and conformance suites"
+summary: "Part of OMN-22198. The lane start nodes take three injected protocols; none existed in omnibase_spi. This change declares them in omnibase_spi with their frozen wire models under contracts/services, an in-memory adapter for each in the conformance test tree (not in src, because the purity gate allows no concrete class in src), and a conformance suite for each with a positive control. The nodes that bind the protocols live in other repositories and are other pull requests of the ticket."
+is_seam_ticket: false
+interface_change: true
+interfaces_touched:
+  - "protocols"
+requirements:
+  - id: "req-omn22198-spi-lane-protocols"
+    statement: "omnibase_spi must define ProtocolLaneHostTransport, ProtocolLaneHostPool and ProtocolWorkLedgerStore as runtime-checkable protocols, with frozen wire models, an in-memory adapter and a conformance suite that the adapter passes and a broken adapter fails."
+    acceptance:
+      - id: "AC1"
+        statement: "AC1: G-NODE point 3: every protocol the lane start nodes inject is declared in omnibase_spi -- falsifier: the conformance suites with their positive controls, the lane contract tests and the protocol snapshot test (uv run pytest on the paths in the evidence command)"
+evidence_requirements:
+  - kind: "tests"
+    description: "The conformance suites for the three lane protocols, the lane contract tests, the snapshot test and the documentation count test."
+    command: "uv run pytest tests/unit/protocols/conformance tests/test_protocol_snapshot.py tests/unit/test_doc_protocol_imports.py -q --no-cov -p no:randomly"
+emergency_bypass:
+  enabled: false
+  justification: ""
+  follow_up_ticket_id: ""
+dod_evidence:
+  - id: "dod-omn22198-spi-conformance"
+    description: "AC1: the in-memory adapters of the three lane protocols pass each conformance suite."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/unit/protocols/conformance/test_conformance.py -k 'lane or ledger' -q --no-cov -p no:randomly"
+    binds_ac: ["AC1"]
+  - id: "dod-omn22198-spi-positive-control"
+    description: "AC1 (positive control): a deliberately broken adapter is refused by each lane suite, and the lane wire models hold their shapes."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/unit/protocols/conformance/test_conformance.py tests/unit/protocols/conformance/test_lane_contracts.py -k 'control or lane' -q --no-cov -p no:randomly"
+    binds_ac: ["AC1"]
