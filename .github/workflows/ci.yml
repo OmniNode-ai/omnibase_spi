@@ -616,7 +616,7 @@ jobs:
             > .github/workflows/zz-canary-planted.yml
           git add .github/workflows/zz-canary-planted.yml
           if uv run --no-project --with "$(uv run --no-project --with pyyaml python -c 'import pathlib,sys,yaml; print(yaml.safe_load(pathlib.Path(sys.argv[1]).read_text())["context"]["core_validation_requirement"])' "$RUNNER_PLACEMENT_CORE")" \
-            python -m omnibase_core.handlers.handler_public_runner_placement_cli --repo omnibase_spi --visibility public \
+            python -m omnibase_core.validation.validator_public_runner_placement --repo omnibase_spi --visibility public \
             .github/workflows/zz-canary-planted.yml; then
             echo "POSITIVE CONTROL FAILED: planted self-hosted job was accepted"
             exit 1
@@ -625,21 +625,11 @@ jobs:
           git rm -q --cached .github/workflows/zz-canary-planted.yml
           rm .github/workflows/zz-canary-planted.yml
       - name: Refuse new self-hosted jobs in this public repository
-        env:
-          PR_BASE: ${{ github.event.pull_request.base.sha }}
-          MQ_BASE: ${{ github.event.merge_group.base_sha }}
-          PUSH_BEFORE: ${{ github.event.before }}
         run: |
           set -u
-          base="${PR_BASE:-${MQ_BASE:-${PUSH_BEFORE:-}}}"
           args=(--repo omnibase_spi --visibility public)
-          if [ -n "$base" ] && git cat-file -e "${base}^{commit}" 2>/dev/null; then
-            args+=(--base-ref "$(git merge-base "$base" HEAD)")
-          else
-            echo "no base revision on this event; checking the tree against the baseline only"
-          fi
           uv run --no-project --with "$(uv run --no-project --with pyyaml python -c 'import pathlib,sys,yaml; print(yaml.safe_load(pathlib.Path(sys.argv[1]).read_text())["context"]["core_validation_requirement"])' "$RUNNER_PLACEMENT_CORE")" \
-            python -m omnibase_core.handlers.handler_public_runner_placement_cli "${args[@]}"
+            python -m omnibase_core.validation.validator_public_runner_placement "${args[@]}" .github/workflows/*.yml
 
   # OMN-22360: the pinned core checkout owns the layer order and pin policy.
   # Keep the reusable workflow and every core hook at the same dev-merge tag.
