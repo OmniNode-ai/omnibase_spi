@@ -585,17 +585,17 @@ jobs:
   # Public-repository runner placement (OMN-19998). RULING 2026-10-16T07:07:09Z:
   # "Ci runners should be for private repos only." omnibase_spi is public, so the
   # omnibase_core check refuses any job whose runs-on is not a literal GitHub-hosted
-  # label (this repository has no entry in the core baseline) and, against the
-  # merge base, a job added back. Same core release as the
-  # check-public-runner-placement pre-commit hook (rev v0.47.46).
+  # label. The current validator has no baseline: every non-hosted job fails.
+  # Same core dev-merge tag as the
+  # check-public-runner-placement pre-commit hook (rev dev-20261103173624-74e0b0f12767).
   # Unconditional: no `if:`, no `needs:`; CI Summary requires its success.
   public-runner-placement:
     name: Public Runner Placement (OMN-19998)
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      # The published release whose tag v0.47.46 is the pre-commit hook's rev.
-      RUNNER_PLACEMENT_CORE: "omnibase-core==0.47.46"
+      # The contract pins the same core dev-merge tag as the pre-commit hook.
+      RUNNER_PLACEMENT_CORE: "contracts/OMN-22360.yaml"
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -611,35 +611,32 @@ jobs:
           version: "0.8.3"
       - name: Positive control (planted self-hosted job refused)
         run: |
-          set -u
+          set -eu
+          printf 'on: push\njobs:\n  clean:\n    runs-on: ubuntu-latest\n    steps:\n      - run: "true"\n' \
+            > .github/workflows/zz-canary-clean.yml
+          uv run --no-project --with "$(uv run --no-project --with pyyaml python -c 'import pathlib,sys,yaml; print(yaml.safe_load(pathlib.Path(sys.argv[1]).read_text())["context"]["core_validation_requirement"])' "$RUNNER_PLACEMENT_CORE")" \
+            python -m omnibase_core.validation.validator_public_runner_placement --repo omnibase_spi --visibility public \
+            .github/workflows/zz-canary-clean.yml
+          rm .github/workflows/zz-canary-clean.yml
           printf 'on: push\njobs:\n  planted:\n    runs-on: [self-hosted, omnibase-ci]\n    steps:\n      - run: "true"\n' \
             > .github/workflows/zz-canary-planted.yml
-          git add .github/workflows/zz-canary-planted.yml
-          if uv run --no-project --with "$RUNNER_PLACEMENT_CORE" \
-            python -m omnibase_core.handlers.handler_public_runner_placement_cli --repo omnibase_spi --visibility public \
-            .github/workflows/zz-canary-planted.yml; then
-            echo "POSITIVE CONTROL FAILED: planted self-hosted job was accepted"
+          status=0
+          uv run --no-project --with "$(uv run --no-project --with pyyaml python -c 'import pathlib,sys,yaml; print(yaml.safe_load(pathlib.Path(sys.argv[1]).read_text())["context"]["core_validation_requirement"])' "$RUNNER_PLACEMENT_CORE")" \
+            python -m omnibase_core.validation.validator_public_runner_placement --repo omnibase_spi --visibility public \
+            .github/workflows/zz-canary-planted.yml || status=$?
+          if [ "$status" -ne 1 ]; then
+            echo "POSITIVE CONTROL FAILED: expected validator refusal (1), got $status"
             exit 1
           fi
           echo "positive control: planted self-hosted job refused"
-          git rm -q --cached .github/workflows/zz-canary-planted.yml
           rm .github/workflows/zz-canary-planted.yml
-      - name: Refuse new self-hosted jobs in this public repository
-        env:
-          PR_BASE: ${{ github.event.pull_request.base.sha }}
-          MQ_BASE: ${{ github.event.merge_group.base_sha }}
-          PUSH_BEFORE: ${{ github.event.before }}
+      - name: Refuse non-hosted jobs in this public repository
         run: |
-          set -u
-          base="${PR_BASE:-${MQ_BASE:-${PUSH_BEFORE:-}}}"
-          args=(--repo omnibase_spi --visibility public)
-          if [ -n "$base" ] && git cat-file -e "${base}^{commit}" 2>/dev/null; then
-            args+=(--base-ref "$(git merge-base "$base" HEAD)")
-          else
-            echo "no base revision on this event; checking the tree against the baseline only"
-          fi
-          uv run --no-project --with "$RUNNER_PLACEMENT_CORE" \
-            python -m omnibase_core.handlers.handler_public_runner_placement_cli "${args[@]}"
+          set -eu
+          # The current validator rejects every non-hosted job without a baseline.
+          uv run --no-project --with "$(uv run --no-project --with pyyaml python -c 'import pathlib,sys,yaml; print(yaml.safe_load(pathlib.Path(sys.argv[1]).read_text())["context"]["core_validation_requirement"])' "$RUNNER_PLACEMENT_CORE")" \
+            python -m omnibase_core.validation.validator_public_runner_placement \
+            --repo omnibase_spi --visibility public .github/workflows
 
   ci-summary:
     name: CI Summary

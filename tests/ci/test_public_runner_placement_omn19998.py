@@ -15,7 +15,10 @@ omnibase_spi is public, so:
 
 from __future__ import annotations
 
+import os
 import re
+import shutil
+import subprocess
 from pathlib import Path
 from typing import Any
 
@@ -34,7 +37,7 @@ HOSTED_LABEL = re.compile(r"^(ubuntu|windows|macos)-[\w.\-]+$", re.IGNORECASE)
 JOB_ID = "public-runner-placement"
 JOB_NAME = "Public Runner Placement (OMN-19998)"
 HOOK_ID = "check-public-runner-placement"
-CORE_RELEASE = "0.47.46"
+CORE_TAG = "dev-20261103173624-74e0b0f12767"
 
 
 def _load(path: Path) -> dict[Any, Any]:
@@ -135,21 +138,25 @@ def test_ci_job_runs_the_core_check_unconditionally_on_a_hosted_runner() -> None
     steps = job["steps"]
     assert isinstance(steps, list)
     runs = "\n".join(str(step.get("run", "")) for step in steps)
-    assert "omnibase_core.handlers.handler_public_runner_placement_cli" in runs
+    assert "omnibase_core.validation.validator_public_runner_placement" in runs
     assert "POSITIVE CONTROL FAILED" in runs
-    assert "--base-ref" in runs
+    assert "--base-ref" not in runs
+    assert '[ "$status" -ne 1 ]' in runs
     assert "--repo omnibase_spi --visibility public" in runs
-    assert "args=(--repo omnibase_spi --visibility public)" in runs
+    assert "--repo omnibase_spi --visibility public .github/workflows" in runs
 
 
 def test_ci_job_and_hook_run_the_same_core_release() -> None:
-    """The CI job installs 0.47.46 and the hook's rev is that release's tag."""
+    """The CI job and hook use the same core dev-merge tag."""
     env = _ci_job()["env"]
     assert isinstance(env, dict)
-    assert env["RUNNER_PLACEMENT_CORE"] == f"omnibase-core=={CORE_RELEASE}"
+    contract = _load(REPO_ROOT / env["RUNNER_PLACEMENT_CORE"])
+    assert contract["context"]["core_validation_requirement"] == (
+        f"omnibase-core @ git+https://github.com/OmniNode-ai/omnibase_core@{CORE_TAG}"
+    )
     hooks = _hooks()
     assert len(hooks) == 1, f"expected one {HOOK_ID} hook, found {len(hooks)}"
-    assert hooks[0][0] == f"v{CORE_RELEASE}"
+    assert hooks[0][0] == CORE_TAG
 
 
 def test_precommit_hook_names_this_public_repository() -> None:
@@ -173,3 +180,42 @@ def test_ci_summary_requires_the_job_to_succeed() -> None:
     assert env["PUBLIC_RUNNER_PLACEMENT_RESULT"] == (
         "${{ needs.public-runner-placement.result }}"
     )
+
+
+@pytest.mark.parametrize("missing_module", [False, True])
+def test_positive_control_executes_the_pinned_validator(
+    tmp_path: Path, missing_module: bool
+) -> None:
+    """Run the workflow control: a missing runtime cannot count as a refusal."""
+    job = _ci_job()
+    control = next(
+        step["run"]
+        for step in job["steps"]
+        if "Positive control" in step.get("name", "")
+    )
+    if missing_module:
+        control = control.replace(
+            "omnibase_core.validation.validator_public_runner_placement",
+            "omnibase_core.validation.nonexistent_placement_validator",
+        )
+    (tmp_path / ".github/workflows").mkdir(parents=True)
+    (tmp_path / "contracts").mkdir()
+    contract = job["env"]["RUNNER_PLACEMENT_CORE"]
+    shutil.copyfile(REPO_ROOT / contract, tmp_path / contract)
+    bash = shutil.which("bash")
+    assert bash is not None
+    result = subprocess.run(
+        [bash, "-c", control],
+        cwd=tmp_path,
+        env={**os.environ, **job["env"], "PYTHONDONTWRITEBYTECODE": "1"},
+        text=True,
+        capture_output=True,
+        timeout=180,
+        check=False,
+    )
+    if missing_module:
+        assert result.returncode != 0, result.stdout + result.stderr
+        assert "No module named" in result.stderr
+    else:
+        assert result.returncode == 0, result.stdout + result.stderr
+        assert "positive control: planted self-hosted job refused" in result.stdout

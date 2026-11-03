@@ -1,0 +1,31 @@
+schema_version: 1.0.0
+ticket_id: OMN-22360
+title: Repair the public runner validator runtime after the core migration
+summary: The current core tag exports the public runner validator through the generic validation module. Run that module in CI and require both a clean hosted control and a refused self-hosted control.
+is_seam_ticket: false
+interface_change: false
+interfaces_touched: []
+requirements:
+  - id: req-omn22360-runner-runtime
+    statement: The Public Runner Placement check executes the validator exported by its pinned core tag.
+    acceptance:
+      - id: AC9
+        statement: 'AC9: the pinned runtime accepts a hosted job, refuses a self-hosted job and fails when the runtime module is missing; CI Summary still requires the check -- falsifier: uv run --frozen pytest tests/ci/test_public_runner_placement_omn19998.py -q --no-cov'
+evidence_requirements:
+  - kind: tests
+    description: Execute the workflow positive control with its real pinned core runtime and with a missing module.
+    command: uv run --frozen pytest tests/ci/test_public_runner_placement_omn19998.py -q --no-cov
+emergency_bypass:
+  enabled: false
+  justification: ''
+  follow_up_ticket_id: ''
+dod_evidence:
+  - id: dod-omn22360-runner-runtime
+    description: 'AC9: workflow wiring, actual hosted/self-hosted controls and a missing-runtime mutation run on the hosted runner.'
+    source: manual
+    checks:
+      - check_type: test_passes
+        check_value: uv run --frozen pytest tests/ci/test_public_runner_placement_omn19998.py -q --no-cov
+    binds_ac: [AC9]
+context:
+  core_validation_requirement: omnibase-core @ git+https://github.com/OmniNode-ai/omnibase_core@dev-20261103173624-74e0b0f12767
