@@ -49,7 +49,11 @@ def test_dependency_pins_job_calls_the_core_workflow() -> None:
 def test_dependency_pins_job_uses_the_core_hook_tag() -> None:
     tag = str(_jobs()["dependency-pins"]["uses"]).removeprefix(WORKFLOW)
     assert tag.startswith("dev-")
-    assert {str(entry["rev"]) for entry in _core_repos()} == {tag}
+    # Hooks pinned by the full-sha tests carry the commit the tag's 12-hex suffix names.
+    suffix = tag.rsplit("-", 1)[1]
+    for entry in _core_repos():
+        rev = str(entry["rev"])
+        assert rev == tag or (len(rev) == 40 and rev.startswith(suffix))
 
 
 def test_dependency_pins_hook_is_wired() -> None:

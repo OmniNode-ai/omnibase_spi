@@ -98,7 +98,7 @@ repos:
   # omnibase_core (OMN-20074, OCC retirement S8: same hook ids, no longer pulled from
   # the change-control repository)
   - repo: https://github.com/OmniNode-ai/omnibase_core
-    rev: dev-20261103173624-74e0b0f12767
+    rev: 74e0b0f127670fd0d675b83ee9f4d3e1268cc630
     hooks:
       - id: no-hardcoded-topics
         # Pre-existing violations — pending migration to canonical topic constants.
@@ -121,7 +121,7 @@ repos:
   # OMN-19183 plan task A3.x: shrink-only baseline config/hardcoded_model_config_baseline.yaml;
   # no inline suppression marker; pin must equal core_ref in .github/workflows/hardcoded-model-config.yml.
   - repo: https://github.com/OmniNode-ai/omnibase_core
-    rev: dev-20261103173624-74e0b0f12767
+    rev: 74e0b0f127670fd0d675b83ee9f4d3e1268cc630
     hooks:
       - id: check-hardcoded-model-config-compute
 
