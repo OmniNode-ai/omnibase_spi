@@ -290,17 +290,19 @@ class InMemoryLaneHostTransport:
     def prepare_worktree(
         self, request: ModelLanePrepareWorktreeRequest
     ) -> ModelLanePrepareWorktreeResult:
-        """Return a workdir under the first candidate omni_home, or the scripted refusal."""
+        """Return a workdir under the first candidate registry_root, or the scripted refusal."""
         self.calls.append(("prepare_worktree", request.run_id))
         if self._refusing is not None:
             return ModelLanePrepareWorktreeResult(prepared=False, error=self._refusing)
-        omni_home = (
-            request.omni_home_candidates[0] if request.omni_home_candidates else "/omni"
+        registry_root = (
+            request.registry_root_candidates[0]
+            if request.registry_root_candidates
+            else "/omni"
         )
         return ModelLanePrepareWorktreeResult(
             prepared=True,
-            omni_home=omni_home,
-            workdir=f"{omni_home}/omni_worktrees/{request.lane}/{request.repo}",
+            registry_root=registry_root,
+            workdir=f"{registry_root}/omni_worktrees/{request.lane}/{request.repo}",
         )
 
     def start_engine_detached(
