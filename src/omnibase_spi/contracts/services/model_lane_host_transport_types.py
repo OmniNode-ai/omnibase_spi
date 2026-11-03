@@ -40,7 +40,7 @@ class ModelLanePrepareWorktreeRequest(BaseModel):
         repo: Repository name.
         owner: Repository owner.
         sha: The 40-character commit sha the worktree must sit at.
-        omni_home_candidates: Paths the host may use as its omni_home, in order.
+        registry_root_candidates: Paths the host may use as its registry_root, in order.
         timeout_seconds: Longest the call may take.
     """
 
@@ -54,8 +54,8 @@ class ModelLanePrepareWorktreeRequest(BaseModel):
     sha: str = Field(
         ..., pattern=r"^[0-9a-f]{40}$", description="Commit sha, 40 lowercase hex."
     )
-    omni_home_candidates: tuple[str, ...] = Field(
-        default=(), description="Candidate omni_home paths, in order."
+    registry_root_candidates: tuple[str, ...] = Field(
+        default=(), description="Candidate registry_root paths, in order."
     )
     timeout_seconds: float = Field(..., gt=0, description="Longest the call may take.")
 
@@ -65,7 +65,7 @@ class ModelLanePrepareWorktreeResult(BaseModel):
 
     Attributes:
         prepared: True when the worktree is ready at the requested sha.
-        omni_home: The omni_home path the host used.
+        registry_root: The registry_root path the host used.
         workdir: The prepared worktree path; required when prepared.
         error: Why preparing failed; required when not prepared.
     """
@@ -73,7 +73,9 @@ class ModelLanePrepareWorktreeResult(BaseModel):
     model_config = _FROZEN
 
     prepared: bool = Field(..., description="True when the worktree is ready.")
-    omni_home: str | None = Field(default=None, description="omni_home the host used.")
+    registry_root: str | None = Field(
+        default=None, description="registry_root the host used."
+    )
     workdir: str | None = Field(default=None, description="Prepared worktree path.")
     error: str | None = Field(default=None, description="Why preparing failed.")
 
