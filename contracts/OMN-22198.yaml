@@ -35,3 +35,10 @@ dod_evidence:
       - check_type: "test_passes"
         check_value: "uv run pytest tests/unit/protocols/conformance/test_conformance.py tests/unit/protocols/conformance/test_lane_contracts.py -k 'control or lane' -q --no-cov -p no:randomly"
     binds_ac: ["AC1"]
+  - id: "dod-omn22198-spi-registry-root"
+    description: "AC1: the lane host transport wire models name the registry root field registry_root, and the prepare_worktree conformance check passes against the in-memory adapter with the renamed field."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/unit/protocols/conformance/test_conformance.py -k check_prepare_worktree_returns_a_workdir -q --no-cov -p no:randomly"
+    binds_ac: ["AC1"]

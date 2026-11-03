@@ -63,7 +63,7 @@ def check_prepare_worktree_returns_a_workdir(h: LaneHostHarness) -> None:
             repo="omnimarket",
             owner="OmniNode-ai",
             sha=SHA,
-            omni_home_candidates=("/omni",),
+            registry_root_candidates=("/omni",),
             timeout_seconds=30.0,
         )
     )
