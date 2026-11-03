@@ -4,8 +4,7 @@
 # OMN-20298: no shape-gate detector job may depend on the change-control
 # preflight (occ-preflight). The validator is consumed from omnibase_core
 # (PR 1833); this workflow only runs it. Unconditional: no `needs:`, no `if:`.
-# It lives in its own workflow file so the omnibase_core pin here does not
-# collide with the ci.yml pin-parity ratchet (validate_precommit_pin_parity.py).
+# OMN-22360: the exported core runtime and hook share the ticket contract.
 
 name: Shape-Gate Independence
 
@@ -40,5 +39,5 @@ jobs:
       - name: Refuse shape-gate jobs that depend on occ-preflight
         run: |
           uv run --no-project \
-            --with 'omnibase-core @ git+https://github.com/OmniNode-ai/omnibase_core@d17f5be8be88a8d35fc6a69e13cb8c1896c3025b' \
-            python -m omnibase_core.handlers.handler_shape_gate_independence
+            --with "$(uv run --no-project --with pyyaml python -c 'import pathlib,sys,yaml; print(yaml.safe_load(pathlib.Path(sys.argv[1]).read_text())["context"]["core_validation_requirement"])' contracts/OMN-22360.yaml)" \
+            python -m omnibase_core.nodes.node_shape_gate_independence_check_effect.runtime_shape_gate_independence

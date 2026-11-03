@@ -27,7 +27,11 @@ def _workflow() -> dict[Any, Any]:
 
 def test_canonical_validator_uses_a_dev_merge_tag() -> None:
     job = _workflow()["jobs"]["canonical-file-shape"]
-    reference = job["env"]["CANONICAL_FILE_SHAPE_CORE"]
+    reference = yaml.safe_load(
+        (WORKFLOW.parents[2] / job["env"]["CANONICAL_FILE_SHAPE_CORE"]).read_text(
+            encoding="utf-8"
+        )
+    )["context"]["core_validation_requirement"]
     assert re.fullmatch(
         r"omnibase-core @ git\+https://github\.com/OmniNode-ai/omnibase_core"
         r"@dev-[0-9]{14}-[0-9a-f]{12}",
@@ -36,7 +40,8 @@ def test_canonical_validator_uses_a_dev_merge_tag() -> None:
     validator_steps = [step for step in job["steps"] if "run" in step]
     assert validator_steps
     for step in validator_steps:
-        assert '--with "$CANONICAL_FILE_SHAPE_CORE"' in step["run"]
+        assert '"$CANONICAL_FILE_SHAPE_CORE"' in step["run"]
+        assert "core_validation_requirement" in step["run"]
 
 
 def test_pull_request_and_merge_queue_run_the_planted_sample(tmp_path: Path) -> None:
@@ -59,6 +64,10 @@ def test_pull_request_and_merge_queue_run_the_planted_sample(tmp_path: Path) -> 
     assert git is not None
     assert bash is not None
     subprocess.run([git, "init", "--quiet", str(tmp_path)], check=True)
+    overlay = job["env"]["CANONICAL_FILE_SHAPE_CORE"]
+    target = tmp_path / overlay
+    target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(WORKFLOW.parents[2] / overlay, target)
     result = subprocess.run(
         [bash, "-e", "-c", control["run"]],
         cwd=tmp_path,

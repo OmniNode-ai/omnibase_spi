@@ -76,7 +76,51 @@ def test_pin_pairs_come_from_pyproject() -> None:
 
 
 def test_pin_parity_script_passes_on_this_repository() -> None:
-    assert validate_precommit_pin_parity.main() == 0
+    assert validate_precommit_pin_parity.main(REPO_ROOT) == 0
+
+
+@pytest.mark.parametrize(
+    "ref",
+    ["a" * 40, "dev-20261103173624-74e0b0f12767"],
+)
+def test_pin_parity_reads_immutable_requirement_refs(ref: str) -> None:
+    requirement = (
+        "omnibase-core @ git+https://github.com/OmniNode-ai/omnibase_core@" + ref
+    )
+    assert validate_precommit_pin_parity._find_ci_pins(requirement) == [ref]
+
+
+@pytest.mark.parametrize("pin", ["dev-20261103173624-74e0b0f12767", "a" * 40, "dev"])
+def test_pin_parity_refuses_drift_or_moving_refs(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, pin: str
+) -> None:
+    config = tmp_path / ".pre-commit-config.yaml"
+    config.write_text(
+        "repos:\n  - repo: https://github.com/OmniNode-ai/omnibase_core\n"
+        "    rev: dev-20261103173624-74e0b0f12767\n"
+        "    hooks:\n      - id: no-noncanonical-lifecycle-classes\n",
+        encoding="utf-8",
+    )
+    source = tmp_path / "requirements.txt"
+    source.write_text(
+        "omnibase-core @ git+https://github.com/OmniNode-ai/omnibase_core@" + pin,
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(
+        validate_precommit_pin_parity,
+        "load_script_setting",
+        lambda _key: [
+            [
+                "no-noncanonical-lifecycle-classes",
+                "https://github.com/OmniNode-ai/omnibase_core",
+                "requirements.txt",
+                "no_noncanonical_lifecycle_classes",
+            ]
+        ],
+    )
+    assert validate_precommit_pin_parity.main(tmp_path) == (
+        0 if pin == "dev-20261103173624-74e0b0f12767" else 1
+    )
 
 
 def test_timeout_fires_when_the_operation_outlives_it() -> None:

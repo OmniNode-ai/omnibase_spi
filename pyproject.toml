@@ -361,10 +361,10 @@ file_operation_timeout_seconds = 30    # default budget of timeout_utils.safe_fi
 pin_resolve_install_timeout_seconds = 1800  # cold no-cache install of the wheel's closure (OMN-16047)
 pin_resolve_venv_timeout_seconds = 120      # local scratch `uv venv`, no index access
 
-# (pre-commit hook id, pre-commit repo URL, CI workflow file, validator module [for audit])
-# rows checked by validate_precommit_pin_parity.py: both sides must pin the same SHA
+# (pre-commit hook id, pre-commit repo URL, CI requirement source, validator module [for audit])
+# rows checked by validate_precommit_pin_parity.py: both sides must pin the same immutable ref
 precommit_pin_pairs = [
-    ["no-noncanonical-lifecycle-classes", "https://github.com/OmniNode-ai/omnibase_core", ".github/workflows/ci.yml", "no_noncanonical_lifecycle_classes"],
+    ["no-noncanonical-lifecycle-classes", "https://github.com/OmniNode-ai/omnibase_core", "contracts/OMN-22360.yaml", "no_noncanonical_lifecycle_classes"],
 ]
 
 [tool.pytest.ini_options]

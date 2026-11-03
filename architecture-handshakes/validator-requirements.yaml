@@ -16,7 +16,7 @@
 
 schema_version:
   major: 1
-  minor: 2
+  minor: 5
   patch: 0
 
 # Canonical list of all OmniNode repos governed by this spec. The consumer
@@ -75,6 +75,7 @@ required_validators:
     excludes:
       allowed: ["^tests/fixtures/", "^docs/"]
       forbidden: ["^tests/$", "^tests/[^f]", "^src/"]
+    emits: required
     applies_to_repos: all
 
   spdx-headers:
@@ -94,6 +95,7 @@ required_validators:
     excludes:
       allowed: ["\\.md$", "\\.ya?ml$", "\\.json$"]
       forbidden: ["^tests/", "^src/"]
+    emits: required
     applies_to_repos: all
 
   no-hardcoded-topics:
@@ -112,6 +114,7 @@ required_validators:
     excludes:
       allowed: ["^docs/", "\\.yaml$"]
       forbidden: ["^src/", "^tests/"]
+    emits: required
     applies_to_repos:
       - omniclaude
       - omnibase_core
@@ -139,6 +142,7 @@ required_validators:
     excludes:
       allowed: ["^tests/"]
       forbidden: ["^src/"]
+    emits: required
     applies_to_repos:
       - omniclaude
       - omnibase_core
@@ -165,6 +169,7 @@ required_validators:
     excludes:
       allowed: ["^tests/"]
       forbidden: ["^src/"]
+    emits: required
     applies_to_repos:
       - omniclaude
       - omnibase_core
@@ -193,6 +198,7 @@ required_validators:
     excludes:
       allowed: ["^tests/", "^archived/"]
       forbidden: ["^src/"]
+    emits: required
     applies_to_repos:
       - omniclaude
       - omnibase_core
@@ -221,6 +227,7 @@ required_validators:
     excludes:
       allowed: []
       forbidden: []
+    emits: required
     applies_to_repos: all
 
   branch-protection-rollout-guard:
@@ -240,6 +247,7 @@ required_validators:
     excludes:
       allowed: []
       forbidden: []
+    emits: required
     applies_to_repos:
       - omniclaude
 
@@ -258,6 +266,8 @@ required_validators:
     excludes:
       allowed: ["^tests/", "^examples/"]
       forbidden: ["^src/"]
+    emits: exempt
+    emits_exempt_reason: "third-party security scanner; by nature not a core validator"
     applies_to_repos:
       - omniclaude
       - omnibase_core
@@ -285,6 +295,8 @@ required_validators:
     excludes:
       allowed: ["^tests/"]
       forbidden: ["^src/"]
+    emits: exempt
+    emits_exempt_reason: "third-party type checker; by nature not a core validator"
     applies_to_repos:
       - omniclaude
       - omnibase_core
@@ -312,6 +324,8 @@ required_validators:
     excludes:
       allowed: []
       forbidden: []
+    emits: exempt
+    emits_exempt_reason: "third-party formatter/linter; by nature not a core validator"
     applies_to_repos:
       - omniclaude
       - omnibase_core
@@ -341,6 +355,7 @@ required_validators:
     excludes:
       allowed: ["^docs/", "^CHANGELOG\\.md$"]
       forbidden: ["^src/"]
+    emits: required
     applies_to_repos: all
 
   pydantic-patterns:
@@ -360,6 +375,7 @@ required_validators:
     excludes:
       allowed: ["^tests/"]
       forbidden: ["^src/"]
+    emits: required
     applies_to_repos:
       - omniclaude
       - omnibase_core
@@ -387,6 +403,7 @@ required_validators:
     excludes:
       allowed: ["^tests/"]
       forbidden: ["^src/"]
+    emits: required
     applies_to_repos:
       - omniclaude
       - omnibase_core
@@ -413,6 +430,8 @@ required_validators:
     excludes:
       allowed: ["\\.secrets\\.baseline$", "^tests/fixtures/"]
       forbidden: []
+    emits: exempt
+    emits_exempt_reason: "third-party secret scanner; by nature not a core validator"
     applies_to_repos: all
 
   no-untracked-todos:
@@ -431,6 +450,7 @@ required_validators:
     excludes:
       allowed: ["^docs/"]
       forbidden: ["^src/", "^tests/"]
+    emits: required
     applies_to_repos: all
 
   arch-002-no-transport-imports:
@@ -451,6 +471,7 @@ required_validators:
     excludes:
       allowed: ["^tests/", "^src/.*/runtime/", "^src/.*/api/", "^src/.*/adapters/"]
       forbidden: ["^src/.*/nodes/"]
+    emits: required
     applies_to_repos:
       - omnibase_core
       - omnibase_infra
@@ -481,6 +502,7 @@ required_validators:
     excludes:
       allowed: []
       forbidden: []
+    emits: required
     applies_to_repos:
       - omnibase_infra
       - omninode_infra
