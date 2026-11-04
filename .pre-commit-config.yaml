@@ -21,17 +21,21 @@ repos:
 
   # Stub implementation detection — sourced from omnibase_core (OMN-5599)
   - repo: https://github.com/OmniNode-ai/omnibase_core
-    rev: 458f44ef24564956c6430ae7671570aed035c853 # pragma: allowlist secret
+    rev: dev-20261103173624-74e0b0f12767
     hooks:
+      - id: check-dependency-pins
+      - id: check-shape-gate-independence
       - id: check-stub-implementations
+        # OMN-22360: use the pinned hook environment; SPI's project core release
+        # does not export this validator yet. Keep the canonical runtime and scope.
+        language: python
+        entry: env -u PYTHONPATH python -m omnibase_core.nodes.node_validation_report_write_effect.runtime_validator_run omnibase_core.validation.validator_stub_implementations:ValidatorStubImplementations
 
   # OMN-14350: non-canonical lifecycle-class ratchet (fan-out from the omnibase_core
   # canary #1430). Consumes the canonical omnibase_core remote hook and ratchets this
   # repo's frozen residual set (.onex_ratchets/noncanonical_class_allowlist.yaml) DOWN
-  # toward zero. rev MUST be a specific core SHA carrying the validator + its
-  # .pre-commit-hooks.yaml export (core dev HEAD after #1430 squash-merges) — never a
-  # moving ref like @dev (required gate; deterministic-truth doctrine). The token below
-  # is a HOLD placeholder; this PR stays unopened until the real post-merge SHA is set.
+  # toward zero. rev is the immutable core dev-merge tag shared with CI and all
+  # core hooks (OMN-22360).
   #
   # OMN-20304: the same block carries the canonical-file-shape ratchet (operator
   # ruling 2026-10-01). It refuses a new code file outside the canonical
@@ -49,14 +53,14 @@ repos:
   # copy of the checker is deleted. The CI job ai-slop-check runs the same core
   # module at the same tag.
   - repo: https://github.com/OmniNode-ai/omnibase_core
-    rev: dev-20261029151319-6e0a5eee541a
+    rev: dev-20261103173624-74e0b0f12767
     hooks:
       - id: canonical-file-shape
         args: [--rules, file-shape]
       - id: check-ai-slop
         stages: [pre-commit]
   - repo: https://github.com/OmniNode-ai/omnibase_core
-    rev: f50d00fc7918d0b12ccd0d3497160325e32e7ac5 # pragma: allowlist secret
+    rev: dev-20261103173624-74e0b0f12767
     hooks:
       - id: no-noncanonical-lifecycle-classes
         args: [--allowlist, .onex_ratchets/noncanonical_class_allowlist.yaml, src/omnibase_spi]
@@ -67,21 +71,10 @@ repos:
   # public-runner-placement in .github/workflows/ci.yml; keep this rev equal to
   # that job's release.
   - repo: https://github.com/OmniNode-ai/omnibase_core
-    rev: v0.47.46
+    rev: dev-20261103173624-74e0b0f12767
     hooks:
       - id: check-public-runner-placement
         args: [--repo, omnibase_spi, --visibility, public]
-
-  # OMN-20298: shape-gate detector jobs must not depend on occ-preflight
-  # (guard from omnibase_core PR 1833).
-  - repo: local
-    hooks:
-      - id: check-shape-gate-independence
-        name: Shape-gate detectors never depend on the OCC preflight (OMN-20298)
-        entry: uv run --no-project --with "omnibase-core @ git+https://github.com/OmniNode-ai/omnibase_core@d17f5be8be88a8d35fc6a69e13cb8c1896c3025b" python -m omnibase_core.handlers.handler_shape_gate_independence
-        language: system
-        files: ^\.github/workflows/.*\.ya?ml$
-        pass_filenames: true
 
   # YAML formatting (standard across ecosystem)
   - repo: https://github.com/google/yamlfmt
@@ -105,7 +98,7 @@ repos:
   # omnibase_core (OMN-20074, OCC retirement S8: same hook ids, no longer pulled from
   # the change-control repository)
   - repo: https://github.com/OmniNode-ai/omnibase_core
-    rev: 6f70e56604a9f9d98b34bb9c3768a4468aeca71e
+    rev: 74e0b0f127670fd0d675b83ee9f4d3e1268cc630
     hooks:
       - id: no-hardcoded-topics
         # Pre-existing violations — pending migration to canonical topic constants.
@@ -128,7 +121,7 @@ repos:
   # OMN-19183 plan task A3.x: shrink-only baseline config/hardcoded_model_config_baseline.yaml;
   # no inline suppression marker; pin must equal core_ref in .github/workflows/hardcoded-model-config.yml.
   - repo: https://github.com/OmniNode-ai/omnibase_core
-    rev: f873d2c30201c05d4be020fa0b281b5edbfb8307 # v0.47.24
+    rev: 74e0b0f127670fd0d675b83ee9f4d3e1268cc630
     hooks:
       - id: check-hardcoded-model-config-compute
 
@@ -449,7 +442,7 @@ repos:
   # repo's own architecture-handshakes/validator-requirements-baseline.yaml.
   # Re-pin rev to the merged-dev SHA once the omnibase_core export PR lands.
   - repo: https://github.com/OmniNode-ai/omnibase_core
-    rev: d163312724489f10f58ffdf8115ba1fa9d5783e8 # pragma: allowlist secret
+    rev: dev-20261103173624-74e0b0f12767
     hooks:
       - id: validate-validator-requirements
         args:

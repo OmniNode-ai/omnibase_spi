@@ -91,12 +91,18 @@ jobs:
           enable-cache: true
           cache-dependency-glob: uv.lock
 
+      - name: Read the uv HTTP budget from pyproject.toml
+        if: steps.resolve-branch.outputs.skip_validation != 'true'
+        run: |
+          # The budget is declared as uv_http_timeout_seconds (OMN-22360).
+          budget="$(PYTHONPATH=scripts/validation python3 -c "from timeout_utils import load_script_setting; print(load_script_setting('uv_http_timeout_seconds'))")"
+          echo "UV_HTTP_TIMEOUT=${budget}" >> "$GITHUB_ENV"
+
       - name: Run contract validation
         id: validate-contract
         if: steps.resolve-branch.outputs.skip_validation != 'true'
         env:
           BRANCH: ${{ steps.resolve-branch.outputs.resolved_branch }}
-          UV_HTTP_TIMEOUT: "600"
         run: |
           set -euo pipefail
 

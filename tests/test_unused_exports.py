@@ -61,7 +61,9 @@ class TestUnusedExportDetection:
         and is NOT on the allowlist. This ensures new protocols are
         actually used before being exported.
         """
-        results = check_unused_exports(allowlist_path=ALLOWLIST_PATH)
+        results = check_unused_exports(
+            allowlist_path=ALLOWLIST_PATH, repo_root=REPO_ROOT
+        )
         unused = {k: v for k, v in results.items() if not v}
 
         if unused:

@@ -38,7 +38,7 @@ _TEST_ENDPOINT_URL = "https://llm-gateway.example.test/v1"
 def _make_attribution(**overrides: object) -> ContractDelegationAttribution:
     """Build a minimal valid ContractDelegationAttribution."""
     defaults: dict[str, object] = {
-        "model_name": "qwen2.5-coder-14b",
+        "model_name": "fixture-model-a",
         "endpoint_url": _TEST_ENDPOINT_URL,
         "latency_ms": 42.5,
         "delegation_confidence": 0.95,
@@ -227,7 +227,7 @@ class TestContractDelegationAttribution:
 
     def test_create_minimal(self) -> None:
         attr = _make_attribution()
-        assert attr.model_name == "qwen2.5-coder-14b"
+        assert attr.model_name == "fixture-model-a"
         assert attr.endpoint_url == _TEST_ENDPOINT_URL
         assert attr.latency_ms == 42.5
         assert attr.delegation_confidence == 0.95
@@ -334,7 +334,7 @@ class TestContractDelegatedResponse:
         assert resp.rendered_text == "# Hello\n\nWorld"
         assert resp.attachments == []
         assert resp.structured_json is None
-        assert resp.attribution.model_name == "qwen2.5-coder-14b"
+        assert resp.attribution.model_name == "fixture-model-a"
         assert resp.quality_gate_result is None
         assert resp.schema_version == "1.0"
         assert resp.extensions == {}

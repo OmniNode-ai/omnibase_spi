@@ -44,9 +44,9 @@ class TestLocalRoutingEvidence:
 
     def test_create(self) -> None:
         e = LocalRoutingEvidence(
-            reference_model_id="claude-opus-4-20250514",
+            reference_model_id="fixture-reference-model",
             reference_cost_usd=0.10,
-            actual_model_id="qwen3-coder-30b",
+            actual_model_id="fixture-actual-model",
             actual_cost_usd=0.002,
             call_count=5,
         )
@@ -170,9 +170,9 @@ class TestContractSavingsCategoryBreakdown:
             confidence=0.95,
             method="reference_pricing",
             evidence=LocalRoutingEvidence(
-                reference_model_id="claude-opus-4-20250514",
+                reference_model_id="fixture-reference-model",
                 reference_cost_usd=0.10,
-                actual_model_id="qwen3-coder-30b",
+                actual_model_id="fixture-actual-model",
                 actual_cost_usd=0.002,
                 call_count=5,
             ),
@@ -354,9 +354,9 @@ def _routing_category(
         confidence=confidence,
         method="reference_pricing",
         evidence=LocalRoutingEvidence(
-            reference_model_id="claude-opus-4-20250514",
+            reference_model_id="fixture-reference-model",
             reference_cost_usd=0.10,
-            actual_model_id="qwen3-coder-30b",
+            actual_model_id="fixture-actual-model",
             actual_cost_usd=0.002,
             call_count=5,
         ),
@@ -432,8 +432,8 @@ def _make_estimate(
         timestamp_iso="2026-03-19T12:00:00Z",
         actual_total_tokens=50000,
         actual_cost_usd=0.25,
-        actual_model_id="qwen3-coder-30b",
-        counterfactual_model_id="claude-opus-4-20250514",
+        actual_model_id="fixture-actual-model",
+        counterfactual_model_id="fixture-reference-model",
         direct_savings_usd=direct_savings,
         direct_tokens_saved=direct_tokens,
         estimated_total_savings_usd=total_savings,

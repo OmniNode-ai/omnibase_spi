@@ -296,5 +296,7 @@ def test_ai_slop_check_consumes_core_validator_without_local_copy() -> None:
     assert len(declaring) == 1
     assert declaring[0]["repo"] == "https://github.com/OmniNode-ai/omnibase_core"
     job = cast("dict[str, dict[str, Any]]", _workflow()["jobs"])["ai-slop-check"]
-    assert job["env"]["AI_SLOP_CORE"].endswith("@" + declaring[0]["rev"])
+    assert yaml.safe_load(
+        (REPO_ROOT / job["env"]["AI_SLOP_CORE"]).read_text(encoding="utf-8")
+    )["context"]["core_validation_requirement"].endswith("@" + declaring[0]["rev"])
     assert not (REPO_ROOT / "scripts" / "validation" / "check_ai_slop.py").exists()

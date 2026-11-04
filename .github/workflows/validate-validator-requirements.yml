@@ -34,9 +34,8 @@ jobs:
         uses: actions/checkout@v7
         with:
           repository: OmniNode-ai/omnibase_core
-          # Pinned to the commit that exports the validate-validator-requirements hook (OMN-13291).
-          # Update by running: gh api repos/OmniNode-ai/omnibase_core/commits/dev --jq '.sha'
-          ref: d163312724489f10f58ffdf8115ba1fa9d5783e8
+          # Same immutable core tag as the fleet-gate hook (OMN-22360).
+          ref: dev-20261103173624-74e0b0f12767
           path: omnibase_core
           token: ${{ secrets.OMNIBASE_CORE_TOKEN || secrets.GITHUB_TOKEN }}
 

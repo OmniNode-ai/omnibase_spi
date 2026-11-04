@@ -32,7 +32,9 @@ def _core_reference() -> str:
         "CANONICAL_FILE_SHAPE_CORE"
     ]
     assert isinstance(reference, str)
-    return reference
+    return yaml.safe_load((ROOT / reference).read_text(encoding="utf-8"))["context"][
+        "core_validation_requirement"
+    ]
 
 
 def _git(repo: Path, *args: str) -> str:

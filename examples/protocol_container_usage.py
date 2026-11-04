@@ -8,6 +8,7 @@ Demonstrates how to implement and use the ProtocolContainer protocol
 for wrapping values with metadata in a type-safe manner.
 """
 
+import time
 from typing import Any, Generic, TypeVar
 
 from omnibase_spi.protocols.container import ProtocolContainer
@@ -166,12 +167,11 @@ def main() -> None:
             """Execute a query."""
             return [{"id": 1, "name": "example"}]
 
+    started = time.perf_counter()
     db_service = DatabaseService()
     service_container: ProtocolContainer[DatabaseService] = ServiceResolutionContainer(
         value=db_service,
-        lifecycle="singleton",
-        scope="global",
-        resolution_time_ms=2.5,
+        resolution_time_ms=(time.perf_counter() - started) * 1e3,
     )
 
     process_service_resolution(service_container)

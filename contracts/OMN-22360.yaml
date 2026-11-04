@@ -1,0 +1,122 @@
+schema_version: 1.0.0
+ticket_id: OMN-22360
+title: Wire the core dependency-pin validator into omnibase_spi
+summary: SPI consumes the core dependency-pin workflow and hook at one dev-merge tag; CI Summary requires its success. Core hook revisions and their CI twins move together. Evidence here covers the SPI portion of AC7 and AC8.
+is_seam_ticket: false
+interface_change: false
+interfaces_touched: []
+requirements:
+  - id: req-omn22360-spi-wiring
+    statement: SPI runs the existing core validator with its pinned policy and fixes its reported hook revisions.
+    acceptance:
+      - id: AC7
+        statement: 'AC7: every registry repository with a dependency manifest runs the check as a required context on its landing branch, and the check refuses a canary branch that adds an upward pin -- falsifier: gh api repos/OmniNode-ai/omnibase_core/contents/.github/workflows/dependency-pins.yml plus a canary run of uv run python -m omnibase_core.nodes.node_dependency_pins_check_effect.runtime_dependency_pins_check on the canary tree exiting 1'
+      - id: AC8
+        statement: 'AC8: every violation the validator reports on the registry repositories at origin of 2026-11-03 is fixed by a pull request named in a comment here, and none is recorded in a baseline or allowlist -- falsifier: uv run python -m omnibase_core.nodes.node_dependency_pins_check_effect.runtime_dependency_pins_check run in each consumer clone at its landing-branch head exits 0'
+evidence_requirements:
+  - kind: tests
+    description: SPI workflow, hook parity and executable fail-closed CI Summary tests.
+    command: uv run --frozen pytest tests/ci/test_dependency_pins_wired_omn22360.py -q --no-cov
+emergency_bypass:
+  enabled: false
+  justification: ''
+  follow_up_ticket_id: ''
+dod_evidence:
+  - id: dod-omn22360-spi-required-check
+    description: 'AC7 (SPI): the reusable workflow and hook share a dev-merge tag, and CI Summary executes a fail-closed gate.'
+    source: manual
+    checks:
+      - check_type: test_passes
+        check_value: uv run --frozen pytest tests/ci/test_dependency_pins_wired_omn22360.py -q --no-cov
+    binds_ac:
+      - AC7
+  - id: dod-omn22360-spi-check-stub-implementations
+    description: 'AC8 (SPI): move the core entry containing check-stub-implementations to the shared dev-merge tag.'
+    source: manual
+    checks:
+      - check_type: test_passes
+        check_value: uv run --frozen pytest tests/ci/test_dependency_pins_wired_omn22360.py -q --no-cov -k uses_the_core_hook_tag
+    binds_ac:
+      - AC8
+  - id: dod-omn22360-spi-no-noncanonical-lifecycle-classes
+    description: 'AC8 (SPI): move the core entry containing no-noncanonical-lifecycle-classes to the shared dev-merge tag.'
+    source: manual
+    checks:
+      - check_type: test_passes
+        check_value: uv run --frozen pytest tests/ci/test_dependency_pins_wired_omn22360.py -q --no-cov -k uses_the_core_hook_tag
+    binds_ac:
+      - AC8
+  - id: dod-omn22360-spi-check-public-runner-placement
+    description: 'AC8 (SPI): move the core entry containing check-public-runner-placement to the shared dev-merge tag.'
+    source: manual
+    checks:
+      - check_type: test_passes
+        check_value: uv run --frozen pytest tests/ci/test_dependency_pins_wired_omn22360.py -q --no-cov -k uses_the_core_hook_tag
+    binds_ac:
+      - AC8
+  - id: dod-omn22360-spi-no-hardcoded-topics
+    description: 'AC8 (SPI): move the core entry containing no-hardcoded-topics to the shared dev-merge tag.'
+    source: manual
+    checks:
+      - check_type: test_passes
+        check_value: uv run --frozen pytest tests/ci/test_dependency_pins_wired_omn22360.py -q --no-cov -k uses_the_core_hook_tag
+    binds_ac:
+      - AC8
+  - id: dod-omn22360-spi-hardcoded-model-hook
+    description: 'AC8 (SPI): move the core entry containing check-hardcoded-model-config-compute to the shared dev-merge tag.'
+    source: manual
+    checks:
+      - check_type: test_passes
+        check_value: uv run --frozen pytest tests/ci/test_dependency_pins_wired_omn22360.py -q --no-cov -k uses_the_core_hook_tag
+    binds_ac:
+      - AC8
+  - id: dod-omn22360-spi-validate-validator-requirements
+    description: 'AC8 (SPI): move the core entry containing validate-validator-requirements to the shared dev-merge tag.'
+    source: manual
+    checks:
+      - check_type: test_passes
+        check_value: uv run --frozen pytest tests/ci/test_dependency_pins_wired_omn22360.py -q --no-cov -k uses_the_core_hook_tag
+    binds_ac:
+      - AC8
+  - id: dod-omn22360-spi-ci-install-contract
+    description: 'AC8 (SPI): the CI validators install core from the shared ticket contract instead of first-party URLs in workflow source.'
+    source: manual
+    checks:
+      - check_type: test_passes
+        check_value: uv run --frozen pytest tests/ci/test_dependency_pins_wired_omn22360.py -q --no-cov -k "contract or core_hook_tag"
+    binds_ac:
+      - AC8
+  - id: dod-omn22360-spi-validator-spec-input
+    description: 'AC8 (SPI): every validator-requirements entry supplies the canonical emits field and any required tool exemption reason.'
+    source: manual
+    checks:
+      - check_type: test_passes
+        check_value: uv run --frozen pytest tests/ci/test_dependency_pins_wired_omn22360.py -q --no-cov -k validator_spec
+    binds_ac:
+      - AC8
+  - id: dod-omn22360-spi-shape-gate-entry
+    description: 'AC8 (SPI): shape-gate consumes the exported core hook and its node runtime at the shared core tag.'
+    source: manual
+    checks:
+      - check_type: test_passes
+        check_value: uv run --frozen pytest tests/ci/test_dependency_pins_wired_omn22360.py -q --no-cov -k shape_gate
+    binds_ac:
+      - AC8
+  - id: dod-omn22360-spi-immutable-ref-parity
+    description: 'AC8 (SPI): the parity parser reads the CI requirements source, accepts immutable tags and rejects mismatched or moving refs; its root comes from its caller.'
+    source: manual
+    checks:
+      - check_type: test_passes
+        check_value: uv run --frozen pytest tests/unit/validation/test_script_settings_from_pyproject.py -q --no-cov
+    binds_ac:
+      - AC8
+  - id: dod-omn22360-spi-stub-runtime
+    description: 'AC8 (SPI): the stub validator uses the pinned core hook environment and canonical runtime, instead of the older core runtime in the consumer project.'
+    source: manual
+    checks:
+      - check_type: test_passes
+        check_value: uv run --frozen pytest tests/ci/test_dependency_pins_wired_omn22360.py -q --no-cov -k stub_validator
+    binds_ac:
+      - AC8
+context:
+  core_validation_requirement: omnibase-core @ git+https://github.com/OmniNode-ai/omnibase_core@dev-20261103173624-74e0b0f12767

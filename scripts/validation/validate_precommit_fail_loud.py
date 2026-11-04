@@ -41,9 +41,6 @@ from typing import Any
 
 import yaml
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-CONFIG_PATH = REPO_ROOT / ".pre-commit-config.yaml"
-
 SUPPRESS_MARKER = "fail-loud-ok"
 
 # Lines matching this shape are the false-green "missing prerequisite"
@@ -110,7 +107,7 @@ def _scan_text(source: str, label: str) -> list[str]:
     return violations
 
 
-def _resolve_script(entry: str) -> Path | None:
+def _resolve_script(entry: str, repo_root: Path) -> Path | None:
     """Best-effort extraction of a scripts/ or .pre-commit-hooks/ file the
     entry invokes, so its content can also be scanned.
     """
@@ -118,7 +115,7 @@ def _resolve_script(entry: str) -> Path | None:
         if token.endswith((".sh", ".py")) and token.startswith(
             ("scripts/", ".pre-commit-hooks/")
         ):
-            candidate = REPO_ROOT / token
+            candidate = repo_root / token
             if candidate.is_file():
                 return candidate
     return None
@@ -133,7 +130,7 @@ def _iter_local_hooks(config: dict[str, Any]) -> list[dict[str, Any]]:
     return hooks
 
 
-def check_fail_loud(config: dict[str, Any]) -> list[str]:
+def check_fail_loud(config: dict[str, Any], repo_root: Path) -> list[str]:
     violations: list[str] = []
     seen_scripts: set[Path] = set()
 
@@ -146,11 +143,11 @@ def check_fail_loud(config: dict[str, Any]) -> list[str]:
 
         violations.extend(_scan_text(entry, f"entry[{hook_id}]"))
 
-        script_path = _resolve_script(entry)
+        script_path = _resolve_script(entry, repo_root)
         if script_path is not None and script_path not in seen_scripts:
             seen_scripts.add(script_path)
             text = script_path.read_text(encoding="utf-8")
-            violations.extend(_scan_text(text, str(script_path.relative_to(REPO_ROOT))))
+            violations.extend(_scan_text(text, str(script_path.relative_to(repo_root))))
 
     return violations
 
@@ -183,17 +180,18 @@ def check_stage_coverage(config: dict[str, Any]) -> list[str]:
     return violations
 
 
-def main() -> int:
-    if not CONFIG_PATH.is_file():
-        print(f"ERROR: {CONFIG_PATH} not found", file=sys.stderr)
+def main(repo_root: Path) -> int:
+    config_path = repo_root / ".pre-commit-config.yaml"
+    if not config_path.is_file():
+        print(f"ERROR: {config_path} not found", file=sys.stderr)
         return 1
 
-    config = yaml.safe_load(CONFIG_PATH.read_text(encoding="utf-8"))
+    config = yaml.safe_load(config_path.read_text(encoding="utf-8"))
     if not isinstance(config, dict):
-        print(f"ERROR: {CONFIG_PATH} did not parse to a mapping", file=sys.stderr)
+        print(f"ERROR: {config_path} did not parse to a mapping", file=sys.stderr)
         return 1
 
-    violations = check_fail_loud(config) + check_stage_coverage(config)
+    violations = check_fail_loud(config, repo_root) + check_stage_coverage(config)
 
     if violations:
         print(f"FAIL: {len(violations)} fail-loud meta-gate violation(s):\n")
@@ -209,4 +207,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main(Path.cwd()))

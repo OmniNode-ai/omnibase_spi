@@ -96,8 +96,10 @@ jobs:
 
       - name: Verify PyPI dependency-pin resolvability (OMN-14070, OMN-19655)
         if: steps.scope.outputs.applies == 'true'
-        env:
-          # Same budget the release job's step uses (OMN-16047): a timeout is a
+        run: |
+          # The install budget is declared in pyproject.toml as
+          # pin_resolve_gate_install_timeout_seconds (OMN-22360): a timeout is a
           # throughput fault, reported as such, never as a broken pin.
-          PYPI_PIN_RESOLVE_TIMEOUT_SECONDS: '900'
-        run: python3 scripts/ci/verify_pypi_pin_resolvability.py "${RUNNER_TEMP}/pin-resolvability-dist"
+          PYPI_PIN_RESOLVE_TIMEOUT_SECONDS="$(PYTHONPATH=scripts/validation python3 -c "from timeout_utils import load_script_setting; print(load_script_setting('pin_resolve_gate_install_timeout_seconds'))")"
+          export PYPI_PIN_RESOLVE_TIMEOUT_SECONDS
+          python3 scripts/ci/verify_pypi_pin_resolvability.py "${RUNNER_TEMP}/pin-resolvability-dist"
