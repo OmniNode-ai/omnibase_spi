@@ -1,0 +1,32 @@
+schema_version: 1.0.0
+ticket_id: OMN-9050
+title: omnibase_core handshake pin bumps keep the SPI core dependency within the pin policy
+summary: Automated core pin bump PRs must leave omnibase-core in pyproject.toml and uv.lock within the dependency-pins policy. Evidence covers PR 442.
+is_seam_ticket: false
+interface_change: false
+interfaces_touched: []
+requirements:
+  - id: req-omn9050-core-pin-policy
+    statement: The omnibase-core lower bound and lock entry are within the dependency-pins policy.
+    acceptance:
+      - id: AC1
+        statement: 'AC1: the core dependency-pin validator exits 0 on this tree -- falsifier: uv run python -m omnibase_core.nodes.node_dependency_pins_check_effect.runtime_dependency_pins_check exits 1 when omnibase-core is more than 3 releases behind'
+evidence_requirements:
+  - kind: tests
+    description: Core dependency-pin validator passes on the tree.
+    command: uv run python -m omnibase_core.nodes.node_dependency_pins_check_effect.runtime_dependency_pins_check
+emergency_bypass:
+  enabled: false
+  justification: ''
+  follow_up_ticket_id: ''
+dod_evidence:
+  - id: dod-omn9050-core-pin-policy
+    description: 'AC1: omnibase-core is pinned at 0.47.66 in uv.lock and the validator exits 0.'
+    source: manual
+    checks:
+      - check_type: test_passes
+        check_value: uv run python -m omnibase_core.nodes.node_dependency_pins_check_effect.runtime_dependency_pins_check
+      - check_type: test_passes
+        check_value: uv run --frozen pytest tests/ci/test_core_pin_floor_omn9050.py -q --no-cov
+    binds_ac:
+      - AC1
