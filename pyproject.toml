@@ -360,6 +360,12 @@ file_operation_timeout_seconds = 30    # default budget of timeout_utils.safe_fi
 # PYPI_PIN_RESOLVE_TIMEOUT_SECONDS overrides the install budget
 pin_resolve_install_timeout_seconds = 1800  # cold no-cache install of the wheel's closure (OMN-16047)
 pin_resolve_venv_timeout_seconds = 120      # local scratch `uv venv`, no index access
+pin_resolve_gate_install_timeout_seconds = 900  # install budget the pin-resolvability gate workflow exports (OMN-22360)
+uv_http_timeout_seconds = 600          # UV_HTTP_TIMEOUT of the contract-validation workflow step (OMN-22360)
+# Per-operation budgets of validation_config.yaml's performance block (OMN-22360)
+file_analysis_timeout_seconds = 30
+ast_parsing_timeout_seconds = 10
+rule_execution_timeout_seconds = 5
 
 # (pre-commit hook id, pre-commit repo URL, CI requirement source, validator module [for audit])
 # rows checked by validate_precommit_pin_parity.py: both sides must pin the same immutable ref

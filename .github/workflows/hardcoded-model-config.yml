@@ -22,4 +22,4 @@ jobs:
   hardcoded-model-config:
     uses: OmniNode-ai/omniclaude/.github/workflows/hardcoded-model-config-reusable.yml@3872de5b8f679de3833584e49c0392be6181ac2c
     with:
-      core_ref: f873d2c30201c05d4be020fa0b281b5edbfb8307
+      core_ref: 74e0b0f127670fd0d675b83ee9f4d3e1268cc630

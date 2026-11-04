@@ -25,10 +25,10 @@ class TestMeasurementContextModelAttribution:
         ctx = ContractMeasurementContext(
             ticket_id="internal issue",
             repo_id="omnibase_core",
-            model_id="claude-sonnet-4-20250514",
+            model_id="fixture-model-a",
             producer_kind="agent",
         )
-        assert ctx.model_id == "claude-sonnet-4-20250514"
+        assert ctx.model_id == "fixture-model-a"
         assert ctx.producer_kind == "agent"
 
     def test_measurement_context_defaults(self) -> None:

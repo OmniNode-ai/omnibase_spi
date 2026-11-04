@@ -382,10 +382,9 @@ performance:
   max_memory_usage_mb: 512
   enable_gc_optimization: true
 
-  # Timeout settings per operation
-  file_analysis_timeout_seconds: 30
-  ast_parsing_timeout_seconds: 10
-  rule_execution_timeout_seconds: 5
+  # Timeout settings per operation live in pyproject.toml under
+  # [tool.omnibase_spi.validation_scripts]: file_analysis_timeout_seconds,
+  # ast_parsing_timeout_seconds and rule_execution_timeout_seconds (OMN-22360).
 
 # Integration settings
 integration:

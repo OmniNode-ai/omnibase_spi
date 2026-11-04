@@ -32,7 +32,7 @@ def _make_result(**overrides: Any) -> ContractEnrichmentResult:
         "relevance_score": 0.85,
         "enrichment_type": "code_analysis",
         "latency_ms": 42.5,
-        "model_used": "qwen2.5-72b",
+        "model_used": "fixture-model-a",
         "prompt_version": "v1.0",
     }
     defaults.update(overrides)
@@ -55,7 +55,7 @@ class TestContractEnrichmentResult:
         assert result.relevance_score == 0.85
         assert result.enrichment_type == "code_analysis"
         assert result.latency_ms == 42.5
-        assert result.model_used == "qwen2.5-72b"
+        assert result.model_used == "fixture-model-a"
         assert result.prompt_version == "v1.0"
         assert result.schema_version == "1.0"
         assert result.extensions == {}

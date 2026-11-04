@@ -539,7 +539,7 @@ class TestEdgeCases:
             version="2.1.0",
             metadata={
                 "max_tokens": 4096,
-                "models": ["gpt-4", "claude-3"],
+                "models": ["fixture-model-a", "fixture-model-b"],
                 "streaming": True,
             },
         )

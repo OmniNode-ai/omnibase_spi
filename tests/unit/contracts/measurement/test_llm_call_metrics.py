@@ -257,8 +257,8 @@ class TestContractLlmCallMetrics:
 
     def test_create_minimal(self) -> None:
         """Minimal construction with only model_id must populate defaults."""
-        m = ContractLlmCallMetrics(model_id="gpt-4o")
-        assert m.model_id == "gpt-4o"
+        m = ContractLlmCallMetrics(model_id="fixture-model-a")
+        assert m.model_id == "fixture-model-a"
         assert m.schema_version == "1.0"
         assert m.prompt_tokens == 0
         assert m.completion_tokens == 0
@@ -289,7 +289,7 @@ class TestContractLlmCallMetrics:
             usage_is_estimated=False,
         )
         m = ContractLlmCallMetrics(
-            model_id="gpt-4o",
+            model_id="fixture-model-a",
             prompt_tokens=500,
             completion_tokens=200,
             total_tokens=700,
@@ -352,7 +352,7 @@ class TestContractLlmCallMetrics:
 
     def test_frozen(self) -> None:
         """Frozen model must reject attribute mutation."""
-        m = ContractLlmCallMetrics(model_id="gpt-4o")
+        m = ContractLlmCallMetrics(model_id="fixture-model-a")
         with pytest.raises(ValidationError):
             m.model_id = "changed"  # type: ignore[misc]
 
@@ -360,14 +360,14 @@ class TestContractLlmCallMetrics:
         """Extra fields must be rejected by extra='forbid'."""
         with pytest.raises(ValidationError, match="extra_forbidden"):
             ContractLlmCallMetrics(
-                model_id="gpt-4o",
+                model_id="fixture-model-a",
                 nope="rejected",  # type: ignore[call-arg]
             )
 
     def test_json_round_trip(self) -> None:
         """JSON serialization must produce an equivalent instance."""
         m = ContractLlmCallMetrics(
-            model_id="claude-opus-4-20250514",
+            model_id="fixture-model-b",
             prompt_tokens=1000,
             completion_tokens=500,
             total_tokens=1500,
@@ -385,7 +385,7 @@ class TestContractLlmCallMetrics:
     def test_dict_round_trip_via_json_str(self) -> None:
         """JSON string parsed back to dict then validated must round-trip."""
         m = ContractLlmCallMetrics(
-            model_id="gpt-4o",
+            model_id="fixture-model-a",
             prompt_tokens=100,
             total_tokens=100,
             usage_normalized=ContractLlmUsageNormalized(
@@ -414,7 +414,7 @@ class TestContractLlmCallMetrics:
             usage_is_estimated=False,
         )
         m = ContractLlmCallMetrics(
-            model_id="claude-opus-4-20250514",
+            model_id="fixture-model-b",
             prompt_tokens=300,
             completion_tokens=150,
             total_tokens=450,
@@ -467,7 +467,7 @@ class TestContractLlmCallMetrics:
             usage_is_estimated=False,
         )
         m = ContractLlmCallMetrics(
-            model_id="gpt-4o",
+            model_id="fixture-model-a",
             prompt_tokens=100,
             completion_tokens=50,
             total_tokens=150,
@@ -478,7 +478,7 @@ class TestContractLlmCallMetrics:
     def test_no_normalized_skips_cross_check(self) -> None:
         """Without usage_normalized, only the total_tokens sum is checked."""
         m = ContractLlmCallMetrics(
-            model_id="gpt-4o",
+            model_id="fixture-model-a",
             prompt_tokens=100,
             completion_tokens=50,
             total_tokens=150,
@@ -515,7 +515,7 @@ class TestContractLlmCallMetrics:
         )
         with pytest.raises(ValidationError, match="usage_is_estimated.*disagrees"):
             ContractLlmCallMetrics(
-                model_id="gpt-4o",
+                model_id="fixture-model-a",
                 prompt_tokens=100,
                 completion_tokens=50,
                 total_tokens=150,
@@ -533,7 +533,7 @@ class TestContractLlmCallMetrics:
             usage_is_estimated=True,
         )
         m = ContractLlmCallMetrics(
-            model_id="gpt-4o",
+            model_id="fixture-model-a",
             prompt_tokens=100,
             completion_tokens=50,
             total_tokens=150,
@@ -547,7 +547,7 @@ class TestContractLlmCallMetrics:
     def test_estimated_cost_usd_zero_accepted(self) -> None:
         """Zero cost (boundary value) must be accepted by ge=0.0."""
         m = ContractLlmCallMetrics(
-            model_id="gpt-4o",
+            model_id="fixture-model-a",
             estimated_cost_usd=0.0,
         )
         assert m.estimated_cost_usd == 0.0
@@ -563,7 +563,7 @@ class TestContractLlmCallMetrics:
         """Very large token counts must be accepted without overflow."""
         large = 10**15
         m = ContractLlmCallMetrics(
-            model_id="gpt-4o",
+            model_id="fixture-model-a",
             prompt_tokens=large,
             completion_tokens=large,
             total_tokens=large * 2,
@@ -580,7 +580,7 @@ class TestContractLlmCallMetrics:
             extensions={"region": "us-west-2"},
         )
         m = ContractLlmCallMetrics(
-            model_id="gpt-4o",
+            model_id="fixture-model-a",
             usage_raw=raw,
         )
         assert m.usage_raw is not None
@@ -591,7 +591,7 @@ class TestContractLlmCallMetrics:
     def test_timestamp_iso_valid_with_timezone(self) -> None:
         """Valid ISO-8601 timestamp with timezone must be accepted."""
         m = ContractLlmCallMetrics(
-            model_id="gpt-4o",
+            model_id="fixture-model-a",
             timestamp_iso="2026-02-15T10:00:00+00:00",
         )
         assert m.timestamp_iso == "2026-02-15T10:00:00+00:00"
@@ -599,7 +599,7 @@ class TestContractLlmCallMetrics:
     def test_timestamp_iso_valid_utc_z_suffix(self) -> None:
         """Valid ISO-8601 timestamp with Z suffix must be accepted."""
         m = ContractLlmCallMetrics(
-            model_id="gpt-4o",
+            model_id="fixture-model-a",
             timestamp_iso="2026-02-15T10:00:00Z",
         )
         assert m.timestamp_iso == "2026-02-15T10:00:00Z"
@@ -607,21 +607,21 @@ class TestContractLlmCallMetrics:
     def test_timestamp_iso_valid_without_timezone(self) -> None:
         """Valid ISO-8601 timestamp without timezone must be accepted."""
         m = ContractLlmCallMetrics(
-            model_id="gpt-4o",
+            model_id="fixture-model-a",
             timestamp_iso="2026-02-15T10:00:00",
         )
         assert m.timestamp_iso == "2026-02-15T10:00:00"
 
     def test_timestamp_iso_empty_string_accepted(self) -> None:
         """Empty string (default) for timestamp_iso must be accepted."""
-        m = ContractLlmCallMetrics(model_id="gpt-4o", timestamp_iso="")
+        m = ContractLlmCallMetrics(model_id="fixture-model-a", timestamp_iso="")
         assert m.timestamp_iso == ""
 
     def test_timestamp_iso_invalid_rejected(self) -> None:
         """Non-ISO-8601 string must be rejected by timestamp_iso validator."""
         with pytest.raises(ValidationError, match="timestamp_iso.*valid ISO-8601"):
             ContractLlmCallMetrics(
-                model_id="gpt-4o",
+                model_id="fixture-model-a",
                 timestamp_iso="not-a-timestamp",
             )
 
@@ -629,7 +629,7 @@ class TestContractLlmCallMetrics:
         """Partial or malformed date string must be rejected."""
         with pytest.raises(ValidationError, match="timestamp_iso.*valid ISO-8601"):
             ContractLlmCallMetrics(
-                model_id="gpt-4o",
+                model_id="fixture-model-a",
                 timestamp_iso="2026-13-45",
             )
 

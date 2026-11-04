@@ -35,11 +35,6 @@ import re
 import sys
 from pathlib import Path
 
-# Repository root (relative to this script)
-REPO_ROOT = Path(__file__).resolve().parent.parent
-SRC_DIR = REPO_ROOT / "src"
-PROTOCOLS_INIT = SRC_DIR / "omnibase_spi" / "protocols" / "__init__.py"
-
 # Default allowlist: symbols that are exported but may not yet have consumers.
 # These are typically newly added APIs or types used only by downstream repos.
 DEFAULT_ALLOWLIST: set[str] = set()
@@ -119,9 +114,6 @@ def _find_symbol_consumers(symbol: str, search_dirs: list[Path]) -> list[str]:
             # Skip excluded files
             if py_file.name in EXCLUDE_PATTERNS:
                 continue
-            # Skip the protocols __init__.py itself (it defines the exports)
-            if py_file == PROTOCOLS_INIT:
-                continue
 
             try:
                 content = py_file.read_text(encoding="utf-8")
@@ -164,7 +156,7 @@ def _find_symbol_consumers(symbol: str, search_dirs: list[Path]) -> list[str]:
                 found = bool(pattern.search(content))
 
             if found:
-                rel_path = str(py_file.relative_to(REPO_ROOT))
+                rel_path = str(py_file.relative_to(search_dir.parent))
                 consumers.append(rel_path)
 
     return consumers
@@ -172,25 +164,25 @@ def _find_symbol_consumers(symbol: str, search_dirs: list[Path]) -> list[str]:
 
 def check_unused_exports(
     allowlist_path: Path | None = None,
+    repo_root: Path | None = None,
 ) -> dict[str, list[str]]:
     """Check all protocol exports for usage.
 
     Args:
         allowlist_path: Optional path to an allowlist file.
+        repo_root: Repository root to check; defaults to the current working directory.
 
     Returns:
         Dictionary mapping each exported symbol to its list of consumer files.
         Symbols with empty lists are unused.
     """
-    exports = _extract_all_exports(PROTOCOLS_INIT)
+    root = repo_root or Path.cwd()
+    exports = _extract_all_exports(
+        root / "src" / "omnibase_spi" / "protocols" / "__init__.py"
+    )
     allowlist = _load_allowlist(allowlist_path)
 
-    search_dirs = [
-        SRC_DIR,
-        REPO_ROOT / "tests",
-        REPO_ROOT / "scripts",
-        REPO_ROOT / "examples",
-    ]
+    search_dirs = [root / "src", root / "tests", root / "scripts", root / "examples"]
     # Only search dirs that exist
     search_dirs = [d for d in search_dirs if d.exists()]
 
