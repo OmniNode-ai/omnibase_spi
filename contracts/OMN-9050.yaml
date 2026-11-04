@@ -27,6 +27,6 @@ dod_evidence:
       - check_type: test_passes
         check_value: uv run python -m omnibase_core.nodes.node_dependency_pins_check_effect.runtime_dependency_pins_check
       - check_type: test_passes
-        check_value: grep -q 'omnibase-core>=0.47.66' pyproject.toml
+        check_value: uv run --frozen pytest tests/ci/test_core_pin_floor_omn9050.py -q --no-cov
     binds_ac:
       - AC1
