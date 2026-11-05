@@ -50,6 +50,7 @@ from .protocol_import_validator import (
     ProtocolImportValidationConfig,
     ProtocolImportValidator,
 )
+from .protocol_model_swap_validator import ProtocolModelSwapValidator
 from .protocol_quality_validator import (
     ProtocolQualityIssue,
     ProtocolQualityMetrics,
@@ -87,6 +88,7 @@ __all__ = [
     "ProtocolImportAnalysis",
     "ProtocolImportValidationConfig",
     "ProtocolImportValidator",
+    "ProtocolModelSwapValidator",
     "ProtocolONEXStandards",
     "ProtocolQualityIssue",
     "ProtocolQualityMetrics",
