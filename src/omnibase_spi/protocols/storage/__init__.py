@@ -7,6 +7,7 @@ from .protocol_database_connection import ProtocolDatabaseConnection
 from .protocol_durable_store import ProtocolDurableStore
 from .protocol_graph_database_handler import ProtocolGraphDatabaseHandler
 from .protocol_idempotency_store import ProtocolIdempotencyStore
+from .protocol_overlay_store import ProtocolOverlayStore
 from .protocol_storage_backend import (
     ProtocolStorageBackend,
     ProtocolStorageBackendFactory,
@@ -24,6 +25,7 @@ __all__ = [
     "ProtocolDurableStore",
     "ProtocolGraphDatabaseHandler",
     "ProtocolIdempotencyStore",
+    "ProtocolOverlayStore",
     "ProtocolStorageBackend",
     "ProtocolStorageBackendFactory",
     "ProtocolTranscriptObjectRecord",
