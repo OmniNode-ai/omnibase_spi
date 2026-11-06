@@ -1,0 +1,30 @@
+schema_version: 1.0.0
+ticket_id: OMN-22478
+title: The store protocol of loaded deployment overlays
+summary: A loader node puts one overlay on the bus and a projection holds it; every reader reads it through ProtocolOverlayStore, whichever backend an overlay selects.
+is_seam_ticket: false
+interface_change: false
+interfaces_touched: []
+requirements:
+  - id: req-omn22478-overlay-store-protocol
+    statement: A full store satisfies ProtocolOverlayStore and a store that cannot write does not.
+    acceptance:
+      - id: AC1
+        statement: 'AC1: the structural test passes -- falsifier: a read-only store passes as the protocol'
+evidence_requirements:
+  - kind: tests
+    description: The structural test of the protocol passes.
+    command: uv run --frozen pytest tests/unit/protocols/storage/test_protocol_overlay_store.py -q --no-cov
+emergency_bypass:
+  enabled: false
+  justification: ''
+  follow_up_ticket_id: ''
+dod_evidence:
+  - id: dod-omn22478-overlay-store-protocol
+    description: 'AC1: a full store is the protocol and a read-only store is not.'
+    source: manual
+    checks:
+      - check_type: test_passes
+        check_value: uv run --frozen pytest tests/unit/protocols/storage/test_protocol_overlay_store.py -q --no-cov
+    binds_ac:
+      - AC1
