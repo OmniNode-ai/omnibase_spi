@@ -10807,6 +10807,83 @@
       "type": "ClassVar[bool]"
     }
   },
+  "ProtocolLaneProcessRunner": {
+    "__eq__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__ge__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__gt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__hash__": {
+      "kind": "method",
+      "parameters": {},
+      "return_type": "<empty>"
+    },
+    "__le__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__lt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "run_bounded": {
+      "kind": "method",
+      "parameters": {
+        "spec": {
+          "type": "ModelLaneStartSpec"
+        },
+        "timeout_seconds": {
+          "type": "float"
+        }
+      },
+      "return_type": "ModelLaneProcessRunResult"
+    },
+    "start_detached": {
+      "kind": "method",
+      "parameters": {
+        "spec": {
+          "type": "ModelLaneStartSpec"
+        }
+      },
+      "return_type": "ModelLaneProcessStartResult"
+    },
+    "synchronous_execution": {
+      "kind": "attribute",
+      "type": "ClassVar[bool]"
+    }
+  },
   "ProtocolLifecycleManager": {
     "__eq__": {
       "kind": "method",

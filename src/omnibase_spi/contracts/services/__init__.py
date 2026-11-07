@@ -51,6 +51,11 @@ from omnibase_spi.contracts.services.model_lane_host_transport_types import (
     ModelLaneStopEngineRequest,
     ModelLaneStopEngineResult,
 )
+from omnibase_spi.contracts.services.model_lane_process_runner_types import (
+    ModelLaneProcessRunResult,
+    ModelLaneProcessStartResult,
+    ModelLaneStartSpec,
+)
 
 __all__ = [
     "ModelLaneHostRef",
@@ -64,6 +69,9 @@ __all__ = [
     "ModelLaneStartEngineResult",
     "ModelLaneStopEngineRequest",
     "ModelLaneStopEngineResult",
+    "ModelLaneProcessRunResult",
+    "ModelLaneProcessStartResult",
+    "ModelLaneStartSpec",
     "ModelLaneHostPoolReading",
     "ModelLaneHostPoolRequest",
     "ModelLaneHostPoolSnapshot",
