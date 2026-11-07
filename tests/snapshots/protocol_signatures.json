@@ -10931,6 +10931,51 @@
       },
       "return_type": "<empty>"
     },
+    "closeout_worktrees": {
+      "kind": "method",
+      "parameters": {
+        "request": {
+          "type": "ModelLaneHostStepRequest"
+        }
+      },
+      "return_type": "ModelLaneCloseoutCells"
+    },
+    "drain_guard_spool": {
+      "kind": "method",
+      "parameters": {
+        "request": {
+          "type": "ModelLaneHostStepRequest"
+        }
+      },
+      "return_type": "ModelLaneHostStepResult"
+    },
+    "hold_run_dir_guard": {
+      "kind": "method",
+      "parameters": {
+        "request": {
+          "type": "ModelLaneHostStepRequest"
+        }
+      },
+      "return_type": "ModelLaneHostStepResult"
+    },
+    "mirror_ledger": {
+      "kind": "method",
+      "parameters": {
+        "request": {
+          "type": "ModelLaneHostStepRequest"
+        }
+      },
+      "return_type": "ModelLaneHostStepResult"
+    },
+    "prepare_run_dirs": {
+      "kind": "method",
+      "parameters": {
+        "request": {
+          "type": "ModelLaneHostStepRequest"
+        }
+      },
+      "return_type": "ModelLaneRunDirsResult"
+    },
     "prepare_worktree": {
       "kind": "method",
       "parameters": {
@@ -10949,6 +10994,24 @@
       },
       "return_type": "ModelLaneEngineExitState"
     },
+    "read_lane_changes": {
+      "kind": "method",
+      "parameters": {
+        "request": {
+          "type": "ModelLaneHostStepRequest"
+        }
+      },
+      "return_type": "ModelLaneChangeList"
+    },
+    "read_ledger_outbox": {
+      "kind": "method",
+      "parameters": {
+        "request": {
+          "type": "ModelLaneHostStepRequest"
+        }
+      },
+      "return_type": "ModelLaneLedgerOutboxRows"
+    },
     "read_log_tail": {
       "kind": "method",
       "parameters": {
@@ -10957,6 +11020,60 @@
         }
       },
       "return_type": "ModelLaneLogTailChunk"
+    },
+    "relay_reports": {
+      "kind": "method",
+      "parameters": {
+        "request": {
+          "type": "ModelLaneHostStepRequest"
+        }
+      },
+      "return_type": "ModelLaneHostStepResult"
+    },
+    "resolve_registry_root": {
+      "kind": "method",
+      "parameters": {
+        "request": {
+          "type": "ModelLaneHostStepRequest"
+        }
+      },
+      "return_type": "ModelLaneRegistryRootResult"
+    },
+    "retain_run_artifacts": {
+      "kind": "method",
+      "parameters": {
+        "request": {
+          "type": "ModelLaneHostStepRequest"
+        }
+      },
+      "return_type": "ModelLaneHostStepResult"
+    },
+    "ship_plugin_trees": {
+      "kind": "method",
+      "parameters": {
+        "request": {
+          "type": "ModelLaneShipPluginTreesRequest"
+        }
+      },
+      "return_type": "ModelLaneShipPluginTreesResult"
+    },
+    "stage_file": {
+      "kind": "method",
+      "parameters": {
+        "request": {
+          "type": "ModelLaneStageInputRequest"
+        }
+      },
+      "return_type": "ModelLaneStagedInput"
+    },
+    "stage_ledger_snapshot": {
+      "kind": "method",
+      "parameters": {
+        "request": {
+          "type": "ModelLaneStageInputRequest"
+        }
+      },
+      "return_type": "ModelLaneStagedInput"
     },
     "start_engine_detached": {
       "kind": "method",
@@ -10976,9 +11093,27 @@
       },
       "return_type": "ModelLaneEngineStopOutcome"
     },
+    "stop_lane_guard": {
+      "kind": "method",
+      "parameters": {
+        "request": {
+          "type": "ModelLaneHostStepRequest"
+        }
+      },
+      "return_type": "ModelLaneHostStepResult"
+    },
     "synchronous_execution": {
       "kind": "attribute",
       "type": "ClassVar[bool]"
+    },
+    "write_runtime_config": {
+      "kind": "method",
+      "parameters": {
+        "request": {
+          "type": "ModelLaneHostStepRequest"
+        }
+      },
+      "return_type": "ModelLaneHostStepResult"
     }
   },
   "ProtocolLaneProcessRunner": {

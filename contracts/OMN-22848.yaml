@@ -1,0 +1,37 @@
+schema_version: "1.0.0"
+ticket_id: "OMN-22848"
+title: "Lane start nodes, omnibase_spi part: the provisioning operations of ProtocolLaneHostTransport with their wire models, the in-memory adapter and conformance checks"
+summary: "Part of OMN-22848 (T15 of the stopped-line fill plan). The frozen remote-lane runner provisions a lab host around the engine (registry root, run directories, ledger snapshot, staged run files, plugin trees, ledger mirror, runtime config; after the engine, guard stop and spool drain, report relay, queued ledger rows, lane changes, worktree closeout, run directory hold and retention). ProtocolLaneHostTransport carried only the five engine calls, so the lane start node could not issue those steps through an injected spi protocol. This change adds the fifteen provisioning operations to ProtocolLaneHostTransport with frozen request and result models, the in-memory adapter in the conformance test tree, conformance checks with a broken-adapter control, and the regenerated protocol snapshot. The node that implements them lives in omnimarket."
+is_seam_ticket: false
+interface_change: true
+interfaces_touched:
+  - "protocols"
+requirements:
+  - id: "req-omn22848-spi-lane-host-provisioning"
+    statement: "omnibase_spi must declare every host provisioning step the lane runner performs as a typed operation of ProtocolLaneHostTransport, with frozen wire models, an in-memory adapter and conformance checks that the adapter passes and a broken adapter fails."
+    acceptance:
+      - id: "AC7"
+        statement: 'AC7: G-NODE holds for both nodes, and the placed, no-host, CLAIM-refused and engine-fails scenarios give equal decision projections on the in-memory and Redpanda legs with the scripted transport -- falsifier: `-m floor_fill_parity -k remote_lane_start` with the Redpanda receipt in the PR body.'
+evidence_requirements:
+  - kind: "tests"
+    description: "The lane host transport conformance checks with their controls, the lane wire model tests and the protocol snapshot test."
+    command: "uv run pytest tests/unit/protocols/conformance/test_conformance.py tests/unit/protocols/conformance/test_lane_contracts.py tests/test_protocol_snapshot.py -q --no-cov -p no:randomly"
+emergency_bypass:
+  enabled: false
+  justification: ""
+  follow_up_ticket_id: ""
+dod_evidence:
+  - id: "dod-omn22848-spi-provisioning-conformance"
+    description: "AC7 (spi part, G-NODE point 3): the in-memory lane host transport answers every provisioning operation with its typed result, and a failed step names its error without raising."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/unit/protocols/conformance/test_conformance.py -k lane_host -q --no-cov -p no:randomly"
+    binds_ac: ["AC7"]
+  - id: "dod-omn22848-spi-provisioning-shapes"
+    description: "AC7 (spi part, control): the lane wire models are frozen with every field described, a failed step without an error is refused, and the protocol snapshot holds the new operations."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/unit/protocols/conformance/test_lane_contracts.py tests/test_protocol_snapshot.py -q --no-cov -p no:randomly"
+    binds_ac: ["AC7"]
