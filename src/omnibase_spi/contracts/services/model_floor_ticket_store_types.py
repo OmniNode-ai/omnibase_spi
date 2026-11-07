@@ -34,6 +34,13 @@ class ModelFloorTicketLookupResult(BaseModel):
         ticket: The ticket id; present only for ``found``.
         status: The ticket's status name; present only for ``found``.
         cause: Why the read failed; present only for ``failed``.
+        description: The ticket's description, so a reader can check it carries its
+            ``Floor key:`` line; only for ``found``, ``None`` when the store gave none.
+        project: The ticket's project name, ``None`` when it has none; only for ``found``.
+        labels: The ticket's label names; only for ``found``.
+        pillar: The ticket's pillar, ``None`` when it has none; only for ``found``.
+        has_children: Whether the ticket has child tickets, which makes it an
+            umbrella; only for ``found``.
     """
 
     model_config = _FROZEN
@@ -42,13 +49,33 @@ class ModelFloorTicketLookupResult(BaseModel):
     ticket: str | None = Field(default=None, description="Ticket id when found.")
     status: str | None = Field(default=None, description="Status name when found.")
     cause: str | None = Field(default=None, description="Why the read failed.")
+    description: str | None = Field(
+        default=None, description="Ticket description when found."
+    )
+    project: str | None = Field(default=None, description="Project name when found.")
+    labels: tuple[str, ...] = Field(default=(), description="Label names when found.")
+    pillar: str | None = Field(default=None, description="Pillar when found.")
+    has_children: bool = Field(
+        default=False, description="Whether the found ticket has child tickets."
+    )
 
     @model_validator(mode="after")
     def _shape_follows_state(self) -> Self:
         if self.state == "found":
             if self.ticket is None or self.status is None or self.cause is not None:
                 raise ValueError("found requires a ticket and a status and no cause")
-        elif self.state == "missing":
+            return self
+        if (
+            self.description is not None
+            or self.project is not None
+            or self.labels
+            or self.pillar is not None
+            or self.has_children
+        ):
+            raise ValueError(
+                "only found carries a description, project, labels, pillar or children"
+            )
+        if self.state == "missing":
             if (
                 self.ticket is not None
                 or self.status is not None
