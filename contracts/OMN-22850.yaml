@@ -5,7 +5,7 @@ summary: "Part of OMN-22850 (T11 of the stopped-line fill plan). The floor-task 
 is_seam_ticket: false
 interface_change: true
 interfaces_touched:
-  - "contracts"
+  - "protocols"
 requirements:
   - id: "req-omn22850-spi-lookup-facts"
     statement: "ModelFloorTicketLookupResult carries the description, project, labels, pillar and has_children of a found ticket, and a missing or failed result carries none of them."
