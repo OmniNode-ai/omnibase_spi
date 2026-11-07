@@ -282,10 +282,11 @@ from omnibase_spi.protocols.intelligence import (
     ProtocolPatternExtractor,
 )
 
-# Lane protocols (3 protocols) - Lane host transport, host pool and work ledger store
+# Lane protocols (4 protocols) - Lane host transport, host pool, process runner and work ledger store
 from omnibase_spi.protocols.lane import (
     ProtocolLaneHostPool,
     ProtocolLaneHostTransport,
+    ProtocolLaneProcessRunner,
     ProtocolWorkLedgerStore,
 )
 
@@ -650,6 +651,7 @@ __all__ = [
     "ProtocolKafkaAdapter",
     "ProtocolLaneHostPool",
     "ProtocolLaneHostTransport",
+    "ProtocolLaneProcessRunner",
     "ProtocolKeyValueStore",
     "ProtocolLLMProvider",
     "ProtocolLLMToolProvider",

@@ -56,7 +56,7 @@ def _start(**overrides: Any) -> ModelLaneStartEngineRequest:
 @pytest.mark.unit
 def test_every_lane_model_is_frozen_and_forbids_extra_fields() -> None:
     lane_models = [n for n in services_contracts.__all__ if n.startswith("ModelLane")]
-    assert len(lane_models) == 14
+    assert len(lane_models) == 17
     for name in lane_models:
         model = getattr(services_contracts, name)
         assert issubclass(model, BaseModel)

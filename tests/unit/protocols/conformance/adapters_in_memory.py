@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
 # SPDX-License-Identifier: MIT
 
-"""In-memory adapters for the five lander protocols (OMN-22185) and the three lane protocols (OMN-22198).
+"""In-memory adapters for the five lander protocols (OMN-22185) and the three lane protocols (OMN-22198) and the lane process runner (OMN-22851).
 
 They live with the conformance suites, not in the package: the omnibase_spi purity
 gate allows no concrete class in ``src``. Each is the ``local``-profile adapter of
@@ -19,12 +19,15 @@ from omnibase_spi.contracts.services import (
     ModelLaneHostPoolSnapshot,
     ModelLanePrepareWorktreeRequest,
     ModelLanePrepareWorktreeResult,
+    ModelLaneProcessRunResult,
+    ModelLaneProcessStartResult,
     ModelLaneReadEngineExitRequest,
     ModelLaneReadEngineExitResult,
     ModelLaneReadLogTailRequest,
     ModelLaneReadLogTailResult,
     ModelLaneStartEngineRequest,
     ModelLaneStartEngineResult,
+    ModelLaneStartSpec,
     ModelLaneStopEngineRequest,
     ModelLaneStopEngineResult,
 )
@@ -371,6 +374,41 @@ class InMemoryLaneHostPool:
         """Return the scripted snapshot."""
         self.requests.append(request)
         return self.snapshot
+
+
+class InMemoryLaneProcessRunner:
+    """A scripted process runner: records each spec in order, and the test scripts the outcome."""
+
+    synchronous_execution = True
+
+    def __init__(self) -> None:
+        self.calls: list[tuple[str, ModelLaneStartSpec]] = []
+        self._start: ModelLaneProcessStartResult = ModelLaneProcessStartResult(
+            state="started", pid=4242
+        )
+        self._run: ModelLaneProcessRunResult = ModelLaneProcessRunResult(
+            state="exited", exit_code=0
+        )
+
+    def script_start(self, result: ModelLaneProcessStartResult) -> None:
+        """Set what the next detached starts answer."""
+        self._start = result
+
+    def script_run(self, result: ModelLaneProcessRunResult) -> None:
+        """Set what the next bounded runs answer."""
+        self._run = result
+
+    def start_detached(self, spec: ModelLaneStartSpec) -> ModelLaneProcessStartResult:
+        """Record the spec and return the scripted start."""
+        self.calls.append(("start_detached", spec))
+        return self._start
+
+    def run_bounded(
+        self, spec: ModelLaneStartSpec, timeout_seconds: float
+    ) -> ModelLaneProcessRunResult:
+        """Record the spec and return the scripted run."""
+        self.calls.append(("run_bounded", spec))
+        return self._run
 
 
 class InMemoryWorkLedgerStore:

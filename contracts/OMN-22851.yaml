@@ -1,0 +1,37 @@
+schema_version: "1.0.0"
+ticket_id: "OMN-22851"
+title: "Lane process effect, omnibase_spi part: ProtocolLaneProcessRunner with its wire models, an in-memory adapter and a conformance suite"
+summary: "Part of OMN-22851. The lane process effect node takes one injected protocol, ProtocolLaneProcessRunner (start_detached and run_bounded); it did not exist in omnibase_spi. This change declares it with its frozen wire models under contracts/services (ModelLaneStartSpec, ModelLaneProcessStartResult, ModelLaneProcessRunResult), an in-memory adapter in the conformance test tree (not in src, because the purity gate allows no concrete class there), and a conformance suite with a positive control. The node that binds the protocol lives in omnimarket and is the other pull request of the ticket."
+is_seam_ticket: false
+interface_change: true
+interfaces_touched:
+  - "protocols"
+requirements:
+  - id: "req-omn22851-spi-lane-process-runner"
+    statement: "omnibase_spi must define ProtocolLaneProcessRunner as a runtime-checkable protocol, with frozen wire models, an in-memory adapter and a conformance suite that the adapter passes and a broken adapter fails."
+    acceptance:
+      - id: "AC1"
+        statement: "AC1: G-NODE point 3: the protocol the lane process effect injects is declared in omnibase_spi -- falsifier: the conformance suite with its positive control, the lane process contract tests and the protocol snapshot test (uv run pytest on the paths in the evidence command)"
+evidence_requirements:
+  - kind: "tests"
+    description: "The conformance suite for the lane process runner, the lane process contract tests, the snapshot test and the documentation count test."
+    command: "uv run pytest tests/unit/protocols/conformance/test_conformance.py tests/unit/protocols/conformance/test_lane_process_contracts.py tests/unit/protocols/conformance/test_lane_contracts.py tests/test_protocol_snapshot.py tests/unit/test_doc_protocol_imports.py -k 'not containment' -q --no-cov -p no:randomly"
+emergency_bypass:
+  enabled: false
+  justification: ""
+  follow_up_ticket_id: ""
+dod_evidence:
+  - id: "dod-omn22851-spi-conformance"
+    description: "AC1: the in-memory adapter of the lane process runner passes each conformance check."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/unit/protocols/conformance/test_conformance.py -k lane_process_runner -q --no-cov -p no:randomly"
+    binds_ac: ["AC1"]
+  - id: "dod-omn22851-spi-positive-control"
+    description: "AC1 (positive control): a deliberately broken adapter that reports a passed deadline as a clean exit is refused by the suite, and the wire models hold their shapes."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/unit/protocols/conformance/test_conformance.py tests/unit/protocols/conformance/test_lane_process_contracts.py -k 'control or process' -q --no-cov -p no:randomly"
+    binds_ac: ["AC1"]
