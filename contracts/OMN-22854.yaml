@@ -1,0 +1,37 @@
+schema_version: "1.0.0"
+ticket_id: "OMN-22854"
+title: "Floor fill orchestrator, omnibase_spi part: ProtocolFactSource and ProtocolFloorTicketStore with the ticket wire models, in-memory adapters and conformance suites"
+summary: "Part of OMN-22854 (T13 of the stopped-line fill plan). The floor fill orchestrator injects a fact source (the floor, the plan texts, the open-count brake and the stop signal) and reaches its tickets through a ticket store (read, search by Floor key, create); neither protocol existed in omnibase_spi, so the node declared them locally and G-NODE point 3 (every injected protocol resolves into omnibase_spi) did not hold. This change declares both in omnibase_spi with the ticket store's frozen wire models under contracts/services, in-memory adapters in the conformance test tree (not in src, because the purity gate allows no concrete class there) and conformance suites with a positive control each. The orchestrator that binds them lives in omnimarket and is the other pull request of the ticket. ProtocolLaneProcessRunner already exists in omnibase_spi (OMN-22851) and is not repeated here."
+is_seam_ticket: false
+interface_change: true
+interfaces_touched:
+  - "protocols"
+requirements:
+  - id: "req-omn22854-spi-floor-protocols"
+    statement: "omnibase_spi must define ProtocolFactSource and ProtocolFloorTicketStore as runtime-checkable protocols, with frozen wire models for the ticket store, in-memory adapters and conformance suites that the adapters pass and broken adapters fail."
+    acceptance:
+      - id: "AC1"
+        statement: "AC1: G-NODE point 3: the fact source and ticket store protocols the floor fill orchestrator injects are declared in omnibase_spi -- falsifier: the conformance suites with their positive controls, the wire shape tests and the protocol snapshot test (uv run pytest on the paths in the evidence command)"
+evidence_requirements:
+  - kind: "tests"
+    description: "The floor fill protocol conformance suites and wire shape tests, the lane contract tests, the snapshot test and the documentation count test."
+    command: "uv run pytest tests/unit/protocols/conformance/test_floor_fill_protocols.py tests/unit/protocols/conformance/test_lane_contracts.py tests/test_protocol_snapshot.py tests/unit/test_doc_protocol_imports.py -q --no-cov -p no:randomly"
+emergency_bypass:
+  enabled: false
+  justification: ""
+  follow_up_ticket_id: ""
+dod_evidence:
+  - id: "dod-omn22854-spi-conformance"
+    description: "AC1: the in-memory fact source and ticket store pass each conformance check."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/unit/protocols/conformance/test_floor_fill_protocols.py -k conformance -q --no-cov -p no:randomly"
+    binds_ac: ["AC1"]
+  - id: "dod-omn22854-spi-positive-control"
+    description: "AC1 (positive control): a source that answers an unreadable plan as empty text and a ticket store that matches the Floor key by prefix are each refused by their suite, and the wire models hold their shapes."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/unit/protocols/conformance/test_floor_fill_protocols.py -k 'control or shapes' -q --no-cov -p no:randomly"
+    binds_ac: ["AC1"]
