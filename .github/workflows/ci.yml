@@ -221,10 +221,21 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      # OMN-22812: this step named no interpreter, so uv resolved the newest one satisfying
+      # `requires-python = ">=3.12"`. When ubuntu-latest became Ubuntu 26.04 on 2026-11-06 that
+      # became Python 3.14, whose annotation reprs differ (`uuid.UUID` renders as `UUID`, `...`
+      # as `Ellipsis`, `Callable[[], X]` as `Callable[X]`, a Literal's members unquoted), and
+      # tests/test_protocol_snapshot.py compares those reprs: 125 false signature drifts, a red
+      # split, and `Build & Package Verification`, `Tests Gate` and `CI Summary` red behind it.
+      # 3.12 is the version the other jobs of this workflow already name through
+      # actions/setup-python, so this restores the environment the snapshot was measured in
+      # rather than choosing a new one. The snapshot's reprs being version-dependent at all is
+      # the deeper defect and is not fixed here.
       - uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
           cache-dependency-glob: '**/uv.lock'
+          python-version: "3.12"
 
       - name: Install dependencies
         run: uv sync --group dev
