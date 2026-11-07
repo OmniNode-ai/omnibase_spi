@@ -26,6 +26,8 @@ from omnibase_spi.contracts.services import (
     ModelLaneHostPoolRequest,
     ModelLaneHostPoolSnapshot,
     ModelLaneHostRef,
+    ModelLaneHostStepRequest,
+    ModelLaneHostStepResult,
     ModelLaneProcessRunResult,
     ModelLaneProcessStartResult,
     ModelLaneReadEngineExitRequest,
@@ -122,6 +124,7 @@ class _LaneHostHarness:
         self.script_exit = self.transport.script_exit
         self.script_stubborn = self.transport.script_stubborn
         self.script_log = self.transport.script_log
+        self.script_step_failure = self.transport.script_step_failure
 
 
 class _LanePoolHarness:
@@ -433,6 +436,24 @@ def test_control_lane_host_suite_refuses_a_stop_that_confirms_a_surviving_engine
     with pytest.raises(AssertionError):
         suite_lane_host_transport.check_an_engine_that_survives_the_stop_is_not_confirmed(
             _LaneHostHarness(_BrokenLaneHostTransport())
+        )
+
+
+class _SilentStepLaneHostTransport(InMemoryLaneHostTransport):
+    """A failed provisioning step reports ok."""
+
+    def mirror_ledger(
+        self, request: ModelLaneHostStepRequest
+    ) -> ModelLaneHostStepResult:
+        super().mirror_ledger(request)
+        return ModelLaneHostStepResult(ok=True)
+
+
+@pytest.mark.unit
+def test_control_lane_host_suite_refuses_a_failed_step_reported_as_ok() -> None:
+    with pytest.raises(AssertionError):
+        suite_lane_host_transport.check_a_failed_provisioning_step_names_its_error_not_a_raise(
+            _LaneHostHarness(_SilentStepLaneHostTransport())
         )
 
 

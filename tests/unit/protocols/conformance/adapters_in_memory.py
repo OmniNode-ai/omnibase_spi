@@ -15,8 +15,13 @@ from collections.abc import Callable, Sequence
 from omnibase_spi.contracts.services import (
     ModelHostCallAnswer,
     ModelHostCallRequest,
+    ModelLaneChangeList,
+    ModelLaneCloseoutCells,
     ModelLaneHostPoolRequest,
     ModelLaneHostPoolSnapshot,
+    ModelLaneHostStepRequest,
+    ModelLaneHostStepResult,
+    ModelLaneLedgerOutboxRows,
     ModelLanePrepareWorktreeRequest,
     ModelLanePrepareWorktreeResult,
     ModelLaneProcessRunResult,
@@ -25,6 +30,12 @@ from omnibase_spi.contracts.services import (
     ModelLaneReadEngineExitResult,
     ModelLaneReadLogTailRequest,
     ModelLaneReadLogTailResult,
+    ModelLaneRegistryRootResult,
+    ModelLaneRunDirsResult,
+    ModelLaneShipPluginTreesRequest,
+    ModelLaneShipPluginTreesResult,
+    ModelLaneStagedInput,
+    ModelLaneStageInputRequest,
     ModelLaneStartEngineRequest,
     ModelLaneStartEngineResult,
     ModelLaneStartSpec,
@@ -268,6 +279,152 @@ class InMemoryLaneHostTransport:
         self._exit_codes: dict[str, int] = {}
         self._stubborn: set[str] = set()
         self._logs: dict[str, list[str]] = {}
+        self._failing_steps: dict[str, str] = {}
+        self.staged: dict[tuple[str, str], str] = {}
+
+    def script_step_failure(self, method: str, error: str | None) -> None:
+        """Make the provisioning call ``method`` fail with ``error``; None makes it succeed again."""
+        if error is None:
+            self._failing_steps.pop(method, None)
+        else:
+            self._failing_steps[method] = error
+
+    def _step(self, method: str, request: ModelLaneHostStepRequest) -> str | None:
+        self.calls.append((method, request.run_id))
+        return self._failing_steps.get(method)
+
+    def _plain_step(
+        self, method: str, request: ModelLaneHostStepRequest
+    ) -> ModelLaneHostStepResult:
+        error = self._step(method, request)
+        if error is not None:
+            return ModelLaneHostStepResult(ok=False, error=error)
+        return ModelLaneHostStepResult(ok=True, cells=(("step", method),))
+
+    def _stage(
+        self, method: str, request: ModelLaneStageInputRequest
+    ) -> ModelLaneStagedInput:
+        self.calls.append((method, request.run_id))
+        error = self._failing_steps.get(method)
+        if error is not None:
+            return ModelLaneStagedInput(staged=False, error=error)
+        self.staged[(request.run_id, request.name)] = request.content
+        return ModelLaneStagedInput(
+            staged=True, path=f"/runs/{request.run_id}.ctx/{request.name}"
+        )
+
+    def resolve_registry_root(
+        self, request: ModelLaneHostStepRequest
+    ) -> ModelLaneRegistryRootResult:
+        """Return ``/omni``, or the scripted failure."""
+        error = self._step("resolve_registry_root", request)
+        if error is not None:
+            return ModelLaneRegistryRootResult(error=error)
+        return ModelLaneRegistryRootResult(registry_root="/omni")
+
+    def prepare_run_dirs(
+        self, request: ModelLaneHostStepRequest
+    ) -> ModelLaneRunDirsResult:
+        """Return the run and context directories, or the scripted failure."""
+        error = self._step("prepare_run_dirs", request)
+        if error is not None:
+            return ModelLaneRunDirsResult(error=error)
+        return ModelLaneRunDirsResult(
+            run_dir=f"/runs/{request.run_id}", context_dir=f"/runs/{request.run_id}.ctx"
+        )
+
+    def stage_ledger_snapshot(
+        self, request: ModelLaneStageInputRequest
+    ) -> ModelLaneStagedInput:
+        """Keep the snapshot in ``staged``, or the scripted failure."""
+        return self._stage("stage_ledger_snapshot", request)
+
+    def stage_file(self, request: ModelLaneStageInputRequest) -> ModelLaneStagedInput:
+        """Keep the file in ``staged``, or the scripted failure."""
+        return self._stage("stage_file", request)
+
+    def ship_plugin_trees(
+        self, request: ModelLaneShipPluginTreesRequest
+    ) -> ModelLaneShipPluginTreesResult:
+        """Return a directory per tree, or the scripted failure."""
+        self.calls.append(("ship_plugin_trees", request.run_id))
+        error = self._failing_steps.get("ship_plugin_trees")
+        if error is not None:
+            return ModelLaneShipPluginTreesResult(shipped=False, error=error)
+        return ModelLaneShipPluginTreesResult(
+            shipped=True,
+            plugin_dirs=tuple(
+                (tree.name, f"/plugins/{tree.source_digest}/{tree.name}")
+                for tree in request.trees
+            ),
+        )
+
+    def mirror_ledger(
+        self, request: ModelLaneHostStepRequest
+    ) -> ModelLaneHostStepResult:
+        """A scripted step."""
+        return self._plain_step("mirror_ledger", request)
+
+    def write_runtime_config(
+        self, request: ModelLaneHostStepRequest
+    ) -> ModelLaneHostStepResult:
+        """A scripted step."""
+        return self._plain_step("write_runtime_config", request)
+
+    def drain_guard_spool(
+        self, request: ModelLaneHostStepRequest
+    ) -> ModelLaneHostStepResult:
+        """A scripted step."""
+        return self._plain_step("drain_guard_spool", request)
+
+    def relay_reports(
+        self, request: ModelLaneHostStepRequest
+    ) -> ModelLaneHostStepResult:
+        """A scripted step."""
+        return self._plain_step("relay_reports", request)
+
+    def read_ledger_outbox(
+        self, request: ModelLaneHostStepRequest
+    ) -> ModelLaneLedgerOutboxRows:
+        """No queued rows, or the scripted failure."""
+        error = self._step("read_ledger_outbox", request)
+        return ModelLaneLedgerOutboxRows(error=error)
+
+    def read_lane_changes(
+        self, request: ModelLaneHostStepRequest
+    ) -> ModelLaneChangeList:
+        """No changes, or the scripted failure."""
+        error = self._step("read_lane_changes", request)
+        return ModelLaneChangeList(error=error)
+
+    def closeout_worktrees(
+        self, request: ModelLaneHostStepRequest
+    ) -> ModelLaneCloseoutCells:
+        """One removed-worktree cell, or the scripted failure."""
+        error = self._step("closeout_worktrees", request)
+        if error is not None:
+            return ModelLaneCloseoutCells(error=error)
+        return ModelLaneCloseoutCells(
+            cells=(f"worktree=removed:omni_worktrees/{request.lane}",)
+        )
+
+    def hold_run_dir_guard(
+        self, request: ModelLaneHostStepRequest
+    ) -> ModelLaneHostStepResult:
+        """A scripted step."""
+        return self._plain_step("hold_run_dir_guard", request)
+
+    def retain_run_artifacts(
+        self, request: ModelLaneHostStepRequest
+    ) -> ModelLaneHostStepResult:
+        """A scripted step."""
+        return self._plain_step("retain_run_artifacts", request)
+
+    def stop_lane_guard(
+        self, request: ModelLaneHostStepRequest
+    ) -> ModelLaneHostStepResult:
+        """A scripted step."""
+        return self._plain_step("stop_lane_guard", request)
 
     def script_start(self, state: str) -> None:
         """Make the next starts settle as ``started``, ``failed`` or ``unresolved``."""

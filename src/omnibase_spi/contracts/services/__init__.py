@@ -46,6 +46,20 @@ from omnibase_spi.contracts.services.model_lane_host_pool_types import (
     ModelLaneHostPoolRequest,
     ModelLaneHostPoolSnapshot,
 )
+from omnibase_spi.contracts.services.model_lane_host_provisioning_types import (
+    ModelLaneChangeList,
+    ModelLaneCloseoutCells,
+    ModelLaneHostStepRequest,
+    ModelLaneHostStepResult,
+    ModelLaneLedgerOutboxRows,
+    ModelLanePluginTree,
+    ModelLaneRegistryRootResult,
+    ModelLaneRunDirsResult,
+    ModelLaneShipPluginTreesRequest,
+    ModelLaneShipPluginTreesResult,
+    ModelLaneStagedInput,
+    ModelLaneStageInputRequest,
+)
 from omnibase_spi.contracts.services.model_lane_host_transport_types import (
     ModelLaneHostRef,
     ModelLanePrepareWorktreeRequest,
@@ -105,4 +119,16 @@ __all__ = [
     "ModelPullRequest",
     "ModelQueryResult",
     "ModelTableInfo",
+    "ModelLanePluginTree",
+    "ModelLaneCloseoutCells",
+    "ModelLaneShipPluginTreesResult",
+    "ModelLaneStageInputRequest",
+    "ModelLaneHostStepRequest",
+    "ModelLaneShipPluginTreesRequest",
+    "ModelLaneRunDirsResult",
+    "ModelLaneChangeList",
+    "ModelLaneLedgerOutboxRows",
+    "ModelLaneRegistryRootResult",
+    "ModelLaneStagedInput",
+    "ModelLaneHostStepResult",
 ]

@@ -56,7 +56,8 @@ def _start(**overrides: Any) -> ModelLaneStartEngineRequest:
 @pytest.mark.unit
 def test_every_lane_model_is_frozen_and_forbids_extra_fields() -> None:
     lane_models = [n for n in services_contracts.__all__ if n.startswith("ModelLane")]
-    assert len(lane_models) == 17
+    # 17 engine and pool models, and 12 provisioning models (OMN-22848).
+    assert len(lane_models) == 29
     for name in lane_models:
         model = getattr(services_contracts, name)
         assert issubclass(model, BaseModel)
@@ -155,3 +156,33 @@ def test_pool_snapshot_is_frozen_and_empty_by_default() -> None:
     assert snapshot.readings == () and snapshot.launching_venv_hash is None
     with pytest.raises(ValidationError):
         snapshot.__setattr__("limited_hosts", ("h",))
+
+
+@pytest.mark.unit
+def test_a_failed_provisioning_step_must_name_its_error() -> None:
+    with pytest.raises(ValidationError):
+        services_contracts.ModelLaneHostStepResult(ok=False)
+    assert services_contracts.ModelLaneHostStepResult(ok=False, error="x").error == "x"
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("name", ["", "a/b", "..\\x"])
+def test_a_staged_input_name_has_no_path_separator(name: str) -> None:
+    with pytest.raises(ValidationError):
+        services_contracts.ModelLaneStageInputRequest(
+            host=HOST, lane="l", run_id="r", name=name, content="", timeout_seconds=1.0
+        )
+
+
+@pytest.mark.unit
+def test_a_staged_input_names_its_path_or_its_error() -> None:
+    with pytest.raises(ValidationError):
+        services_contracts.ModelLaneStagedInput(staged=True)
+    with pytest.raises(ValidationError):
+        services_contracts.ModelLaneStagedInput(staged=False)
+    with pytest.raises(ValidationError):
+        services_contracts.ModelLaneShipPluginTreesResult(shipped=False)
+    with pytest.raises(ValidationError):
+        services_contracts.ModelLaneRegistryRootResult()
+    with pytest.raises(ValidationError):
+        services_contracts.ModelLaneRunDirsResult(run_dir="/r")
