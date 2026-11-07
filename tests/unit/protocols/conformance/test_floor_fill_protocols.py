@@ -254,6 +254,44 @@ def test_read_result_shapes() -> None:
 
 
 @pytest.mark.unit
+def test_read_result_carries_the_facts_a_reader_judges_a_ticket_by() -> None:
+    found = ModelFloorTicketLookupResult(
+        state="found",
+        ticket="T",
+        status="Backlog",
+        description="Floor key: floor:a:t1",
+        project="Sprint",
+        labels=("lane-created",),
+        pillar="delegation",
+        has_children=True,
+    )
+    assert found.description == "Floor key: floor:a:t1"
+    assert (found.project, found.labels, found.pillar) == (
+        "Sprint",
+        ("lane-created",),
+        "delegation",
+    )
+    assert found.has_children is True
+    bare = ModelFloorTicketLookupResult(state="found", ticket="T", status="s")
+    assert (bare.description, bare.project, bare.labels, bare.pillar) == (
+        None,
+        None,
+        (),
+        None,
+    )
+    assert bare.has_children is False
+    for bad_facts in (
+        {"state": "missing", "description": "x"},
+        {"state": "missing", "labels": ("x",)},
+        {"state": "failed", "cause": "x", "project": "p"},
+        {"state": "failed", "cause": "x", "has_children": True},
+        {"state": "failed", "cause": "x", "pillar": "p"},
+    ):
+        with pytest.raises(ValidationError):
+            ModelFloorTicketLookupResult(**bad_facts)
+
+
+@pytest.mark.unit
 def test_search_and_create_result_shapes() -> None:
     assert ModelFloorTicketSearchResult(state="answered").tickets == ()
     assert ModelFloorTicketSearchResult(state="failed", cause="x").cause == "x"

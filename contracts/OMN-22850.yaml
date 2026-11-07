@@ -1,0 +1,30 @@
+schema_version: "1.0.0"
+ticket_id: "OMN-22850"
+title: "Floor ticket store, omnibase_spi part: the read result carries the facts a reader judges a ticket by"
+summary: "Part of OMN-22850 (T11 of the stopped-line fill plan). The floor-task ticket mint must refuse a ticket that is an umbrella or that the old fill can see (a project, a delegation label or a pillar) and must check a read-back carries its Floor key line; ModelFloorTicketLookupResult carried only the status, so the effect could not judge any of that. This change adds the description, project, labels, pillar and has_children fields to the found result, empty by default and refused on a missing or failed result. The effect that reads them lives in omnimarket and is the other pull request of the ticket."
+is_seam_ticket: false
+interface_change: true
+interfaces_touched:
+  - "protocols"
+requirements:
+  - id: "req-omn22850-spi-lookup-facts"
+    statement: "ModelFloorTicketLookupResult carries the description, project, labels, pillar and has_children of a found ticket, and a missing or failed result carries none of them."
+    acceptance:
+      - id: "AC1"
+        statement: "AC1: a found read result carries a ticket's description, project, labels, pillar and children flag, defaults to none of them, and a missing or failed result that carries one is refused -- falsifier: uv run pytest tests/unit/protocols/conformance/test_floor_fill_protocols.py -k read_result"
+evidence_requirements:
+  - kind: "tests"
+    description: "The floor fill protocol conformance suites and wire shape tests."
+    command: "uv run pytest tests/unit/protocols/conformance/test_floor_fill_protocols.py tests/test_protocol_snapshot.py -q --no-cov -p no:randomly"
+emergency_bypass:
+  enabled: false
+  justification: ""
+  follow_up_ticket_id: ""
+dod_evidence:
+  - id: "dod-omn22850-spi-lookup-facts"
+    description: "AC1: the found read result carries the facts and the shape validator refuses them on a missing or failed result."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/unit/protocols/conformance/test_floor_fill_protocols.py -k read_result -q --no-cov -p no:randomly"
+    binds_ac: ["AC1"]
