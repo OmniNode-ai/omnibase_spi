@@ -7461,6 +7461,97 @@
       "return_type": "list[str]"
     }
   },
+  "ProtocolFactSource": {
+    "__eq__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__ge__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__gt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__hash__": {
+      "kind": "method",
+      "parameters": {},
+      "return_type": "<empty>"
+    },
+    "__le__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__lt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "landing_only": {
+      "kind": "method",
+      "parameters": {},
+      "return_type": "bool"
+    },
+    "read_floor": {
+      "kind": "method",
+      "parameters": {
+        "url": {
+          "type": "str"
+        }
+      },
+      "return_type": "str"
+    },
+    "read_plan": {
+      "kind": "method",
+      "parameters": {
+        "line_id": {
+          "type": "str"
+        },
+        "plans_root": {
+          "type": "str"
+        }
+      },
+      "return_type": "str"
+    },
+    "stop_refuses": {
+      "kind": "method",
+      "parameters": {
+        "task_class": {
+          "type": "str"
+        }
+      },
+      "return_type": "str | None"
+    },
+    "synchronous_execution": {
+      "kind": "attribute",
+      "type": "ClassVar[bool]"
+    }
+  },
   "ProtocolFileHandlerRegistry": {
     "__eq__": {
       "kind": "method",
@@ -7807,6 +7898,89 @@
         }
       },
       "return_type": "~T"
+    }
+  },
+  "ProtocolFloorTicketStore": {
+    "__eq__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__ge__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__gt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__hash__": {
+      "kind": "method",
+      "parameters": {},
+      "return_type": "<empty>"
+    },
+    "__le__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "__lt__": {
+      "kind": "method",
+      "parameters": {
+        "value": {
+          "type": "<empty>"
+        }
+      },
+      "return_type": "<empty>"
+    },
+    "create": {
+      "kind": "method",
+      "parameters": {
+        "request": {
+          "type": "ModelFloorTicketCreateRequest"
+        }
+      },
+      "return_type": "ModelFloorTicketCreateResult"
+    },
+    "read": {
+      "kind": "method",
+      "parameters": {
+        "request": {
+          "type": "ModelFloorTicketLookupRequest"
+        }
+      },
+      "return_type": "ModelFloorTicketLookupResult"
+    },
+    "search_by_floor_key": {
+      "kind": "method",
+      "parameters": {
+        "request": {
+          "type": "ModelFloorTicketSearchRequest"
+        }
+      },
+      "return_type": "ModelFloorTicketSearchResult"
+    },
+    "synchronous_execution": {
+      "kind": "attribute",
+      "type": "ClassVar[bool]"
     }
   },
   "ProtocolGitRemote": {

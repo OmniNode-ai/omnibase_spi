@@ -29,6 +29,14 @@ from omnibase_spi.contracts.services.contract_source_control_types import (
     ModelMergeResult,
     ModelPullRequest,
 )
+from omnibase_spi.contracts.services.model_floor_ticket_store_types import (
+    ModelFloorTicketCreateRequest,
+    ModelFloorTicketCreateResult,
+    ModelFloorTicketLookupRequest,
+    ModelFloorTicketLookupResult,
+    ModelFloorTicketSearchRequest,
+    ModelFloorTicketSearchResult,
+)
 from omnibase_spi.contracts.services.model_host_call_types import (
     ModelHostCallAnswer,
     ModelHostCallRequest,
@@ -58,6 +66,12 @@ from omnibase_spi.contracts.services.model_lane_process_runner_types import (
 )
 
 __all__ = [
+    "ModelFloorTicketCreateRequest",
+    "ModelFloorTicketCreateResult",
+    "ModelFloorTicketLookupRequest",
+    "ModelFloorTicketLookupResult",
+    "ModelFloorTicketSearchRequest",
+    "ModelFloorTicketSearchResult",
     "ModelLaneHostRef",
     "ModelLanePrepareWorktreeRequest",
     "ModelLanePrepareWorktreeResult",
