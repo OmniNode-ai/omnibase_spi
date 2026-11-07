@@ -3,7 +3,7 @@
 schema_version: "1.0.0"
 ticket_id: OMN-22895
 title: omnibase_spi's security scan runs TruffleHog and a planted secret turns it red
-summary: security-scan.yml gains a secret-scan job on a hosted runner at the action pin the reference security-scan.yml carries, with a planted-control step that reads a declared detector, so a commit adding the control token turns the job red and a head without it reads green.
+summary: secret-scan.yml gains a secret-scan job on a hosted runner at the action pin the reference security-scan.yml carries, with a planted-control step that reads a declared detector, so a commit adding the control token turns the job red and a head without it reads green.
 is_seam_ticket: false
 interface_change: false
 interfaces_touched: []
@@ -12,7 +12,7 @@ requirements:
     statement: The repository's security scan runs a secret scanner on a hosted runner with a control that can fail.
     acceptance:
       - id: AC1
-        statement: security-scan.yml runs TruffleHog on a hosted runner at the same pin as the reference security-scan workflow.
+        statement: secret-scan.yml runs TruffleHog on a hosted runner at the same pin as the reference security-scan workflow.
       - id: AC2
         statement: A planted control secret on a scratch head turns the scan red and the clean head reads green.
 evidence_requirements:

@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
 # SPDX-License-Identifier: MIT
 
-"""OMN-22895: security-scan.yml runs TruffleHog on a hosted runner, with a planted control.
+"""OMN-22895: secret-scan.yml runs TruffleHog on a hosted runner, with a planted control.
 
 The repository is public, so the secret-scan job must run on a hosted runner. Its action pin is
 the one the reference security-scan workflow of this organization carries, spelled here because
@@ -21,7 +21,7 @@ import yaml
 pytestmark = pytest.mark.unit
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-WORKFLOW = REPO_ROOT / ".github" / "workflows" / "security-scan.yml"
+WORKFLOW = REPO_ROOT / ".github" / "workflows" / "secret-scan.yml"
 CONTROL_CONFIG = REPO_ROOT / ".github" / "trufflehog-control.yml"
 
 TRUFFLEHOG_ACTION = "trufflesecurity/trufflehog"

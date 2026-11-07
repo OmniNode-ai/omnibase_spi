@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
 # SPDX-License-Identifier: MIT
 #
-# OMN-22895: the planted control of the secret scan (security-scan.yml, job secret-scan).
+# OMN-22895: the planted control of the secret scan (secret-scan.yml, job secret-scan).
 # The scan's two ordinary steps run with --only-verified, so a dummy planted secret never
 # turns them red (a dummy cannot verify). This detector gives the scan a control that can:
 # a commit that adds a token of the shape below turns the control step red, and a head whose
