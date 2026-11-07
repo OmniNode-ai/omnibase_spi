@@ -1,0 +1,30 @@
+schema_version: 1.0.0
+ticket_id: OMN-22812
+title: This repository's test splits compare protocol signatures under a named interpreter
+summary: The ubuntu-latest roll to Ubuntu 26.04 on 2026-11-06 changed which Python uv resolves for the test-parallel job, and the protocol signature snapshot compares annotation reprs, which that version renders differently. This contract carries only the criterion this repository owns; the roll's other mechanisms live in the repositories they broke.
+is_seam_ticket: false
+interface_change: false
+interfaces_touched: []
+requirements:
+  - id: req-omn22812-split-interpreter-pin
+    statement: The job that runs the protocol signature snapshot names the interpreter it compares under, rather than taking whichever one the runner image offers.
+    acceptance:
+      - id: AC1
+        statement: 'AC1: the Tests (Split) job''s uv setup names python-version 3.12, the version the rest of the workflow already names -- falsifier: uv run --frozen pytest tests/ci/test_test_split_interpreter_pin_omn22812.py -q fails on a tree where that step names no version'
+evidence_requirements:
+  - kind: tests
+    description: The split job's interpreter pin, and the protocol snapshot it exists to make comparable.
+    command: uv run --frozen pytest tests/ci/test_test_split_interpreter_pin_omn22812.py tests/test_protocol_snapshot.py -q
+emergency_bypass:
+  enabled: false
+  justification: ''
+  follow_up_ticket_id: ''
+dod_evidence:
+  - id: dod-omn22812-split-interpreter-pin
+    description: "The Tests (Split) job's uv setup names python-version 3.12 and that is the version the rest of the workflow names through actions/setup-python. Fails at the merge base, where the step names no interpreter at all, which is how uv came to resolve Python 3.14 on the Ubuntu 26.04 image and the protocol snapshot reported 125 annotation reprs as signature drift."
+    source: manual
+    checks:
+      - check_type: test_passes
+        check_value: uv run --frozen pytest tests/ci/test_test_split_interpreter_pin_omn22812.py -q --no-cov
+    binds_ac:
+      - AC1
