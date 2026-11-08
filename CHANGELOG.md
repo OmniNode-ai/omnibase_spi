@@ -1,3 +1,17 @@
+## v0.23.15 (2026-11-08)
+
+### Release
+- Cut omnibase-spi from dev at 0.23.15 by the scheduled release train.
+- 5 release-relevant commit(s) merged since v0.23.14.
+- Opened by the release train, which cuts only when the repo's declared lab-evidence premise holds for the exact candidate commit.
+
+### Included Since v0.23.14
+- feat: add 15 host provisioning ops to ProtocolLaneHostTransport (#452)
+- feat: the floor ticket read result carries the facts a reader judges a ticket by (#451)
+- feat: add floor fact source and floor ticket store protocols (#450)
+- feat: add ProtocolLaneProcessRunner and lane process wire models (#447)
+- feat: the store protocol of loaded overlays (#445)
+
 ## v0.23.14 (2026-11-05)
 
 ### Release
