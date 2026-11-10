@@ -1,0 +1,39 @@
+schema_version: "1.0.0"
+ticket_id: "OMN-23517"
+title: "The shared definitions describe the step that tidies a worker's saved files when it ends"
+summary: "Child of OMN-23425. ProtocolLaneHostTransport.retain_run_artifacts took the bare step request, which carries none of what the runner's retention step needs (the finished run's receipt, the lane's ledger copy, the days a report is kept, whether scratch trees are deleted, the lab-run directory). omnibase_spi gains ModelLaneRetainRunArtifactsRequest with those fields and the protocol, the in-memory adapter, the conformance suite and the signature snapshot follow."
+is_seam_ticket: false
+interface_change: true
+interfaces_touched:
+  - "protocols"
+requirements:
+  - id: "req-omn23517-retain-run-artifacts-request"
+    statement: "omnibase_spi must declare the request of the retain_run_artifacts provisioning step as a frozen wire model, so a transport in omnimarket can implement the step the remote-lane runner script performs."
+    acceptance:
+      - id: "AC1"
+        statement: 'AC1: omnibase_spi defines ModelLaneRetainRunArtifactsRequest (host, lane, run_id, lab_work_root, receipt_json, ledger_text, keep_days at least 1, delete, timeout_seconds) and ProtocolLaneHostTransport.retain_run_artifacts takes it and returns ModelLaneHostStepResult -- falsifier: `uv run pytest tests/unit/protocols/conformance/test_lane_retain_request.py tests/unit/protocols/conformance/test_conformance.py tests/test_protocol_snapshot.py -q --no-cov -p no:randomly`, which fails on the base where the model does not exist.'
+      - id: "AC2"
+        statement: 'AC2: the request refuses an empty lane, a keep_days below 1 and a non-positive timeout, and refuses extra fields -- falsifier: `uv run pytest tests/unit/protocols/conformance/test_lane_retain_request.py -q --no-cov -p no:randomly`, its refusal cases.'
+evidence_requirements:
+  - kind: "tests"
+    description: "The retain request tests, the lane host transport conformance checks and the protocol snapshot test."
+    command: "uv run pytest tests/unit/protocols/conformance/test_lane_retain_request.py tests/unit/protocols/conformance/test_conformance.py tests/test_protocol_snapshot.py -q --no-cov -p no:randomly"
+emergency_bypass:
+  enabled: false
+  justification: ""
+  follow_up_ticket_id: ""
+dod_evidence:
+  - id: "dod-omn23517-retain-request-shape"
+    description: "AC1: the request model exists with its fields, the protocol and the in-memory adapter take it, and the signature snapshot names it."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/unit/protocols/conformance/test_lane_retain_request.py tests/unit/protocols/conformance/test_conformance.py tests/test_protocol_snapshot.py -q --no-cov -p no:randomly"
+    binds_ac: ["AC1"]
+  - id: "dod-omn23517-retain-request-refusals"
+    description: "AC2: an empty lane, keep_days 0, a zero timeout and an extra field are each refused."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/unit/protocols/conformance/test_lane_retain_request.py -q --no-cov -p no:randomly"
+    binds_ac: ["AC2"]

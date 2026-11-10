@@ -17,6 +17,7 @@ from omnibase_spi.contracts.services import (
     ModelLanePrepareWorktreeRequest,
     ModelLaneReadEngineExitRequest,
     ModelLaneReadLogTailRequest,
+    ModelLaneRetainRunArtifactsRequest,
     ModelLaneShipPluginTreesRequest,
     ModelLaneStageInputRequest,
     ModelLaneStartEngineRequest,
@@ -196,13 +197,24 @@ def _stage_request(run_id: str, name: str) -> ModelLaneStageInputRequest:
     )
 
 
+def _retain_request(run_id: str) -> ModelLaneRetainRunArtifactsRequest:
+    return ModelLaneRetainRunArtifactsRequest(
+        host=HOST,
+        lane="lane-1",
+        run_id=run_id,
+        lab_work_root="/lab-run",
+        receipt_json="{}",
+        ledger_text="",
+        timeout_seconds=30.0,
+    )
+
+
 PLAIN_STEPS: tuple[str, ...] = (
     "mirror_ledger",
     "write_runtime_config",
     "drain_guard_spool",
     "relay_reports",
     "hold_run_dir_guard",
-    "retain_run_artifacts",
     "stop_lane_guard",
 )
 
@@ -234,6 +246,9 @@ def check_every_provisioning_step_answers_with_a_typed_result(
     )
     assert shipped.shipped is True
     assert [name for name, _ in shipped.plugin_dirs] == ["omni"]
+    retained = t.retain_run_artifacts(_retain_request("run-p"))
+    assert retained.ok is True and retained.error is None
+    assert any(name == "retention" for name, _ in retained.cells)
     for method in PLAIN_STEPS:
         result = getattr(t, method)(_step("run-p"))
         assert result.ok is True and result.error is None, method
@@ -256,6 +271,9 @@ def check_a_failed_provisioning_step_names_its_error_not_a_raise(
         h.script_step_failure(method, f"{method} failed")
         result = getattr(t, method)(_step("run-f"))
         assert result.ok is False and result.error == f"{method} failed", method
+    h.script_step_failure("retain_run_artifacts", "retain_run_artifacts failed")
+    retained = t.retain_run_artifacts(_retain_request("run-f"))
+    assert retained.ok is False and retained.error == "retain_run_artifacts failed"
     h.script_step_failure("closeout_worktrees", "no closeout")
     assert t.closeout_worktrees(_step("run-f")).error == "no closeout"
 

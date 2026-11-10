@@ -11043,7 +11043,7 @@
       "kind": "method",
       "parameters": {
         "request": {
-          "type": "ModelLaneHostStepRequest"
+          "type": "ModelLaneRetainRunArtifactsRequest"
         }
       },
       "return_type": "ModelLaneHostStepResult"
