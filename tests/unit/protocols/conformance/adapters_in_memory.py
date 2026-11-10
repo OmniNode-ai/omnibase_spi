@@ -31,6 +31,7 @@ from omnibase_spi.contracts.services import (
     ModelLaneReadLogTailRequest,
     ModelLaneReadLogTailResult,
     ModelLaneRegistryRootResult,
+    ModelLaneRetainRunArtifactsRequest,
     ModelLaneRunDirsResult,
     ModelLaneShipPluginTreesRequest,
     ModelLaneShipPluginTreesResult,
@@ -415,10 +416,14 @@ class InMemoryLaneHostTransport:
         return self._plain_step("hold_run_dir_guard", request)
 
     def retain_run_artifacts(
-        self, request: ModelLaneHostStepRequest
+        self, request: ModelLaneRetainRunArtifactsRequest
     ) -> ModelLaneHostStepResult:
-        """A scripted step."""
-        return self._plain_step("retain_run_artifacts", request)
+        """A scripted step; on success the retention line is a cell named ``retention``."""
+        self.calls.append(("retain_run_artifacts", request.run_id))
+        error = self._failing_steps.get("retain_run_artifacts")
+        if error is not None:
+            return ModelLaneHostStepResult(ok=False, error=error)
+        return ModelLaneHostStepResult(ok=True, cells=(("retention", "{}"),))
 
     def stop_lane_guard(
         self, request: ModelLaneHostStepRequest

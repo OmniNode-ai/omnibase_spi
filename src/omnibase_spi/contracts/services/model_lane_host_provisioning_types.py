@@ -234,6 +234,47 @@ class ModelLaneShipPluginTreesResult(BaseModel):
         return self
 
 
+class ModelLaneRetainRunArtifactsRequest(BaseModel):
+    """The run artifacts to retain on the host after the engine ended.
+
+    Attributes:
+        host: Host to retain on.
+        lane: Lane name.
+        run_id: Run id of this lane run.
+        lab_work_root: The host's lab-run directory the run lives under.
+        receipt_json: The finished run's receipt as JSON text.
+        ledger_text: The lane's ledger copy; may be empty.
+        keep_days: Days a managed report is kept.
+        delete: True removes the run's scratch trees after archiving.
+        timeout_seconds: Longest the call may take.
+    """
+
+    model_config = _FROZEN
+
+    host: ModelLaneHostRef = Field(..., description="Host to retain on.")
+    lane: str = Field(..., min_length=1, description="Lane name.")
+    run_id: str = Field(..., min_length=1, description="Run id of this lane run.")
+    lab_work_root: str = Field(
+        ...,
+        min_length=1,
+        description="The host's lab-run directory the run lives under.",
+    )
+    receipt_json: str = Field(
+        ..., min_length=1, description="The finished run's receipt as JSON text."
+    )
+    ledger_text: str = Field(
+        default="", description="The lane's ledger copy; may be empty."
+    )
+    keep_days: int = Field(
+        default=7, ge=1, description="Days a managed report is kept."
+    )
+    delete: bool = Field(
+        default=False,
+        description="True removes the run's scratch trees after archiving.",
+    )
+    timeout_seconds: float = Field(..., gt=0, description="Longest the call may take.")
+
+
 class ModelLaneLedgerOutboxRows(BaseModel):
     """The ledger rows the lane queued on the host because it could not write them.
 
@@ -293,6 +334,7 @@ __all__ = [
     "ModelLanePluginTree",
     "ModelLaneRegistryRootResult",
     "ModelLaneRunDirsResult",
+    "ModelLaneRetainRunArtifactsRequest",
     "ModelLaneShipPluginTreesRequest",
     "ModelLaneShipPluginTreesResult",
     "ModelLaneStageInputRequest",

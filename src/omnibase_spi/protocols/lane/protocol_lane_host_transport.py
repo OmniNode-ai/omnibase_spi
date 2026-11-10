@@ -40,6 +40,7 @@ if TYPE_CHECKING:
         ModelLaneHostStepResult,
         ModelLaneLedgerOutboxRows,
         ModelLaneRegistryRootResult,
+        ModelLaneRetainRunArtifactsRequest,
         ModelLaneRunDirsResult,
         ModelLaneShipPluginTreesRequest,
         ModelLaneShipPluginTreesResult,
@@ -180,9 +181,13 @@ class ProtocolLaneHostTransport(Protocol):
         ...
 
     def retain_run_artifacts(
-        self, request: "ModelLaneHostStepRequest"
+        self, request: "ModelLaneRetainRunArtifactsRequest"
     ) -> "ModelLaneHostStepResult":
-        """Keep the run's artifacts the retention policy keeps, and remove the rest."""
+        """Keep the run's artifacts the retention policy keeps, and remove the rest.
+
+        The result carries the retention line the host printed as a cell named
+        ``retention``.
+        """
         ...
 
     def stop_lane_guard(
