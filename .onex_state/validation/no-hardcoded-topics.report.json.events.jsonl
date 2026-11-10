@@ -1,0 +1,3 @@
+{"kind":"run","validator_name":"no-hardcoded-topics","report_ref":"70724854-57ff-496b-a976-16033b144b1a","emitted_at":"2026-11-10T10:55:47.479626+00:00","verdict":"PASS","fired_count":0,"severity":null,"rule_name":null,"location":null}
+{"kind":"run","validator_name":"no-hardcoded-topics","report_ref":"a3922057-782f-4040-8023-9d5f5495fb36","emitted_at":"2026-11-10T11:07:18.120232+00:00","verdict":"PASS","fired_count":0,"severity":null,"rule_name":null,"location":null}
+{"kind":"run","validator_name":"no-hardcoded-topics","report_ref":"f524a6c9-edb8-4f25-a2a0-0e56506e473d","emitted_at":"2026-11-10T11:07:51.781892+00:00","verdict":"PASS","fired_count":0,"severity":null,"rule_name":null,"location":null}
