@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "omnibase_spi"
-version = "0.23.15"
+version = "0.23.16"
 description = "ONEX Service Provider Interface - Protocol definitions"
 authors = [
     {name = "OmniNode.ai", email = "jonah@omninode.ai"},
@@ -24,7 +24,7 @@ classifiers = [
 dependencies = [
     "typing-extensions>=4.5.0",
     "pydantic>=2.11.7",
-    "omnibase-core>=0.47.66,<0.48.0",
+    "omnibase-core>=0.47.72,<0.48.0",
 ]
 
 [project.urls]
