@@ -1,3 +1,13 @@
+## v0.23.16 (2026-11-11)
+
+### Release
+- Cut omnibase-spi from dev at 0.23.16 by the scheduled release train.
+- 1 release-relevant commit(s) merged since v0.23.15.
+- Opened by the release train, which cuts only when the repo's declared lab-evidence premise holds for the exact candidate commit.
+
+### Included Since v0.23.15
+- feat: ModelLaneRetainRunArtifactsRequest for the retain_run_artifacts host step (#456)
+
 ## v0.23.15 (2026-11-08)
 
 ### Release
