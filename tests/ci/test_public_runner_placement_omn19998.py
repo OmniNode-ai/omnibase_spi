@@ -34,7 +34,7 @@ HOSTED_LABEL = re.compile(r"^(ubuntu|windows|macos)-[\w.\-]+$", re.IGNORECASE)
 JOB_ID = "public-runner-placement"
 JOB_NAME = "Public Runner Placement (OMN-19998)"
 HOOK_ID = "check-public-runner-placement"
-CORE_TAG = "dev-20261103173624-74e0b0f12767"
+CORE_TAG = "dev-20261111183916-a85cb916d4c1"
 
 
 def _load(path: Path) -> dict[Any, Any]:
