@@ -40,6 +40,8 @@ dod_evidence:
       - check_type: command
         check_value: "grep -c -E 'id: (declared-timeout-reaches-call|no-time-bound-truncation|no-id-from-stamp|no-fixed-tmp-atomic-write)$' .pre-commit-config.yaml"
         cwd: "${OMNI_HOME}/omnibase_spi"
+      - check_type: test_passes
+        check_value: "env PYTHONDONTWRITEBYTECODE=1 uv run pytest tests/ci/test_precommit_core_validators_omn24065.py -q --no-cov"
   - id: dod-omn24065-ac2-consumers
     description: "AC2 is met repository by repository, each in its own pull request; this repository's entry is the hooks listed in its config. Read in each consumer's pull request."
     source: manual
