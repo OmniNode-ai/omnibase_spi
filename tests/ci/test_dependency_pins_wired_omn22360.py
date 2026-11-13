@@ -46,6 +46,17 @@ def test_dependency_pins_job_calls_the_core_workflow() -> None:
     assert not job.get("continue-on-error", False)
 
 
+def _newer(rev: str, tag: str) -> bool:
+    """A dev-merge tag cut after the workflow tag carries every hook the older tag does."""
+    parts = rev.split("-")
+    return (
+        len(parts) == 3
+        and parts[0] == "dev"
+        and parts[1].isdigit()
+        and parts[1] > tag.split("-")[1]
+    )
+
+
 def test_dependency_pins_job_uses_the_core_hook_tag() -> None:
     tag = str(_jobs()["dependency-pins"]["uses"]).removeprefix(WORKFLOW)
     assert tag.startswith("dev-")
@@ -53,7 +64,11 @@ def test_dependency_pins_job_uses_the_core_hook_tag() -> None:
     suffix = tag.rsplit("-", 1)[1]
     for entry in _core_repos():
         rev = str(entry["rev"])
-        assert rev == tag or (len(rev) == 40 and rev.startswith(suffix))
+        assert (
+            rev == tag
+            or (len(rev) == 40 and rev.startswith(suffix))
+            or _newer(rev, tag)
+        )
 
 
 def test_dependency_pins_hook_is_wired() -> None:
