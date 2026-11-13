@@ -598,7 +598,7 @@ jobs:
   # omnibase_core check refuses any job whose runs-on is not a literal GitHub-hosted
   # label (this repository has no entry in the core baseline) and, against the
   # merge base, a job added back. Same core release as the
-  # check-public-runner-placement pre-commit hook (rev dev-20261103173624-74e0b0f12767).
+  # check-public-runner-placement pre-commit hook (rev dev-20261111183916-a85cb916d4c1).
   # Unconditional: no `if:`, no `needs:`; CI Summary requires its success.
   public-runner-placement:
     name: Public Runner Placement (OMN-19998)
@@ -645,7 +645,7 @@ jobs:
   # OMN-22360: the pinned core checkout owns the layer order and pin policy.
   # Keep the reusable workflow and every core hook at the same dev-merge tag.
   dependency-pins:
-    uses: OmniNode-ai/omnibase_core/.github/workflows/dependency-pins.yml@dev-20261103173624-74e0b0f12767
+    uses: OmniNode-ai/omnibase_core/.github/workflows/dependency-pins.yml@dev-20261111183916-a85cb916d4c1
     permissions:
       contents: read
 

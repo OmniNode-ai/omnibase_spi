@@ -35,7 +35,7 @@ jobs:
         with:
           repository: OmniNode-ai/omnibase_core
           # Same immutable core tag as the fleet-gate hook (OMN-22360).
-          ref: dev-20261103173624-74e0b0f12767
+          ref: dev-20261111183916-a85cb916d4c1
           path: omnibase_core
           token: ${{ secrets.OMNIBASE_CORE_TOKEN || secrets.GITHUB_TOKEN }}
 

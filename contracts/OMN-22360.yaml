@@ -119,4 +119,4 @@ dod_evidence:
     binds_ac:
       - AC8
 context:
-  core_validation_requirement: omnibase-core @ git+https://github.com/OmniNode-ai/omnibase_core@dev-20261103173624-74e0b0f12767
+  core_validation_requirement: omnibase-core @ git+https://github.com/OmniNode-ai/omnibase_core@dev-20261111183916-a85cb916d4c1
