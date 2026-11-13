@@ -7,6 +7,17 @@
 # - Use `pre-commit run --all-files` to test all hooks before pushing
 
 repos:
+  # OMN-24065: generic validators omnibase_core merged (core 2290 to 2294), run here by hook id.
+  # rev is a dev-merge tag of the core commit that carries each hook below. No baseline file and no
+  # allowlist: each hook passes over the whole tree. no-naive-timestamp is not listed because it
+  # refuses code already in the tree.
+  - repo: https://github.com/OmniNode-ai/omnibase_core
+    rev: dev-20261111183916-a85cb916d4c1
+    hooks:
+      - id: declared-timeout-reaches-call
+      - id: no-time-bound-truncation
+      - id: no-id-from-stamp
+      - id: no-fixed-tmp-atomic-write
   # OMN-20940: deployment and lab configuration never lives in a shipped
   # repository. This hook runs the same check, at the same omniclaude commit,
   # as the required CI context public-repo-hygiene / deployment-config (the
