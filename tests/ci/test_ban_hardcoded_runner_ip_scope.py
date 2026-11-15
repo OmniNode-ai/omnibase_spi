@@ -4,7 +4,7 @@
 
 `.github/workflows/ban-hardcoded-runner-ip.yml` calls a reusable gate that
 rejects the literal lab runner address. Until OMN-17993 the reusable scanned
-`.github/workflows/**` only, and omnibase_compat — a repository that ships the
+`.github/workflows/**` only, and a sibling repository that ships the
 same caller — carried the exact banned literal as a test fixture with the gate
 reporting green. Root cause 4.4 of the 2026-09-06 public-repo hygiene
 inventory: a gate scoped to a subtree reports green over the rest of the tree.

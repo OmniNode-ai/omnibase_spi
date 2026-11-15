@@ -14,13 +14,13 @@ dependency is sourced from git instead of PyPI.
 
 Forbidden first-party deps (both hyphen and underscore spellings):
 
-    omnibase-core   omnibase-spi   omnibase-compat
+    omnibase-core   omnibase-spi
 
 A ``[tool.uv.sources]`` entry for any of the above with a ``git`` / ``rev`` /
 ``branch`` / ``tag`` key is a forbidden override and fails the gate.
 
 A git source for any other package is not checked: the gate covers only the
-three PyPI-released first-party deps above.
+two PyPI-released first-party deps above.
 
 Escape hatch (Rule-10 style): a forbidden source line may carry an inline
 comment ``# raw-override-ok: <ticket>`` with a NON-EMPTY token. This exempts the
@@ -57,7 +57,6 @@ _FORBIDDEN_PACKAGES: frozenset[str] = frozenset(
     {
         "omnibase-core",
         "omnibase-spi",
-        "omnibase-compat",
     }
 )
 
@@ -205,7 +204,7 @@ def main(argv: list[str] | None = None) -> int:
         for msg in violations:
             print(f"  - {msg}", file=sys.stderr)
         print(
-            "\nomnibase-core / omnibase-spi / omnibase-compat are PyPI-published "
+            "\nomnibase-core / omnibase-spi are PyPI-published "
             "first-party deps and must NOT be pinned to git commits/branches/tags "
             "on dev/main. Resolve them from PyPI (release the dep first if the "
             "needed version is unpublished). If a temporary override is genuinely "

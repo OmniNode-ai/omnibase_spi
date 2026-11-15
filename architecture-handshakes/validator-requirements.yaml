@@ -25,7 +25,6 @@ schema_version:
 # validators will surface as gaps on the next handshake run.
 known_repos:
   - omniclaude
-  - omnibase_compat
   - omnibase_core
   - omnibase_spi
   - omnibase_infra
@@ -175,7 +174,6 @@ required_validators:
       - omnibase_core
       - omnibase_infra
       - omnibase_spi
-      - omnibase_compat
       - omnimarket
       - omnimemory
       - omniintelligence
@@ -204,7 +202,6 @@ required_validators:
       - omnibase_core
       - omnibase_infra
       - omnibase_spi
-      - omnibase_compat
       - omnimarket
       - omnimemory
       - omniintelligence
@@ -273,7 +270,6 @@ required_validators:
       - omnibase_core
       - omnibase_infra
       - omnibase_spi
-      - omnibase_compat
       - omnimarket
       - omnimemory
       - omniintelligence
@@ -302,7 +298,6 @@ required_validators:
       - omnibase_core
       - omnibase_infra
       - omnibase_spi
-      - omnibase_compat
       - omnimarket
       - omnimemory
       - omniintelligence
@@ -331,7 +326,6 @@ required_validators:
       - omnibase_core
       - omnibase_infra
       - omnibase_spi
-      - omnibase_compat
       - omnimarket
       - omnimemory
       - omniintelligence
@@ -381,7 +375,6 @@ required_validators:
       - omnibase_core
       - omnibase_infra
       - omnibase_spi
-      - omnibase_compat
       - omnimarket
       - omnimemory
       - omniintelligence
@@ -409,7 +402,6 @@ required_validators:
       - omnibase_core
       - omnibase_infra
       - omnibase_spi
-      - omnibase_compat
       - omnimarket
       - omnimemory
       - omniintelligence
