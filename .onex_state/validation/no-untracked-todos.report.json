@@ -1,0 +1,26 @@
+{
+  "report_id": "9f67b18c-7abf-495d-be43-b3248bacc511",
+  "profile": "default",
+  "overall_status": "PASS",
+  "required_validators": [],
+  "findings": [],
+  "metrics": {
+    "total": 0,
+    "pass_count": 0,
+    "warn_count": 0,
+    "fail_count": 0,
+    "error_count": 0,
+    "skip_count": 0,
+    "not_applicable_count": 0,
+    "missing_count": 0,
+    "advisory_count": 0
+  },
+  "provenance": {
+    "generated_at": "2026-11-15T20:32:57.657422+00:00",
+    "request_id": null,
+    "schema_version": "1.0",
+    "validators_run": [
+      "no-untracked-todos"
+    ]
+  }
+}

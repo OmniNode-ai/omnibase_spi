@@ -1,0 +1,2 @@
+{"kind":"run","validator_name":"no-hardcoded-topics","report_ref":"6c22d331-ff41-4c53-9c19-717059f1bd58","emitted_at":"2026-11-15T20:32:32.272711+00:00","verdict":"PASS","fired_count":0,"severity":null,"rule_name":null,"location":null}
+{"kind":"run","validator_name":"no-hardcoded-topics","report_ref":"e7f3bc8e-5889-4834-bb79-3a8fcb7079a8","emitted_at":"2026-11-15T20:32:56.537140+00:00","verdict":"PASS","fired_count":0,"severity":null,"rule_name":null,"location":null}

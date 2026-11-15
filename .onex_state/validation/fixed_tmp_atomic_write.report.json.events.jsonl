@@ -1,0 +1,2 @@
+{"kind":"run","validator_name":"fixed_tmp_atomic_write","report_ref":"f6ff68ed-fa98-4032-9f92-508c60336273","emitted_at":"2026-11-15T20:32:28.523473+00:00","verdict":"PASS","fired_count":0,"severity":null,"rule_name":null,"location":null}
+{"kind":"run","validator_name":"fixed_tmp_atomic_write","report_ref":"db202ef1-d0d7-44fc-9ec5-d0b34a3959fd","emitted_at":"2026-11-15T20:32:52.576709+00:00","verdict":"PASS","fired_count":0,"severity":null,"rule_name":null,"location":null}

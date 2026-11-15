@@ -1,0 +1,2 @@
+{"kind":"run","validator_name":"declared_timeout","report_ref":"a932adec-9226-41aa-82a6-ceca91c05432","emitted_at":"2026-11-15T20:32:27.867495+00:00","verdict":"PASS","fired_count":0,"severity":null,"rule_name":null,"location":null}
+{"kind":"run","validator_name":"declared_timeout","report_ref":"f26b8ff6-9c55-49e8-983c-cfe0fbc14ea4","emitted_at":"2026-11-15T20:32:49.635481+00:00","verdict":"PASS","fired_count":0,"severity":null,"rule_name":null,"location":null}
