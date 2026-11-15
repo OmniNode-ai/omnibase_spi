@@ -9,7 +9,7 @@ and `call-occ-companion-effect.yml` into this repo. Both carry a
     run: python3 scripts/ci/occ_manual_replay_precheck.py pr_state.json
 
 but the fan-out never carried `scripts/ci/occ_manual_replay_precheck.py` with
-them. Live shape (omnibase_compat run 33001337186, omnimemory run
+them. Live shape (a sibling repository run 33001337186, omnimemory run
 33019346585):
 
     python3: can't open file '/home/runner/work/.../occ_manual_replay_precheck.py'
