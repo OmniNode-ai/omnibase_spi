@@ -7,7 +7,7 @@ S6 cut-over: ``shadow`` and ``compare-with-occ`` are both "false", so
 The OCC minting callers and their helper are gone (see
 ``test_no_occ_callers_omn20074.py``).
 
-These tests guard the base-branch trigger, fixed dev-tag pin, caller inputs, stable
+These tests guard the ``pull_request`` trigger, fixed dev-tag pin, caller inputs, stable
 context prefix, retirement of the OCC callers and runnable contract falsifiers.
 """
 
@@ -47,19 +47,15 @@ def _job() -> dict[str, Any]:
     return job
 
 
-def test_caller_runs_from_the_base_branch_on_dev_and_main() -> None:
+def test_caller_targets_dev_and_main_base_branches_on_pull_request() -> None:
     doc = _load(CALLER)
     # YAML 1.1 reads a bare `on` as the boolean True.
     triggers = doc["on"] if "on" in doc else doc[True]
-    assert set(triggers) == {"pull_request_target"}
-    assert triggers["pull_request_target"]["branches"] == ["dev", "main"]
-    assert triggers["pull_request_target"]["types"] == [
-        "opened",
-        "synchronize",
-        "reopened",
-        "edited",
-        "ready_for_review",
-    ]
+    assert set(triggers) == {"pull_request"}
+    assert triggers["pull_request"] == {
+        "branches": ["dev", "main"],
+        "types": ["opened", "synchronize", "reopened", "edited", "ready_for_review"],
+    }
     assert doc["permissions"] == {"contents": "read", "pull-requests": "read"}
     assert set(doc["jobs"]) == {"repo-evidence"}
 

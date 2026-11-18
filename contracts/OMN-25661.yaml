@@ -1,0 +1,43 @@
+# SPDX-FileCopyrightText: 2025 OmniNode.ai Inc.
+# SPDX-License-Identifier: MIT
+schema_version: "1.0.0"
+ticket_id: OMN-25661
+title: Run the Repo Evidence Gate caller on pull_request
+summary: The caller runs on pull_request for the existing activity types and branches and reports repo-evidence / dod-verify.
+is_seam_ticket: false
+interface_change: false
+interfaces_touched: []
+requirements:
+  - id: req-repo-evidence-caller-trigger
+    statement: Run the Repo Evidence Gate caller on pull_request and verify the workflow with the focused caller tests.
+    acceptance:
+      - id: AC1
+        statement: >-
+          AC1: omnibase_spi's call-repo-evidence-gate.yml on its default branch triggers on pull_request with the same types and branches, keeps job id repo-evidence so the context name repo-evidence / dod-verify is unchanged, and no longer names pull_request_target -- falsifier: git grep -c pull_request_target origin/dev -- .github/workflows/call-repo-evidence-gate.yml returns 0 in omnibase_spi
+      - id: AC2
+        statement: >-
+          AC2: the tests that pin the old trigger in omnibase_spi are rewritten to pin the new one with the same strictness, fail on the old workflow and pass on the new one -- falsifier: the repository's caller-trigger test run with pytest red on the base workflow and green on the head, receipt in the PR body
+evidence_requirements:
+  - kind: tests
+    description: The caller tests pass against the migrated workflow.
+    command: uv run pytest tests/ci/test_repo_evidence_caller_omn20074.py -q --no-cov
+dod_evidence:
+  - id: dod-omn25661-ac1-no-former-event
+    description: The caller file exists and has zero matches for the former event name.
+    source: manual
+    binds_ac: [AC1]
+    checks:
+      - check_type: command
+        check_value: |-
+          grep_status=0
+          git grep -c -F pull_request_target -- .github/workflows/call-repo-evidence-gate.yml || grep_status=$?
+          test "$grep_status" -eq 1 && test -f .github/workflows/call-repo-evidence-gate.yml
+        cwd: .
+  - id: dod-omn25661-ac2-caller-contract-tests
+    description: The focused tests pin the pull_request trigger, its filters and the read-only caller job.
+    source: manual
+    binds_ac: [AC2]
+    checks:
+      - check_type: test_passes
+        check_value: uv run pytest tests/ci/test_repo_evidence_caller_omn20074.py -q --no-cov
+        cwd: .
