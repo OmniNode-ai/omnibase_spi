@@ -5,6 +5,13 @@ summary: "Move the OMN-14160 ticket contract from onex_change_control into omnib
 is_seam_ticket: false
 interface_change: false
 interfaces_touched: []
+context:
+  ac_binding_provenance:
+    dod-omn21294-ac1-accepted-20261117t1145z:
+      - label: AC1
+        criterion_hash: b6f2f04e6a2622a91bd9b632b7b18fa196e90264491d7f50918aa91b2c926e71
+        proposed_by: lane=dod-closeout-bind-2026-11-17T1145Z-c1
+        accepted_by: lane=dod-closeout-accept-2026-11-17T1145Z-c1
 requirements:
   - id: "req-moved-contracts-present"
     statement: "The ticket contracts moved from onex_change_control are present in this repository and validate."
@@ -38,3 +45,11 @@ dod_evidence:
       - check_type: "test_passes"
         check_value: "uv run pytest tests/ci/test_moved_contracts_present_omn21294.py -q"
     binds_ac: ["AC2"]
+  - id: "dod-omn21294-ac1-accepted-20261117t1145z"
+    description: "AC1: the moved OMN-14160 contract exists, loads as a mapping naming its own ticket and passes ModelTicketContract. Fails at the parent of omnibase_spi#402, where the contract is absent."
+    source: "manual"
+    checks:
+      - check_type: "test_passes"
+        check_value: "uv run pytest tests/ci/test_moved_contracts_present_omn21294.py::test_moved_contract_is_present_and_names_its_ticket -q -p no:cacheprovider"
+        cwd: "${OMNI_HOME}/omnibase_spi"
+    binds_ac: ["AC1"]
