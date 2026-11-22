@@ -48,3 +48,19 @@ dod_evidence:
       - check_type: "test_passes"
         check_value: "uv run pytest tests/ci -q -k repo_evidence_caller -p no:randomly --no-cov"
     binds_ac: ["AC3"]
+  - id: dod-omn21854-ac1-accepted-20261121t2345z
+    description: 'AC1: the repo-evidence job of the caller at origin/dev uses receipt-gate.yml@dev-20261101005012-ac2f26e3e5bf, passes verifier-tag dev-20261101000200-949993edf3b7 and has no verifier-version key. Proposed by lane=dod-closeout-bind-2026-11-21T2345Z-c1, accepted by lane=dod-closeout-accept-2026-11-21T2345Z-c1.'
+    source: manual
+    checks:
+      - check_type: command
+        check_value: git -C "$OMNI_HOME/omnibase_spi" fetch -q origin dev && git -C "$OMNI_HOME/omnibase_spi" show origin/dev:.github/workflows/call-repo-evidence-gate.yml | python3 -c "import sys,yaml; j=yaml.safe_load(sys.stdin)['jobs']['repo-evidence']; w=j.get('with',{}); ok=j['uses']=='OmniNode-ai/omnibase_core/.github/workflows/receipt-gate.yml@dev-20261101005012-ac2f26e3e5bf' and w.get('verifier-tag')=='dev-20261101000200-949993edf3b7' and 'verifier-version' not in w; print('uses=',j['uses']); print('verifier-tag=',w.get('verifier-tag'),'verifier-version-present=','verifier-version' in w); print('AC1', 'PASS' if ok else 'FAIL'); sys.exit(0 if ok else 1)"
+        cwd: ${OMNI_HOME}/omnibase_spi
+    binds_ac:
+      - AC1
+context:
+  ac_binding_provenance:
+    dod-omn21854-ac1-accepted-20261121t2345z:
+      - label: AC1
+        criterion_hash: 504c6c95c15094feeb47dbdbdb852e001e3ba68def0dc276e04340b20a77fac7
+        proposed_by: lane=dod-closeout-bind-2026-11-21T2345Z-c1
+        accepted_by: lane=dod-closeout-accept-2026-11-21T2345Z-c1
