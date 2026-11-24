@@ -649,6 +649,58 @@ jobs:
     permissions:
       contents: read
 
+  # OMN-26670: an omnibase_spi change is installed into its consumers (omnimarket and
+  # omnibase_infra at their dev heads) before it can merge. The logic is omnibase_core's
+  # node_consumer_install_check_effect, reached through core's reusable workflow at a
+  # dev-merge tag; the consumer list and bounds are core's overlay. A docs-only diff skips
+  # every step of the called job. The scope is read from the same diff base on every event,
+  # so a pull request and the merge queue agree on whether the check runs.
+  # Required context to add (an operator or repo-admin action, never made by a PR), as
+  # GitHub names a called job: "consumer-install-check / Consumer Install Check (OMN-26670)"
+  consumer-check-scope:
+    name: Consumer Check Scope
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      docs_only: ${{ steps.scope.outputs.docs_only }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Read whether the diff is docs-only
+        id: scope
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          MQ_BASE: ${{ github.event.merge_group.base_sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+        run: |
+          set -u
+          base="${PR_BASE:-${MQ_BASE:-${PUSH_BEFORE:-}}}"
+          if [ -z "$base" ] || ! git cat-file -e "${base}^{commit}" 2>/dev/null; then
+            echo "docs_only=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          files="$(git diff --name-only "$(git merge-base "$base" HEAD)" HEAD)"
+          if [ -n "$files" ] && ! printf '%s\n' "$files" | grep -Evq '^(docs/|.*\.(md|rst)$)'; then
+            echo "docs_only=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "docs_only=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  consumer-install-check:
+    needs: [consumer-check-scope]
+    uses: OmniNode-ai/omnibase_core/.github/workflows/consumer-install-check.yml@dev-20261124161859-5304700b6e8a
+    with:
+      candidate-distribution: omnibase-spi
+      docs-only: ${{ needs.consumer-check-scope.outputs.docs_only }}
+    permissions:
+      contents: read
+
   ci-summary:
     name: CI Summary
     runs-on: ubuntu-latest
