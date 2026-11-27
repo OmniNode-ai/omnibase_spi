@@ -17,7 +17,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[2]
 CALLER_FILES = (".pre-commit-config.yaml",)
 LAUNCHER = re.compile(r"^[^#]*\buv run onex ", re.MULTILINE)
-MODULE = "python -m omnibase_core.cli.cli_commands"
+MODULE = "omnibase_core.cli.cli_spdx"
 
 
 @pytest.mark.unit
