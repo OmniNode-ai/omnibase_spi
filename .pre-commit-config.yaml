@@ -366,7 +366,7 @@ repos:
       # SPDX Header Enforcement (reverses OMN-1360 — uniform MIT headers required)
       - id: validate-spdx-headers
         name: ONEX SPDX Header Requirement
-        entry: uv run python -m omnibase_core.cli.cli_commands spdx validate
+        entry: uv run python -m omnibase_core.nodes.node_spdx_headers_check_compute.runtime_spdx_headers_check
         language: system
         pass_filenames: true
         files: ^(src|tests|scripts|examples)/.*\.(py|sh|bash|yml|yaml|toml)$
